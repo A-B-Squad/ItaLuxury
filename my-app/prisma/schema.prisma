@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id       String @id @default(uuid())
+  fullName String
+  email    String @unique
+  password String
+  role     Role
+  Number   String
+
+  baskets          Basket[]
+  reviews          Review[]
+  favoriteProducts FavoriteProducts[]
+}
+
+model Category {
+  id            Int        @id @default(autoincrement())
+  name          String     @unique
+  parentId      Int? // ID of the parent category
+  parent        Category?  @relation("Subcategories", fields: [parentId], references: [id])
+  products      Product[] // Products associated with this category
+  subcategories Category[] @relation("Subcategories") // One-to-Many self-relation
+}
+
+model Product {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  price            Float
+  isVisible        Boolean            @default(true)
+  reference        String
+  description      String?
+  inventory        Int?
+  images           String[]
+  colorsId         Int?
+  createdAt        DateTime           @default(now())
+  categories       Category[]
+  productDiscounts ProductDiscount[]
+  baskets          Basket[]           @relation("BasketProducts")
+  reviews          Review[]
+  favoriteProducts FavoriteProducts[]
+  Colors           Colors?            @relation(fields: [colorsId], references: [id])
+  variants         Variant[] // Include variants directly in the Product model
+  attributes       ProductAttribute[] // Include attributes directly in the Product model
+}
+
+model Colors {
+  id       Int       @id @default(autoincrement())
+  color    String    @unique
+  products Product[]
+}
+
+model Discount {
+  id               Int               @id @default(autoincrement())
+  price            Float
+  discount         Int
+  newPrice         Float
+  productDiscounts ProductDiscount[]
+  dateOfStart            DateTime
+  dateOfEnd            DateTime
+}
+
+model ProductDiscount {
+  id         Int       @id @default(autoincrement())
+  Discount   Discount? @relation(fields: [discountId], references: [id])
+  discountId Int?
+  Product    Product?  @relation(fields: [productId], references: [id])
+  productId  Int?
+}
+
+model Basket {
+  id       Int        @id @default(autoincrement())
+  userId   String?
+  User     User?      @relation(fields: [userId], references: [id])
+  products Product[]  @relation("BasketProducts")
+  checkout Checkout[]
+}
+
+model Checkout {
+  id       Int     @id @default(autoincrement())
+  basketId Int?
+  Basket   Basket? @relation(fields: [basketId], references: [id])
+  status   String
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Float
+  userId    String?
+  User      User?    @relation(fields: [userId], references: [id])
+  productId Int?
+  Product   Product? @relation(fields: [productId], references: [id])
+}
+
+model FavoriteProducts {
+  id        Int      @id @default(autoincrement())
+  userId    String?
+  User      User?    @relation(fields: [userId], references: [id])
+  productId Int?
+  Product   Product? @relation(fields: [productId], references: [id])
+}
+
+model Variant {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  productId   Int?
+  product     Product? @relation(fields: [productId], references: [id])
+}
+
+model ProductAttribute {
+  id        Int      @id @default(autoincrement())
+  name      String
+  value     String
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
+}

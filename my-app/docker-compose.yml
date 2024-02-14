@@ -1,0 +1,38 @@
+version: "3.8" # Docker Compose file format version
+
+services:
+  db: # PostgreSQL database service
+    image: postgres:16 # Docker image for PostgreSQL version 16
+    environment: # Environment variables for the PostgreSQL container
+      - POSTGRES_DB=postgres # Default database name
+      - POSTGRES_USER=${DB_USER} # Username for accessing the database (variable)
+      - POSTGRES_PASSWORD=${DB_PASSWORD} # Password for accessing the database (variable)
+    ports:
+      - "${DB_PORT}:5432" # Port mapping for accessing PostgreSQL externally
+    volumes:
+      - ./data/db:/var/lib/postgresql/data # Mounting volume for persisting database data
+
+  client-dev: # Client development service
+    build: # Building the Docker image for the client application
+      context: . # Build context (current directory)
+      dockerfile: Dockerfile.dev # Dockerfile for development environment
+    ports:
+      - "3000:3000" # Port mapping for accessing the client application
+    volumes:
+      - .:/app # Mounting the current directory as a volume in the container
+      - /app/node_modules # Mounting the node_modules directory to speed up builds
+    env_file:
+      - .env # Environment file containing environment variables for the client application
+
+
+  # client-prod:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.prod
+  #   ports:
+  #     - "4000:4000"
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   env_file:
+  #     - .env
