@@ -3,6 +3,6 @@ WORKDIR /app
 COPY package*.json .
 COPY . .
 RUN npm install
-RUN prisma generate
-EXPOSE 3000
+RUN npx prisma generate
+EXPOSE 4000
 CMD [ "npm","run","dev" ]
