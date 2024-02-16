@@ -200,8 +200,8 @@ type Mutation {
 
   # Subcategory mutations
   createSubcategory(input: CreateSubcategoryInput!): Category!
-  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-  deleteCategory(id: ID!): Category!
+  updateSubcategory(id: ID!, input: UpdateCategoryInput!): Category!
+  deleteSubcategory(id: ID!): Category!
 }
 
 # Define the SignUpInput input type
