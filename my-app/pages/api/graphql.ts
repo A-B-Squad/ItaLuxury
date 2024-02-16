@@ -3,8 +3,8 @@ import { ApolloServer } from "@apollo/server"; // Apollo Server for GraphQL
 import { startServerAndCreateNextHandler } from "@as-integrations/next"; // Integration with Next.js
 import { PrismaClient } from "@prisma/client"; // Prisma ORM Client
 import { prisma } from "../../prisma/db"; // Prisma database instance
-import { typeDefs } from "@/graphql/schema"; // GraphQL schema definitions
-import { resolvers } from "@/graphql/resolvers"; // GraphQL resolvers
+import { typeDefs } from "../../graphql/schema"; // GraphQL schema definitions
+import { resolvers } from "../../graphql/resolvers"; // GraphQL resolvers
 
 // Define the context type to be used in ApolloServer
 export type Context = {

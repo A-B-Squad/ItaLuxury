@@ -1,6 +1,7 @@
 export const typeDefs = `#graphql 
-    type User {
-  
+
+type Novel {
+   
   }
 
    
@@ -11,6 +12,7 @@ export const typeDefs = `#graphql
   }
 
   type Mutation {
-  
+    
   }
+
 `;

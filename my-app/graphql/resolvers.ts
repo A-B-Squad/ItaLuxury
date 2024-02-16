@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "../pages/api/graphql";
 
 export const resolvers = {
   Query: {},

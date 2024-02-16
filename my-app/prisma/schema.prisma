@@ -19,7 +19,6 @@ model User {
   password String
   role     Role
   Number   String
-
   baskets          Basket[]
   reviews          Review[]
   favoriteProducts FavoriteProducts[]
