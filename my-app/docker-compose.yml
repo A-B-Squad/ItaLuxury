@@ -12,38 +12,35 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data # Mounting volume for persisting database data
 
-  client-dev: # Client development service
-    build: # Building the Docker image for the client application
-      context: . # Build context (current directory)
-      dockerfile: Dockerfile.dev # Dockerfile for development environment
+  client-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000" # Port mapping for accessing the client application
-    develop:
-      watch:
-        - path: ./package.json
-          action: rebuild
-        - path: ./nextconfig.mjs
-          action: rebuild
-        - path: ./package-lock.json
-          action: rebuild
-        - path: .
-          target: /app
-          action: sync
+      - "3000:3000"
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: .
+    #       target: /app
+    #       ignore:
+    #         - node_modules/
+    #     - action: rebuild
+    #       path: package.json
     volumes:
-      - .:/app # Mounting the current directory as a volume in the container
-      - /app/node_modules # Mounting the node_modules directory to speed up builds
+      - .:/app
+      - /app/node_modules
     env_file:
-      - .env # Environment file containing environment variables for the client application
+      - .env
 
-
-  # client-prod:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.prod
-  #   ports:
-  #     - "4000:4000"
-  #   volumes:
-  #     - .:/app
-  #     - /app/node_modules
-  #   env_file:
-  #     - .env
+    # client-prod:
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile.prod
+    #   ports:
+    #     - "4000:4000"
+    #   volumes:
+    #     - .:/app
+    #     - /app/node_modules
+    #   env_file:
+    #     - .env
