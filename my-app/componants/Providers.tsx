@@ -1,7 +1,6 @@
 // Importing necessary dependencies and modules
 import React from "react"; // React library
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client"; // Apollo Client for GraphQL
-// Importing the `useClient` function from a module not specified in this code snippet
 
 // Define a React component named Providers
 export const Providers = ({ children }: { children: any }) => {
