@@ -8,9 +8,11 @@ services:
       - POSTGRES_USER=${DB_USER} # Username for accessing the database (variable)
       - POSTGRES_PASSWORD=${DB_PASSWORD} # Password for accessing the database (variable)
     ports:
-      - "${DB_PORT}:5432" # Port mapping for accessing PostgreSQL externally
+      - "5432:5432" # Port mapping for accessing PostgreSQL externally
     volumes:
       - ./data/db:/var/lib/postgresql/data # Mounting volume for persisting database data
+    env_file:
+      - .env
 
   client-dev:
     build:
@@ -18,15 +20,16 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
-    # develop:
-    #   watch:
-    #     - action: sync
-    #       path: .
-    #       target: /app
-    #       ignore:
-    #         - node_modules/
-    #     - action: rebuild
-    #       path: package.json
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+
     volumes:
       - .:/app
       - /app/node_modules

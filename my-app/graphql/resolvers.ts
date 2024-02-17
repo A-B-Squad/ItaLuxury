@@ -1,11 +1,17 @@
-import { Context } from "@/pages/api/graphql";
+import { userMutations } from "./resolvers/mutations/userMutations/userMutations";
 
 export const resolvers = {
   Query: {
-    product() {
+    products() {
+
       return [];
     },
   },
 
-  // Mutation: {},
+  Mutation: {
+    ...userMutations
+}
+  
+}
+
 };
