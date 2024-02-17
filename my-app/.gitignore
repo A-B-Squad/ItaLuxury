@@ -37,3 +37,5 @@ next-env.d.ts
 
 # volume DB postgres
 /data
+#package-lock
+.package-lock.json
