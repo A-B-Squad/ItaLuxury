@@ -20,3 +20,16 @@ interface SignUpInput {
     token: string;
     user: User;
   }
+
+  interface CreateCategoryInput {
+    name: string,
+    parentId: any,
+  }
+  interface UpdateCategoryInput {
+    name: string,
+  }
+
+  interface CreateCheckoutInput {
+    basketId: string,
+    status: string,
+  }

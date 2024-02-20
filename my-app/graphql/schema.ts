@@ -45,7 +45,6 @@ type Product {
   reviews: [Review!]!
   favoriteProducts: [FavoriteProducts!]!
   colors: Colors!
-  variants: [Variant!]!
   attributes: [ProductAttribute!]!
 }
 
@@ -59,29 +58,27 @@ type Colors {
 # Define the Discount type
 type Discount {
   id: ID!
-  price: Float!
-  discount: Int!
-  newPrice: Float!
+  percentage: Int!
   productDiscounts: [ProductDiscount!]!
-  dateOfStart: String!
-  dateOfEnd: String!
 }
 
 # Define the ProductDiscount type
 type ProductDiscount {
   id: ID!
   discount: Discount!
-  discountId: ID!
   product: Product!
-  productId: ID!
+  price: Float!
+  newPrice: Float!
+  dateOfStart: String!
+  dateOfEnd: String!
 }
-
 # Define the Basket type
 type Basket {
   id: ID!
   userId: ID!
   user: User!
-  products: [Product!]!
+  productId:ID!
+  products:[Product!]!
   checkout: [Checkout!]!
 }
 
@@ -112,14 +109,6 @@ type FavoriteProducts {
   product: Product!
 }
 
-# Define the Variant type
-type Variant {
-  id: ID!
-  name: String!
-  description: String!
-  productId: ID!
-  product: Product!
-}
 
 # Define the ProductAttribute type
 type ProductAttribute {
@@ -168,8 +157,7 @@ type Query {
   # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): FavoriteProducts!
 
-  # Fetch product variants by product ID
-  productVariants(productId: ID!): Variant!
+
 
   # Fetch product colors by product ID
   productColors(productId: ID!): Colors!
@@ -191,17 +179,18 @@ type Mutation {
 
   # Basket mutations
   addToBasket(userId: ID!, productId: ID!): Basket!
-  removeProductFromBasket(userId: ID!, productId: ID!): Basket!
+  removeProductFromBasket(basketId: ID!): Basket!
 
   # Category mutations
-  createCategory(input: CreateCategoryInput!): Category!
+  createCategory(input: CreateCategoryInput!): Category
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   deleteCategory(id: ID!): Category!
 
-  # Subcategory mutations
-  createSubcategory(input: CreateSubcategoryInput!): Category!
-  updateSubcategory(id: ID!, input: UpdateCategoryInput!): Category!
-  deleteSubcategory(id: ID!): Category!
+
+  # Checkout mutations
+  createCheckout(input: CreateCheckoutInput!): Checkout!
+
+
 }
 
 # Define the SignUpInput input type
@@ -257,14 +246,11 @@ input CreateCategoryInput {
 # Define the UpdateCategoryInput input type
 input UpdateCategoryInput {
   name: String
-  parentId: ID
 }
 
-# Define the SubcategoryInput input type
-input CreateSubcategoryInput {
-  name: String!
-  parentId: ID!
+# Define the CreateCheckoutInput input type
+input CreateCheckoutInput{
+  basketId:ID!,
+  status:String!
 }
-
-
 `;
