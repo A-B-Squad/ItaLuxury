@@ -9,7 +9,6 @@ enum Role {
 type User {
   id: ID!
   fullName: String!
-  password: String!
   email: String!
   role: Role!
   number: String!
@@ -22,8 +21,8 @@ type User {
 type Category {
   id: ID!
   name: String!
-  parentId: ID!
-  parent: Category!
+  parentId: ID
+  parent: Category
   products: [Product!]!
   subcategories: [Category!]!
 }
@@ -40,7 +39,7 @@ type Product {
   images: [String!]!
   createdAt: String!
   categories: [Category!]!
-  productDiscounts: [ProductDiscount!]!
+  productDiscount: ProductDiscount
   baskets: [Basket!]!
   reviews: [Review!]!
   favoriteProducts: [FavoriteProducts!]!
@@ -52,7 +51,7 @@ type Product {
 type Colors {
   id: ID!
   color: String!
-  product: [Product!]!
+  products: [Product!]!
 }
 
 # Define the Discount type
@@ -65,8 +64,8 @@ type Discount {
 # Define the ProductDiscount type
 type ProductDiscount {
   id: ID!
-  discount: Discount!
-  product: Product!
+  discountId: ID!
+  productId: ID!
   price: Float!
   newPrice: Float!
   dateOfStart: String!
@@ -97,7 +96,7 @@ type Review {
   userId: ID!
   user: User!
   productId: ID!
-  Product: Product!
+  product: Product!
 }
 
 # Define the FavoriteProducts type
@@ -109,13 +108,12 @@ type FavoriteProducts {
   product: Product!
 }
 
-
 # Define the ProductAttribute type
 type ProductAttribute {
   id: ID!
   name: String!
   value: String!
-  productId: ID!
+  productId:ID!
   product: Product!
 }
 
@@ -173,9 +171,9 @@ type Mutation {
   signIn(input: SignInInput!): AuthPayload!
 
   # Product mutations
-  createProduct(input: CreateProductInput!): Product!
-  updateProduct(id: ID!, input: UpdateProductInput!): Product!
-  deleteProduct(id: ID!): Product!
+  createProduct(input: ProductInput!): Product!
+  updateProduct(productId: ID!, input: ProductInput!): Product!
+  deleteProduct(productId: ID!): String!
 
   # Basket mutations
   addToBasket(userId: ID!, productId: ID!): Basket!
@@ -186,12 +184,16 @@ type Mutation {
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   deleteCategory(id: ID!): Category!
 
+  # Product Discount mutations
+  deleteProductDiscount(id: ID!): String!
 
   # Checkout mutations
   createCheckout(input: CreateCheckoutInput!): Checkout!
 
 
 }
+
+
 
 # Define the SignUpInput input type
 input SignUpInput {
@@ -214,7 +216,7 @@ type AuthPayload {
 }
 
 # Define the CreateProductInput input type
-input CreateProductInput {
+input ProductInput {
   name: String!
   price: Float!
   isVisible: Boolean!
@@ -222,20 +224,18 @@ input CreateProductInput {
   description: String!
   inventory: Int!
   images: [String!]!
-  categoryIds: [ID!]!
+  categories: [ID!]!
+  colorsId: ID
+  attributeInputs: [ProductAttributeInput!]!
+  discount:[CreateProductDiscountInput]
 }
 
-# Define the UpdateProductInput input type
-input UpdateProductInput {
-  name: String
-  price: Float
-  isVisible: Boolean
-  reference: String
-  description: String
-  inventory: Int
-  images: [String!]
-  categoryIds: [ID!]
+# Define the AttributeInput input type
+input ProductAttributeInput {
+  name: String!
+  value: String!
 }
+
 
 # Define the CreateCategoryInput input type
 input CreateCategoryInput {
