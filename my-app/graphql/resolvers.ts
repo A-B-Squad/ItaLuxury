@@ -5,6 +5,7 @@ import { checkoutMutations } from "./resolvers/mutations/checkoutMutations/check
 export const resolvers = {
   Query: {
     products() {
+
       return [];
     },
   },
@@ -15,4 +16,7 @@ export const resolvers = {
     ...basketMutations,
     ...checkoutMutations
 }
+  
 }
+
+
