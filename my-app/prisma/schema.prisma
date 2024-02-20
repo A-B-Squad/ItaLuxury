@@ -25,103 +25,95 @@ model User {
 }
 
 model Category {
-  id            Int        @id @default(autoincrement())
+  id            String     @id @default(uuid())
   name          String     @unique
-  parentId      Int? // ID of the parent category
   parent        Category?  @relation("Subcategories", fields: [parentId], references: [id])
+  parentId      String? // ID of the parent category
   products      Product[] // Products associated with this category
   subcategories Category[] @relation("Subcategories") // One-to-Many self-relation
 }
 
 model Product {
-  id               Int                @id @default(autoincrement())
+  id               String             @id @default(uuid())
   name             String             @unique
   price            Float
   isVisible        Boolean            @default(true)
   reference        String
-  description      String?
-  inventory        Int?
+  description      String
+  inventory        Int
   images           String[]
   createdAt        DateTime           @default(now())
   categories       Category[]
   productDiscounts ProductDiscount[]
-  baskets          Basket[]           @relation("BasketProducts")
+  baskets          Basket[]
   reviews          Review[]
   favoriteProducts FavoriteProducts[]
-  variants         Variant[] // Include variants directly in the Product model
-  attributes       ProductAttribute[] // Include attributes directly in the Product model
-  Colors           Colors?            @relation(fields: [colorsId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  colorsId         Int?
+  attributes       ProductAttribute[]
+  Colors   Colors? @relation(fields: [colorsId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  colorsId String?
 }
 
 model Colors {
-  id       Int       @id @default(autoincrement())
+  id       String    @id @default(uuid())
   color    String    @unique
   products Product[]
 }
 
 model Discount {
-  id               Int               @id @default(autoincrement())
-  price            Float
-  discount         Int
-  newPrice         Float
+  id               String            @id @default(uuid())
+  percentage       Int
   productDiscounts ProductDiscount[]
-  dateOfStart      DateTime
-  dateOfEnd        DateTime
 }
 
 model ProductDiscount {
-  id         Int       @id @default(autoincrement())
-  Discount   Discount? @relation(fields: [discountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  discountId Int?
-  product    Product?  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  productId  Int?
+  id String @id @default(uuid())
+  Discount    Discount? @relation(fields: [discountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  discountId  String?
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId   String?
+  price       Float
+  newPrice    Float
+  dateOfStart DateTime
+  dateOfEnd   DateTime
 }
 
 model Basket {
-  id       Int        @id @default(autoincrement())
-  userId   String?
-  User     User?      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  products Product[]  @relation("BasketProducts")
-  checkout Checkout[]
+  id        String     @id @default(uuid())
+  userId    String?
+  User      User?      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  checkout  Checkout[]
+  Product   Product?   @relation(fields: [productId], references: [id])
+  productId String?
 }
 
 model Checkout {
-  id       Int     @id @default(autoincrement())
-  basketId Int?
+  id       String  @id @default(uuid())
+  basketId String?
   basket   Basket? @relation(fields: [basketId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   status   String
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   rating    Float
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  productId Int?
+  productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model FavoriteProducts {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   userId    String?
   User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  productId Int?
+  productId String?
   Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Variant {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  productId   Int?
-  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-}
-
 model ProductAttribute {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   value     String
-  productId Int?
+  productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

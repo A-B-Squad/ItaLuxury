@@ -21,5 +21,5 @@ const apolloServer = new ApolloServer<Context>({ typeDefs, resolvers });
 // Export the Next.js server handler by starting ApolloServer and integrating it with Next.js
 export default startServerAndCreateNextHandler(apolloServer, {
   // Define context function to provide context to ApolloServer
-  context: async (req, res) => ({ req, res, prisma, jwtSecret: JWT_SECRET }), // Include request, response, Prisma client, and JWT secret in context
+  context: async (req, res) => ({ req, res, prisma,jwtSecret: JWT_SECRET }), // Include request, response, Prisma client, and JWT secret in context
 });

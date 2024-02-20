@@ -1,12 +1,14 @@
 import { Context } from "@/pages/api/graphql";
 
 export const createProduct = async (
+  // Defining an async function called createProduct
   _: any,
-  { input }: { input: ProductInput },
-  { prisma }: Context
+  { input }: { input: ProductInput }, // Destructuring the second argument into input
+  { prisma }: Context // Destructuring the third argument into prisma
 ) => {
   try {
     const {
+      // Destructuring the input object
       name,
       price,
       isVisible,
@@ -14,15 +16,15 @@ export const createProduct = async (
       description,
       inventory,
       images,
-      createdAt,
-      categoryIds,
-      productDiscountIds,
-      variantInputs,
+      categories,
       attributeInputs,
       colorsId,
+      discount,
     } = input;
 
-    const createdProduct = await prisma.product.create({
+    // Creating a new product using prisma
+    const productCreate = await prisma.product.create({
+      // Defining the data for the new product
       data: {
         name,
         price,
@@ -30,23 +32,47 @@ export const createProduct = async (
         reference,
         description,
         inventory,
-        images: { set: images },
-        createdAt,
+        images,
         categories: {
-          connect: categoryIds.map((categoryId) => ({ id: categoryId })),
+          // Connecting the new product to existing categories
+          connect: categories.map((categoryId) => ({ id: categoryId })),
         },
-        productDiscounts: {
-          connect: productDiscountIds.map((discountId) => ({ id: discountId })),
+        Colors: {
+          // Connecting the new product to an existing color
+          connect: { id: colorsId },
         },
-        variants: { create: variantInputs },
-        attributes: { create: attributeInputs },
-        Colors: { connect: colorsId ? { id: colorsId } : undefined },
+        attributes: { create: attributeInputs }, // Creating new attributes for the product
+      },
+      include: {
+        attributes: true,
+        Colors: true,
+        categories: true,
+        productDiscounts: true,
       },
     });
 
-    return createdProduct;
-  } catch (error) {
+    // // If discount is provided
+    if (discount) {
+      // Looping through each discount input
+      for (const discountInput of discount) {
+        // Creating a new product discount
+        await prisma.productDiscount.create({
+          data: {
+            productId: productCreate.id, // Associating the discount with the new product
+            newPrice: discountInput.newPrice, // Setting the new price for the discount
+            price, // Associating the discount with the original price
+            dateOfEnd: new Date(discountInput.dateOfEnd).toISOString(), // Correctly format dateOfEnd
+            dateOfStart: new Date(discountInput.dateOfStart).toISOString(), // Setting the start date of the discount
+            discountId: discountInput.discountId, // Associating the discount with a discount ID
+          },
+        });
+      }
+    }
+
+    return productCreate;
+  } catch (error: any) {
+    // Handle errors gracefully
     console.error("Error creating product:", error);
-    throw new Error("Failed to create product.");
+    return `Failed to create product." ${error}.`;
   }
 };

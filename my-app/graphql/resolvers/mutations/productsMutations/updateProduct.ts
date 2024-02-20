@@ -1,19 +1,91 @@
 import { Context } from "@/pages/api/graphql";
 
-// Resolver for updating a product
 export const updateProduct = async (
   _: any,
-  { id, input }: { id: number; input: ProductUpdateInput },
+  { productId, input }: { productId: string; input: ProductInput },
   { prisma }: Context
 ) => {
   try {
-    const updatedProduct = await prisma.product.update({
-      where: { id },
-      data: input,
+    const {
+      name,
+      price,
+      isVisible,
+      reference,
+      description,
+      inventory,
+      images,
+      categories,
+      attributeInputs,
+      colorsId,
+      discount,
+    } = input;
+
+    // Updating the product with the provided data
+    const productUpdated = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        name,
+        price,
+        isVisible,
+        reference,
+        description,
+        inventory,
+        images,
+        categories: {
+          connect: categories.map((categoryId) => ({ id: categoryId })),
+        },
+        Colors: { connect: { id: colorsId } },
+        attributes: { create: attributeInputs },
+      },
+      include: {
+        attributes: true,
+        Colors: true,
+        categories: true,
+        productDiscounts: true,
+      },
     });
-    return updatedProduct;
+
+    // If discount is provided
+    if (discount) {
+      // Iterate through the discountInput array
+      for (const discountInput of discount) {
+        // Check if a discount already exists for the product
+        const existingDiscount = await prisma.productDiscount.findFirst({
+          where: { productId, price },
+        });
+
+        // If an existing discount is found, update it
+        if (existingDiscount) {
+          await prisma.productDiscount.updateMany({
+            where: { productId, price },
+            data: {
+              newPrice: discountInput.newPrice,
+              dateOfEnd: new Date(discountInput.dateOfEnd).toISOString(),
+              dateOfStart: new Date(discountInput.dateOfStart).toISOString(),
+              discountId: discountInput.discountId,
+            },
+          });
+          // If no existing discount is found, create a new one
+        } else {
+          await prisma.productDiscount.create({
+            data: {
+              productId,
+              price: productUpdated.price,
+              newPrice: discountInput.newPrice,
+              dateOfEnd: new Date(discountInput.dateOfEnd).toISOString(),
+              dateOfStart: new Date(discountInput.dateOfStart).toISOString(),
+              discountId: discountInput.discountId,
+            },
+          });
+        }
+      }
+    }
+
+    // Return the updated product
+    return productUpdated;
   } catch (error) {
     console.error("Error updating product:", error);
-    throw new Error("Failed to update product.");
+    return `Failed to update product." ${error}.`;
+
   }
 };

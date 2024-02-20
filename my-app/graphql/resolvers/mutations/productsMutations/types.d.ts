@@ -1,57 +1,34 @@
 interface Product {
-  id: number;
+  id: string;
   name: string;
-  price: number;
+  price: Float;
   isVisible: boolean;
   reference: string;
-  description?: string | null;
-  inventory?: number | null;
+  description: string ;
+  inventory: number ;
   images: string[];
-  createdAt: Date;
+  createdAt: string;
   categories: Category[];
   productDiscounts: ProductDiscount[];
   baskets: Basket[];
   reviews: Review[];
   favoriteProducts: FavoriteProducts[];
-  variants: Variant[];
   attributes: ProductAttribute[];
-  colorsId?: number | null;
+  colorsId?: string | undefined;
 }
 
 interface ProductInput {
   name: string;
-  price: number;
+  price: Float;
   isVisible: boolean;
   reference: string;
-  description?: string | null;
-  inventory?: number | null;
+  description: string;
+  inventory: number;
   images: string[];
-  createdAt: Date;
-  categoryIds: number[];
-  productDiscountIds: number[];
-  variantInputs: VariantInput[];
+  categories: string[];
   attributeInputs: ProductAttributeInput[];
-  colorsId?: number | null;
-}
-
-interface ProductUpdateInput {
-  name?: string;
-  price?: number;
-  isVisible?: boolean;
-  reference?: string;
-  description?: string | null;
-  inventory?: number | null;
-  images?: string[];
-  createdAt?: Date;
-  categoryIds?: number[];
-  productDiscountIds?: number[];
-  variantInputs?: VariantInput[];
-  attributeInputs?: ProductAttributeInput[];
-  colorsId?: number | null;
-}
-
-interface VariantInput {
-  name: string;
+  colorsId?: string | undefined;
+  discount?: ProductDiscountInput[];
 }
 
 interface ProductAttributeInput {
@@ -60,13 +37,9 @@ interface ProductAttributeInput {
 }
 
 interface ProductDiscountInput {
-  discountPercentage: number;
-  startDate: Date;
-  endDate: Date;
-}
-
-interface ProductDiscountUpdateInput {
-  discountPercentage?: number;
-  startDate?: Date;
-  endDate?: Date;
+  discountId: string;
+  productId: string;
+  dateOfStart: string;
+  dateOfEnd: string;
+  newPrice:Float
 }
