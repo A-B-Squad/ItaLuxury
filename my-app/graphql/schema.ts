@@ -58,7 +58,7 @@ type Colors {
 type Discount {
   id: ID!
   percentage: Int!
-  # productDiscounts: [ProductDiscount!]!
+  productDiscounts: [ProductDiscount!]!
 }
 
 # Define the ProductDiscount type
@@ -71,14 +71,13 @@ type ProductDiscount {
   dateOfStart: String!
   dateOfEnd: String!
 }
-
 # Define the Basket type
 type Basket {
   id: ID!
   userId: ID!
   user: User!
   productId:ID!
-  products: [Product!]!
+  products:[Product!]!
   checkout: [Checkout!]!
 }
 
@@ -156,6 +155,8 @@ type Query {
   # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): FavoriteProducts!
 
+
+
   # Fetch product colors by product ID
   productColors(productId: ID!): Colors!
 
@@ -179,12 +180,17 @@ type Mutation {
   removeProductFromBasket(basketId: ID!): Basket!
 
   # Category mutations
-  createCategory(input: CreateCategoryInput!): Category!
+  createCategory(input: CreateCategoryInput!): Category
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   deleteCategory(id: ID!): Category!
 
   # Product Discount mutations
   deleteProductDiscount(id: ID!): String!
+
+  # Checkout mutations
+  createCheckout(input: CreateCheckoutInput!): Checkout!
+
+
 }
 
 
@@ -242,14 +248,9 @@ input UpdateCategoryInput {
   name: String
 }
 
-
-
-# Define the CreateProductDiscountInput input type
-
-input CreateProductDiscountInput {
-  discountId: ID!
-  newPrice: Float!
-  dateOfStart: String!
-  dateOfEnd: String!
+# Define the CreateCheckoutInput input type
+input CreateCheckoutInput{
+  basketId:ID!,
+  status:String!
 }
 `;
