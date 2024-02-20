@@ -36,6 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 # volume DB postgres
+./data
 /data
 #package-lock
 .package-lock.json
