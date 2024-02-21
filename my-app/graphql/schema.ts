@@ -36,6 +36,7 @@ type Product {
   reference: String!
   description: String!
   inventory: Int!
+  solde: Int!
   images: [String!]!
   createdAt: String!
   categories: [Category!]!
@@ -117,6 +118,18 @@ type ProductAttribute {
   product: Product!
 }
 
+type Advertisement {
+  id:ID!
+  image: String!
+  position: String!
+}
+
+type Supplier {
+  id:ID!
+  name: String!
+  product: [Product!]!
+}
+
 # Define the Query type
 type Query {
   # Fetch all products
@@ -155,8 +168,6 @@ type Query {
   # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): FavoriteProducts!
 
-
-
   # Fetch product colors by product ID
   productColors(productId: ID!): Colors!
 
@@ -175,6 +186,10 @@ type Mutation {
   updateProduct(productId: ID!, input: ProductInput!): Product!
   deleteProduct(productId: ID!): String!
 
+  # New mutation to undo product sale
+    undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
+  # New mutation to handle product sale
+    sellProduct(productId: ID!, quantitySold: Int!): Product!
   # Basket mutations
   addToBasket(userId: ID!, productId: ID!): Basket!
   removeProductFromBasket(basketId: ID!): Basket!
