@@ -43,7 +43,7 @@ type Product {
   baskets: [Basket!]!
   reviews: [Review!]!
   favoriteProducts: [FavoriteProducts!]!
-  colors: Colors!
+  Colors: Colors!
   attributes: [ProductAttribute!]!
 }
 
@@ -75,9 +75,9 @@ type ProductDiscount {
 type Basket {
   id: ID!
   userId: ID!
-  user: User!
+  User: User!
   productId:ID!
-  products:[Product!]!
+  Product:[Product!]!
   checkout: [Checkout!]!
 }
 
@@ -141,7 +141,7 @@ type Query {
   basketByUserId(userId: ID!): Basket!
 
   # Fetch the checkout information by basket ID
-  checkoutById(basketId: ID!): Checkout!
+  checkoutById(basketId: ID!): [Checkout!]!
 
   # Fetch product discount information by product ID
   productDiscount(productId: ID!): ProductDiscount!
@@ -151,7 +151,7 @@ type Query {
 
   # Fetch product review information by product ID
   productReview(productId: ID!): Review!
-
+  
   # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): FavoriteProducts!
 
@@ -227,7 +227,7 @@ input ProductInput {
   categories: [ID!]!
   colorsId: ID
   attributeInputs: [ProductAttributeInput!]!
-  discount:[CreateProductDiscountInput]
+  #discount:[CreateProductDiscountInput]
 }
 
 # Define the AttributeInput input type
