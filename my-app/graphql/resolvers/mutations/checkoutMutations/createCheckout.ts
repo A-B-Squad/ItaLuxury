@@ -6,10 +6,10 @@ export const createCheckout = async (
   { prisma }: Context
 ) => {
     try {
-        const {basketId,status} = input
+        const {packageId,status} = input
         const checkout = await prisma.checkout.create({
             data:{
-                basketId,
+                packageId,
                 status
             }
         })

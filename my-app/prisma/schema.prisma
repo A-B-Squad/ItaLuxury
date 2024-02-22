@@ -81,20 +81,21 @@ model ProductDiscount {
 }
 
 model Basket {
-  id        String     @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String?
-  User      User?      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  checkout  Checkout[]
-  Product   Product?   @relation(fields: [productId], references: [id])
+  quantity  Int
+  User      User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Product   Product?  @relation(fields: [productId], references: [id])
   productId String?
+  package   Package[]
 }
 
 model Checkout {
   id        String   @id @default(uuid())
-  basketId  String?
-  basket    Basket?  @relation(fields: [basketId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   status    String
   createdAt DateTime @default(now())
+  Package   Package? @relation(fields: [packageId], references: [id])
+  packageId String?
 }
 
 model Review {
@@ -132,4 +133,18 @@ model Supplier {
   id      String    @id @default(uuid())
   name    String
   product Product[]
+}
+
+model Package {
+  id       String     @id @default(uuid())
+  phone    Int[]
+  addresse String
+  Basket   Basket?    @relation(fields: [basketId], references: [id])
+  basketId String?
+  chekout  Checkout[]
+}
+
+model Governorate {
+  id   String @id @default(uuid())
+  name String
 }

@@ -76,6 +76,7 @@ type ProductDiscount {
 type Basket {
   id: ID!
   userId: ID!
+  quantity:Int!
   User: User!
   productId:ID!
   Product:[Product!]!
@@ -205,6 +206,8 @@ type Mutation {
   # Checkout mutations
   createCheckout(input: CreateCheckoutInput!): Checkout!
 
+  # mutation to add product to favorites
+  addProductToFavorite(userId: ID!, productId: ID!): FavoriteProducts!
 
 }
 
@@ -242,7 +245,20 @@ input ProductInput {
   categories: [ID!]!
   colorsId: ID
   attributeInputs: [ProductAttributeInput!]!
-  #discount:[CreateProductDiscountInput]
+  discount:[CreateProductDiscountInput]
+}
+
+type Package {
+  id: String!
+  phone: [Int!]!
+  addresse: String!
+  Basket: Basket
+  chekout: [Checkout!]!
+}
+
+type Governorate {
+  id: String!
+  name: String!
 }
 
 # Define the AttributeInput input type
@@ -265,7 +281,23 @@ input UpdateCategoryInput {
 
 # Define the CreateCheckoutInput input type
 input CreateCheckoutInput{
-  basketId:ID!,
+  packageId:ID!,
   status:String!
 }
+
+# Define the AddProductToFavoriteInput input type
+input AddProductToFavoriteInput {
+  userId: ID!
+  productId: ID!
+}
+
+
+input CreateProductDiscountInput{
+  discountId: String!
+  productId: String!
+  dateOfStart: String!
+  dateOfEnd: String!
+  newPrice:Float
+}
+
 `;
