@@ -30,6 +30,11 @@ interface SignUpInput {
   }
 
   interface CreateCheckoutInput {
-    basketId: string,
+    packageId: string,
     status: string,
+  }
+
+  interface AddProductToFavoriteInput {
+    userId:string,
+    productId:string
   }
