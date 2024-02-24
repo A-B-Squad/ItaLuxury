@@ -11,7 +11,7 @@ export const updateCategory = async (
 
     // Update the category
     const updatedCategory = await prisma.category.update({
-      where: {id},
+      where: { id },
       data: {
         name
       }
@@ -20,6 +20,6 @@ export const updateCategory = async (
     return updatedCategory;
   } catch (error) {
     console.error("Error updating category:", error);
-    throw new Error("Failed to update category");
+    return new Error("Failed to update category");
   }
 };

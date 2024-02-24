@@ -17,6 +17,6 @@ export const productColors = async (_: any, { productId }: { productId: string }
         return productColors;
     } catch (error) {
         console.log(`Failed to fetch product colors for product ID ${productId}:`, error);
-        throw new Error(`Failed to fetch product colors for product ID ${productId}`);
+        return new Error(`Failed to fetch product colors for product ID ${productId}`);
     }
 };

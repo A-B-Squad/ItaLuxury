@@ -4,8 +4,8 @@ interface Product {
   price: Float;
   isVisible: boolean;
   reference: string;
-  description: string ;
-  inventory: number ;
+  description: string;
+  inventory: number;
   images: string[];
   createdAt: string;
   categories: Category[];
@@ -41,5 +41,10 @@ interface ProductDiscountInput {
   productId: string;
   dateOfStart: string;
   dateOfEnd: string;
-  newPrice:Float
+  newPrice: Float;
+}
+
+interface AddProductToFavoriteInput {
+  userId: string;
+  productId: string;
 }

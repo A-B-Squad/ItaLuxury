@@ -17,12 +17,12 @@ export const categoryByName = async (
     });
 
     if (!category) {
-      throw new Error(`Category with name ${categoryName} not found`);
+      return new Error(`Category with name ${categoryName} not found`);
     }
 
     return category;
   } catch (error) {
     console.log(`Failed to fetch category with name ${categoryName}`, error);
-    throw new Error(`Failed to fetch category with name ${categoryName}`);
+    return new Error(`Failed to fetch category with name ${categoryName}`);
   }
 };

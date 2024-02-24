@@ -4,8 +4,8 @@ export const sellProduct = async (
   _: any,
   {
     productId,
-    quantityReturned,
-  }: { productId: string; quantityReturned: number },
+    quantitySold,
+  }: { productId: string; quantitySold: number },
   { prisma }: Context
 ) => {
   try {
@@ -13,25 +13,29 @@ export const sellProduct = async (
       where: { id: productId },
     });
 
+
     if (!product) {
-      throw new Error("Product not found");
+      return new Error(`Product with ID ${productId} not found`)
     }
 
-    if (product.inventory < quantityReturned) {
-      throw new Error("Insufficient inventory");
+    // Check if there is enough quantity to sell
+    if (product.inventory <= quantitySold) {
+      return new Error(`Insufficient quantity available for product ${product.name}`)
     }
 
     // Update the product's inventory and solde fields
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
       data: {
-        inventory: { decrement: quantityReturned },
-        solde: { increment: quantityReturned },
+        inventory: { decrement: quantitySold },
+        solde: { increment: quantitySold },
       },
     });
 
+    console.log(updatedProduct);
+
     return updatedProduct;
   } catch (error) {
-    throw new Error(`Error selling product: ${error}`);
+    return `Error selling product: ${error}`
   }
 };

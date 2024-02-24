@@ -17,12 +17,12 @@ export const subcategoriesByParentId = async (
     });
 
     if (subcategories.length === 0) {
-      throw new Error(`Category with ID ${parentId} has no subcategories`);
+      return new Error(`Category with ID ${parentId} has no subcategories`);
     }
 
     return subcategories;
   } catch (error) {
     console.log('Failed to fetch subcategories', error);
-    throw new Error('Failed to fetch subcategories');
+    return new Error('Failed to fetch subcategories');
   }
 };

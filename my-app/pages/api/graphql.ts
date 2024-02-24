@@ -9,6 +9,8 @@ import { resolvers } from "../../graphql/resolvers"; // GraphQL resolvers
 // Define the JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || "JWT secret";
 
+
+
 // Define the context type which includes the Prisma client
 export type Context = {
   prisma: PrismaClient;

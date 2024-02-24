@@ -2,14 +2,16 @@ import { Context } from "@/pages/api/graphql";
 
 export const addToBasket = async (
   _: any,
-  { userId, productId }: { userId: string; productId: string },
+  { input }: { input: addToBasketInput },
   { prisma }: Context
 ) => {
   try {
+    const { userId, productId, quantity } = input;
     const basket = prisma.basket.create({
       data: {
         userId,
         productId,
+        quantity,
       },
       include: {
         Product: true,
@@ -19,6 +21,6 @@ export const addToBasket = async (
     return basket;
   } catch (error) {
     console.error("Failed to add product to basket:", error);
-    throw new Error("Failed to add product to basket");
+    return new Error("Failed to add product to basket");
   }
 };

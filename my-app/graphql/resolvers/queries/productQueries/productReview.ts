@@ -12,6 +12,6 @@ export const productReview = async (_: any, { productId }: { productId: string }
         return productReview;
     } catch (error) {
         console.log(`Failed to fetch product review for product ID ${productId}:`, error);
-        throw new Error(`Failed to fetch product review for product ID ${productId}`);
+        return new Error(`Failed to fetch product review for product ID ${productId}`);
     }
 };

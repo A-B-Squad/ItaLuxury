@@ -14,7 +14,7 @@ export const undoSellProduct = async (
     });
 
     if (!product) {
-      throw new Error("Product not found");
+      return new Error("Product not found");
     }
 
     // Update the product's inventory and solde fields
@@ -28,6 +28,6 @@ export const undoSellProduct = async (
 
     return updatedProduct;
   } catch (error) {
-    throw new Error(`Error undoing product sale: ${error}`);
+    return new Error(`Error undoing product sale: ${error}`);
   }
 };

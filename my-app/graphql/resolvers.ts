@@ -6,13 +6,22 @@ import { checkoutMutations } from "./resolvers/mutations/checkoutMutations/check
 import { productQueries } from "./resolvers/queries/productQueries/productQueries";
 import { categoryQueries } from "./resolvers/queries/categoryQueries/categoryQueries";
 import { basketQueries } from "./resolvers/queries/basketQueries/basketQueries";
-import { checkoutQueries } from "./resolvers/queries/checkoutQueries/checkoutQueries";
+import { governorateQueries } from './resolvers/queries/governorateQueries/governorateQueries';
+import { packageMutations } from "./resolvers/mutations/packagesMutations/packagesMutations";
+import { packageQueries } from "./resolvers/queries/packageQueries/packageQueries";
+import { CompanyInfoQueries } from "./resolvers/queries/companyInfoQueries.ts/companyInfoQueries";
+import { companyMutations } from "./resolvers/mutations/companyMutations/companyMutations";
+import { advertismentQueries } from "./resolvers/queries/advertisementQueries/advertismentQueries";
+import { adminMutations } from "./resolvers/mutations/adminMutations/adminMutations";
 export const resolvers = {
   Query: {
     ...productQueries,
     ...categoryQueries,
     ...basketQueries,
-    ...checkoutQueries
+    ...governorateQueries,
+    ...packageQueries,
+    ...CompanyInfoQueries,
+    ...advertismentQueries
   },
 
   Mutation: {
@@ -21,5 +30,8 @@ export const resolvers = {
     ...categoryMutations,
     ...basketMutations,
     ...checkoutMutations,
+    ...packageMutations,
+    ...companyMutations, 
+    ...adminMutations
   },
 };
