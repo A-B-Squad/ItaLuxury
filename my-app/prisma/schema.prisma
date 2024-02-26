@@ -59,6 +59,7 @@ model Product {
 model Colors {
   id       String    @id @default(uuid())
   color    String    @unique
+  hex      String
   products Product[]
 }
 

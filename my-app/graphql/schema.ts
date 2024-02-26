@@ -52,6 +52,7 @@ type Product {
 type Colors {
   id: ID!
   color: String!
+  hex: String!
   products: [Product!]!
 }
 
