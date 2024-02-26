@@ -10,11 +10,16 @@ export const updatePackage = async (
 
     const findPackege = await prisma.package.findFirst({
       where: { id: packageId }, include: {
-       Checkout:true
+        Checkout: {
+          select: {
+            productIds: true
+          }
+        }
       }
     })
+    
     // Create the package with the provided data
-console.log(findPackege);
+    console.log(findPackege);
 
     if (status === "BACK") {
 

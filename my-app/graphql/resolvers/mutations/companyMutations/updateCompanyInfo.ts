@@ -21,6 +21,6 @@ export const updateCompanyInfo = async (
     } catch (error) {
         // Handle errors
         console.error("Error updating company info:", error);
-        return new Error("Failed to update company info");
+        return new Error(`Failed to update company info ${error}`);
     }
 };
