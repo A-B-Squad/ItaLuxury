@@ -16,6 +16,6 @@ export const products = async (_: any, __: any, { prisma }: Context) => {
         return products;
     } catch (error) {
         console.log('Failed to fetch products', error);
-        throw new Error('Failed to fetch products');
+        return new Error('Failed to fetch products');
     }
 };

@@ -16,6 +16,6 @@ export const favoriteProducts = async (_: any, { userId }: { userId: string }, {
         return userFavoriteProducts;
     } catch (error) {
         console.log(`Failed to fetch favorite products for user ID ${userId}:`, error);
-        throw new Error(`Failed to fetch favorite products for user ID ${userId}`);
+        return new Error(`Failed to fetch favorite products for user ID ${userId}`);
     }
 };

@@ -61,8 +61,8 @@ export const createProduct = async (
             productId: productCreate.id, // Associating the discount with the new product
             newPrice: discountInput.newPrice, // Setting the new price for the discount
             price, // Associating the discount with the original price
-            dateOfEnd: new Date(discountInput.dateOfEnd).toISOString(), // Correctly format dateOfEnd
-            dateOfStart: new Date(discountInput.dateOfStart).toISOString(), // Setting the start date of the discount
+            dateOfEnd: new Date(discountInput.dateOfEnd), // Correctly format dateOfEnd
+            dateOfStart: new Date(discountInput.dateOfStart), // Setting the start date of the discount
             discountId: discountInput.discountId, // Associating the discount with a discount ID
           },
         });
@@ -73,6 +73,7 @@ export const createProduct = async (
   } catch (error: any) {
     // Handle errors gracefully
     console.error("Error creating product:", error);
+    return error;
     return `Failed to create product." ${error}.`;
   }
 };

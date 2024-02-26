@@ -8,12 +8,12 @@ export const deleteProduct = async (
 ) => {
   try {
     await prisma.product.delete({
-      where: { id:productId },
+      where: { id: productId },
     });
     return "Product deleted";
   } catch (error) {
     console.error("Error deleting product:", error);
     return error;
-    throw new Error("Failed to delete product.");
+    return new Error("Failed to delete product.");
   }
 };
