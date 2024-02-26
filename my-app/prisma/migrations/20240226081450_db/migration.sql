@@ -1,5 +1,8 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR');
+
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'DELIVERED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -43,6 +46,7 @@ CREATE TABLE "Product" (
 CREATE TABLE "Colors" (
     "id" TEXT NOT NULL,
     "color" TEXT NOT NULL,
+    "Hex" TEXT NOT NULL,
 
     CONSTRAINT "Colors_pkey" PRIMARY KEY ("id")
 );
@@ -72,7 +76,8 @@ CREATE TABLE "ProductDiscount" (
 CREATE TABLE "Basket" (
     "id" TEXT NOT NULL,
     "userId" TEXT,
-    "productId" TEXT,
+    "quantity" INTEGER NOT NULL,
+    "productId" TEXT NOT NULL,
 
     CONSTRAINT "Basket_pkey" PRIMARY KEY ("id")
 );
@@ -80,10 +85,25 @@ CREATE TABLE "Basket" (
 -- CreateTable
 CREATE TABLE "Checkout" (
     "id" TEXT NOT NULL,
-    "basketId" TEXT,
-    "status" TEXT NOT NULL,
+    "userId" TEXT,
+    "governorateId" TEXT,
+    "productIds" TEXT[],
+    "phone" INTEGER[],
+    "address" TEXT NOT NULL,
+    "total" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Checkout_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Package" (
+    "id" TEXT NOT NULL,
+    "checkoutId" TEXT,
+    "status" "Status" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Package_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -118,10 +138,28 @@ CREATE TABLE "ProductAttribute" (
 -- CreateTable
 CREATE TABLE "Advertisement" (
     "id" TEXT NOT NULL,
-    "image" TEXT NOT NULL,
+    "images" TEXT[],
     "position" TEXT NOT NULL,
 
     CONSTRAINT "Advertisement_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Governorate" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Governorate_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CompanyInfo" (
+    "id" TEXT NOT NULL,
+    "phone" INTEGER[],
+    "deliveringPrice" INTEGER NOT NULL,
+    "logo" TEXT NOT NULL,
+
+    CONSTRAINT "CompanyInfo_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -143,13 +181,19 @@ CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");
 CREATE UNIQUE INDEX "Colors_color_key" ON "Colors"("color");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "ProductDiscount_productId_key" ON "ProductDiscount"("productId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Basket_productId_key" ON "Basket"("productId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_CategoryToProduct_AB_unique" ON "_CategoryToProduct"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_CategoryToProduct_B_index" ON "_CategoryToProduct"("B");
 
 -- AddForeignKey
-ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -164,10 +208,16 @@ ALTER TABLE "ProductDiscount" ADD CONSTRAINT "ProductDiscount_productId_fkey" FO
 ALTER TABLE "Basket" ADD CONSTRAINT "Basket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Basket" ADD CONSTRAINT "Basket_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_basketId_fkey" FOREIGN KEY ("basketId") REFERENCES "Basket"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_governorateId_fkey" FOREIGN KEY ("governorateId") REFERENCES "Governorate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Package" ADD CONSTRAINT "Package_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

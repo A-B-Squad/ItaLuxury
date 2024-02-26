@@ -9,6 +9,6 @@ export const productsDiscounts = async (_: any, __: any, { prisma }: Context) =>
         return allProductDiscounts;
     } catch (error) {
         console.log('Failed to fetch product discounts:', error);
-        throw new Error('Failed to fetch product discounts');
+        return new Error('Failed to fetch product discounts');
     }
 };

@@ -11,12 +11,12 @@ export const productDiscount = async (_: any, { productId }: { productId: string
         });
 
         if (!productDiscount) {
-            throw new Error(`Product discount not found for product ID ${productId}`);
+            return new Error(`Product discount not found for product ID ${productId}`);
         }
 
         return productDiscount;
     } catch (error) {
         console.log(`Failed to fetch product discount for product ID ${productId}`, error);
-        throw new Error(`Failed to fetch product discount for product ID ${productId}`);
+        return new Error(`Failed to fetch product discount for product ID ${productId}`);
     }
 };

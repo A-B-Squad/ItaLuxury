@@ -31,6 +31,6 @@ export const deleteCategory = async (
     return deletedCategory;
   } catch (error) {
     console.error("Error deleting category:", error);
-    throw new Error("Failed to delete category");
+    return new Error("Failed to delete category");
   }
 };

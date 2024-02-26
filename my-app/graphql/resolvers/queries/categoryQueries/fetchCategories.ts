@@ -1,6 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 
-export const categories = async (_: any, __: any, { prisma }: Context) => {    
+export const categories = async (_: any, __: any, { prisma }: Context) => {
     try {
         const categories = await prisma.category.findMany({
             include: {
@@ -11,6 +11,6 @@ export const categories = async (_: any, __: any, { prisma }: Context) => {
         return categories;
     } catch (error) {
         console.log('Failed to fetch categories', error);
-        throw new Error('Failed to fetch categories');
+        return new Error('Failed to fetch categories');
     }
 };

@@ -10,6 +10,21 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  MODERATOR
+}
+
+enum Status {
+  PENDING
+  BACK
+  EXCHANGE
+  DELIVERED
+  PROCESSING
+}
+
+enum Cause {
+  BROKEN
+  COLOR
+  CANCLED
 }
 
 model User {
@@ -22,44 +37,45 @@ model User {
   baskets          Basket[]
   reviews          Review[]
   favoriteProducts FavoriteProducts[]
+  checkout         Checkout[]
 }
 
 model Category {
   id            String     @id @default(uuid())
   name          String     @unique
-  parent        Category?  @relation("Subcategories", fields: [parentId], references: [id])
+  parent        Category?  @relation("Subcategories", fields: [parentId], references: [id], onDelete: Cascade)
   parentId      String? // ID of the parent category
   products      Product[] // Products associated with this category
   subcategories Category[] @relation("Subcategories") // One-to-Many self-relation
 }
 
 model Product {
-  id               String             @id @default(uuid())
-  name             String             @unique
-  price            Float
-  isVisible        Boolean            @default(true)
-  reference        String
-  description      String
-  inventory        Int
-  solde            Int                @default(0)
-  images           String[]
-  createdAt        DateTime           @default(now())
-  categories       Category[]
-  productDiscounts ProductDiscount[]
-  baskets          Basket[]
-  reviews          Review[]
-  favoriteProducts FavoriteProducts[]
-  attributes       ProductAttribute[]
-  Colors           Colors?            @relation(fields: [colorsId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  colorsId         String?
-  Supplier         Supplier?          @relation(fields: [supplierId], references: [id])
-  supplierId       String?
+  id                String              @id @default(uuid())
+  name              String              @unique
+  price             Float
+  isVisible         Boolean             @default(true)
+  reference         String
+  description       String
+  inventory         Int
+  solde             Int                 @default(0)
+  images            String[]
+  createdAt         DateTime            @default(now())
+  categories        Category[]
+  productDiscounts  ProductDiscount[]
+  baskets           Basket[]
+  reviews           Review[]
+  favoriteProducts  FavoriteProducts[]
+  attributes        ProductAttribute[]
+  backOrExchange    BackOrExchange[]
+  Colors            Colors?             @relation(fields: [colorsId], references: [id], onDelete: Cascade)
+  colorsId          String?
+  ProductInCheckout ProductInCheckout[]
 }
 
 model Colors {
   id       String    @id @default(uuid())
   color    String    @unique
-  hex      String
+  Hex      String
   products Product[]
 }
 
@@ -74,7 +90,7 @@ model ProductDiscount {
   Discount    Discount? @relation(fields: [discountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   discountId  String?
   product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  productId   String?
+  productId   String?   @unique
   price       Float
   newPrice    Float
   dateOfStart DateTime
@@ -82,21 +98,52 @@ model ProductDiscount {
 }
 
 model Basket {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
+  User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    String?
   quantity  Int
-  User      User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Product   Product?  @relation(fields: [productId], references: [id])
-  productId String?
-  package   Package[]
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId String   @unique
 }
 
 model Checkout {
-  id        String   @id @default(uuid())
-  status    String
-  createdAt DateTime @default(now())
-  Package   Package? @relation(fields: [packageId], references: [id])
-  packageId String?
+  id            String              @id @default(uuid())
+  User          User?               @relation(fields: [userId], references: [id])
+  userId        String?
+  Governorate   Governorate?        @relation(fields: [governorateId], references: [id])
+  governorateId String?
+  products      ProductInCheckout[]
+  phone         Int[]
+  address       String
+  package       Package[]
+  total         Int
+  createdAt     DateTime            @default(now())
+}
+
+model ProductInCheckout {
+  id              String   @id @default(uuid())
+  checkout        Checkout @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  checkoutId      String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId       String
+  productQuantity Int
+}
+
+model Package {
+  id         String    @id @default(uuid())
+  Checkout   Checkout? @relation(fields: [checkoutId], references: [id])
+  checkoutId String?
+  status     Status
+  createdAt  DateTime  @default(now())
+}
+
+model BackOrExchange {
+  id          String   @id @default(uuid())
+  cause       Cause
+  createdAt   DateTime @default(now())
+  description String?
+  Product     Product? @relation(fields: [productId], references: [id])
+  productId   String
 }
 
 model Review {
@@ -125,27 +172,20 @@ model ProductAttribute {
 }
 
 model Advertisement {
-  id       String @id @default(uuid())
-  image    String
+  id       String   @id @default(uuid())
+  images   String[]
   position String
 }
 
-model Supplier {
-  id      String    @id @default(uuid())
-  name    String
-  product Product[]
-}
-
-model Package {
-  id       String     @id @default(uuid())
-  phone    Int[]
-  addresse String
-  Basket   Basket?    @relation(fields: [basketId], references: [id])
-  basketId String?
-  chekout  Checkout[]
-}
-
 model Governorate {
-  id   String @id @default(uuid())
-  name String
+  id       String     @id @default(uuid())
+  name     String
+  checkout Checkout[]
+}
+
+model CompanyInfo {
+  id              String @id @default(uuid())
+  phone           Int[]
+  deliveringPrice Int
+  logo            String
 }

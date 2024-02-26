@@ -11,19 +11,21 @@ export const basketByUserId = async (
         userId: userId
       },
       include: {
-        User: true, // Include user related to basket
-        Product: true, // Include products related to basket
-        checkout: true // Include checkout related to basket
+        User: true,
+        Product: true,
+        
       }
     });
 
     if (!basket) {
-      throw new Error(`Basket for user with ID ${userId} not found`);
+      return new Error(`Basket for user with ID ${userId} not found`);
     }
+
+
 
     return basket;
   } catch (error) {
     console.log(`Failed to fetch basket for user with ID ${userId}`, error);
-    throw new Error(`Failed to fetch basket for user with ID ${userId}`);
+    return new Error(`Failed to fetch basket for user with ID ${userId}`);
   }
 };

@@ -23,6 +23,6 @@ export const productsByCategory = async (_: any, { categoryName }: { categoryNam
         return products;
     } catch (error) {
         console.log(`Failed to fetch products for category ${categoryName}`, error);
-        throw new Error(`Failed to fetch products for category ${categoryName}`);
+        return new Error(`Failed to fetch products for category ${categoryName}`);
     }
 };
