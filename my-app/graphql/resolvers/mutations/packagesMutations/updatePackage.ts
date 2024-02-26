@@ -6,39 +6,80 @@ export const updatePackage = async (
   { prisma }: Context
 ) => {
   try {
-    const { packageId, status } = input;
+    const { packageId, status, cause, description } = input;
 
-    const findPackege = await prisma.package.findFirst({
-      where: { id: packageId }, include: {
-       Checkout:true
+    const findPackage = await prisma.package.findFirst({
+      where: { id: packageId },
+      include: {
+        Checkout: {
+          include: {
+            products: true,
+          },
+        },
+      },
+    });
+
+    if (status === "BACK" && cause !== "BROKEN") {
+      const products = findPackage?.Checkout?.products;
+
+      if (products && products.length > 0) {
+        for (const product of products) {
+          await prisma.product.update({
+            where: {
+              id: product.productId,
+            },
+            data: {
+              solde: {
+                decrement: product.productQuantity, // Decrement by the quantity of the product
+              },
+              inventory: {
+                increment: product.productQuantity, // Increment by the quantity of the product
+              },
+            },
+          });
+        }
       }
-    })
-    // Create the package with the provided data
-console.log(findPackege);
 
-    if (status === "BACK") {
+    }
+
+    if(status==="EXCHANGE" && cause==="BROKEN"){
+      const products = findPackage?.Checkout?.products;
+
+      if (products && products.length > 0) {
+        for (const product of products) {
+          await prisma.product.update({
+            where: {
+              id: product.productId,
+            },
+            data: {
+              solde: {
+                decrement: product.productQuantity, // Decrement by the quantity of the product
+              },
+              inventory: {
+                increment: product.productQuantity, // Increment by the quantity of the product
+              },
+            },
+          });
+        }
+      }
 
     }
 
     const newPackage = await prisma.package.update({
       where: {
-        id: packageId
+        id: packageId,
       },
       data: {
         id: packageId,
-        status
+        status,
       },
       include: {
-        Checkout: true
-      }
+        Checkout: true,
+      },
     });
     return newPackage;
-
-
-
   } catch (error) {
-    // Handle errors
-    console.error("Error creating package:", error);
-    return new Error("Failed to create package");
+    console.error("Error updating package:", error);
+    return new Error("Failed to update package");
   }
 };

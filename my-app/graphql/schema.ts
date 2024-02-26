@@ -6,11 +6,20 @@ enum Role {
   MODERATOR
 }
 
-enum Status{
+# Define the status enumeration
+enum Status {
   PENDING
   BACK
   EXCHANGE
+  PROCESSING
   DELIVERED
+}
+
+# Define the cause enumeration
+enum Cause {
+  BROKEN
+  COLOR
+  CANCLED
 }
 
 # Define the User type
@@ -91,90 +100,121 @@ type ProductDiscount {
 type Basket {
   id: ID!
   userId: ID!
-  quantity:Int!
+  quantity: Int!
   User: User!
-  productId:ID!
-  Product:Product!
+  productId: ID!
+  Product: Product!
   checkout: [Checkout!]!
 }
 
 # Define the Checkout type
 type Checkout {
   id: ID!
-  userId:ID!
-  governorateId:ID!
-  productIds:[ID!]!
-  phone:[Int!]!
-  address:String!
-  total:Int!
-  createdAt:String!
+  userId: ID!
+  governorateId: ID!
+  products: [ProductInCheckout]!
+  phone: [Int!]!
+  address: String!
+  total: Int!
+  createdAt: String!
+}
+
+# Define the ProductInCheckout type
+type ProductInCheckout {
+  id: ID!
+  checkoutId: ID!
+  productId: ID!
+  productQuantity: Int!
+}
+
+# Define the input type for ProductInCheckout
+input ProductInCheckoutInput {
+  id: ID!
+  checkoutId: ID!
+  productId: ID!
+  productQuantity: Int!
+}
+
+# Define the type for a product in a basket
+type productInBasket {
+  productId: ID!
+  prductQuantity: Int!
 }
 
 # Define the Package type
-type Package{
-    id:ID!
-    checkoutId: ID!
-    status:Status!
-    createdAt: String!
-    Checkout:Checkout!
+type Package {
+  id: ID!
+  checkoutId: ID!
+  status: Status!
+  createdAt: String!
+  Checkout: Checkout!
+}
+
+# Define the BackOrExchange type
+type BackOrExchange {
+  id: ID!
+  cause: Cause!
+  createdAt: String!
+  description: String!
+  Product: Product!
+  productId: String!
 }
 
 # Define the Review type
 type Review {
-    id: ID!
-    rating: Float!
-    userId: ID!
-    user: User!
-    productId: ID!
-    product: Product!
+  id: ID!
+  rating: Float!
+  userId: ID!
+  user: User!
+  productId: ID!
+  product: Product!
 }
 
 # Define the FavoriteProducts type
 type FavoriteProducts {
-    id: ID!
-    userId: ID!
-    user: User!
-    productId: ID!
-    product: Product!
+  id: ID!
+  userId: ID!
+  user: User!
+  productId: ID!
+  product: Product!
 }
 
 # Define the ProductAttribute type
 type ProductAttribute {
-    id: ID!
-    name: String!
-    value: String!
-    productId:ID!
-    product: Product!
+  id: ID!
+  name: String!
+  value: String!
+  productId: ID!
+  product: Product!
 }
 
+# Define the Advertisement type
 type Advertisement {
-    id:ID!
-    images: [String!]!
-    position: String!
-}
-type Governorate{
-  id:ID!
-  name:String!
-}
-type CompanyInfo{
-    id:ID!
-    phone:[Int!]!
-    deliveringPrice:Int
-    logo:String!
+  id: ID!
+  images: [String!]!
+  position: String!
 }
 
+# Define the Governorate type
+type Governorate {
+  id: ID!
+  name: String!
+}
 
+# Define the CompanyInfo type
+type CompanyInfo {
+  id: ID!
+  phone: [Int!]!
+  deliveringPrice: Int
+  logo: String!
+}
+
+# Define the Moderator type
 type Moderator {
   id: ID!
   fullName: String!
   email: String!
   number: String!
-}
-type CompanyInfo {
-  id: ID!
-  phone:[Int!]!
-  deliveringPrice:Int!
-  logo:String!
 }
 
 # Define the Query type
@@ -216,177 +256,171 @@ type Query {
   productColors(productId: ID!): Colors!
 
   # Fetch All Governorate
-  allGovernorate:[Governorate!]!
+  allGovernorate: [Governorate!]!
 
   # Fetch Advertisement By Type 
-  advertismentByPosition(position:String!):Advertisement!
+  advertismentByPosition(position: String!): Advertisement!
 
   # Fetch Package By ID
-  packageById(packageId:ID!) :Package!
+  packageById(packageId: ID!): Package!
 
   # Fetch All Package 
-  getAllPackages:[Package!]
+  getAllPackages: [Package!]
 
   # Fetch Company Info 
-  companyInfo:CompanyInfo!
+  companyInfo: CompanyInfo!
 }
 
 # Define the Mutation type
 type Mutation {
   # User mutations
-    signUp(input: SignUpInput!): AuthPayload!
-    signIn(input: SignInInput!): AuthPayload!
+  signUp(input: SignUpInput!): AuthPayload!
+  signIn(input: SignInInput!): AuthPayload!
 
   # Fetch Refresh Token
-  refreshToken(Token:String!):String!
+  refreshToken(Token: String!): String!
   
   # Product mutations
-    createProduct(input: ProductInput!): Product!
-    updateProduct(productId: ID!, input: ProductInput!): Product!
-    deleteProduct(productId: ID!): String!
+  createProduct(input: ProductInput!): Product!
+  updateProduct(productId: ID!, input: ProductInput!): Product!
+  deleteProduct(productId: ID!): String!
 
   # New mutation to undo product sale
-    undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
+  undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
   
   # New mutation to handle product sale
-    sellProduct(productId: ID!, quantitySold: Int!): Product
+  sellProduct(productId: ID!, quantitySold: Int!): Product
 
   # Product Discount mutations
-    deleteProductDiscount(productId: ID!): String!
+  deleteProductDiscount(productId: ID!): String!
   
   # Basket mutations
-    addToBasket(input: CreateToBasketInput!): Basket!
-    
-    removeProductFromBasket(productId: ID!): String!
-    deleteBasketById(basketId: ID!): String!
-
-    increaseQuantity(basketId: ID!):Basket!
-    decreaseQuantity(basketId: ID!): Basket!
+  addToBasket(input: CreateToBasketInput!): Basket!
+  removeProductFromBasket(productId: ID!): String!
+  deleteBasketById(basketId: ID!): String!
+  increaseQuantity(basketId: ID!): Basket!
+  decreaseQuantity(basketId: ID!): Basket!
   
   # Checkout mutations
-    createCheckout(input: CreateCheckoutInput!): Checkout!
+  createCheckout(input: CreateCheckoutInput!): Checkout!
 
   # Package mutations
-    updatePackage(input: CreatePackageInput!): Package!
+  updatePackage(input: CreatePackageInput!): Package!
+  
   # Category mutations
-    createCategory(input: CreateCategoryInput!): Category
-    updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-    deleteCategory(id: ID!): Category!
+  createCategory(input: CreateCategoryInput!): Category
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  deleteCategory(id: ID!): Category!
 
-  # mutation to add product to favorites
-    addProductToFavorite(input:AddProductToFavoriteInput!): FavoriteProducts!
+  # Mutation to add product to favorites
+  addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts!
 
-  # mutation to add Company Info
-    createCompanyInfo(input:CompanyInfoInput!):CompanyInfo!
+  # Mutation to add Company Info
+  createCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
 
-  # mutation to update Company Info
-  updateCompanyInfo(input:CompanyInfoInput!,id:String!):CompanyInfo!
+  # Mutation to update Company Info
+  updateCompanyInfo(input: CompanyInfoInput!, id: String!): CompanyInfo!
 
-  #admin mutation for cerating a moderator
-    createModerator(userId:ID!,input: CreateModeratorInput!): Moderator!
-
+  # Admin mutation for creating a moderator
+  createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
 }
-
-
 
 # Define the SignUpInput input type
 input SignUpInput {
-    fullName: String!
-    email: String!
-    password: String!
-    number: String!
+  fullName: String!
+  email: String!
+  password: String!
+  number: String!
 }
 
 # Define the SignInInput input type
 input SignInInput {
-    email: String!
-    password: String!
+  email: String!
+  password: String!
 }
-
 
 # Define the CreateProductInput input type
 input ProductInput {
-    name: String!
-    price: Float!
-    isVisible: Boolean!
-    reference: String!
-    description: String!
-    inventory: Int!
-    images: [String!]!
-    categories: [ID!]!
-    colorsId: ID
-    attributeInputs: [ProductAttributeInput!]
-    discount:[CreateProductDiscountInput]
+  name: String!
+  price: Float!
+  isVisible: Boolean!
+  reference: String!
+  description: String!
+  inventory: Int!
+  images: [String!]!
+  categories: [ID!]!
+  colorsId: ID
+  attributeInputs: [ProductAttributeInput!]
+  discount: [CreateProductDiscountInput]
 }
 
 # Define the AttributeInput input type
 input ProductAttributeInput {
-    name: String!
-    value: String!
+  name: String!
+  value: String!
 }
 
 # Define the CreateCategoryInput input type
 input CreateCategoryInput {
-    name: String!
-    parentId: ID
+  name: String!
+  parentId: ID
 }
 
 # Define the UpdateCategoryInput input type
 input UpdateCategoryInput {
-    name: String
+  name: String
 }
 
 # Define the AddProductToFavoriteInput input type
 input AddProductToFavoriteInput {
-    userId: ID!
-    productId: ID!
+  userId: ID!
+  productId: ID!
 }
 
 # Define the Create Product Discount input type
-input CreateProductDiscountInput{
-    discountId: String!
-    dateOfStart: String!
-    dateOfEnd: String!
-    newPrice:Float
+input CreateProductDiscountInput {
+  discountId: String!
+  dateOfStart: String!
+  dateOfEnd: String!
+  newPrice: Float
 }
 
 # Define the Basket Input input type
-
-input CreateToBasketInput{
-    userId:ID!
-    productId:ID!
-    quantity:Int!
+input CreateToBasketInput {
+  userId: ID!
+  productId: ID!
+  quantity: Int!
 }
 
 # Define the CreateCheckoutInput input type
-input CreateCheckoutInput{
-    userId:ID!
-    governorateId:ID!
-    productIds:[ID!]
-    phone:[Int!]
-    address:String!
-    total:Int!
+input CreateCheckoutInput {
+  userId: ID!
+  governorateId: ID!
+  products: [ProductInCheckoutInput!]
+  phone: [Int!]
+  address: String!
+  total: Int!
 }
-# Define the CreatePackageInput input type
 
-input CreatePackageInput{
-  packageId:String!
-  status:Status!
+# Define the CreatePackageInput input type
+input CreatePackageInput {
+  packageId: String!
+  status: Status!
+  cause:Cause,
+  description:String
 }
 
 # Define the PendingPackageInput input type
-input PendingPackageInput{
-  checkoutId:String!
+input PendingPackageInput {
+  checkoutId: String!
 }
 
 # Define the CompanyInfoInput input type
-
-input CompanyInfoInput{
-  phone:[Int!]
-  deliveringPrice:Int
-  logo:String
+input CompanyInfoInput {
+  phone: [Int!]
+  deliveringPrice: Int
+  logo: String
 }
-
 
 # Define the CreateModeratorInput input type
 input CreateModeratorInput {

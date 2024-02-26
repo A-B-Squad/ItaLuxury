@@ -18,6 +18,13 @@ enum Status {
   BACK
   EXCHANGE
   DELIVERED
+  PROCESSING
+}
+
+enum Cause {
+  BROKEN
+  COLOR
+  CANCLED
 }
 
 model User {
@@ -43,24 +50,26 @@ model Category {
 }
 
 model Product {
-  id               String             @id @default(uuid())
-  name             String             @unique
-  price            Float
-  isVisible        Boolean            @default(true)
-  reference        String
-  description      String
-  inventory        Int
-  solde            Int                @default(0)
-  images           String[]
-  createdAt        DateTime           @default(now())
-  categories       Category[]
-  productDiscounts ProductDiscount[]
-  baskets          Basket[]
-  reviews          Review[]
-  favoriteProducts FavoriteProducts[]
-  attributes       ProductAttribute[]
-  Colors           Colors?            @relation(fields: [colorsId], references: [id], onDelete: Cascade)
-  colorsId         String?
+  id                String              @id @default(uuid())
+  name              String              @unique
+  price             Float
+  isVisible         Boolean             @default(true)
+  reference         String
+  description       String
+  inventory         Int
+  solde             Int                 @default(0)
+  images            String[]
+  createdAt         DateTime            @default(now())
+  categories        Category[]
+  productDiscounts  ProductDiscount[]
+  baskets           Basket[]
+  reviews           Review[]
+  favoriteProducts  FavoriteProducts[]
+  attributes        ProductAttribute[]
+  backOrExchange    BackOrExchange[]
+  Colors            Colors?             @relation(fields: [colorsId], references: [id], onDelete: Cascade)
+  colorsId          String?
+  ProductInCheckout ProductInCheckout[]
 }
 
 model Colors {
@@ -98,17 +107,26 @@ model Basket {
 }
 
 model Checkout {
-  id            String       @id @default(uuid())
-  User          User?        @relation(fields: [userId], references: [id])
+  id            String              @id @default(uuid())
+  User          User?               @relation(fields: [userId], references: [id])
   userId        String?
-  Governorate   Governorate? @relation(fields: [governorateId], references: [id])
+  Governorate   Governorate?        @relation(fields: [governorateId], references: [id])
   governorateId String?
-  productIds    String[]
+  products      ProductInCheckout[]
   phone         Int[]
   address       String
   package       Package[]
   total         Int
-  createdAt     DateTime     @default(now())
+  createdAt     DateTime            @default(now())
+}
+
+model ProductInCheckout {
+  id              String   @id @default(uuid())
+  checkout        Checkout @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  checkoutId      String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId       String
+  productQuantity Int
 }
 
 model Package {
@@ -117,6 +135,15 @@ model Package {
   checkoutId String?
   status     Status
   createdAt  DateTime  @default(now())
+}
+
+model BackOrExchange {
+  id          String   @id @default(uuid())
+  cause       Cause
+  createdAt   DateTime @default(now())
+  description String?
+  Product     Product? @relation(fields: [productId], references: [id])
+  productId   String
 }
 
 model Review {
