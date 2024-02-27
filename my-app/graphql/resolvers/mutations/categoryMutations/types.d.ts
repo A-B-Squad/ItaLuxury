@@ -11,6 +11,7 @@ interface CreateCheckoutInput {
   phone: number[]
   governorateId: string
   address: string
-  productIds: string[]
+  productIds: any
   total: number
 }
+
