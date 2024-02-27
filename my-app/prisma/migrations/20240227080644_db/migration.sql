@@ -2,7 +2,10 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'DELIVERED');
+CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'DELIVERED', 'PROCESSING', 'PAYED');
+
+-- CreateEnum
+CREATE TYPE "Cause" AS ENUM ('BROKEN', 'COLOR', 'CANCLED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -87,7 +90,6 @@ CREATE TABLE "Checkout" (
     "id" TEXT NOT NULL,
     "userId" TEXT,
     "governorateId" TEXT,
-    "productIds" TEXT[],
     "phone" INTEGER[],
     "address" TEXT NOT NULL,
     "total" INTEGER NOT NULL,
@@ -97,13 +99,35 @@ CREATE TABLE "Checkout" (
 );
 
 -- CreateTable
+CREATE TABLE "ProductInCheckout" (
+    "id" TEXT NOT NULL,
+    "checkoutId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "productQuantity" INTEGER NOT NULL,
+
+    CONSTRAINT "ProductInCheckout_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Package" (
     "id" TEXT NOT NULL,
     "checkoutId" TEXT,
     "status" "Status" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "productQuantity" INTEGER NOT NULL,
 
     CONSTRAINT "Package_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BackOrExchange" (
+    "id" TEXT NOT NULL,
+    "cause" "Cause" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "description" TEXT,
+    "productId" TEXT NOT NULL,
+
+    CONSTRAINT "BackOrExchange_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -217,7 +241,16 @@ ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_userId_fkey" FOREIGN KEY ("userI
 ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_governorateId_fkey" FOREIGN KEY ("governorateId") REFERENCES "Governorate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "ProductInCheckout" ADD CONSTRAINT "ProductInCheckout_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductInCheckout" ADD CONSTRAINT "ProductInCheckout_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Package" ADD CONSTRAINT "Package_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BackOrExchange" ADD CONSTRAINT "BackOrExchange_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

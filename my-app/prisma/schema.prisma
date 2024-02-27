@@ -24,8 +24,8 @@ enum Status {
 
 enum Cause {
   BROKEN
+  CANCEL
   COLOR
-  CANCLED
 }
 
 model User {
@@ -136,7 +136,6 @@ model Package {
   checkoutId String?
   status     Status
   createdAt  DateTime  @default(now())
-  productQuantity Int
 
 }
 
