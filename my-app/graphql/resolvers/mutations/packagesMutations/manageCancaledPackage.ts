@@ -18,36 +18,62 @@ export const cancalPackage = async (
       },
     });
 
-    if (cause !== "CANCEL") {
-      const products = findPackage?.Checkout?.products;
-      if (products && products.length > 0) {
-        for (const product of products) {
-          await prisma.product.update({
-            where: {
-              id: product.productId,
-            },
-            data: {
-              solde: {
-                decrement: product.productQuantity,
+    const products = findPackage?.Checkout?.products;
+    if (findPackage?.status === "BACK") {
+      if (cause !== "BROKEN") {
+        if (products && products.length > 0) {
+          for (const product of products) {
+            await prisma.product.update({
+              where: {
+                id: product.productId,
               },
-              inventory: {
-                increment: product.productQuantity,
+              data: {
+                solde: {
+                  decrement: product.productQuantity,
+                },
+                inventory: {
+                  increment: product.productQuantity,
+                },
               },
-            },
-          });
+            });
+          }
         }
+
+        const productData = (products || []).map((product) => ({
+          productId: product.productId,
+          cause: cause,
+          description: description,
+        }));
+
+        await prisma.backOrExchange.createMany({
+          data: productData,
+        });
+      } else if (cause === "BROKEN") {
+        if (products && products.length > 0) {
+          for (const product of products) {
+            await prisma.product.update({
+              where: {
+                id: product.productId,
+              },
+              data: {
+                solde: {
+                  decrement: product.productQuantity,
+                },
+              },
+            });
+          }
+        }
+        const productData = (products || []).map((product) => ({
+          productId: product.productId,
+          cause: cause,
+          description: description,
+        }));
+
+        await prisma.backOrExchange.createMany({
+          data: productData,
+        });
       }
-
-      const productData = (products || []).map((product) => ({
-        productId: product.productId,
-        cause: cause,
-        description: description,
-        productQuantity:product.productQuantity
-      }));
-
-      await prisma.backOrExchange.createMany({
-        data: productData,
-      });
+      return "Package Cancled successfully";
     }
   } catch (error) {
     console.log(error);

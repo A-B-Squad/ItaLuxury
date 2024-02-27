@@ -19,7 +19,7 @@ enum Status {
 enum Cause {
   BROKEN
   COLOR
-  CANCLED
+  CANCEL
 }
 
 # Define the User type
@@ -306,8 +306,10 @@ type Mutation {
 
   # Package mutations
   updatePackage(input: UpdatePackageInput!): String!
-  exchangePackage(input: ManagePackageInput!): String!
-  cancelPackage(input:BackOrExchangeInput! ): String!
+  exchangePackage(input: ExchangePackageInput!): String!
+  exchangePackageProduct(input: ExchangePackageProductInput!): String!
+  cancalPackage(input:CancelPackageInput! ): String!
+  cancalPackageProduct(input:CancelProductPackageInput! ): String!
   
   # Category mutations
   createCategory(input: CreateCategoryInput!): Category
@@ -374,10 +376,17 @@ input UpdateCategoryInput {
 }
 
 # Define the BackOrExchange input type
-input BackOrExchangeInput {
+input CancelPackageInput {
   packageId: String!
   cause: Cause!
   description: String
+}
+# Define the cancel package product input type
+input CancelProductPackageInput {
+  packageId: ID!
+  cause: Cause!
+  description: String
+  productId:ID!
   productQuantity:Int!
 }
 
@@ -435,5 +444,18 @@ input CreateModeratorInput {
   number: String!
 }
 
+
+input ExchangePackageProductInput{
+  packageId: String
+  productId: String
+  cause:Cause,
+  description:String
+  productQuantity:Int!
+}
+input ExchangePackageInput{
+  packageId: String
+  cause:Cause,
+  description:String
+}
 
 `;
