@@ -19,6 +19,7 @@ enum Status {
   EXCHANGE
   DELIVERED
   PROCESSING
+  PAYED
 }
 
 enum Cause {
@@ -135,6 +136,8 @@ model Package {
   checkoutId String?
   status     Status
   createdAt  DateTime  @default(now())
+  productQuantity Int
+
 }
 
 model BackOrExchange {

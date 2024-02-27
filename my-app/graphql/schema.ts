@@ -155,10 +155,10 @@ type BackOrExchange {
   id: ID!
   cause: Cause!
   createdAt: String!
-  description: String!
-  Product: Product!
+  description: String
   productId: String!
 }
+
 
 # Define the Review type
 type Review {
@@ -305,7 +305,9 @@ type Mutation {
   createCheckout(input: CreateCheckoutInput!): Checkout!
 
   # Package mutations
-  updatePackage(input: CreatePackageInput!): Package!
+  updatePackage(input: UpdatePackageInput!): String!
+  exchangePackage(input: ManagePackageInput!): String!
+  cancelPackage(input:BackOrExchangeInput! ): String!
   
   # Category mutations
   createCategory(input: CreateCategoryInput!): Category
@@ -371,6 +373,14 @@ input UpdateCategoryInput {
   name: String
 }
 
+# Define the BackOrExchange input type
+input BackOrExchangeInput {
+  packageId: String!
+  cause: Cause!
+  description: String
+  productQuantity:Int!
+}
+
 # Define the AddProductToFavoriteInput input type
 input AddProductToFavoriteInput {
   userId: ID!
@@ -403,17 +413,12 @@ input CreateCheckoutInput {
 }
 
 # Define the CreatePackageInput input type
-input CreatePackageInput {
-  packageId: String!
+input UpdatePackageInput {
+  packageId:ID!
   status: Status!
-  cause:Cause,
-  description:String
 }
 
-# Define the PendingPackageInput input type
-input PendingPackageInput {
-  checkoutId: String!
-}
+
 
 # Define the CompanyInfoInput input type
 input CompanyInfoInput {
