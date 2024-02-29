@@ -29,7 +29,7 @@ const Signup = () => {
     }
   `;
 
-  const [SignUp, {loading}] = useMutation(SIGNUP_MUTATION, {
+  const [SignUp, { loading }] = useMutation(SIGNUP_MUTATION, {
     variables: {
       input: {
         fullName: formData.fullName,
