@@ -10,7 +10,8 @@ export const signIn = async (
   { prisma, jwtSecret }: Context
 ) => {
   const { email, password } = input;
-
+  
+  
   // Check if the user exists
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -18,9 +19,12 @@ export const signIn = async (
   if (!existingUser) {
     return new Error("Invalid email or password");
   }
-
   // Check if the password is correct
   const validPassword = await bcrypt.compare(password, existingUser.password);
+  console.log('====================================');
+  console.log(validPassword);
+  console.log('====================================');
+  
   if (!validPassword) {
     return new Error("Invalid password");
   }
