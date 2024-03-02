@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "../../app/globals.css";
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
-import { Header } from "../components/Header";
+import Header  from "../components/Header/Header";;
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment

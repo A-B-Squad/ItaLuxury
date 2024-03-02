@@ -4,9 +4,18 @@ const prisma = new PrismaClient();
 
 const seedData = {
   categories: [
-    { name: 'Electronics' },
-    { name: 'Clothing' },
-    { name: 'Books' },
+    { id: 1, name: 'Electronics', parentId: null },
+    { id: 2, name: 'Clothing', parentId: null },
+    { id: 3, name: 'Books', parentId: null },
+    { id: 8, name: 'Smartphones', parentId: 1 },
+    { id: 9, name: 'Laptops', parentId: 1 },
+    { id: 10, name: 'Televisions', parentId: 1 },
+    { id: 11, name: 'T-shirts', parentId: 2 },
+    { id: 12, name: 'Jeans', parentId: 2 },
+    { id: 13, name: 'Dresses', parentId: 2 },
+    { id: 14, name: 'Fiction', parentId: 3 },
+    { id: 15, name: 'Non-fiction', parentId: 3 },
+    { id: 16, name: 'Science Fiction', parentId: 3 },
   ],
   products: [
     {
@@ -59,13 +68,13 @@ async function seed() {
     }
 
     for (const userData of seedData.users) {
-        await prisma.user.create({ data: userData });
+      await prisma.user.create({ data: userData });
     }
     for (const productData of seedData.products) {
-        await prisma.product.create({ data: productData });
+      await prisma.product.create({ data: productData });
     }
 
-    
+
     console.log('Seed data inserted successfully');
   } catch (error) {
     console.error('Error seeding data:', error);
