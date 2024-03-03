@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Drawer,
   Button,
@@ -7,13 +7,13 @@ import {
 } from "@material-tailwind/react";
 
 export function DrawerDefault() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const openDrawer = () => setOpen(true);
   const closeDrawer = () => setOpen(false);
 
   return (
-    <React.Fragment>
+    <>
       <Button onClick={openDrawer}>Open Drawer</Button>
       <Drawer open={open} onClose={closeDrawer} className="p-4">
         <div className="mb-6 flex items-center justify-between">
@@ -46,6 +46,6 @@ export function DrawerDefault() {
           <Button size="sm" color="blue">Get Started</Button> {/* Added color property */}
         </div>
       </Drawer>
-    </React.Fragment>
+    </>
   );
 }

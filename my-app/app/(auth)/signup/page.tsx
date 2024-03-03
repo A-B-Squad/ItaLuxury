@@ -70,14 +70,14 @@ const Signup = () => {
     }
   };
   return (
-    <div className="bg-grey-lighter min-h-screen flex flex-col">
+    <div className="bg-lightBeige min-h-screen flex flex-col">
       <div className="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">
         <div className="bg-white px-6 py-8 rounded shadow-md text-black w-full">
           <h1 className="mb-8 text-3xl text-center">S'inscrire</h1>
           {isError && (
             <div
               id="alert-border-2"
-              className="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-400 dark:bg-gray-800 dark:border-red-800"
+              className="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-800 dark:bg-red-200 dark:border-red-800"
               role="alert"
             >
               <svg
@@ -154,7 +154,7 @@ const Signup = () => {
 
           <button
             type="submit"
-            className="w-full text-center py-3 rounded bg-amber-400 text-white hover:bg-amber-300 focus:outline-none my-1"
+            className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
             disabled={loading}
             onClick={handleSubmit}
           >
