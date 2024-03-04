@@ -40,8 +40,10 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown }: any) => {
   return (
     <div
       onMouseLeave={() => setShowDropdown(false)}
-      className={`  lg:border lg:p-5 lg:flex lg:gap-2 absolute lg:h-fit lg:w-3/4 lg:shadow-md lg:rounded-md  bg-white transition-all duration-700 z-30 ${
-        showCategoryDropdown ? " mt-0 opacity-100" : " mt-0 opacity-100"
+      className={`  md:border md:p-5 md:flex md:gap-2 absolute md:h-fit md:w-3/4 md:shadow-md md:rounded-md  bg-white transition-all duration-700 z-30 ${
+        showCategoryDropdown
+          ? " mt-0 opacity-100 z-20"
+          : " mt-64 opacity-0 -z-20"
       }`}
     >
       <Category
