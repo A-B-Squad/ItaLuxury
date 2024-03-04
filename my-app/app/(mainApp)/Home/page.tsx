@@ -6,7 +6,7 @@ import Services from "@/components/services"
 const Home = () => {
 
   return (
-    <div className="flex min-h-screen flex-col items-center px-5">
+    <div className="Home py-14 flex min-h-screen flex-col items-center px-5 ">
       <section className="flex justify-center  md:flex-row flex-col gap-6 items-center">
         <Left />
         <AdsCarousel />

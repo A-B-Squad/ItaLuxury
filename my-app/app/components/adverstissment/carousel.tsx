@@ -1,32 +1,42 @@
-"use client"
+"use client";
 import { Carousel } from "@material-tailwind/react";
-import React from 'react'
+import { useQuery, gql } from "@apollo/client";
+import React, { useState } from "react";
 
 const AdsCarousel = () => {
-  return (
-    <Carousel autoplay className="rounded-xl md:w-[55%] lg:w-[53%] w-[100%] " placeholder={''}>
-      <img
-        src="https://wamia-media.s3.eu-west-1.amazonaws.com/wysiwyg/wamia-ramadan/SlidesS1.2.jpg"
-        alt="image 1"
-        className="h-full w-full object-fill"
-      />
-      <img
-        src="https://wamia-media.s3.eu-west-1.amazonaws.com/wysiwyg/wamia-ramadan/SlidesS1.3.jpg"
-        alt="image 2"
-        className="h-full w-full object-fill"
-      />
-      <img
-        src="https://wamia-media.s3.eu-west-1.amazonaws.com/wysiwyg/wamia-ramadan/SlidesS1.1.jpg"
-        alt="image 3"
-        className="h-full w-full object-fill"
-      />
-      <img
-        src="https://wamia-media.s3.eu-west-1.amazonaws.com/wysiwyg/wamia-ramadan/SlidesS1.1.jpg"
-        alt="image 3"
-        className="h-full w-full object-fill"
-      />
-    </Carousel>
-  )
-}
+  const [images,setImages] = useState([])
+  const ADVERTISSMENT_QUERY = gql`
+    query AdvertismentByPosition($position: String!) {
+      advertismentByPosition(position: $position) {
+        images
+      }
+    }
+  `;
 
-export default AdsCarousel
+  const {data,loading,error} = useQuery(ADVERTISSMENT_QUERY,{
+    variables:{position:"slider"},
+    onCompleted:(data)=>{
+        setImages(data.advertismentByPosition.images);
+    }
+  })
+  
+  return (
+    <Carousel
+      autoplay
+      className="rounded-xl md:w-[55%] lg:w-[52%] w-[100%] "
+      placeholder={""}
+    >
+      {
+        images.map(image => (
+          <img
+          src={image}
+          alt="image 1"
+          className="h-full w-full object-fill"
+        />
+        ))
+      }
+    </Carousel>
+  );
+};  
+
+export default AdsCarousel;

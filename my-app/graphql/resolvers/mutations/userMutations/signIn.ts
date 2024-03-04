@@ -6,7 +6,7 @@ import { Context } from "@/pages/api/graphql";
 export const signIn = async (
   _: any,
   { input }: { input: SignInInput },
-  { prisma, jwtSecret }: Context
+  { prisma, jwtSecret,res }: Context
 ) => {
   const { email, password } = input;
 
@@ -47,7 +47,7 @@ export const signIn = async (
 export const refreshToken = async (
   _: any,
   { Token }: { Token: string },
-  { jwtSecret }: Context
+  { jwtSecret,res }: Context
 ) => {
   try {
     // Verify the refresh token
