@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import {
   Drawer,
@@ -14,13 +15,25 @@ export function DrawerDefault() {
 
   return (
     <>
-      <Button onClick={openDrawer}>Open Drawer</Button>
-      <Drawer open={open} onClose={closeDrawer} className="p-4">
+      <Button placeholder={""} onClick={openDrawer}>
+        Open Drawer
+      </Button>
+      <Drawer
+        placeholder={""}
+        open={open}
+        onClose={closeDrawer}
+        className="p-4"
+      >
         <div className="mb-6 flex items-center justify-between">
-          <Typography variant="h5" color="blue-gray">
+          <Typography placeholder={""} variant="h5" color="blue-gray">
             Material Tailwind
           </Typography>
-          <IconButton variant="text" color="blue-gray" onClick={closeDrawer}>
+          <IconButton
+            placeholder={""}
+            variant="text"
+            color="blue-gray"
+            onClick={closeDrawer}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -37,13 +50,21 @@ export function DrawerDefault() {
             </svg>
           </IconButton>
         </div>
-        <Typography color="gray" className="mb-8 pr-4 font-normal">
+        <Typography
+          placeholder={""}
+          color="gray"
+          className="mb-8 pr-4 font-normal"
+        >
           Material Tailwind features multiple React and HTML components, all
           written with Tailwind CSS classes and Material Design guidelines.
         </Typography>
         <div className="flex gap-2">
-          <Button size="sm" color="blue">Documentation</Button> {/* Added color property */}
-          <Button size="sm" color="blue">Get Started</Button> {/* Added color property */}
+          <Button placeholder={""} size="sm" color="blue">
+            Documentation
+          </Button>
+          <Button placeholder={""} size="sm" color="blue">
+            Get Started
+          </Button>
         </div>
       </Drawer>
     </>
