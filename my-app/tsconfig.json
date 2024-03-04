@@ -27,6 +27,6 @@
     "**/.tsx",
     ".next/types/**/*.ts",
     "lib/apollo-wrapper.tsx"
-  ],
+, "app/components/Header/Dropdown/Dropdown.tsx", "app/components/Header/Dropdown/Category.tsx", "app/components/Header/Dropdown/Subcategory.tsx", "app/components/Header/Dropdown/Subsubcategory.tsx", "app/components/Header/Dropdown/DrawerMobile.tsx"  ],
   "exclude": ["node_modules"]
 }
