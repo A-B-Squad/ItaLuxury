@@ -16,7 +16,6 @@ const Signup = () => {
     number: "",
     password: "",
   });
-
   const SIGNUP_MUTATION = gql`
     mutation SignUp($input: SignUpInput!) {
       signUp(input: $input) {
@@ -38,15 +37,19 @@ const Signup = () => {
         password: formData.number,
       },
     },
-    onCompleted: () => {
-      router.push("/");
+    onCompleted: (data) => {
+      // router.push("/");
     },
     onError: (error) => {
       setIsError(true);
       if (error.message === "Email address is already in use") {
         setErrorMessage("L'adresse e-mail est déjà utilisée");
+      } else {
+        console.log("====================================");
+        console.log(error);
+        console.log("====================================");
       }
-    },
+    }
   });
 
   const handleSubmit = (e: React.SyntheticEvent) => {
@@ -69,6 +72,7 @@ const Signup = () => {
       SignUp();
     }
   };
+
   return (
     <div className="bg-lightBeige min-h-screen flex flex-col">
       <div className="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">

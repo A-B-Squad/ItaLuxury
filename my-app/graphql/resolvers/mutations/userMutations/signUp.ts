@@ -1,10 +1,14 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Context } from "../../../../pages/api/graphql";
 import { NextResponse } from "next/server";
+import { Context } from "../../../../pages/api/graphql";
 
 
-export const signUp = async (_: any, { input }: { input: SignUpInput }, { prisma, jwtSecret }: Context) => {
+export const signUp = async (
+  _: any,
+  { input }: { input: SignUpInput },
+  { prisma, jwtSecret,res }: Context
+) => {
   const { fullName, email, password, number } = input;
   // Check if the email is already in use
   const existingUser = await prisma.user.findUnique({
@@ -24,26 +28,16 @@ export const signUp = async (_: any, { input }: { input: SignUpInput }, { prisma
       email,
       password: hashedPassword,
       number,
-      role: 'USER'
-    }
-  })
+      role: "USER",
+    },
+  });
 
   // Generate JWT token
   const token = jwt.sign({ userId: newUser.id }, jwtSecret);
-
-  const response = new NextResponse();
-  response.cookies.set("Token", token, {
-    httpOnly: true,
-    path: "/",
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60, // 1 hour
-  });
+  res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
 
   return {
     user: newUser,
-    token
+    token,
   };
-}
-
-
+};
