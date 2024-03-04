@@ -4,7 +4,7 @@ import React from 'react'
 
 const AdsCarousel = () => {
   return (
-    <Carousel autoplay className="rounded-xl md:w-[53%] w-[100%] " placeholder={''}>
+    <Carousel autoplay className="rounded-xl md:w-[55%] lg:w-[53%] w-[100%] " placeholder={''}>
       <img
         src="https://wamia-media.s3.eu-west-1.amazonaws.com/wysiwyg/wamia-ramadan/SlidesS1.2.jpg"
         alt="image 1"
