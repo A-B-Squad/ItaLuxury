@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
-
+import { cookies } from "next/headers";
 import { Context } from "@/pages/api/graphql";
-import { NextResponse } from "next/server";
 
 export const signIn = async (
   _: any,
@@ -10,6 +9,7 @@ export const signIn = async (
   { prisma, jwtSecret }: Context
 ) => {
   const { email, password } = input;
+
 
 
   // Check if the user exists
@@ -30,25 +30,19 @@ export const signIn = async (
   }
 
   // Generate JWT token
-  const token = jwt.sign({ userId: existingUser.id }, jwtSecret, { expiresIn: '1h' });
+  const token = jwt.sign({ userId: existingUser.id }, jwtSecret, {
+    expiresIn: "1h",
+  });
 
   // Set the cookie
-  const response = new NextResponse();
-  response.cookies.set("token", token, {
-    httpOnly: true,
-    path: "/",
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60, //   1 H
-  });
+  res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+
 
   return {
     user: existingUser,
     token,
   };
 };
-
-
 
 export const refreshToken = async (
   _: any,
@@ -60,7 +54,12 @@ export const refreshToken = async (
     const decodedToken = jwt.verify(Token, jwtSecret) as JwtPayload;
 
     // If the Token is valid, generate a new access Token
-    const accessToken = jwt.sign({ userId: decodedToken.userId }, jwtSecret, { expiresIn: '1h' });
+    const accessToken = jwt.sign({ userId: decodedToken.userId }, jwtSecret, {
+      expiresIn: "1h",
+    });
+
+    // Set the new access Token in the cookie
+    res.setHeader("Set-Cookie", `Token=${accessToken}; HttpOnly; Path=/; SameSite=Strict; Secure`);
 
 
     // Return the new access Token
