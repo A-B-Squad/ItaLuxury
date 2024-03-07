@@ -3,7 +3,10 @@ import AdsCarousel from "../../components/adverstissment/carousel";
 import Left from "../../components/adverstissment/left";
 import Right from "../../components/adverstissment/right";
 import Services from "@/components/services"
+
 const Home = () => {
+
+
 
   return (
     <div className="Home py-14 flex min-h-screen flex-col items-center px-5 ">
@@ -13,7 +16,8 @@ const Home = () => {
         <Right/>
       </section>
         
-        <Services/>
+      <Services/>
+
     </div>
   );
 };

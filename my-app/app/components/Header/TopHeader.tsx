@@ -1,13 +1,14 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CiSearch } from "react-icons/ci";
 import { FiUser } from "react-icons/fi";
 import { FiHeart } from "react-icons/fi";
 import { RiShoppingCartLine } from "react-icons/ri";
+const TopHeader = ({openDrawerRight}:any) => {
 
-const TopHeader = () => {
+
   return (
     <div className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 py-3">
       <div className="logo ">
@@ -34,9 +35,9 @@ const TopHeader = () => {
             <Link href={`/Mes-Favoris`}>Mes Favoris</Link>
             <FiHeart />
           </li>
-          <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-            <Link href={`/Mes-Favoris`}>Panier</Link>
-            <RiShoppingCartLine />
+          <li onClick={openDrawerRight} className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+            <p>Panier</p>
+            <RiShoppingCartLine  onClick={openDrawerRight}/>
           </li>
         </ul>
       </div>
