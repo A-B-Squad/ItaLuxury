@@ -34,10 +34,12 @@ export const signUp = async (
 
   // Generate JWT token
   const token = jwt.sign({ userId: newUser.id }, jwtSecret);
-  res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict`);
 
   return {
     user: newUser,
     token,
   };
 };
+
+
