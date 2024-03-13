@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   Button,
@@ -7,17 +7,23 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 
-export function DrawerDefault() {
-  const [open, setOpen] = useState(false);
+export function DrawerMobile() {
+  const [open, setOpen] = useState(
+    window.localStorage.getItem("openDrawer") === "true"
+  );
 
   const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
+  console.log(open);
+
+  const closeDrawer = () => {
+    setOpen(false);
+    window.localStorage.removeItem("openDrawer");
+  };
+
+  useEffect(() => {}, [open]);
 
   return (
     <>
-      <Button placeholder={""} onClick={openDrawer}>
-        Open Drawer
-      </Button>
       <Drawer
         placeholder={""}
         open={open}
@@ -32,7 +38,7 @@ export function DrawerDefault() {
             placeholder={""}
             variant="text"
             color="blue-gray"
-            onClick={closeDrawer}
+            onClick={() => setOpen(false)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
