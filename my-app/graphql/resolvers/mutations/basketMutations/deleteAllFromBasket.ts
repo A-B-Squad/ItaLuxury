@@ -9,7 +9,7 @@ export const deleteBasketById = async (
     const deletedBasket = await prisma.basket.delete({
       where: { id: basketId }
     })
-    return "Basket Deleted "
+    return "Basket Deleted Successfully"
   } catch (error) {
     console.error("Failed to remove product from basket:", error);
     return new Error("Failed to remove product from basket");

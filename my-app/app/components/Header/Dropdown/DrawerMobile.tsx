@@ -7,38 +7,27 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 
-export function DrawerMobile() {
-  const [open, setOpen] = useState(
-    window.localStorage.getItem("openDrawer") === "true"
-  );
-
-  const openDrawer = () => setOpen(true);
-  console.log(open);
-
-  const closeDrawer = () => {
-    setOpen(false);
-    window.localStorage.removeItem("openDrawer");
-  };
-
-  useEffect(() => {}, [open]);
-
+export function DrawerMobile({
+  openMobileCategoryDrawer,
+  closeMobileDrawerCategory,
+}) {
   return (
     <>
       <Drawer
         placeholder={""}
-        open={open}
-        onClose={closeDrawer}
-        className="p-4"
+        open={openMobileCategoryDrawer}
+        onClose={closeMobileDrawerCategory}
+        className="p-4 md:hidden w-4/6"
       >
         <div className="mb-6 flex items-center justify-between">
           <Typography placeholder={""} variant="h5" color="blue-gray">
-            Material Tailwind
+            Choisir une catégorie
           </Typography>
           <IconButton
             placeholder={""}
             variant="text"
             color="blue-gray"
-            onClick={() => setOpen(false)}
+            onClick={closeMobileDrawerCategory}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -56,6 +45,7 @@ export function DrawerMobile() {
             </svg>
           </IconButton>
         </div>
+
         <Typography
           placeholder={""}
           color="gray"

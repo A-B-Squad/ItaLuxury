@@ -6,7 +6,7 @@ export const basketByUserId = async (
   { prisma }: Context
 ) => {
   try {
-    const basket = await prisma.basket.findFirst({
+    const basket = await prisma.basket.findMany({
       where: {
         userId: userId
       },
@@ -20,9 +20,6 @@ export const basketByUserId = async (
     if (!basket) {
       return new Error(`Basket for user with ID ${userId} not found`);
     }
-
-
-
     return basket;
   } catch (error) {
     console.log(`Failed to fetch basket for user with ID ${userId}`, error);

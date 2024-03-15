@@ -238,7 +238,7 @@ type Query {
   categoryByName(categoryName: String!): Category!
 
   # Fetch the basket of a user by user ID
-  basketByUserId(userId: ID!): Basket!
+  basketByUserId(userId: ID!): [Basket!]!
 
   # Fetch product discount information by product ID
   productDiscount(productId: ID!): ProductDiscount!
