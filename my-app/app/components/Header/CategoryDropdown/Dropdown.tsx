@@ -1,11 +1,9 @@
+import { gql, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { useQuery, gql } from "@apollo/client";
-import { MdOutlineArrowRight } from "react-icons/md";
-import Link from "next/link";
-import Category from "./Category";
+import Category from "./MainCategory";
 interface Subcategory {
   name: string;
-  subcategories?: Subcategory[]; // Make subcategories optional
+  subcategories?: Subcategory[];
 }
 
 const CATEGORY_QUERY = gql`
@@ -40,10 +38,10 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown }: any) => {
   return (
     <div
       onMouseLeave={() => setShowDropdown(false)}
-      className={`  md:border md:p-5 md:flex md:gap-2 absolute md:h-fit md:w-3/4 md:shadow-md md:rounded-md  bg-white transition-all duration-700 z-30 ${
+      className={`md:border md:pl-5 hidden  md:flex md:py-5  md:gap-2 absolute md:h-fit md:w-3/4 md:shadow-md md:rounded-md h-fit  bg-white transition-all duration-700 z-30 ${
         showCategoryDropdown
           ? " mt-0 opacity-100 z-20"
-          : " mt-64 opacity-0 -z-20"
+          : "mt-56 opacity-0 -z-20"
       }`}
     >
       <Category

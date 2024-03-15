@@ -1,12 +1,12 @@
 "use client";
-import { Drawer, Typography, IconButton } from "@material-tailwind/react";
-import Link from "next/link";
-import { gql, useQuery, useMutation } from "@apollo/client";
-import React, { useEffect, useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
-
+import { useDrawerBasketStore } from "../store/zustand";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -20,7 +20,8 @@ interface Product {
   basketId: string;
 }
 
-const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
+const BasketDrawer = () => {
+  const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -101,8 +102,8 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
   return (
     <Drawer
       placement="right"
-      open={openRight}
-      onClose={closeDrawerRight}
+      open={isOpen}
+      onClose={closeBasketDrawer}
       className="p-4"
       size={400}
       placeholder={""}
@@ -115,7 +116,7 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
           placeholder={""}
           variant="text"
           color="blue-gray"
-          onClick={closeDrawerRight}
+          onClick={closeBasketDrawer}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -137,13 +138,13 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
         deletingLoading ? (
           <div>loading</div>
         ) : (
-          <>
-            <div className="mt-8">
+          <div className="flex  flex-col justify-between h-full">
+            <div className="product-details">
               <div className="flow-root">
-                <ul role="list" className="-my-6 divide-y divide-gray-200">
+                <ul role="list" className=" divide-y divide-gray-200">
                   {products.map((product) => (
-                    <li className="flex py-6">
-                      <div className="h-24 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                    <li className="flex py-6 ">
+                      <div className="h-24 w-20 flex-shrink-0 overflow-hidden rounded-md ">
                         <img
                           src={product.images[0]}
                           alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt."
@@ -151,7 +152,7 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
                         />
                       </div>
 
-                      <div className="ml-4 flex flex-1 flex-col">
+                      <div className="ml-4 flex  flex-1 flex-col">
                         <div>
                           <div className="flex justify-between text-base font-medium text-gray-900">
                             <h3>
@@ -159,8 +160,10 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
                             </h3>
                             <p className="ml-4 ">{product.price} DT</p>
                           </div>
+
                           <p className="mt-1 text-sm text-gray-500">Salmon</p>
                         </div>
+
                         <div className="flex flex-1 items-end justify-between text-sm">
                           <p className="text-gray-500">
                             Qty {product.quantity}
@@ -184,7 +187,8 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
                 </ul>
               </div>
             </div>
-            <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
+
+            <div className=" border-gray-200 px-4 py-6 sm:px-6">
               <div className="flex justify-between text-base font-medium text-gray-900">
                 <p>Total</p>
                 <p> {totalPrice} DT</p>
@@ -195,32 +199,30 @@ const BasketDrawer = ({ openRight, closeDrawerRight }: any) => {
               <div className="mt-6">
                 <a
                   href="#"
-                  className="flex items-center justify-center rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
+                  className="flex items-center justify-center transition-all rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
                 >
                   Vérifier
                 </a>
                 <Link
-                  onClick={closeDrawerRight}
+                  onClick={closeBasketDrawer}
                   href="/Basket"
-                  className="flex items-center justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
+                  className="flex items-center transition-all justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
                 >
                   Voir Panier
                 </Link>
               </div>
-              <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                <p>
-                  ou
-                  <button
-                    type="button"
-                    className="font-medium text-strongBeige hover:text-amber-200"
-                  >
-                    Continuer vos achats
-                    <span aria-hidden="true"> &rarr;</span>
-                  </button>
-                </p>
+              <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
+                <p>ou</p>
+                <button
+                  type="button"
+                  className="font-medium text-strongBeige transition-all hover:text-mediumBeige"
+                >
+                  Continuer vos achats
+                  <span aria-hidden="true"> &rarr;</span>
+                </button>
               </div>
             </div>
-          </>
+          </div>
         )
       ) : (
         <div className="flex flex-col justify-center items-center h-screen">

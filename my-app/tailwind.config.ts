@@ -6,7 +6,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./**/@material-tailwind/**/*.{html,js,ts,jsx,tsx,mdx}"
-    
+
   ],
   theme: {
     extend: {
@@ -18,7 +18,7 @@ const config: Config = {
       colors: {
         lightBeige: "#F0EDD4",
         mediumBeige: "#ECCDB4",
-        strongBeige: "#FEA1A1"
+        strongBeige: "#f17e7e"
       }
     },
   },
