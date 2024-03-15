@@ -1,9 +1,9 @@
-import React from "react";
+import { ApolloWrapper } from "@/lib/apollo-wrapper";
+import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import React from "react";
 import "./globals.css";
-import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
-import { ApolloWrapper } from "@/lib/apollo-wrapper";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -25,10 +25,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={inter.className}
-      >
-        <ApolloWrapper>{children}</ApolloWrapper>
+      <body className={inter.className}>
+        <ApolloWrapper>
+
+          {children}
+        </ApolloWrapper>
       </body>
     </html>
   );

@@ -1,10 +1,12 @@
-import React from "react";
+import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import React from "react";
 import "../../app/globals.css";
-import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
-import Header  from "../components/Header/Header";;
+import BasketDrawer from "../components/BasketDrawer";
+import { DrawerMobile } from "../components/Header/CrategoryDrawer/DrawerMobile";
+import Header from "../components/Header/Header";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -27,6 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <DrawerMobile />
+        <BasketDrawer />
+
         <Header />
         <ApolloWrapper>{children}</ApolloWrapper>
       </body>

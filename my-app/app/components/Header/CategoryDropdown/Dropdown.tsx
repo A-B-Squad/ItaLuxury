@@ -1,6 +1,5 @@
+import { gql, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { useQuery, gql } from "@apollo/client";
-import { DrawerMobile } from "./DrawerMobile";
 import Category from "./MainCategory";
 interface Subcategory {
   name: string;

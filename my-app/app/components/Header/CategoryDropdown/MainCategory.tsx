@@ -1,6 +1,5 @@
 import React from "react";
 import Subcategory from "./Subcategory";
-import Link from "next/link";
 
 interface CategoryProps {
   data: {

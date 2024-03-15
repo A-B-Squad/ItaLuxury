@@ -1,6 +1,6 @@
+import Link from "next/link";
 import React from "react";
 import { MdOutlineArrowRight } from "react-icons/md";
-import Link from "next/link";
 
 interface Subcategory {
   name: string;
