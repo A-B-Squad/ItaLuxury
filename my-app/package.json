@@ -35,7 +35,8 @@
     "swiper": "^11.0.7",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "universal-cookie": "^7.1.0"
+    "universal-cookie": "^7.1.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

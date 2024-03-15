@@ -1,21 +1,15 @@
-"use client";
-import React from "react";
 import { CiDeliveryTruck } from "react-icons/ci";
-import { MdOutlineSupportAgent } from "react-icons/md";
 import { GrMoney } from "react-icons/gr";
+import { MdOutlineSupportAgent } from "react-icons/md";
 import { TbTruckReturn } from "react-icons/tb";
-import { PiHandCoinsDuotone } from "react-icons/pi";
-
-
 
 const Services = () => {
   return (
-    <section className="mt-10 border p-5 invisible md:visible lg:visible">
+    <section className="mt-10 border p-5 hidden lg:block">
       <ul className="flex flex-row gap-20">
         <li className="flex justify-center items-center gap-3 pr-4 border-r-2">
           <CiDeliveryTruck className="text-strongBeige text-[4rem]" />
-          <div
-          >
+          <div>
             <h3 className="font-bold ">LIVRAISON GRATUITE</h3>
             <h4>À partir de 300 DT</h4>
           </div>

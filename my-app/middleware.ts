@@ -6,13 +6,6 @@ const allowedOrigins = ["http://localhost:3000/"];
 export function middleware(req: NextResponse) {
   // retrieve the current response
   const res = NextResponse.next();
-  // res.cookies.set("Token", "AHMEEEEDDDDD", {
-  //   httpOnly: true,
-  //   path: "/",
-  //   sameSite: "strict",
-  //   secure: process.env.NODE_ENV !== "development",
-  //   maxAge: 60 * 60, // 1 hour
-  // });
 
   // retrieve the HTTP "Origin" header
   // from the incoming request
@@ -22,7 +15,6 @@ export function middleware(req: NextResponse) {
   // add it to the 'Access-Control-Allow-Origin' header
   if (allowedOrigins.includes(origin)) {
     res.headers.append("Access-Control-Allow-Origin", origin);
-   
   }
 
   // add the remaining CORS headers to the response
@@ -31,12 +23,12 @@ export function middleware(req: NextResponse) {
     "Access-Control-Allow-Methods",
     "GET,DELETE,PATCH,POST,PUT"
   );
- 
+
   res.headers.append(
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
   );
-  
+
 
   return res;
 }
