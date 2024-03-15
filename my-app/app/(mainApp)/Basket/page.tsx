@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import Cookies from "js-cookie";
+import Link from "next/link";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -21,6 +23,15 @@ const Basket = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
+
+  
   const BASKET_QUERY = gql`
     query BasketByUserId($userId: ID!) {
       basketByUserId(userId: $userId) {
@@ -250,12 +261,17 @@ const Basket = () => {
               Totale <span className="ml-auto">{totalPrice + 8} DT</span>
             </li>
           </ul>
-          <button
-            type="button"
-            className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded"
+          <Link
+            href={{
+              pathname: "/Checkout",
+              query: {
+                total: totalPrice + 8,
+              },
+            }}
+            className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded cursor-pointer"
           >
             Vérifier
-          </button>
+          </Link>
         </div>
       </div>
     </div>
