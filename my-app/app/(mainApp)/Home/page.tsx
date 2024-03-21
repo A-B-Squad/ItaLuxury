@@ -2,7 +2,7 @@ import React from "react";
 import AdsCarousel from "../../components/adverstissment/carousel";
 import Left from "../../components/adverstissment/left";
 import Right from "../../components/adverstissment/right";
-import Services from "@/components/services";
+import Services from "../../components/services";
 
 const Home = () => {
   return (

@@ -1,3 +1,4 @@
+import React from "react";
 import { CiDeliveryTruck } from "react-icons/ci";
 import { GrMoney } from "react-icons/gr";
 import { MdOutlineSupportAgent } from "react-icons/md";
@@ -5,8 +6,8 @@ import { TbTruckReturn } from "react-icons/tb";
 
 const Services = () => {
   return (
-    <section className="mt-10 border p-5 hidden lg:block">
-      <ul className="flex flex-row gap-20">
+    <section className="mt-10 border py-3 hidden lg:block">
+      <ul className="flex flex-row gap-20 items-center justify-center">
         <li className="flex justify-center items-center gap-3 pr-4 border-r-2">
           <CiDeliveryTruck className="text-strongBeige text-[4rem]" />
           <div>
