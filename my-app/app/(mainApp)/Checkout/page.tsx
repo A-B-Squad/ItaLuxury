@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
-import { input } from "@material-tailwind/react";
+import { useRouter } from "next/navigation";
+
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -14,7 +15,7 @@ const Checkout = ({ searchParams }: any) => {
   const [phone, setPhone] = useState<string>("");
   const [governorat, setGovernorat] = useState<string>("");
   const [addresse, setAddresse] = useState<string>("");
-
+    const router = useRouter()
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -125,6 +126,9 @@ const Checkout = ({ searchParams }: any) => {
                       address: addresse,
                     },
                   },
+                  onCompleted:()=>{
+                    router.push('/Home')
+                  }
                 });
               }}
             >

@@ -4,6 +4,8 @@ import { useQuery, useMutation, gql } from "@apollo/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
 import Link from "next/link";
+import { FaRegTrashAlt } from "react-icons/fa";
+
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -139,8 +141,8 @@ const Basket = () => {
 
   return (
     <div className="font-[sans-serif]">
-      <div className="grid lg:grid-cols-3">
-        <div className="lg:col-span-2 p-10 bg-white overflow-x-auto">
+      <div className="grid lg:grid-cols-3 gap-5 p-8">
+        <div className="lg:col-span-2 p-10 bg-white overflow-x-auto shadow-xl">
           <div className="flex border-b pb-4">
             <h2 className="text-2xl font-extrabold text-[#333] flex-1">
               Panier
@@ -175,11 +177,12 @@ const Basket = () => {
                           </p>
                           <button
                             type="button"
-                            className="mt-4 font-semibold text-red-400 text-sm"
+                            className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               handleRemoveProduct(product.basketId);
                             }}
                           >
+                            <FaRegTrashAlt />
                             Retirer
                           </button>
                         </div>
@@ -237,7 +240,7 @@ const Basket = () => {
                     </td>
                     <td className="py-6 px-4">
                       <h4 className="text-md font-bold text-[#333]">
-                        {product.price} DT
+                        {product.price.toFixed(3)} DT
                       </h4>
                     </td>
                   </tr>
@@ -246,19 +249,19 @@ const Basket = () => {
             </table>
           </div>
         </div>
-        <div className="bg-gray-50 p-10">
+        <div className="bg-gray-50 p-10 shadow-xl">
           <h3 className="text-xl font-extrabold text-[#333] border-b pb-4">
             Récapitulatif de la commande
           </h3>
           <ul className="text-[#333] divide-y mt-6">
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Total <span className="ml-auto font-bold">{totalPrice} DT</span>
+              Total <span className="ml-auto font-bold">{totalPrice.toFixed(3)} DT</span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Expédition <span className="ml-auto font-bold">8.00 DT</span>
+              Expédition <span className="ml-auto font-bold">8.000 DT</span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
-              Totale <span className="ml-auto">{totalPrice + 8} DT</span>
+              Totale <span className="ml-auto">{(totalPrice + 8).toFixed(3)} DT</span>
             </li>
           </ul>
           <Link

@@ -6,6 +6,8 @@ import { productsDiscounts } from "./allProductDiscounts";
 import { favoriteProducts } from "./favoriteProducts";
 import { productColors } from "./productColors";
 import { productReview } from "./productReview";
+import { getProductImages } from "./getProductImages";
+
 export const productQueries = {
     products,
     productsByCategory,
@@ -14,5 +16,6 @@ export const productQueries = {
     productsDiscounts,
     favoriteProducts,
     productColors,
-    productReview
+    productReview,
+    getProductImages
 }

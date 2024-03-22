@@ -5,7 +5,7 @@ CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR');
 CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'DELIVERED', 'PROCESSING', 'PAYED');
 
 -- CreateEnum
-CREATE TYPE "Cause" AS ENUM ('BROKEN', 'COLOR', 'CANCLED');
+CREATE TYPE "Cause" AS ENUM ('BROKEN', 'CANCEL', 'COLOR');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -40,7 +40,6 @@ CREATE TABLE "Product" (
     "solde" INTEGER NOT NULL DEFAULT 0,
     "images" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "colorsId" TEXT,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
@@ -52,6 +51,16 @@ CREATE TABLE "Colors" (
     "Hex" TEXT NOT NULL,
 
     CONSTRAINT "Colors_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductColorImage" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT,
+    "colorsId" TEXT,
+    "images" TEXT[],
+
+    CONSTRAINT "ProductColorImage_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -114,7 +123,6 @@ CREATE TABLE "Package" (
     "checkoutId" TEXT,
     "status" "Status" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "productQuantity" INTEGER NOT NULL,
 
     CONSTRAINT "Package_pkey" PRIMARY KEY ("id")
 );
@@ -220,7 +228,10 @@ CREATE INDEX "_CategoryToProduct_B_index" ON "_CategoryToProduct"("B");
 ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ProductColorImage" ADD CONSTRAINT "ProductColorImage_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductColorImage" ADD CONSTRAINT "ProductColorImage_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductDiscount" ADD CONSTRAINT "ProductDiscount_discountId_fkey" FOREIGN KEY ("discountId") REFERENCES "Discount"("id") ON DELETE CASCADE ON UPDATE CASCADE;

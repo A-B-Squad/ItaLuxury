@@ -27,6 +27,6 @@
     "**/.tsx",
     ".next/types/**/*.ts",
     "lib/apollo-wrapper.tsx"
-  ],
+, "app/(mainApp)/products/[productId]/page.tsx"  ],
   "exclude": ["node_modules"]
 }
