@@ -6,12 +6,13 @@ export const createAdvertisement = async (
     { prisma }: Context
 ) => {
     try {
-        const { images, position } = input;
+        const { images, position,link } = input;
         // Create the advertisement
         const advertisement = await prisma.advertisement.create({
             data: {
                 images,
                 position,
+                link
             },
         });
         // Return the created advertisement

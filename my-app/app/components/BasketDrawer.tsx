@@ -142,8 +142,8 @@ const BasketDrawer = () => {
             <div className="product-details">
               <div className="flow-root">
                 <ul role="list" className=" divide-y divide-gray-200">
-                  {products.map((product) => (
-                    <li className="flex py-6 ">
+                  {products.map((product, index) => (
+                    <li className="flex py-6 " key={index}>
                       <div className="h-24 w-20 flex-shrink-0 overflow-hidden rounded-md ">
                         <img
                           src={product.images[0]}

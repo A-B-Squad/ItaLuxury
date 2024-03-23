@@ -136,7 +136,6 @@ model Package {
   checkoutId String?
   status     Status
   createdAt  DateTime  @default(now())
-
 }
 
 model BackOrExchange {
@@ -177,6 +176,7 @@ model Advertisement {
   id       String   @id @default(uuid())
   images   String[]
   position String
+  link     String?
 }
 
 model Governorate {

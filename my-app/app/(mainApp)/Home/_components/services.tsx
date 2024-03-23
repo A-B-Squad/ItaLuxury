@@ -6,7 +6,7 @@ import { TbTruckReturn } from "react-icons/tb";
 const Services = () => {
   return (
     <section className="mt-10 border p-5 hidden lg:block">
-      <ul className="flex flex-row gap-20">
+      <ul className="flex justify-center gap-20">
         <li className="flex justify-center items-center gap-3 pr-4 border-r-2">
           <CiDeliveryTruck className="text-strongBeige text-[4rem]" />
           <div>

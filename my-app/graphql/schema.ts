@@ -193,6 +193,7 @@ type Advertisement {
   id: ID!
   images: [String!]!
   position: String!
+  link: String!
 }
 
 # Define the Governorate type

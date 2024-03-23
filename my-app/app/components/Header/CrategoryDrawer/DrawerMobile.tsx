@@ -1,10 +1,12 @@
 "use client";
 import { gql, useQuery } from "@apollo/client";
-import { Drawer, IconButton, Typography } from "@material-tailwind/react";
+import { Drawer, IconButton } from "@material-tailwind/react";
+import Link from "next/link";
 import React, { useState } from "react";
+import { FaUser } from "react-icons/fa";
 import { useDrawerMobileStore } from "../../../store/zustand";
 import Category from "./MainCategory";
-import Link from "next/link";
+
 interface Subcategory {
   name: string;
   subcategories?: Subcategory[];
@@ -40,10 +42,14 @@ export function DrawerMobile() {
         onClose={closeCategoryDrawer}
         placement="left"
         size={350}
-        className=" md:hidden "
+        className=" md:hidden   overflow-y-auto"
       >
         <div className=" px-2 py-3 flex items-center justify-center text-white bg-strongBeige  ">
-          <Link href="/signin" className="font-bold text-xl  ">
+          <Link
+            href="/signin"
+            className="font-bold text-xl  flex items-center gap-2 "
+          >
+            <FaUser />
             Bonjour, Identifiez-vous
           </Link>
           <IconButton
