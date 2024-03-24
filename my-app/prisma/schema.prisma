@@ -184,6 +184,7 @@ model Advertisement {
   id       String   @id @default(uuid())
   images   String[]
   position String
+  link     String?
 }
 
 model Governorate {

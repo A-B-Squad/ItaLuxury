@@ -23,16 +23,16 @@ const Subcategory: React.FC<SubcategoryProps> = ({
     <>
       <div
         onClick={() => backToMainCategory("")}
-        className="flex gap-3  cursor-pointer justify-around font-bold uppercase  items-center py-5"
+        className="flex gap-3 hover:bg-[#f7f7f7] transition-all  cursor-pointer justify-around font-bold uppercase  items-center py-3"
       >
         <IoArrowBack size={25} />
         <p>Menu Principal</p>
       </div>
 
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
-        <div key={subIndex} className=" bg-white h-fit ">
+        <div key={subIndex} className=" bg-white h-fit  cursor-pointer">
           <Link
-            href={`/${subcategory.name}-`}
+            href={`/${subcategory.name.split(" ").join("-")}-tunisie`}
             className="py-1  pl-5 font-bold text-strongBeige hover:font-bold w-full block transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >
