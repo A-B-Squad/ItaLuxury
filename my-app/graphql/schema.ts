@@ -67,15 +67,23 @@ type Product {
   baskets: [Basket!]
   reviews: [Review!]
   favoriteProducts: [FavoriteProducts!]
-  Colors: Colors!
   attributes: [ProductAttribute!]!
+  ProductColorImage: [ProductColorImage!]!
 }
 
 # Define the Colors type
 type Colors {
   id: ID!
   color: String!
-  products: [Product!]
+  Hex: String!
+  ProductColorImage: [ProductColorImage!]!
+}
+
+type ProductColorImage {
+  id:ID!
+  Product: Product!
+  Colors: Colors!
+  images:[String!]!
 }
 
 # Define the Discount type
@@ -228,6 +236,9 @@ type Query {
 
   # Fetch a product by its ID
   productById(id: ID!): Product!
+
+  #Custom query to fetch images of products based on productId and colorId
+  getProductImages(productId: String!, colorId: String!): [String!]!
 
   # Fetch all categories
   categories: [Category!]!

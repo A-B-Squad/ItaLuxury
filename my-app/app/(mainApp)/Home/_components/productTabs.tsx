@@ -1,9 +1,14 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { MdKeyboardArrowLeft } from "react-icons/md";
-import { MdKeyboardArrowRight } from "react-icons/md";
-
+import calcDateForNewProduct from "@/app/components/_calcDateForNewProduct";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import TitleProduct from "./titleProduct";
 
 const ProductTabs = ({ title, products }: any) => {
@@ -18,99 +23,79 @@ const ProductTabs = ({ title, products }: any) => {
     setIsHovered(false);
   };
 
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? 0 : prevIndex - 1));
-  };
-
-  const nextSlide = () => {
-    if (currentIndex < products.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-    }
-  };
-
   return (
     <div
-      className="products-tabs w-screen relative rounded-md shadow-lg "
+      className="products-tabs  relative rounded-md shadow-lg   grid "
       onMouseEnter={showNavigationButtons}
       onMouseLeave={hideNavigationButtons}
     >
       <TitleProduct title={title} />
 
-      <div className="flex overflow-hidden ">
-        <button
-          className={` ${
-            isHovered ? "left-0" : "left-[-50px]"
-          } transition-all absolute top-1/2 left-0 transform -translate-y-1/2 px-4 py-2 bg-strongBeige text-white rounded-full ${
-            currentIndex === 0 ? "bg-lightBeige" : ""
-          }`}
-          onClick={prevSlide}
-          disabled={currentIndex === 0}
-        >
-          <MdKeyboardArrowLeft />
-        </button>
-        <div className="carousel flex overflow-x-auto transition-transform gap-3  duration-500 ease-in-out">
-          {products.map((item: any, index: any) => (
-            <div
-              key={index}
-              className={` carousel-item shadow-lg border  w-72 p-4   transform transition-transform duration-500 
-            hover:scale-90 `}
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              <div className="rounded-md p-4 flex flex-col justify-center">
-                <div className="relative w-full h-fit flex justify-center items-center">
+      <div className="flex overflow-hidden w-full ">
+        <Carousel className="carousel w-full flex items-center   gap-3 transition-all  duration-500 ease-in-out">
+          <CarouselContent className="h-full">
+            {products.map((item: any, index: any) => (
+              <CarouselItem
+                key={index}
+                className={` carousel-item   flex overflow-hidden flex-col  border shadow-xl md:basis-1/2 lg:basis-1/4 xl:basis-1/5  
+                `}
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              >
+                {calcDateForNewProduct(item.createdAt) && (
+                  <span className="bg-green-500 w-fit ml-4 mt-2 z-40 uppercase p-1 text-white text-xs left-0">
+                    Nouveau
+                  </span>
+                )}
+                <div className="relative hover:scale-110  transition-all cursor-crosshair text-black    flex justify-center items-center">
                   <Image
                     src={item.image}
-                    width={300}
-                    height={300}
+                    className=" w-52 h-full"
+                    width={250}
+                    height={250}
                     alt={`products-${item.name}`}
                   />
                 </div>
-              </div>
-              <div className="relative z-10 mt-2">
-                <p className="text-sm font-bold  capitalize ">
-                  {item.categories[0].name}
-                </p>
-                <p className="text-sm font-medium">{item.name}</p>
-                <p
-                  className={`${
-                    item.newPrice
-                      ? "line-through text-gray-400"
-                      : "text-strongBeige "
-                  }font-semibold text-xl`}
-                >
-                  {item.price.toFixed(2)} DT
-                </p>
-                {item.newPrice && (
-                  <div className="flex items-center">
-                    <span className="text-gray-400 font-thin">
-                      A partir de :
-                    </span>
-                    <span className="text-red-700 font-bold ml-1">
-                      {item.newPrice.toFixed(2)} DT
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <button
-          className={`
-            ${isHovered ? "right-0" : "right-[-50px]"} transition-all
-              absolute top-1/2 right-0 transform -translate-y-1/2 px-4 py-2 bg-strongBeige text-white rounded-full ${
-                currentIndex === products.length - 1 ? "bg-lightBeige" : ""
-              } `}
-          onClick={nextSlide}
-          disabled={currentIndex === products.length - 1}
-        >
-          <MdKeyboardArrowRight />
-        </button>
-        {/* {products.length > 1 && (
-          <div className="relative top-1/2 transform -translate-y-1/2 flex justify-between w-full">
-          
-         
-          </div>
-        )} */}
+
+                <div className="relative z-10 mt-2 py-3 flex flex-col px-3 w-full justify-start items-start">
+                  <p className="text-sm font-bold  capitalize ">
+                    {item.categories[0].name}
+                  </p>
+                  <p className="text-sm font-medium">{item.name}</p>
+                  <p
+                    className={`${
+                      item.newPrice
+                        ? "line-through text-gray-400"
+                        : "text-strongBeige "
+                    }font-semibold text-xl`}
+                  >
+                    {item.price.toFixed(2)} DT
+                  </p>
+                  {item.newPrice && (
+                    <div className="flex items-center">
+                      <span className="text-gray-400 font-thin">
+                        A partir de :
+                      </span>
+                      <span className="text-red-700 font-bold ml-1">
+                        {item.newPrice.toFixed(2)} DT
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+
+          <CarouselPrevious
+            className={`${
+              isHovered ? " translate-x-16" : "-translate-x-16"
+            } px-2 transition-all bg-strongBeige text-white`}
+          />
+          <CarouselNext
+            className={`${
+              isHovered ? "-translate-x-2" : "translate-x-16"
+            } px-2 bg-strongBeige text-white transition-all`}
+          />
+        </Carousel>
       </div>
     </div>
   );

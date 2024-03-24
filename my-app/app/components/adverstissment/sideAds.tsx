@@ -4,13 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 const SideAds = ({ image, link }: any) => {
   return (
-    <div className="relative hidden md:block">
+    <div className="relative hidden h-96 w-96 md:block  overflow-hidden transition-opacity duration-300 hover:opacity-50">
       <Link href={link}>
         <Image
           width={300}
           height={500}
           src={image}
-          className="min-h-72 min-w-60"
+          className=" w-full h-full"
           alt="MaisonNg"
         />
       </Link>

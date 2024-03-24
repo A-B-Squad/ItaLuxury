@@ -147,7 +147,7 @@ const BasketDrawer = () => {
                       <div className="h-24 w-20 flex-shrink-0 overflow-hidden rounded-md ">
                         <img
                           src={product.images[0]}
-                          alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt."
+                          alt={product.name}
                           className="h-full w-full object-cover object-center"
                         />
                       </div>
