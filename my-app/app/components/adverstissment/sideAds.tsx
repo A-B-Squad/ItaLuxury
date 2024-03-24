@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 const SideAds = ({ image, link }: any) => {
   return (
-    <div className="relative hidden h-96 w-96 md:block  overflow-hidden transition-opacity duration-300 hover:opacity-50">
+    <div className="relative hidden w-2/4 md:block  overflow-hidden transition-opacity duration-300 hover:opacity-50">
       <Link href={link}>
         <Image
           width={300}

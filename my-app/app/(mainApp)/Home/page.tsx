@@ -19,6 +19,12 @@ const Home = () => {
           name: "Maison & Decorations",
         },
       ],
+      productDiscount: [
+        {
+          price: 49,
+          newPrice: 10,
+        },
+      ],
     },
     {
       id: 1,
@@ -45,6 +51,12 @@ const Home = () => {
       categories: [
         {
           name: "Maison & Decorations",
+        },
+      ],
+      productDiscount: [
+        {
+          price: 49,
+          newPrice: 10,
         },
       ],
     },
@@ -124,8 +136,8 @@ const Home = () => {
       createdAt: new Date(2003),
       name: "Product 6",
       description: "Description of Product 6",
-      price: 49,
-      newPrice: 10,
+      price: 20.9,
+
       image:
         "https://res.cloudinary.com/dc1cdbirz/image/upload/v1702579584/1698925472_M0455CBAA_M30G_E01_ZHC-removebg-preview_gthcjl.png",
       categories: [
