@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { useQuery, useLazyQuery, gql } from "@apollo/client";
-import ReactImageMagnify from "react-image-magnify";
-
+import { useSearchParams } from "next/navigation";
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
+  const SearchParams = useSearchParams();
+  const routeId = SearchParams.get("productId");
+
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -42,7 +44,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [getProductImages] = useLazyQuery(GET_PRODUCT_IMAGES_QUERY);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: params.productId },
+    variables: { productByIdId: routeId },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -50,11 +52,14 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setColors(
         data.productById.ProductColorImage.map((image: any) => image.Colors)
       );
+      console.log(data);
+      
     },
     onError: (error) => {
       console.log(error);
     },
   });
+  console.log(smallImages);
 
   return (
     <>
@@ -64,7 +69,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-12">
               <div className="lg:col-span-3 w-full lg:sticky top-0 text-center">
                 <div className="bg-lightBeige flex items-center justify-center px-4 py-10 rounded-xl">
-                  <ReactImageMagnify
+                  {/* <ReactImageMagnify
                     className="w-4/5 rounded object-cover"
                     {...{
                       smallImage: {
@@ -78,7 +83,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         height: 1800,
                       },
                     }}
-                  />
+                  /> */}
                 </div>
                 <div className="mt-6 flex flex-wrap justify-center gap-x-10 gap-y-6 mx-auto">
                   {smallImages.map((image: string, index: number) => (

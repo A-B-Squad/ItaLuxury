@@ -37,17 +37,7 @@ export const createProduct = async (
           // Connecting the new product to existing categories
           connect: categories.map((categoryId) => ({ id: categoryId })),
         },
-        Colors: {
-          // Connecting the new product to an existing color
-          connect: { id: colorsId },
-        },
         attributes: { create: attributeInputs }, // Creating new attributes for the product
-      },
-      include: {
-        attributes: true,
-        Colors: true,
-        categories: true,
-        productDiscounts: true,
       },
     });
 
