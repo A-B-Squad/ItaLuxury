@@ -88,20 +88,19 @@ type ProductColorImage {
 
 # Define the Discount type
 type Discount {
-  id: ID!
-  percentage: Int!
-  productDiscounts: [ProductDiscount!]
+  id: ID
+  percentage: Int
 }
 
-# Define the ProductDiscount type
+# Define the ProductDiscounts type
 type ProductDiscount {
-  id: ID!
-  discountId: ID!
-  productId: ID!
-  price: Float!
-  newPrice: Float!
-  dateOfStart: String!
-  dateOfEnd: String!
+  id: ID
+  Discount: Discount
+  # productId: ID
+  price: Float
+  newPrice: Float
+  dateOfStart: String
+  dateOfEnd: String
 }
 
 # Define the Basket type
@@ -229,7 +228,7 @@ type Moderator {
 # Define the Query type
 type Query {
   # Fetch all products
-  products: [Product!]
+  products(limit:Int): [Product!]
   
   # Fetch products by category name
   productsByCategory(categoryName: String!): [Product!]
@@ -366,7 +365,6 @@ input ProductInput {
   inventory: Int!
   images: [String!]!
   categories: [ID!]!
-  colorsId: ID
   attributeInputs: [ProductAttributeInput!]
   discount: [CreateProductDiscountInput]
 }

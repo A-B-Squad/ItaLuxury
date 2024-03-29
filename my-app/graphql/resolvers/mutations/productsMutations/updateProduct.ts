@@ -34,12 +34,10 @@ export const updateProduct = async (
         categories: {
           connect: categories.map((categoryId) => ({ id: categoryId })),
         },
-        Colors: { connect: { id: colorsId } },
         attributes: { create: attributeInputs },
       },
       include: {
         attributes: true,
-        Colors: true,
         categories: true,
         productDiscounts: true,
       },
@@ -85,6 +83,7 @@ export const updateProduct = async (
     return productUpdated;
   } catch (error) {
     console.error("Error updating product:", error);
+    return error
     return `Failed to update product." ${error}.`;
 
   }
