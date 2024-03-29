@@ -1,6 +1,9 @@
-"use client";
 import calcDateForNewProduct from "@/app/components/_calcDateForNewProduct";
 import prepRoute from "@/app/components/_prepRoute";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import Cookies from "js-cookie";
+import { gql, useMutation } from "@apollo/client";
+
 import {
   Carousel,
   CarouselContent,
@@ -10,9 +13,11 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import Link from "next/link";
-import TitleProduct from "./titleProduct";
 import { useState } from "react";
 import Loading from "./Loading";
+import TitleProduct from "./titleProduct";
+import { useDrawerBasketStore } from "@/app/store/zustand";
+
 interface Product {
   images: string[];
   Colors: {
@@ -21,7 +26,24 @@ interface Product {
   };
 }
 
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
+
+const ADD_TO_BASKET = gql`
+  mutation AddToBasket($input: CreateToBasketInput!) {
+    addToBasket(input: $input) {
+      id
+      userId
+      quantity
+      productId
+    }
+  }
+`;
+
 const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
+  const { openBasketDrawer } = useDrawerBasketStore();
+
   const [selectedColors, setSelectedColors] = useState<Record<string, Product>>(
     {}
   );
@@ -37,7 +59,30 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
     setSelectedColors({});
   };
 
-  
+  const [addToBasketMutation, { loading: addToBasketLoading }] =
+    useMutation(ADD_TO_BASKET);
+
+  const AddToBasket = (productId: string) => {
+    const token = Cookies.get("Token");
+
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      console.log(decoded);
+      addToBasketMutation({
+        variables: {
+          input: {
+            userId: decoded.userId,
+            productId: productId,
+            quantity: 1,
+          },
+        },
+      });
+    } else {
+      window.sessionStorage.setItem("products", productId);
+    }
+    openBasketDrawer();
+  };
+
   return (
     <div className="products-tabs relative cursor-pointer rounded-md shadow-lg grid">
       <TitleProduct title={title} />
@@ -49,7 +94,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
               {data?.products.map((product: any, index: any) => (
                 <CarouselItem
                   key={index}
-                  className="carousel-item group hover:rounded-sm  transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                  className="carousel-item group hover:rounded-sm lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3  xl:basis-1/5"
                 >
                   <Link
                     className="w-full group-hover:bg-[#00000030] transition-colors"
@@ -106,47 +151,61 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                     </Link>
 
                     <button
+                      onClick={() => AddToBasket(product.id)}
                       className={`${
                         product.productDiscounts.length > 0
                           ? "group-hover:-translate-y-4 "
                           : "group-hover:translate-y-1 "
                       } bg-strongBeige  uppercase absolute translate-y-32 left-1/2 -translate-x-1/2 group-hover:translate-y-0 text-xs md:text-sm md:px-3 z-50 hover:bg-mediumBeige transition-all text-white w-4/5 py-2 rounded-md`}
+                      disabled={addToBasketLoading}
                     >
-                      Ajouter au
+                      {addToBasketLoading ? "Adding..." : "Ajouter au"}
                     </button>
 
-                    <div className="colors_available">
-                      <ul>
-                        {product?.ProductColorImage?.map(
-                          (productColor: Product, index: number) => (
-                            <li
-                              key={index}
-                              className="w-5 h-5 border-1 border-gray-200 shadow-gray-400 shadow-sm"
-                              onMouseEnter={() =>
-                                handleColorHover(product.id, productColor)
-                              }
-                              onMouseLeave={handleColorHoverEnd}
-                              style={{
-                                backgroundColor: productColor.Colors.Hex,
-                              }}
-                            />
-                          )
-                        )}
-                      </ul>
-                    </div>
-
-                    {!!selectedColors[product.id] && (
-                      <div className="product_color_selected flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
-                        <Image
-                          width={90}
-                          height={90}
-                          src={selectedColors[product.id].images[0]}
-                          alt={product.name}
-                          layout="responsive"
-                        />
-                        <p>{selectedColors[product.id].Colors.color}</p>
+                    <Link
+                      href={{
+                        pathname: `products/tunisie/${prepRoute(product.name)}`,
+                        query: {
+                          productId: product.id,
+                        },
+                      }}
+                      product-name={product.name}
+                    >
+                      <div className="colors_available">
+                        <ul>
+                          {product?.ProductColorImage?.map(
+                            (productColor: Product, index: number) => (
+                              <li
+                                key={index}
+                                className="w-5 h-5 border-1 border-gray-200 shadow-gray-400 shadow-sm"
+                                onMouseEnter={() =>
+                                  handleColorHover(product.id, productColor)
+                                }
+                                onMouseLeave={handleColorHoverEnd}
+                                style={{
+                                  backgroundColor: productColor.Colors.Hex,
+                                }}
+                              />
+                            )
+                          )}
+                        </ul>
                       </div>
-                    )}
+
+                      {!!selectedColors[product.id] && (
+                        <div className="product_color_selected flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
+                          <Image
+                            width={90}
+                            height={90}
+                            src={selectedColors[product.id].images[0]}
+                            alt={product.name}
+                            layout="responsive"
+                          />
+                          <p className="pb-5">
+                            {selectedColors[product.id].Colors.color}
+                          </p>
+                        </div>
+                      )}
+                    </Link>
 
                     <div className="priceDetails group-hover:translate-y-32 translate-y-0">
                       <p
