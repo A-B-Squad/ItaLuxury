@@ -63,7 +63,7 @@ type Product {
   images: [String!]
   createdAt: String!
   categories: [Category!]!
-  productDiscount: [ProductDiscount!]
+  productDiscounts: [ProductDiscount!]
   baskets: [Basket!]
   reviews: [Review!]
   favoriteProducts: [FavoriteProducts!]
@@ -296,6 +296,7 @@ type Mutation {
   createProduct(input: ProductInput!): Product!
   updateProduct(productId: ID!, input: ProductInput!): Product!
   deleteProduct(productId: ID!): String!
+  addRating(productId:ID!,userId:ID!,rating:Int!):String!
 
   # New mutation to undo product sale
   undoSellProduct(productId: ID!, quantityReturned: Int!): Product!

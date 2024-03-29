@@ -1,14 +1,42 @@
 "use client";
 
-import React, { useState } from "react";
-import { useQuery, useLazyQuery, gql } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
 import ReactImageMagnify from "react-image-magnify";
+import { FaStar } from "react-icons/fa";
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
   const [colors, setColors] = useState<any>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [hover, setHover] = useState<any>(null);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const [discount, setDiscount] = useState<any>(null);
+  const [reviews, setReviews] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [successMsg, setSuccessMsg] = useState<string>("");
+  const [attributes, setAttributes] = useState<any>(null);
+  interface DecodedToken extends JwtPayload {
+    userId: string;
+  }
+
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+    getReviews({
+      variables: { productId: params.productId },
+      onCompleted: (data) => {
+        setReviews(data.productReview.length);
+      },
+    });
+  }, []);
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -23,12 +51,24 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         solde
         images
         createdAt
+        productDiscounts {
+          id
+          price
+          newPrice
+          dateOfEnd
+          dateOfStart
+        }
         ProductColorImage {
           Colors {
             id
             color
             Hex
           }
+        }
+        attributes {
+          id
+          name
+          value
         }
       }
     }
@@ -39,7 +79,47 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       getProductImages(productId: $productId, colorId: $colorId)
     }
   `;
+
+  const ADD_RATING_MUTATION = gql`
+    mutation AddRating($productId: ID!, $userId: ID!, $rating: Int!) {
+      addRating(productId: $productId, userId: $userId, rating: $rating)
+    }
+  `;
+  const GET_REVIEW_QUERY = gql`
+    query ProductReview($productId: ID!) {
+      productReview(productId: $productId) {
+        id
+        rating
+        userId
+      }
+    }
+  `;
+
+  const ADD_TO_BASKET = gql`
+    mutation AddToBasket($input: CreateToBasketInput!) {
+      addToBasket(input: $input) {
+        id
+        userId
+        quantity
+        productId
+      }
+    }
+  `;
+
+  const ADD_TO_FAVORITE = gql`
+    mutation AddProductToFavorite($input: AddProductToFavoriteInput!) {
+      addProductToFavorite(input: $input) {
+        id
+        userId
+        productId
+      }
+    }
+  `;
+
+  const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
   const [getProductImages] = useLazyQuery(GET_PRODUCT_IMAGES_QUERY);
+  const [addToBasket] = useMutation(ADD_TO_BASKET);
+  const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
     variables: { productByIdId: params.productId },
@@ -50,16 +130,63 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setColors(
         data.productById.ProductColorImage.map((image: any) => image.Colors)
       );
+      setDiscount(data.productById.productDiscounts[0]);
+      setAttributes(data.productById.attributes);
     },
     onError: (error) => {
       console.log(error);
     },
   });
 
+  const [addRating] = useMutation(ADD_RATING_MUTATION);
+
   return (
     <>
       {!!productDetails ? (
         <div className="font-[sans-serif]">
+          {successMsg && (
+            <div
+              id="alert-3"
+              className="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 "
+              role="alert"
+            >
+              <svg
+                className="flex-shrink-0 w-4 h-4"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+              </svg>
+              <span className="sr-only">Info</span>
+              <div className="ms-3 text-sm font-medium">{successMsg}</div>
+              <button
+                type="button"
+                className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 "
+                onClick={() => setSuccessMsg("")}
+                data-dismiss-target="#alert-3"
+                aria-label="Close"
+              >
+                <span className="sr-only">Close</span>
+                <svg
+                  className="w-3 h-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 14 14"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
             <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-12">
               <div className="lg:col-span-3 w-full lg:sticky top-0 text-center">
@@ -68,7 +195,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     className="w-4/5 rounded object-cover"
                     {...{
                       smallImage: {
-                        alt: "Wristwatch by Ted Baker London",
+                        alt: "product",
                         isFluidWidth: true,
                         src: bigImage,
                       },
@@ -101,66 +228,87 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 </h2>
                 <div className="flex flex-wrap gap-4 mt-4">
                   <p className="text-strongBeige text-4xl font-bold">
-                    {productDetails.price} DT
+                    {discount ? discount.newPrice : productDetails.price} DT
                   </p>
-                  {/* <p className="text-gray-400 text-xl">
-                    <p className="line-through">16 DT</p>{" "}
-                    <span className="text-sm ml-1">Tax inclus</span>
-                  </p> */}
+                  {discount && (
+                    <p className="text-gray-400 text-xl">
+                      <p className="line-through">{discount.price} DT</p>{" "}
+                      <span className="text-sm ml-1">Tax inclus</span>
+                    </p>
+                  )}
                 </div>
-                <div className="flex space-x-2 mt-4">
-                  <svg
-                    className="w-5 fill-strongBeige"
-                    viewBox="0 0 14 13"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                  </svg>
-                  <svg
-                    className="w-5 fill-strongBeige"
-                    viewBox="0 0 14 13"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                  </svg>
-                  <svg
-                    className="w-5 fill-strongBeige"
-                    viewBox="0 0 14 13"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                  </svg>
-                  <svg
-                    className="w-5 fill-strongBeige"
-                    viewBox="0 0 14 13"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                  </svg>
-                  <svg
-                    className="w-5 fill-[#CED5D8]"
-                    viewBox="0 0 14 13"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                  </svg>
-                  <h4 className="text-strongBeige text-base">500 Reviews</h4>
+                <div className="flex space-x-2 mt-4 items-center">
+                  {[...Array(5)].map((star, index) => {
+                    const currentIndex = index + 1;
+                    return (
+                      <label>
+                        <input
+                          className="hidden"
+                          type="radio"
+                          name="rating"
+                          value={currentIndex}
+                          onClick={() => {
+                            setRating(currentIndex);
+                            addRating({
+                              variables: {
+                                productId: params.productId,
+                                userId: "aaa",
+                                rating: currentIndex,
+                              },
+                            });
+                          }}
+                        />
+                        <FaStar
+                          size={28}
+                          className="cursor-pointer"
+                          color={
+                            currentIndex <= (hover || rating)
+                              ? "#f17e7e"
+                              : "grey"
+                          }
+                          onMouseEnter={() => setHover(currentIndex)}
+                          onMouseLeave={() => setHover(null)}
+                        />
+                      </label>
+                    );
+                  })}
+                  <h4 className="text-strongBeige text-base">
+                    {reviews} Commentaires
+                  </h4>
                 </div>
                 <div className="flex flex-wrap gap-4 mt-8">
                   <button
                     type="button"
                     className="min-w-[200px] px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                    onClick={() => {
+                      addToBasket({
+                        variables: {
+                          input: {
+                            userId: "aaa",
+                            quantity: quantity,
+                            productId: params.productId,
+                          },
+                        },
+                      });
+                      setSuccessMsg("Produit ajouté avec succès au panier !");
+                    }}
                   >
                     Ajouter au panier
                   </button>
                   <button
                     type="button"
                     className="min-w-[200px] px-4 py-2.5 border border-strongBeige bg-transparent text-strongBeige hover:bg-strongBeige hover:text-white text-sm font-bold rounded"
+                    onClick={() => {
+                      addToFavorite({
+                        variables: {
+                          input: {
+                            userId: "aaa",
+                            productId: params.productId,
+                          },
+                        },
+                      });
+                      setSuccessMsg("Produit ajouté avec succès au favoris !");
+                    }}
                   >
                     Ajouter au favoris
                   </button>
@@ -193,6 +341,53 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     </div>
                   </div>
                   <h3 className="text-lg font-bold text-strongBeige mt-10">
+                    Quantité
+                  </h3>
+                  <div className="flex divide-x border w-max">
+                    <button
+                      type="button"
+                      className="bg-lightBeige px-4 py-2 font-semibold cursor-pointer"
+                      onClick={() => {
+                        setQuantity(quantity - 1);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-3 fill-current cursor-pointer"
+                        viewBox="0 0 124 124"
+                      >
+                        <path
+                          d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
+                          data-original="#000000"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md"
+                    >
+                      {quantity}
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-strongBeige text-white px-4 py-2 font-semibold cursor-pointer"
+                      onClick={() => {
+                        setQuantity(quantity + 1);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-3 fill-current cursor-pointer"
+                        viewBox="0 0 42 42"
+                      >
+                        <path
+                          d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
+                          data-original="#000000"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <h3 className="text-lg font-bold text-strongBeige mt-10">
                     Description
                   </h3>
                   <ul className="space-y-3 list-disc mt-4 pl-4 text-sm text-gray-600">
@@ -207,7 +402,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   </ul>
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-strongBeige">
-                      Commentaires(10)
+                      Commentaires({reviews})
                     </h3>
                     <div className="space-y-3 mt-4">
                       <div className="flex items-center">
@@ -291,42 +486,20 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
               </div>
             </div>
           </div>
-          {/* <div className="mt-16 mb-10 mx-10 shadow-2xl p-6">
-            <h3 className="text-lg font-bold text-[#333]">Information de produit</h3>
-            <ul className="mt-6 space-y-6 text-[#333]">
-              <li className="text-sm pb-2 border-b">
-                TYPE <span className="ml-4 float-right">LAPTOP</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                RAM <span className="ml-4 float-right">16 BG</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                SSD <span className="ml-4 float-right">1000 BG</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                PROCESSOR TYPE{" "}
-                <span className="ml-4 float-right">INTEL CORE I7-12700H</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                PROCESSOR SPEED{" "}
-                <span className="ml-4 float-right">2.3 - 4.7 GHz</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                DISPLAY SIZE INCH <span className="ml-4 float-right">16.0</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                DISPLAY SIZE SM <span className="ml-4 float-right">40.64 cm</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                DISPLAY TYPE{" "}
-                <span className="ml-4 float-right">OLED, TOUCHSCREEN, 120 Hz</span>
-              </li>
-              <li className="text-sm pb-2 border-b">
-                DISPLAY RESOLUTION{" "}
-                <span className="ml-4 float-right">2880x1620</span>
-              </li>
-            </ul>
-          </div> */}
+          {attributes && (
+            <div className="mt-16 mb-10 mx-10 shadow-2xl p-6">
+              <h3 className="text-lg font-bold text-[#333]">
+                Information de produit
+              </h3>
+              <ul className="mt-6 space-y-6 text-[#333]">
+                {attributes.map((attribute: any) => (
+                  <li className="text-sm pb-2 border-b">
+                    {attribute.name.toUpperCase()} <span className="ml-4 float-right">{attribute.value.toUpperCase()}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       ) : (
         <div
