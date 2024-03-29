@@ -18,7 +18,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./*", "./app/*"]
+      "@/*": ["./*", "./app/*","./app/(mainApp)/*"]
     }
   },
   "include": [
@@ -27,6 +27,6 @@
     "**/.tsx",
     ".next/types/**/*.ts",
     "lib/apollo-wrapper.tsx"
-, "app/(mainApp)/Home/_components/titleProduct.tsx"  ],
+  ],
   "exclude": ["node_modules"]
 }

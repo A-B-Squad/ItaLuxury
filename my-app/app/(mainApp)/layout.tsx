@@ -1,6 +1,6 @@
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import React from "react";
 import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
@@ -14,11 +14,8 @@ if (process.env.NODE_ENV !== "production") {
   loadErrorMessages();
 }
 
-const roboto = Roboto({
-  weight: ["100","300","400", "700"],
-  style: ["normal", "italic"],
+const openSans = Open_Sans({
   subsets: ["latin"],
-  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={roboto.className}>
+      <body className={openSans.className}>
         <DrawerMobile />
         <BasketDrawer />
 
