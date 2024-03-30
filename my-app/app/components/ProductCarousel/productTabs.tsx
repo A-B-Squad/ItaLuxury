@@ -131,8 +131,8 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                     </div>
                   </Link>
 
-                  <div className="relative border-t-1 flex flex-col px-3 w-full justify-end items-start">
-                    <p className="category  font-normal tracking-widest  text-xs capitalize">
+                  <div className="relative border-t-2  flex flex-col px-3 w-full justify-end items-start">
+                    <p className="category  font-normal tracking-widest  text-xs py-1 capitalize">
                       {product.categories[2]?.name}
                     </p>
 
@@ -163,6 +163,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                     </button>
 
                     <Link
+                      className="py-1"
                       href={{
                         pathname: `products/tunisie/${prepRoute(product.name)}`,
                         query: {
