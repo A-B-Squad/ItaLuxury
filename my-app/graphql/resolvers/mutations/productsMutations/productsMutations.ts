@@ -5,6 +5,8 @@ import { addProductToFavorite } from "./addProductToFavorite";
 import { sellProduct } from "./sellProduct";
 import { undoSellProduct } from "./undoSellProduct";
 import { deleteProductDiscount } from "./deleteProductDiscount";
+import { addRating } from "./addRating";
+
 export const productsMutations = {
   createProduct,
   updateProduct,
@@ -12,5 +14,6 @@ export const productsMutations = {
   addProductToFavorite,
   deleteProductDiscount, 
   undoSellProduct, 
-  sellProduct
+  sellProduct,
+  addRating
 };
