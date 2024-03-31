@@ -49,7 +49,7 @@ const Signup = () => {
         console.log(error);
         console.log("====================================");
       }
-    }
+    },
   });
 
   const handleSubmit = (e: React.SyntheticEvent) => {

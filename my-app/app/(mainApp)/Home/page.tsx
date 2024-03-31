@@ -1,12 +1,12 @@
 "use client";
-import SideAds from "@/components/adverstissment/sideAds";
-import AdsCarousel from "../../components/adverstissment/carousel";
-import Left from "../../components/adverstissment/left";
-import Right from "../../components/adverstissment/right";
+import SideAds from "@/app/components/adverstissment/SideAds";
+import AdsCarousel from "@/components/adverstissment/carousel";
+import Left from "@/components/adverstissment/Left";
+import Right from "@/components/adverstissment/Right";
 import Services from "./_components/services";
-import ProductTabs from "../../components/ProductCarousel/productTabs";
+import ProductTabs from "@/components/ProductCarousel/productTabs";
 import { gql, useQuery } from "@apollo/client";
-
+import FullWidth from "@/components/adverstissment/FullWidth";
 const Home = () => {
   const TAKE_6_PRODUCTS = gql`
     query Products($limit: Int!) {
@@ -75,6 +75,45 @@ const Home = () => {
             data={data}
             loadingNewProduct={loadingNewProduct}
           />
+        </div>
+        <FullWidth />
+        <div className="A_20DT">
+          <ProductTabs
+            title={"l'essentiel a 20DT"}
+            data={data}
+            loadingNewProduct={loadingNewProduct}
+          />
+        </div>
+        <FullWidth />
+        <div className="Promotion mt-10 flex gap-3">
+          <div className="flex flex-col w-1/3 gap-5">
+            <SideAds
+              adsLoaded={loadingAdsNewProduct}
+              image={leftAds?.advertismentByPosition?.images[0]}
+              link={leftAds?.advertismentByPosition?.link}
+            />
+            <SideAds
+              adsLoaded={loadingAdsNewProduct}
+              image={leftAds?.advertismentByPosition?.images[0]}
+              link={leftAds?.advertismentByPosition?.link}
+            />
+          </div>
+          <ProductTabs
+            title={"offre de moment"}
+            data={data}
+            loadingNewProduct={loadingNewProduct}
+          />
+        </div>
+        <div className="servise_client flex gap-5 py-10">
+          <div className="bg-mediumBeige w-full h-52">
+            Service clent image 1
+          </div>
+          <div className="bg-mediumBeige w-full h-52">
+            Service clent image 2
+          </div>
+          <div className="bg-mediumBeige w-full h-52">
+            Service clent image 3
+          </div>
         </div>
       </div>
     </div>
