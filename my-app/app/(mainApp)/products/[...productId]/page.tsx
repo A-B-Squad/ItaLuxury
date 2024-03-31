@@ -2,12 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
-import ReactImageMagnify from "react-image-magnify";
+
+import InnerImageZoom from "react-inner-image-zoom";
 import { FaStar } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
+import { RiSubtractFill } from "react-icons/ri";
+
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-
-const ProductDetails = ({ params }: { params: { productId: string } }) => {
+import { useSearchParams } from "next/navigation";
+import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
+const ProductDetails = () => {
+  const SearchParams = useSearchParams();
+  const productId = SearchParams.get("productId");
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -31,7 +38,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setDecodedToken(decoded);
     }
     getReviews({
-      variables: { productId: params.productId },
+      variables: { productId: productId },
       onCompleted: (data) => {
         setReviews(data.productReview.length);
       },
@@ -122,7 +129,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: params.productId },
+    variables: { productByIdId: productId },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -143,7 +150,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   return (
     <>
       {!!productDetails ? (
-        <div className="font-[sans-serif]">
+        <div>
           {successMsg && (
             <div
               id="alert-3"
@@ -160,7 +167,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
               </svg>
               <span className="sr-only">Info</span>
-              <div className="ms-3 text-sm font-medium">{successMsg}</div>
+              <div className="ms-3 text-sm font-medium tracking-widest">
+                {successMsg}
+              </div>
               <button
                 type="button"
                 className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 "
@@ -189,32 +198,28 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
             <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-12">
-              <div className="lg:col-span-3 w-full lg:sticky top-0 text-center">
-                <div className="bg-lightBeige flex items-center justify-center px-4 py-10 rounded-xl">
-                  <ReactImageMagnify
+              <div className=" flex lg:flex-row flex-col gap-2 lg:col-span-3 w-full lg:sticky text-center">
+                <div className="shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
+                  <InnerImageZoom
                     className="w-4/5 rounded object-cover"
-                    {...{
-                      smallImage: {
-                        alt: "product",
-                        isFluidWidth: true,
-                        src: bigImage,
-                      },
-                      largeImage: {
-                        src: bigImage,
-                        width: 1120,
-                        height: 1800,
-                      },
-                    }}
+                    zoomSrc={bigImage}
+                    src={bigImage}
+                    zoomType="hover"
+                    hideHint
+                    zoomScale={1.5}
                   />
                 </div>
-                <div className="mt-6 flex flex-wrap justify-center gap-x-10 gap-y-6 mx-auto">
+                <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
                   {smallImages.map((image: string, index: number) => (
-                    <div key={index} className="bg-lightBeige rounded-xl p-4">
+                    <div
+                      key={index}
+                      className="shadow-md w-fit h-fit rounded-md p-[7px]"
+                    >
                       <img
                         src={image}
                         alt="Product2"
                         className="w-24 cursor-pointer"
-                        onClick={() => {
+                        onMouseEnter={() => {
                           setBigImage(image);
                         }}
                       />
@@ -222,26 +227,139 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   ))}
                 </div>
               </div>
-              <div className="lg:col-span-2">
-                <h2 className="text-2xl font-extrabold text-strongBeige">
+
+              <div className="product lg:col-span-2">
+                <h2 className="product_name text-2xl font-bold tracking-wide text-strongBeige">
                   {productDetails.name}
                 </h2>
-                <div className="flex flex-wrap gap-4 mt-4">
+
+                <div className="discount flex flex-wrap gap-4 mt-4">
                   <p className="text-strongBeige text-4xl font-bold">
-                    {discount ? discount.newPrice : productDetails.price} DT
+                    {discount
+                      ? discount.newPrice
+                      : productDetails.price.toFixed(3)}{" "}
+                    DT
                   </p>
                   {discount && (
                     <p className="text-gray-400 text-xl">
-                      <p className="line-through">{discount.price} DT</p>{" "}
+                      <p className="line-through">
+                        {discount.price.toFixed(3)} DT
+                      </p>{" "}
                       <span className="text-sm ml-1">Tax inclus</span>
                     </p>
                   )}
                 </div>
-                <div className="flex space-x-2 mt-4 items-center">
-                  {[...Array(5)].map((star, index) => {
+
+                <div className="Add_to_basket flex flex-wrap gap-4 mt-8">
+                  <button
+                    type="button"
+                    className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                    onClick={() => {
+                      addToBasket({
+                        variables: {
+                          input: {
+                            userId: "aaa",
+                            quantity: quantity,
+                            productId: productId,
+                          },
+                        },
+                      });
+                      setSuccessMsg("Produit ajouté avec succès au panier !");
+                    }}
+                  >
+                    Ajouter au panier
+                  </button>
+                  <button
+                    type="button"
+                    className="min-w-[200px] px-4 py-2.5  transition-colors border border-strongBeige bg-transparent text-strongBeige hover:bg-strongBeige hover:text-white text-sm font-bold rounded"
+                    onClick={() => {
+                      addToFavorite({
+                        variables: {
+                          input: {
+                            userId: "aaa",
+                            productId: productId,
+                          },
+                        },
+                      });
+                      setSuccessMsg("Produit ajouté avec succès au favoris !");
+                    }}
+                  >
+                    Ajouter au favoris
+                  </button>
+                </div>
+                <div className="Infomation_Details ">
+                  <div className="All_color_available space-y-2  mt-5">
+                    <h3 className="text-lg font-bold tracking-wider capitalize text-strongBeige">
+                      Choisir une couleur
+                    </h3>
+                    <div className="flex flex-wrap gap-2 ">
+                      {colors.map((color: any, index: number) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            getProductImages({
+                              variables: {
+                                productId: productId,
+                                colorId: color.id,
+                              },
+                              onCompleted: (data) => {
+                                setSmallImages(data.getProductImages);
+                                setBigImage(data.getProductImages[0]);
+                              },
+                            });
+                          }}
+                          type="button"
+                          style={{ backgroundColor: `${color.color}` }}
+                          className={`w-8 h-8 shadow-sm shadow-gray-300   border-2 transition-colors hover:border-gray-800 rounded-lg shrink-0`}
+                        ></button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="Quantity space-y-2">
+                    <h3 className="text-lg tracking-wider font-bold capitalize text-strongBeige mt-5">
+                      Quantité
+                    </h3>
+                    <div className="flex divide-x border w-max overflow-hidden rounded-md">
+                      <button
+                        type="button"
+                        className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          setQuantity(quantity - 1);
+                        }}
+                      >
+                        <RiSubtractFill />
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+                      >
+                        {quantity}
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          setQuantity(quantity + 1);
+                        }}
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="Description">
+                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-10">
+                      Description
+                    </h3>
+                    <ul className="space-y-3 tracking-widest list-disc mt-4 pl-4 text-sm text-gray-600">
+                      <li>{productDetails.description}</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="Rating_stars flex space-x-2 mt-4 items-center">
+                  {[...Array(5)].map((_, index) => {
                     const currentIndex = index + 1;
                     return (
-                      <label>
+                      <label key={currentIndex}>
                         <input
                           className="hidden"
                           type="radio"
@@ -251,7 +369,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             setRating(currentIndex);
                             addRating({
                               variables: {
-                                productId: params.productId,
+                                productId: productId,
                                 userId: "aaa",
                                 rating: currentIndex,
                               },
@@ -259,7 +377,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           }}
                         />
                         <FaStar
-                          size={28}
+                          size={20}
                           className="cursor-pointer"
                           color={
                             currentIndex <= (hover || rating)
@@ -272,134 +390,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </label>
                     );
                   })}
-                  <h4 className="text-strongBeige text-base">
+                  <h4 className="text-strongBeige text-sm">
                     {reviews} Commentaires
                   </h4>
                 </div>
-                <div className="flex flex-wrap gap-4 mt-8">
-                  <button
-                    type="button"
-                    className="min-w-[200px] px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
-                    onClick={() => {
-                      addToBasket({
-                        variables: {
-                          input: {
-                            userId: "aaa",
-                            quantity: quantity,
-                            productId: params.productId,
-                          },
-                        },
-                      });
-                      setSuccessMsg("Produit ajouté avec succès au panier !");
-                    }}
-                  >
-                    Ajouter au panier
-                  </button>
-                  <button
-                    type="button"
-                    className="min-w-[200px] px-4 py-2.5 border border-strongBeige bg-transparent text-strongBeige hover:bg-strongBeige hover:text-white text-sm font-bold rounded"
-                    onClick={() => {
-                      addToFavorite({
-                        variables: {
-                          input: {
-                            userId: "aaa",
-                            productId: params.productId,
-                          },
-                        },
-                      });
-                      setSuccessMsg("Produit ajouté avec succès au favoris !");
-                    }}
-                  >
-                    Ajouter au favoris
-                  </button>
-                </div>
-                <div className="mt-8">
-                  <div className="mt-10">
-                    <h3 className="text-lg font-bold text-strongBeige">
-                      Choisir une couleur
-                    </h3>
-                    <div className="flex flex-wrap gap-4 mt-4">
-                      {colors.map((color: any, index: number) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            getProductImages({
-                              variables: {
-                                productId: params.productId,
-                                colorId: color.id,
-                              },
-                              onCompleted: (data) => {
-                                setSmallImages(data.getProductImages);
-                                setBigImage(data.getProductImages[0]);
-                              },
-                            });
-                          }}
-                          type="button"
-                          className={`w-12 h-12  bg-${color.color}-500 border-2 border-white hover:border-gray-800 rounded-lg shrink-0`}
-                        ></button>
-                      ))}
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-bold text-strongBeige mt-10">
-                    Quantité
-                  </h3>
-                  <div className="flex divide-x border w-max">
-                    <button
-                      type="button"
-                      className="bg-lightBeige px-4 py-2 font-semibold cursor-pointer"
-                      onClick={() => {
-                        setQuantity(quantity - 1);
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-3 fill-current cursor-pointer"
-                        viewBox="0 0 124 124"
-                      >
-                        <path
-                          d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
-                          data-original="#000000"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md"
-                    >
-                      {quantity}
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-strongBeige text-white px-4 py-2 font-semibold cursor-pointer"
-                      onClick={() => {
-                        setQuantity(quantity + 1);
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-3 fill-current cursor-pointer"
-                        viewBox="0 0 42 42"
-                      >
-                        <path
-                          d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
-                          data-original="#000000"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                  <h3 className="text-lg font-bold text-strongBeige mt-10">
-                    Description
-                  </h3>
-                  <ul className="space-y-3 list-disc mt-4 pl-4 text-sm text-gray-600">
-                    <li>{productDetails.description}</li>
-                  </ul>
-                </div>
-                <div className="mt-8">
-                  <ul className="flex">
-                    <li className="text-white font-bold text-sm bg-mediumBeige py-3 px-8 pb-2 border-b-2 border-strongBeige cursor-pointer transition-all">
-                      Commentaires
-                    </li>
-                  </ul>
+                <div className="Rating mt-8">
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-strongBeige">
                       Commentaires({reviews})
@@ -407,14 +402,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     <div className="space-y-3 mt-4">
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">5.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-2/3 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -422,14 +412,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">4.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-1/3 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -437,14 +421,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">3.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-1/6 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -452,14 +430,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">2.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-1/12 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -467,14 +439,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">1.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-[6%] h-full rounded bg-strongBeige"></div>
                         </div>
@@ -487,14 +453,17 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             </div>
           </div>
           {attributes && (
-            <div className="mt-16 mb-10 mx-10 shadow-2xl p-6">
-              <h3 className="text-lg font-bold text-[#333]">
+            <div className=" my-10 mx-5 lg:mx-auto max-w-7xl m-auto  shadow-2xl ">
+              <h3 className="text-lg font-bold  text-white w-fit p-3 bg-strongBeige">
                 Information de produit
               </h3>
-              <ul className="mt-6 space-y-6 text-[#333]">
+              <ul className="mt-6 space-y-6 text-[#333] p-6">
                 {attributes.map((attribute: any) => (
                   <li className="text-sm pb-2 border-b">
-                    {attribute.name.toUpperCase()} <span className="ml-4 float-right">{attribute.value.toUpperCase()}</span>
+                    {attribute.name.toUpperCase()}{" "}
+                    <span className="ml-4 float-right">
+                      {attribute.value.toUpperCase()}
+                    </span>
                   </li>
                 ))}
               </ul>

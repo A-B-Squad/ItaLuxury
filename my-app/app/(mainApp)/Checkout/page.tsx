@@ -5,7 +5,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
-
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -15,7 +14,7 @@ const Checkout = ({ searchParams }: any) => {
   const [phone, setPhone] = useState<string>("");
   const [governorat, setGovernorat] = useState<string>("");
   const [addresse, setAddresse] = useState<string>("");
-    const router = useRouter()
+  const router = useRouter();
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -126,9 +125,9 @@ const Checkout = ({ searchParams }: any) => {
                       address: addresse,
                     },
                   },
-                  onCompleted:()=>{
-                    router.push('/Home')
-                  }
+                  onCompleted: () => {
+                    router.push("/Home");
+                  },
                 });
               }}
             >

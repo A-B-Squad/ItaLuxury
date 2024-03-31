@@ -101,7 +101,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === increaseQuantity.id
           ? { ...product, quantity: increaseQuantity.quantity }
-          : product
+          : product,
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -113,7 +113,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === decreaseQuantity.id
           ? { ...product, quantity: decreaseQuantity.quantity }
-          : product
+          : product,
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -123,7 +123,7 @@ const Basket = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId
+      (product) => product.basketId !== basketId,
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;

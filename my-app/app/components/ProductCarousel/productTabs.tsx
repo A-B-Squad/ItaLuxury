@@ -3,6 +3,10 @@ import prepRoute from "@/app/components/_prepRoute";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
 import { gql, useMutation } from "@apollo/client";
+import { FaSearch } from "react-icons/fa";
+import { FaBasketShopping } from "react-icons/fa6";
+import { IoGitCompare } from "react-icons/io5";
+import { FaRegHeart } from "react-icons/fa";
 
 import {
   Carousel,
@@ -94,8 +98,22 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
               {data?.products.map((product: any, index: any) => (
                 <CarouselItem
                   key={index}
-                  className="carousel-item group hover:rounded-sm lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3  xl:basis-1/5"
+                  className="carousel-item group hover:rounded-sm w-full lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3  xl:basis-1/5"
                 >
+                  <ul className="plus_button absolute right-3 z-50  top-9 flex flex-col gap-3  ">
+                    <li className="bg-strongBeige rounded-full  translate-x-20 group-hover:translate-x-0  p-2 shadow-md hover:bg-mediumBeige transition-all">
+                      <FaSearch color="white" />
+                    </li>
+                    <li className="bg-strongBeige rounded-full delay-100 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <FaBasketShopping color="white" />
+                    </li>
+                    <li className="bg-strongBeige rounded-full delay-150 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <IoGitCompare color="white" />
+                    </li>
+                    <li className="bg-strongBeige rounded-full delay-200 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <FaRegHeart color="white" />
+                    </li>
+                  </ul>
                   <Link
                     className="w-full group-hover:bg-[#00000030] transition-colors"
                     href={{
@@ -162,18 +180,9 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                       {addToBasketLoading ? "Adding..." : "Ajouter au"}
                     </button>
 
-                    <Link
-                      className="py-1"
-                      href={{
-                        pathname: `products/tunisie/${prepRoute(product.name)}`,
-                        query: {
-                          productId: product.id,
-                        },
-                      }}
-                      product-name={product.name}
-                    >
-                      <div className="colors_available">
-                        <ul>
+                    <div className="py-1" product-name={product.name}>
+                      <div className="colors_available ">
+                        <ul className="flex gap-2">
                           {product?.ProductColorImage?.map(
                             (productColor: Product, index: number) => (
                               <li
@@ -193,7 +202,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                       </div>
 
                       {!!selectedColors[product.id] && (
-                        <div className="product_color_selected flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
+                        <div className="product_color_selected  flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
                           <Image
                             width={90}
                             height={90}
@@ -206,7 +215,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                           </p>
                         </div>
                       )}
-                    </Link>
+                    </div>
 
                     <div className="priceDetails group-hover:translate-y-32 translate-y-0">
                       <p
@@ -216,7 +225,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                             : "text-xl text-strongBeige"
                         } py-1 font-semibold`}
                       >
-                        {product.price.toFixed(2)} DT
+                        {product.price.toFixed(3)} DT
                       </p>
                       {product.productDiscounts.length > 0 && (
                         <div className="flex items-center">
@@ -224,7 +233,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                             A partir de :
                           </span>
                           <span className="text-red-500 font-bold ml-1 text-xl">
-                            {product.productDiscounts[0]?.newPrice.toFixed(2)}{" "}
+                            {product.productDiscounts[0]?.newPrice.toFixed(3)}{" "}
                             DT
                           </span>
                         </div>

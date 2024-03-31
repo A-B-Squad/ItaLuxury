@@ -24,7 +24,7 @@ interface Product {
 }
 
 const BasketDrawer = () => {
-  const { isOpen, closeBasketDrawer } = useDrawerBasketStore(); 
+  const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -86,7 +86,7 @@ const BasketDrawer = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId
+      (product) => product.basketId !== basketId,
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
@@ -157,7 +157,7 @@ const BasketDrawer = () => {
                               <Link
                                 href={{
                                   pathname: `products/tunisie/${prepRoute(
-                                    product.name
+                                    product.name,
                                   )}`,
                                   query: {
                                     productId: product.id,
