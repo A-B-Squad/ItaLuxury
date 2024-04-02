@@ -1,9 +1,17 @@
+"use client";
 import React from "react";
+import { useComparedProductsStore } from "@/app/store/zustand";
 
 const ProductComparison = () => {
+  const { products } = useComparedProductsStore();
+
+ console.log('====================================');
+ console.log(products);
+ console.log('====================================');
+
   return (
     <div className="relative overflow-x-auto p-8">
-        <h1 className="font-bold text-2xl">Compare Produits (2)</h1>
+      <h1 className="font-bold text-2xl">Compare Produits (2)</h1>
       <table className="w-full text-sm text-left rtl:text-right">
         <thead className="text-xs text-gray-700 uppercase  ">
           <tr>
@@ -18,7 +26,6 @@ const ProductComparison = () => {
                     src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8c25lYWtlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
                     alt="product image"
                   />
-                 
                 </a>
                 <div className="mt-4 px-5 pb-5">
                   <a href="#">
@@ -35,7 +42,6 @@ const ProductComparison = () => {
                         $699
                       </span>
                     </p>
-                    
                   </div>
                   <a
                     href="#"
@@ -47,11 +53,11 @@ const ProductComparison = () => {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
-                      stroke-width="2"
+                      strokeWidth="2"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                       />
                     </svg>
@@ -71,7 +77,6 @@ const ProductComparison = () => {
                     src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8c25lYWtlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
                     alt="product image"
                   />
-                 
                 </a>
                 <div className="mt-4 px-5 pb-5">
                   <a href="#">
@@ -88,7 +93,6 @@ const ProductComparison = () => {
                         $699
                       </span>
                     </p>
-                    
                   </div>
                   <a
                     href="#"
@@ -100,11 +104,11 @@ const ProductComparison = () => {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
-                      stroke-width="2"
+                      strokeWidth="2"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                       />
                     </svg>
@@ -124,7 +128,6 @@ const ProductComparison = () => {
                     src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8c25lYWtlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
                     alt="product image"
                   />
-                 
                 </a>
                 <div className="mt-4 px-5 pb-5">
                   <a href="#">
@@ -141,7 +144,6 @@ const ProductComparison = () => {
                         $699
                       </span>
                     </p>
-                    
                   </div>
                   <a
                     href="#"
@@ -153,11 +155,11 @@ const ProductComparison = () => {
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
-                      stroke-width="2"
+                      strokeWidth="2"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                       />
                     </svg>
@@ -187,10 +189,24 @@ const ProductComparison = () => {
             >
               Description
             </th>
-            <td className="px-6 py-4">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque asperiores cumque sit commodi, mollitia adipisci facilis culpa nesciunt nemo beatae sapiente ipsam in nisi, dolorum quibusdam repellat illum maiores sunt?</td>
-            <td className="px-6 py-4">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque asperiores cumque sit commodi, mollitia adipisci facilis culpa nesciunt nemo beatae sapiente ipsam in nisi, dolorum quibusdam repellat illum maiores sunt?</td>
-            <td className="px-6 py-4">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque asperiores cumque sit commodi, mollitia adipisci facilis culpa nesciunt nemo beatae sapiente ipsam in nisi, dolorum quibusdam repellat illum maiores sunt?</td>
-            
+            <td className="px-6 py-4">
+              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque
+              asperiores cumque sit commodi, mollitia adipisci facilis culpa
+              nesciunt nemo beatae sapiente ipsam in nisi, dolorum quibusdam
+              repellat illum maiores sunt?
+            </td>
+            <td className="px-6 py-4">
+              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque
+              asperiores cumque sit commodi, mollitia adipisci facilis culpa
+              nesciunt nemo beatae sapiente ipsam in nisi, dolorum quibusdam
+              repellat illum maiores sunt?
+            </td>
+            <td className="px-6 py-4">
+              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque
+              asperiores cumque sit commodi, mollitia adipisci facilis culpa
+              nesciunt nemo beatae sapiente ipsam in nisi, dolorum quibusdam
+              repellat illum maiores sunt?
+            </td>
           </tr>
           <tr className="bg-gray-200">
             <th

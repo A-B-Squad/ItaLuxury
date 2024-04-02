@@ -6,6 +6,7 @@ import ReactImageMagnify from "react-image-magnify";
 import { FaStar } from "react-icons/fa";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { useComparedProductsStore } from "@/app/store/zustand";
 
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [productDetails, setProductDetails] = useState<any>(null);
@@ -38,7 +39,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     });
   }, []);
 
-  
   useEffect(() => {
     const interval = setInterval(() => {
       const currentIndex = smallImages.indexOf(bigImage);
@@ -51,7 +51,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
     return () => clearInterval(interval);
   }, [bigImage, smallImages]);
-
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -155,6 +154,13 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   const [addRating] = useMutation(ADD_RATING_MUTATION);
 
+  const addToCompare = (product: any) => {
+    useComparedProductsStore.getState().addProductToCompare(product);
+    setSuccessMsg("Product added to compare!");
+    console.log(useComparedProductsStore.getState().products);
+    
+  };
+
   return (
     <>
       {!!productDetails ? (
@@ -193,9 +199,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                   />
                 </svg>
@@ -326,6 +332,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     }}
                   >
                     Ajouter au favoris
+                  </button>
+                  <button
+                    className="min-w-[200px] px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                    onClick={() => addToCompare(productDetails)}
+                  >
+                    comparer
                   </button>
                 </div>
                 <div className="mt-8">
