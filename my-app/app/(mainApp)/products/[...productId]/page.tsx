@@ -52,7 +52,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       } else {
         setBigImage(smallImages[0]);
       }
-    }, 1000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [bigImage, smallImages]);
@@ -216,7 +216,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
               <div className="lg:col-span-3 w-full lg:sticky top-0 text-center">
                 <div className="bg-lightBeige flex items-center justify-center px-4 py-10 rounded-xl">
                   <ReactImageMagnify
-                    className="w-4/5 rounded object-cover"
+                    className="w-4/5 rounded object-cover transition-opacity"
                     {...{
                       smallImage: {
                         alt: "product",
