@@ -7,6 +7,7 @@ import { FaStar } from "react-icons/fa";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { useComparedProductsStore } from "@/app/store/zustand";
+import { GoGitCompare } from "react-icons/go";
 
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [productDetails, setProductDetails] = useState<any>(null);
@@ -21,6 +22,10 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [successMsg, setSuccessMsg] = useState<string>("");
   const [attributes, setAttributes] = useState<any>(null);
+  const addProductToCompare = useComparedProductsStore(
+    (state) => state.addProductToCompare
+  );
+
   interface DecodedToken extends JwtPayload {
     userId: string;
   }
@@ -41,8 +46,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const currentIndex = smallImages.indexOf(bigImage);
-      if (currentIndex !== -1 && currentIndex < smallImages.length - 1) {
+      const currentIndex = smallImages?.indexOf(bigImage);
+      if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
         setBigImage(smallImages[currentIndex + 1]);
       } else {
         setBigImage(smallImages[0]);
@@ -155,10 +160,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addRating] = useMutation(ADD_RATING_MUTATION);
 
   const addToCompare = (product: any) => {
-    useComparedProductsStore.getState().addProductToCompare(product);
-    setSuccessMsg("Product added to compare!");
-    console.log(useComparedProductsStore.getState().products);
-    
+    addProductToCompare(product);
+    setSuccessMsg("Produit ajouté au comparaison !");
   };
 
   return (
@@ -252,10 +255,15 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     {discount ? discount.newPrice : productDetails.price} DT
                   </p>
                   {discount && (
-                    <p className="text-gray-400 text-xl">
-                      <p className="line-through">{discount.price} DT</p>{" "}
-                      <span className="text-sm ml-1">Tax inclus</span>
-                    </p>
+                    <>
+                      <p className="text-gray-400 text-xl">
+                        <p className="line-through">{productDetails.price} DT</p>{" "}
+                        <span className="text-sm ml-1">Tax inclus</span>
+                      </p>
+                      <span className="bg-strongBeige max-h-8 text-white p-2 flex items-center rounded-lg">
+                        {productDetails.price - discount?.newPrice} DT ECONOMISÈ
+                      </span>
+                    </>
                   )}
                 </div>
                 <div className="flex space-x-2 mt-4 items-center">
@@ -297,7 +305,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     {reviews} Commentaires
                   </h4>
                 </div>
-                <div className="flex flex-wrap gap-4 mt-8">
+                <div className="flex flex-wrap gap-2 mt-8">
                   <button
                     type="button"
                     className="min-w-[200px] px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
@@ -334,10 +342,10 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     Ajouter au favoris
                   </button>
                   <button
-                    className="min-w-[200px] px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                    className=" px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                     onClick={() => addToCompare(productDetails)}
                   >
-                    comparer
+                    <GoGitCompare className="font-bold" />
                   </button>
                 </div>
                 <div className="mt-8">

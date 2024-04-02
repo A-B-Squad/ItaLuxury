@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from "zustand/middleware";
 
 type DrawerMobileCategoryStore = {
     isOpen: boolean,
@@ -18,6 +19,7 @@ type ComparedProductsStore = {
 }
 
 
+
 export const useDrawerMobileStore = create<DrawerMobileCategoryStore>((set) => ({
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
@@ -31,7 +33,15 @@ export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
     closeBasketDrawer: () => set({ isOpen: false }),
 }));
 
-export const useComparedProductsStore = create<ComparedProductsStore>((set) => ({
+const comparedProductsStore =<ComparedProductsStore>(set:any) => ({
     products: [],
-    addProductToCompare: (product) => set((state) => ({ products: [...state.products, product] })),
-}));
+    addProductToCompare: (product:any) => set((state:any) => ({ products: [...state.products, product] })),
+});
+
+
+export const useComparedProductsStore = create(
+    persist(comparedProductsStore,{
+        name:'comparedProducts',
+        storage: createJSONStorage(() => sessionStorage),
+    })
+)

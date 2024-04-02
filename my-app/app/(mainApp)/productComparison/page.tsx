@@ -3,7 +3,9 @@ import React from "react";
 import { useComparedProductsStore } from "@/app/store/zustand";
 
 const ProductComparison = () => {
-  const { products } = useComparedProductsStore();
+  const { products } = useComparedProductsStore((state)=>({
+    products:state.products
+  }));
 
  console.log('====================================');
  console.log(products);
