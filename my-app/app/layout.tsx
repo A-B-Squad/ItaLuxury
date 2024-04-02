@@ -12,9 +12,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const openSans = Open_Sans({
-  
   subsets: ["latin"],
-  
 });
 export const metadata: Metadata = {
   title: "Create Next App",

@@ -6,7 +6,6 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { FaRegTrashAlt } from "react-icons/fa";
 
-
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -24,16 +23,17 @@ const Basket = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  console.log(products, "hibhdbh");
 
   useEffect(() => {
     const token = Cookies.get("Token");
+    console.log(products, "hibhdbh");
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
   }, []);
 
-  
   const BASKET_QUERY = gql`
     query BasketByUserId($userId: ID!) {
       basketByUserId(userId: $userId) {
@@ -78,13 +78,14 @@ const Basket = () => {
   `;
 
   const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: "e8b5999f-75a9-41a1-8681-658294544c1a" },
+    variables: { userId: decodedToken?.userId },
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
         ...basket.Product,
         quantity: basket.quantity,
         basketId: basket.id,
       }));
+
       setProducts(fetchedProducts);
       const total = fetchedProducts.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
@@ -100,7 +101,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === increaseQuantity.id
           ? { ...product, quantity: increaseQuantity.quantity }
-          : product
+          : product,
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -112,7 +113,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === decreaseQuantity.id
           ? { ...product, quantity: decreaseQuantity.quantity }
-          : product
+          : product,
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -122,7 +123,7 @@ const Basket = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId
+      (product) => product.basketId !== basketId,
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
@@ -255,13 +256,17 @@ const Basket = () => {
           </h3>
           <ul className="text-[#333] divide-y mt-6">
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Total <span className="ml-auto font-bold">{totalPrice.toFixed(3)} DT</span>
+              Total{" "}
+              <span className="ml-auto font-bold">
+                {totalPrice.toFixed(3)} DT
+              </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
               Expédition <span className="ml-auto font-bold">8.000 DT</span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
-              Totale <span className="ml-auto">{(totalPrice + 8).toFixed(3)} DT</span>
+              Totale{" "}
+              <span className="ml-auto">{(totalPrice + 8).toFixed(3)} DT</span>
             </li>
           </ul>
           <Link

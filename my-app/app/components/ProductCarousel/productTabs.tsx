@@ -1,6 +1,13 @@
-"use client";
 import calcDateForNewProduct from "@/app/components/_calcDateForNewProduct";
 import prepRoute from "@/app/components/_prepRoute";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import Cookies from "js-cookie";
+import { gql, useMutation } from "@apollo/client";
+import { FaSearch } from "react-icons/fa";
+import { FaBasketShopping } from "react-icons/fa6";
+import { IoGitCompare } from "react-icons/io5";
+import { FaRegHeart } from "react-icons/fa";
+
 import {
   Carousel,
   CarouselContent,
@@ -10,9 +17,11 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import Link from "next/link";
-import TitleProduct from "./titleProduct";
 import { useState } from "react";
 import Loading from "./Loading";
+import TitleProduct from "./titleProduct";
+import { useDrawerBasketStore } from "@/app/store/zustand";
+
 interface Product {
   images: string[];
   Colors: {
@@ -21,7 +30,24 @@ interface Product {
   };
 }
 
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
+
+const ADD_TO_BASKET = gql`
+  mutation AddToBasket($input: CreateToBasketInput!) {
+    addToBasket(input: $input) {
+      id
+      userId
+      quantity
+      productId
+    }
+  }
+`;
+
 const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
+  const { openBasketDrawer } = useDrawerBasketStore();
+
   const [selectedColors, setSelectedColors] = useState<Record<string, Product>>(
     {}
   );
@@ -37,7 +63,30 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
     setSelectedColors({});
   };
 
-  
+  const [addToBasketMutation, { loading: addToBasketLoading }] =
+    useMutation(ADD_TO_BASKET);
+
+  const AddToBasket = (productId: string) => {
+    const token = Cookies.get("Token");
+
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      console.log(decoded);
+      addToBasketMutation({
+        variables: {
+          input: {
+            userId: decoded.userId,
+            productId: productId,
+            quantity: 1,
+          },
+        },
+      });
+    } else {
+      window.sessionStorage.setItem("products", productId);
+    }
+    openBasketDrawer();
+  };
+
   return (
     <div className="products-tabs relative cursor-pointer rounded-md shadow-lg grid">
       <TitleProduct title={title} />
@@ -49,8 +98,22 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
               {data?.products.map((product: any, index: any) => (
                 <CarouselItem
                   key={index}
-                  className="carousel-item group hover:rounded-sm  transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                  className="carousel-item group hover:rounded-sm w-full lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3  xl:basis-1/5"
                 >
+                  <ul className="plus_button absolute right-3 z-50  top-9 flex flex-col gap-3  ">
+                    <li className="bg-strongBeige rounded-full  translate-x-20 group-hover:translate-x-0  p-2 shadow-md hover:bg-mediumBeige transition-all">
+                      <FaSearch color="white" />
+                    </li>
+                    <li className="bg-strongBeige rounded-full delay-100 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <FaBasketShopping color="white" />
+                    </li>
+                    <li className="bg-strongBeige rounded-full delay-150 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <IoGitCompare color="white" />
+                    </li>
+                    <li className="bg-strongBeige rounded-full delay-200 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <FaRegHeart color="white" />
+                    </li>
+                  </ul>
                   <Link
                     className="w-full group-hover:bg-[#00000030] transition-colors"
                     href={{
@@ -86,8 +149,8 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                     </div>
                   </Link>
 
-                  <div className="relative border-t-1 flex flex-col px-3 w-full justify-end items-start">
-                    <p className="category  font-normal tracking-widest  text-xs capitalize">
+                  <div className="relative border-t-2  flex flex-col px-3 w-full justify-end items-start">
+                    <p className="category  font-normal tracking-widest  text-xs py-1 capitalize">
                       {product.categories[2]?.name}
                     </p>
 
@@ -106,47 +169,53 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                     </Link>
 
                     <button
+                      onClick={() => AddToBasket(product.id)}
                       className={`${
                         product.productDiscounts.length > 0
                           ? "group-hover:-translate-y-4 "
                           : "group-hover:translate-y-1 "
                       } bg-strongBeige  uppercase absolute translate-y-32 left-1/2 -translate-x-1/2 group-hover:translate-y-0 text-xs md:text-sm md:px-3 z-50 hover:bg-mediumBeige transition-all text-white w-4/5 py-2 rounded-md`}
+                      disabled={addToBasketLoading}
                     >
-                      Ajouter au
+                      {addToBasketLoading ? "Adding..." : "Ajouter au"}
                     </button>
 
-                    <div className="colors_available">
-                      <ul>
-                        {product?.ProductColorImage?.map(
-                          (productColor: Product, index: number) => (
-                            <li
-                              key={index}
-                              className="w-5 h-5 border-1 border-gray-200 shadow-gray-400 shadow-sm"
-                              onMouseEnter={() =>
-                                handleColorHover(product.id, productColor)
-                              }
-                              onMouseLeave={handleColorHoverEnd}
-                              style={{
-                                backgroundColor: productColor.Colors.Hex,
-                              }}
-                            />
-                          )
-                        )}
-                      </ul>
-                    </div>
-
-                    {!!selectedColors[product.id] && (
-                      <div className="product_color_selected flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
-                        <Image
-                          width={90}
-                          height={90}
-                          src={selectedColors[product.id].images[0]}
-                          alt={product.name}
-                          layout="responsive"
-                        />
-                        <p>{selectedColors[product.id].Colors.color}</p>
+                    <div className="py-1" product-name={product.name}>
+                      <div className="colors_available ">
+                        <ul className="flex gap-2">
+                          {product?.ProductColorImage?.map(
+                            (productColor: Product, index: number) => (
+                              <li
+                                key={index}
+                                className="w-5 h-5 border-1 border-gray-200 shadow-gray-400 shadow-sm"
+                                onMouseEnter={() =>
+                                  handleColorHover(product.id, productColor)
+                                }
+                                onMouseLeave={handleColorHoverEnd}
+                                style={{
+                                  backgroundColor: productColor.Colors.Hex,
+                                }}
+                              />
+                            )
+                          )}
+                        </ul>
                       </div>
-                    )}
+
+                      {!!selectedColors[product.id] && (
+                        <div className="product_color_selected  flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
+                          <Image
+                            width={90}
+                            height={90}
+                            src={selectedColors[product.id].images[0]}
+                            alt={product.name}
+                            layout="responsive"
+                          />
+                          <p className="pb-5">
+                            {selectedColors[product.id].Colors.color}
+                          </p>
+                        </div>
+                      )}
+                    </div>
 
                     <div className="priceDetails group-hover:translate-y-32 translate-y-0">
                       <p
@@ -156,7 +225,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                             : "text-xl text-strongBeige"
                         } py-1 font-semibold`}
                       >
-                        {product.price.toFixed(2)} DT
+                        {product.price.toFixed(3)} DT
                       </p>
                       {product.productDiscounts.length > 0 && (
                         <div className="flex items-center">
@@ -164,7 +233,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                             A partir de :
                           </span>
                           <span className="text-red-500 font-bold ml-1 text-xl">
-                            {product.productDiscounts[0]?.newPrice.toFixed(2)}{" "}
+                            {product.productDiscounts[0]?.newPrice.toFixed(3)}{" "}
                             DT
                           </span>
                         </div>

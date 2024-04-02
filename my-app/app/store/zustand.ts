@@ -2,10 +2,10 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from "zustand/middleware";
 
 type DrawerMobileCategoryStore = {
-    isOpen: boolean,
-    openCategoryDrawer: () => void,
-    closeCategoryDrawer: () => void,
-}
+  isOpen: boolean;
+  openCategoryDrawer: () => void;
+  closeCategoryDrawer: () => void;
+};
 
 type DrawerBasketStore = {
     isOpen: boolean,
@@ -24,13 +24,13 @@ export const useDrawerMobileStore = create<DrawerMobileCategoryStore>((set) => (
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
     closeCategoryDrawer: () => set({ isOpen: false }),
-}));
-
+  }),
+);
 
 export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
-    isOpen: false,
-    openBasketDrawer: () => set({ isOpen: true }),
-    closeBasketDrawer: () => set({ isOpen: false }),
+  isOpen: false,
+  openBasketDrawer: () => set({ isOpen: true }),
+  closeBasketDrawer: () => set({ isOpen: false }),
 }));
 
 const comparedProductsStore =<ComparedProductsStore>(set:any) => ({

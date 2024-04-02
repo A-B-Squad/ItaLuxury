@@ -2,8 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
+
 import ReactImageMagnify from "react-image-magnify";
 import { FaStar } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
+import { RiSubtractFill } from "react-icons/ri";
+
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { useComparedProductsStore } from "@/app/store/zustand";
@@ -167,7 +171,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   return (
     <>
       {!!productDetails ? (
-        <div className="font-[sans-serif]">
+        <div>
           {successMsg && (
             <div
               id="alert-3"
@@ -184,7 +188,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
               </svg>
               <span className="sr-only">Info</span>
-              <div className="ms-3 text-sm font-medium">{successMsg}</div>
+              <div className="ms-3 text-sm font-medium tracking-widest">
+                {successMsg}
+              </div>
               <button
                 type="button"
                 className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 "
@@ -231,14 +237,17 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     }}
                   />
                 </div>
-                <div className="mt-6 flex flex-wrap justify-center gap-x-10 gap-y-6 mx-auto">
+                <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
                   {smallImages.map((image: string, index: number) => (
-                    <div key={index} className="bg-lightBeige rounded-xl p-4">
+                    <div
+                      key={index}
+                      className="shadow-md w-fit h-fit rounded-md p-[7px]"
+                    >
                       <img
                         src={image}
                         alt="Product2"
                         className="w-24 cursor-pointer"
-                        onClick={() => {
+                        onMouseEnter={() => {
                           setBigImage(image);
                         }}
                       />
@@ -246,13 +255,18 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   ))}
                 </div>
               </div>
-              <div className="lg:col-span-2">
-                <h2 className="text-2xl font-extrabold text-strongBeige">
+
+              <div className="product lg:col-span-2">
+                <h2 className="product_name text-2xl font-bold tracking-wide text-strongBeige">
                   {productDetails.name}
                 </h2>
-                <div className="flex flex-wrap gap-4 mt-4">
+
+                <div className="discount flex flex-wrap gap-4 mt-4">
                   <p className="text-strongBeige text-4xl font-bold">
-                    {discount ? discount.newPrice : productDetails.price} DT
+                    {discount
+                      ? discount.newPrice
+                      : productDetails.price.toFixed(3)}{" "}
+                    DT
                   </p>
                   {discount && (
                     <>
@@ -308,7 +322,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 <div className="flex flex-wrap gap-2 mt-8">
                   <button
                     type="button"
-                    className="min-w-[200px] px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                    className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                     onClick={() => {
                       addToBasket({
                         variables: {
@@ -326,7 +340,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   </button>
                   <button
                     type="button"
-                    className="min-w-[200px] px-4 py-2.5 border border-strongBeige bg-transparent text-strongBeige hover:bg-strongBeige hover:text-white text-sm font-bold rounded"
+                    className="min-w-[200px] px-4 py-2.5  transition-colors border border-strongBeige bg-transparent text-strongBeige hover:bg-strongBeige hover:text-white text-sm font-bold rounded"
                     onClick={() => {
                       addToFavorite({
                         variables: {
@@ -348,12 +362,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     <GoGitCompare className="font-bold" />
                   </button>
                 </div>
-                <div className="mt-8">
-                  <div className="mt-10">
-                    <h3 className="text-lg font-bold text-strongBeige">
+                <div className="Infomation_Details ">
+                  <div className="All_color_available space-y-2  mt-5">
+                    <h3 className="text-lg font-bold tracking-wider capitalize text-strongBeige">
                       Choisir une couleur
                     </h3>
-                    <div className="flex flex-wrap gap-4 mt-4">
+                    <div className="flex flex-wrap gap-2 ">
                       {colors.map((color: any, index: number) => (
                         <button
                           key={index}
@@ -370,7 +384,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             });
                           }}
                           type="button"
-                          className={`w-12 h-12  bg-${color.color}-500 border-2 border-white hover:border-gray-800 rounded-lg shrink-0`}
+                          style={{ backgroundColor: `${color.color}` }}
+                          className={`w-8 h-8 shadow-sm shadow-gray-300   border-2 transition-colors hover:border-gray-800 rounded-lg shrink-0`}
                         ></button>
                       ))}
                     </div>
@@ -422,19 +437,55 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </svg>
                     </button>
                   </div>
-                  <h3 className="text-lg font-bold text-strongBeige mt-10">
-                    Description
-                  </h3>
-                  <ul className="space-y-3 list-disc mt-4 pl-4 text-sm text-gray-600">
-                    <li>{productDetails.description}</li>
-                  </ul>
+                  <div className="Description">
+                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-10">
+                      Description
+                    </h3>
+                    <ul className="space-y-3 tracking-widest list-disc mt-4 pl-4 text-sm text-gray-600">
+                      <li>{productDetails.description}</li>
+                    </ul>
+                  </div>
                 </div>
-                <div className="mt-8">
-                  <ul className="flex">
-                    <li className="text-white font-bold text-sm bg-mediumBeige py-3 px-8 pb-2 border-b-2 border-strongBeige cursor-pointer transition-all">
-                      Commentaires
-                    </li>
-                  </ul>
+                <div className="Rating_stars flex space-x-2 mt-4 items-center">
+                  {[...Array(5)].map((_, index) => {
+                    const currentIndex = index + 1;
+                    return (
+                      <label key={currentIndex}>
+                        <input
+                          className="hidden"
+                          type="radio"
+                          name="rating"
+                          value={currentIndex}
+                          onClick={() => {
+                            setRating(currentIndex);
+                            addRating({
+                              variables: {
+                                productId: params.productId,
+                                userId: "aaa",
+                                rating: currentIndex,
+                              },
+                            });
+                          }}
+                        />
+                        <FaStar
+                          size={20}
+                          className="cursor-pointer"
+                          color={
+                            currentIndex <= (hover || rating)
+                              ? "#f17e7e"
+                              : "grey"
+                          }
+                          onMouseEnter={() => setHover(currentIndex)}
+                          onMouseLeave={() => setHover(null)}
+                        />
+                      </label>
+                    );
+                  })}
+                  <h4 className="text-strongBeige text-sm">
+                    {reviews} Commentaires
+                  </h4>
+                </div>
+                <div className="Rating mt-8">
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-strongBeige">
                       Commentaires({reviews})
@@ -442,14 +493,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     <div className="space-y-3 mt-4">
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">5.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-2/3 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -457,14 +503,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">4.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-1/3 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -472,14 +512,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">3.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-1/6 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -487,14 +521,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">2.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-1/12 h-full rounded bg-strongBeige"></div>
                         </div>
@@ -502,14 +530,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       </div>
                       <div className="flex items-center">
                         <p className="text-sm text-white font-bold">1.0</p>
-                        <svg
-                          className="w-5 fill-strongBeige ml-1"
-                          viewBox="0 0 14 13"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                        </svg>
+                        <FaStar size={20} className="text-strongBeige" />
+
                         <div className="bg-gray-400 rounded w-full h-2 ml-3">
                           <div className="w-[6%] h-full rounded bg-strongBeige"></div>
                         </div>
@@ -522,11 +544,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             </div>
           </div>
           {attributes && (
-            <div className="mt-16 mb-10 mx-10 shadow-2xl p-6">
-              <h3 className="text-lg font-bold text-[#333]">
+            <div className=" my-10 mx-5 lg:mx-auto max-w-7xl m-auto  shadow-2xl ">
+              <h3 className="text-lg font-bold  text-white w-fit p-3 bg-strongBeige">
                 Information de produit
               </h3>
-              <ul className="mt-6 space-y-6 text-[#333]">
+              <ul className="mt-6 space-y-6 text-[#333] p-6">
                 {attributes.map((attribute: any) => (
                   <li className="text-sm pb-2 border-b">
                     {attribute.name.toUpperCase()}{" "}
