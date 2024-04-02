@@ -3,18 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
 
-import InnerImageZoom from "react-inner-image-zoom";
+import ReactImageMagnify from "react-image-magnify";
 import { FaStar } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
 
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { useSearchParams } from "next/navigation";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-const ProductDetails = () => {
-  const SearchParams = useSearchParams();
-  const productId = SearchParams.get("productId");
+import { useComparedProductsStore } from "@/app/store/zustand";
+import { GoGitCompare } from "react-icons/go";
+
+const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -27,6 +26,10 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [successMsg, setSuccessMsg] = useState<string>("");
   const [attributes, setAttributes] = useState<any>(null);
+  const addProductToCompare = useComparedProductsStore(
+    (state) => state.addProductToCompare
+  );
+
   interface DecodedToken extends JwtPayload {
     userId: string;
   }
@@ -38,12 +41,25 @@ const ProductDetails = () => {
       setDecodedToken(decoded);
     }
     getReviews({
-      variables: { productId: productId },
+      variables: { productId: params.productId[0] },
       onCompleted: (data) => {
         setReviews(data.productReview.length);
       },
     });
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentIndex = smallImages?.indexOf(bigImage);
+      if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
+        setBigImage(smallImages[currentIndex + 1]);
+      } else {
+        setBigImage(smallImages[0]);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [bigImage, smallImages]);
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -129,7 +145,7 @@ const ProductDetails = () => {
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: productId },
+    variables: { productByIdId: params.productId[0] },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -146,6 +162,11 @@ const ProductDetails = () => {
   });
 
   const [addRating] = useMutation(ADD_RATING_MUTATION);
+
+  const addToCompare = (product: any) => {
+    addProductToCompare(product);
+    setSuccessMsg("Produit ajouté au comparaison !");
+  };
 
   return (
     <>
@@ -187,9 +208,9 @@ const ProductDetails = () => {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                   />
                 </svg>
@@ -198,15 +219,22 @@ const ProductDetails = () => {
           )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
             <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-12">
-              <div className=" flex lg:flex-row flex-col gap-2 lg:col-span-3 w-full lg:sticky text-center">
-                <div className="shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
-                  <InnerImageZoom
-                    className="w-4/5 rounded object-cover"
-                    zoomSrc={bigImage}
-                    src={bigImage}
-                    zoomType="hover"
-                    hideHint
-                    zoomScale={1.5}
+              <div className="lg:col-span-3 w-full lg:sticky top-0 text-center">
+                <div className="bg-lightBeige flex items-center justify-center px-4 py-10 rounded-xl">
+                  <ReactImageMagnify
+                    className="w-4/5 rounded object-cover transition-opacity"
+                    {...{
+                      smallImage: {
+                        alt: "product",
+                        isFluidWidth: true,
+                        src: bigImage,
+                      },
+                      largeImage: {
+                        src: bigImage,
+                        width: 1120,
+                        height: 1800,
+                      },
+                    }}
                   />
                 </div>
                 <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
@@ -241,16 +269,57 @@ const ProductDetails = () => {
                     DT
                   </p>
                   {discount && (
-                    <p className="text-gray-400 text-xl">
-                      <p className="line-through">
-                        {discount.price.toFixed(3)} DT
-                      </p>{" "}
-                      <span className="text-sm ml-1">Tax inclus</span>
-                    </p>
+                    <>
+                      <p className="text-gray-400 text-xl">
+                        <p className="line-through">{productDetails.price} DT</p>{" "}
+                        <span className="text-sm ml-1">Tax inclus</span>
+                      </p>
+                      <span className="bg-strongBeige max-h-8 text-white p-2 flex items-center rounded-lg">
+                        {productDetails.price - discount?.newPrice} DT ECONOMISÈ
+                      </span>
+                    </>
                   )}
                 </div>
-
-                <div className="Add_to_basket flex flex-wrap gap-4 mt-8">
+                <div className="flex space-x-2 mt-4 items-center">
+                  {[...Array(5)].map((star, index) => {
+                    const currentIndex = index + 1;
+                    return (
+                      <label>
+                        <input
+                          className="hidden"
+                          type="radio"
+                          name="rating"
+                          value={currentIndex}
+                          onClick={() => {
+                            setRating(currentIndex);
+                            addRating({
+                              variables: {
+                                productId: params.productId[0],
+                                userId: "aaa",
+                                rating: currentIndex,
+                              },
+                            });
+                          }}
+                        />
+                        <FaStar
+                          size={28}
+                          className="cursor-pointer"
+                          color={
+                            currentIndex <= (hover || rating)
+                              ? "#f17e7e"
+                              : "grey"
+                          }
+                          onMouseEnter={() => setHover(currentIndex)}
+                          onMouseLeave={() => setHover(null)}
+                        />
+                      </label>
+                    );
+                  })}
+                  <h4 className="text-strongBeige text-base">
+                    {reviews} Commentaires
+                  </h4>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-8">
                   <button
                     type="button"
                     className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
@@ -260,7 +329,7 @@ const ProductDetails = () => {
                           input: {
                             userId: "aaa",
                             quantity: quantity,
-                            productId: productId,
+                            productId: params.productId[0],
                           },
                         },
                       });
@@ -277,7 +346,7 @@ const ProductDetails = () => {
                         variables: {
                           input: {
                             userId: "aaa",
-                            productId: productId,
+                            productId: params.productId[0],
                           },
                         },
                       });
@@ -285,6 +354,12 @@ const ProductDetails = () => {
                     }}
                   >
                     Ajouter au favoris
+                  </button>
+                  <button
+                    className=" px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                    onClick={() => addToCompare(productDetails)}
+                  >
+                    <GoGitCompare className="font-bold" />
                   </button>
                 </div>
                 <div className="Infomation_Details ">
@@ -299,7 +374,7 @@ const ProductDetails = () => {
                           onClick={() => {
                             getProductImages({
                               variables: {
-                                productId: productId,
+                                productId: params.productId[0],
                                 colorId: color.id,
                               },
                               onCompleted: (data) => {
@@ -315,36 +390,52 @@ const ProductDetails = () => {
                       ))}
                     </div>
                   </div>
-                  <div className="Quantity space-y-2">
-                    <h3 className="text-lg tracking-wider font-bold capitalize text-strongBeige mt-5">
-                      Quantité
-                    </h3>
-                    <div className="flex divide-x border w-max overflow-hidden rounded-md">
-                      <button
-                        type="button"
-                        className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
-                        onClick={() => {
-                          setQuantity(quantity - 1);
-                        }}
+                  <h3 className="text-lg font-bold text-strongBeige mt-10">
+                    Quantité
+                  </h3>
+                  <div className="flex divide-x border w-max">
+                    <button
+                      type="button"
+                      className="bg-lightBeige px-4 py-2 font-semibold cursor-pointer"
+                      onClick={() => {
+                        setQuantity(quantity > 1 ? quantity - 1 : 1);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-3 fill-current cursor-pointer"
+                        viewBox="0 0 124 124"
                       >
-                        <RiSubtractFill />
-                      </button>
-                      <button
-                        type="button"
-                        className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+                        <path
+                          d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
+                          data-original="#000000"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md"
+                    >
+                      {quantity}
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-strongBeige text-white px-4 py-2 font-semibold cursor-pointer"
+                      onClick={() => {
+                        setQuantity(quantity + 1);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-3 fill-current cursor-pointer"
+                        viewBox="0 0 42 42"
                       >
-                        {quantity}
-                      </button>
-                      <button
-                        type="button"
-                        className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
-                        onClick={() => {
-                          setQuantity(quantity + 1);
-                        }}
-                      >
-                        <FaPlus />
-                      </button>
-                    </div>
+                        <path
+                          d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
+                          data-original="#000000"
+                        ></path>
+                      </svg>
+                    </button>
                   </div>
                   <div className="Description">
                     <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-10">
@@ -369,7 +460,7 @@ const ProductDetails = () => {
                             setRating(currentIndex);
                             addRating({
                               variables: {
-                                productId: productId,
+                                productId: params.productId,
                                 userId: "aaa",
                                 rating: currentIndex,
                               },
