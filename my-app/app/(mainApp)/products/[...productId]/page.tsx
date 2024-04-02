@@ -31,12 +31,27 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setDecodedToken(decoded);
     }
     getReviews({
-      variables: { productId: params.productId },
+      variables: { productId: params.productId[0] },
       onCompleted: (data) => {
         setReviews(data.productReview.length);
       },
     });
   }, []);
+
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentIndex = smallImages.indexOf(bigImage);
+      if (currentIndex !== -1 && currentIndex < smallImages.length - 1) {
+        setBigImage(smallImages[currentIndex + 1]);
+      } else {
+        setBigImage(smallImages[0]);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [bigImage, smallImages]);
+
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -122,7 +137,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: params.productId },
+    variables: { productByIdId: params.productId[0] },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -251,7 +266,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             setRating(currentIndex);
                             addRating({
                               variables: {
-                                productId: params.productId,
+                                productId: params.productId[0],
                                 userId: "aaa",
                                 rating: currentIndex,
                               },
@@ -286,7 +301,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           input: {
                             userId: "aaa",
                             quantity: quantity,
-                            productId: params.productId,
+                            productId: params.productId[0],
                           },
                         },
                       });
@@ -303,7 +318,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         variables: {
                           input: {
                             userId: "aaa",
-                            productId: params.productId,
+                            productId: params.productId[0],
                           },
                         },
                       });
@@ -325,7 +340,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           onClick={() => {
                             getProductImages({
                               variables: {
-                                productId: params.productId,
+                                productId: params.productId[0],
                                 colorId: color.id,
                               },
                               onCompleted: (data) => {
@@ -348,7 +363,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       type="button"
                       className="bg-lightBeige px-4 py-2 font-semibold cursor-pointer"
                       onClick={() => {
-                        setQuantity(quantity - 1);
+                        setQuantity(quantity > 1 ? quantity - 1 : 1);
                       }}
                     >
                       <svg
@@ -494,7 +509,10 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
               <ul className="mt-6 space-y-6 text-[#333]">
                 {attributes.map((attribute: any) => (
                   <li className="text-sm pb-2 border-b">
-                    {attribute.name.toUpperCase()} <span className="ml-4 float-right">{attribute.value.toUpperCase()}</span>
+                    {attribute.name.toUpperCase()}{" "}
+                    <span className="ml-4 float-right">
+                      {attribute.value.toUpperCase()}
+                    </span>
                   </li>
                 ))}
               </ul>
