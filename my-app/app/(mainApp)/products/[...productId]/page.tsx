@@ -10,7 +10,7 @@ import { RiSubtractFill } from "react-icons/ri";
 
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { useComparedProductsStore } from "@/app/store/zustand";
+import { useComparedProductsStore } from "../../../store/zustand"
 import { GoGitCompare } from "react-icons/go";
 
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
