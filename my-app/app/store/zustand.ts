@@ -36,6 +36,12 @@ export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
 const comparedProductsStore =<ComparedProductsStore>(set:any) => ({
     products: [],
     addProductToCompare: (product:any) => set((state:any) => ({ products: [...state.products, product] })),
+    removeProductFromCompare: (productId:any) =>
+    set((state:any) => ({
+      products: state.products.filter(
+        (product:any) => product.id !== productId
+      ),
+    })),
 });
 
 
