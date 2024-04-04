@@ -85,8 +85,8 @@ const Home = () => {
         <div className="Carousel_A_20DT">
           <TitleProduct title={"Meilleures offres du jour"} />
           <TopDeals
-            data={data}
-            loadingNewProduct={loadingNewProduct}
+            // data={data}
+            // loadingNewProduct={loadingNewProduct}
           />
         </div>
         <FullWidth />

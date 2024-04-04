@@ -2,18 +2,21 @@
 
 import React, { useEffect, useState } from "react";
 import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
-
-import ReactImageMagnify from "react-image-magnify";
+import InnerImageZoom from "react-inner-image-zoom";
 import { FaStar } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
-
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { useComparedProductsStore } from "../../../store/zustand"
+import { FaRegHeart } from "react-icons/fa";
+import { useSearchParams } from "next/navigation";
+import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
+import { useComparedProductsStore } from "../../../store/zustand";
 import { GoGitCompare } from "react-icons/go";
-
+import PopHover from "../../../components/PopHover";
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
+  const SearchParams = useSearchParams();
+  const productId = SearchParams.get("productId");
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -26,6 +29,18 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [successMsg, setSuccessMsg] = useState<string>("");
   const [attributes, setAttributes] = useState<any>(null);
+  const [showPopover, setShowPopover] = useState(false);
+  const [popoverTitle, setPopoverTitle] = useState("");
+
+  const handleMouseEnter = (title) => {
+    setShowPopover(true);
+    setPopoverTitle(title);
+  };
+
+  const handleMouseLeave = () => {
+    setShowPopover(false);
+    setPopoverTitle("");
+  };
   const addProductToCompare = useComparedProductsStore(
     (state) => state.addProductToCompare
   );
@@ -145,7 +160,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: params.productId[0] },
+    variables: { productByIdId: productId },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -208,9 +223,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 >
                   <path
                     stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                   />
                 </svg>
@@ -218,23 +233,16 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             </div>
           )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
-            <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-12">
-              <div className="lg:col-span-3 w-full lg:sticky top-0 text-center">
-                <div className="bg-lightBeige flex items-center justify-center px-4 py-10 rounded-xl">
-                  <ReactImageMagnify
-                    className="w-4/5 rounded object-cover transition-opacity"
-                    {...{
-                      smallImage: {
-                        alt: "product",
-                        isFluidWidth: true,
-                        src: bigImage,
-                      },
-                      largeImage: {
-                        src: bigImage,
-                        width: 1120,
-                        height: 1800,
-                      },
-                    }}
+            <div className="grid items-start grid-cols-12 gap-10  ">
+              <div className=" flex lg:flex-row flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
+                <div className="shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
+                  <InnerImageZoom
+                    className="w-4/5 rounded object-cover"
+                    zoomSrc={bigImage}
+                    src={bigImage}
+                    zoomType="hover"
+                    hideHint
+                    zoomScale={1.5}
                   />
                 </div>
                 <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
@@ -256,70 +264,112 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 </div>
               </div>
 
-              <div className="product lg:col-span-2">
-                <h2 className="product_name text-2xl font-bold tracking-wide text-strongBeige">
+              <div className="product lg:col-span-5 col-span-12 ">
+                <h2 className="product_name tracking-wider text-2xl font-semibold ">
                   {productDetails.name}
                 </h2>
 
-                <div className="discount flex flex-wrap gap-4 mt-4">
-                  <p className="text-strongBeige text-4xl font-bold">
+                <div className="discount flex    flex-col  gap-1 mt-4">
+                  <p className="text-strongBeige tracking-wide text-3xl font-bold">
                     {discount
-                      ? discount.newPrice
+                      ? discount.newPrice.toFixed(3)
                       : productDetails.price.toFixed(3)}{" "}
-                    DT
-                  </p>
-                  {discount && (
-                    <>
-                      <p className="text-gray-400 text-xl">
-                        <p className="line-through">{productDetails.price} DT</p>{" "}
-                        <span className="text-sm ml-1">Tax inclus</span>
-                      </p>
-                      <span className="bg-strongBeige max-h-8 text-white p-2 flex items-center rounded-lg">
-                        {productDetails.price - discount?.newPrice} DT ECONOMISÈ
+                    <span className="text-2xl ">TND</span>
+                    {!discount && (
+                      <span className="text-sm text-gray-400 ml-2 font-medium">
+                        TTC
                       </span>
-                    </>
+                    )}
+                  </p>
+
+                  {discount && (
+                    <div className="text-gray-400 tracking-wide flex items-center text-lg gap-2">
+                      <p className="line-through">
+                        {discount.price.toFixed(3)} TND
+                      </p>{" "}
+                      <p className="text-sm bg-violet-700 text-white p-1">
+                        Économisez
+                        <span className="font-bold ml-1 ">
+                          {(discount.price - discount.newPrice).toFixed(3)} TND
+                        </span>
+                      </p>
+                      <span className="text-sm">TTC</span>
+                    </div>
                   )}
                 </div>
-                <div className="flex space-x-2 mt-4 items-center">
-                  {[...Array(5)].map((star, index) => {
-                    const currentIndex = index + 1;
-                    return (
-                      <label>
-                        <input
-                          className="hidden"
-                          type="radio"
-                          name="rating"
-                          value={currentIndex}
-                          onClick={() => {
-                            setRating(currentIndex);
-                            addRating({
-                              variables: {
-                                productId: params.productId[0],
-                                userId: "aaa",
-                                rating: currentIndex,
-                              },
-                            });
-                          }}
-                        />
-                        <FaStar
-                          size={28}
-                          className="cursor-pointer"
-                          color={
-                            currentIndex <= (hover || rating)
-                              ? "#f17e7e"
-                              : "grey"
-                          }
-                          onMouseEnter={() => setHover(currentIndex)}
-                          onMouseLeave={() => setHover(null)}
-                        />
-                      </label>
-                    );
-                  })}
-                  <h4 className="text-strongBeige text-base">
-                    {reviews} Commentaires
-                  </h4>
+
+                <div className="Infomation_Details ">
+                  {colors.length > 0 && (
+                    <div className="All_color_available space-y-2  mt-5">
+                      <h3 className="text-lg font-bold tracking-wider capitalize text-strongBeige">
+                        Choisir une couleur
+                      </h3>
+                      <div className="flex flex-wrap gap-2 ">
+                        {colors.map((color: any, index: number) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              getProductImages({
+                                variables: {
+                                  productId: productId,
+                                  colorId: color.id,
+                                },
+                                onCompleted: (data) => {
+                                  setSmallImages(data.getProductImages);
+                                  setBigImage(data.getProductImages[0]);
+                                },
+                              });
+                            }}
+                            type="button"
+                            style={{ backgroundColor: `${color.color}` }}
+                            className={`w-8 h-8 shadow-sm shadow-gray-300   border-2 transition-colors hover:border-gray-800 rounded-lg shrink-0`}
+                          ></button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="Quantity flex items-center mt-4  space-x-2">
+                    <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
+                      Quantité
+                    </h3>
+                    <div className="flex divide-x border w-max overflow-hidden rounded-md">
+                      <button
+                        type="button"
+                        className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          setQuantity(quantity - 1);
+                        }}
+                      >
+                        <RiSubtractFill />
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+                      >
+                        {quantity}
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          setQuantity(quantity + 1);
+                        }}
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="Description">
+                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-5">
+                      Description
+                    </h3>
+                    <ul className="space-y-3 tracking-widest list-disc mt-2 pl-4 text-sm text-gray-600">
+                      <li>{productDetails.description}</li>
+                    </ul>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-8">
+
+                <div className="Add_to_basket flex items-center gap-4 mt-8">
                   <button
                     type="button"
                     className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
@@ -329,7 +379,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           input: {
                             userId: "aaa",
                             quantity: quantity,
-                            productId: params.productId[0],
+                            productId: productId,
                           },
                         },
                       });
@@ -338,114 +388,56 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   >
                     Ajouter au panier
                   </button>
-                  <button
-                    type="button"
-                    className="min-w-[200px] px-4 py-2.5  transition-colors border border-strongBeige bg-transparent text-strongBeige hover:bg-strongBeige hover:text-white text-sm font-bold rounded"
-                    onClick={() => {
-                      addToFavorite({
-                        variables: {
-                          input: {
-                            userId: "aaa",
-                            productId: params.productId[0],
+
+                  <div
+                    className="relative"
+                    onMouseEnter={() => handleMouseEnter("Ajouter au favoris")}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    {showPopover && popoverTitle === "Ajouter au favoris" && (
+                      <PopHover title={popoverTitle} />
+                    )}
+                    <button
+                      type="button"
+                      className="transition-colors bg-transparent text-strongBeige text-xl hover:text-black font-bold rounded"
+                      onClick={() => {
+                        addToFavorite({
+                          variables: {
+                            input: {
+                              userId: "aaa",
+                              productId: productId,
+                            },
                           },
-                        },
-                      });
-                      setSuccessMsg("Produit ajouté avec succès au favoris !");
-                    }}
-                  >
-                    Ajouter au favoris
-                  </button>
-                  <button
-                    className=" px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
-                    onClick={() => addToCompare(productDetails)}
-                  >
-                    <GoGitCompare className="font-bold" />
-                  </button>
-                </div>
-                <div className="Infomation_Details ">
-                  <div className="All_color_available space-y-2  mt-5">
-                    <h3 className="text-lg font-bold tracking-wider capitalize text-strongBeige">
-                      Choisir une couleur
-                    </h3>
-                    <div className="flex flex-wrap gap-2 ">
-                      {colors.map((color: any, index: number) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            getProductImages({
-                              variables: {
-                                productId: params.productId[0],
-                                colorId: color.id,
-                              },
-                              onCompleted: (data) => {
-                                setSmallImages(data.getProductImages);
-                                setBigImage(data.getProductImages[0]);
-                              },
-                            });
-                          }}
-                          type="button"
-                          style={{ backgroundColor: `${color.color}` }}
-                          className={`w-8 h-8 shadow-sm shadow-gray-300   border-2 transition-colors hover:border-gray-800 rounded-lg shrink-0`}
-                        ></button>
-                      ))}
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-bold text-strongBeige mt-10">
-                    Quantité
-                  </h3>
-                  <div className="flex divide-x border w-max">
-                    <button
-                      type="button"
-                      className="bg-lightBeige px-4 py-2 font-semibold cursor-pointer"
-                      onClick={() => {
-                        setQuantity(quantity > 1 ? quantity - 1 : 1);
+                        });
+                        setSuccessMsg(
+                          "Produit ajouté avec succès au favoris !"
+                        );
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-3 fill-current cursor-pointer"
-                        viewBox="0 0 124 124"
-                      >
-                        <path
-                          d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
-                          data-original="#000000"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md"
-                    >
-                      {quantity}
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-strongBeige text-white px-4 py-2 font-semibold cursor-pointer"
-                      onClick={() => {
-                        setQuantity(quantity + 1);
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-3 fill-current cursor-pointer"
-                        viewBox="0 0 42 42"
-                      >
-                        <path
-                          d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
-                          data-original="#000000"
-                        ></path>
-                      </svg>
+                      <FaRegHeart />
                     </button>
                   </div>
-                  <div className="Description">
-                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-10">
-                      Description
-                    </h3>
-                    <ul className="space-y-3 tracking-widest list-disc mt-4 pl-4 text-sm text-gray-600">
-                      <li>{productDetails.description}</li>
-                    </ul>
+
+                  <div
+                    className="relative"
+                    onMouseEnter={() =>
+                      handleMouseEnter("Ajouter au comparatif")
+                    }
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    {showPopover &&
+                      popoverTitle === "Ajouter au comparatif" && (
+                        <PopHover title={popoverTitle} />
+                      )}
+                    <button
+                      className=" text-strongBeige hover:text-black transition-colors text-xl font-bold rounded"
+                      onClick={() => addToCompare(productDetails)}
+                    >
+                      <GoGitCompare className="font-bold" />
+                    </button>
                   </div>
                 </div>
+
                 <div className="Rating_stars flex space-x-2 mt-4 items-center">
                   {[...Array(5)].map((_, index) => {
                     const currentIndex = index + 1;
@@ -460,7 +452,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             setRating(currentIndex);
                             addRating({
                               variables: {
-                                productId: params.productId,
+                                productId: productId,
                                 userId: "aaa",
                                 rating: currentIndex,
                               },
