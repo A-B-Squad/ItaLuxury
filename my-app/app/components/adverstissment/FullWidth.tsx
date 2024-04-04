@@ -19,9 +19,15 @@ const FullWidth = () => {
     },
   });
   return (
-    <div className="py-10">
-      <div className="tesx bg-mediumBeige w-full h-40">ADS</div>
-      {/* <Image src={"ddd"} alt="adsFullWidth" /> */}
+    <div className="py-10 w-full h-full relative">
+      <Image
+        src={
+          "https://res.cloudinary.com/dc1cdbirz/image/upload/v1711937168/gdgjwty4swrew5vyna74.jpg"
+        }
+        layout="fill"
+        objectFit="contain"
+        alt="adsFullWidth"
+      />
     </div>
   );
 };

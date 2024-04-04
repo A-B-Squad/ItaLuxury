@@ -1,11 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useComparedProductsStore } from "@/app/store/zustand";
+import { useComparedProductsStore } from "../../store/zustand";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
 import { gql, useMutation } from "@apollo/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
+import { RiShoppingCartLine } from "react-icons/ri";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -64,28 +65,31 @@ const ProductComparison = () => {
                           alt="product image"
                         />
                       </a>
-                      <div className="mt-4 px-5 pb-5">
+                      <div className="mt-4 px-3 pb-5">
                         <a href="#">
-                          <h5 className="text-xl tracking-tight text-slate-900">
+                          <h5 className="text-lg text-center tracking-tight text-slate-900">
                             {product.name}
                           </h5>
                         </a>
                         <div className="mt-2 mb-5 flex items-center justify-between">
-                          <p>
-                            <span className="text-3xl font-bold text-slate-900">
-                              {product.productDiscounts
-                                ? product.productDiscounts[0].newPrice
-                                : product.price}{" "}
-                              DT
-                            </span>
-                            {product.productDiscounts && (
-                              <span className="text-sm text-slate-900 line-through">
-                                {product.price} DT
-                              </span>
+                          <div className="prices flex flex-col">
+                            {product.productDiscounts.length > 0 && (
+                              <p className="text-lg text-slate-900 line-through">
+                                {product.price.toFixed(3)} TND
+                              </p>
                             )}
-                          </p>
+                            <p className="text-2xl font-bold text-slate-900">
+                              {product.productDiscounts.length
+                                ? product.productDiscounts[0].newPrice.toFixed(
+                                    3
+                                  )
+                                : product.price.toFixed(3)}{" "}
+                              TND
+                            </p>
+                          </div>
+
                           <p
-                            className="text-red-700 flex items-center justify-center gap-2 cursor-pointer"
+                            className="text-red-700 flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               removeProductFromCompare(product.id);
                             }}
@@ -96,7 +100,7 @@ const ProductComparison = () => {
                           </p>
                         </div>
                         <button
-                          className="flex items-center justify-center rounded-md bg-strongBeige px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-mediumBeige focus:outline-none focus:ring-4 focus:ring-blue-300"
+                          className="flex items-center transition-all justify-center rounded-md bg-strongBeige px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-mediumBeige focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300"
                           onClick={() => {
                             addToBasket({
                               variables: {
@@ -109,20 +113,7 @@ const ProductComparison = () => {
                             });
                           }}
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="mr-2 h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                          </svg>
+                          <RiShoppingCartLine size={25} />
                           Ajouter au panier
                         </button>
                       </div>
@@ -140,7 +131,7 @@ const ProductComparison = () => {
                   Prix
                 </th>
                 {products.map((product: any) => (
-                  <td className="px-6 py-4">{product?.price} DT</td>
+                  <td className="px-6 py-4">{product?.price.toFixed(3)} TND</td>
                 ))}
               </tr>
               <tr className="bg-white border-b ">
@@ -160,8 +151,8 @@ const ProductComparison = () => {
       ) : (
         <div className="flex justify-center items-center h-screen">
           <div className="flex flex-col items-center justify-center">
-            <HiX  className="text-red-400 text-[10rem]"/>
-            <h1 className="text-red-400 text-2xl">Aucun  produit à comparé !</h1>
+            <HiX className="text-red-400 text-[10rem]" />
+            <h1 className="text-red-400 text-2xl">Aucun produit à comparé !</h1>
           </div>
         </div>
       )}

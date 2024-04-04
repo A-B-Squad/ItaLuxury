@@ -131,7 +131,7 @@ const Checkout = ({ searchParams }: any) => {
                 });
               }}
             >
-              {searchParams.total} DT
+              {searchParams.total} TND
             </button>
           </div>
         </form>

@@ -21,6 +21,7 @@ import { useState } from "react";
 import Loading from "./Loading";
 import TitleProduct from "./titleProduct";
 import { useDrawerBasketStore } from "@/app/store/zustand";
+import PopHover from "../PopHover";
 
 interface Product {
   images: string[];
@@ -89,7 +90,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
 
   return (
     <div className="products-tabs relative cursor-pointer rounded-md shadow-lg grid">
-      <TitleProduct title={title} />
+      {/* <TitleProduct title={title} /> */}
       {loadingNewProduct && <Loading />}
       {!loadingNewProduct && (
         <div className="flex overflow-hidden w-full ">
@@ -98,21 +99,33 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
               {data?.products.map((product: any, index: any) => (
                 <CarouselItem
                   key={index}
-                  className="carousel-item group hover:rounded-sm w-full lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3  xl:basis-1/5"
+                  className="carousel-item group hover:rounded-sm w-full lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 lg:basis-1/3  xl:basis-1/5"
                 >
                   <ul className="plus_button absolute right-3 z-50  top-9 flex flex-col gap-3  ">
-                    <li className="bg-strongBeige rounded-full  translate-x-20 group-hover:translate-x-0  p-2 shadow-md hover:bg-mediumBeige transition-all">
-                      <FaSearch color="white" />
-                    </li>
-                    <li className="bg-strongBeige rounded-full delay-100 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
-                      <FaBasketShopping color="white" />
-                    </li>
-                    <li className="bg-strongBeige rounded-full delay-150 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
-                      <IoGitCompare color="white" />
-                    </li>
-                    <li className="bg-strongBeige rounded-full delay-200 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
-                      <FaRegHeart color="white" />
-                    </li>
+                    <div className="relative">
+                      <PopHover title={"Ajouter à ma liste d'envies	"} />
+                      <li className="bg-strongBeige rounded-full  translate-x-20 group-hover:translate-x-0  p-2 shadow-md hover:bg-mediumBeige transition-all">
+                        <FaSearch color="white" />
+                      </li>
+                    </div>
+                    <div className="relative">
+                      <PopHover title={"Ajouter à ma liste d'envies	"} />
+                      <li className="bg-strongBeige rounded-full delay-100 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                        <FaBasketShopping color="white" />
+                      </li>
+                    </div>
+                    <div className="relative">
+                      <PopHover title={"Ajouter à ma liste d'envies	"} />
+                      <li className="bg-strongBeige rounded-full delay-150 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                        <IoGitCompare color="white" />
+                      </li>
+                    </div>
+                    <div className="relative">
+                      <PopHover title={"Ajouter à ma liste d'envies	"} />
+                      <li className="bg-strongBeige rounded-full delay-200 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                        <FaRegHeart color="white" />
+                      </li>
+                    </div>
                   </ul>
                   <Link
                     className="w-full group-hover:bg-[#00000030] transition-colors"
@@ -225,7 +238,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                             : "text-xl text-strongBeige"
                         } py-1 font-semibold`}
                       >
-                        {product.price.toFixed(3)} DT
+                        {product.price.toFixed(3)} TND
                       </p>
                       {product.productDiscounts.length > 0 && (
                         <div className="flex items-center">
@@ -234,7 +247,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                           </span>
                           <span className="text-red-500 font-bold ml-1 text-xl">
                             {product.productDiscounts[0]?.newPrice.toFixed(3)}{" "}
-                            DT
+                            TND
                           </span>
                         </div>
                       )}

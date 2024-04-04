@@ -101,7 +101,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === increaseQuantity.id
           ? { ...product, quantity: increaseQuantity.quantity }
-          : product,
+          : product
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -113,7 +113,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === decreaseQuantity.id
           ? { ...product, quantity: decreaseQuantity.quantity }
-          : product,
+          : product
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -123,7 +123,7 @@ const Basket = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId,
+      (product) => product.basketId !== basketId
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
@@ -241,7 +241,7 @@ const Basket = () => {
                     </td>
                     <td className="py-6 px-4">
                       <h4 className="text-md font-bold text-[#333]">
-                        {product.price.toFixed(3)} DT
+                        {product.price.toFixed(3)} TND
                       </h4>
                     </td>
                   </tr>
@@ -258,15 +258,15 @@ const Basket = () => {
             <li className="flex flex-wrap gap-4 text-md py-4">
               Total{" "}
               <span className="ml-auto font-bold">
-                {totalPrice.toFixed(3)} DT
+                {totalPrice.toFixed(3)} TND
               </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Expédition <span className="ml-auto font-bold">8.000 DT</span>
+              Expédition <span className="ml-auto font-bold">8.000 TND</span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
               Totale{" "}
-              <span className="ml-auto">{(totalPrice + 8).toFixed(3)} DT</span>
+              <span className="ml-auto">{(totalPrice + 8).toFixed(3)} TND</span>
             </li>
           </ul>
           <Link

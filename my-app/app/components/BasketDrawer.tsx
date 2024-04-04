@@ -86,7 +86,7 @@ const BasketDrawer = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId,
+      (product) => product.basketId !== basketId
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
@@ -157,7 +157,7 @@ const BasketDrawer = () => {
                               <Link
                                 href={{
                                   pathname: `products/tunisie/${prepRoute(
-                                    product.name,
+                                    product.name
                                   )}`,
                                   query: {
                                     productId: product.id,
@@ -167,7 +167,7 @@ const BasketDrawer = () => {
                                 {product.name}
                               </Link>
                             </h3>
-                            <p className=" ">{product.price.toFixed(2)} DT</p>
+                            <p className=" ">{product.price.toFixed(2)} TND</p>
                           </div>
 
                           <p className="mt-1 text-sm text-gray-500">
@@ -208,7 +208,7 @@ const BasketDrawer = () => {
             <div className=" border-gray-200 px-4 py-6 sm:px-6">
               <div className="flex justify-between text-base font-medium text-gray-900">
                 <p>Total</p>
-                <p> {totalPrice.toFixed(2)} DT</p>
+                <p> {totalPrice.toFixed(2)} TND</p>
               </div>
               <p className="mt-0.5 text-sm text-gray-500">
                 Frais de port et taxes calculés à la Vérification.
