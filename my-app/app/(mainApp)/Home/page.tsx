@@ -10,15 +10,60 @@ import FullWidth from "@/components/adverstissment/FullWidth";
 import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import TopDeals from './TopDeals/TopDeals';
 const Home = () => {
+  const TAKE_6_PRODUCTS = gql`
+    query Products($limit: Int!) {
+      products(limit: $limit) {
+        id
+        name
+        price
+        reference
+        description
+        createdAt
+        categories {
+          name
+        }
+        ProductColorImage {
+          images
+          Colors {
+            color
+            Hex
+          }
+        }
+        productDiscounts {
+          price
+          newPrice
+          Discount {
+            percentage
+          }
+        }
+      }
+    }
+  `;
+  const { loading: loadingNewProduct, data } = useQuery(TAKE_6_PRODUCTS, {
+    variables: { limit: 6 },
+  });
+
+  const SIDE_ADS_NEW_PRODUCT = gql`
+    query Query($position: String!) {
+      advertismentByPosition(position: $position) {
+        images
+        link
+      }
+    }
+  `;
+  const { loading: loadingAdsNewProduct, data: leftAds } = useQuery(
+    SIDE_ADS_NEW_PRODUCT,
+    { variables: { position: "left_new_product" } }
+  );
+
   return (
-    <div className="Home py-14 flex min-h-screen flex-col items-center px-5 ">
+    <div className="Home py-14 flex min-h-screen flex-col items-center px-8 ">
       <div className="container">
         <section className="flex justify-center  md:flex-row flex-col gap-6 items-center">
           <Left />
           <AdsCarousel />
           <Right />
         </section>
-
         <Services />
         <div className="nouveaux-product-parent-tabs flex flex-col  mt-10   ">
           <TitleProduct title={"nouveaux Produits"} />

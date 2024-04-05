@@ -4,6 +4,7 @@ import { useQuery, useMutation, gql } from "@apollo/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
 import Link from "next/link";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -22,16 +23,17 @@ const Basket = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  console.log(products, "hibhdbh");
 
   useEffect(() => {
     const token = Cookies.get("Token");
+    console.log(products, "hibhdbh");
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
   }, []);
 
-  
   const BASKET_QUERY = gql`
     query BasketByUserId($userId: ID!) {
       basketByUserId(userId: $userId) {
@@ -76,13 +78,14 @@ const Basket = () => {
   `;
 
   const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: "e8b5999f-75a9-41a1-8681-658294544c1a" },
+    variables: { userId: decodedToken?.userId },
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
         ...basket.Product,
         quantity: basket.quantity,
         basketId: basket.id,
       }));
+
       setProducts(fetchedProducts);
       const total = fetchedProducts.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
@@ -139,8 +142,8 @@ const Basket = () => {
 
   return (
     <div className="font-[sans-serif]">
-      <div className="grid lg:grid-cols-3">
-        <div className="lg:col-span-2 p-10 bg-white overflow-x-auto">
+      <div className="grid lg:grid-cols-3 gap-5 p-8">
+        <div className="lg:col-span-2 p-10 bg-white overflow-x-auto shadow-xl">
           <div className="flex border-b pb-4">
             <h2 className="text-2xl font-extrabold text-[#333] flex-1">
               Panier
@@ -175,11 +178,12 @@ const Basket = () => {
                           </p>
                           <button
                             type="button"
-                            className="mt-4 font-semibold text-red-400 text-sm"
+                            className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               handleRemoveProduct(product.basketId);
                             }}
                           >
+                            <FaRegTrashAlt />
                             Retirer
                           </button>
                         </div>
@@ -246,7 +250,7 @@ const Basket = () => {
             </table>
           </div>
         </div>
-        <div className="bg-gray-50 p-10">
+        <div className="bg-gray-50 p-10 shadow-xl">
           <h3 className="text-xl font-extrabold text-[#333] border-b pb-4">
             Récapitulatif de la commande
           </h3>

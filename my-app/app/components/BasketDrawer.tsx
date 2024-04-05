@@ -1,12 +1,14 @@
 "use client";
-import { gql, useMutation, useQuery } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { useDrawerBasketStore } from "../store/zustand";
+import prepRoute from "../components/_prepRoute";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -18,6 +20,7 @@ interface Product {
   images: string[];
   quantity: number;
   basketId: string;
+  categories: string[];
 }
 
 const BasketDrawer = () => {
@@ -45,6 +48,9 @@ const BasketDrawer = () => {
           name
           price
           images
+          categories {
+            name
+          }
         }
       }
     }
@@ -56,16 +62,8 @@ const BasketDrawer = () => {
     }
   `;
 
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
-
   const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: "e8b5999f-75a9-41a1-8681-658294544c1a" },
+    variables: { userId: decodedToken?.userId },
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
         ...basket.Product,
@@ -108,7 +106,7 @@ const BasketDrawer = () => {
       size={400}
       placeholder={""}
     >
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between ">
         <Typography placeholder={""} variant="h5" color="blue-gray">
           Panier
         </Typography>
@@ -138,16 +136,16 @@ const BasketDrawer = () => {
         deletingLoading ? (
           <div>loading</div>
         ) : (
-          <div className="flex  flex-col justify-between h-full">
+          <div className="flex  flex-col justify-between h-full overflow-hidden hover:overflow-y-auto">
             <div className="product-details">
               <div className="flow-root">
                 <ul role="list" className=" divide-y divide-gray-200">
-                  {products.map((product) => (
-                    <li className="flex py-6 ">
-                      <div className="h-24 w-20 flex-shrink-0 overflow-hidden rounded-md ">
+                  {products.map((product, index) => (
+                    <li className="flex py-6 " key={index}>
+                      <div className="h-24 w-20 flex-shrink-0 rounded-md ">
                         <img
                           src={product.images[0]}
-                          alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt."
+                          alt={product.name}
                           className="h-full w-full object-cover object-center"
                         />
                       </div>
@@ -172,7 +170,15 @@ const BasketDrawer = () => {
                             <p className=" ">{product.price.toFixed(2)} TND</p>
                           </div>
 
-                          <p className="mt-1 text-sm text-gray-500">Salmon</p>
+                          <p className="mt-1 text-sm text-gray-500">
+                            {
+                              (
+                                product?.categories?.[
+                                  product.categories.length - 1
+                                ] as { name?: string }
+                              )?.name
+                            }
+                          </p>
                         </div>
 
                         <div className="flex flex-1 items-end justify-between text-sm">

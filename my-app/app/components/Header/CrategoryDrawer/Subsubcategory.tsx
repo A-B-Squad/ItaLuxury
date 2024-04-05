@@ -17,7 +17,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
     <>
       {subsubcategories?.map((subsubcategory, subIndex) => (
         <Link
-          href={`/${subsubcategory.name}-Touslesproduits`}
+          href={`/${subsubcategory.name.split(" ").join("-")}-tunisie`}
           className="py-1 pl-5 group text-sm cursor-pointer transition-all relative  left-2 flex hover:font-bold  "
           key={subIndex}
         >

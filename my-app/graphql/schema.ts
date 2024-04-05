@@ -63,37 +63,44 @@ type Product {
   images: [String!]
   createdAt: String!
   categories: [Category!]!
-  productDiscount: [ProductDiscount!]
+  productDiscounts: [ProductDiscount!]
   baskets: [Basket!]
   reviews: [Review!]
   favoriteProducts: [FavoriteProducts!]
-  Colors: Colors!
   attributes: [ProductAttribute!]!
+  ProductColorImage: [ProductColorImage!]!
 }
 
 # Define the Colors type
 type Colors {
   id: ID!
   color: String!
-  products: [Product!]
+  Hex: String!
+  ProductColorImage: [ProductColorImage!]!
+}
+
+type ProductColorImage {
+  id:ID!
+  Product: Product!
+  Colors: Colors!
+  images:[String!]!
 }
 
 # Define the Discount type
 type Discount {
-  id: ID!
-  percentage: Int!
-  productDiscounts: [ProductDiscount!]
+  id: ID
+  percentage: Int
 }
 
-# Define the ProductDiscount type
+# Define the ProductDiscounts type
 type ProductDiscount {
-  id: ID!
-  discountId: ID!
-  productId: ID!
-  price: Float!
-  newPrice: Float!
-  dateOfStart: String!
-  dateOfEnd: String!
+  id: ID
+  Discount: Discount
+  # productId: ID
+  price: Float
+  newPrice: Float
+  dateOfStart: String
+  dateOfEnd: String
 }
 
 # Define the Basket type
@@ -193,6 +200,7 @@ type Advertisement {
   id: ID!
   images: [String!]!
   position: String!
+  link: String!
 }
 
 # Define the Governorate type
@@ -220,13 +228,16 @@ type Moderator {
 # Define the Query type
 type Query {
   # Fetch all products
-  products: [Product!]
+  products(limit:Int): [Product!]
   
   # Fetch products by category name
   productsByCategory(categoryName: String!): [Product!]
 
   # Fetch a product by its ID
   productById(id: ID!): Product!
+
+  #Custom query to fetch images of products based on productId and colorId
+  getProductImages(productId: String!, colorId: String!): [String!]!
 
   # Fetch all categories
   categories: [Category!]!
@@ -284,6 +295,7 @@ type Mutation {
   createProduct(input: ProductInput!): Product!
   updateProduct(productId: ID!, input: ProductInput!): Product!
   deleteProduct(productId: ID!): String!
+  addRating(productId:ID!,userId:ID!,rating:Int!):String!
 
   # New mutation to undo product sale
   undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
@@ -353,7 +365,6 @@ input ProductInput {
   inventory: Int!
   images: [String!]!
   categories: [ID!]!
-  colorsId: ID
   attributeInputs: [ProductAttributeInput!]
   discount: [CreateProductDiscountInput]
 }

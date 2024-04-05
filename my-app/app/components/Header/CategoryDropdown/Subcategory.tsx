@@ -19,7 +19,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({ subcategories }) => {
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
         <div key={subIndex} className="ml-10 h-fit">
           <Link
-            href={`/${subcategory.name}-Touslesproduits`}
+            href={`/${subcategory.name}-tunisie`}
             className="py-1  text-strongBeige hover:font-bold transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >

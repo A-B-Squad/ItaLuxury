@@ -68,16 +68,24 @@ model Product {
   favoriteProducts  FavoriteProducts[]
   attributes        ProductAttribute[]
   backOrExchange    BackOrExchange[]
-  Colors            Colors?             @relation(fields: [colorsId], references: [id], onDelete: Cascade)
-  colorsId          String?
   ProductInCheckout ProductInCheckout[]
+  ProductColorImage ProductColorImage[]
 }
 
 model Colors {
-  id       String    @id @default(uuid())
-  color    String    @unique
-  Hex      String
-  products Product[]
+  id                String              @id @default(uuid())
+  color             String              @unique
+  Hex               String
+  ProductColorImage ProductColorImage[]
+}
+
+model ProductColorImage {
+  id        String   @id @default(uuid())
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  Colors    Colors?  @relation(fields: [colorsId], references: [id])
+  colorsId  String?
+  images    String[]
 }
 
 model Discount {
@@ -136,7 +144,6 @@ model Package {
   checkoutId String?
   status     Status
   createdAt  DateTime  @default(now())
-
 }
 
 model BackOrExchange {
@@ -177,6 +184,7 @@ model Advertisement {
   id       String   @id @default(uuid())
   images   String[]
   position String
+  link     String?
 }
 
 model Governorate {

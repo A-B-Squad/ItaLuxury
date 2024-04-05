@@ -1,6 +1,6 @@
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import React from "react";
 import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
@@ -14,7 +14,9 @@ if (process.env.NODE_ENV !== "production") {
   loadErrorMessages();
 }
 
-const inter = Inter({ subsets: ["latin"] });
+const openSans = Open_Sans({
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={openSans.className}>
         <DrawerMobile />
         <BasketDrawer />
 
