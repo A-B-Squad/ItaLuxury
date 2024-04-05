@@ -156,9 +156,20 @@ const BasketDrawer = () => {
                         <div>
                           <div className="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              <a href="#">{product.name}</a>
+                              <Link
+                                href={{
+                                  pathname: `products/tunisie/${prepRoute(
+                                    product.name
+                                  )}`,
+                                  query: {
+                                    productId: product.id,
+                                  },
+                                }}
+                              >
+                                {product.name}
+                              </Link>
                             </h3>
-                            <p className="ml-4 ">{product.price} DT</p>
+                            <p className=" ">{product.price.toFixed(2)} TND</p>
                           </div>
 
                           <p className="mt-1 text-sm text-gray-500">Salmon</p>
@@ -191,7 +202,7 @@ const BasketDrawer = () => {
             <div className=" border-gray-200 px-4 py-6 sm:px-6">
               <div className="flex justify-between text-base font-medium text-gray-900">
                 <p>Total</p>
-                <p> {totalPrice} DT</p>
+                <p> {totalPrice.toFixed(2)} TND</p>
               </div>
               <p className="mt-0.5 text-sm text-gray-500">
                 Frais de port et taxes calculés à la Vérification.

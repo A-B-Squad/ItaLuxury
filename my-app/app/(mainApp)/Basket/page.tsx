@@ -237,7 +237,7 @@ const Basket = () => {
                     </td>
                     <td className="py-6 px-4">
                       <h4 className="text-md font-bold text-[#333]">
-                        {product.price} DT
+                        {product.price.toFixed(3)} TND
                       </h4>
                     </td>
                   </tr>
@@ -252,13 +252,17 @@ const Basket = () => {
           </h3>
           <ul className="text-[#333] divide-y mt-6">
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Total <span className="ml-auto font-bold">{totalPrice} DT</span>
+              Total{" "}
+              <span className="ml-auto font-bold">
+                {totalPrice.toFixed(3)} TND
+              </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Expédition <span className="ml-auto font-bold">8.00 DT</span>
+              Expédition <span className="ml-auto font-bold">8.000 TND</span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
-              Totale <span className="ml-auto">{totalPrice + 8} DT</span>
+              Totale{" "}
+              <span className="ml-auto">{(totalPrice + 8).toFixed(3)} TND</span>
             </li>
           </ul>
           <Link
