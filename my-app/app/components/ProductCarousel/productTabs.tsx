@@ -19,9 +19,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import Loading from "./Loading";
-import TitleProduct from "./titleProduct";
 import { useDrawerBasketStore } from "@/app/store/zustand";
 import PopHover from "../PopHover";
+import NoProductYet from "./NoProductYet";
 
 interface Product {
   images: string[];
@@ -46,24 +46,11 @@ const ADD_TO_BASKET = gql`
   }
 `;
 
-const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
+const ProductTabs = ({ data, loadingNewProduct }: any) => {
   const { openBasketDrawer } = useDrawerBasketStore();
-
-  const [selectedColors, setSelectedColors] = useState<Record<string, Product>>(
-    {}
-  );
-
-  const handleColorHover = (productId: string, productColor: Product) => {
-    setSelectedColors((prevState) => ({
-      ...prevState,
-      [productId]: productColor,
-    }));
-  };
-
-  const handleColorHoverEnd = () => {
-    setSelectedColors({});
-  };
-
+  const [showPopover, setShowPopover] = useState(false);
+  const [popoverTitle, setPopoverTitle] = useState("");
+  const [popoverIndex, setPopoverIndex] = useState("");
   const [addToBasketMutation, { loading: addToBasketLoading }] =
     useMutation(ADD_TO_BASKET);
 
@@ -88,56 +75,107 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
     openBasketDrawer();
   };
 
+  const handleMouseEnter = (title: string, index: string) => {
+    setShowPopover(true);
+    setPopoverTitle(title);
+    setPopoverIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setShowPopover(false);
+    setPopoverTitle("");
+    setPopoverIndex("");
+  };
+
   return (
     <div className="products-tabs relative cursor-pointer rounded-md shadow-lg grid">
-      {/* <TitleProduct title={title} /> */}
       {loadingNewProduct && <Loading />}
-      {!loadingNewProduct && (
-        <div className="flex overflow-hidden w-full ">
-          <Carousel className="carousel w-full flex items-center transition-all duration-500 ease-in-out">
-            <CarouselContent className="h-full gap-1 px-3 ">
+      {!loadingNewProduct && data && (
+        <div className="flex overflow-hidden w-full h-fit  ">
+          <Carousel className="carousel w-full h-4/5 flex items-center transition-all duration-500 ease-in-out">
+            <CarouselContent className="h-full gap-1 px-3  w-full ">
               {data?.products.map((product: any, index: any) => (
                 <CarouselItem
                   key={index}
-                  className="carousel-item group hover:rounded-sm w-full lg:w-40 xl:w-full transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 lg:basis-1/3  xl:basis-1/5"
+                  className="carousel-item  group hover:rounded-sm  h-96   transition-all relative pb-3 flex  flex-col justify-start items-center border shadow-xl basis-full md:basis-1/2 lg:basis-1/3  xl:basis-1/5"
                 >
-                  <ul className="plus_button absolute right-3 z-50  top-9 flex flex-col gap-3  ">
-                    <div className="relative">
-                      <PopHover title={"Ajouter à ma liste d'envies	"} />
-                      <li className="bg-strongBeige rounded-full  translate-x-20 group-hover:translate-x-0  p-2 shadow-md hover:bg-mediumBeige transition-all">
+                  <ul className="plus_button opacity-0 group-hover:opacity-100  absolute right-3 z-50  top-14 flex flex-col gap-3  ">
+                    <div
+                      className="relative w-fit cursor-crosshair"
+                      onMouseEnter={() =>
+                        handleMouseEnter("produit en details", index)
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover &&
+                        popoverTitle === "produit en details" &&
+                        popoverIndex == index && (
+                          <PopHover title={popoverTitle} />
+                        )}
+                      <li className="bg-strongBeige rounded-full  translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
                         <FaSearch color="white" />
                       </li>
                     </div>
-                    <div className="relative">
-                      <PopHover title={"Ajouter à ma liste d'envies	"} />
+                    <div
+                      className="relative w-fit h-fit cursor-crosshair"
+                      onMouseEnter={() =>
+                        handleMouseEnter("Ajouter au panier", index)
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover &&
+                        popoverTitle === "Ajouter au panier" &&
+                        popoverIndex == index && (
+                          <PopHover title={popoverTitle} />
+                        )}
                       <li className="bg-strongBeige rounded-full delay-100 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
                         <FaBasketShopping color="white" />
                       </li>
                     </div>
-                    <div className="relative">
-                      <PopHover title={"Ajouter à ma liste d'envies	"} />
-                      <li className="bg-strongBeige rounded-full delay-150 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                    <div
+                      className="relative w-fit cursor-crosshair"
+                      onMouseEnter={() =>
+                        handleMouseEnter("Ajouter au comparatif", index)
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover &&
+                        popoverTitle === "Ajouter au comparatif" &&
+                        popoverIndex == index && (
+                          <PopHover title={popoverTitle} />
+                        )}
+                      <li className="bg-strongBeige rounded-full  delay-150 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
                         <IoGitCompare color="white" />
                       </li>
                     </div>
-                    <div className="relative">
-                      <PopHover title={"Ajouter à ma liste d'envies	"} />
-                      <li className="bg-strongBeige rounded-full delay-200 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                    <div
+                      className="relative w-fit cursor-crosshair"
+                      onMouseEnter={() =>
+                        handleMouseEnter("Ajouter à ma liste d'enviess", index)
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover &&
+                        popoverTitle === "Ajouter à ma liste d'enviess" &&
+                        popoverIndex == index && (
+                          <PopHover title={popoverTitle} />
+                        )}
+                      <li className="bg-strongBeige  rounded-full delay-200 translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
                         <FaRegHeart color="white" />
                       </li>
                     </div>
                   </ul>
                   <Link
-                    className="w-full group-hover:bg-[#00000030] transition-colors"
+                    className="w-full overflow-hidden group-hover:bg-[#00000030] transition-colors"
                     href={{
-                      pathname: `products/tunisie/${prepRoute(product.name)}`,
+                      pathname: `products/tunisie/${prepRoute(product?.name)}`,
                       query: {
                         productId: product.id,
                       },
                     }}
                   >
-                    <div className=" flex justify-between w-full px-3 z-50 uppercase text-white text-[11px] translate-y-2 ">
-                      {calcDateForNewProduct(product.createdAt) && (
+                    <div className=" flex justify-between w-full px-3 z-50 uppercase text-white text-[11px] translate-y-4 ">
+                      {calcDateForNewProduct(product?.createdAt) && (
                         <span className="bg-green-500 w-fit justify-start shadow-md p-1">
                           Nouveau
                         </span>
@@ -149,9 +187,9 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                       )}
                     </div>
 
-                    <div className="images relative -z-10 transition-all overflow-hidden cursor-crosshair text-black flex justify-center items-center">
+                    <div className="images relative -z-10 w-full h-[250px] lg:h-[260px]  transition-all overflow-hidden cursor-crosshair text-black flex justify-center items-center">
                       <Image
-                        src={product.ProductColorImage[0]?.images[0]} // Change to select appropriate image
+                        src={product.images[0]} // Change to select appropriate image
                         className="w-52 h-full"
                         width={300}
                         height={250}
@@ -163,10 +201,9 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                   </Link>
 
                   <div className="relative border-t-2  flex flex-col px-3 w-full justify-end items-start">
-                    <p className="category  font-normal tracking-widest  text-xs py-1 capitalize">
+                    <p className="category  font-normal -tracking-tighter  text-xs py-1 capitalize">
                       {product.categories[2]?.name}
                     </p>
-
                     <Link
                       href={{
                         pathname: `products/tunisie/${prepRoute(product.name)}`,
@@ -176,73 +213,60 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
                       }}
                       product-name={product.name}
                       className="product-name hover:text-strongBeige transition-colors text-sm font-medium tracking-wide
-                    line-clamp-2 h-10"
+                    line-clamp-2 "
                     >
                       {product.name}
                     </Link>
+                    <p className="text-sm text-gray-400 tracking-tight">
+                      {product.categories[0].name}
+                    </p>
+                    <div
+                      className="relative w-fit cursor-crosshair"
+                      onMouseEnter={() =>
+                        handleMouseEnter(product?.Colors?.color, index)
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover &&
+                        popoverTitle === product?.Colors?.color &&
+                        popoverIndex == index && (
+                          <PopHover title={product?.Colors?.color} />
+                        )}
+                      {product.Colors && (
+                        <div
+                          className="colors_available items-center   mt-2 w-5 h-5  border-black border-2 rounded-sm shadow-gray-400 shadow-sm"
+                          style={{
+                            backgroundColor: product?.Colors?.Hex,
+                          }}
+                        />
+                      )}
+                    </div>
 
                     <button
                       onClick={() => AddToBasket(product.id)}
                       className={`${
                         product.productDiscounts.length > 0
                           ? "group-hover:-translate-y-4 "
-                          : "group-hover:translate-y-1 "
+                          : "group-hover:translate-3"
                       } bg-strongBeige  uppercase absolute translate-y-32 left-1/2 -translate-x-1/2 group-hover:translate-y-0 text-xs md:text-sm md:px-3 z-50 hover:bg-mediumBeige transition-all text-white w-4/5 py-2 rounded-md`}
                       disabled={addToBasketLoading}
                     >
                       {addToBasketLoading ? "Adding..." : "Ajouter au"}
                     </button>
 
-                    <div className="py-1" product-name={product.name}>
-                      <div className="colors_available ">
-                        <ul className="flex gap-2">
-                          {product?.ProductColorImage?.map(
-                            (productColor: Product, index: number) => (
-                              <li
-                                key={index}
-                                className="w-5 h-5 border-1 border-gray-200 shadow-gray-400 shadow-sm"
-                                onMouseEnter={() =>
-                                  handleColorHover(product.id, productColor)
-                                }
-                                onMouseLeave={handleColorHoverEnd}
-                                style={{
-                                  backgroundColor: productColor.Colors.Hex,
-                                }}
-                              />
-                            )
-                          )}
-                        </ul>
-                      </div>
-
-                      {!!selectedColors[product.id] && (
-                        <div className="product_color_selected  flex justify-center items-center flex-col bg-white border-2 absolute z-50 -top-20 left-1/2 -translate-x-1/2 shadow-lg h-32 w-28">
-                          <Image
-                            width={90}
-                            height={90}
-                            src={selectedColors[product.id].images[0]}
-                            alt={product.name}
-                            layout="responsive"
-                          />
-                          <p className="pb-5">
-                            {selectedColors[product.id].Colors.color}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
                     <div className="priceDetails group-hover:translate-y-32 translate-y-0">
                       <p
                         className={`${
                           product.productDiscounts.length > 0
                             ? "line-through text-lg"
-                            : "text-xl text-strongBeige"
+                            : " text-strongBeige text-xl"
                         } py-1 font-semibold`}
                       >
                         {product.price.toFixed(3)} TND
                       </p>
                       {product.productDiscounts.length > 0 && (
                         <div className="flex items-center">
-                          <span className="text-gray-400 font-thin">
+                          <span className="text-gray-400 text-xs font-thin">
                             A partir de :
                           </span>
                           <span className="text-red-500 font-bold ml-1 text-xl">
@@ -261,6 +285,7 @@ const ProductTabs = ({ title, data, loadingNewProduct }: any) => {
           </Carousel>
         </div>
       )}
+      {!data && !loadingNewProduct && <NoProductYet />}
     </div>
   );
 };

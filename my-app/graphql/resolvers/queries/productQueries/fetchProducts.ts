@@ -17,11 +17,7 @@ export const products = async (_: any, { limit }: { limit?: number }, { prisma }
                 reviews: true, // Include reviews related to products
                 favoriteProducts: true, // Include favorite products related to products
                 attributes: true,// Include attributes related to products
-                ProductColorImage: {
-                    include: {
-                        Colors: true
-                    }
-                }
+                Colors: true
             },
             take: takeValue // Limit the number of products to the value of takeValue
         });

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
 import InnerImageZoom from "react-inner-image-zoom";
@@ -7,6 +6,7 @@ import { FaStar } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
 import Cookies from "js-cookie";
+import Image from "next/image";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { FaRegHeart } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
@@ -20,7 +20,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
-  const [colors, setColors] = useState<any>(null);
   const [rating, setRating] = useState<number>(0);
   const [hover, setHover] = useState<any>(null);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -32,7 +31,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverTitle, setPopoverTitle] = useState("");
 
-  const handleMouseEnter = (title) => {
+  const handleMouseEnter = (title:string) => {
     setShowPopover(true);
     setPopoverTitle(title);
   };
@@ -63,18 +62,18 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     });
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentIndex = smallImages?.indexOf(bigImage);
-      if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
-        setBigImage(smallImages[currentIndex + 1]);
-      } else {
-        setBigImage(smallImages[0]);
-      }
-    }, 5000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const currentIndex = smallImages?.indexOf(bigImage);
+  //     if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
+  //       setBigImage(smallImages[currentIndex + 1]);
+  //     } else {
+  //       setBigImage(smallImages[0]);
+  //     }
+  //   }, 5000);
 
-    return () => clearInterval(interval);
-  }, [bigImage, smallImages]);
+  //   return () => clearInterval(interval);
+  // }, [bigImage, smallImages]);
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -96,12 +95,10 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           dateOfEnd
           dateOfStart
         }
-        ProductColorImage {
-          Colors {
-            id
-            color
-            Hex
-          }
+        Colors {
+          id
+          color
+          Hex
         }
         attributes {
           id
@@ -109,12 +106,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           value
         }
       }
-    }
-  `;
-
-  const GET_PRODUCT_IMAGES_QUERY = gql`
-    query Query($productId: String!, $colorId: String!) {
-      getProductImages(productId: $productId, colorId: $colorId)
     }
   `;
 
@@ -155,7 +146,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   `;
 
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
-  const [getProductImages] = useLazyQuery(GET_PRODUCT_IMAGES_QUERY);
   const [addToBasket] = useMutation(ADD_TO_BASKET);
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
@@ -165,9 +155,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
       setSmallImages(data.productById.images);
-      setColors(
-        data.productById.ProductColorImage.map((image: any) => image.Colors)
-      );
+
       setDiscount(data.productById.productDiscounts[0]);
       setAttributes(data.productById.attributes);
     },
@@ -175,6 +163,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       console.log(error);
     },
   });
+  console.log(productDetails);
 
   const [addRating] = useMutation(ADD_RATING_MUTATION);
 
@@ -233,11 +222,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             </div>
           )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
-            <div className="grid items-start grid-cols-12 gap-10  ">
-              <div className=" flex lg:flex-row flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
-                <div className="shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
+            <div className="grid items-start  grid-cols-12 gap-8  ">
+              <div className=" flex lg:flex-row justify-center items-center flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
+                <div className="shadow-xl  border-2 max-w-md  flex items-center justify-center  p-5 rounded-xl">
                   <InnerImageZoom
-                    className="w-4/5 rounded object-cover"
+                    className="w- rounded object-cover"
                     zoomSrc={bigImage}
                     src={bigImage}
                     zoomType="hover"
@@ -245,16 +234,19 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     zoomScale={1.5}
                   />
                 </div>
-                <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
+                <div className="mt-6 flex lg:flex-col  justify-center gap-3">
                   {smallImages.map((image: string, index: number) => (
                     <div
                       key={index}
-                      className="shadow-md w-fit h-fit rounded-md p-[7px]"
+                      className="shadow-md w-24 h-24 rounded-md p-[7px]"
                     >
-                      <img
+                      <Image
                         src={image}
-                        alt="Product2"
-                        className="w-24 cursor-pointer"
+                        alt={`Product Image ${index + 1}`}
+                        layout="responsive"
+                        height={30}
+                        width={30}
+                        className="w-8 h-8 cursor-pointer"
                         onMouseEnter={() => {
                           setBigImage(image);
                         }}
@@ -299,35 +291,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 </div>
 
                 <div className="Infomation_Details ">
-                  {colors.length > 0 && (
-                    <div className="All_color_available space-y-2  mt-5">
-                      <h3 className="text-lg font-bold tracking-wider capitalize text-strongBeige">
-                        Choisir une couleur
-                      </h3>
-                      <div className="flex flex-wrap gap-2 ">
-                        {colors.map((color: any, index: number) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              getProductImages({
-                                variables: {
-                                  productId: productId,
-                                  colorId: color.id,
-                                },
-                                onCompleted: (data) => {
-                                  setSmallImages(data.getProductImages);
-                                  setBigImage(data.getProductImages[0]);
-                                },
-                              });
-                            }}
-                            type="button"
-                            style={{ backgroundColor: `${color.color}` }}
-                            className={`w-8 h-8 shadow-sm shadow-gray-300   border-2 transition-colors hover:border-gray-800 rounded-lg shrink-0`}
-                          ></button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                   <div className="Quantity flex items-center mt-4  space-x-2">
                     <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
                       Quantité
@@ -366,6 +329,25 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     <ul className="space-y-3 tracking-widest list-disc mt-2 pl-4 text-sm text-gray-600">
                       <li>{productDetails.description}</li>
                     </ul>
+                  </div>
+
+                  <div
+                  className="relative w-fit cursor-crosshair"
+                  onMouseEnter={() => handleMouseEnter(productDetails.Colors.color)}
+                  onMouseLeave={handleMouseLeave}
+                  >
+                    {showPopover && popoverTitle === productDetails.Colors.color && (
+                      <PopHover title={popoverTitle} />
+                    )}
+
+                    {productDetails.Colors && (
+                      <div
+                        className="colors_available  mt-4 w-5 h-5  border-black border-2 shadow-gray-400 shadow-sm"
+                        style={{
+                          backgroundColor: productDetails?.Colors?.Hex,
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
 
@@ -477,6 +459,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     {reviews} Commentaires
                   </h4>
                 </div>
+
                 <div className="Rating mt-8">
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-strongBeige">

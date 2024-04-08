@@ -25,20 +25,20 @@ const Loading = () => {
                   <IoImageOutline className="h-12 w-12 text-gray-500" />
                 </div>
 
-                <div className="mt-5 relative ">
-                  <p className="mb-4 h-3 w-56 rounded-full bg-gray-300">
+                <div className="mt-5 left-24 relative ">
+                  <p className="mb-3 h-3 w-32 rounded-full bg-gray-300">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-60 rounded-full bg-gray-300">
+                  <p className="mb-2 h-2 w-40 rounded-full bg-gray-300">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-64 rounded-full bg-gray-300">
+                  <p className="mb-2 h-2 w-44 rounded-full bg-gray-300">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-72 rounded-full bg-gray-300">
+                  <p className="mb-2 h-2 w-48 rounded-full bg-gray-300">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-80 rounded-full bg-gray-300">
+                  <p className="mb-2 h-2 w-52 rounded-full bg-gray-300">
                     &nbsp;
                   </p>
                 </div>

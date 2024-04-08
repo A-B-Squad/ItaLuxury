@@ -23,6 +23,7 @@ export const createProduct = async (
     } = input;
 
     // Creating a new product using prisma
+    console.log(input);
     const productCreate = await prisma.product.create({
       // Defining the data for the new product
       data: {
@@ -33,12 +34,16 @@ export const createProduct = async (
         description,
         inventory,
         images,
+        colorsId
+        ,
         categories: {
           // Connecting the new product to existing categories
           connect: categories.map((categoryId) => ({ id: categoryId })),
         },
         attributes: { create: attributeInputs }, // Creating new attributes for the product
-      },
+      }, include: {
+        Colors: true
+      }
     });
 
     // // If discount is provided

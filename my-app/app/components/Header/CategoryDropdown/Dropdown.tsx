@@ -44,11 +44,20 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown }: any) => {
           : "mt-56 opacity-0 -z-20"
       }`}
     >
-      <Category
-        data={data}
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-      />
+      {data?.categories.length > 0 && (
+        <Category
+          data={data}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+        />
+      )}
+
+      {data?.categories.length <= 0 && (
+        <p className="px-10 text-center tracking-wider ">
+          Aucune catégorie disponible pour le moment. Veuillez revenir plus tard
+          !
+        </p>
+      )}
     </div>
   );
 };
