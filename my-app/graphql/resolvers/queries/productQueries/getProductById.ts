@@ -12,18 +12,14 @@ export const productById = async (_: any, { id }: { id: string }, { prisma }: Co
                 reviews: true, // Include reviews related to the product
                 favoriteProducts: true, // Include favorite products related to the product
                 attributes: true, // Include attributes related to the product
-                ProductColorImage:{
-                    include:{
-                        Colors:true
-                    }
-                }
+                Colors: true
             }
         })
         if (!product) {
             return new Error("Product not found")
         }
         console.log(product);
-        
+
         return product
     } catch (error) {
         console.log('Failed to fetch products', error);

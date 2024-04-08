@@ -40,6 +40,7 @@ CREATE TABLE "Product" (
     "solde" INTEGER NOT NULL DEFAULT 0,
     "images" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "colorsId" TEXT,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
@@ -54,13 +55,11 @@ CREATE TABLE "Colors" (
 );
 
 -- CreateTable
-CREATE TABLE "ProductColorImage" (
+CREATE TABLE "TopDeals" (
     "id" TEXT NOT NULL,
     "productId" TEXT,
-    "colorsId" TEXT,
-    "images" TEXT[],
 
-    CONSTRAINT "ProductColorImage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "TopDeals_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -172,6 +171,7 @@ CREATE TABLE "Advertisement" (
     "id" TEXT NOT NULL,
     "images" TEXT[],
     "position" TEXT NOT NULL,
+    "link" TEXT,
 
     CONSTRAINT "Advertisement_pkey" PRIMARY KEY ("id")
 );
@@ -213,6 +213,9 @@ CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");
 CREATE UNIQUE INDEX "Colors_color_key" ON "Colors"("color");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "TopDeals_productId_key" ON "TopDeals"("productId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "ProductDiscount_productId_key" ON "ProductDiscount"("productId");
 
 -- CreateIndex
@@ -228,10 +231,10 @@ CREATE INDEX "_CategoryToProduct_B_index" ON "_CategoryToProduct"("B");
 ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ProductColorImage" ADD CONSTRAINT "ProductColorImage_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "Product_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ProductColorImage" ADD CONSTRAINT "ProductColorImage_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "TopDeals" ADD CONSTRAINT "TopDeals_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductDiscount" ADD CONSTRAINT "ProductDiscount_discountId_fkey" FOREIGN KEY ("discountId") REFERENCES "Discount"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -75,11 +75,19 @@ export function DrawerMobile() {
             </svg>
           </IconButton>
         </div>
-        <Category
-          data={data}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
+        {data?.categories.length > 0 && (
+          <Category
+            data={data}
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+          />
+        )}
+        {data?.categories.length <= 0 && (
+          <p>
+            Aucune catégorie disponible pour le moment. Veuillez revenir plus
+            tard !
+          </p>
+        )}
       </Drawer>
     </>
   );

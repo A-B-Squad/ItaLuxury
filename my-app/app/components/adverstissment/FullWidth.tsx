@@ -19,7 +19,7 @@ const FullWidth = () => {
     },
   });
   return (
-    <div className="py-10 w-full h-full relative">
+    <div className="md:py-32 py-12 w-full h-full relative ">
       <Image
         src={
           "https://res.cloudinary.com/dc1cdbirz/image/upload/v1711937168/gdgjwty4swrew5vyna74.jpg"
