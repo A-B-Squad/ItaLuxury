@@ -31,7 +31,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverTitle, setPopoverTitle] = useState("");
 
-  const handleMouseEnter = (title:string) => {
+  const handleMouseEnter = (title: string) => {
     setShowPopover(true);
     setPopoverTitle(title);
   };
@@ -62,18 +62,18 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const currentIndex = smallImages?.indexOf(bigImage);
-  //     if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
-  //       setBigImage(smallImages[currentIndex + 1]);
-  //     } else {
-  //       setBigImage(smallImages[0]);
-  //     }
-  //   }, 5000);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentIndex = smallImages?.indexOf(bigImage);
+      if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
+        setBigImage(smallImages[currentIndex + 1]);
+      } else {
+        setBigImage(smallImages[0]);
+      }
+    }, 4000);
 
-  //   return () => clearInterval(interval);
-  // }, [bigImage, smallImages]);
+    return () => clearInterval(interval);
+  }, [bigImage, smallImages]);
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -175,7 +175,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   return (
     <>
       {!!productDetails ? (
-        <div>
+        <div className="pt-10 flex flex-col justify-center items-center">
           {successMsg && (
             <div
               id="alert-3"
@@ -222,11 +222,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             </div>
           )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
-            <div className="grid items-start  grid-cols-12 gap-8  ">
-              <div className=" flex lg:flex-row justify-center items-center flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
-                <div className="shadow-xl  border-2 max-w-md  flex items-center justify-center  p-5 rounded-xl">
+            <div className="grid items-start  grid-cols-12 gap-14  ">
+              <div className=" flex lg:flex-row justify-center items-center flex-col gap-2 col-span-12 lg:col-span-6 w-full text-center">
+                <div className="shadow-xl  border-2 max-w-lg   flex items-center justify-center  p-5 rounded-xl">
                   <InnerImageZoom
-                    className="w- rounded object-cover"
+                    className="relative w-full rounded object-cover"
                     zoomSrc={bigImage}
                     src={bigImage}
                     zoomType="hover"
@@ -238,7 +238,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   {smallImages.map((image: string, index: number) => (
                     <div
                       key={index}
-                      className="shadow-md w-24 h-24 rounded-md p-[7px]"
+                      className={`shadow-md w-24 h-24 rounded-md p-[7px] ${
+                        image === bigImage ? "border-2 border-mediumBeige" : ""
+                      }`}
                     >
                       <Image
                         src={image}
@@ -256,7 +258,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 </div>
               </div>
 
-              <div className="product lg:col-span-5 col-span-12 ">
+              <div className="product lg:col-span-6 col-span-12  ">
                 <h2 className="product_name tracking-wider text-2xl font-semibold ">
                   {productDetails.name}
                 </h2>
@@ -326,19 +328,22 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-5">
                       Description
                     </h3>
-                    <ul className="space-y-3 tracking-widest list-disc mt-2 pl-4 text-sm text-gray-600">
+                    <ul className="space-y-3 tracking-widest font-medium list-disc mt-2 pl-4 text-sm text-gray-600">
                       <li>{productDetails.description}</li>
                     </ul>
                   </div>
 
                   <div
-                  className="relative w-fit cursor-crosshair"
-                  onMouseEnter={() => handleMouseEnter(productDetails.Colors.color)}
-                  onMouseLeave={handleMouseLeave}
+                    className="relative w-fit cursor-crosshair"
+                    onMouseEnter={() =>
+                      handleMouseEnter(productDetails.Colors.color)
+                    }
+                    onMouseLeave={handleMouseLeave}
                   >
-                    {showPopover && popoverTitle === productDetails.Colors.color && (
-                      <PopHover title={popoverTitle} />
-                    )}
+                    {showPopover &&
+                      popoverTitle === productDetails.Colors.color && (
+                        <PopHover title={popoverTitle} />
+                      )}
 
                     {productDetails.Colors && (
                       <div
@@ -519,7 +524,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             </div>
           </div>
           {attributes && (
-            <div className=" my-10 mx-5 lg:mx-auto max-w-7xl m-auto  shadow-2xl ">
+            <div className=" my-10 mx-5 lg:mx-auto max-w-7xl m-auto  w-full shadow-2xl ">
               <h3 className="text-lg font-bold  text-white w-fit p-3 bg-strongBeige">
                 Information de produit
               </h3>
@@ -539,7 +544,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       ) : (
         <div
           role="status"
-          className="flex items-center justify-center h-screen"
+          className="flex items-center justify-center h-screen "
         >
           <svg
             aria-hidden="true"
