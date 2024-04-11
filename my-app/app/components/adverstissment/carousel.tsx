@@ -1,7 +1,8 @@
-"use client";
+import React, { useState } from "react";
 import { Carousel } from "@material-tailwind/react";
 import { useQuery, gql } from "@apollo/client";
-import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
 const AdsCarousel = () => {
   const [images, setImages] = useState([]);
@@ -9,32 +10,54 @@ const AdsCarousel = () => {
     query AdvertismentByPosition($position: String!) {
       advertismentByPosition(position: $position) {
         images
+        link
       }
     }
   `;
 
-  const { data, loading, error } = useQuery(ADVERTISSMENT_QUERY, {
+  const {
+    data,
+    loading: adsLoaded,
+    error,
+  } = useQuery(ADVERTISSMENT_QUERY, {
     variables: { position: "slider" },
     onCompleted: (data) => {
-      setImages(data.advertismentByPosition.images);
+      if (data && data.advertismentByPosition) {
+        const allImages = data.advertismentByPosition.flatMap(
+          (ad: { images: string[] }) => ad.images
+        );
+        setImages(allImages);
+      }
     },
   });
 
   return (
-    <Carousel
-      autoplay
-      className="rounded-xl md:w-[55%] lg:w-[52%] w-[100%] "
-      placeholder={""}
-    >
-      {images.map((image, index) => (
-        <img
-          src={image}
-          key={index}
-          alt="image 1"
-          className="h-full w-full object-fill"
-        />
-      ))}
-    </Carousel>
+    <>
+      {!adsLoaded && images.length <= 0 && (
+        <div className="rounded-xl lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[380px] bg-gray-300 flex flex-col justify-center items-center ">
+          <p>{"Carousel Ads"}</p>
+          <p>904px x 380px</p>
+        </div>
+      )}
+      {!adsLoaded && images.length > 0 && (
+        <Carousel
+          autoplay
+          className="rounded-xl relative lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[380px]  "
+          placeholder={""}
+        >
+          {images.map((image, index) => (
+            <Link  key={index} href={data.advertismentByPosition[index]?.link}>
+              <Image
+                layout="fill"
+                src={image}
+                alt={`image ${index + 1}`}
+                className=" hover:opacity-50 transition-all h-full w-full object-fill"
+              />
+            </Link>
+          ))}
+        </Carousel>
+      )}
+    </>
   );
 };
 

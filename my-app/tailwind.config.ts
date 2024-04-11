@@ -18,7 +18,8 @@ const config: Config = {
       colors: {
         lightBeige: "#F0EDD4",
         mediumBeige: "#ECCDB4",
-        strongBeige: "#f17e7e"
+        strongBeige: "#f17e7e",
+        lightBlack:"#00000030"
       }
     },
   },

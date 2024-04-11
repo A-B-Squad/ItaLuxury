@@ -5,15 +5,24 @@ import { IoImageOutline } from "react-icons/io5";
 
 const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
   return (
-    <div className="relative hidden  hover:opacity-85 transition-opacity md:block h-[374px] w-[300px] overflow-hidden">
+    <div className="relative hidden   hover:opacity-85 transition-opacity md:flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
       {adsLoaded && (
         <div className="grid  h-[374px] w-[320px] animate-pulse place-items-center rounded-lg bg-gray-300">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}
-      {!adsLoaded && image && (
+
+      {!image && !adsLoaded && (
+        <div className="relative flex items-center flex-col justify-center h-[390px] w-[235px]   rounded-lg bg-gray-300">
+          {/* <IoImageOutline className="h-12 w-12 text-gray-500" /> */}
+          <p>{adsPositon}</p>
+          <p>390px x 235px</p>
+        </div>
+      )}
+
+      {adsLoaded && image && (
         <Link
-          className="relative flex items-center flex-col justify-center h-[374px] w-[300px]   rounded-lg "
+          className="relative flex items-center flex-col justify-center h-[374px] w-[320px] min-w-[290px] min-h-[374px] rounded-lg "
           href={link}
         >
           <a>
@@ -27,13 +36,6 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
             />
           </a>
         </Link>
-      )}
-      {!image && !adsLoaded && (
-        <div className="relative flex items-center flex-col justify-center h-[374px] w-[300px]   rounded-lg bg-gray-300">
-          {/* <IoImageOutline className="h-12 w-12 text-gray-500" /> */}
-          <p>{adsPositon}</p>
-          <p>320px x 374px</p>
-        </div>
       )}
     </div>
   );
