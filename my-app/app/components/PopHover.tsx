@@ -1,8 +1,10 @@
 import React from "react";
-
-const PopHover = ({ title }) => {
+interface PopHoverProps {
+  title: string;
+}
+const PopHover = ({ title }: PopHoverProps) => {
   return (
-    <div className="popHover absolute flex flex-col w-max items-center transform -translate-x-1/2 -translate-y-full left-1/2">
+    <div className="popHover absolute z-50 flex flex-col w-max items-center transform -translate-x-1/2 -translate-y-full left-1/2">
       <p className="bg-white text-black border text-sm shadow-2xl shadow-[#000000cf] px-3 py-1 rounded-md">
         {title}
       </p>

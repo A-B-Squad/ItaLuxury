@@ -1,15 +1,15 @@
 "use client";
 import SideAds from "@/app/components/adverstissment/SideAds";
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import AdsCarousel from "@/components/adverstissment/carousel";
+import FullWidth from "@/components/adverstissment/FullWidth";
 import Left from "@/components/adverstissment/Left";
 import Right from "@/components/adverstissment/Right";
-import Services from "./_components/services";
 import ProductTabs from "@/components/ProductCarousel/productTabs";
 import { gql, useQuery } from "@apollo/client";
-import FullWidth from "@/components/adverstissment/FullWidth";
-import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
+import ProductDetails from "../../components/ProductDetails/ProductDetails";
+import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
-import { useEffect, useState } from "react";
 const Home = () => {
   const TAKE_6_PRODUCTS = gql`
     query Products($limit: Int!) {
@@ -20,6 +20,7 @@ const Home = () => {
         reference
         description
         createdAt
+        inventory
         images
         categories {
           name
@@ -38,9 +39,46 @@ const Home = () => {
       }
     }
   `;
-  const { loading: loadingNewProduct, data } = useQuery(TAKE_6_PRODUCTS, {
-    variables: { limit: 6 },
-  });
+  const TAKE_6_PRODUCTS_PRICE_20 = gql`
+    query ProductsLessThen20($limit: Int!) {
+      productsLessThen20(limit: $limit) {
+        id
+        name
+        price
+        reference
+        description
+        createdAt
+        inventory
+        images
+        categories {
+          name
+        }
+        Colors {
+          color
+          Hex
+        }
+        productDiscounts {
+          price
+          newPrice
+          Discount {
+            percentage
+          }
+        }
+      }
+    }
+  `;
+  const { loading: loadingNewProduct, data: Products_6 } = useQuery(
+    TAKE_6_PRODUCTS,
+    {
+      variables: { limit: 6 },
+    }
+  );
+  const { loading: loadingProduct, data: Product_less_20 } = useQuery(
+    TAKE_6_PRODUCTS_PRICE_20,
+    {
+      variables: { limit: 6 },
+    }
+  );
 
   const SIDE_ADS_NEW_PRODUCT = gql`
     query Query($position: String!) {
@@ -54,6 +92,7 @@ const Home = () => {
     SIDE_ADS_NEW_PRODUCT,
     { variables: { position: "left_new_product" } }
   );
+
   const { loading: loadingRightAdsNewProduct, data: rightAds } = useQuery(
     SIDE_ADS_NEW_PRODUCT,
     { variables: { position: "rigth_new_product" } }
@@ -84,27 +123,29 @@ const Home = () => {
   //   return () => clearTimeout(timer);
   // });
   return (
-    <div className="Home py-14 flex min-h-screen flex-col items-center px-8 ">
+    <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">
       <div className="container">
-        <section className="flex justify-center  md:flex-row flex-col gap-6 items-center">
+        <section className="flex justify-center  lg:flex-row flex-col gap-4 items-center">
           <Left />
           <AdsCarousel />
           <Right />
         </section>
         <Services />
+        <ProductDetails />
+
         <div className="nouveaux-product-parent-tabs flex flex-col     ">
           <TitleProduct title={"nouveaux Produits"} />
           <div className="Carousel_new_product flex gap-3">
             <SideAds
               adsLoaded={loadingLeftAdsNewProduct}
-              image={leftAds?.advertismentByPosition?.images[0]}
-              link={leftAds?.advertismentByPosition?.link}
+              image={leftAds?.advertismentByPosition[0]?.images[0]}
+              link={leftAds?.advertismentByPosition[0]?.link}
               adsPositon={"Left Ads"}
             />
 
             <ProductTabs
               title={"nouveaux Produits"}
-              data={data}
+              data={Products_6}
               loadingNewProduct={loadingNewProduct}
             />
           </div>
@@ -114,7 +155,9 @@ const Home = () => {
           <div className=" flex justify-between  ">
             <TitleProduct title={"Meilleures offres du jour"} />
             <div className="flex items-start  pt-3 ">
-              <p className="p-2 font-bold"  >Hâtez-vous ! L'offre se termine dans :</p>
+              <p className="p-2 font-bold">
+                Hâtez-vous ! L'offre se termine dans :
+              </p>
               {/* <div className="grid grid-flow-col bg-strongBeige text-white  text-center auto-cols-max">
                 <div className="flex items-center gap-2 p-2 bg-neutral rounded-box text-neutral-content">
                   <span className="countdown font-mono text-base">
@@ -143,27 +186,31 @@ const Home = () => {
               </div> */}
             </div>
           </div>
-          <TopDeals
-          data={data}
-          loadingNewProduct={loadingNewProduct}
-          />
+          <TopDeals data={Products_6} loadingNewProduct={loadingNewProduct} />
         </div>
         <FullWidth />
         <div className="Carousel_A_20DT">
           <TitleProduct title={"l'essentiel a 20DT"} />
-
-          <ProductTabs data={data} loadingNewProduct={loadingNewProduct} />
+          <div>
+            <ProductTabs
+              data={Product_less_20}
+              loadingNewProduct={loadingProduct}
+            />
+          </div>
         </div>
         <FullWidth />
         <div className="Promotion flex flex-col ">
           <TitleProduct title={"nouveaux Produits"} />
 
           <div className="flex  gap-3">
-            <ProductTabs data={data} loadingNewProduct={loadingNewProduct} />
+            <ProductTabs
+              data={Products_6}
+              loadingNewProduct={loadingNewProduct}
+            />
             <SideAds
               adsLoaded={loadingRightAdsNewProduct}
-              image={rightAds?.advertismentByPosition?.images[0]}
-              link={rightAds?.advertismentByPosition?.link}
+              image={rightAds?.advertismentByPosition[0]?.images[0]}
+              link={rightAds?.advertismentByPosition[0]?.link}
               adsPositon={"Right Ads"}
             />
           </div>

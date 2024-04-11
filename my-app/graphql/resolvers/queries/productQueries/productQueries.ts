@@ -4,9 +4,8 @@ import { productById } from "./getProductById";
 import { productDiscount } from "./productDiscount";
 import { productsDiscounts } from "./allProductDiscounts";
 import { favoriteProducts } from "./favoriteProducts";
-// import { productColors } from "./productColors";
 import { productReview } from "./productReview";
-import { getProductImages } from "./getProductImages";
+import { productsLessThen20 } from "./fetchProductPriceLess20";
 
 export const productQueries = {
     products,
@@ -15,7 +14,5 @@ export const productQueries = {
     productDiscount,
     productsDiscounts,
     favoriteProducts,
-    // productColors,
-    productReview,
-    getProductImages
+    productReview,productsLessThen20
 }

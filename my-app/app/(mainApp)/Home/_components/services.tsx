@@ -11,7 +11,7 @@ const Services = () => {
           <CiDeliveryTruck className="text-strongBeige text-[4rem]" />
           <div>
             <h3 className="font-bold ">LIVRAISON GRATUITE</h3>
-            <h4>À partir de 300 TND</h4>
+            <h4>À partir de 499 TND</h4>
           </div>
         </li>
         <li className="flex justify-center items-center  gap-3 pr-4 border-r-2">

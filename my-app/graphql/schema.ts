@@ -224,6 +224,9 @@ type Query {
   # Fetch all products
   products(limit:Int): [Product!]
   
+  # Fetch all products price less then 20TND
+  productsLessThen20(limit:Int): [Product!]
+  
   # Fetch products by category name
   productsByCategory(categoryName: String!): [Product!]
 
@@ -264,7 +267,7 @@ type Query {
   allGovernorate: [Governorate!]!
 
   # Fetch Advertisement By Type 
-  advertismentByPosition(position: String!): Advertisement!
+  advertismentByPosition(position: String!): [Advertisement]!
 
   # Fetch Package By ID
   packageById(packageId: ID!): Package!
@@ -323,7 +326,7 @@ type Mutation {
   deleteCategory(id: ID!): Category!
 
   # Mutation to add product to favorites
-  addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts!
+  addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
 
   # Mutation to add Company Info
   createCompanyInfo(input: CompanyInfoInput!): CompanyInfo!

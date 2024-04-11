@@ -41,7 +41,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     setPopoverTitle("");
   };
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   interface DecodedToken extends JwtPayload {
@@ -163,7 +163,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       console.log(error);
     },
   });
-  console.log(productDetails);
 
   const [addRating] = useMutation(ADD_RATING_MUTATION);
 
@@ -223,7 +222,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           )}
           <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
             <div className="grid items-start  grid-cols-12 gap-14  ">
-              <div className=" flex lg:flex-row justify-center items-center flex-col gap-2 col-span-12 lg:col-span-6 w-full text-center">
+              <div className=" flex lg:flex-row justify-center items-start flex-col gap-2 col-span-12 lg:col-span-6 w-full text-center">
                 <div className="shadow-xl  border-2 max-w-lg   flex items-center justify-center  p-5 rounded-xl">
                   <InnerImageZoom
                     className="relative w-full rounded object-cover"
@@ -292,9 +291,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   )}
                 </div>
 
-                <div className="Infomation_Details ">
+                <div className="Infomation_Details border-t-2 mt-4">
                   <div className="Quantity flex items-center mt-4  space-x-2">
-                    <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
+                    <h3 className="text-lg tracking-wider font-bold  capitalize text-strongBeige">
                       Quantité
                     </h3>
                     <div className="flex divide-x border w-max overflow-hidden rounded-md">
@@ -325,7 +324,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     </div>
                   </div>
                   <div className="Description">
-                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-5">
+                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-3">
                       Description
                     </h3>
                     <ul className="space-y-3 tracking-widest font-medium list-disc mt-2 pl-4 text-sm text-gray-600">
@@ -364,7 +363,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       addToBasket({
                         variables: {
                           input: {
-                            userId: "aaa",
+                            userId: decodedToken?.userId,
                             quantity: quantity,
                             productId: productId,
                           },
@@ -391,13 +390,13 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         addToFavorite({
                           variables: {
                             input: {
-                              userId: "aaa",
+                              userId: decodedToken?.userId,
                               productId: productId,
                             },
                           },
                         });
                         setSuccessMsg(
-                          "Produit ajouté avec succès au favoris !"
+                          "Produit ajouté avec succès au favoris !",
                         );
                       }}
                     >
@@ -440,7 +439,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             addRating({
                               variables: {
                                 productId: productId,
-                                userId: "aaa",
+                                userId: decodedToken?.userId,
                                 rating: currentIndex,
                               },
                             });

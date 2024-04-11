@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import Subsubcategory from "./Subsubcategory";
+import prepRoute from "../../_prepRoute";
 
 interface SubcategoryProps {
   subcategories: Subcategory[];
@@ -19,7 +20,12 @@ const Subcategory: React.FC<SubcategoryProps> = ({ subcategories }) => {
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
         <div key={subIndex} className="ml-10 h-fit">
           <Link
-            href={`/${subcategory.name}-tunisie`}
+            href={{
+              pathname: `/${prepRoute(subcategory.name)}-tunisie`,
+              query: {
+                category: subcategory.name,
+              },
+            }}
             className="py-1  text-strongBeige hover:font-bold transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >

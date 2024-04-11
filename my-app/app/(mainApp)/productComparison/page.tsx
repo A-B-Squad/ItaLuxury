@@ -18,7 +18,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
+                                    3,
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND
@@ -105,7 +105,7 @@ const ProductComparison = () => {
                             addToBasket({
                               variables: {
                                 input: {
-                                  userId: "aaa",
+                                  userId: decodedToken?.userId,
                                   quantity: 1,
                                   productId: product.id,
                                 },
