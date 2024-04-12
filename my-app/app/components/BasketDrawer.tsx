@@ -116,7 +116,7 @@ const BasketDrawer = () => {
       placement="right"
       open={isOpen}
       onClose={closeBasketDrawer}
-      className="p-4"
+      className="p-4 fixed"
       size={400}
       placeholder={""}
     >
@@ -181,7 +181,7 @@ const BasketDrawer = () => {
                                 {product.name}
                               </Link>
                             </h3>
-                            <p className=" ">{product.price.toFixed(2)} TND</p>
+                            <p className=" ">{product.price.toFixed(3)} TND</p>
                           </div>
 
                           <p className="mt-1 text-sm text-gray-500">
@@ -222,18 +222,18 @@ const BasketDrawer = () => {
             <div className=" border-gray-200 px-4 py-6 sm:px-6">
               <div className="flex justify-between text-base font-medium text-gray-900">
                 <p>Total</p>
-                <p> {totalPrice.toFixed(2)} TND</p>
+                <p> {totalPrice.toFixed(3)} TND</p>
               </div>
               <p className="mt-0.5 text-sm text-gray-500">
                 Frais de port et taxes calculés à la Vérification.
               </p>
               <div className="mt-6">
-                <a
-                  href="#"
+                <Link
+                  href="/Checkout"
                   className="flex items-center justify-center transition-all rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
                 >
                   Vérifier
-                </a>
+                </Link>
                 <Link
                   onClick={closeBasketDrawer}
                   href="/Basket"
@@ -244,13 +244,14 @@ const BasketDrawer = () => {
               </div>
               <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
                 <p>ou</p>
-                <button
+                <Link
+                href={"/Touts-Les-Produits"}
                   type="button"
                   className="font-medium text-strongBeige transition-all hover:text-mediumBeige"
                 >
                   Continuer vos achats
                   <span aria-hidden="true"> &rarr;</span>
-                </button>
+                </Link>
               </div>
             </div>
           </div>

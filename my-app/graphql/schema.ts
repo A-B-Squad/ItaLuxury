@@ -51,40 +51,34 @@ type Category {
 }
 
 # Define the Product type
-type Product {
-  id: ID!
-  name: String!
-  price: Float!
-  isVisible: Boolean!
-  reference: String!
-  description: String!
-  inventory: Int!
-  solde: Int!
-  images: [String!]
-  createdAt: String!
-  categories: [Category!]!
-  productDiscounts: [ProductDiscount!]
-  baskets: [Basket!]
-  reviews: [Review!]
-  favoriteProducts: [FavoriteProducts!]
-  attributes: [ProductAttribute!]!
-  ProductColorImage: [ProductColorImage!]!
-}
+  type Product {
+    id: ID!
+    name: String!
+    price: Float!
+    isVisible: Boolean!
+    reference: String!
+    description: String!
+    inventory: Int!
+    solde: Int!
+    images: [String!]
+    createdAt: String!
+    categories: [Category!]!
+    productDiscounts: [ProductDiscount!]
+    baskets: [Basket!]
+    reviews: [Review!]
+    favoriteProducts: [FavoriteProducts!]
+    attributes: [ProductAttribute!]!
+    Colors: Colors
+  }
 
-# Define the Colors type
-type Colors {
-  id: ID!
-  color: String!
-  Hex: String!
-  ProductColorImage: [ProductColorImage!]!
-}
+  # Define the Colors type
+  type Colors {
+    id: ID!
+    color: String!
+    Hex: String!
+    product: Product!
+  }
 
-type ProductColorImage {
-  id:ID!
-  Product: Product!
-  Colors: Colors!
-  images:[String!]!
-}
 
 # Define the Discount type
 type Discount {
@@ -96,7 +90,7 @@ type Discount {
 type ProductDiscount {
   id: ID
   Discount: Discount
-  # productId: ID
+  productId: ID
   price: Float
   newPrice: Float
   dateOfStart: String
@@ -230,6 +224,9 @@ type Query {
   # Fetch all products
   products(limit:Int): [Product!]
   
+  # Fetch all products price less then 20TND
+  productsLessThen20(limit:Int): [Product!]
+  
   # Fetch products by category name
   productsByCategory(categoryName: String!): [Product!]
 
@@ -270,7 +267,7 @@ type Query {
   allGovernorate: [Governorate!]!
 
   # Fetch Advertisement By Type 
-  advertismentByPosition(position: String!): Advertisement!
+  advertismentByPosition(position: String!): [Advertisement]!
 
   # Fetch Package By ID
   packageById(packageId: ID!): Package!
@@ -329,7 +326,7 @@ type Mutation {
   deleteCategory(id: ID!): Category!
 
   # Mutation to add product to favorites
-  addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts!
+  addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
 
   # Mutation to add Company Info
   createCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
@@ -367,6 +364,7 @@ input ProductInput {
   categories: [ID!]!
   attributeInputs: [ProductAttributeInput!]
   discount: [CreateProductDiscountInput]
+  colorsId: ID
 }
 
 # Define the AttributeInput input type

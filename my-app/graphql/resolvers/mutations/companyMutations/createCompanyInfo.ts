@@ -17,7 +17,6 @@ export const createCompanyInfo = async (
           logo
         },
       });
-  console.log(newCompanyInfo);
   
       return newCompanyInfo;
     } catch (error) {

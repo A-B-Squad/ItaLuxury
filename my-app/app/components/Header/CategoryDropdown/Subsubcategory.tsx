@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import { MdOutlineArrowRight } from "react-icons/md";
+import prepRoute from "../../_prepRoute";
 
 interface Subcategory {
   name: string;
@@ -17,7 +18,10 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
     <>
       {subsubcategories?.map((subsubcategory, subIndex) => (
         <Link
-          href={`/${subsubcategory.name}-tunisie`}
+        href={{
+          pathname: `/${prepRoute(subsubcategory.name)}-tunisie`,
+          query: { category: subsubcategory.name },
+        }}
           className="py-1 group text-sm cursor-pointer transition-all relative  left-[-20px] flex hover:font-bold  "
           key={subIndex}
         >

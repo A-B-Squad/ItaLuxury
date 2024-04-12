@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { IoArrowBack } from "react-icons/io5";
 import Subsubcategory from "./Subsubcategory";
+import prepRoute from "../../_prepRoute";
 
 interface SubcategoryProps {
   subcategories: Subcategory[];
@@ -32,7 +33,12 @@ const Subcategory: React.FC<SubcategoryProps> = ({
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
         <div key={subIndex} className=" bg-white h-fit  cursor-pointer">
           <Link
-            href={`/${subcategory.name.split(" ").join("-")}-tunisie`}
+            href={{
+              pathname: `/${prepRoute(subcategory.name)}-tunisie`,
+              query: {
+                category: subcategory.name,
+              },
+            }}
             className="py-1  pl-5 font-bold text-strongBeige hover:font-bold w-full block transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >

@@ -38,17 +38,26 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown }: any) => {
   return (
     <div
       onMouseLeave={() => setShowDropdown(false)}
-      className={`md:border md:pl-5 hidden  md:flex md:py-5  md:gap-2 absolute md:h-fit md:w-3/4 md:shadow-md md:rounded-md h-fit  bg-white transition-all duration-700 ${
+      className={` md:border md:pl-5 hidden  md:flex md:py-5  md:gap-2 absolute md:h-fit md:w-3/4 md:shadow-md md:rounded-md h-fit  bg-white transition-all duration-700 ${
         showCategoryDropdown
           ? " mt-0 opacity-100 z-20"
           : "mt-56 opacity-0 -z-20"
       }`}
     >
-      <Category
-        data={data}
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-      />
+      {data?.categories.length > 0 && (
+        <Category
+          data={data}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+        />
+      )}
+
+      {data?.categories.length <= 0 && (
+        <p className="px-10 text-center tracking-wider ">
+          Aucune catégorie disponible pour le moment. Veuillez revenir plus tard
+          !
+        </p>
+      )}
     </div>
   );
 };

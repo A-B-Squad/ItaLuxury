@@ -20,9 +20,7 @@ export const signIn = async (
   }
   // Check if the password is correct
   const validPassword = await bcrypt.compare(password, existingUser.password);
-  console.log('====================================');
-  console.log(validPassword);
-  console.log('====================================');
+
 
   if (!validPassword) {
     return new Error("Invalid password");

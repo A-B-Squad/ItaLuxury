@@ -99,7 +99,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === increaseQuantity.id
           ? { ...product, quantity: increaseQuantity.quantity }
-          : product
+          : product,
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -111,7 +111,7 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === decreaseQuantity.id
           ? { ...product, quantity: decreaseQuantity.quantity }
-          : product
+          : product,
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
@@ -121,7 +121,7 @@ const Basket = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId
+      (product) => product.basketId !== basketId,
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
@@ -139,7 +139,7 @@ const Basket = () => {
   };
 
   return (
-    <div className="font-[sans-serif]">
+    <div className="">
       <div className="grid lg:grid-cols-3 gap-5 p-8">
         <div className="lg:col-span-2 p-10 bg-white overflow-x-auto shadow-xl">
           <div className="flex border-b pb-4">

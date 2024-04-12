@@ -8,8 +8,8 @@ const Header = () => {
   const [showCategoryDropdown, setShowDropdown] = useState<Boolean>(false);
 
   return (
-    <div className="header  relative shadow-xl  px-10  md:px-20 ">
-      <nav className="container ">
+    <div className="header   relative shadow-xl  px-10  md:px-20 ">
+      <nav className="container  ">
         <TopHeader />
         <BottomHeader setShowDropdown={setShowDropdown} />
       </nav>

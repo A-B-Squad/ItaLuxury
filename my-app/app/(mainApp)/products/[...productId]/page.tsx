@@ -38,7 +38,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [isBottom, setIsBottom] = useState(false);
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const handleMouseEnter = (title:any) => {
+  const handleMouseEnter = (title: any) => {
     setShowPopover(true);
     setPopoverTitle(title);
   };
@@ -256,7 +256,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
               <div className="grid items-start grid-cols-12 gap-10  ">
                 <div className=" flex lg:flex-row flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
                   <div className="relative shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
-                    <span className={"absolute top-2 right-0 p-2  bg-strongBeige text-xs font-400 text-white"}>{productDetails.inventory > 0 ? "EN STOCK" :"STOCK EPUISÉ "}</span>
                     <InnerImageZoom
                       className="w-4/5 rounded object-cover"
                       zoomSrc={bigImage}
@@ -265,6 +264,15 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       hideHint
                       zoomScale={1.5}
                     />
+                    <span
+                      className={
+                        "absolute top-2 right-0 p-2  bg-strongBeige text-xs font-400 text-white"
+                      }
+                    >
+                      {productDetails.inventory > 0
+                        ? "EN STOCK"
+                        : "STOCK EPUISÉ "}
+                    </span>
                   </div>
                   <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
                     {smallImages.map((image: string, index: number) => (
@@ -407,7 +415,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         });
 
                         setSuccessMsg("Produit ajouté avec succès au panier !");
-                        toggleIsUpdated()
+                        toggleIsUpdated();
                       }}
                     >
                       Ajouter au panier

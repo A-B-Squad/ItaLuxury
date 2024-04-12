@@ -10,7 +10,7 @@ const productDetailsDrawer = ({
   setSuccessMsg,
   discount,
   quantity,
-  setQuantity
+  setQuantity,
 }: any) => {
   return (
     <div>
@@ -32,61 +32,60 @@ const productDetailsDrawer = ({
                   ? discount.newPrice.toFixed(3)
                   : productDetails.price.toFixed(3)}{" "}
                 <span className="text-xl ">TND</span>
-               
               </p>
             </div>
           </div>
           <div className="Quantity flex items-center  space-x-2">
-                      <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
-                        Quantité
-                      </h3>
-                      <div className="flex divide-x border w-max overflow-hidden rounded-md">
-                        <button
-                          type="button"
-                          className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
-                          onClick={() => {
-                            setQuantity(quantity - 1);
-                          }}
-                        >
-                          <RiSubtractFill />
-                        </button>
-                        <button
-                          type="button"
-                          className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
-                        >
-                          {quantity}
-                        </button>
-                        <button
-                          type="button"
-                          className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
-                          onClick={() => {
-                            setQuantity(quantity + 1);
-                          }}
-                        >
-                          <FaPlus />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center w-60">
-                          <button
-                            type="button"
-                            className="bg-strongBeige text-white px-4 py-2 rounded"
-                            onClick={() => {
-                              addToBasket({
-                                variables: {
-                                  input: {
-                                    userId: "aaa",
-                                    quantity: quantity,
-                                    productId: productId,
-                                  },
-                                },
-                              });
-                              setSuccessMsg("Produit ajouté avec succès au panier !");
-                            }}
-                          >
-                            Ajouter au panier
-                          </button>
-                        </div>
+            <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
+              Quantité
+            </h3>
+            <div className="flex divide-x border w-max overflow-hidden rounded-md">
+              <button
+                type="button"
+                className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
+                onClick={() => {
+                  setQuantity(quantity - 1);
+                }}
+              >
+                <RiSubtractFill />
+              </button>
+              <button
+                type="button"
+                className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+              >
+                {quantity}
+              </button>
+              <button
+                type="button"
+                className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
+                onClick={() => {
+                  setQuantity(quantity + 1);
+                }}
+              >
+                <FaPlus />
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center w-60">
+            <button
+              type="button"
+              className="bg-strongBeige text-white px-4 py-2 rounded"
+              onClick={() => {
+                addToBasket({
+                  variables: {
+                    input: {
+                      userId: "aaa",
+                      quantity: quantity,
+                      productId: productId,
+                    },
+                  },
+                });
+                setSuccessMsg("Produit ajouté avec succès au panier !");
+              }}
+            >
+              Ajouter au panier
+            </button>
+          </div>
         </div>
       )}
     </div>
