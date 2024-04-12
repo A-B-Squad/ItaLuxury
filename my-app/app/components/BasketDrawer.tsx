@@ -1,12 +1,12 @@
 "use client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
-import { useDrawerBasketStore } from "../store/zustand";
+import { useDrawerBasketStore, useBasketStore } from "../store/zustand";
 import prepRoute from "../components/_prepRoute";
 
 interface DecodedToken extends JwtPayload {
@@ -28,6 +28,10 @@ const BasketDrawer = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
+    isUpdated: state.isUpdated,
+    toggleIsUpdated:state.toggleIsUpdated
+  }));
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -35,7 +39,34 @@ const BasketDrawer = () => {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
-  }, []);
+
+    if (isUpdated) {
+      fetchProducts({
+        variables: { userId: "aaa" },
+        onCompleted: (data) => {
+          const fetchedProducts = data.basketByUserId.map((basket: any) => ({
+            ...basket.Product,
+            quantity: basket.quantity,
+            basketId: basket.id,
+          }));
+
+          setProducts(fetchedProducts);
+          const total = fetchedProducts.reduce((acc: number, curr: Product) => {
+            return acc + curr.price * curr.quantity;
+          }, 0);
+          setTotalPrice(total);
+        },
+        onError: (error) => {
+          console.error(error);
+        },
+      });
+      toggleIsUpdated()
+    }
+
+    console.log("====================================");
+    console.log(isUpdated);
+    console.log("====================================");
+  }, [isUpdated]);
 
   const BASKET_QUERY = gql`
     query BasketByUserId($userId: ID!) {
@@ -62,24 +93,7 @@ const BasketDrawer = () => {
     }
   `;
 
-  const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: decodedToken?.userId },
-    onCompleted: (data) => {
-      const fetchedProducts = data.basketByUserId.map((basket: any) => ({
-        ...basket.Product,
-        quantity: basket.quantity,
-        basketId: basket.id,
-      }));
-      setProducts(fetchedProducts);
-      const total = fetchedProducts.reduce((acc: number, curr: Product) => {
-        return acc + curr.price * curr.quantity;
-      }, 0);
-      setTotalPrice(total);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
+  const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
 
   const [deleteBasketById, { loading: deletingLoading }] =
     useMutation(DELETE_BASKET_BY_ID);

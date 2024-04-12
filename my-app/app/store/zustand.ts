@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 type DrawerMobileCategoryStore = {
@@ -8,23 +8,27 @@ type DrawerMobileCategoryStore = {
 };
 
 type DrawerBasketStore = {
-    isOpen: boolean,
-    openBasketDrawer: () => void,
-    closeBasketDrawer: () => void,
-}
+  isOpen: boolean;
+  openBasketDrawer: () => void;
+  closeBasketDrawer: () => void;
+};
 
 type ComparedProductsStore = {
-    products: any[];
-    addProductToCompare: (product: any) => void;
-}
+  products: any[];
+  addProductToCompare: (product: any) => void;
+};
 
+type BasketStore = {
+  isUpdated: boolean;
+  toggleIsUpdated: () => void;
+};
 
-
-export const useDrawerMobileStore = create<DrawerMobileCategoryStore>((set) => ({
+export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
+  (set) => ({
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
     closeCategoryDrawer: () => set({ isOpen: false }),
-  }),
+  })
 );
 
 export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
@@ -33,21 +37,26 @@ export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
   closeBasketDrawer: () => set({ isOpen: false }),
 }));
 
-const comparedProductsStore =<ComparedProductsStore>(set:any) => ({
-    products: [],
-    addProductToCompare: (product:any) => set((state:any) => ({ products: [...state.products, product] })),
-    removeProductFromCompare: (productId:any) =>
-    set((state:any) => ({
+export const useBasketStore = create<BasketStore>((set) => ({
+  isUpdated: false,
+  toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
+}));
+
+const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
+  products: [],
+  addProductToCompare: (product: any) =>
+    set((state: any) => ({ products: [...state.products, product] })),
+  removeProductFromCompare: (productId: any) =>
+    set((state: any) => ({
       products: state.products.filter(
-        (product:any) => product.id !== productId
+        (product: any) => product.id !== productId
       ),
     })),
 });
 
-
 export const useComparedProductsStore = create(
-    persist(comparedProductsStore,{
-        name:'comparedProducts',
-        storage: createJSONStorage(() => sessionStorage),
-    })
-)
+  persist(comparedProductsStore, {
+    name: "comparedProducts",
+    storage: createJSONStorage(() => sessionStorage),
+  })
+);

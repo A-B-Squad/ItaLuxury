@@ -23,11 +23,9 @@ const Basket = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  console.log(products, "hibhdbh");
 
   useEffect(() => {
     const token = Cookies.get("Token");
-    console.log(products, "hibhdbh");
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
@@ -78,7 +76,7 @@ const Basket = () => {
   `;
 
   const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: decodedToken?.userId },
+    variables: { userId: "aaa" },
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
         ...basket.Product,
@@ -262,18 +260,26 @@ const Basket = () => {
               </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Expédition <span className="ml-auto font-bold">8.000 TND</span>
+              Expédition{" "}
+              <span className="ml-auto font-bold">
+                {totalPrice >= 499 ? "Gratuit" : "8.000 TND"}
+              </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
               Totale{" "}
-              <span className="ml-auto">{(totalPrice + 8).toFixed(3)} TND</span>
+              <span className="ml-auto">
+                {totalPrice >= 499
+                  ? totalPrice.toFixed(3)
+                  : (totalPrice + 8).toFixed(3)}{" "}
+                TND
+              </span>
             </li>
           </ul>
           <Link
             href={{
               pathname: "/Checkout",
               query: {
-                total: totalPrice + 8,
+                total: totalPrice >= 499 ? totalPrice : totalPrice + 8,
               },
             }}
             className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded cursor-pointer"

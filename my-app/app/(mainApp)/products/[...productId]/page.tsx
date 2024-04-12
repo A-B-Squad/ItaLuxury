@@ -11,7 +11,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { FaRegHeart } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { useComparedProductsStore } from "../../../store/zustand";
+import {
+  useComparedProductsStore,
+  useBasketStore,
+} from "../../../store/zustand";
 import { GoGitCompare } from "react-icons/go";
 import PopHover from "../../../components/PopHover";
 import ProductDetailsDrawer from "../../../components/productDetailsDrawer";
@@ -33,8 +36,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverTitle, setPopoverTitle] = useState("");
   const [isBottom, setIsBottom] = useState(false);
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const handleMouseEnter = (title) => {
+  const handleMouseEnter = (title:any) => {
     setShowPopover(true);
     setPopoverTitle(title);
   };
@@ -43,6 +47,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     setShowPopover(false);
     setPopoverTitle("");
   };
+
   const addProductToCompare = useComparedProductsStore(
     (state) => state.addProductToCompare
   );
@@ -174,7 +179,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: productId },
+    variables: { productByIdId: "p1" },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -250,7 +255,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
             <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
               <div className="grid items-start grid-cols-12 gap-10  ">
                 <div className=" flex lg:flex-row flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
-                  <div className="shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
+                  <div className="relative shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
+                    <span className={"absolute top-2 right-0 p-2  bg-strongBeige text-xs font-400 text-white"}>{productDetails.inventory > 0 ? "EN STOCK" :"STOCK EPUISÉ "}</span>
                     <InnerImageZoom
                       className="w-4/5 rounded object-cover"
                       zoomSrc={bigImage}
@@ -395,11 +401,13 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             input: {
                               userId: "aaa",
                               quantity: quantity,
-                              productId: productId,
+                              productId: "p1",
                             },
                           },
                         });
+
                         setSuccessMsg("Produit ajouté avec succès au panier !");
+                        toggleIsUpdated()
                       }}
                     >
                       Ajouter au panier
