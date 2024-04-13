@@ -1,15 +1,16 @@
 "use client";
 import SideAds from "@/app/components/adverstissment/SideAds";
-import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
+import ProductTabs from "@/app/components/ProductCarousel/ProductTabs";
+import TitleProduct from "@/app/components/ProductCarousel/TitleProduct";
 import AdsCarousel from "@/components/adverstissment/carousel";
 import FullWidth from "@/components/adverstissment/FullWidth";
 import Left from "@/components/adverstissment/Left";
 import Right from "@/components/adverstissment/Right";
-import ProductTabs from "@/components/ProductCarousel/productTabs";
 import { gql, useQuery } from "@apollo/client";
 import ProductDetails from "../../components/ProductDetails/ProductDetails";
 import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
+import ClientServices from "./_components/ClientServices";
 const Home = () => {
   const TAKE_6_PRODUCTS = gql`
     query Products($limit: Int!) {
@@ -122,6 +123,7 @@ const Home = () => {
 
   //   return () => clearTimeout(timer);
   // });
+  
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">
       <div className="container">
@@ -132,8 +134,7 @@ const Home = () => {
         </section>
         <Services />
         <ProductDetails />
-
-        <div className="nouveaux-product-parent-tabs flex flex-col     ">
+        <div className="nouveaux-product-parent-tabs flex flex-col ">
           <TitleProduct title={"nouveaux Produits"} />
           <div className="Carousel_new_product flex gap-3">
             <SideAds
@@ -195,12 +196,13 @@ const Home = () => {
             <ProductTabs
               data={Product_less_20}
               loadingNewProduct={loadingProduct}
-            />
+              carouselWidthClass={Product_less_20?.productsLessThen20?.length < 5 ? "xl:basis-1/2" : ""}
+              />
           </div>
         </div>
         <FullWidth />
         <div className="Promotion flex flex-col ">
-          <TitleProduct title={"nouveaux Produits"} />
+          <TitleProduct title={"Promotions"} />
 
           <div className="flex  gap-3">
             <ProductTabs
@@ -215,17 +217,7 @@ const Home = () => {
             />
           </div>
         </div>
-        <div className="servise_client grid gap-5 py-10 grid-cols-2 md:grid-cols-3 items-center">
-          <div className="bg-mediumBeige w-full h-52">
-            Service clent image 1
-          </div>
-          <div className="bg-mediumBeige w-full h-52">
-            Service clent image 2
-          </div>
-          <div className="bg-mediumBeige col-span-2 md:col-span-1 w-full h-52">
-            Service clent image 3
-          </div>
-        </div>
+        <ClientServices />
       </div>
     </div>
   );

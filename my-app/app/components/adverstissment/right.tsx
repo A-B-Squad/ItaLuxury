@@ -34,10 +34,10 @@ const Right = () => {
     <>
       {adsLoaded && (
         <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-gray-300 ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-gray-300 ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         </div>
@@ -45,11 +45,11 @@ const Right = () => {
 
       {!adsLoaded && images.length <= 0 && (
         <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-gray-300 flex flex-col justify-center items-center ">
+          <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-mediumBeige flex flex-col justify-center items-center ">
             <p>{"Right Ads"}</p>
             <p>320px x 374px</p>
           </div>
-          <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-gray-300 flex flex-col justify-center items-center ">
+          <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-mediumBeige flex flex-col justify-center items-center ">
             <p>{"Right Ads"}</p>
             <p>352px x 207px</p>
           </div>

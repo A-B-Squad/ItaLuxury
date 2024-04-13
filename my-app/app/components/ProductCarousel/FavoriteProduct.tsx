@@ -1,6 +1,7 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { favoriteProducts } from "../../../graphql/resolvers/queries/productQueries/favoriteProducts";
 
 const GET_FAVORITE_STATUS = gql`
   query FavoriteProducts($userId: ID!) {
@@ -20,15 +21,22 @@ const ADD_TO_FAVORITE = gql`
     }
   }
 `;
-const FavoriteProduct = ({ productId, userId }: { productId: string; userId: string | undefined; }) => {
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
-
+const FavoriteProduct = ({
+  productId,
+  userId,
+  isFavorite,
+  setIsFavorite,
+}: {
+  productId: string;
+  userId: string | undefined;
+  isFavorite: boolean;
+  setIsFavorite: any;
+}) => {
   const { data: favoriteData, refetch: refetchFavorite } = useQuery(
     GET_FAVORITE_STATUS,
     {
       variables: {
-        userId: userId ? userId : "",
-        productId: productId,
+        userId: userId,
       },
       skip: !userId,
     }
@@ -36,7 +44,15 @@ const FavoriteProduct = ({ productId, userId }: { productId: string; userId: str
 
   useEffect(() => {
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
-      setIsFavorite(true);
+      if (
+        favoriteData.favoriteProducts.some(
+          (fav: any) => fav.productId === productId
+        )
+      ) {
+        setIsFavorite(true);
+      } else {
+        setIsFavorite(false);
+      }
     } else {
       setIsFavorite(false);
     }
@@ -66,11 +82,7 @@ const FavoriteProduct = ({ productId, userId }: { productId: string; userId: str
 
   return (
     <div onClick={handleToggleFavorite}>
-      {isFavorite ? (
-        <FaHeart color="red" />
-      ) : (
-        <FaRegHeart color="white" />
-      )}
+      {isFavorite ? <FaHeart color="red" /> : <FaRegHeart color="white" />}
     </div>
   );
 };

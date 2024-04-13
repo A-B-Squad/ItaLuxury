@@ -86,5 +86,5 @@ export const useProductDetails = create<UseProductDetails>((set) => ({
   isOpen: false,
   productData: null,
   openProductDetails: (productData) => set({ isOpen: true, productData }), 
-  closeProductDetails: () => set({ isOpen: false }),
+  closeProductDetails: () => set({ isOpen: false ,productData:null}),
 }));
