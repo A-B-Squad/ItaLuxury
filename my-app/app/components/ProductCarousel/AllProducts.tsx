@@ -4,7 +4,7 @@ import { gql, useMutation } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { FaSearch } from "react-icons/fa";
+import { FaRegEye } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
 import { CarouselItem } from "../../../components/ui/carousel";
@@ -120,7 +120,7 @@ const AllProducts = ({
               <PopHover title={popoverTitle} />
             )}
             <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
-              <FaSearch color="white" />
+              <FaRegEye color="white" />
             </li>
           </div>
 
