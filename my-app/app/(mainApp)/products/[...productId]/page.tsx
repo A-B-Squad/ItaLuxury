@@ -95,38 +95,39 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const PRODUCT_BY_ID_QUERY = gql`query ProductById($productByIdId: ID!) {
-    productById(id: $productByIdId) {
-      id
-      name
-      price
-      isVisible
-      reference
-      description
-      inventory
-      solde
-      images
-      createdAt
-      productDiscounts {
-        id
-        price
-        newPrice
-        dateOfEnd
-        dateOfStart
-      }
-      Colors {
-        id
-        color
-        Hex
-      }
-      attributes {
+  const PRODUCT_BY_ID_QUERY = gql`
+    query ProductById($productByIdId: ID!) {
+      productById(id: $productByIdId) {
         id
         name
-        value
+        price
+        isVisible
+        reference
+        description
+        inventory
+        solde
+        images
+        createdAt
+        productDiscounts {
+          id
+          price
+          newPrice
+          dateOfEnd
+          dateOfStart
+        }
+        Colors {
+          id
+          color
+          Hex
+        }
+        attributes {
+          id
+          name
+          value
+        }
       }
     }
-  }
-`;
+  `;
 
   const GET_PRODUCT_IMAGES_QUERY = gql`
     query Query($productId: String!, $colorId: String!) {
@@ -271,7 +272,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     >
                       {productDetails.inventory > 0
                         ? "EN STOCK"
-                        : "STOCK EPUISÉ "}
+                        : "STOCK EN RUPTURE "}
                     </span>
                   </div>
                   <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
@@ -378,9 +379,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         addToBasket({
                           variables: {
                             input: {
-                              userId: "aaa",
+                              userId: decodedToken?.userId,
                               quantity: quantity,
-                              productId: "p1",
+                              productId: productId,
                             },
                           },
                         });
@@ -409,7 +410,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           addToFavorite({
                             variables: {
                               input: {
-                                userId: "aaa",
+                                userId: decodedToken?.userId,
                                 productId: productId,
                               },
                             },
@@ -458,7 +459,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                               addRating({
                                 variables: {
                                   productId: productId,
-                                  userId: "aaa",
+                                  userId: decodedToken?.userId,
                                   rating: currentIndex,
                                 },
                               });

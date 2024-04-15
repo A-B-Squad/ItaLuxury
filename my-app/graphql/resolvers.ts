@@ -13,6 +13,8 @@ import { CompanyInfoQueries } from "./resolvers/queries/companyInfoQueries.ts/co
 import { companyMutations } from "./resolvers/mutations/companyMutations/companyMutations";
 import { advertismentQueries } from "./resolvers/queries/advertisementQueries/advertismentQueries";
 import { adminMutations } from "./resolvers/mutations/adminMutations/adminMutations";
+import { topDealsMutations } from "./resolvers/mutations/topDealsMutations/topDealsMutations";
+import { dealsQueries } from './resolvers/queries/topDealsQueries/dealsQueries';
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -21,7 +23,8 @@ export const resolvers = {
     ...governorateQueries,
     ...packageQueries,
     ...CompanyInfoQueries,
-    ...advertismentQueries
+    ...advertismentQueries,
+    ...dealsQueries
   },
 
   Mutation: {
@@ -31,7 +34,8 @@ export const resolvers = {
     ...basketMutations,
     ...checkoutMutations,
     ...packageMutations,
-    ...companyMutations, 
-    ...adminMutations
+    ...companyMutations,
+    ...adminMutations, 
+    ...topDealsMutations
   },
 };

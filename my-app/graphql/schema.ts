@@ -210,6 +210,14 @@ type CompanyInfo {
   deliveringPrice: Int
   logo: String!
 }
+# Define the TopDeals type
+type TopDeals {
+  id: ID!
+  productId: ID!
+  product: Product!
+  
+}
+
 
 # Define the Moderator type
 type Moderator {
@@ -262,6 +270,9 @@ type Query {
 
   # Fetch product colors by product ID
   productColors(productId: ID!): Colors!
+
+  # Fetch All All Deals
+  allDeals: [TopDeals!]!
 
   # Fetch All Governorate
   allGovernorate: [Governorate!]!
@@ -330,6 +341,11 @@ type Mutation {
 
   # Mutation to add Company Info
   createCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
+
+#create Top Deals mutations
+  createTopDeals(input: CreateTopDealsInput!): TopDeals!
+#delete Top Deals mutations
+  deleteTopDeals(input: CreateTopDealsInput!): String!
 
   # Mutation to update Company Info
   updateCompanyInfo(input: CompanyInfoInput!, id: String!): CompanyInfo!
@@ -434,6 +450,11 @@ input CreateCheckoutInput {
 input UpdatePackageInput {
   packageId:ID!
   status: Status!
+}
+
+# Define the CreateTopDealsInput input type
+input CreateTopDealsInput {
+  productId:ID!
 }
 
 
