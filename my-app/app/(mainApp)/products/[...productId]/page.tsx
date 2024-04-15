@@ -71,9 +71,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   }, []);
 
   useEffect(() => {
-    console.log("====================================");
-    console.log(smallImages);
-    console.log("====================================");
     const interval = setInterval(() => {
       const currentIndex = smallImages?.indexOf(bigImage);
       if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
@@ -187,6 +184,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setColors(
         data.productById.ProductColorImage.map((image: any) => image.Colors)
       );
+      console.log('====================================');
+      console.log(data,"aaaa");
+      console.log('====================================');
       setDiscount(data.productById.productDiscounts[0]);
       setAttributes(data.productById.attributes);
     },
