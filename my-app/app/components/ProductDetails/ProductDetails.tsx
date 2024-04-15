@@ -6,11 +6,35 @@ import InnerImageZoom from "react-inner-image-zoom";
 import { RiSubtractFill } from "react-icons/ri";
 import { IoCloseOutline } from "react-icons/io5";
 import { IoMdCloseCircleOutline } from "react-icons/io";
-
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
+import { gql, useMutation } from "@apollo/client";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
+
+
 const ProductDetails = () => {
+
+  
+  const ADD_TO_BASKET = gql`
+    mutation AddToBasket($input: CreateToBasketInput!) {
+      addToBasket(input: $input) {
+        id
+        userId
+        quantity
+        productId
+      }
+    }
+  `;
+
+  const [addToBasket] = useMutation(ADD_TO_BASKET);
+
   const { isOpen, productData, closeProductDetails } = useProductDetails();
   const [bigImage, setBigImage] = useState<any>("");
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -70,7 +94,7 @@ const ProductDetails = () => {
                   }`}
                 >
                   <Image
-                    src={image||""}
+                    src={image || ""}
                     alt={`Product Image ${index + 1}`}
                     layout="responsive"
                     height={30}
@@ -106,7 +130,7 @@ const ProductDetails = () => {
                   <p className="line-through">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
-                  <p className="text-sm bg-violet-700 text-white p-1">
+                  <p className="text-sm bg-violet-900 text-white p-1">
                     Économisez{" "}
                     <span className="font-bold ml-1">
                       {(
@@ -191,18 +215,17 @@ const ProductDetails = () => {
                 <button
                   type="button"
                   className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
-                  // onClick={() => {
-                  //   addToBasket({
-                  //     variables: {
-                  //       input: {
-                  //         userId: decodedToken?.userId,
-                  //         quantity: quantity,
-                  //         productId: productData?.id,
-                  //       },
-                  //     },
-                  //   });
-                  //   setSuccessMsg("Produit ajouté avec succès au panier !");
-                  // }}
+                  onClick={() => {
+                    addToBasket({
+                      variables: {
+                        input: {
+                          userId: decodedToken?.userId,
+                          quantity: quantity,
+                          productId: productData?.id,
+                        },
+                      },
+                    });
+                  }}
                 >
                   Ajouter au panier
                 </button>

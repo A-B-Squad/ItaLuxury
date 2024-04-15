@@ -12,6 +12,7 @@ import {
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductDetails,
+  useBasketStore
 } from "../../store/zustand";
 import PopHover from "../PopHover";
 import FavoriteProduct from "./FavoriteProduct";
@@ -56,6 +57,8 @@ const AllProducts = ({
   const { isOpen, openProductDetails, closeProductDetails } =
     useProductDetails();
 
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+
   const ADD_TO_BASKET = gql`
     mutation AddToBasket($input: CreateToBasketInput!) {
       addToBasket(input: $input) {
@@ -80,6 +83,7 @@ const AllProducts = ({
           },
         },
       });
+      toggleIsUpdated()
     } else {
       window.sessionStorage.setItem("products", productId);
     }
