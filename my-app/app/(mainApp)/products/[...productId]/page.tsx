@@ -17,10 +17,10 @@ import {
 } from "../../../store/zustand";
 import { GoGitCompare } from "react-icons/go";
 import PopHover from "../../../components/PopHover";
-import ProductDetailsDrawer from "../../../components/productDetailsDrawer";
+import ProductDetailsDrawer from "../../../components/ProductDetails/productDetailsDrawer";
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
-  const productId = SearchParams.get("productId");
+  const productId = SearchParams?.get("productId");
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -36,6 +36,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverTitle, setPopoverTitle] = useState("");
   const [isBottom, setIsBottom] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
   const handleMouseEnter = (title: any) => {
@@ -94,6 +95,20 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  useEffect(() => {
+    if (discount && discount.dateOfEnd) {
+      const endTime = discount.dateOfEnd;
+      const now = new Date().getTime();
+      const timeRemaining = endTime - now;
+      setCountdown(timeRemaining > 0 ? timeRemaining : 0);
+
+      const interval = setInterval(() => {
+        const newTimeRemaining = endTime - new Date().getTime();
+        setCountdown(newTimeRemaining > 0 ? newTimeRemaining : 0);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [discount]);
 
   const PRODUCT_BY_ID_QUERY = gql`
     query ProductById($productByIdId: ID!) {
@@ -182,9 +197,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
       setSmallImages(data.productById.images);
-      setColors(
-        data.productById.ProductColorImage.map((image: any) => image.Colors)
-      );
       setDiscount(data.productById.productDiscounts[0]);
       setAttributes(data.productById.attributes);
     },
@@ -310,19 +322,45 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     </p>
 
                     {discount && (
-                      <div className="text-gray-400 tracking-wide flex items-center text-lg gap-2">
-                        <p className="line-through">
-                          {discount.price.toFixed(3)} TND
-                        </p>{" "}
-                        <p className="text-sm bg-violet-700 text-white p-1">
-                          Économisez
-                          <span className="font-bold ml-1 ">
-                            {(discount.price - discount.newPrice).toFixed(3)}{" "}
-                            TND
-                          </span>
-                        </p>
-                        <span className="text-sm">TTC</span>
-                      </div>
+                      <>
+                        <div className="text-gray-400 tracking-wide flex items-center text-lg gap-2">
+                          <p className="line-through">
+                            {discount.price.toFixed(3)} TND
+                          </p>{" "}
+                          <p className="text-sm bg-violet-700 text-white p-1">
+                            Économisez
+                            <span className="font-bold ml-1 ">
+                              {(discount.price - discount.newPrice).toFixed(3)}{" "}
+                              TND
+                            </span>
+                          </p>
+                          <span className="text-sm">TTC</span>
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {countdown ? (
+                            <>
+                              La réduction se termine dans :{" "}
+                              <span className="font-semibold">
+                                {Math.floor(countdown / (1000 * 60 * 60 * 24))}{" "}
+                                jrs,{" "}
+                                {Math.floor(
+                                  (countdown % (1000 * 60 * 60 * 24)) /
+                                    (1000 * 60 * 60)
+                                )}{" "}
+                                hrs,{" "}
+                                {Math.floor(
+                                  (countdown % (1000 * 60 * 60)) / (1000 * 60)
+                                )}{" "}
+                                mins,{" "}
+                                {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
+                                secs
+                              </span>
+                            </>
+                          ) : (
+                            "La réduction a expiré"
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
 
@@ -336,7 +374,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           type="button"
                           className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                           onClick={() => {
-                            setQuantity(quantity - 1);
+                            setQuantity(quantity > 1 ? quantity - 1 : 1);
                           }}
                         >
                           <RiSubtractFill />

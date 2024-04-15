@@ -11,8 +11,28 @@ import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
 import ClientServices from "./_components/ClientServices";
 import SideAds from "@/components/adverstissment/sideAds";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 const Home = () => {
+  const [countdownToNextDay, setCountdownToNextDay] = useState<number>(0);
+
+  useEffect(() => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const timeUntilNextDay = tomorrow.getTime() - now.getTime();
+
+    setCountdownToNextDay(timeUntilNextDay > 0 ? timeUntilNextDay : 0);
+
+    const interval = setInterval(() => {
+      const newTimeUntilNextDay = tomorrow.getTime() - new Date().getTime();
+      setCountdownToNextDay(newTimeUntilNextDay > 0 ? newTimeUntilNextDay : 0);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const TAKE_6_PRODUCTS = gql`
     query Products($limit: Int!) {
       products(limit: $limit) {
@@ -99,31 +119,6 @@ const Home = () => {
     SIDE_ADS_NEW_PRODUCT,
     { variables: { position: "rigth_new_product" } }
   );
-  const calculateTimeLeft = () => {
-    const difference = +new Date("2024-04-10T00:00:00") - +new Date();
-    let timeLeft: any = {};
-
-    if (difference > 0) {
-      timeLeft = {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    }
-
-    return timeLeft;
-  };
-
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  });
 
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">
@@ -163,27 +158,29 @@ const Home = () => {
               <div className="grid grid-flow-col bg-strongBeige text-white  text-center  auto-cols-max">
                 <div className="flex items-center gap-2 md:p-2 p-1  rounded-box">
                   <span className="countdown font-mono text-base">
-                    <span>{timeLeft.days}</span>
+                    <span>
+                      {Math.floor(countdownToNextDay / (1000 * 60 * 60))}
+                    </span>
                   </span>
-                  <span className="">days</span>
+                  <span className="">Heurs</span>
                 </div>
                 <div className="flex items-center gap-1  md:p-2 p-1  ">
                   <span className="countdown font-mono text-base">
-                    <span>{timeLeft.hours}</span>
+                    <span>
+                      {Math.floor(
+                        (countdownToNextDay % (1000 * 60 * 60)) / (1000 * 60)
+                      )}
+                    </span>
                   </span>
-                  <span>hours</span>
+                  <span>Minutes</span>
                 </div>
                 <div className="flex items-center gap-1  md:p-2 p-1  ">
                   <span className="countdown font-mono text-base">
-                    <span>{timeLeft.minutes}</span>
+                    <span>
+                      {Math.floor((countdownToNextDay % (1000 * 60)) / 1000)}
+                    </span>
                   </span>
-                  <span>min</span>
-                </div>
-                <div className="flex items-center gap-1  md:p-2 p-1  ">
-                  <span className="countdown font-mono text-base">
-                    <span>{timeLeft.seconds}</span>
-                  </span>
-                  <span>sec</span>
+                  <span>Secondes</span>
                 </div>
               </div>
             </div>
