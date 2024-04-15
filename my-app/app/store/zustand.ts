@@ -23,6 +23,45 @@ type BasketStore = {
   toggleIsUpdated: () => void;
 };
 
+interface ProductData {
+  id: string;
+  name: string;
+  price: number;
+  reference: string;
+  description: string;
+  createdAt: Date;
+  inventory:number
+  images: string[];
+  categories: {
+    name: string;
+  }[];
+  Colors: {
+    color: string;
+    Hex: string;
+  };
+  productDiscounts: {
+    price: number;
+    newPrice: number;
+    Discount: {
+      percentage: number;
+    };
+  }[];
+}
+type UseProductDetails = {
+  isOpen: boolean;
+  productData: ProductData | null;
+  openProductDetails: (productData: ProductData) => void;
+  closeProductDetails: () => void;
+};
+
+export const useProductDetails = create<UseProductDetails>((set) => ({
+  isOpen: false,
+  productData: null,
+  openProductDetails: (productData) => set({ isOpen: true, productData }), 
+  closeProductDetails: () => set({ isOpen: false ,productData:null}),
+}));
+
+
 export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
   (set) => ({
     isOpen: false,

@@ -62,10 +62,6 @@ const BasketDrawer = () => {
       });
       toggleIsUpdated()
     }
-
-    console.log("====================================");
-    console.log(isUpdated);
-    console.log("====================================");
   }, [isUpdated]);
 
   const BASKET_QUERY = gql`

@@ -71,6 +71,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   }, []);
 
   useEffect(() => {
+    console.log("====================================");
+    console.log(smallImages);
+    console.log("====================================");
     const interval = setInterval(() => {
       const currentIndex = smallImages?.indexOf(bigImage);
       if (currentIndex !== -1 && currentIndex < smallImages?.length - 1) {
@@ -95,41 +98,38 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const PRODUCT_BY_ID_QUERY = gql`
-    query ProductById($productByIdId: ID!) {
-      productById(id: $productByIdId) {
+  const PRODUCT_BY_ID_QUERY = gql`query ProductById($productByIdId: ID!) {
+    productById(id: $productByIdId) {
+      id
+      name
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      images
+      createdAt
+      productDiscounts {
+        id
+        price
+        newPrice
+        dateOfEnd
+        dateOfStart
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      attributes {
         id
         name
-        price
-        isVisible
-        reference
-        description
-        inventory
-        solde
-        images
-        createdAt
-        productDiscounts {
-          id
-          price
-          newPrice
-          dateOfEnd
-          dateOfStart
-        }
-        ProductColorImage {
-          Colors {
-            id
-            color
-            Hex
-          }
-        }
-        attributes {
-          id
-          name
-          value
-        }
+        value
       }
     }
-  `;
+  }
+`;
 
   const GET_PRODUCT_IMAGES_QUERY = gql`
     query Query($productId: String!, $colorId: String!) {
@@ -179,7 +179,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
 
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: "p1" },
+    variables: { productByIdId: productId },
     onCompleted: (data) => {
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
@@ -329,35 +329,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   </div>
 
                   <div className="Infomation_Details ">
-                    {colors.length > 0 && (
-                      <div className="All_color_available space-y-2  mt-5">
-                        <h3 className="text-lg font-bold tracking-wider capitalize text-strongBeige">
-                          Choisir une couleur
-                        </h3>
-                        <div className="flex flex-wrap gap-2 ">
-                          {colors.map((color: any, index: number) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                getProductImages({
-                                  variables: {
-                                    productId: productId,
-                                    colorId: color.id,
-                                  },
-                                  onCompleted: (data) => {
-                                    setSmallImages(data.getProductImages);
-                                    setBigImage(data.getProductImages[0]);
-                                  },
-                                });
-                              }}
-                              type="button"
-                              style={{ backgroundColor: `${color.color}` }}
-                              className={`w-8 h-8 shadow-sm shadow-gray-300   border-2 transition-colors hover:border-gray-800 rounded-lg shrink-0`}
-                            ></button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                     <div className="Quantity flex items-center mt-4  space-x-2">
                       <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
                         Quantité
