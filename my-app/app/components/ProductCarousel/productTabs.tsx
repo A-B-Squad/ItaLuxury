@@ -10,12 +10,11 @@ import {
 import { useEffect, useState } from "react";
 import AllProducts from "./AllProducts";
 import Loading from "./Loading";
-import NoProductYet from "./NoProductYet";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const ProductTabs = ({ data, loadingNewProduct }: any) => {
+const ProductTabs = ({ data, loadingNewProduct,carouselWidthClass }: any) => {
   const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
@@ -39,6 +38,7 @@ const ProductTabs = ({ data, loadingNewProduct }: any) => {
                     key={index}
                     productData={product}
                     userId={userId}
+                    carouselWidthClass={carouselWidthClass}
                   />
                 )
               )}
@@ -48,7 +48,6 @@ const ProductTabs = ({ data, loadingNewProduct }: any) => {
           </Carousel>
         </div>
       )}
-      {!data && !loadingNewProduct && <NoProductYet />}
     </div>
   );
 };
