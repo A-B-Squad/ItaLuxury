@@ -70,7 +70,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       } else {
         setBigImage(smallImages[0]);
       }
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [bigImage, smallImages]);

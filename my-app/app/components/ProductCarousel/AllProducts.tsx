@@ -199,6 +199,9 @@ const AllProducts = ({
             <Image
               src={productData?.images[0]}
               className="w-full h-full"
+              loading="eager"
+              priority
+              objectPosition="0"
               alt={`products-${productData?.name}`}
               layout="fill"
             />

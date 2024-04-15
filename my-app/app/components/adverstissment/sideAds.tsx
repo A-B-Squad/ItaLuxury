@@ -1,11 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { IoImageOutline } from "react-icons/io5";
 
 const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
   return (
-    <div className="relative hidden   hover:opacity-85 transition-opacity md:flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
+    <div className="side_ads relative hidden   hover:opacity-85 transition-opacity md:flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
       {adsLoaded && (
         <div className="grid  h-[374px] w-[320px] animate-pulse place-items-center rounded-lg bg-mediumBeige">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
@@ -19,21 +19,20 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
         </div>
       )}
 
-      {adsLoaded && image && (
+      {!adsLoaded && image && (
         <Link
           className="relative flex items-center flex-col justify-center h-[374px] w-[320px] min-w-[290px] min-h-[374px] rounded-lg "
           href={link}
         >
-        
-            <Image
-              src={image}
-              width={300} // Set the desired width
-              height={300} // Set the desired height
-              layout="responsive" // Ensure responsive behavior
-              alt="MaisonNg"
-              loading="eager" // Load the image immediately
-            />
-        
+          <Image
+            src={image}
+            width={300} // Set the desired width
+            height={300} // Set the desired height
+            layout="fill" // Ensure responsive behavior
+            alt="MaisonNg"
+            objectFit="contain"
+            objectPosition={0}
+            loading="lazy"           />
         </Link>
       )}
     </div>

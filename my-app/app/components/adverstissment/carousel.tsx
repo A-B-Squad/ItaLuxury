@@ -34,29 +34,25 @@ const AdsCarousel = () => {
   return (
     <>
       {!adsLoaded && images.length <= 0 && (
-        <div className="rounded-xl lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[380px] bg-mediumBeige flex flex-col justify-center items-center ">
+        <div className="rounded-xl lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-mediumBeige flex flex-col justify-center items-center ">
           <p>{"Carousel Ads"}</p>
-          <p>904px x 380px</p>
+          <p>864px x 350px</p>
         </div>
       )}
       {!adsLoaded && images.length > 0 && (
         <Carousel
           autoplay
-          className="rounded-xl relative lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[380px]  "
+          className="rounded-xl relative lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px]  "
           placeholder={""}
         >
           {images.map((image, index) => (
-            <Link
-              className="static"
-              key={index}
-              href={data.advertismentByPosition[index]?.link}
-            >
+            <Link key={index} href={data.advertismentByPosition[index]?.link}>
               <Image
                 layout="fill"
-                objectFit="contain"
                 src={image}
+                loading="eager"
                 alt={`image ${index + 1}`}
-                className=" hover:opacity-50 transition-all h-full w-full object-fill"
+                className=" hover:opacity-70 transition-all h-full w-full object-fill"
               />
             </Link>
           ))}

@@ -59,22 +59,30 @@ const Left = () => {
 
       {images.length > 0 && !adsLoaded && (
         <div className="left flex lg:flex-col  gap-5 md:gap-12">
-          <Link className="static" href={data.advertismentByPosition[0].link}>
+          <Link
+            className="relative w-[11rem] md:w-[15rem] lg:w-[13rem] xl:w-[20rem]"
+            href={data.advertismentByPosition[0].link}
+          >
             <Image
               src={images[0]}
-              layout="fill"
-              objectFit="contain"
+              layout="responsive"
+              width={352}
+              height={300}
               alt="image 1"
-              className="rounded-xl cursor-pointer hover:opacity-50 transition-all w-[10rem] md:w-[22rem]"
+              className="rounded-xl hover:opacity-50 transition-all "
             />
           </Link>
-          <Link className="static" href={data.advertismentByPosition[1].link}>
+          <Link
+            className="relative w-[11rem] md:w-[15rem] lg:w-[13rem] xl:w-[20rem]"
+            href={data.advertismentByPosition[1].link}
+          >
             <Image
+              layout="responsive"
+              width={352}
+              height={300}
               src={images[1]}
-              layout="fill"
-              objectFit="contain"
               alt="image 2"
-              className="rounded-xl w-[10rem] hover:opacity-50 transition-all cursor-pointer md:w-[22rem]"
+              className="rounded-xl hover:opacity-50 transition-all"
             />
           </Link>
         </div>

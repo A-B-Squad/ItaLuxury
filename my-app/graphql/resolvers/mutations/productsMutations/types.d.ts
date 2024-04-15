@@ -48,3 +48,6 @@ interface AddProductToFavoriteInput {
   userId: string;
   productId: string;
 }
+interface addTopDealProduct {
+  productId: string;
+}

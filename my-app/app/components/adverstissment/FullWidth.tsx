@@ -43,15 +43,15 @@ const FullWidth = () => {
         </div>
       )}
       {images.length > 0 && !adsLoaded && (
-        <div className="md:py-32 py-12  h-full w-full static ">
+        <div className="md:py-32 py-12  h-full w-full relative  ">
           <Image
             src={
               "https://res.cloudinary.com/dc1cdbirz/image/upload/v1711937168/gdgjwty4swrew5vyna74.jpg"
             }
             className="w-full h-full"
-            
             layout="fill"
             objectFit="contain"
+            loading="eager"
             alt="adsFullWidth"
           />
         </div>
