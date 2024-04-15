@@ -1,4 +1,4 @@
-import { useProductDetails } from "@/app/store/zustand";
+import { useProductDetails } from "../../store/zustand";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
