@@ -1,7 +1,13 @@
-import React from "react";
+import { JwtPayload } from "jsonwebtoken";
+import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
+import Cookies from "js-cookie";
+import jwt from "jsonwebtoken";
 
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 const productDetailsDrawer = ({
   isBottom,
   productDetails,
@@ -12,6 +18,15 @@ const productDetailsDrawer = ({
   quantity,
   setQuantity,
 }: any) => {
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
   return (
     <div>
       {isBottom && !!productDetails && (
@@ -74,7 +89,7 @@ const productDetailsDrawer = ({
                 addToBasket({
                   variables: {
                     input: {
-                      userId: "aaa",
+                      userId: decodedToken?.userId,
                       quantity: quantity,
                       productId: productId,
                     },

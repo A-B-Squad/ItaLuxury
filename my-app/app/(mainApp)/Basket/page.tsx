@@ -24,13 +24,7 @@ const Basket = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
+ 
 
   const BASKET_QUERY = gql`
     query BasketByUserId($userId: ID!) {
@@ -76,7 +70,7 @@ const Basket = () => {
   `;
 
   const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: "aaa" },
+    variables: { userId: decodedToken?.userId },
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
         ...basket.Product,

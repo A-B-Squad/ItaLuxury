@@ -30,7 +30,7 @@ const BasketDrawer = () => {
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
-    toggleIsUpdated:state.toggleIsUpdated
+    toggleIsUpdated: state.toggleIsUpdated,
   }));
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const BasketDrawer = () => {
 
     if (isUpdated) {
       fetchProducts({
-        variables: { userId: "aaa" },
+        variables: { userId: decodedToken?.userId },
         onCompleted: (data) => {
           const fetchedProducts = data.basketByUserId.map((basket: any) => ({
             ...basket.Product,
@@ -60,7 +60,7 @@ const BasketDrawer = () => {
           console.error(error);
         },
       });
-      toggleIsUpdated()
+      toggleIsUpdated();
     }
   }, [isUpdated]);
 
@@ -241,7 +241,7 @@ const BasketDrawer = () => {
               <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
                 <p>ou</p>
                 <Link
-                href={"/Touts-Les-Produits"}
+                  href={"/Touts-Les-Produits"}
                   type="button"
                   className="font-medium text-strongBeige transition-all hover:text-mediumBeige"
                 >

@@ -60,7 +60,7 @@ const Checkout = ({ searchParams }: any) => {
             <p className="text-xl font-medium">Récapitulatif de la commande</p>
             <p className="text-gray-400">Vérifiez vos articles.</p>
             <div className="mt-8 space-y-3 rounded-lg border bg-white px-2 py-4 sm:px-6">
-              {/* {products?.map((product: any) => (
+              {products?.map((product: any) => (
                 <div className="flex flex-col rounded-lg bg-white sm:flex-row">
                   <img
                     className="m-2 h-24 w-28 rounded-md border object-cover object-center"
@@ -77,7 +77,7 @@ const Checkout = ({ searchParams }: any) => {
                     </p>
                   </div>
                 </div>
-              ))} */}
+              ))}
             </div>
           </div>
           <div className="mt-10 bg-gray-50 px-4 pt-8 lg:mt-0">
