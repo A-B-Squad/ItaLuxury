@@ -76,7 +76,7 @@ const Basket = () => {
   `;
 
   const { loading, refetch } = useQuery(BASKET_QUERY, {
-    variables: { userId: "aaa" },
+    variables: { userId: decodedToken?.userId},
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
         ...basket.Product,
@@ -280,6 +280,7 @@ const Basket = () => {
               pathname: "/Checkout",
               query: {
                 total: totalPrice >= 499 ? totalPrice : totalPrice + 8,
+                products:JSON.stringify(products)
               },
             }}
             className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded cursor-pointer"

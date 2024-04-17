@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, gql } from "@apollo/client";
 import Link from "next/link";
+import { useProductsInBasketStore } from "@/app/store/zustand";
 
 const Signup = () => {
   const router = useRouter();
@@ -16,10 +17,16 @@ const Signup = () => {
     number: "",
     password: "",
   });
+
+  const {products,clearBasket} = useProductsInBasketStore((state) => ({
+    products:state.products,
+    clearBasket:state.clearBasket
+  }));
   const SIGNUP_MUTATION = gql`
     mutation SignUp($input: SignUpInput!) {
       signUp(input: $input) {
         user {
+          id
           fullName
           email
         }
@@ -28,6 +35,13 @@ const Signup = () => {
     }
   `;
 
+  const ADD_MULTIPLE_PRODUCTS_TO_BASKET = gql`
+    mutation AddMultipleToBasket($input: AddMultipleToBasketInput!) {
+      addMultipleToBasket(input: $input)
+    }
+  `;
+
+  const [addMulipleProducts] = useMutation(ADD_MULTIPLE_PRODUCTS_TO_BASKET);
   const [SignUp, { loading }] = useMutation(SIGNUP_MUTATION, {
     variables: {
       input: {
@@ -39,15 +53,30 @@ const Signup = () => {
     },
     onCompleted: (data) => {
       // router.push("/");
+      if (products.length > 0) {
+        const newArray = products.map((product: any) => ({
+          quantity: product.quantity,
+          productId: product.id,
+        }));
+        addMulipleProducts({
+          variables:{
+            input: {
+              userId: data.signUp.user.id,
+              products: newArray,
+            }
+          },
+          onCompleted:()=>{
+            clearBasket()
+          }
+        })
+      }
     },
     onError: (error) => {
       setIsError(true);
       if (error.message === "Email address is already in use") {
         setErrorMessage("L'adresse e-mail est déjà utilisée");
       } else {
-        console.log("====================================");
         console.log(error);
-        console.log("====================================");
       }
     },
   });
