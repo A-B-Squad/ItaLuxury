@@ -6,9 +6,13 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
-import { useDrawerBasketStore, useBasketStore } from "../store/zustand";
+import {
+  useDrawerBasketStore,
+  useProductsInBasketStore,
+  useBasketStore,
+} from "../store/zustand";
 import prepRoute from "../components/_prepRoute";
-
+import { BASKET_QUERY } from "../../graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -25,12 +29,20 @@ interface Product {
 
 const BasketDrawer = () => {
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
+
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [updated,setUpdated]= useState<boolean>(false);
+  const { products, removeProductFromBasket } = useProductsInBasketStore(
+    (state) => ({
+      products: state.products,
+      removeProductFromBasket: state.removeProductFromBasket,
+    })
+  );
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
-    toggleIsUpdated:state.toggleIsUpdated
+    toggleIsUpdated: state.toggleIsUpdated,
   }));
 
   useEffect(() => {
@@ -38,11 +50,8 @@ const BasketDrawer = () => {
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
-    }
-
-    if (isUpdated) {
       fetchProducts({
-        variables: { userId: "aaa" },
+        variables: { userId: decodedToken?.userId },
         onCompleted: (data) => {
           const fetchedProducts = data.basketByUserId.map((basket: any) => ({
             ...basket.Product,
@@ -50,7 +59,7 @@ const BasketDrawer = () => {
             basketId: basket.id,
           }));
 
-          setProducts(fetchedProducts);
+          setProductsInBasket(fetchedProducts);
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             return acc + curr.price * curr.quantity;
           }, 0);
@@ -60,28 +69,15 @@ const BasketDrawer = () => {
           console.error(error);
         },
       });
-      toggleIsUpdated()
+    } else {
+      setProductsInBasket(products);
+      const total = products.reduce((acc: number, curr: Product) => {
+        return acc + curr.price * curr.quantity;
+      }, 0);
+      setTotalPrice(total);
+      setUpdated(!updated)
     }
-  }, [isUpdated]);
-
-  const BASKET_QUERY = gql`
-    query BasketByUserId($userId: ID!) {
-      basketByUserId(userId: $userId) {
-        id
-        userId
-        quantity
-        Product {
-          id
-          name
-          price
-          images
-          categories {
-            name
-          }
-        }
-      }
-    }
-  `;
+  }, [isUpdated, isOpen,updated]);
 
   const DELETE_BASKET_BY_ID = gql`
     mutation DeleteBasketById($basketId: ID!) {
@@ -95,7 +91,7 @@ const BasketDrawer = () => {
     useMutation(DELETE_BASKET_BY_ID);
 
   const handleRemoveProduct = (basketId: string) => {
-    const updatedProducts = products.filter(
+    const updatedProducts = productsInBasket.filter(
       (product) => product.basketId !== basketId
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
@@ -103,8 +99,35 @@ const BasketDrawer = () => {
     }, 0);
 
     setTotalPrice(updatedTotalPrice);
-    setProducts(updatedProducts);
-    deleteBasketById({ variables: { basketId } });
+    setProductsInBasket(updatedProducts);
+    deleteBasketById({
+      variables: { basketId },
+      update: (cache, { data }) => {
+        // Assuming `data` contains the response from your deleteBasketById mutation
+        if (data?.deleteBasketById) {
+          // Read the current cache data
+          const existingData = cache.readQuery({
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          });
+
+          // Manipulate the cached data to reflect the deleted product
+          const updatedData = {
+            ...existingData,
+            basketByUserId: existingData.basketByUserId.filter(
+              (basket) => basket.id !== basketId
+            ),
+          };
+
+          // Write the updated data back to the cache
+          cache.writeQuery({
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+            data: updatedData,
+          });
+        }
+      },
+    });
   };
 
   return (
@@ -142,7 +165,7 @@ const BasketDrawer = () => {
           </svg>
         </IconButton>
       </div>
-      {products.length > 0 ? (
+      {productsInBasket.length > 0 ? (
         deletingLoading ? (
           <div>loading</div>
         ) : (
@@ -150,7 +173,7 @@ const BasketDrawer = () => {
             <div className="product-details">
               <div className="flow-root">
                 <ul role="list" className=" divide-y divide-gray-200">
-                  {products.map((product, index) => (
+                  {productsInBasket.map((product, index) => (
                     <li className="flex py-6 " key={index}>
                       <div className="h-24 w-20 flex-shrink-0 rounded-md ">
                         <img
@@ -166,7 +189,7 @@ const BasketDrawer = () => {
                             <h3>
                               <Link
                                 href={{
-                                  pathname: `products/tunisie/${prepRoute(
+                                  pathname: `productsInBasket/tunisie/${prepRoute(
                                     product.name
                                   )}`,
                                   query: {
@@ -201,7 +224,20 @@ const BasketDrawer = () => {
                               type="button"
                               className="font-medium text-strongBeige hover:text-amber-200"
                               onClick={() => {
-                                handleRemoveProduct(product.basketId);
+                                if (decodedToken) {
+                                  handleRemoveProduct(product.basketId);
+                                } else {
+                                  removeProductFromBasket(product.id);
+                                  const updatedProducts = products.filter(
+                                    (pr: any) => pr.id !== product.id
+                                  );
+                                  const updatedTotalPrice =
+                                    updatedProducts.reduce((acc, curr) => {
+                                      return acc + curr.price * curr.quantity;
+                                    }, 0);
+                                  setProductsInBasket(updatedProducts);
+                                  setTotalPrice(updatedTotalPrice);
+                                }
                               }}
                             >
                               Retirer
@@ -225,14 +261,14 @@ const BasketDrawer = () => {
               </p>
               <div className="mt-6">
                 <Link
-                  href="/Checkout"
+                  href={decodedToken ? "/Checkout" : "/signup"}
                   className="flex items-center justify-center transition-all rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
                 >
                   Vérifier
                 </Link>
                 <Link
                   onClick={closeBasketDrawer}
-                  href="/Basket"
+                  href={decodedToken ? "/Basket" : "/signup"}
                   className="flex items-center transition-all justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
                 >
                   Voir Panier
@@ -241,7 +277,7 @@ const BasketDrawer = () => {
               <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
                 <p>ou</p>
                 <Link
-                href={"/Touts-Les-Produits"}
+                  href={"/Touts-Les-Produits"}
                   type="button"
                   className="font-medium text-strongBeige transition-all hover:text-mediumBeige"
                 >

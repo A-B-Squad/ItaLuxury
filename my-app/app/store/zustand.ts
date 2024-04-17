@@ -13,15 +13,24 @@ type DrawerBasketStore = {
   closeBasketDrawer: () => void;
 };
 
+type BasketStore = {
+  isUpdated: boolean;
+  toggleIsUpdated: () => void;
+};
+
 type ComparedProductsStore = {
   products: any[];
   addProductToCompare: (product: any) => void;
 };
 
-type BasketStore = {
-  isUpdated: boolean;
-  toggleIsUpdated: () => void;
+type ProductsInBasketStore = {
+  products: any[];
+  addProductToBasket: (product: any) => void;
+  removeProductFromBasket: (productId: string) => void;
+  clearBasket:()=>void;
 };
+
+
 
 interface ProductData {
   id: string;
@@ -30,7 +39,7 @@ interface ProductData {
   reference: string;
   description: string;
   createdAt: Date;
-  inventory:number
+  inventory: number;
   images: string[];
   categories: {
     name: string;
@@ -57,10 +66,9 @@ type UseProductDetails = {
 export const useProductDetails = create<UseProductDetails>((set) => ({
   isOpen: false,
   productData: null,
-  openProductDetails: (productData) => set({ isOpen: true, productData }), 
-  closeProductDetails: () => set({ isOpen: false ,productData:null}),
+  openProductDetails: (productData) => set({ isOpen: true, productData }),
+  closeProductDetails: () => set({ isOpen: false, productData: null }),
 }));
-
 
 export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
   (set) => ({
@@ -76,10 +84,13 @@ export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
   closeBasketDrawer: () => set({ isOpen: false }),
 }));
 
+
+
 export const useBasketStore = create<BasketStore>((set) => ({
   isUpdated: false,
   toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
 }));
+
 
 const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
   products: [],
@@ -92,6 +103,34 @@ const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
       ),
     })),
 });
+
+const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
+  products: [],
+  addProductToBasket: (product: any) => {
+    set((state: any) => ({
+      products: [...state.products, product],
+    }));
+  },
+  removeProductFromBasket: (productId: string) => {
+    set((state: any) => ({
+      products: state.products.filter(
+        (product: any) => product.id !== productId
+      ),
+    }));
+  },
+  clearBasket:()=>{
+    set((state: any) => ({
+      products: [],
+    }));
+  }
+});
+
+export const useProductsInBasketStore = create(
+  persist(productsInBasketStore, {
+    name: "productsInBasket",
+    storage: createJSONStorage(() => sessionStorage),
+  })
+)
 
 export const useComparedProductsStore = create(
   persist(comparedProductsStore, {
