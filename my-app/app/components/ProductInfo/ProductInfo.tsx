@@ -1,21 +1,21 @@
-import { useProductDetails } from "../../store/zustand";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import InnerImageZoom from "react-inner-image-zoom";
-import { RiSubtractFill } from "react-icons/ri";
-import { IoCloseOutline } from "react-icons/io5";
-import { IoMdCloseCircleOutline } from "react-icons/io";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { gql, useMutation } from "@apollo/client";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import { IoCloseOutline } from "react-icons/io5";
+import { RiSubtractFill } from "react-icons/ri";
+import InnerImageZoom from "react-inner-image-zoom";
+import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import { useProductDetails } from "../../store/zustand";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const ProductDetails = () => {
+const ProductInfo = () => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const { isOpen, productData, closeProductDetails } = useProductDetails();
@@ -234,4 +234,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default ProductInfo;

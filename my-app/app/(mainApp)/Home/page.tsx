@@ -1,17 +1,22 @@
 "use client";
-import ProductTabs from "@/components/ProductCarousel/productTabs";
-import TitleProduct from "@/components/ProductCarousel/titleProduct";
 import AdsCarousel from "@/components/adverstissment/carousel";
 import FullWidth from "@/components/adverstissment/FullWidth";
 import Left from "@/components/adverstissment/left";
 import Right from "@/components/adverstissment/right";
-import { gql, useQuery } from "@apollo/client";
-import ProductDetails from "../../components/ProductDetails/ProductDetails";
+import SideAds from "@/components/adverstissment/sideAds";
+import ProductTabs from "@/components/ProductCarousel/productTabs";
+import TitleProduct from "@/components/ProductCarousel/titleProduct";
+import {
+  SIDE_ADS_NEW_PRODUCT,
+  TAKE_6_PRODUCTS,
+  TAKE_6_PRODUCTS_PRICE_20,
+} from "@/graphql/queries";
+import { useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
+import ProductInfo from "../../components/ProductInfo/ProductInfo";
+import ClientServices from "./_components/ClientServices";
 import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
-import ClientServices from "./_components/ClientServices";
-import SideAds from "@/components/adverstissment/sideAds";
-import React, { useEffect, useState } from "react";
 const Home = () => {
   const [countdownToNextDay, setCountdownToNextDay] = useState<number>(0);
 
@@ -33,62 +38,6 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const TAKE_6_PRODUCTS = gql`
-    query Products($limit: Int!) {
-      products(limit: $limit) {
-        id
-        name
-        price
-        reference
-        description
-        createdAt
-        inventory
-        images
-        categories {
-          name
-        }
-        Colors {
-          color
-          Hex
-        }
-        productDiscounts {
-          price
-          newPrice
-          Discount {
-            percentage
-          }
-        }
-      }
-    }
-  `;
-  const TAKE_6_PRODUCTS_PRICE_20 = gql`
-    query ProductsLessThen20($limit: Int!) {
-      productsLessThen20(limit: $limit) {
-        id
-        name
-        price
-        reference
-        description
-        createdAt
-        inventory
-        images
-        categories {
-          name
-        }
-        Colors {
-          color
-          Hex
-        }
-        productDiscounts {
-          price
-          newPrice
-          Discount {
-            percentage
-          }
-        }
-      }
-    }
-  `;
   const { loading: loadingNewProduct, data: Products_6 } = useQuery(
     TAKE_6_PRODUCTS,
     {
@@ -102,14 +51,6 @@ const Home = () => {
     }
   );
 
-  const SIDE_ADS_NEW_PRODUCT = gql`
-    query Query($position: String!) {
-      advertismentByPosition(position: $position) {
-        images
-        link
-      }
-    }
-  `;
   const { loading: loadingLeftAdsNewProduct, data: leftAds } = useQuery(
     SIDE_ADS_NEW_PRODUCT,
     { variables: { position: "left_new_product" } }
@@ -129,7 +70,7 @@ const Home = () => {
           <Right />
         </section>
         <Services />
-        <ProductDetails />
+        <ProductInfo />
         <div className="nouveaux-product-parent-tabs flex flex-col ">
           <TitleProduct title={"nouveaux Produits"} />
           <div className="Carousel_new_product flex gap-3">
