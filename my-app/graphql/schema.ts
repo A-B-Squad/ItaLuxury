@@ -320,6 +320,7 @@ type Mutation {
   deleteBasketById(basketId: ID!): String!
   increaseQuantity(basketId: ID!): Basket!
   decreaseQuantity(basketId: ID!): Basket!
+  addMultipleToBasket(input: AddMultipleToBasketInput!): String!
   
   # Checkout mutations
   createCheckout(input: CreateCheckoutInput!): Checkout!
@@ -486,6 +487,16 @@ input ExchangePackageInput{
   packageId: String
   cause:Cause,
   description:String
+}
+
+input AddMultipleToBasketInput {
+  userId: ID!
+  products: [ProductInputQuantity!]!
+}
+
+input ProductInputQuantity {
+  productId: ID!
+  quantity: Int!
 }
 
 `;

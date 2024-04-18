@@ -1,23 +1,39 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
-import InnerImageZoom from "react-inner-image-zoom";
-import { FaStar } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa";
-import { RiSubtractFill } from "react-icons/ri";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { FaRegHeart } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { FaPlus, FaRegHeart, FaStar } from "react-icons/fa";
+import { RiSubtractFill } from "react-icons/ri";
+import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import {
-  useComparedProductsStore,
-  useBasketStore,
-} from "../../../store/zustand";
+  BASKET_QUERY,
+  GET_PRODUCT_IMAGES_QUERY,
+  GET_REVIEW_QUERY,
+  PRODUCT_BY_ID_QUERY,
+  TAKE_10_PRODUCTS,
+} from "../../../../graphql/queries";
+
+import ProductTabs from "@/app/components/ProductCarousel/productTabs";
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import { GoGitCompare } from "react-icons/go";
+import {
+  ADD_RATING_MUTATION,
+  ADD_TO_BASKET_MUTATION,
+  ADD_TO_FAVORITE_MUTATION,
+} from "../../../../graphql/mutations";
 import PopHover from "../../../components/PopHover";
-import ProductDetailsDrawer from "../../../components/ProductDetails/productDetailsDrawer";
+import ProductDetailsDrawer from "../../../components/ProductInfo/productDetailsDrawer";
+import ProductInfo from "../../../components/ProductInfo/ProductInfo";
+import {
+  useBasketStore,
+  useComparedProductsStore,
+  useDrawerBasketStore,
+  useProductsInBasketStore,
+} from "../../../store/zustand";
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
   const productId = SearchParams?.get("productId");
@@ -37,7 +53,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [popoverTitle, setPopoverTitle] = useState("");
   const [isBottom, setIsBottom] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  const { openBasketDrawer } = useDrawerBasketStore();
 
   const handleMouseEnter = (title: any) => {
     setShowPopover(true);
@@ -48,9 +64,17 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     setShowPopover(false);
     setPopoverTitle("");
   };
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
   const addProductToCompare = useComparedProductsStore(
     (state) => state.addProductToCompare
+  );
+
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
   );
 
   interface DecodedToken extends JwtPayload {
@@ -64,12 +88,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       setDecodedToken(decoded);
     }
     getReviews({
-      variables: { productId: params.productId[0] },
+      variables: { productId: productId },
       onCompleted: (data) => {
         setReviews(data.productReview.length);
       },
     });
-  }, []);
+  }, [reviews]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -86,15 +110,28 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const isPageBottom =
-        window.innerHeight + window.scrollY >= document.body.offsetHeight;
-      setIsBottom(isPageBottom);
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.body.offsetHeight;
+      const scrollPosition = window.scrollY;
+
+      // Calculate the position halfway through the window
+      const halfwayPosition = windowHeight / 2;
+
+      // Check if the scroll position is greater than or equal to halfway
+      const isHalfway = scrollPosition >= halfwayPosition;
+
+      setIsBottom(isHalfway);
     };
 
+    // Attach the scroll event listener
     window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Detach the scroll event listener on component unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
+
   useEffect(() => {
     if (discount && discount.dateOfEnd) {
       const endTime = discount.dateOfEnd;
@@ -110,87 +147,17 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     }
   }, [discount]);
 
-  const PRODUCT_BY_ID_QUERY = gql`
-    query ProductById($productByIdId: ID!) {
-      productById(id: $productByIdId) {
-        id
-        name
-        price
-        isVisible
-        reference
-        description
-        inventory
-        solde
-        images
-        createdAt
-        productDiscounts {
-          id
-          price
-          newPrice
-          dateOfEnd
-          dateOfStart
-        }
-        Colors {
-          id
-          color
-          Hex
-        }
-        attributes {
-          id
-          name
-          value
-        }
-      }
-    }
-  `;
-
-  const GET_PRODUCT_IMAGES_QUERY = gql`
-    query Query($productId: String!, $colorId: String!) {
-      getProductImages(productId: $productId, colorId: $colorId)
-    }
-  `;
-
-  const ADD_RATING_MUTATION = gql`
-    mutation AddRating($productId: ID!, $userId: ID!, $rating: Int!) {
-      addRating(productId: $productId, userId: $userId, rating: $rating)
-    }
-  `;
-  const GET_REVIEW_QUERY = gql`
-    query ProductReview($productId: ID!) {
-      productReview(productId: $productId) {
-        id
-        rating
-        userId
-      }
-    }
-  `;
-
-  const ADD_TO_BASKET = gql`
-    mutation AddToBasket($input: CreateToBasketInput!) {
-      addToBasket(input: $input) {
-        id
-        userId
-        quantity
-        productId
-      }
-    }
-  `;
-
-  const ADD_TO_FAVORITE = gql`
-    mutation AddProductToFavorite($input: AddProductToFavoriteInput!) {
-      addProductToFavorite(input: $input) {
-        id
-        userId
-        productId
-      }
-    }
-  `;
-
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
   const [getProductImages] = useLazyQuery(GET_PRODUCT_IMAGES_QUERY);
-  const [addToBasket] = useMutation(ADD_TO_BASKET);
-  const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+  const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
 
+  const { loading: loadingNewProduct, data: Products_10 } = useQuery(
+    TAKE_10_PRODUCTS,
+    {
+      variables: { limit: 10 },
+    }
+  );
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
     variables: { productByIdId: productId },
     onCompleted: (data) => {
@@ -255,7 +222,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       stroke="currentColor"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeWidth="2"
                       d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                     />
                   </svg>
@@ -411,18 +378,42 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       type="button"
                       className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                       onClick={() => {
-                        addToBasket({
-                          variables: {
-                            input: {
-                              userId: decodedToken?.userId,
-                              quantity: quantity,
-                              productId: productId,
+                        if (decodedToken) {
+                          addToBasket({
+                            variables: {
+                              input: {
+                                userId: decodedToken?.userId,
+                                quantity: quantity,
+                                productId: productId,
+                              },
                             },
-                          },
-                        });
+                            refetchQueries: [
+                              {
+                                query: BASKET_QUERY,
+                                variables: { userId: decodedToken?.userId },
+                              },
+                            ],
+                          });
+                        } else {
+                          const isProductAlreadyInBasket = products.some(
+                            (p: any) => p.id === productDetails.id
+                          );
 
+                          if (!isProductAlreadyInBasket) {
+                            addProductToBasket({
+                              ...productDetails,
+                              price: discount
+                                ? discount.newPrice
+                                : productDetails.price,
+                              quantity,
+                            });
+                          } else {
+                            console.log("Product is already in the basket");
+                          }
+                        }
                         setSuccessMsg("Produit ajouté avec succès au panier !");
                         toggleIsUpdated();
+                        openBasketDrawer();
                       }}
                     >
                       Ajouter au panier
@@ -592,8 +583,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   Information de produit
                 </h3>
                 <ul className="mt-6 space-y-6 text-[#333] p-6">
-                  {attributes.map((attribute: any) => (
-                    <li className="text-sm pb-2 border-b">
+                  {attributes.map((attribute: any, index: number) => (
+                    <li key={index} className="text-sm pb-2 border-b">
                       {attribute.name.toUpperCase()}{" "}
                       <span className="ml-4 float-right">
                         {attribute.value.toUpperCase()}
@@ -603,6 +594,21 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                 </ul>
               </div>
             )}
+          </div>
+          <ProductInfo />
+          <div className="Carousel voir aussi px-10 mb-[15%]">
+            <TitleProduct title={"Voir aussi"} />
+            <div>
+              <ProductTabs
+                data={Products_10}
+                loadingNewProduct={loadingNewProduct}
+                carouselWidthClass={
+                  Products_10?.productsLessThen20?.length < 5
+                    ? "xl:basis-1/2"
+                    : ""
+                }
+              />
+            </div>
           </div>
           <ProductDetailsDrawer
             isBottom={isBottom}

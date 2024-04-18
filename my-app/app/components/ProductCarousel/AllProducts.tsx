@@ -1,6 +1,7 @@
 import calcDateForNewProduct from "@/app/components/_calcDateForNewProduct";
 import prepRoute from "@/app/components/_prepRoute";
-import { gql, useMutation } from "@apollo/client";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import { useMutation } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,7 +13,6 @@ import {
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductDetails,
-  useBasketStore
 } from "../../store/zustand";
 import PopHover from "../PopHover";
 import FavoriteProduct from "./FavoriteProduct";
@@ -57,20 +57,9 @@ const AllProducts = ({
   const { isOpen, openProductDetails, closeProductDetails } =
     useProductDetails();
 
-  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const ADD_TO_BASKET = gql`
-    mutation AddToBasket($input: CreateToBasketInput!) {
-      addToBasket(input: $input) {
-        id
-        userId
-        quantity
-        productId
-      }
-    }
-  `;
   const [addToBasketMutation, { loading: addToBasketLoading }] =
-    useMutation(ADD_TO_BASKET);
+    useMutation(ADD_TO_BASKET_MUTATION);
 
   const AddToBasket = (productId: string) => {
     if (userId) {
@@ -83,7 +72,6 @@ const AllProducts = ({
           },
         },
       });
-      toggleIsUpdated()
     } else {
       window.sessionStorage.setItem("products", productId);
     }

@@ -1,7 +1,7 @@
+import { ADD_TO_FAVORITE_MUTATION } from "@/graphql/mutations";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { favoriteProducts } from "../../../graphql/resolvers/queries/productQueries/favoriteProducts";
 
 const GET_FAVORITE_STATUS = gql`
   query FavoriteProducts($userId: ID!) {
@@ -12,15 +12,7 @@ const GET_FAVORITE_STATUS = gql`
   }
 `;
 
-const ADD_TO_FAVORITE = gql`
-  mutation AddProductToFavorite($input: AddProductToFavoriteInput!) {
-    addProductToFavorite(input: $input) {
-      id
-      productId
-      userId
-    }
-  }
-`;
+
 const FavoriteProduct = ({
   productId,
   userId,
@@ -58,7 +50,7 @@ const FavoriteProduct = ({
     }
   }, [favoriteData]);
 
-  const [addToFavorite] = useMutation(ADD_TO_FAVORITE);
+  const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
 
   const handleToggleFavorite = () => {
     if (!userId) {

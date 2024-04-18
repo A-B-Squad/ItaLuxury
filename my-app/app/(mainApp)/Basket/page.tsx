@@ -1,10 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useQuery, useMutation, gql } from "@apollo/client";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
+import {
+  DECREASE_QUANTITY_MUTATION,
+  DELETE_BASKET_BY_ID_MUTATION,
+  INCREASE_QUANTITY_MUTATION,
+} from "../../../graphql/mutations";
+import { BASKET_QUERY } from "../../../graphql/queries";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -23,51 +29,6 @@ const Basket = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-
- 
-
-  const BASKET_QUERY = gql`
-    query BasketByUserId($userId: ID!) {
-      basketByUserId(userId: $userId) {
-        id
-        userId
-        quantity
-        Product {
-          id
-          name
-          price
-          images
-        }
-      }
-    }
-  `;
-
-  const INCREASE_QUANTITY_MUTATION = gql`
-    mutation IncreaseQuantity($basketId: ID!) {
-      increaseQuantity(basketId: $basketId) {
-        id
-        userId
-        quantity
-      }
-    }
-  `;
-
-  const DECREASE_QUANTITY_MUTATION = gql`
-    mutation DecreaseQuantity($basketId: ID!) {
-      decreaseQuantity(basketId: $basketId) {
-        id
-        userId
-        productId
-        quantity
-      }
-    }
-  `;
-
-  const DELETE_BASKET_BY_ID = gql`
-    mutation DeleteBasketById($basketId: ID!) {
-      deleteBasketById(basketId: $basketId)
-    }
-  `;
 
   const { loading, refetch } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
@@ -93,29 +54,36 @@ const Basket = () => {
       const updatedProducts = products.map((product) =>
         product.basketId === increaseQuantity.id
           ? { ...product, quantity: increaseQuantity.quantity }
-          : product,
+          : product
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
     },
   });
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
 
   const [decreaseQuantity] = useMutation(DECREASE_QUANTITY_MUTATION, {
     onCompleted: ({ decreaseQuantity }) => {
       const updatedProducts = products.map((product) =>
         product.basketId === decreaseQuantity.id
           ? { ...product, quantity: decreaseQuantity.quantity }
-          : product,
+          : product
       );
       setProducts(updatedProducts);
       updateTotalPrice(updatedProducts);
     },
   });
-  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID);
+  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
-      (product) => product.basketId !== basketId,
+      (product) => product.basketId !== basketId
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
@@ -274,6 +242,7 @@ const Basket = () => {
               pathname: "/Checkout",
               query: {
                 total: totalPrice >= 499 ? totalPrice : totalPrice + 8,
+                products: JSON.stringify(products),
               },
             }}
             className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded cursor-pointer"

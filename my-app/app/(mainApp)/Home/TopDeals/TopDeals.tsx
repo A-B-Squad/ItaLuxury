@@ -1,12 +1,37 @@
+import prepRoute from "@/app/components/_prepRoute";
 import PopHover from "@/app/components/PopHover";
-import { gql, useQuery } from "@apollo/client";
+import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
+import {
+  useComparedProductsStore,
+  useDrawerBasketStore,
+  useProductDetails,
+} from "@/app/store/zustand";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import { TOP_DEALS } from "@/graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
 import Image from "next/image";
-import React, { useState } from "react";
-
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { FaRegEye } from "react-icons/fa";
+import { FaBasketShopping } from "react-icons/fa6";
+import { IoGitCompare } from "react-icons/io5";
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 const TopDeals = () => {
   const [showPopover, setShowPopover] = useState(false);
   const [popoverTitle, setPopoverTitle] = useState("");
   const [popoverIndex, setPopoverIndex] = useState<number>(0);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
   const handleMouseEnter = (title: string, index: number) => {
     setShowPopover(true);
     setPopoverTitle(title);
@@ -19,111 +44,210 @@ const TopDeals = () => {
     setPopoverIndex(0);
   };
 
-  const TOP_DEALS = gql`
-    query AllDeals {
-      allDeals {
-        product {
-          id
-          name
-          price
-          reference
-          description
-          createdAt
-          inventory
-          images
-          attributes {
-            name
-            value
-          }
-          categories {
-            name
-          }
-          Colors {
-            color
-            Hex
-          }
-          productDiscounts {
-            price
-            newPrice
-            Discount {
-              percentage
-            }
-          }
-        }
-      }
-    }
-  `;
   const { loading: loadingNewDeals, data: topDeals } = useQuery(TOP_DEALS);
 
+  const { openBasketDrawer } = useDrawerBasketStore();
+  const { isOpen, openProductDetails, closeProductDetails } =
+    useProductDetails();
+
+  const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
+    ADD_TO_BASKET_MUTATION
+  );
+
+  const AddToBasket = (productId: string) => {
+    if (decodedToken?.userId) {
+      addToBasketMutation({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            productId: productId,
+            quantity: 1,
+          },
+        },
+      });
+    } else {
+      window.sessionStorage.setItem("products", productId);
+    }
+    openBasketDrawer();
+  };
+
+  const handleMouseEnterHoverPop = (title: string) => {
+    setShowPopover(true);
+    setPopoverTitle(title);
+  };
+
+  const handleMouseLeaveHoverPop = () => {
+    setShowPopover(false);
+    setPopoverTitle("");
+  };
+  const addProductToCompare = useComparedProductsStore(
+    (state) => state.addProductToCompare
+  );
+  const addToCompare = (product: any) => {
+    addProductToCompare(product);
+  };
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   return (
     <div className="md:grid grid-cols-2 gap-3 grid-flow-col  block">
       {topDeals?.allDeals.map((products: any, index: number) => {
-
         return (
           <div
             key={index}
             className="grid lg:grid-cols-3 grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
           >
-            <span className="absolute left-5 top-5 z-50 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
-              {products?.product?.productDiscounts[0]?.Discount.percentage}%
-            </span>
+            <Link
+              href={{
+                pathname: `products/tunisie/${prepRoute(products?.product?.name)}`,
+                query: {
+                  productId: products?.product?.id,
+                },
+              }}
+              className="h-56 lg:h-full  w-full"
+            >
+              <span className="absolute left-5 top-5 z-50 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
+                {products?.product?.productDiscounts[0]?.Discount.percentage}%
+              </span>
 
-            <div className="relative lg:col-span-1 row-span-1 lg:row-span-1 h-56 lg:h-full  w-full">
-              <Image
-                layout="fill"
-                objectFit="contain"
-                className="h-full w-full"
-                src={products?.product?.images[0]}
-                alt="product"
-              />
-            </div>
-
-            <div className="lg:col-span-2 row-span-1 lg:row-span-1  place-self-stretch lg:mt-3 flex flex-col justify-around ">
-              <h2 className="tracking-wider">{products?.product?.name}</h2>
-              <div className="prices flex gap-3 text-lg lg:mt-3">
-                <span className="text-strongBeige font-semibold">
-                  {products?.product?.productDiscounts[0]?.newPrice.toFixed(3)}
-                  TND
-                </span>
-                <span className="line-through text-gray-400">
-                  {products?.product?.price.toFixed(3)}TND
-                </span>
+              <div className="relative lg:col-span-1 row-span-1 lg:row-span-1 h-56 lg:h-full  w-full">
+                <Image
+                  layout="fill"
+                  objectFit="contain"
+                  className="h-full w-full"
+                  src={products?.product?.images[0]}
+                  alt="product"
+                />
               </div>
-
-              <ul className=" text-xs md:text-sm text-gray-500 tracking-wider mt-2">
-                {products?.product?.attributes
-                  .slice(0, 4)
-                  .map((attribute: any, i: number) => (
-                    <li key={i}>
-                      <span className="text-sm font-semibold">
-                        {attribute.name}
-                      </span>{" "}
-                      : <span className="text-base">{attribute.value}</span>
-                    </li>
-                  ))}
-              </ul>
+            </Link>
+            <ul className="plus_button lg:opacity-0 group-hover:opacity-100  absolute right-3 z-40  top-14 flex flex-col gap-3  ">
+              <div
+                className="product-details relative w-fit cursor-crosshair"
+                onMouseEnter={() =>
+                  handleMouseEnterHoverPop("produit en details")
+                }
+                onMouseLeave={handleMouseLeaveHoverPop}
+                onClick={() => openProductDetails(products?.product)}
+              >
+                {showPopover && popoverTitle === "produit en details" && (
+                  <PopHover title={popoverTitle} />
+                )}
+                <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
+                  <FaRegEye color="white" />
+                </li>
+              </div>
 
               <div
-                className="Color relative w-fit cursor-crosshair my-3 lg:my-0"
+                className="add-to-basket relative w-fit h-fit cursor-crosshair"
                 onMouseEnter={() =>
-                  handleMouseEnter(products?.product?.Colors?.color, index)
+                  handleMouseEnterHoverPop("Ajouter au panier")
                 }
-                onMouseLeave={handleMouseLeave}
+                onMouseLeave={handleMouseLeaveHoverPop}
+                onClick={() => AddToBasket(products?.product?.id)}
+              >
+                {showPopover && popoverTitle === "Ajouter au panier" && (
+                  <PopHover title={popoverTitle} />
+                )}
+                <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                  <FaBasketShopping color="white" />
+                </li>
+              </div>
+
+              <div
+                className="Comparison relative w-fit cursor-crosshair"
+                onMouseEnter={() =>
+                  handleMouseEnterHoverPop("Ajouter au comparatif")
+                }
+                onMouseLeave={handleMouseLeaveHoverPop}
+                onClick={() => addToCompare(products?.product)}
+              >
+                {showPopover && popoverTitle === "Ajouter au comparatif" && (
+                  <PopHover title={popoverTitle} />
+                )}
+                <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                  <IoGitCompare color="white" />
+                </li>
+              </div>
+
+              <div
+                className="Favorite relative w-fit cursor-crosshair"
+                onMouseEnter={() =>
+                  handleMouseEnterHoverPop("Ajouter à ma liste d'enviess")
+                }
+                onMouseLeave={handleMouseLeaveHoverPop}
               >
                 {showPopover &&
-                  popoverTitle === products?.product?.Colors?.color &&
-                  popoverIndex == index && (
-                    <PopHover title={products?.product?.Colors?.color} />
+                  popoverTitle === "Ajouter à ma liste d'enviess" && (
+                    <PopHover title={popoverTitle} />
                   )}
-                {products?.product.Colors && (
-                  <div
-                    className="colors_available items-center   lg:mt-2 w-5 h-5  border-black border-2 rounded-sm shadow-gray-400 shadow-sm"
-                    style={{
-                      backgroundColor: products?.product?.Colors?.Hex,
-                    }}
+                <li className="bg-strongBeige  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                  <FavoriteProduct
+                    isFavorite={isFavorite}
+                    setIsFavorite={setIsFavorite}
+                    productId={products?.product?.id}
+                    userId={decodedToken?.userId}
                   />
-                )}
+                </li>
               </div>
+            </ul>
+
+            <div className="lg:col-span-2 row-span-1 lg:row-span-1  place-self-stretch lg:mt-3 flex flex-col justify-around ">
+              <Link
+                href={{
+                  pathname: `products/tunisie/${prepRoute(products?.product?.name)}`,
+                  query: {
+                    productId: products?.product?.id,
+                  },
+                }}
+              >
+                <h2 className="tracking-wider hover:text-mediumBeige transition-colors">
+                  {products?.product?.name}
+                </h2>
+                <div className="prices flex gap-3 text-lg lg:mt-3">
+                  <span className="text-strongBeige font-semibold">
+                    {products?.product?.productDiscounts[0]?.newPrice.toFixed(
+                      3
+                    )}
+                    TND
+                  </span>
+                  <span className="line-through text-gray-400">
+                    {products?.product?.price.toFixed(3)}TND
+                  </span>
+                </div>
+
+                <ul className=" text-xs md:text-sm text-gray-500 tracking-wider mt-2">
+                  {products?.product?.attributes
+                    .slice(0, 4)
+                    .map((attribute: any, i: number) => (
+                      <li key={i}>
+                        <span className="text-sm font-semibold">
+                          {attribute.name}
+                        </span>{" "}
+                        : <span className="text-base">{attribute.value}</span>
+                      </li>
+                    ))}
+                </ul>
+
+                <div
+                  className="Color relative w-fit cursor-crosshair my-3 lg:my-0"
+                  onMouseEnter={() =>
+                    handleMouseEnter(products?.product?.Colors?.color, index)
+                  }
+                  onMouseLeave={handleMouseLeave}
+                >
+                  {showPopover &&
+                    popoverTitle === products?.product?.Colors?.color &&
+                    popoverIndex == index && (
+                      <PopHover title={products?.product?.Colors?.color} />
+                    )}
+                  {products?.product.Colors && (
+                    <div
+                      className="colors_available items-center   lg:mt-2 w-5 h-5  border-black border-2 rounded-sm shadow-gray-400 shadow-sm"
+                      style={{
+                        backgroundColor: products?.product?.Colors?.Hex,
+                      }}
+                    />
+                  )}
+                </div>
+              </Link>
 
               <button className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors">
                 Acheter maintenant

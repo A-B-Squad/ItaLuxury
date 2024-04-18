@@ -3,17 +3,11 @@ import { Carousel } from "@material-tailwind/react";
 import { useQuery, gql } from "@apollo/client";
 import Link from "next/link";
 import Image from "next/image";
+import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 
 const AdsCarousel = () => {
   const [images, setImages] = useState([]);
-  const ADVERTISSMENT_QUERY = gql`
-    query AdvertismentByPosition($position: String!) {
-      advertismentByPosition(position: $position) {
-        images
-        link
-      }
-    }
-  `;
+
 
   const {
     data,

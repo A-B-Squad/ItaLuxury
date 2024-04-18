@@ -1,36 +1,22 @@
-import { useProductDetails } from "../../store/zustand";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import InnerImageZoom from "react-inner-image-zoom";
-import { RiSubtractFill } from "react-icons/ri";
-import { IoCloseOutline } from "react-icons/io5";
-import { IoMdCloseCircleOutline } from "react-icons/io";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-
-
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import { IoCloseOutline } from "react-icons/io5";
+import { RiSubtractFill } from "react-icons/ri";
+import InnerImageZoom from "react-inner-image-zoom";
+import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
+import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import { useProductDetails } from "../../store/zustand";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-
-const ProductDetails = () => {
-
-  
-  const ADD_TO_BASKET = gql`
-    mutation AddToBasket($input: CreateToBasketInput!) {
-      addToBasket(input: $input) {
-        id
-        userId
-        quantity
-        productId
-      }
-    }
-  `;
-
-  const [addToBasket] = useMutation(ADD_TO_BASKET);
+const ProductInfo = () => {
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const { isOpen, productData, closeProductDetails } = useProductDetails();
   const [bigImage, setBigImage] = useState<any>("");
@@ -38,6 +24,14 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState<number>(1);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
 
   useEffect(() => {
     setBigImage(productData?.images[0]);
@@ -240,4 +234,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default ProductInfo;

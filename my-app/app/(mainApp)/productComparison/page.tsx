@@ -1,12 +1,13 @@
 "use client";
+import { useMutation } from "@apollo/client";
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useEffect, useState } from "react";
-import { useComparedProductsStore } from "../../store/zustand";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
-import { gql, useMutation } from "@apollo/client";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import Cookies from "js-cookie";
 import { RiShoppingCartLine } from "react-icons/ri";
+import { ADD_TO_BASKET_MUTATION } from '../../../graphql/mutations';
+import { useComparedProductsStore } from "../../store/zustand";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -29,18 +30,9 @@ const ProductComparison = () => {
     }
   }, []);
 
-  const ADD_TO_BASKET = gql`
-    mutation AddToBasket($input: CreateToBasketInput!) {
-      addToBasket(input: $input) {
-        id
-        userId
-        quantity
-        productId
-      }
-    }
-  `;
+ 
 
-  const [addToBasket] = useMutation(ADD_TO_BASKET);
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   return (
     <>

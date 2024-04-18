@@ -3,15 +3,10 @@ import { useQuery, gql } from "@apollo/client";
 import Link from "next/link";
 import { IoImageOutline } from "react-icons/io5";
 import Image from "next/image";
+import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 const FullWidth = () => {
   const [images, setImages] = useState([]);
-  const ADVERTISSMENT_QUERY = gql`
-    query AdvertismentByPosition($position: String!) {
-      advertismentByPosition(position: $position) {
-        images
-      }
-    }
-  `;
+
 
   const {
     data,

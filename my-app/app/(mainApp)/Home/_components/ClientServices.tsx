@@ -3,20 +3,14 @@ import { gql, useQuery } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
+import { CLIENT_SERVICES } from "@/graphql/queries";
 
 const ClientServices = () => {
   const [client1, setClient1] = useState<any>([]);
   const [client2, setClient2] = useState<any>([]);
   const [client3, setClient3] = useState<any>([]);
 
-  const CLIENT_SERVICES = gql`
-    query Query($position: String!) {
-      advertismentByPosition(position: $position) {
-        images
-        link
-      }
-    }
-  `;
+ 
   const { loading: loadingClientService1, data: clientService1 } = useQuery(
     CLIENT_SERVICES,
     {

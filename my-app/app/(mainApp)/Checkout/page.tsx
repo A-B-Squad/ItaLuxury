@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useQuery, useMutation, gql } from "@apollo/client";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { useRouter } from "next/navigation";
-import { CiUser, CiPhone } from "react-icons/ci";
+import React, { useEffect, useState } from "react";
+import { CiPhone, CiUser } from "react-icons/ci";
+import { CREATE_CHECKOUT_MUTATION } from "../../../graphql/mutations";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -27,19 +28,7 @@ const Checkout = ({ searchParams }: any) => {
     }
   }, []);
 
-  const CREATE_CHECKOUT_MUTATION = gql`
-    mutation CreateCheckout($input: CreateCheckoutInput!) {
-      createCheckout(input: $input) {
-        id
-        userId
-        governorateId
-        phone
-        address
-        total
-        createdAt
-      }
-    }
-  `;
+
 
   const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
 
@@ -175,7 +164,7 @@ const Checkout = ({ searchParams }: any) => {
               <div className="mt-6 flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-900">Total</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {(Number(searchParams.total) + 8).toFixed(3)} TND
+                  {(Number(searchParams.total)).toFixed(3)} TND
                 </p>
               </div>
             </div>

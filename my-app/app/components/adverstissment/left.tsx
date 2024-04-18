@@ -3,17 +3,10 @@ import { useQuery, gql } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
+import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 
 const Left = () => {
   const [images, setImages] = useState([]);
-  const ADVERTISSMENT_QUERY = gql`
-    query AdvertismentByPosition($position: String!) {
-      advertismentByPosition(position: $position) {
-        images
-        link
-      }
-    }
-  `;
 
   const {
     data,
