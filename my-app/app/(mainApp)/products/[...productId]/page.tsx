@@ -402,7 +402,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         }
                         setSuccessMsg("Produit ajouté avec succès au panier !");
                         toggleIsUpdated();
-                        openBasketDrawer();
                       }}
                     >
                       Ajouter au panier

@@ -33,7 +33,6 @@ const BasketDrawer = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [updated,setUpdated]= useState<boolean>(false);
   const { products, removeProductFromBasket } = useProductsInBasketStore(
     (state) => ({
       products: state.products,
@@ -75,16 +74,14 @@ const BasketDrawer = () => {
         return acc + curr.price * curr.quantity;
       }, 0);
       setTotalPrice(total);
-      setUpdated(!updated)
     }
-  }, [isUpdated, isOpen,updated]);
+  }, [isUpdated, isOpen]);
 
   const DELETE_BASKET_BY_ID = gql`
     mutation DeleteBasketById($basketId: ID!) {
       deleteBasketById(basketId: $basketId)
     }
   `;
-
   const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
 
   const [deleteBasketById, { loading: deletingLoading }] =
