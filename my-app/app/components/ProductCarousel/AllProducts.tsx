@@ -10,13 +10,16 @@ import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
 import { CarouselItem } from "../../../components/ui/carousel";
 import {
+  useBasketStore,
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductDetails,
+  useProductsInBasketStore,
 } from "../../store/zustand";
 import PopHover from "../PopHover";
 import FavoriteProduct from "./FavoriteProduct";
 import NoProductYet from "./NoProductYet";
+import { BASKET_QUERY } from "@/graphql/queries";
 interface Product {
   id: string;
   name: string;
@@ -54,28 +57,53 @@ const AllProducts = ({
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState<string>("");
   const { openBasketDrawer } = useDrawerBasketStore();
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { isOpen, openProductDetails, closeProductDetails } =
     useProductDetails();
 
+  const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
+    ADD_TO_BASKET_MUTATION
+  );
 
-  const [addToBasketMutation, { loading: addToBasketLoading }] =
-    useMutation(ADD_TO_BASKET_MUTATION);
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
 
   const AddToBasket = (productId: string) => {
     if (userId) {
-      addToBasketMutation({
+      addProductToBasket({
         variables: {
           input: {
             userId: userId,
-            productId: productId,
             quantity: 1,
+            productId: productId,
           },
         },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: userId },
+          },
+        ],
       });
     } else {
-      window.sessionStorage.setItem("products", productId);
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === productData.id
+      );
+
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...productData,
+          quantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
     }
-    openBasketDrawer();
+    toggleIsUpdated();
   };
 
   const handleMouseEnterHoverPop = (title: string) => {

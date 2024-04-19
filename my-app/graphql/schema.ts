@@ -231,6 +231,10 @@ type Moderator {
 type Query {
   # Fetch all products
   products(limit:Int): [Product!]
+
+  # search products
+  searchProducts(input: ProductSearchInput!,page:Int,pageSize:Int): [Product!]!
+
   
   # Fetch all products price less then 20TND
   productsLessThen20(limit:Int): [Product!]
@@ -497,6 +501,14 @@ input AddMultipleToBasketInput {
 input ProductInputQuantity {
   productId: ID!
   quantity: Int!
+}
+
+input ProductSearchInput {
+  query: String!
+  minPrice: Float
+  maxPrice: Float
+  categoryIds: [ID]
+  colorIds: [ID]
 }
 
 `;

@@ -2,12 +2,14 @@ import prepRoute from "@/app/components/_prepRoute";
 import PopHover from "@/app/components/PopHover";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import {
+  useBasketStore,
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductDetails,
+  useProductsInBasketStore,
 } from "@/app/store/zustand";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import { TOP_DEALS } from "@/graphql/queries";
+import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -87,6 +89,22 @@ const TopDeals = () => {
     addProductToCompare(product);
   };
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+
+  const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
+    isUpdated: state.isUpdated,
+    toggleIsUpdated: state.toggleIsUpdated,
+  }));
+
+  const { addProductToBasket, productsInBasket } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      productsInBasket: state.products,
+    })
+  );
+
+
   return (
     <div className="md:grid grid-cols-2 gap-3 grid-flow-col  block">
       {topDeals?.allDeals.map((products: any, index: number) => {
@@ -249,7 +267,45 @@ const TopDeals = () => {
                 </div>
               </Link>
 
-              <button className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors">
+              <button 
+              className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors"
+              onClick={()=>{
+                if (decodedToken) {
+                  addToBasket({
+                    variables: {
+                      input: {
+                        userId: decodedToken?.userId,
+                        quantity: 1,
+                        productId: products?.product?.id,
+                      },
+                    },
+                    refetchQueries: [
+                      {
+                        query: BASKET_QUERY,
+                        variables: { userId: decodedToken?.userId },
+                      },
+                    ],
+                  });
+                } else {
+                  const isProductAlreadyInBasket = productsInBasket.some(
+                    (p: any) => p.id === products?.product?.id
+                  );
+
+                  if (!isProductAlreadyInBasket) {
+                    addProductToBasket({
+                      ...products?.product,
+                      price: products?.product?.discount
+                        ? products?.product.discount?.newPrice
+                        : products?.product?.price,
+                      quantity:1,
+                    });
+                  } else {
+                    console.log("Product is already in the basket");
+                  }
+                }
+                toggleIsUpdated();
+              }}
+              >
                 Acheter maintenant
               </button>
             </div>

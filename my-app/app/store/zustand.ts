@@ -112,6 +112,12 @@ const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
 
 const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
   products: [],
+  quantityInBasket:0,
+  setQuantityInBasket:(quantity:number)=>{
+    set((state:any)=>({
+      quantityInBasket:quantity
+    }))
+  },
   addProductToBasket: (product: any) => {
     set((state: any) => ({
       products: [...state.products, product],

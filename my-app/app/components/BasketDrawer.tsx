@@ -34,10 +34,11 @@ const BasketDrawer = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const { products, removeProductFromBasket } = useProductsInBasketStore(
+  const { products, removeProductFromBasket,setQuantityInBasket } = useProductsInBasketStore(
     (state) => ({
       products: state.products,
       removeProductFromBasket: state.removeProductFromBasket,
+      setQuantityInBasket:state.setQuantityInBasket
     })
   );
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
@@ -60,6 +61,7 @@ const BasketDrawer = () => {
           }));
 
           setProductsInBasket(fetchedProducts);
+          setQuantityInBasket(fetchedProducts.length)
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             return acc + curr.price * curr.quantity;
           }, 0);
@@ -71,6 +73,7 @@ const BasketDrawer = () => {
       });
     } else {
       setProductsInBasket(products);
+      setQuantityInBasket(products.length)
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
       }, 0);
