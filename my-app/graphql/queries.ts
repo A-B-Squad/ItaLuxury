@@ -1,166 +1,73 @@
 import { gql } from "@apollo/client";
 
 export const PRODUCT_BY_ID_QUERY = gql`
-query ProductById($productByIdId: ID!) {
-  productById(id: $productByIdId) {
-    id
-    name
-    price
-    isVisible
-    reference
-    description
-    inventory
-    solde
-    images
-    createdAt
-    productDiscounts {
-      id
-      price
-      newPrice
-      dateOfEnd
-      dateOfStart
-    }
-    Colors {
-      id
-      color
-      Hex
-    }
-    attributes {
+  query ProductById($productByIdId: ID!) {
+    productById(id: $productByIdId) {
       id
       name
-      value
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      images
+      createdAt
+      productDiscounts {
+        id
+        price
+        newPrice
+        dateOfEnd
+        dateOfStart
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      attributes {
+        id
+        name
+        value
+      }
     }
   }
-}
 `;
 export const GET_PRODUCT_IMAGES_QUERY = gql`
-query Query($productId: String!, $colorId: String!) {
-  getProductImages(productId: $productId, colorId: $colorId)
-}
+  query Query($productId: String!, $colorId: String!) {
+    getProductImages(productId: $productId, colorId: $colorId)
+  }
 `;
 export const GET_REVIEW_QUERY = gql`
-query ProductReview($productId: ID!) {
-  productReview(productId: $productId) {
-    id
-    rating
-    userId
+  query ProductReview($productId: ID!) {
+    productReview(productId: $productId) {
+      id
+      rating
+      userId
+    }
   }
-}
 `;
 export const BASKET_QUERY = gql`
-query BasketByUserId($userId: ID!) {
-  basketByUserId(userId: $userId) {
-    id
-    userId
-    quantity
-    Product {
+  query BasketByUserId($userId: ID!) {
+    basketByUserId(userId: $userId) {
       id
-      name
-      price
-      images
-      categories {
+      userId
+      quantity
+      Product {
+        id
         name
+        price
+        images
+        categories {
+          name
+        }
       }
     }
   }
-}
 `;
 export const TAKE_6_PRODUCTS = gql`
-query Products($limit: Int!) {
-  products(limit: $limit) {
-    id
-    name
-    price
-    reference
-    description
-    createdAt
-    inventory
-    images
-    categories {
-      name
-    }
-    Colors {
-      color
-      Hex
-    }
-    productDiscounts {
-      price
-      newPrice
-      Discount {
-        percentage
-      }
-    }
-  }
-}
-`;
-export const TAKE_10_PRODUCTS = gql`
-query Products($limit: Int!) {
-  products(limit: $limit) {
-    id
-    name
-    price
-    reference
-    description
-    createdAt
-    inventory
-    images
-    categories {
-      name
-    }
-    Colors {
-      color
-      Hex
-    }
-    productDiscounts {
-      price
-      newPrice
-      Discount {
-        percentage
-      }
-    }
-  }
-}
-`;
-export const TAKE_6_PRODUCTS_PRICE_20 = gql`
-query ProductsLessThen20($limit: Int!) {
-  productsLessThen20(limit: $limit) {
-    id
-    name
-    price
-    reference
-    description
-    createdAt
-    inventory
-    images
-    categories {
-      name
-    }
-    Colors {
-      color
-      Hex
-    }
-    productDiscounts {
-      price
-      newPrice
-      Discount {
-        percentage
-      }
-    }
-  }
-}
-`;
-export const SIDE_ADS_NEW_PRODUCT = gql`
-query Query($position: String!) {
-  advertismentByPosition(position: $position) {
-    images
-    link
-  }
-}
-`;
-export const TOP_DEALS = gql`
-query AllDeals {
-  allDeals {
-    product {
+  query Products($limit: Int!) {
+    products(limit: $limit) {
       id
       name
       price
@@ -169,10 +76,6 @@ query AllDeals {
       createdAt
       inventory
       images
-      attributes {
-        name
-        value
-      }
       categories {
         name
       }
@@ -189,37 +92,151 @@ query AllDeals {
       }
     }
   }
-}
 `;
-export const CLIENT_SERVICES = gql`
-query Query($position: String!) {
-  advertismentByPosition(position: $position) {
-    images
-    link
-  }
-}
-`;
-export const ADVERTISSMENT_QUERY = gql`
-query AdvertismentByPosition($position: String!) {
-  advertismentByPosition(position: $position) {
-    images
-    link
-  }
-}
-`;
-export const CATEGORY_QUERY = gql`
-query Categories {
-  categories {
-    id
-    name
-    subcategories {
+export const TAKE_10_PRODUCTS = gql`
+  query Products($limit: Int!) {
+    products(limit: $limit) {
+      id
       name
-      parentId
-      subcategories {
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
         name
-        parentId
+      }
+      Colors {
+        color
+        Hex
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
       }
     }
   }
-}
+`;
+export const TAKE_6_PRODUCTS_PRICE_20 = gql`
+  query ProductsLessThen20($limit: Int!) {
+    productsLessThen20(limit: $limit) {
+      id
+      name
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
+        name
+      }
+      Colors {
+        color
+        Hex
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
+    }
+  }
+`;
+export const SIDE_ADS_NEW_PRODUCT = gql`
+  query Query($position: String!) {
+    advertismentByPosition(position: $position) {
+      images
+      link
+    }
+  }
+`;
+export const TOP_DEALS = gql`
+  query AllDeals {
+    allDeals {
+      product {
+        id
+        name
+        price
+        reference
+        description
+        createdAt
+        inventory
+        images
+        attributes {
+          name
+          value
+        }
+        categories {
+          name
+        }
+        Colors {
+          color
+          Hex
+        }
+        productDiscounts {
+          price
+          newPrice
+          Discount {
+            percentage
+          }
+        }
+      }
+    }
+  }
+`;
+export const CLIENT_SERVICES = gql`
+  query Query($position: String!) {
+    advertismentByPosition(position: $position) {
+      images
+      link
+    }
+  }
+`;
+export const ADVERTISSMENT_QUERY = gql`
+  query AdvertismentByPosition($position: String!) {
+    advertismentByPosition(position: $position) {
+      images
+      link
+    }
+  }
+`;
+export const CATEGORY_QUERY = gql`
+  query Categories {
+    categories {
+      id
+      name
+      subcategories {
+        name
+        parentId
+        subcategories {
+          name
+          parentId
+        }
+      }
+    }
+  }
+`;
+
+export const SEARCH_PRODUCTS_QUERY = gql`
+  query SearchProducts($input: ProductSearchInput!) {
+    searchProducts(input: $input) {
+      id
+      name
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      images
+      createdAt
+    }
+  }
 `;

@@ -42,7 +42,7 @@ const BottomHeader = ({ setShowDropdown }) => {
               <Link href={`/livraison-gratuite`}>Livraison Gratuite</Link>
             </li>
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/Touts-Les-Produits`}>Touts Les Produits</Link>
+              <Link href={`/allProducts`}>Touts Les Produits</Link>
             </li>
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
               <Link href={`/produits-promotions`}>Promotions</Link>
