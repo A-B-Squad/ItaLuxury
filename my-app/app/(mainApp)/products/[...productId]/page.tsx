@@ -1,40 +1,39 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useQuery, useLazyQuery, gql, useMutation } from "@apollo/client";
-import InnerImageZoom from "react-inner-image-zoom";
-import { FaStar } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa";
-import { RiSubtractFill } from "react-icons/ri";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { FaRegHeart } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { FaPlus, FaRegHeart, FaStar } from "react-icons/fa";
+import { RiSubtractFill } from "react-icons/ri";
+import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import {
-  GET_PRODUCT_IMAGES_QUERY,
-  PRODUCT_BY_ID_QUERY,
-  GET_REVIEW_QUERY,
   BASKET_QUERY,
-  TAKE_6_PRODUCTS,
+  GET_PRODUCT_IMAGES_QUERY,
+  GET_REVIEW_QUERY,
+  PRODUCT_BY_ID_QUERY,
+  TAKE_10_PRODUCTS,
 } from "../../../../graphql/queries";
 
+import ProductTabs from "@/app/components/ProductCarousel/productTabs";
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
+import { GoGitCompare } from "react-icons/go";
 import {
-  ADD_TO_FAVORITE_MUTATION,
-  ADD_TO_BASKET_MUTATION,
   ADD_RATING_MUTATION,
+  ADD_TO_BASKET_MUTATION,
+  ADD_TO_FAVORITE_MUTATION,
 } from "../../../../graphql/mutations";
+import PopHover from "../../../components/PopHover";
+import ProductDetailsDrawer from "../../../components/ProductInfo/productDetailsDrawer";
+import ProductInfo from "../../../components/ProductInfo/ProductInfo";
 import {
+  useBasketStore,
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
-  useBasketStore,
 } from "../../../store/zustand";
-import { GoGitCompare } from "react-icons/go";
-import PopHover from "../../../components/PopHover";
-import ProductDetailsDrawer from "../../../components/ProductDetails/productDetailsDrawer";
-import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
-import ProductTabs from "@/app/components/ProductCarousel/productTabs";
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
   const productId = SearchParams?.get("productId");
@@ -111,15 +110,28 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const isPageBottom =
-        window.innerHeight + window.scrollY >= document.body.offsetHeight;
-      setIsBottom(isPageBottom);
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.body.offsetHeight;
+      const scrollPosition = window.scrollY;
+
+      // Calculate the position halfway through the window
+      const halfwayPosition = windowHeight / 2;
+
+      // Check if the scroll position is greater than or equal to halfway
+      const isHalfway = scrollPosition >= halfwayPosition;
+
+      setIsBottom(isHalfway);
     };
 
+    // Attach the scroll event listener
     window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Detach the scroll event listener on component unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
+
   useEffect(() => {
     if (discount && discount.dateOfEnd) {
       const endTime = discount.dateOfEnd;
@@ -140,11 +152,10 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
 
-
-  const { loading: loadingNewProduct, data: Products_6 } = useQuery(
-    TAKE_6_PRODUCTS,
+  const { loading: loadingNewProduct, data: Products_10 } = useQuery(
+    TAKE_10_PRODUCTS,
     {
-      variables: { limit: 6 },
+      variables: { limit: 10 },
     }
   );
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
@@ -211,7 +222,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       stroke="currentColor"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeWidth="2"
                       d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                     />
                   </svg>
@@ -571,8 +582,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   Information de produit
                 </h3>
                 <ul className="mt-6 space-y-6 text-[#333] p-6">
-                  {attributes.map((attribute: any) => (
-                    <li className="text-sm pb-2 border-b">
+                  {attributes.map((attribute: any, index: number) => (
+                    <li key={index} className="text-sm pb-2 border-b">
                       {attribute.name.toUpperCase()}{" "}
                       <span className="ml-4 float-right">
                         {attribute.value.toUpperCase()}
@@ -583,14 +594,15 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
               </div>
             )}
           </div>
+          <ProductInfo />
           <div className="Carousel voir aussi px-10 mb-[15%]">
             <TitleProduct title={"Voir aussi"} />
             <div>
               <ProductTabs
-                data={Products_6}
+                data={Products_10}
                 loadingNewProduct={loadingNewProduct}
                 carouselWidthClass={
-                  Products_6?.productsLessThen20?.length < 5
+                  Products_10?.productsLessThen20?.length < 5
                     ? "xl:basis-1/2"
                     : ""
                 }

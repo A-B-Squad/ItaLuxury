@@ -13,6 +13,7 @@ import {
 } from "../store/zustand";
 import prepRoute from "../components/_prepRoute";
 import { BASKET_QUERY } from "../../graphql/queries";
+import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -33,10 +34,11 @@ const BasketDrawer = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const { products, removeProductFromBasket } = useProductsInBasketStore(
+  const { products, removeProductFromBasket,setQuantityInBasket } = useProductsInBasketStore(
     (state) => ({
       products: state.products,
       removeProductFromBasket: state.removeProductFromBasket,
+      setQuantityInBasket:state.setQuantityInBasket
     })
   );
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
@@ -59,6 +61,7 @@ const BasketDrawer = () => {
           }));
 
           setProductsInBasket(fetchedProducts);
+          setQuantityInBasket(fetchedProducts.length)
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             return acc + curr.price * curr.quantity;
           }, 0);
@@ -70,6 +73,7 @@ const BasketDrawer = () => {
       });
     } else {
       setProductsInBasket(products);
+      setQuantityInBasket(products.length)
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
       }, 0);
@@ -77,15 +81,11 @@ const BasketDrawer = () => {
     }
   }, [isUpdated, isOpen]);
 
-  const DELETE_BASKET_BY_ID = gql`
-    mutation DeleteBasketById($basketId: ID!) {
-      deleteBasketById(basketId: $basketId)
-    }
-  `;
+ 
   const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
 
   const [deleteBasketById, { loading: deletingLoading }] =
-    useMutation(DELETE_BASKET_BY_ID);
+    useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = productsInBasket.filter(

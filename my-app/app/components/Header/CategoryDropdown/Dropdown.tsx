@@ -1,27 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import Category from "./MainCategory";
+import { CATEGORY_QUERY } from "../../../../graphql/queries";
 interface Subcategory {
   name: string;
   subcategories?: Subcategory[];
 }
 
-const CATEGORY_QUERY = gql`
-  query Categories {
-    categories {
-      id
-      name
-      subcategories {
-        name
-        parentId
-        subcategories {
-          name
-          parentId
-        }
-      }
-    }
-  }
-`;
+
 
 const Dropdown = ({ setShowDropdown, showCategoryDropdown }: any) => {
   const { loading, error, data } = useQuery(CATEGORY_QUERY);

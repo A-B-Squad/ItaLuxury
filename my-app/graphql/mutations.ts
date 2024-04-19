@@ -30,3 +30,38 @@ mutation DeleteBasketById($basketId: ID!) {
   deleteBasketById(basketId: $basketId)
 }
 `;
+
+
+export const INCREASE_QUANTITY_MUTATION = gql`
+mutation IncreaseQuantity($basketId: ID!) {
+  increaseQuantity(basketId: $basketId) {
+    id
+    userId
+    quantity
+  }
+}
+`;
+
+export const DECREASE_QUANTITY_MUTATION = gql`
+mutation DecreaseQuantity($basketId: ID!) {
+  decreaseQuantity(basketId: $basketId) {
+    id
+    userId
+    productId
+    quantity
+  }
+}
+`;
+export const CREATE_CHECKOUT_MUTATION = gql`
+mutation CreateCheckout($input: CreateCheckoutInput!) {
+  createCheckout(input: $input) {
+    id
+    userId
+    governorateId
+    phone
+    address
+    total
+    createdAt
+  }
+}
+`;

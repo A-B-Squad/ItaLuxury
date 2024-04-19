@@ -1,5 +1,11 @@
+import { useEffect } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import Cookies from 'js-cookie';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
@@ -27,7 +33,7 @@ type ProductsInBasketStore = {
   products: any[];
   addProductToBasket: (product: any) => void;
   removeProductFromBasket: (productId: string) => void;
-  clearBasket:()=>void;
+  clearBasket: () => void;
 };
 
 
@@ -106,6 +112,12 @@ const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
 
 const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
   products: [],
+  quantityInBasket:0,
+  setQuantityInBasket:(quantity:number)=>{
+    set((state:any)=>({
+      quantityInBasket:quantity
+    }))
+  },
   addProductToBasket: (product: any) => {
     set((state: any) => ({
       products: [...state.products, product],
@@ -118,7 +130,7 @@ const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
       ),
     }));
   },
-  clearBasket:()=>{
+  clearBasket: () => {
     set((state: any) => ({
       products: [],
     }));
@@ -138,3 +150,4 @@ export const useComparedProductsStore = create(
     storage: createJSONStorage(() => sessionStorage),
   })
 );
+

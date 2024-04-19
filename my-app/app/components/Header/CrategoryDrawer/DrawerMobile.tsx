@@ -6,28 +6,13 @@ import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { useDrawerMobileStore } from "../../../store/zustand";
 import Category from "./MainCategory";
+import { CATEGORY_QUERY } from "../../../../graphql/queries";
 
 interface Subcategory {
   name: string;
   subcategories?: Subcategory[];
 }
 
-const CATEGORY_QUERY = gql`
-  query Categories {
-    categories {
-      id
-      name
-      subcategories {
-        name
-        parentId
-        subcategories {
-          name
-          parentId
-        }
-      }
-    }
-  }
-`;
 export function DrawerMobile() {
   const { isOpen, closeCategoryDrawer } = useDrawerMobileStore();
   const { loading, error, data } = useQuery(CATEGORY_QUERY);
