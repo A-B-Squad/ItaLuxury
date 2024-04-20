@@ -1,5 +1,5 @@
 interface ProductSearchInput {
-    query: string;
+    query?: string;
     minPrice?: number;
     maxPrice?: number;
     categoryIds?: string[] | null;

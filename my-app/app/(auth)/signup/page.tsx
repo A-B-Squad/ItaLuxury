@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, gql } from "@apollo/client";
 import Link from "next/link";
-import { useProductsInBasketStore } from "@/app/store/zustand";
+import { useProductsInBasketStore } from "../../store/zustand";
 
 const Signup = () => {
   const router = useRouter();
