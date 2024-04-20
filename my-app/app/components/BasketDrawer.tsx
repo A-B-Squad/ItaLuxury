@@ -1,6 +1,8 @@
 "use client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client";
+import type { DrawerProps } from "@material-tailwind/react";
+
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
@@ -34,13 +36,12 @@ const BasketDrawer = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const { products, removeProductFromBasket,setQuantityInBasket } = useProductsInBasketStore(
-    (state) => ({
+  const { products, removeProductFromBasket, setQuantityInBasket } =
+    useProductsInBasketStore((state) => ({
       products: state.products,
       removeProductFromBasket: state.removeProductFromBasket,
-      setQuantityInBasket:state.setQuantityInBasket
-    })
-  );
+      setQuantityInBasket: state.setQuantityInBasket,
+    }));
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
@@ -61,7 +62,7 @@ const BasketDrawer = () => {
           }));
 
           setProductsInBasket(fetchedProducts);
-          setQuantityInBasket(fetchedProducts.length)
+          setQuantityInBasket(fetchedProducts.length);
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             return acc + curr.price * curr.quantity;
           }, 0);
@@ -73,7 +74,7 @@ const BasketDrawer = () => {
       });
     } else {
       setProductsInBasket(products);
-      setQuantityInBasket(products.length)
+      setQuantityInBasket(products.length);
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
       }, 0);
@@ -81,11 +82,11 @@ const BasketDrawer = () => {
     }
   }, [isUpdated, isOpen]);
 
- 
   const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
 
-  const [deleteBasketById, { loading: deletingLoading }] =
-    useMutation(DELETE_BASKET_BY_ID_MUTATION);
+  const [deleteBasketById, { loading: deletingLoading }] = useMutation(
+    DELETE_BASKET_BY_ID_MUTATION
+  );
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = productsInBasket.filter(
@@ -112,7 +113,7 @@ const BasketDrawer = () => {
           const updatedData = {
             ...existingData,
             basketByUserId: existingData.basketByUserId.filter(
-              (basket) => basket.id !== basketId
+              (basket: any) => basket.id !== basketId
             ),
           };
 
@@ -132,7 +133,8 @@ const BasketDrawer = () => {
       placement="right"
       open={isOpen}
       onClose={closeBasketDrawer}
-      className="p-4 fixed"
+      overlay={false}
+      className="p-4 fixed h-[200vh]"
       size={400}
       placeholder={""}
     >
@@ -166,8 +168,8 @@ const BasketDrawer = () => {
         deletingLoading ? (
           <div>loading</div>
         ) : (
-          <div className="flex  flex-col justify-between h-full overflow-hidden hover:overflow-y-auto">
-            <div className="product-details">
+          <div className="flex  flex-col justify-between  h-full">
+            <div className="product-details h-full  overflow-hidden hover:overflow-y-auto">
               <div className="flow-root">
                 <ul role="list" className=" divide-y divide-gray-200">
                   {productsInBasket.map((product, index) => (

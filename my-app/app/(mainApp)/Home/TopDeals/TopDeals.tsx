@@ -106,12 +106,12 @@ const TopDeals = () => {
 
 
   return (
-    <div className="md:grid grid-cols-2 gap-3 grid-flow-col  block">
+    <div className="md:grid grid-cols-2 gap-3 grid-flow-col overflow-hidden  block">
       {topDeals?.allDeals.map((products: any, index: number) => {
         return (
           <div
             key={index}
-            className="grid lg:grid-cols-3 grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
+            className="grid lg:grid-cols-3 group grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
           >
             <Link
               href={{
@@ -122,7 +122,7 @@ const TopDeals = () => {
               }}
               className="h-56 lg:h-full  w-full"
             >
-              <span className="absolute left-5 top-5 z-50 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
+              <span className="absolute left-5 top-5 z-20 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
                 {products?.product?.productDiscounts[0]?.Discount.percentage}%
               </span>
 

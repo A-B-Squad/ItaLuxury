@@ -50,36 +50,36 @@ model Category {
   subcategories Category[] @relation("Subcategories") // One-to-Many self-relation
 }
 
-  model Product {
-    id                String              @id @default(uuid())
-    name              String              @unique
-    price             Float
-    isVisible         Boolean             @default(true)
-    reference         String
-    description       String
-    inventory         Int
-    solde             Int                 @default(0)
-    images            String[]
-    createdAt         DateTime            @default(now())
-    categories        Category[]
-    productDiscounts  ProductDiscount[]
-    baskets           Basket[]
-    reviews           Review[]
-    favoriteProducts  FavoriteProducts[]
-    attributes        ProductAttribute[]
-    backOrExchange    BackOrExchange[]
-    ProductInCheckout ProductInCheckout[]
-    Colors            Colors?             @relation(fields: [colorsId], references: [id])
-    colorsId          String?
-    TopDeals          TopDeals?
-  }
+model Product {
+  id                String              @id @default(uuid())
+  name              String              @unique
+  price             Float
+  isVisible         Boolean             @default(true)
+  reference         String
+  description       String
+  inventory         Int
+  solde             Int                 @default(0)
+  images            String[]
+  createdAt         DateTime            @default(now())
+  categories        Category[]
+  productDiscounts  ProductDiscount[]
+  baskets           Basket[]
+  reviews           Review[]
+  favoriteProducts  FavoriteProducts[]
+  attributes        ProductAttribute[]
+  backOrExchange    BackOrExchange[]
+  ProductInCheckout ProductInCheckout[]
+  Colors            Colors?             @relation(fields: [colorsId], references: [id])
+  colorsId          String?
+  TopDeals          TopDeals?
+}
 
-  model Colors {
-    id      String    @id @default(uuid())
-    color   String    @unique
-    Hex     String
-    Product Product[]
-  }
+model Colors {
+  id      String    @id @default(uuid())
+  color   String    @unique
+  Hex     String
+  Product Product[]
+}
 
 model TopDeals {
   id        String   @id @default(uuid())
@@ -197,4 +197,10 @@ model CompanyInfo {
   phone           Int[]
   deliveringPrice Int
   logo            String
+}
+
+model content_visibility {
+  id                String  @id @default(uuid())
+  seaction   Int
+  visibility_status Boolean
 }
