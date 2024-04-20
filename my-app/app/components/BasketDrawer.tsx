@@ -62,7 +62,12 @@ const BasketDrawer = () => {
           }));
 
           setProductsInBasket(fetchedProducts);
-          setQuantityInBasket(fetchedProducts.length);
+          setQuantityInBasket(
+            fetchedProducts.reduce(
+              (acc: number, curr: any) => acc + curr.quantity,
+              0
+            )
+          );
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             return acc + curr.price * curr.quantity;
           }, 0);
@@ -74,7 +79,12 @@ const BasketDrawer = () => {
       });
     } else {
       setProductsInBasket(products);
-      setQuantityInBasket(products.length);
+      setQuantityInBasket(
+        products.reduce(
+          (acc: number, curr: any) => acc + curr.quantity,
+          0
+        )
+      );
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
       }, 0);

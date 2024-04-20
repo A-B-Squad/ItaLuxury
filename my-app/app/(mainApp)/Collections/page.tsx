@@ -1,9 +1,11 @@
-import React from 'react'
+import React from "react";
 
-const Collections = () => {
+const AllProducts = () => {
   return (
-    <div>Collections</div>
-  )
-}
+    <div className="bg-white p-8 ">
+      <h1>ALL PRODUCTS</h1>
+    </div>
+  );
+};
 
-export default Collections
+export default AllProducts;

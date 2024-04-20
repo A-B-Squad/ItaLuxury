@@ -12,7 +12,7 @@ import {
   TAKE_6_PRODUCTS_PRICE_20,
 } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductInfo from "../../components/ProductInfo/ProductInfo";
 import ClientServices from "./_components/ClientServices";
 import Services from "./_components/services";

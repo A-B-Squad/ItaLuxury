@@ -235,6 +235,10 @@ type Query {
   # search products
   searchProducts(input: ProductSearchInput!,page:Int,pageSize:Int): [Product!]!
 
+
+  # Fetch all colors
+  colors(limit:Int):[Colors!]!
+
   
   # Fetch all products price less then 20TND
   productsLessThen20(limit:Int): [Product!]
@@ -504,7 +508,7 @@ input ProductInputQuantity {
 }
 
 input ProductSearchInput {
-  query: String!
+  query: String
   minPrice: Float
   maxPrice: Float
   categoryIds: [ID]
