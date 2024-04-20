@@ -11,12 +11,21 @@ export const searchProducts = async (
 ) => {
   const { query, minPrice, maxPrice, categoryIds, colorIds } = input;
 
-  let whereCondition: any = {
-    OR: [
-      { name: { contains: query, mode: "insensitive" } },
-      { description: { contains: query, mode: "insensitive" } },
-    ],
-  };
+  let whereCondition: any = {};
+
+  console.log("====================================");
+  console.log(categoryIds);
+  console.log(colorIds, "iiiiii");
+  console.log("====================================");
+
+  if (query) {
+    whereCondition = {
+      OR: [
+        { name: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+      ],
+    };
+  }
 
   if (minPrice !== undefined && maxPrice !== undefined) {
     whereCondition = {
@@ -35,13 +44,33 @@ export const searchProducts = async (
   if (colorIds && colorIds.length > 0) {
     whereCondition = {
       ...whereCondition,
-      colors: { some: { id: { in: colorIds } } },
+      Colors: { id: { in: colorIds } },
     };
   }
 
-  const products = await prisma.product.findMany({
-    where: whereCondition,
-  });
-
-  return products;
+  try {
+    const products = await prisma.product.findMany({
+      where: whereCondition,
+      include: {
+        categories: true,
+        productDiscounts: {
+          include: {
+            Discount: true,
+          },
+        },
+        baskets: true,
+        reviews: true,
+        favoriteProducts: true,
+        attributes: true,
+        Colors: true,
+      },
+    });
+    console.log("====================================");
+    console.log(products);
+    console.log("====================================");
+    return products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return error;
+  }
 };

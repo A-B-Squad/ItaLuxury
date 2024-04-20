@@ -213,9 +213,11 @@ export const CATEGORY_QUERY = gql`
       id
       name
       subcategories {
+        id
         name
         parentId
         subcategories {
+          id
           name
           parentId
         }
@@ -237,6 +239,16 @@ export const SEARCH_PRODUCTS_QUERY = gql`
       solde
       images
       createdAt
+    }
+  }
+`;
+
+export const COLORS_QUERY = gql`
+  query Colors {
+    colors {
+      id
+      color
+      Hex
     }
   }
 `;

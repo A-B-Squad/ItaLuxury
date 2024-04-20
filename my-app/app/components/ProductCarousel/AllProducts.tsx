@@ -97,6 +97,9 @@ const AllProducts = ({
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
           ...productData,
+          price: productData.productDiscounts
+            ? productData.productDiscounts[0].newPrice
+            : productData.price,
           quantity: 1,
         });
       } else {
@@ -122,7 +125,9 @@ const AllProducts = ({
     addProductToCompare(product);
   };
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-
+console.log('====================================');
+console.log(productData);
+console.log('====================================');
   return (
     <>
       <CarouselItem
