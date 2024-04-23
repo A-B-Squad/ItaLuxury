@@ -1,4 +1,9 @@
-import React, { useState } from "react";
+import {
+  ReadonlyURLSearchParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
 const flattenCategories = (categories: any) => {
@@ -20,17 +25,86 @@ const flattenCategories = (categories: any) => {
   return flattenedCategories;
 };
 
-const SideBar = ({
-  categories,
-  colors,
-  handleColorChange,
-  handleCategoryChange,
-  handlePriceChange,
-  selectedColors,
-  selectedCategories,
-}: any) => {
+const checkValidQuery = (queries: string[]) => {
+  return queries.filter((query) => query !== "").length > 0;
+};
+
+export const convertStringToQueriesObject = (
+  searchParams: ReadonlyURLSearchParams
+) => {
+  let selectedQueries: Record<string, string[]> = {};
+  searchParams.forEach((values, key) => {
+    const queries = values.split(",");
+    if (selectedQueries[key]) {
+      selectedQueries[key].push(...queries);
+    } else {
+      selectedQueries[key] = queries;
+    }
+  });
+  return selectedQueries;
+};
+
+const convertValidStringQueries = (queries: Record<string, string[]>) => {
+  let q = "";
+  for (let [key, value] of Object.entries(queries)) {
+    q = q + `${q === "" ? "" : "&"}${key}=${value}`;
+  }
+
+  return q;
+};
+
+const SideBar = ({ categories, colors }: any) => {
   const flattenedCategories = flattenCategories(categories);
   const [price, setPrice] = useState(500);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [selectedFilterQueries, setSelectedFilterQueries] = useState<
+    Record<string, string[]>
+  >({});
+
+  useEffect(() => {
+    const paramsObj = convertStringToQueriesObject(searchParams);
+    setSelectedFilterQueries(paramsObj);
+  }, [searchParams]);
+
+  const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+
+    let selectedQueries = selectedFilterQueries;
+
+    if (selectedQueries[name]) {
+      if (type === "radio" || type === "range") {
+        selectedQueries[name] = [value];
+      } else if (selectedQueries[name].includes(value)) {
+        selectedQueries[name] = selectedQueries[name].filter(
+          (query) => query !== value
+        );
+        if (!checkValidQuery(selectedQueries[name])) {
+          delete selectedQueries[name];
+        }
+      } else {
+        selectedQueries[name].push(value);
+      }
+    } else if (selectedQueries) {
+      selectedQueries[name] = [value];
+    }
+
+    console.log('====================================');
+    console.log(selectedQueries,"zzzzzzzzzzzzzz");
+    console.log('====================================');
+
+    router.push(`/Collections?${convertValidStringQueries(selectedQueries)}`,
+  {scroll:false});
+  };
+
+  const isChecked = (name: string, option: string) => {
+    return Boolean(
+      selectedFilterQueries[name] &&
+        selectedFilterQueries[name].includes(option.toLowerCase())
+    );
+  };
+
   return (
     <section
       aria-labelledby="products-heading"
@@ -70,16 +144,17 @@ const SideBar = ({
                 Labels range
               </label>
               <input
-                id="labels-range-input"
+                id={price.toString()}
                 type="range"
                 min="1"
                 max="3000"
                 defaultValue="500"
+                name="price"
+                value={price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
-                onChange={(e: any) => {
-                  e.preventDefault();
-                  setPrice(e.target.value);
-                  handlePriceChange(e.target.value);
+                onChange={(e: ChangeEvent<HTMLInputElement>)=>{
+                  handleSelectFilterOptions(e)
+                  setPrice(+e.target.value)
                 }}
               />
               <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">
@@ -121,14 +196,12 @@ const SideBar = ({
                 <div key={color.id} className="flex items-center">
                   <input
                     id={`filtre-color-${color.id}`}
-                    name="color[]"
-                    type="checkbox"
-                    checked={selectedColors.includes(color.id)}
+                    name="color"
+                    type="radio"
+                    value={color.id}
+                    checked={isChecked("color",color.id)}
                     className="h-4 w-4 rounded border-gray-300 text-strongBeige focus:ring-strongBeige"
-                    onChange={(e) => {
-                      handleColorChange(color.id);
-                      e.preventDefault();
-                    }}
+                    onChange={handleSelectFilterOptions}
                   />
                   <label
                     htmlFor={`filtre-color-${color.id}`}
@@ -162,14 +235,12 @@ const SideBar = ({
                 <div key={category.id} className="flex items-center">
                   <input
                     id={`filtre-color-${category.id}`}
-                    name="category[]"
-                    type="checkbox"
-                    checked={selectedCategories.includes(category.id)}
+                    name="category"
+                    type="radio"
+                    value={category.id}
+                    checked={isChecked("category",category.id)}
                     className="h-4 w-4 rounded border-gray-300  text-strongBeige focus:ring-strongBeige"
-                    onChange={(e) => {
-                      handleCategoryChange(category.id);
-                      e.preventDefault();
-                    }}
+                    onChange={handleSelectFilterOptions}
                   />
                   <label
                     htmlFor={`filtre-color-${category.id}`}
