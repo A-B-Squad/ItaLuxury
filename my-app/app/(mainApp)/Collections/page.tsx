@@ -6,21 +6,12 @@ import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   CATEGORY_QUERY,
   COLORS_QUERY,
-  SEARCH_PRODUCTS_QUERY,
 } from "../../../graphql/queries";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 const AllProducts = () => {
   const [categories, setCategories] = useState(null);
   const [colors, setColors] = useState(null);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceValue, setPriceValue] = useState(500);
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
-
-  const [searchProducts] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
 
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
@@ -39,80 +30,6 @@ const AllProducts = () => {
       console.log(error);
     },
   });
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams?.toString());
-    if (
-      selectedColors.length > 0 ||
-      selectedCategories.length > 0 ||
-      priceValue !== 500
-    ) {
-      const queryObj: { [key: string]: any } = {};
-
-      if (selectedColors.length > 0) {
-        queryObj.colors = selectedColors;
-      }
-
-      if (selectedCategories.length > 0) {
-        queryObj.categories = selectedCategories;
-      }
-
-      if (priceValue !== 500) {
-        queryObj.price = priceValue;
-      }
-      params.set("query", JSON.stringify(queryObj));
-    }
-
-    router.push(`/Collections?${params.toString()}`, { scroll: false });
-  
-    searchProducts({
-      variables: {
-        input: {
-          colorIds: selectedColors,
-          categoryIds: selectedCategories,
-          minPrice: 1,
-          maxPrice:+priceValue
-        },
-      },
-      onCompleted:(data)=>{
-        console.log('====================================');
-        console.log(data);
-        console.log('====================================');
-      },
-      onError:(error)=>{
-        console.log('====================================');
-        console.log(error);
-        console.log('====================================');
-      }
-    });
-  }, [selectedColors, selectedCategories, priceValue]);
-
-  // Function to handle checkbox change for colors
-  const handleColorChange = (colorId: string) => {
-    const updatedColors = selectedColors.includes(colorId)
-      ? selectedColors.filter((id) => id !== colorId)
-      : [...selectedColors, colorId];
-    setSelectedColors(updatedColors);
-  };
-
-  // Function to handle checkbox change for categories
-  const handleCategoryChange = (categoryId: string) => {
-    const isSelected = selectedCategories.includes(categoryId);
-
-    if (isSelected) {
-      // Remove category ID from selectedCategories
-      const updatedCategories = selectedCategories.filter(
-        (id) => id !== categoryId
-      );
-      setSelectedCategories(updatedCategories);
-    } else {
-      // Add category ID to selectedCategories
-      setSelectedCategories([...selectedCategories, categoryId]);
-    }
-  };
-  const handlePriceChange = (price: number) => {
-    setPriceValue(price);
-  };
 
   return (
     <div className="bg-white">
@@ -561,13 +478,8 @@ const AllProducts = () => {
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <TopBar />
           <SideBar
-            handleColorChange={handleColorChange}
-            handleCategoryChange={handleCategoryChange}
-            handlePriceChange={handlePriceChange}
             categories={categories || []}
             colors={colors || []}
-            selectedCategories={selectedCategories || []}
-            selectedColors={selectedColors || []}
           />
         </main>
       </div>

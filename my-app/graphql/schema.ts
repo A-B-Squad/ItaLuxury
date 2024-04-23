@@ -511,8 +511,8 @@ input ProductSearchInput {
   query: String
   minPrice: Float
   maxPrice: Float
-  categoryIds: [ID]
-  colorIds: [ID]
+  categoryId: ID
+  colorId: ID
 }
 
 `;
