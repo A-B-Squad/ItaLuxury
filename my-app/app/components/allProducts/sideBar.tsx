@@ -90,10 +90,6 @@ const SideBar = ({ categories, colors }: any) => {
       selectedQueries[name] = [value];
     }
 
-    console.log('====================================');
-    console.log(selectedQueries,"zzzzzzzzzzzzzz");
-    console.log('====================================');
-
     router.push(`/Collections?${convertValidStringQueries(selectedQueries)}`,
   {scroll:false});
   };

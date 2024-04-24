@@ -36,10 +36,35 @@ export const searchProducts = async (
       whereCondition.colors = { some: { id: colorId } };
     }
 
+    // If no specific filters are provided, return all products
+    if (!query && minPrice === undefined && maxPrice === undefined && !categoryId && !colorId) {
+      // No filters applied, fetch all products
+      const allProducts = await prisma.product.findMany({
+        take: pageSize,
+        skip: (page - 1) * pageSize,
+        include: {
+          categories: true,
+          productDiscounts: {
+            include: {
+              Discount: true,
+            },
+          },
+          baskets: true,
+          reviews: true,
+          favoriteProducts: true,
+          attributes: true,
+          Colors: true,
+        },
+      });
+      
+      return allProducts;
+    }
+
+    // Fetch products based on specified filters
     const products = await prisma.product.findMany({
       where: whereCondition,
-      take: pageSize, // Limit number of products per page
-      skip: (page - 1) * pageSize, // Calculate pagination offset
+      take: pageSize,
+      skip: (page - 1) * pageSize,
       include: {
         categories: true,
         productDiscounts: {
@@ -51,7 +76,7 @@ export const searchProducts = async (
         reviews: true,
         favoriteProducts: true,
         attributes: true,
-        Colors: true, 
+        Colors: true,
       },
     });
 
