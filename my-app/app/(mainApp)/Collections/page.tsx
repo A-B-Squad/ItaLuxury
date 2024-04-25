@@ -481,8 +481,8 @@ const AllProducts = () => {
             categories={categories || []}
             colors={colors || []}
           />
-          <ProductsSection/>
         </main>
+          <ProductsSection/>
       </div>
     </div>
   );
