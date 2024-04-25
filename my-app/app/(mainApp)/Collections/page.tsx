@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from "react";
 import TopBar from "../../components/allProducts/topBar";
 import SideBar from "../../components/allProducts/sideBar";
+import ProductsSection from "../../components/allProducts/productsSection";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   CATEGORY_QUERY,
   COLORS_QUERY,
 } from "../../../graphql/queries";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 const AllProducts = () => {
   const [categories, setCategories] = useState(null);
@@ -482,6 +482,7 @@ const AllProducts = () => {
             colors={colors || []}
           />
         </main>
+          <ProductsSection/>
       </div>
     </div>
   );
