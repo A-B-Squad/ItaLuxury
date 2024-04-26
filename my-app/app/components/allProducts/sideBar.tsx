@@ -90,8 +90,9 @@ const SideBar = ({ categories, colors }: any) => {
       selectedQueries[name] = [value];
     }
 
-    router.push(`/Collections?${convertValidStringQueries(selectedQueries)}`,
-  {scroll:false});
+    router.push(`/Collections?${convertValidStringQueries(selectedQueries)}`, {
+      scroll: false,
+    });
   };
 
   const isChecked = (name: string, option: string) => {
@@ -101,6 +102,21 @@ const SideBar = ({ categories, colors }: any) => {
     );
   };
 
+  const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
+    const queryString = convertValidStringQueries(updatedQueries);
+    router.push(`/Collections?${queryString}`, { scroll: false });
+  };
+
+
+  const handleCategoryClick = (categoryId:string) => {
+    const updatedQueries = { ...selectedFilterQueries };
+
+    updatedQueries["category"] = [categoryId];
+
+    setSelectedFilterQueries(updatedQueries);
+
+    updateSearchParams(updatedQueries);
+  };
   return (
     <section
       aria-labelledby="products-heading"
@@ -116,8 +132,14 @@ const SideBar = ({ categories, colors }: any) => {
           className="space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900"
         >
           {categories.map((category: any) => (
-            <li>
-              <a href="#">{category.name}</a>
+            <li key={category.id}>
+               <button
+                type="button"
+                onClick={() => handleCategoryClick(category.id)}
+                className="focus:outline-none hover:text-black transition-colors"
+              >
+                {category.name}
+              </button>
             </li>
           ))}
         </ul>
@@ -148,9 +170,9 @@ const SideBar = ({ categories, colors }: any) => {
                 name="price"
                 value={price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
-                onChange={(e: ChangeEvent<HTMLInputElement>)=>{
-                  handleSelectFilterOptions(e)
-                  setPrice(+e.target.value)
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  handleSelectFilterOptions(e);
+                  setPrice(+e.target.value);
                 }}
               />
               <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">
@@ -195,7 +217,7 @@ const SideBar = ({ categories, colors }: any) => {
                     name="color"
                     type="radio"
                     value={color.id}
-                    checked={isChecked("color",color.id)}
+                    checked={isChecked("color", color.id)}
                     className="h-4 w-4 rounded border-gray-300 text-strongBeige focus:ring-strongBeige"
                     onChange={handleSelectFilterOptions}
                   />
@@ -234,7 +256,7 @@ const SideBar = ({ categories, colors }: any) => {
                     name="category"
                     type="radio"
                     value={category.id}
-                    checked={isChecked("category",category.id)}
+                    checked={isChecked("category", category.id)}
                     className="h-4 w-4 rounded border-gray-300  text-strongBeige focus:ring-strongBeige"
                     onChange={handleSelectFilterOptions}
                   />
