@@ -1,42 +1,69 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { convertStringToQueriesObject } from "./sideBar";
-import { useLazyQuery } from "@apollo/client";
-import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { BASKET_QUERY, SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
 import { FaHeart } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import { useBasketStore, useProductsInBasketStore } from "@/app/store/zustand";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import Cookies from "js-cookie";
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
-  const paramsObj = convertStringToQueriesObject(searchParams);
-  const { color, category, price } = paramsObj;
-  const colorParam = searchParams.get("color");
-  const categoryParam = searchParams.get("category");
-  const priceParam = +searchParams.get("price");
+
+  const colorParam = searchParams?.get("color");
+  const categoryParam = searchParams?.get("category");
+  const priceParam = searchParams?.get("price");
+  const [productsData, setProductsData] = useState([]);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+
   const [searchProducts, { loading }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
-  const [products, setProducts] = useState([]);
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
+
+  interface DecodedToken extends JwtPayload {
+    userId: string;
+  }
 
   useEffect(() => {
-    searchProducts({
-      variables: {
-        input: {
-          categoryId: categoryParam || undefined,
-          colorId: colorParam || undefined,
-          minPrice: 1,
-          maxPrice: priceParam || undefined,
-        },
-        page: 1,
-        pageSize: 10,
-      },
-      onCompleted: (data) => {
-        setProducts(data.searchProducts);
-      },
-    });
-  }, [colorParam, categoryParam, priceParam]);
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+    const fetchProducts = async () => {
+      try {
+        const { data } = await searchProducts({
+          variables: {
+            input: {
+              categoryId: categoryParam || undefined,
+              colorId: colorParam || undefined,
+              minPrice: 1,
+              maxPrice: parseInt(priceParam || "500") || undefined,
+            },
+            page: 1,
+            pageSize: 10,
+          },
+        });
+        setProductsData(data.searchProducts);
+      } catch (error) {}
+    };
+
+    fetchProducts();
+  }, [searchProducts, colorParam, categoryParam, priceParam]);
 
   return (
     <div className="flex flex-wrap gap-6">
-      {products.map((product: Product) => (
+      {productsData.map((product: Product) => (
         <div className="group my-10 flex w-full max-w-xs flex-col overflow-hidden border border-gray-100 bg-white shadow-md">
           <a className="relative flex h-60 overflow-hidden" href="#">
             <img
@@ -76,7 +103,45 @@ const ProductsSection = () => {
                 )}
               </p>
             </div>
-            <button className="flex items-center gap-3 justify-center bg-strongBeige px-2 py-1 text-lg text-white transition hover:bg-yellow-700">
+            <button
+              className="flex items-center gap-3 justify-center bg-strongBeige px-2 py-1 text-lg text-white transition hover:bg-yellow-700"
+              onClick={() => {
+                if (decodedToken) {
+                  addToBasket({
+                    variables: {
+                      input: {
+                        userId: decodedToken?.userId,
+                        quantity: 1,
+                        productId: product.id,
+                      },
+                    },
+                    refetchQueries: [
+                      {
+                        query: BASKET_QUERY,
+                        variables: { userId: decodedToken?.userId },
+                      },
+                    ],
+                  });
+                } else {
+                  const isProductAlreadyInBasket = products.some(
+                    (p: any) => p.id === product.id
+                  );
+
+                  if (!isProductAlreadyInBasket) {
+                    addProductToBasket({
+                      ...product,
+                      price: product.productDiscounts
+                        ? product.productDiscounts[0].newPrice
+                        : product.price,
+                      quantity: 1,
+                    });
+                  } else {
+                    console.log("Product is already in the basket");
+                  }
+                }
+                toggleIsUpdated();
+              }}
+            >
               <SlBasket />
               Ajouter au panier
             </button>

@@ -33,7 +33,7 @@ export const searchProducts = async (
     }
 
     if (colorId) {
-      whereCondition.colors = { some: { id: colorId } };
+      whereCondition.Colors = { id: colorId};
     }
 
     // If no specific filters are provided, return all products
@@ -82,7 +82,7 @@ export const searchProducts = async (
 
     return products;
   } catch (error) {
-    console.error("Error fetching products:", error);
-    throw new Error("Failed to fetch products");
+    console.error(error);
+    return error
   }
 };
