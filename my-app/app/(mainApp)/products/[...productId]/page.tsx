@@ -34,6 +34,7 @@ import {
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "../../../store/zustand";
+import Breadcumb from "../../../components/Breadcumb";
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
   const productId = SearchParams?.get("productId");
@@ -54,7 +55,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [isBottom, setIsBottom] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const { openBasketDrawer } = useDrawerBasketStore();
-
   const handleMouseEnter = (title: any) => {
     setShowPopover(true);
     setPopoverTitle(title);
@@ -135,6 +135,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   useEffect(() => {
     if (discount && discount.dateOfEnd) {
       const endTime = discount.dateOfEnd;
+      
       const now = new Date().getTime();
       const timeRemaining = endTime - now;
       setCountdown(timeRemaining > 0 ? timeRemaining : 0);
@@ -161,6 +162,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const productById = useQuery(PRODUCT_BY_ID_QUERY, {
     variables: { productByIdId: productId },
     onCompleted: (data) => {
+      
+      // setPositionInBreadcrumb(data.productById.categories)
       setProductDetails(data.productById);
       setBigImage(data.productById.images[0]);
       setSmallImages(data.productById.images);
@@ -230,8 +233,9 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
               </div>
             )}
             <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
+              <Breadcumb />
               <div className="grid items-start grid-cols-12 gap-10  ">
-                <div className=" flex lg:flex-row flex-col gap-2 col-span-12 lg:col-span-7 w-full text-center">
+                <div className=" flex lg:flex-row flex-col gap-2 col-span-10 lg:col-span-7 w-full text-center">
                   <div className="relative shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
                     <InnerImageZoom
                       className="w-4/5 rounded object-cover"
@@ -270,7 +274,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   </div>
                 </div>
 
-                <div className="product lg:col-span-5 col-span-12 ">
+                <div className="product lg:col-span-5 col-span-10 ">
                   <h2 className="product_name tracking-wider text-2xl font-semibold ">
                     {productDetails.name}
                   </h2>
@@ -469,7 +473,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     </div>
                   </div>
 
-                  <div className="Rating_stars flex space-x-2 mt-4 items-center">
+                  <div className="Rating_stars flex col-span-7 space-x-2 mt-4 items-center">
                     {[...Array(5)].map((_, index) => {
                       const currentIndex = index + 1;
                       return (
@@ -508,6 +512,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       {reviews} Commentaires
                     </h4>
                   </div>
+
                   <div className="Rating mt-8">
                     <div className="mt-8">
                       <h3 className="text-lg font-bold text-strongBeige">

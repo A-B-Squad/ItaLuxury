@@ -8,7 +8,6 @@ import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 const AdsCarousel = () => {
   const [images, setImages] = useState([]);
 
-
   const {
     data,
     loading: adsLoaded,
@@ -45,6 +44,7 @@ const AdsCarousel = () => {
                 layout="fill"
                 src={image}
                 loading="eager"
+                property="true"
                 alt={`image ${index + 1}`}
                 className=" hover:opacity-70 transition-all h-full w-full object-fill"
               />

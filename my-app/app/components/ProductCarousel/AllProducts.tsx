@@ -4,7 +4,7 @@ import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { useMutation } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
@@ -31,6 +31,9 @@ interface Product {
   images: string[];
   categories: {
     name: string;
+    subcategories: {
+      name: any;
+    };
   }[];
   Colors: {
     color: string;
@@ -46,11 +49,11 @@ interface Product {
 }
 
 const AllProducts = ({
-  productData,
+  product,
   userId,
   carouselWidthClass,
 }: {
-  productData: Product;
+  product: Product;
   userId: string;
   carouselWidthClass: string;
 }) => {
@@ -58,8 +61,7 @@ const AllProducts = ({
   const [popoverTitle, setPopoverTitle] = useState<string>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-  const { isOpen, openProductDetails, closeProductDetails } =
-    useProductDetails();
+  const { openProductDetails } = useProductDetails();
 
   const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
     ADD_TO_BASKET_MUTATION
@@ -91,17 +93,18 @@ const AllProducts = ({
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === productData.id
+        (p: any) => p.id === product.id
       );
 
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
-          ...productData,
-          price: productData.productDiscounts
-            ? productData.productDiscounts[0].newPrice
-            : productData.price,
+          ...product,
+          price: product.productDiscounts.length
+            ? product.productDiscounts[0].newPrice
+            : product.price,
           quantity: 1,
         });
+        openBasketDrawer();
       } else {
         console.log("Product is already in the basket");
       }
@@ -125,13 +128,12 @@ const AllProducts = ({
     addProductToCompare(product);
   };
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-console.log('====================================');
-console.log(productData);
-console.log('====================================');
+console.log( product?.categories[0]?.subcategories[0]?.name);
+
   return (
     <>
       <CarouselItem
-        key={productData?.id}
+        key={product?.id}
         className={`carousel-item  group hover:rounded-sm  h-[420px]   transition-all relative pb-3 flex  flex-col justify-start items-center border shadow-xl basis-full  md:basis-1/2 lg:basis-1/3  xl:basis-1/5 ${carouselWidthClass}`}
       >
         <ul className="plus_button lg:opacity-0 group-hover:opacity-100  absolute right-3 z-50  top-14 flex flex-col gap-3  ">
@@ -139,7 +141,7 @@ console.log('====================================');
             className="product-details relative w-fit cursor-crosshair"
             onMouseEnter={() => handleMouseEnterHoverPop("produit en details")}
             onMouseLeave={handleMouseLeaveHoverPop}
-            onClick={() => openProductDetails(productData)}
+            onClick={() => openProductDetails(product)}
           >
             {showPopover && popoverTitle === "produit en details" && (
               <PopHover title={popoverTitle} />
@@ -153,7 +155,7 @@ console.log('====================================');
             className="add-to-basket relative w-fit h-fit cursor-crosshair"
             onMouseEnter={() => handleMouseEnterHoverPop("Ajouter au panier")}
             onMouseLeave={handleMouseLeaveHoverPop}
-            onClick={() => AddToBasket(productData?.id)}
+            onClick={() => AddToBasket(product?.id)}
           >
             {showPopover && popoverTitle === "Ajouter au panier" && (
               <PopHover title={popoverTitle} />
@@ -169,7 +171,7 @@ console.log('====================================');
               handleMouseEnterHoverPop("Ajouter au comparatif")
             }
             onMouseLeave={handleMouseLeaveHoverPop}
-            onClick={() => addToCompare(productData)}
+            onClick={() => addToCompare(product)}
           >
             {showPopover && popoverTitle === "Ajouter au comparatif" && (
               <PopHover title={popoverTitle} />
@@ -193,7 +195,7 @@ console.log('====================================');
               <FavoriteProduct
                 isFavorite={isFavorite}
                 setIsFavorite={setIsFavorite}
-                productId={productData?.id}
+                productId={product?.id}
                 userId={userId}
               />
             </li>
@@ -203,31 +205,36 @@ console.log('====================================');
         <Link
           className="w-full flex items-center flex-col overflow-hidden group-hover:bg-lightBlack transition-colors"
           href={{
-            pathname: `products/tunisie/${prepRoute(productData?.name)}`,
+            pathname: `products/tunisie/${prepRoute(product?.name)}`,
             query: {
-              productId: productData?.id,
+              productId: product?.id,
+              collection: [
+                product?.categories[0]?.name,
+                product?.categories[0]?.subcategories[0]?.name,
+                product?.name,
+              ],
             },
           }}
         >
           <div className=" flex justify-between w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4 ">
-            {calcDateForNewProduct(productData?.createdAt) && (
+            {calcDateForNewProduct(product?.createdAt) && (
               <span className="bg-green-500 w-fit justify-start shadow-md p-1">
                 Nouveau
               </span>
             )}
-            {productData?.productDiscounts.length > 0 && (
+            {product?.productDiscounts.length > 0 && (
               <span className="bg-red-500 w-fit shadow-md p-1">Promo</span>
             )}
           </div>
 
           <div className="images relative  -z-10 w-[250px] h-[250px]  transition-all overflow-hidden cursor-crosshair text-black flex justify-center items-center">
             <Image
-              src={productData?.images[0]}
+              src={product?.images[0]}
               className="w-full h-full"
               loading="eager"
               priority
               objectPosition="0"
-              alt={`products-${productData?.name}`}
+              alt={`products-${product?.name}`}
               layout="fill"
             />
           </div>
@@ -236,44 +243,45 @@ console.log('====================================');
         <div className="relative border-t-2  flex flex-col px-3 w-full justify-end items-start">
           <Link
             href={{
-              pathname: `products/tunisie/${prepRoute(productData?.name)}`,
+              pathname: `products/tunisie/${prepRoute(product?.name)}`,
               query: {
-                productId: productData?.id,
+                productId: product?.id,
+                collection: [product?.categories[0]?.name, product?.name],
               },
             }}
-            product-name={productData?.name}
+            product-name={product?.name}
             className="product-name hover:text-strongBeige transition-colors text-sm font-medium tracking-wide
       line-clamp-2 "
           >
             <p className="category  font-normal -tracking-tighter  text-xs py-1 capitalize">
-              {productData?.categories[2]?.name}
+              {product?.categories[2]?.name}
             </p>
-            {productData?.name}
+            {product?.name}
           </Link>
           <div
-            className={`relative ${productData?.productDiscounts.length > 0 ? "group-hover:hidden" : ""} w-fit cursor-crosshair`}
+            className={`relative ${product?.productDiscounts.length > 0 ? "group-hover:hidden" : ""} w-fit cursor-crosshair`}
             onMouseEnter={() =>
-              handleMouseEnterHoverPop(productData?.Colors?.color)
+              handleMouseEnterHoverPop(product?.Colors?.color)
             }
             onMouseLeave={handleMouseLeaveHoverPop}
           >
-            {showPopover && popoverTitle === productData?.Colors?.color && (
-              <PopHover title={productData?.Colors?.color} />
+            {showPopover && popoverTitle === product?.Colors?.color && (
+              <PopHover title={product?.Colors?.color} />
             )}
-            {productData?.Colors && (
+            {product?.Colors && (
               <div
                 className="colors_available items-center   mt-2 w-5 h-5  border-black border-2 rounded-sm shadow-gray-400 shadow-sm"
                 style={{
-                  backgroundColor: productData?.Colors?.Hex,
+                  backgroundColor: product?.Colors?.Hex,
                 }}
               />
             )}
           </div>
 
           <button
-            onClick={() => AddToBasket(productData?.id)}
+            onClick={() => AddToBasket(product?.id)}
             className={`${
-              productData?.productDiscounts.length > 0
+              product?.productDiscounts.length > 0
                 ? "group-hover:translate-y-16 "
                 : "group-hover:translate-y-2"
             } bg-strongBeige  uppercase absolute translate-y-32 left-1/2 -translate-x-1/2 group-hover:translate-y-0 text-xs md:text-sm md:px-3 z-50 hover:bg-mediumBeige transition-all text-white w-4/5 py-2 rounded-md`}
@@ -283,24 +291,24 @@ console.log('====================================');
           </button>
 
           <div
-            className={`priceDetails ${productData?.productDiscounts.length > 0 ? "group-hover:hidden" : "group-hover:translate-y-32 "}  translate-y-0`}
+            className={`priceDetails ${product?.productDiscounts.length > 0 ? "group-hover:hidden" : "group-hover:translate-y-32 "}  translate-y-0`}
           >
             <p
               className={`${
-                productData?.productDiscounts.length > 0
+                product?.productDiscounts.length > 0
                   ? "line-through text-lg"
                   : " text-strongBeige text-xl py-1"
               }  font-semibold`}
             >
-              {productData?.price.toFixed(3)} TND
+              {product?.price.toFixed(3)} TND
             </p>
-            {productData?.productDiscounts.length > 0 && (
+            {product?.productDiscounts.length > 0 && (
               <div className="flex items-center">
                 <span className="text-gray-400 text-xs font-thin">
                   A partir de :
                 </span>
                 <span className="text-red-500 font-bold ml-1 text-xl">
-                  {productData?.productDiscounts[0]?.newPrice.toFixed(3)} TND
+                  {product?.productDiscounts[0]?.newPrice.toFixed(3)} TND
                 </span>
               </div>
             )}
@@ -308,7 +316,7 @@ console.log('====================================');
         </div>
       </CarouselItem>
 
-      {!productData && <NoProductYet />}
+      {!product && <NoProductYet />}
     </>
   );
 };

@@ -25,7 +25,7 @@ export const PRODUCT_BY_ID_QUERY = gql`
         color
         Hex
       }
-  
+
       attributes {
         id
         name
@@ -61,7 +61,7 @@ export const BASKET_QUERY = gql`
         images
         categories {
           name
-          subcategories{
+          subcategories {
             name
           }
         }
@@ -189,8 +189,8 @@ export const TOP_DEALS = gql`
         categories {
           name
           subcategories {
-          name
-        }
+            name
+          }
         }
         Colors {
           color
@@ -242,22 +242,34 @@ export const CATEGORY_QUERY = gql`
   }
 `;
 
+
+export const COLORS_QUERY = gql`
+  query Colors {
+    colors {
+      id
+      color
+      Hex
+    }
+  }
+`;
+
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($input: ProductSearchInput!) {
     searchProducts(input: $input) {
-      id
-      name
-      price
-      isVisible
-      reference
-      description
-      inventory
-      solde
-      categories {
+      results {
+        id
+        name
+        price
+        isVisible
+        reference
+        description
+        inventory
+        solde
+        categories {
           name
           subcategories {
-          name
-        }
+            name
+          }
         }
         productDiscounts {
           price
@@ -266,18 +278,11 @@ export const SEARCH_PRODUCTS_QUERY = gql`
             percentage
           }
         }
-      images
-      createdAt
-    }
-  }
-`;
+        images
+        createdAt
+      }
 
-export const COLORS_QUERY = gql`
-  query Colors {
-    colors {
-      id
-      color
-      Hex
+      totalCount
     }
   }
 `;

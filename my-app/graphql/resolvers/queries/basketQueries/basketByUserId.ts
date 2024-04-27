@@ -13,11 +13,13 @@ export const basketByUserId = async (
       include: {
         User: true,
         Product: {
-          include:{
-            categories:true
+          include: {
+            categories: {
+              include: { subcategories: true }
+            }
           }
         },
-        
+
       }
     });
 

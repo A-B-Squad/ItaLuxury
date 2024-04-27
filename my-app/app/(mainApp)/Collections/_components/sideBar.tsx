@@ -132,7 +132,10 @@ const SideBar = () => {
 
     return q;
   };
-
+  const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
+    const queryString = convertValidStringQueries(updatedQueries);
+    router.push(`/Collections?${queryString}`, { scroll: false });
+  };
   const handleCategoryClick = (categoryId: string) => {
     const updatedQueries = { ...selectedFilterQueries };
 
@@ -142,12 +145,6 @@ const SideBar = () => {
 
     updateSearchParams(updatedQueries);
   };
-
-  const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
-    const queryString = convertValidStringQueries(updatedQueries);
-    router.push(`/Collections?${queryString}`, { scroll: false });
-  };
-
   return (
     <section
       aria-labelledby="products-heading "

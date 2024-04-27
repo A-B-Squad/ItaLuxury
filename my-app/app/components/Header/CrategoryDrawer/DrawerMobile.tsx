@@ -2,12 +2,17 @@
 import { gql, useQuery } from "@apollo/client";
 import { Drawer, IconButton } from "@material-tailwind/react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { useDrawerMobileStore } from "../../../store/zustand";
 import Category from "./MainCategory";
 import { CATEGORY_QUERY } from "../../../../graphql/queries";
-
+import Cookies from "js-cookie";
+import { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 interface Subcategory {
   name: string;
   subcategories?: Subcategory[];
@@ -16,8 +21,16 @@ interface Subcategory {
 export function DrawerMobile() {
   const { isOpen, closeCategoryDrawer } = useDrawerMobileStore();
   const { loading, error, data } = useQuery(CATEGORY_QUERY);
-  const [activeCategory, setActiveCategory] = useState<string>("");
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
+  const [activeCategory, setActiveCategory] = useState<string>("");
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
   if (error) return <p>Error: {error.message}</p>;
   return (
     <>
@@ -27,15 +40,16 @@ export function DrawerMobile() {
         onClose={closeCategoryDrawer}
         placement="left"
         size={350}
-        className=" md:hidden   overflow-y-auto"
+        className=" md:hidden  bg-[#f8f9fd]  overflow-y-auto"
       >
         <div className=" px-2 py-3 flex items-center justify-center text-white bg-strongBeige  ">
           <Link
-            href="/signin"
-            className="font-bold text-xl  flex items-center gap-2 "
+            href={`${decodedToken?.userId ? "/Collections" : "/signin"}`}
+            className="font-bold text-xl flex items-center gap-2 "
           >
             <FaUser />
-            Bonjour, Identifiez-vous
+            Bonjour
+            {`${decodedToken?.userId ? "" : ",Identifiez-vous"}`}
           </Link>
           <IconButton
             placeholder={""}
@@ -60,6 +74,7 @@ export function DrawerMobile() {
             </svg>
           </IconButton>
         </div>
+
         {data?.categories.length > 0 && (
           <Category
             data={data}

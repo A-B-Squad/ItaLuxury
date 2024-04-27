@@ -91,6 +91,7 @@ type ProductDiscount {
   id: ID
   Discount: Discount
   productId: ID
+  product: Product
   price: Float
   newPrice: Float
   dateOfStart: String
@@ -227,13 +228,18 @@ type Moderator {
   number: String!
 }
 
+type SearchResult {
+  results: [Product!]!
+  totalCount: Int!
+}
+
 # Define the Query type
 type Query {
   # Fetch all products
   products(limit:Int): [Product!]
 
   # search products
-  searchProducts(input: ProductSearchInput!,page:Int,pageSize:Int): [Product!]!
+  searchProducts(input: ProductSearchInput!): SearchResult!
 
 
   # Fetch all colors
@@ -513,6 +519,8 @@ input ProductSearchInput {
   maxPrice: Float
   categoryId: ID
   colorId: ID
+  page:Int,
+  pageSize:Int,
 }
 
 `;
