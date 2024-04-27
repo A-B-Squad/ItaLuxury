@@ -8,7 +8,7 @@ interface Product {
   inventory: number;
   images: string[];
   createdAt: string;
-  categories: Category[];
+  categories: categories[];
   productDiscounts: ProductDiscount[];
   baskets: Basket[];
   reviews: Review[];

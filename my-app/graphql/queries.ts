@@ -25,6 +25,7 @@ export const PRODUCT_BY_ID_QUERY = gql`
         color
         Hex
       }
+  
       attributes {
         id
         name
@@ -60,6 +61,9 @@ export const BASKET_QUERY = gql`
         images
         categories {
           name
+          subcategories{
+            name
+          }
         }
       }
     }
@@ -78,6 +82,9 @@ export const TAKE_6_PRODUCTS = gql`
       images
       categories {
         name
+        subcategories {
+          name
+        }
       }
       Colors {
         color
@@ -106,6 +113,9 @@ export const TAKE_10_PRODUCTS = gql`
       images
       categories {
         name
+        subcategories {
+          name
+        }
       }
       Colors {
         color
@@ -134,6 +144,9 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
       images
       categories {
         name
+        subcategories {
+          name
+        }
       }
       Colors {
         color
@@ -175,6 +188,9 @@ export const TOP_DEALS = gql`
         }
         categories {
           name
+          subcategories {
+          name
+        }
         }
         Colors {
           color
@@ -237,6 +253,19 @@ export const SEARCH_PRODUCTS_QUERY = gql`
       description
       inventory
       solde
+      categories {
+          name
+          subcategories {
+          name
+        }
+        }
+        productDiscounts {
+          price
+          newPrice
+          Discount {
+            percentage
+          }
+        }
       images
       createdAt
     }
