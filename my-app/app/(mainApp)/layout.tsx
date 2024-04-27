@@ -35,10 +35,11 @@ export default function RootLayout({
         <DrawerMobile />
         <BasketDrawer />
 
-        <Header />
-        <ApolloWrapper>{children}</ApolloWrapper>
-
-        <Footer />
+          <main>
+            <Header />
+            <ApolloWrapper>{children}</ApolloWrapper>
+            <Footer />
+          </main>
       </body>
     </html>
   );

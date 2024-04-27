@@ -5,6 +5,7 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
 import { useLazyQuery, useQuery } from "@apollo/client";
+import { useSidebarStore } from "../../../store/zustand";
 import {
   CATEGORY_QUERY,
   COLORS_QUERY,
@@ -19,17 +20,21 @@ import {
 // / ------------------!--------------------
 
 export const convertStringToQueriesObject = (
-  searchParams: ReadonlyURLSearchParams
+  searchParams: URLSearchParams | null
 ) => {
   let selectedQueries: Record<string, string[]> = {};
-  searchParams.forEach((values, key) => {
-    const queries = values.split(",");
-    if (selectedQueries[key]) {
-      selectedQueries[key].push(...queries);
-    } else {
-      selectedQueries[key] = queries;
-    }
-  });
+
+  if (searchParams) {
+    searchParams.forEach((values, key) => {
+      const queries = values.split(",");
+      if (selectedQueries[key]) {
+        selectedQueries[key].push(...queries);
+      } else {
+        selectedQueries[key] = queries;
+      }
+    });
+  }
+
   return selectedQueries;
 };
 
@@ -39,11 +44,11 @@ const SideBar = () => {
   const [priceChanged, setPriceChanged] = useState(false);
   const [price, setPrice] = useState(500);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams: URLSearchParams | null = useSearchParams();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<
     Record<string, string[]>
   >({});
-
+  const { isOpen } = useSidebarStore();
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
       setCategories(data.categories);
@@ -88,9 +93,12 @@ const SideBar = () => {
       selectedQueries[name] = [value];
     }
 
-    router.push(`/Collections?${convertValidStringQueries(selectedQueries)}`, {
-      scroll: false,
-    });
+    router.push(
+      `/Collections/tunisie?${convertValidStringQueries(selectedQueries)}`,
+      {
+        scroll: false,
+      }
+    );
   };
 
   const isChecked = (name: string, option: string) => {
@@ -134,7 +142,7 @@ const SideBar = () => {
   };
   const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
     const queryString = convertValidStringQueries(updatedQueries);
-    router.push(`/Collections?${queryString}`, { scroll: false });
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
   const handleCategoryClick = (categoryId: string) => {
     const updatedQueries = { ...selectedFilterQueries };
@@ -148,8 +156,8 @@ const SideBar = () => {
   return (
     <section
       aria-labelledby="products-heading "
-      className=" w-96  sticky top-0 h-full bg-white shadow-md "
-    >
+      className={`w-96   top-0 h-full bg-white shadow-md sticky ${isOpen ? "sticky" : "hidden md:block"} `}
+      >
       <form className="relative pl-5 pt-5  shadow-lg">
         <h3 className="font-bold tracking-widest text-lg pb-2">
           Main Categories
@@ -178,7 +186,7 @@ const SideBar = () => {
         <div className="border-b border-gray-200 py-6">
           <h3 className=" tracking-widest  text-gray-900 font-semibold text-base">
             <Link
-              href={"/Collections"}
+              href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between "
             >
               Price
@@ -231,7 +239,7 @@ const SideBar = () => {
         <div className="border-b border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest font-semibold text-base text-gray-900">
             <Link
-              href={"/Collections"}
+              href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between     "
             >
               Colors
@@ -274,7 +282,7 @@ const SideBar = () => {
         <div className="border-b border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
             <Link
-              href={"/Collections"}
+              href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between"
             >
               Category

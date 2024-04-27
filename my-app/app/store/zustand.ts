@@ -150,3 +150,15 @@ export const useComparedProductsStore = create(
     storage: createJSONStorage(() => sessionStorage),
   })
 );
+
+type SidebarStore = {
+  isOpen: boolean;
+  toggleOpenSidebar: () => void;
+
+};
+
+export const useSidebarStore = create<SidebarStore>((set) => ({
+  isOpen: false,
+  toggleOpenSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
+  
+}));
