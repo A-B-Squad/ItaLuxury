@@ -2,14 +2,11 @@ import { Context } from "@/pages/api/graphql";
 
 export const searchProducts = async (
   _: any,
-  {
-    input,
-    page = 1,
-    pageSize = 10,
-  }: { input: ProductSearchInput; page?: number; pageSize?: number },
+  { input }: { input: ProductSearchInput & { page: number; pageSize: number } },
   { prisma }: Context
 ) => {
-  const { query, minPrice, maxPrice, categoryId, colorId } = input;
+  const { query, minPrice, maxPrice, categoryId, colorId, page, pageSize } =
+    input;
 
   try {
     let whereCondition: any = {};
@@ -33,43 +30,22 @@ export const searchProducts = async (
     }
 
     if (colorId) {
-      whereCondition.Colors = { id: colorId};
+      whereCondition.Colors = { id: colorId };
     }
 
-    // If no specific filters are provided, return all products
-    if (!query && minPrice === undefined && maxPrice === undefined && !categoryId && !colorId) {
-      // No filters applied, fetch all products
-      const allProducts = await prisma.product.findMany({
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-        include: {
-          categories: true,
-          productDiscounts: {
-            include: {
-              Discount: true,
-            },
-          },
-          baskets: true,
-          reviews: true,
-          favoriteProducts: true,
-          attributes: true,
-          Colors: true,
-        },
-      });
-      
-      return allProducts;
-    }
+    // Calculate skip based on page and pageSize
+    const skip = (page - 1) * pageSize;
 
-    // Fetch products based on specified filters
+    // Fetch products based on specified filters and pagination
     const products = await prisma.product.findMany({
       where: whereCondition,
       take: pageSize,
-      skip: (page - 1) * pageSize,
+      skip,
       include: {
         categories: {
-          include:{
-            subcategories:true
-          }
+          include: {
+            subcategories: true,
+          },
         },
         productDiscounts: {
           include: {
@@ -84,9 +60,20 @@ export const searchProducts = async (
       },
     });
 
-    return products;
+    const totalCount = await prisma.product.count();
+
+    console.log("====================================");
+    console.log({
+      results: products,
+      totalCount: totalCount,
+    });
+    console.log("====================================");
+    return {
+      results: products,
+      totalCount: totalCount,
+    };
   } catch (error) {
     console.error(error);
-    return error
+    throw error;
   }
 };
