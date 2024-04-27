@@ -16,12 +16,12 @@ const Breadcumb = () => {
       </div>
       {position[0] && (
         <>
-          <IoMdArrowDropright size={20} />
-          <div className="hover:text-strongBeige transition-all flex items-center gap-2">
-            <Link href={`/Collections?collection=${position[0]}`}>
-              {position[0]}
-            </Link>
-          </div>
+      <IoMdArrowDropright size={20} />
+        <div className="hover:text-strongBeige transition-all flex items-center gap-2">
+          <Link href={`/Collections?collection=${position[0]}`}>
+            {position[0]}
+          </Link>
+        </div>
         </>
       )}
       {position[1] && (

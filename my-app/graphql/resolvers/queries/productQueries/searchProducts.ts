@@ -43,11 +43,7 @@ export const searchProducts = async (
         take: pageSize,
         skip: (page - 1) * pageSize,
         include: {
-          categories: {
-            include:{
-              subcategories:true
-            }
-          },
+          categories: true,
           productDiscounts: {
             include: {
               Discount: true,
@@ -70,7 +66,11 @@ export const searchProducts = async (
       take: pageSize,
       skip: (page - 1) * pageSize,
       include: {
-        categories: true,
+        categories: {
+          include:{
+            subcategories:true
+          }
+        },
         productDiscounts: {
           include: {
             Discount: true,

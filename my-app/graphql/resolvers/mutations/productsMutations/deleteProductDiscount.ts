@@ -14,6 +14,5 @@ export const deleteProductDiscount = async (
   } catch (error) {
     console.error("Error deleting Discount product:", error);
     return error;
-    return new Error("Failed to delete product.");
   }
 };

@@ -12,7 +12,7 @@ import {
   TAKE_6_PRODUCTS_PRICE_20,
 } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductInfo from "../../components/ProductInfo/ProductInfo";
 import ClientServices from "./_components/ClientServices";
 import Services from "./_components/services";
@@ -90,9 +90,9 @@ const Home = () => {
         </div>
         <FullWidth />
         <div className="TopDeals">
-          <div className=" flex justify-between gap-2 items-start  ">
+          <div className=" flex justify-between flex-col md:flex-row gap-2 items-start  ">
             <TitleProduct title={"Meilleures offres du jour"} />
-            <div className="flex items-start flex-col md:flex-row pt-3  ">
+            <div className="flex items-start flex-col md:flex-row md:pt-3  ">
               <p className="md:p-2 font-bold">
                 Hâtez-vous ! L'offre se termine dans :
               </p>

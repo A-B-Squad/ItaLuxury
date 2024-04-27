@@ -7,14 +7,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import AllProducts from "./AllProducts";
 import Loading from "./Loading";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const ProductTabs = ({ data, loadingNewProduct,carouselWidthClass }: any) => {
+const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
   const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const ProductTabs = ({ data, loadingNewProduct,carouselWidthClass }: any) => {
                 (product: any, index: any) => (
                   <AllProducts
                     key={index}
-                    productData={product}
+                    product={product}
                     userId={userId}
                     carouselWidthClass={carouselWidthClass}
                   />

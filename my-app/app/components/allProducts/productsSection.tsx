@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { convertStringToQueriesObject } from "@/app/(mainApp)/Collections/_components/sideBar";
 import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
 import { FaHeart } from "react-icons/fa";
@@ -11,11 +10,9 @@ import prepRoute from "../_prepRoute";
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
-  // const paramsObj = convertStringToQueriesObject(searchParams);
-  // const { color, category, price } = paramsObj;
-  const colorParam = searchParams?.get("color");
-  const categoryParam = searchParams?.get("category");
-  const priceParamString = searchParams?.get("price");
+  const colorParam = searchParams.get("color");
+  const categoryParam = searchParams.get("category");
+  const priceParamString = searchParams.get("price");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const [searchProducts, { loading }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
   const [products, setProducts] = useState([]);
@@ -49,7 +46,7 @@ const ProductsSection = () => {
 
   return (
     <div className="w-full grid lg:grid-cols-5 px-10 gap-4 md:grid-cols-3 grid-cols-1">
-      {products.map((product: any) => (
+      {products.map((product: Product) => (
         <div className="group  my-10 flex w-full max-w-xs flex-col overflow-hidden border border-gray-100 bg-white shadow-md">
           <Link className="relative flex h-52 overflow-hidden" href="#">
             <div className="group ">

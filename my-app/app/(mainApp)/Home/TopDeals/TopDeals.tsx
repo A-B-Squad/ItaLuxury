@@ -11,14 +11,14 @@ import {
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -49,8 +49,7 @@ const TopDeals = () => {
   const { loading: loadingNewDeals, data: topDeals } = useQuery(TOP_DEALS);
 
   const { openBasketDrawer } = useDrawerBasketStore();
-  const { isOpen, openProductDetails, closeProductDetails } =
-    useProductDetails();
+  const { openProductDetails } = useProductDetails();
 
   const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
     ADD_TO_BASKET_MUTATION
@@ -104,25 +103,29 @@ const TopDeals = () => {
     })
   );
 
-
   return (
-    <div className="md:grid grid-cols-2 gap-3 grid-flow-col  block">
+    <div className="md:grid grid-cols-2 gap-3 grid-flow-col overflow-hidden  block">
       {topDeals?.allDeals.map((products: any, index: number) => {
         return (
           <div
             key={index}
-            className="grid lg:grid-cols-3 grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
+            className="grid lg:grid-cols-3 group grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
           >
             <Link
               href={{
                 pathname: `products/tunisie/${prepRoute(products?.product?.name)}`,
                 query: {
                   productId: products?.product?.id,
+                  collection: [
+                    products?.product?.categories[0]?.name,
+                    products?.product?.categories[0]?.subcategories[0].name,
+                    products?.product?.name,
+                  ],
                 },
               }}
               className="h-56 lg:h-full  w-full"
             >
-              <span className="absolute left-5 top-5 z-50 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
+              <span className="absolute left-5 top-5 z-20 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
                 {products?.product?.productDiscounts[0]?.Discount.percentage}%
               </span>
 
@@ -213,6 +216,11 @@ const TopDeals = () => {
                   pathname: `products/tunisie/${prepRoute(products?.product?.name)}`,
                   query: {
                     productId: products?.product?.id,
+                    collection: [
+                      products?.product?.categories[0]?.name,
+                      products?.product?.categories[0]?.subcategories[0].name,
+                      products?.product?.name,
+                    ],
                   },
                 }}
               >
@@ -267,44 +275,44 @@ const TopDeals = () => {
                 </div>
               </Link>
 
-              <button 
-              className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors"
-              onClick={()=>{
-                if (decodedToken) {
-                  addToBasket({
-                    variables: {
-                      input: {
-                        userId: decodedToken?.userId,
-                        quantity: 1,
-                        productId: products?.product?.id,
+              <button
+                className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors"
+                onClick={() => {
+                  if (decodedToken) {
+                    addToBasket({
+                      variables: {
+                        input: {
+                          userId: decodedToken?.userId,
+                          quantity: 1,
+                          productId: products?.product?.id,
+                        },
                       },
-                    },
-                    refetchQueries: [
-                      {
-                        query: BASKET_QUERY,
-                        variables: { userId: decodedToken?.userId },
-                      },
-                    ],
-                  });
-                } else {
-                  const isProductAlreadyInBasket = productsInBasket.some(
-                    (p: any) => p.id === products?.product?.id
-                  );
-
-                  if (!isProductAlreadyInBasket) {
-                    addProductToBasket({
-                      ...products?.product,
-                      price: products?.product?.discount
-                        ? products?.product.discount?.newPrice
-                        : products?.product?.price,
-                      quantity:1,
+                      refetchQueries: [
+                        {
+                          query: BASKET_QUERY,
+                          variables: { userId: decodedToken?.userId },
+                        },
+                      ],
                     });
                   } else {
-                    console.log("Product is already in the basket");
+                    const isProductAlreadyInBasket = productsInBasket.some(
+                      (p: any) => p.id === products?.product?.id
+                    );
+
+                    if (!isProductAlreadyInBasket) {
+                      addProductToBasket({
+                        ...products?.product,
+                        price: products?.product?.discount
+                          ? products?.product.discount?.newPrice
+                          : products?.product?.price,
+                        quantity: 1,
+                      });
+                    } else {
+                      console.log("Product is already in the basket");
+                    }
                   }
-                }
-                toggleIsUpdated();
-              }}
+                  toggleIsUpdated();
+                }}
               >
                 Acheter maintenant
               </button>

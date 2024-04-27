@@ -32,11 +32,12 @@ const FullWidth = () => {
       )}
 
       {!adsLoaded && images.length <= 0 && (
-        <div className="rounded-xl relative w-full h-full bg-mediumBeige flex flex-col justify-center items-center ">
+        <div className="rounded-xl relative w-full h-52 mt-12 bg-mediumBeige flex flex-col justify-center items-center ">
           <p>{"Carousel Ads"}</p>
           <p>334px x 790px</p>
         </div>
       )}
+
       {images.length > 0 && !adsLoaded && (
         <div className="md:py-32 py-12  h-full w-full relative  ">
           <Image

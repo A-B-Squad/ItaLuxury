@@ -91,6 +91,7 @@ type ProductDiscount {
   id: ID
   Discount: Discount
   productId: ID
+  product: Product
   price: Float
   newPrice: Float
   dateOfStart: String

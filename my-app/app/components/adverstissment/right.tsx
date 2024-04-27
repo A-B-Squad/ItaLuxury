@@ -62,6 +62,7 @@ const Right = () => {
               height={300}
               src={images[0]}
               loading="eager"
+              property="true"
               alt="right-ads 0"
               className="rounded-xl hover:opacity-50 transition-all"
             />

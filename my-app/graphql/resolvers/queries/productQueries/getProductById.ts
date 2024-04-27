@@ -18,7 +18,6 @@ export const productById = async (_: any, { id }: { id: string }, { prisma }: Co
         if (!product) {
             return new Error("Product not found")
         }
-        console.log(product);
 
         return product
     } catch (error) {
