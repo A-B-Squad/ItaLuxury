@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
 import { useLazyQuery, useQuery } from "@apollo/client";
@@ -9,21 +10,39 @@ import {
   COLORS_QUERY,
   SEARCH_PRODUCTS_QUERY,
 } from "../../../../graphql/queries";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import {
+  useSearchParams,
+  useRouter,
+  ReadonlyURLSearchParams,
+} from "next/navigation";
+
+// / ------------------!--------------------
+
+export const convertStringToQueriesObject = (
+  searchParams: ReadonlyURLSearchParams
+) => {
+  let selectedQueries: Record<string, string[]> = {};
+  searchParams.forEach((values, key) => {
+    const queries = values.split(",");
+    if (selectedQueries[key]) {
+      selectedQueries[key].push(...queries);
+    } else {
+      selectedQueries[key] = queries;
+    }
+  });
+  return selectedQueries;
+};
 
 const SideBar = () => {
-  const [categories, setCategories] = useState(null);
-  const [colors, setColors] = useState(null);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceValue, setPriceValue] = useState(500);
+  const [categories, setCategories] = useState([]);
+  const [colors, setColors] = useState([]);
   const [priceChanged, setPriceChanged] = useState(false);
-
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+  const [price, setPrice] = useState(500);
   const router = useRouter();
-
-  const [searchProducts] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
+  const searchParams = useSearchParams();
+  const [selectedFilterQueries, setSelectedFilterQueries] = useState<
+    Record<string, string[]>
+  >({});
 
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
@@ -33,11 +52,8 @@ const SideBar = () => {
       console.log(error);
     },
   });
-
   const fetchColors = useQuery(COLORS_QUERY, {
     onCompleted: (data) => {
-      // console.log(data);
-
       setColors(data.colors);
     },
     onError: (error) => {
@@ -46,77 +62,42 @@ const SideBar = () => {
   });
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams?.toString());
-    if (
-      selectedColors.length > 0 ||
-      selectedCategories.length > 0 ||
-      priceValue !== 500
-    ) {
-      const queryObj: { [key: string]: any } = {};
+    const paramsObj = convertStringToQueriesObject(searchParams);
+    setSelectedFilterQueries(paramsObj);
+  }, [searchParams]);
 
-      if (selectedColors.length > 0) {
-        queryObj.colors = selectedColors;
-      }
+  const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
 
-      if (selectedCategories.length > 0) {
-        queryObj.categories = selectedCategories;
-      }
+    let selectedQueries = selectedFilterQueries;
 
-      if (priceValue !== 500) {
-        queryObj.price = priceValue;
+    if (selectedQueries[name]) {
+      if (type === "radio" || type === "range") {
+        selectedQueries[name] = [value];
+      } else if (selectedQueries[name].includes(value)) {
+        selectedQueries[name] = selectedQueries[name].filter(
+          (query) => query !== value
+        );
+        if (!checkValidQuery(selectedQueries[name])) {
+          delete selectedQueries[name];
+        }
+      } else {
+        selectedQueries[name].push(value);
       }
-      params.set("query", JSON.stringify(queryObj));
+    } else if (selectedQueries) {
+      selectedQueries[name] = [value];
     }
 
-    router.push(`/Collections?${params.toString()}`, { scroll: false });
-
-    searchProducts({
-      variables: {
-        input: {
-          colorIds: selectedColors,
-          categoryIds: selectedCategories,
-          minPrice: 1,
-          maxPrice: +priceValue,
-        },
-      },
-      onCompleted: (data) => {
-        console.log("====================================");
-        console.log(data);
-        console.log("====================================");
-      },
-      onError: (error) => {
-        return error;
-      },
+    router.push(`/Collections?${convertValidStringQueries(selectedQueries)}`, {
+      scroll: false,
     });
-  }, [selectedColors, selectedCategories, priceValue]);
-
-  // Function to handle checkbox change for colors
-  const handleColorChange = (colorId: string) => {
-    const updatedColors = selectedColors.includes(colorId)
-      ? selectedColors.filter((id) => id !== colorId)
-      : [...selectedColors, colorId];
-    setSelectedColors(updatedColors);
   };
 
-  // Function to handle checkbox change for categories
-  const handleCategoryChange = (categoryId: string) => {
-    const isSelected = selectedCategories.includes(categoryId);
-
-    if (isSelected) {
-      // Remove category ID from selectedCategories
-      const updatedCategories = selectedCategories.filter(
-        (id) => id !== categoryId
-      );
-      setSelectedCategories(updatedCategories);
-    } else {
-      // Add category ID to selectedCategories
-      setSelectedCategories([...selectedCategories, categoryId]);
-    }
-  };
-
-  const handlePriceChange = (price: number) => {
-    setPriceValue(price);
-    setPriceChanged(true);
+  const isChecked = (name: string, option: string) => {
+    return Boolean(
+      selectedFilterQueries[name] &&
+        selectedFilterQueries[name].includes(option.toLowerCase())
+    );
   };
 
   const flattenCategories = (categories: any) => {
@@ -126,7 +107,7 @@ const SideBar = () => {
       flattenedCategories.push(category);
 
       if (category.subcategories && category.subcategories.length > 0) {
-        category.subcategories?.forEach((subcategory: any) => {
+        category.subcategories.forEach((subcategory: any) => {
           traverse(subcategory);
         });
       }
@@ -139,10 +120,35 @@ const SideBar = () => {
   };
   const flattenedCategories = flattenCategories(categories);
 
+  const checkValidQuery = (queries: string[]) => {
+    return queries.filter((query) => query !== "").length > 0;
+  };
+
+  const convertValidStringQueries = (queries: Record<string, string[]>) => {
+    let q = "";
+    for (let [key, value] of Object.entries(queries)) {
+      q = q + `${q === "" ? "" : "&"}${key}=${value}`;
+    }
+
+    return q;
+  };
+  const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
+    const queryString = convertValidStringQueries(updatedQueries);
+    router.push(`/Collections?${queryString}`, { scroll: false });
+  };
+  const handleCategoryClick = (categoryId: string) => {
+    const updatedQueries = { ...selectedFilterQueries };
+
+    updatedQueries["category"] = [categoryId];
+
+    setSelectedFilterQueries(updatedQueries);
+
+    updateSearchParams(updatedQueries);
+  };
   return (
     <section
       aria-labelledby="products-heading "
-      className=" w-80  sticky top-0 h-full bg-white shadow-md "
+      className=" w-96  sticky top-0 h-full bg-white shadow-md "
     >
       <form className="relative pl-5 pt-5  shadow-lg">
         <h3 className="font-bold tracking-widest text-lg pb-2">
@@ -154,13 +160,17 @@ const SideBar = () => {
           className="space-y-4 border-b  border-gray-200 pb-6 text-sm font-medium text-gray-900"
         >
           {categories?.map((category: any) => (
-            <li key={category.id} className="relative group transition-all border-b py-2 ">
-              <a
-                href="#"
-                className="before:absolute w-full before:bg-mediumBeige before:h-[2px] before:w-0 before:transition-all group-hover:before:w-full before:top-9"
+            <li
+              key={category.id}
+              className="relative group transition-all border-b py-2 "
+            >
+              <button
+                type="button"
+                onClick={() => handleCategoryClick(category.id)}
+                className="focus:outline-none hover:text-black transition-colors"
               >
                 {category.name}
-              </a>
+              </button>
             </li>
           ))}
         </ul>
@@ -181,15 +191,18 @@ const SideBar = () => {
                 Labels range
               </label>
               <input
-                id="labels-range-input"
+                id={price.toString()}
                 type="range"
                 min="1"
                 max="3000"
                 defaultValue="500"
+                name="price"
+                value={price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
-                onChange={(e: any) => {
-                  e.preventDefault();
-                  handlePriceChange(e.target.value);
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  handleSelectFilterOptions(e);
+                  setPrice(+e.target.value);
+                  setPriceChanged(true);
                 }}
               />
               <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">
@@ -210,7 +223,7 @@ const SideBar = () => {
                 className={`w-20 max-h-20 flex justify-center border border-gray-200 ${priceChanged ? "text-black" : "text-gray-400"}`}
               >
                 {" "}
-                {priceValue} TND
+                {price} TND
               </div>
             </div>
           </div>
@@ -231,9 +244,10 @@ const SideBar = () => {
                 <div key={color.id} className="flex items-center">
                   <input
                     id={`filtre-color-${color.id}`}
-                    name="color[]"
-                    type="checkbox"
-                    checked={selectedColors.includes(color.id)}
+                    name="color"
+                    type="radio"
+                    value={color.id}
+                    checked={isChecked("color", color.id)}
                     style={{
                       WebkitAppearance: "none",
                       MozAppearance: "none",
@@ -243,14 +257,14 @@ const SideBar = () => {
                       borderRadius: "50%",
                       outline: "none",
                       background: color.Hex,
-                      border: selectedColors.includes(color.id)
+                      border: isChecked("color", color.id)
                         ? "2px solid black"
                         : "2px solid gray",
                       transition: "border-color 0.3s",
                     }}
                     title={color.color}
                     className="color-checkbox cursor-pointer shadow-md shadow-white "
-                    onChange={() => handleColorChange(color.id)}
+                    onChange={handleSelectFilterOptions}
                   />
                 </div>
               ))}
@@ -277,14 +291,12 @@ const SideBar = () => {
                 <div key={category.id} className="flex items-center">
                   <input
                     id={`filtre-color-${category.id}`}
-                    name="category[]"
-                    type="checkbox"
-                    checked={selectedCategories.includes(category.id)}
+                    name="category"
+                    type="radio"
+                    value={category.id}
+                    checked={isChecked("category", category.id)}
                     className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
-                    onChange={(e) => {
-                      handleCategoryChange(category.id);
-                      e.preventDefault();
-                    }}
+                    onChange={handleSelectFilterOptions}
                   />
                   <label
                     htmlFor={`filtre-color-${category.id}`}

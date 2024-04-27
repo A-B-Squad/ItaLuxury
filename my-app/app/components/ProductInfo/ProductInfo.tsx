@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
@@ -103,7 +103,7 @@ const ProductInfo = () => {
             </div>
           </div>
 
-          <div className="product lg:w-2/4 ">
+          <div className="productData lg:w-2/4 ">
             <h2 className="product_name tracking-wider text-2xl font-semibold ">
               {productData?.name}
             </h2>

@@ -41,9 +41,9 @@ const TopHeader = () => {
     <div className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 py-3">
       <div className="logo ">
         {/* <Image src="/logo2.png" alt="logo" width={180} height={30} priority /> */}
-        <h3 className="text-strongBeige text-3xl">MaisonNg</h3>
+        <h3 className="text-strongBeige text-3xl cursor-pointer">MaisonNg</h3>
       </div>
-      <div className="search flex items-center border-2 px-4 w-full relative  max-w-md h-11 border-mediumBeige rounded-lg pl-4">
+      <div className="search flex items-center border-2 px-4 w-full relative  max-w-md h-11 border-[#e0d7d0] rounded-lg pl-4">
         <input
           className="h-full  w-full outline-none"
           type="text"
@@ -64,7 +64,7 @@ const TopHeader = () => {
               <FiUser />
             </div>
             <div
-              className={` absolute w-60 border-2 text-base   bg-white flex  justify-center items-center flex-col text-center tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
+              className={` absolute w-60 border-2 text-base    bg-[#f8f9fd] flex  justify-center items-center flex-col text-center tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
               onMouseLeave={() => setShowLogout(false)}
             >
               {!decodedToken?.userId && (
@@ -83,6 +83,7 @@ const TopHeader = () => {
                       Cookies.remove("Token");
                       window.sessionStorage.removeItem("productsInBasket");
                       window.sessionStorage.removeItem("comparedProducts");
+                      window.location.reload()
                     }
                   }}
                   className="w-full py-2 border-b gap-2 hover:bg-mediumBeige flex justify-center items-center hover:text-white transition-colors"

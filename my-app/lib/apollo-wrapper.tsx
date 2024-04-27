@@ -1,13 +1,13 @@
 "use client";
 
-import { ApolloClient, ApolloLink, HttpLink } from "@apollo/client";
+import { ApolloLink, HttpLink } from "@apollo/client";
 import {
   ApolloNextAppProvider,
   NextSSRApolloClient,
   NextSSRInMemoryCache,
   SSRMultipartLink,
 } from "@apollo/experimental-nextjs-app-support/ssr";
-import { redirect, usePathname, useSearchParams } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 
 function makeClient() {
   if (usePathname()?.split("").length === 1) {

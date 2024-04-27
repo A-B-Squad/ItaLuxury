@@ -62,6 +62,7 @@ const Left = () => {
               width={352}
               height={300}
               alt="image 1"
+              property="true"
               className="rounded-xl hover:opacity-50 transition-all "
             />
           </Link>

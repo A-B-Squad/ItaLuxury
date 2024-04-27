@@ -91,6 +91,7 @@ type ProductDiscount {
   id: ID
   Discount: Discount
   productId: ID
+  product: Product
   price: Float
   newPrice: Float
   dateOfStart: String
@@ -511,8 +512,8 @@ input ProductSearchInput {
   query: String
   minPrice: Float
   maxPrice: Float
-  categoryIds: [ID]
-  colorIds: [ID]
+  categoryId: ID
+  colorId: ID
 }
 
 `;

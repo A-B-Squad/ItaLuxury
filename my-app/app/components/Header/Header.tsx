@@ -30,7 +30,7 @@ const Header = () => {
 
   return (
     <div
-      className={`header  shadow-xl bg-white px-10 md:px-20 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}
+      className={`header  shadow-xl bg-[#f8f9fd] px-10 md:px-20 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}
     >
       <nav className="container">
         <TopHeader />

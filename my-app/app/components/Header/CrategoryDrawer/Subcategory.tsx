@@ -31,7 +31,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
       </div>
 
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
-        <div key={subIndex} className=" bg-white h-fit  cursor-pointer">
+        <div key={subIndex} className=" bg-[#f8f9fd] h-fit  cursor-pointer">
           <Link
             href={{
               pathname: `/${prepRoute(subcategory.name)}-tunisie`,

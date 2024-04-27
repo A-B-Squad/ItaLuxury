@@ -1,21 +1,20 @@
 "use client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
-import { gql, useMutation, useQuery, useLazyQuery } from "@apollo/client";
-import type { DrawerProps } from "@material-tailwind/react";
 
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
+import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
+import { BASKET_QUERY } from "../../graphql/queries";
+import prepRoute from "../components/_prepRoute";
 import {
+  useBasketStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
-  useBasketStore,
 } from "../store/zustand";
-import prepRoute from "../components/_prepRoute";
-import { BASKET_QUERY } from "../../graphql/queries";
-import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -80,10 +79,7 @@ const BasketDrawer = () => {
     } else {
       setProductsInBasket(products);
       setQuantityInBasket(
-        products.reduce(
-          (acc: number, curr: any) => acc + curr.quantity,
-          0
-        )
+        products.reduce((acc: number, curr: any) => acc + curr.quantity, 0)
       );
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.quantity;
@@ -195,20 +191,18 @@ const BasketDrawer = () => {
                       <div className="ml-4 flex  flex-1 flex-col">
                         <div>
                           <div className="flex justify-between text-base font-medium text-gray-900">
-                            <h3>
-                              <Link
-                                href={{
-                                  pathname: `productsInBasket/tunisie/${prepRoute(
-                                    product.name
-                                  )}`,
-                                  query: {
-                                    productId: product.id,
-                                  },
-                                }}
-                              >
-                                {product.name}
-                              </Link>
-                            </h3>
+                            <Link
+                              className="hover:text-mediumBeige transition-colors"
+                              href={{
+                                pathname: `products/tunisie/${prepRoute(product?.name)}`,
+                                query: {
+                                  productId: product?.id,
+                                  collection: [product?.name],
+                                },
+                              }}
+                            >
+                              {product.name}
+                            </Link>
                             <p className=" ">{product.price.toFixed(3)} TND</p>
                           </div>
 
