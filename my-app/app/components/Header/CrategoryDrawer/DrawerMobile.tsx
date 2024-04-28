@@ -44,7 +44,7 @@ export function DrawerMobile() {
       >
         <div className=" px-2 py-3 flex items-center justify-center text-white bg-strongBeige  ">
           <Link
-            href={`${decodedToken?.userId ? "/Collections" : "/signin"}`}
+            href={`${decodedToken?.userId ? "/Collections/tunisie" : "/signin"}`}
             className="font-bold text-xl flex items-center gap-2 "
           >
             <FaUser />

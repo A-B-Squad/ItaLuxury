@@ -18,10 +18,12 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
     <>
       {subsubcategories?.map((subsubcategory, subIndex) => (
         <Link
-        href={{
-          pathname: `/${prepRoute(subsubcategory.name)}-tunisie`,
-          query: { category: subsubcategory.name },
-        }}
+          href={{
+            pathname: `Collections/${prepRoute(subsubcategory.name)}-tunisie`,
+            query: {
+              category: subsubcategory.id,
+            },
+          }}
           className="py-1 group text-sm cursor-pointer transition-all relative  left-[-20px] flex hover:font-bold  "
           key={subIndex}
         >

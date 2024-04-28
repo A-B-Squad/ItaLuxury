@@ -11,6 +11,7 @@ import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
 import { useProductDetails } from "../../store/zustand";
+import { GoAlertFill } from "react-icons/go";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -21,8 +22,7 @@ const ProductInfo = () => {
   const { isOpen, productData, closeProductDetails } = useProductDetails();
   const [bigImage, setBigImage] = useState<any>("");
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [quantity, setQuantity] = useState<number>(1);
-
+  const [actualQuantity, setActuelQuantity] = useState<number>(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -150,7 +150,7 @@ const ProductInfo = () => {
                     type="button"
                     className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                     onClick={() => {
-                      setQuantity(quantity - 1);
+                      setActuelQuantity(actualQuantity > 1 ? actualQuantity - 1 : 1);
                     }}
                   >
                     <RiSubtractFill />
@@ -159,13 +159,17 @@ const ProductInfo = () => {
                     type="button"
                     className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
                   >
-                    {quantity}
+                    {actualQuantity}
                   </button>
                   <button
                     type="button"
-                    className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
+                    className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
                     onClick={() => {
-                      setQuantity(quantity + 1);
+                      setActuelQuantity(
+                        actualQuantity < productData?.inventory
+                          ? actualQuantity + 1
+                          : actualQuantity
+                      );
                     }}
                   >
                     <FaPlus />
@@ -205,27 +209,33 @@ const ProductInfo = () => {
               </p>
 
               {productData?.inventory !== undefined &&
-              productData?.inventory > 0 ? (
-                <button
-                  type="button"
-                  className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
-                  onClick={() => {
-                    addToBasket({
-                      variables: {
-                        input: {
-                          userId: decodedToken?.userId,
-                          quantity: quantity,
-                          productId: productData?.id,
-                        },
+                productData?.inventory > 0 &&
+                actualQuantity === productData.inventory && (
+                  <div className="flex items-center gap-3">
+                    <GoAlertFill color="yellow" size={20} />
+                    <p className="text-red-600 font-semibold tracking-wider">
+                      La quantité maximale de produits est de {actualQuantity}.
+                    </p>
+                  </div>
+                )}
+
+              <button
+                type="button"
+                className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                onClick={() => {
+                  addToBasket({
+                    variables: {
+                      input: {
+                        userId: decodedToken?.userId,
+                        quantity: actualQuantity,
+                        productId: productData?.id,
                       },
-                    });
-                  }}
-                >
-                  Ajouter au panier
-                </button>
-              ) : (
-                ""
-              )}
+                    },
+                  });
+                }}
+              >
+                Ajouter au panier
+              </button>
             </div>
           </div>
         </div>
