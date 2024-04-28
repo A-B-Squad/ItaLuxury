@@ -27,6 +27,7 @@ const TopDeals = () => {
   const [popoverTitle, setPopoverTitle] = useState("");
   const [popoverIndex, setPopoverIndex] = useState<number>(0);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {

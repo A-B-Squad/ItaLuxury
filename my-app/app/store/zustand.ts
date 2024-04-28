@@ -160,5 +160,14 @@ type SidebarStore = {
 export const useSidebarStore = create<SidebarStore>((set) => ({
   isOpen: false,
   toggleOpenSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
-  
+
+}));
+interface AllProductViewStore {
+  view: number;
+  changeProductView: (gridNumber: number) => void;
+}
+
+export const useAllProductViewStore = create<AllProductViewStore>((set) => ({
+  view: 3,
+  changeProductView: (gridNumber) => set({ view: gridNumber }),
 }));

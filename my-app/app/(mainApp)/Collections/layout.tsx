@@ -6,7 +6,7 @@ type Props = {
 };
 const layout = (props: Props) => {
   return (
-    <div className="flex w-full flex-col">
+    <div className="relative flex w-full flex-col">
       <TopBar />
         <div className="w-full flex">
           <SideBar />
