@@ -14,8 +14,8 @@ const productDetailsDrawer = ({
   productId,
   setSuccessMsg,
   discount,
-  quantity,
-  setQuantity,
+  actualQuantity,
+  setActualQuantity,
 }: any) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
@@ -58,7 +58,9 @@ const productDetailsDrawer = ({
                 type="button"
                 className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                 onClick={() => {
-                  setQuantity(quantity - 1);
+                  setActualQuantity(
+                    actualQuantity > 1 ? actualQuantity - 1 : 1
+                  );
                 }}
               >
                 <RiSubtractFill />
@@ -67,14 +69,17 @@ const productDetailsDrawer = ({
                 type="button"
                 className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
               >
-                {quantity}
+                {actualQuantity}
               </button>
               <button
                 type="button"
-                className="bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer"
+                className={`${actualQuantity === productDetails?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
                 onClick={() => {
-                  setQuantity(quantity + 1);
-                }}
+                  setActualQuantity(
+                    actualQuantity < productDetails.inventory
+                      ? actualQuantity + 1
+                      : actualQuantity
+                  );                }}
               >
                 <FaPlus />
               </button>
@@ -89,7 +94,7 @@ const productDetailsDrawer = ({
                   variables: {
                     input: {
                       userId: decodedToken?.userId,
-                      quantity: quantity,
+                      quantity: actualQuantity,
                       productId: productId,
                     },
                   },
