@@ -62,12 +62,6 @@ export const searchProducts = async (
 
     const totalCount = await prisma.product.count();
 
-    console.log("====================================");
-    console.log({
-      results: products,
-      totalCount: totalCount,
-    });
-    console.log("====================================");
     return {
       results: products,
       totalCount: totalCount,
