@@ -1,32 +1,61 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLazyQuery } from "@apollo/client";
-import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { BASKET_QUERY, SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
 import { FaHeart } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
 import prepRoute from "../_prepRoute";
 import Loading from "@/app/(mainApp)/loading";
-import { useAllProductViewStore } from "../../store/zustand";
+import {
+  useAllProductViewStore,
+  useBasketStore,
+  useComparedProductsStore,
+  useProductsInBasketStore,
+} from "../../store/zustand";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import { GoGitCompare } from "react-icons/go";
+
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
   const colorParam = searchParams?.get("color");
   const categoryParam = searchParams?.get("category");
+  const sortParam = searchParams?.get("sort");
   const priceParamString = searchParams?.get("price");
+  const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
 
   const [searchProducts, { loading, data }] = useLazyQuery(
     SEARCH_PRODUCTS_QUERY
   );
-  const [products, setProducts] = useState([]);
+  const [productsData, setProductsData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const pageSize = 10;
   const numberOfPages = Math.ceil(totalCount / pageSize);
-  console.log(numberOfPages);
+
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+
+  const addProductToCompare = useComparedProductsStore(
+    (state) => state.addProductToCompare
+  );
+
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -34,6 +63,7 @@ const ProductsSection = () => {
         const { data } = await searchProducts({
           variables: {
             input: {
+              query:queryParam ||undefined,
               categoryId: categoryParam || undefined,
               colorId: colorParam || undefined,
               minPrice: 1,
@@ -44,7 +74,15 @@ const ProductsSection = () => {
           },
         });
 
-        setProducts(data?.searchProducts.results || []);
+        const fetchedProducts = [...(data?.searchProducts.results || [])];
+
+        if (sortParam === "asc") {
+          fetchedProducts.sort((a: any, b: any) => a.price - b.price);
+        } else if (sortParam === "desc") {
+          fetchedProducts.sort((a: any, b: any) => b.price - a.price);
+        }
+
+        setProductsData(fetchedProducts);
         setTotalCount(data?.searchProducts.totalCount || 0);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -52,7 +90,15 @@ const ProductsSection = () => {
     };
 
     fetchProducts();
-  }, [searchProducts, categoryParam, colorParam, priceParam, page, pageSize]);
+  }, [
+    searchProducts,
+    categoryParam,
+    colorParam,
+    sortParam,
+    priceParam,
+    page,
+    pageSize,
+  ]);
 
   const handleNextPage = () => {
     if (page < numberOfPages) {
@@ -115,6 +161,11 @@ const ProductsSection = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-between h-full ">
+          {
+            !!queryParam && (
+              <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">{productsData.length} résultats trouvé pour "{queryParam}"</h1>
+            )
+          }
           <div
             className={`${
               view === 3
@@ -126,8 +177,9 @@ const ProductsSection = () => {
                     : ""
             } w-full py-5 grid  px-10 justify-items-center items-center gap-4 `}
           >
-            {products.map((product: Product) => (
+            {productsData.map((product: Product) => (
               <div
+              key={product.id}
                 className={`
               
               ${
@@ -166,9 +218,18 @@ const ProductsSection = () => {
                     />
                   </div>
 
-                  <div className="absolute -right-16 bottom-0 mr-2 mb-4 space-y-2 transition-all duration-300 group-hover:right-0">
+                  <div className="absolute -right-16 bottom-0 mr-2 mb-4 space-y-2 transition-all duration-300 group-hover:right-0 z-50">
+                    <button
+                      onClick={() => addProductToCompare(product)}
+                      className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700"
+                    >
+                      <GoGitCompare className="font-bold" />
+                    </button>
                     <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
                       <FaHeart />
+                    </button>
+                    <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
+                      <SlBasket />
                     </button>
                   </div>
                 </Link>
@@ -219,7 +280,46 @@ const ProductsSection = () => {
                       </div>
                     )}
                   </div>
-                  <button className="flex items-center gap-1 justify-center bg-strongBeige px-2 py-1 text-md text-white transition hover:bg-yellow-700">
+                  <button
+                    className="flex items-center gap-1 justify-center bg-strongBeige px-2 py-1 text-md text-white transition hover:bg-yellow-700"
+                    onClick={() => {
+                      if (decodedToken) {
+                        addToBasket({
+                          variables: {
+                            input: {
+                              userId: decodedToken?.userId,
+                              quantity: 1,
+                              productId: product.id,
+                            },
+                          },
+                          refetchQueries: [
+                            {
+                              query: BASKET_QUERY,
+                              variables: { userId: decodedToken?.userId },
+                            },
+                          ],
+                        });
+                      } else {
+                        const isProductAlreadyInBasket = products.some(
+                          (p: any) => p.id === product?.id
+                        );
+
+                        if (!isProductAlreadyInBasket) {
+                          addProductToBasket({
+                            ...product,
+                            price:
+                              product.productDiscounts.length > 0
+                                ? product?.productDiscounts[0]?.newPrice
+                                : product?.price,
+                            actualQuantity: 1,
+                          });
+                        } else {
+                          console.log("Product is already in the basket");
+                        }
+                      }
+                      toggleIsUpdated();
+                    }}
+                  >
                     <SlBasket />
                     Ajouter au panier
                   </button>

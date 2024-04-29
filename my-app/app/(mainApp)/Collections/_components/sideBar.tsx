@@ -38,6 +38,17 @@ export const convertStringToQueriesObject = (
   return selectedQueries;
 };
 
+export const convertValidStringQueries = (
+  queries: Record<string, string[]>
+) => {
+  let q = "";
+  for (let [key, value] of Object.entries(queries)) {
+    q = q + `${q === "" ? "" : "&"}${key}=${value}`;
+  }
+
+  return q;
+};
+
 const SideBar = () => {
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
@@ -132,14 +143,6 @@ const SideBar = () => {
     return queries.filter((query) => query !== "").length > 0;
   };
 
-  const convertValidStringQueries = (queries: Record<string, string[]>) => {
-    let q = "";
-    for (let [key, value] of Object.entries(queries)) {
-      q = q + `${q === "" ? "" : "&"}${key}=${value}`;
-    }
-
-    return q;
-  };
   const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
     const queryString = convertValidStringQueries(updatedQueries);
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
@@ -157,7 +160,7 @@ const SideBar = () => {
     <section
       aria-labelledby="products-heading "
       className={`w-96   top-0 h-full bg-white shadow-md sticky ${isOpen ? "sticky" : "hidden md:block"} `}
-      >
+    >
       <form className="relative pl-5 pt-5  shadow-lg">
         <h3 className="font-bold tracking-widest text-lg pb-2">
           Main Categories
@@ -203,9 +206,9 @@ const SideBar = () => {
                 type="range"
                 min="1"
                 max="3000"
-                defaultValue="500"
+                defaultValue={searchParams?.get('price') || "500"}
                 name="price"
-                value={price}
+                value={searchParams?.get('price') || price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   handleSelectFilterOptions(e);
@@ -231,7 +234,7 @@ const SideBar = () => {
                 className={`w-20 max-h-20 flex justify-center border border-gray-200 ${priceChanged ? "text-black" : "text-gray-400"}`}
               >
                 {" "}
-                {price} TND
+                {searchParams?.get("price") || price} TND
               </div>
             </div>
           </div>
