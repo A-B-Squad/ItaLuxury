@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { CiSearch } from "react-icons/ci";
+import SearchBar from "./SearchBar"
 import { FiHeart, FiUser } from "react-icons/fi";
 import { RiShoppingCartLine } from "react-icons/ri";
 import Cookies from "js-cookie";
@@ -43,16 +43,7 @@ const TopHeader = () => {
         {/* <Image src="/logo2.png" alt="logo" width={180} height={30} priority /> */}
         <h3 className="text-strongBeige text-3xl cursor-pointer">MaisonNg</h3>
       </div>
-      <div className="search flex items-center border-2 px-4 w-full relative  max-w-md h-11 border-[#e0d7d0] rounded-lg pl-4">
-        <input
-          className="h-full  w-full outline-none"
-          type="text"
-          placeholder="Rechercher..."
-        />
-        <span className="flex items-center right-0 absolute justify-center cursor-pointer  h-full w-10 bg-mediumBeige">
-          <CiSearch className=" size-7 text-white " />
-        </span>
-      </div>
+      <SearchBar/>
       <div className="list md:flex items-center gap-5 cursor-pointer text-md hidden">
         <ul className="flex  gap-5">
           <li
