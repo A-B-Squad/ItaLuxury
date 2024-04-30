@@ -86,7 +86,7 @@ const SideBar = () => {
     const { name, value, type } = e.target;
 
     let selectedQueries = selectedFilterQueries;
-
+    delete selectedQueries["query"]
     if (selectedQueries[name]) {
       if (type === "radio" || type === "range") {
         selectedQueries[name] = [value];

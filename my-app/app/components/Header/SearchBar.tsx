@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
     SEARCH_PRODUCTS_QUERY
   );
@@ -32,9 +33,8 @@ const SearchBar = () => {
 
   useEffect(() => {
     const handleMouseLeave = () => {
-      // Check if the input field still has focus or if mouse is over results
       if (!inputRef.current?.contains(document.activeElement) && !searching) {
-        setSearchQuery(""); // Clear search query
+        setSearchQuery(""); 
       }
     };
 
@@ -44,6 +44,12 @@ const SearchBar = () => {
       document.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [searching]);
+
+  useEffect(() => {
+    if (!!data?.searchProducts?.results?.categories) {
+      setCategories(data.searchProducts.results.categories)
+    }
+  }, [data]);
 
   return (
     <div
@@ -62,15 +68,30 @@ const SearchBar = () => {
       <span
         className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-20 bg-mediumBeige"
         onClick={() => {
-          router.push(`/Collections?query=${searchQuery}`);
+          router.push(`/Collections?query=${searchQuery}`, { scroll: false });
         }}
       >
         <CiSearch className="size-7 text-white" />
       </span>
       {data && searching && (
-        <div className="bg-lightBeige absolute top-10 z-50 overflow-y-scroll max-h-52">
-          <ul>
-            {data.searchProducts.results.map((result: Product) => (
+        <div className="bg-lightBeige absolute top-10 z-50 overflow-y-scroll max-h-80 p-2">
+    
+          {
+            categories && (
+              <ul className="border-b-black mb-5">
+                <li className="font-bold">Catégories ({categories.length})</li>
+                {
+                  categories.map((category:any) =>(
+                    <li key={category.id} className="mb-2 border-b border-b-gray-300 pb-1 gap-2 cursor-pointer">{category.name}</li>
+                  ))
+                }
+              </ul>
+            )
+          }
+        
+          <ul className="border-b-black  mb-5">
+            <li className="font-bold">Produits ({data.searchProducts.results.products.length})</li>
+            {data.searchProducts.results.products.map((result: Product) => (
               <Link
                 key={result.id}
                 href={""}

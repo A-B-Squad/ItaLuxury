@@ -255,21 +255,22 @@ export const COLORS_QUERY = gql`
 
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($input: ProductSearchInput!) {
-    searchProducts(input: $input) {
-      results {
-        id
-        name
-        price
-        isVisible
-        reference
-        description
-        inventory
-        solde
-        categories {
+  searchProducts(input: $input) {
+  results {
+    products {
+      id
+      name
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      categories {
           name
           subcategories {
-            name
-          }
+          name
+        }
         }
         productDiscounts {
           price
@@ -278,11 +279,19 @@ export const SEARCH_PRODUCTS_QUERY = gql`
             percentage
           }
         }
-        images
-        createdAt
-      }
-
-      totalCount
+      images
+      createdAt
+    
+    }
+    categories {
+      id
+      name
     }
   }
+  
+  
+  totalCount
+  }
+  
+}
 `;
