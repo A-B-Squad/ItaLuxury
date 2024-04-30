@@ -24,7 +24,7 @@ interface Product {
   name: string;
   price: number;
   images: string[];
-  quantity: number;
+  actualQuantity: number;
   basketId: string;
   categories: string[];
 }
@@ -56,19 +56,19 @@ const BasketDrawer = () => {
         onCompleted: (data) => {
           const fetchedProducts = data.basketByUserId.map((basket: any) => ({
             ...basket.Product,
-            quantity: basket.quantity,
+            actualQuantity: basket.quantity,
             basketId: basket.id,
           }));
 
           setProductsInBasket(fetchedProducts);
           setQuantityInBasket(
             fetchedProducts.reduce(
-              (acc: number, curr: any) => acc + curr.quantity,
+              (acc: number, curr: any) => acc + curr.actualQuantity,
               0
             )
           );
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
-            return acc + curr.price * curr.quantity;
+            return acc + curr.price * curr.actualQuantity;
           }, 0);
           setTotalPrice(total);
         },
@@ -77,12 +77,13 @@ const BasketDrawer = () => {
         },
       });
     } else {
+     
       setProductsInBasket(products);
       setQuantityInBasket(
-        products.reduce((acc: number, curr: any) => acc + curr.quantity, 0)
+        products.reduce((acc: number, curr: any) => acc + curr.actualQuantity, 0)
       );
       const total = products.reduce((acc: number, curr: Product) => {
-        return acc + curr.price * curr.quantity;
+        return acc + curr.price * curr.actualQuantity;
       }, 0);
       setTotalPrice(total);
     }
@@ -99,7 +100,7 @@ const BasketDrawer = () => {
       (product) => product.basketId !== basketId
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
-      return acc + curr.price * curr.quantity;
+      return acc + curr.price * curr.actualQuantity;
     }, 0);
 
     setTotalPrice(updatedTotalPrice);
@@ -194,13 +195,17 @@ const BasketDrawer = () => {
                               pathname: `products/tunisie/${prepRoute(product?.name)}`,
                               query: {
                                 productId: product?.id,
-                                collection: [product?.name],
+                                collection: [
+                                  product?.categories[0]?.name,
+                                  product?.categories[0]?.id,
+                                  product?.name,
+                                ],
                               },
                             }}
                           >
                             {product.name}
                           </Link>
-                          <p className=" ">{product.price.toFixed(3)} TND</p>
+                          <p className=" ">{product.price?.toFixed(3)} TND</p>
                         </div>
 
                         <p className="mt-1 text-sm text-gray-500">
@@ -215,7 +220,7 @@ const BasketDrawer = () => {
                       </div>
 
                       <div className="flex flex-1 items-end justify-between text-sm">
-                        <p className="text-gray-500">Qty {product?.quantity}</p>
+                        <p className="text-gray-500">Qty {product?.actualQuantity}</p>
 
                         <div className="flex">
                           <button
@@ -231,7 +236,7 @@ const BasketDrawer = () => {
                                 );
                                 const updatedTotalPrice =
                                   updatedProducts.reduce((acc, curr: any) => {
-                                    return acc + curr.price * curr.quantity;
+                                    return acc + curr.price * curr.actualQuantity;
                                   }, 0);
                                 setProductsInBasket(updatedProducts);
                                 setTotalPrice(updatedTotalPrice);

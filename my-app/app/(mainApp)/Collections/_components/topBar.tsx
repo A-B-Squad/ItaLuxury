@@ -1,30 +1,67 @@
 "use client";
-import React from "react";
-import { IoGrid } from "react-icons/io5";
+import {
+  useRouter,
+  useSearchParams
+} from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
-import { BsFillGrid3X3GapFill, BsFillGrid3X2GapFill } from "react-icons/bs";
 import { HiViewGrid } from "react-icons/hi";
-
 import Breadcumb from "../../../components/Breadcumb";
-import { useSidebarStore } from "../../../store/zustand";
-import { useAllProductViewStore } from "../../../store/zustand";
+import { useAllProductViewStore, useSidebarStore } from "../../../store/zustand";
+import {
+  convertStringToQueriesObject,
+  convertValidStringQueries,
+} from "./sideBar";
+
 const TopBar = () => {
   const { toggleOpenSidebar } = useSidebarStore();
   const { changeProductView, view } = useAllProductViewStore();
+  const [selectedFilterQueries, setSelectedFilterQueries] = useState<
+    Record<string, string[]>
+  >({});
+  const searchParams: URLSearchParams | null = useSearchParams();
+  const router = useRouter();
 
+  useEffect(() => {
+    const paramsObj = convertStringToQueriesObject(searchParams);
+    setSelectedFilterQueries(paramsObj);
+  }, [searchParams]);
+
+  const handleSortChange = (selectedSort: string) => {
+    router.push(
+      `/Collections/tunisie?${convertValidStringQueries({
+        ...selectedFilterQueries,
+        sort: selectedSort,
+      })}`,
+      {
+        scroll: false,
+      }
+    );
+  };
+
+  const handleSortSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedSort = e.target.value;
+    handleSortChange(selectedSort);
+  };
   return (
-    <div className="flex z-50 top-0 lg:relative fixed w-full border-t px-5 items-center white bg-white shadow-lg  justify-between border-b border-gray-200 ">
+    <div className="flex z-10 top-0 lg:relative relative w-full border-t px-5 items-center white bg-white shadow-lg  justify-between border-b border-gray-200 ">
       <Breadcumb />
 
       <div className="flex items-center">
         <div className="relative ">
-          <select name="sort" id="sort" className="max-w-16 cursor-pointer">
+          <select
+            name="sort"
+            id="sort"
+            className="max-w-16 cursor-pointer"
+            onChange={handleSortSelection}
+          >
             <option value="">Sort</option>
-            <option value="asc">Price : High to Low</option>
-            <option value="desc">Price : Low To High</option>
+            <option value="desc">Price : High to Low</option>
+            <option value="asc">Price : Low To High</option>
           </select>
         </div>
-        <div className=" hidden md:flex items-center gap-3 sm:ml-7 md:ml-3">
+        <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
           <button
             type="button"
             className="text-gray-400 hover:text-gray-500"

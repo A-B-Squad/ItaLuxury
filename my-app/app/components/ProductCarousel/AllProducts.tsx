@@ -57,14 +57,12 @@ const AllProducts = ({
   userId: string;
   carouselWidthClass: string;
 }) => {
-  
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState<string>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openProductDetails } = useProductDetails();
-
-  const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
+  const [addToBasket, { loading: addToBasketLoading }] = useMutation(
     ADD_TO_BASKET_MUTATION
   );
 
@@ -75,14 +73,14 @@ const AllProducts = ({
     })
   );
 
-  const AddToBasket = (productId: string) => {
+  const AddToBasket = (product: any) => {
     if (userId) {
-      addProductToBasket({
+      addToBasket({
         variables: {
           input: {
             userId: userId,
             quantity: 1,
-            productId: productId,
+            productId: product.id,
           },
         },
         refetchQueries: [
@@ -94,18 +92,17 @@ const AllProducts = ({
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product.id
+        (p: any) => p.id === product?.id
       );
-
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
           ...product,
-          price: product.productDiscounts.length
-            ? product.productDiscounts[0].newPrice
-            : product.price,
-          quantity: 1,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
         });
-        openBasketDrawer();
       } else {
         console.log("Product is already in the basket");
       }
@@ -155,7 +152,7 @@ const AllProducts = ({
             className="add-to-basket relative w-fit h-fit cursor-crosshair"
             onMouseEnter={() => handleMouseEnterHoverPop("Ajouter au panier")}
             onMouseLeave={handleMouseLeaveHoverPop}
-            onClick={() => AddToBasket(product?.id)}
+            onClick={() => AddToBasket(product)}
           >
             {showPopover && popoverTitle === "Ajouter au panier" && (
               <PopHover title={popoverTitle} />
@@ -210,7 +207,7 @@ const AllProducts = ({
               productId: product?.id,
               collection: [
                 product?.categories[0]?.name,
-                product?.categories[0]?.subcategories[0]?.name,
+                product?.categories[0]?.id,
                 product?.name,
               ],
             },
@@ -246,7 +243,11 @@ const AllProducts = ({
               pathname: `products/tunisie/${prepRoute(product?.name)}`,
               query: {
                 productId: product?.id,
-                collection: [product?.categories[0]?.name, product?.name],
+                collection: [
+                  product?.categories[0]?.name,
+                  product?.categories[0]?.id,
+                  product?.name,
+                ],
               },
             }}
             product-name={product?.name}
@@ -279,7 +280,7 @@ const AllProducts = ({
           </div>
 
           <button
-            onClick={() => AddToBasket(product?.id)}
+            onClick={() => AddToBasket(product)}
             className={`${
               product?.productDiscounts.length > 0
                 ? "group-hover:translate-y-16 "

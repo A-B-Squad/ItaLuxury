@@ -60,8 +60,10 @@ export const BASKET_QUERY = gql`
         price
         images
         categories {
+          id
           name
           subcategories {
+            id
             name
           }
         }
@@ -81,8 +83,10 @@ export const TAKE_6_PRODUCTS = gql`
       inventory
       images
       categories {
+        id
         name
         subcategories {
+          id
           name
         }
       }
@@ -112,8 +116,10 @@ export const TAKE_10_PRODUCTS = gql`
       inventory
       images
       categories {
+        id
         name
         subcategories {
+          id
           name
         }
       }
@@ -143,8 +149,10 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
       inventory
       images
       categories {
+        id
         name
         subcategories {
+          id
           name
         }
       }
@@ -187,8 +195,10 @@ export const TOP_DEALS = gql`
           value
         }
         categories {
+          id
           name
           subcategories {
+           id
             name
           }
         }
@@ -255,21 +265,24 @@ export const COLORS_QUERY = gql`
 
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($input: ProductSearchInput!) {
-    searchProducts(input: $input) {
-      results {
-        id
-        name
-        price
-        isVisible
-        reference
-        description
-        inventory
-        solde
-        categories {
+  searchProducts(input: $input) {
+  results {
+    products {
+      id
+      name
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      categories {
+         id
           name
           subcategories {
-            name
-          }
+          id
+          name
+        }
         }
         productDiscounts {
           price
@@ -278,11 +291,17 @@ export const SEARCH_PRODUCTS_QUERY = gql`
             percentage
           }
         }
-        images
-        createdAt
-      }
-
-      totalCount
+      images
+      createdAt
+    
+    }
+    categories {
+      id
+      name
     }
   }
+  totalCount
+  }
+  
+}
 `;
