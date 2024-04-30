@@ -74,7 +74,7 @@ const ProductsSection = () => {
           },
         });
 
-        const fetchedProducts = [...(data?.searchProducts.results || [])];
+        const fetchedProducts = [...(data?.searchProducts.results.products || [])];
 
         if (sortParam === "asc") {
           fetchedProducts.sort((a: any, b: any) => a.price - b.price);

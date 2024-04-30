@@ -15,6 +15,8 @@ export const searchProducts = async (
       whereCondition.OR = [
         { name: { contains: query, mode: "insensitive" } },
         { description: { contains: query, mode: "insensitive" } },
+        { categories: { some: { name: { contains: query, mode: "insensitive" } } } },
+
       ];
     }
 
@@ -62,8 +64,16 @@ export const searchProducts = async (
 
     const totalCount = await prisma.product.count();
 
+    const categories = await prisma.category.findMany({
+      where:{ name: { contains: query || "", mode: "insensitive" } },
+      take:5
+    })
+
     return {
-      results: products,
+      results: {
+        products,
+        categories
+      },
       totalCount: totalCount,
     };
   } catch (error) {

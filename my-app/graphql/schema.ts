@@ -228,8 +228,13 @@ type Moderator {
   number: String!
 }
 
+type Results {
+  products: [Product]
+  categories:[Category]
+}
+
 type SearchResult {
-  results: [Product!]!
+  results: Results
   totalCount: Int!
 }
 
