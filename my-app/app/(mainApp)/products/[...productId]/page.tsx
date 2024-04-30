@@ -39,7 +39,6 @@ import {
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
   const productId = SearchParams?.get("productId");
-  console.log(params, "sluggg");
 
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
@@ -250,6 +249,8 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         )}
         <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
           <Breadcumb />
+          <ProductInfo />
+
           <div className="grid items-start grid-cols-12 gap-10  ">
             <div className=" flex lg:flex-row flex-col gap-2 col-span-10 lg:col-span-7 w-full text-center">
               <div className="relative shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">

@@ -9,7 +9,10 @@ export const favoriteProducts = async (_: any, { userId }: { userId: string }, {
                 userId: userId
             },
             include: {
-                Product: true // Include product details related to favorite products
+                Product: {
+
+                    include: { categories: { include: { subcategories: true } } }
+                }
             }
         });
 

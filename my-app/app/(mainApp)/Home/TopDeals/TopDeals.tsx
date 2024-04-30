@@ -27,7 +27,7 @@ const TopDeals = () => {
   const [popoverTitle, setPopoverTitle] = useState("");
   const [popoverIndex, setPopoverIndex] = useState<number>(0);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -119,7 +119,7 @@ const TopDeals = () => {
                   productId: products?.product?.id,
                   collection: [
                     products?.product?.categories[0]?.name,
-                    products?.product?.categories[0]?.subcategories[0].name,
+                    products?.product?.categories[0]?.id,
                     products?.product?.name,
                   ],
                 },
@@ -219,7 +219,7 @@ const TopDeals = () => {
                     productId: products?.product?.id,
                     collection: [
                       products?.product?.categories[0]?.name,
-                      products?.product?.categories[0]?.subcategories[0].name,
+                      products?.product?.categories[0]?.id,
                       products?.product?.name,
                     ],
                   },

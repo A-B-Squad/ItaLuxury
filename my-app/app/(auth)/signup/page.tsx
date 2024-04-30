@@ -52,7 +52,7 @@ const Signup = () => {
       },
     },
     onCompleted: (data) => {
-      // router.push("/");
+      router.push("/");
       if (products.length > 0) {
         const newArray = products.map((product: any) => ({
           quantity: product.quantity,

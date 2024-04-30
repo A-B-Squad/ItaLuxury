@@ -6,6 +6,7 @@ export const products = async (_: any, { limit }: { limit?: number }, { prisma }
 
         const products = await prisma.product.findMany({
             include: {
+                
                 categories: { include: { subcategories: true } }, // Include categories related to products
                 productDiscounts: {
                     include: {

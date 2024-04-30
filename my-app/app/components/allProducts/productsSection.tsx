@@ -3,21 +3,29 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { BASKET_QUERY, SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
 import prepRoute from "../_prepRoute";
-import Loading from "@/app/(mainApp)/loading";
+import Cookies from "js-cookie";
+
 import {
   useAllProductViewStore,
   useBasketStore,
   useComparedProductsStore,
+  useDrawerBasketStore,
+  useProductDetails,
   useProductsInBasketStore,
 } from "../../store/zustand";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { GoGitCompare } from "react-icons/go";
-
+import FavoriteProduct from "../ProductCarousel/FavoriteProduct";
+import PopHover from "../PopHover";
+import { IoGitCompare } from "react-icons/io5";
+import { FaBasketShopping } from "react-icons/fa6";
+import Loading from "./loading";
+// const { openBasketDrawer } = useDrawerBasketStore();
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -31,7 +39,6 @@ const ProductsSection = () => {
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
-
   const [searchProducts, { loading, data }] = useLazyQuery(
     SEARCH_PRODUCTS_QUERY
   );
@@ -45,11 +52,18 @@ const ProductsSection = () => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-
+  const { openProductDetails } = useProductDetails();
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const addProductToCompare = useComparedProductsStore(
     (state) => state.addProductToCompare
   );
-
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
@@ -63,7 +77,7 @@ const ProductsSection = () => {
         const { data } = await searchProducts({
           variables: {
             input: {
-              query:queryParam ||undefined,
+              query: queryParam || undefined,
               categoryId: categoryParam || undefined,
               colorId: colorParam || undefined,
               minPrice: 1,
@@ -74,7 +88,9 @@ const ProductsSection = () => {
           },
         });
 
-        const fetchedProducts = [...(data?.searchProducts.results.products || [])];
+        const fetchedProducts: any = [
+          ...(data?.searchProducts.results.products || []),
+        ];
 
         if (sortParam === "asc") {
           fetchedProducts.sort((a: any, b: any) => a.price - b.price);
@@ -152,7 +168,42 @@ const ProductsSection = () => {
 
     return pages;
   };
-
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: 1,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+  };
   return (
     <>
       {loading ? (
@@ -161,15 +212,15 @@ const ProductsSection = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-between h-full ">
-          {
-            !!queryParam && (
-              <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">{productsData.length} résultats trouvé pour "{queryParam}"</h1>
-            )
-          }
+          {!!queryParam && (
+            <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">
+              {productsData.length} résultats trouvé pour "{queryParam}"
+            </h1>
+          )}
           <div
             className={`${
               view === 3
-                ? "md:grid-cols-3 grid-cols-1 lg:grid-cols-5 "
+                ? "md:grid-cols-3 grid-cols-1 xl:grid-cols-4 "
                 : view === 2
                   ? "grid-cols-2"
                   : view === 1
@@ -179,7 +230,7 @@ const ProductsSection = () => {
           >
             {productsData.map((product: Product) => (
               <div
-              key={product.id}
+                key={product.id}
                 className={`
               
               ${
@@ -189,21 +240,69 @@ const ProductsSection = () => {
                     ? " flex-row h-52 gap-8 items-center justify-between px-6 "
                     : ""
               }
-              group flex w-full overflow-hidden border border-gray-100 bg-white shadow-md`}
+              group flex relative w-full overflow-hidden border border-gray-100 bg-white shadow-md`}
               >
+                <ul
+                  className="plus_button lg:opacity-0 group-hover:opacity-100  absolute right-3 z-20  
+                   flex flex-col gap-3  "
+                >
+                  <div
+                    className="product-details relative w-fit cursor-crosshair"
+                    title="produit en details"
+                    onClick={() => openProductDetails(product)}
+                  >
+                    <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
+                      <FaRegEye color="white" />
+                    </li>
+                  </div>
+
+                  <div
+                    className="add-to-basket relative w-fit h-fit cursor-crosshair"
+                    title="Ajouter au panier"
+                    onClick={() => AddToBasket(product)}
+                  >
+                    <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <FaBasketShopping color="white" />
+                    </li>
+                  </div>
+
+                  <div
+                    className="Comparison relative w-fit cursor-crosshair"
+                    title="Ajouter au comparatif"
+                    onClick={() => addProductToCompare(product)}
+                  >
+                    <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <IoGitCompare color="white" />
+                    </li>
+                  </div>
+
+                  <div
+                    className="Favorite relative w-fit cursor-crosshair"
+                    title="Ajouter à ma liste d'enviess"
+                  >
+                    <li className="bg-strongBeige  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                      <FavoriteProduct
+                        isFavorite={isFavorite}
+                        setIsFavorite={setIsFavorite}
+                        productId={product?.id}
+                        userId={decodedToken?.userId}
+                      />
+                    </li>
+                  </div>
+                </ul>
                 <Link
                   href={{
-                    pathname: `products/tunisie/${prepRoute(product?.name)}`,
+                    pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                     query: {
                       productId: product?.id,
                       collection: [
                         product?.categories[0]?.name,
-                        product?.categories[0]?.subcategories[0]?.name,
+                        product?.categories[0]?.id,
                         product?.name,
                       ],
                     },
                   }}
-                  className="relative flex h-56 w-56 overflow-hidden"
+                  className="relative flex w-40 h-40 md:h-56 md:w-56 overflow-hidden"
                 >
                   <div className="group">
                     <img
@@ -217,21 +316,6 @@ const ProductsSection = () => {
                       alt="product image"
                     />
                   </div>
-
-                  <div className="absolute -right-16 bottom-0 mr-2 mb-4 space-y-2 transition-all duration-300 group-hover:right-0 z-50">
-                    <button
-                      onClick={() => addProductToCompare(product)}
-                      className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700"
-                    >
-                      <GoGitCompare className="font-bold" />
-                    </button>
-                    <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
-                      <FaHeart />
-                    </button>
-                    <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
-                      <SlBasket />
-                    </button>
-                  </div>
                 </Link>
                 <div
                   className={`
@@ -240,11 +324,12 @@ const ProductsSection = () => {
                 >
                   <Link
                     href={{
-                      pathname: `products/tunisie/${prepRoute(product?.name)}`,
+                      pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                       query: {
                         productId: product?.id,
                         collection: [
                           product?.categories[0]?.name,
+                          product?.categories[0]?.id,
                           product?.name,
                         ],
                       },
@@ -282,43 +367,7 @@ const ProductsSection = () => {
                   </div>
                   <button
                     className="flex items-center gap-1 justify-center bg-strongBeige px-2 py-1 text-md text-white transition hover:bg-yellow-700"
-                    onClick={() => {
-                      if (decodedToken) {
-                        addToBasket({
-                          variables: {
-                            input: {
-                              userId: decodedToken?.userId,
-                              quantity: 1,
-                              productId: product.id,
-                            },
-                          },
-                          refetchQueries: [
-                            {
-                              query: BASKET_QUERY,
-                              variables: { userId: decodedToken?.userId },
-                            },
-                          ],
-                        });
-                      } else {
-                        const isProductAlreadyInBasket = products.some(
-                          (p: any) => p.id === product?.id
-                        );
-
-                        if (!isProductAlreadyInBasket) {
-                          addProductToBasket({
-                            ...product,
-                            price:
-                              product.productDiscounts.length > 0
-                                ? product?.productDiscounts[0]?.newPrice
-                                : product?.price,
-                            actualQuantity: 1,
-                          });
-                        } else {
-                          console.log("Product is already in the basket");
-                        }
-                      }
-                      toggleIsUpdated();
-                    }}
+                    onClick={() => AddToBasket(product)}
                   >
                     <SlBasket />
                     Ajouter au panier
@@ -327,29 +376,32 @@ const ProductsSection = () => {
               </div>
             ))}
           </div>
-          <div className="Page pagination justify-self-start h-32 ">
-            <ul className="inline-flex -space-x-px text-sm">
-              <li>
-                <button
-                  onClick={handlePrevPage}
-                  disabled={page === 1}
-                  className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-strongBeige bg-white border border-e-0 border-strongBeige rounded-s-lg hover:bg-strongBeige hover:text-white"
-                >
-                  Previous
-                </button>
-              </li>
-              {renderPageNumbers()}
-              <li>
-                <button
-                  onClick={handleNextPage}
-                  disabled={page === Math.ceil(totalCount / pageSize)}
-                  className="flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg hover:bg-strongBeige hover:text-white"
-                >
-                  Next
-                </button>
-              </li>
-            </ul>
-          </div>
+
+          {productsData.length > 0 && (
+            <div className="Page pagination justify-self-start h-32 ">
+              <ul className="inline-flex -space-x-px text-sm">
+                <li>
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={page === 1}
+                    className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-strongBeige bg-white border border-e-0 border-strongBeige rounded-s-lg hover:bg-strongBeige hover:text-white"
+                  >
+                    Previous
+                  </button>
+                </li>
+                {renderPageNumbers()}
+                <li>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={page === Math.ceil(totalCount / pageSize)}
+                    className="flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg hover:bg-strongBeige hover:text-white"
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </>

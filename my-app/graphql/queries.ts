@@ -60,8 +60,10 @@ export const BASKET_QUERY = gql`
         price
         images
         categories {
+          id
           name
           subcategories {
+            id
             name
           }
         }
@@ -81,8 +83,10 @@ export const TAKE_6_PRODUCTS = gql`
       inventory
       images
       categories {
+        id
         name
         subcategories {
+          id
           name
         }
       }
@@ -112,8 +116,10 @@ export const TAKE_10_PRODUCTS = gql`
       inventory
       images
       categories {
+        id
         name
         subcategories {
+          id
           name
         }
       }
@@ -143,8 +149,10 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
       inventory
       images
       categories {
+        id
         name
         subcategories {
+          id
           name
         }
       }
@@ -187,8 +195,10 @@ export const TOP_DEALS = gql`
           value
         }
         categories {
+          id
           name
           subcategories {
+           id
             name
           }
         }
@@ -267,8 +277,10 @@ export const SEARCH_PRODUCTS_QUERY = gql`
       inventory
       solde
       categories {
+         id
           name
           subcategories {
+          id
           name
         }
         }
@@ -288,8 +300,6 @@ export const SEARCH_PRODUCTS_QUERY = gql`
       name
     }
   }
-  
-  
   totalCount
   }
   

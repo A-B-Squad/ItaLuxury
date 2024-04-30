@@ -42,12 +42,15 @@ export const addToBasket = async (
             increment: quantity,
           },
         },
+        include: {
+          Product: true,
+          User: true,   
+        },
       });
       return updatedBasket;
 
     }
 
-    // Return a success message or the updated basket
   } catch (error) {
     console.error("Failed to add product to basket:", error);
     return error
