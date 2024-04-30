@@ -1,15 +1,32 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
 import prepRoute from "../_prepRoute";
 import Loading from "@/app/(mainApp)/loading";
-import { useAllProductViewStore } from "../../store/zustand";
+import {
+  useAllProductViewStore,
+  useBasketStore,
+  useComparedProductsStore,
+  useProductDetails,
+  useProductsInBasketStore,
+} from "../../store/zustand";
+import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import PopHover from "../PopHover";
+import { FaBasketShopping } from "react-icons/fa6";
+import { IoGitCompare } from "react-icons/io5";
+import FavoriteProduct from "../ProductCarousel/FavoriteProduct";
+import { JwtPayload } from "jsonwebtoken";
+import Cookies from "js-cookie";
+import jwt from 'jsonwebtoken';
 
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 const ProductsSection = () => {
   const searchParams = useSearchParams();
   const colorParam = searchParams?.get("color");
@@ -17,16 +34,91 @@ const ProductsSection = () => {
   const priceParamString = searchParams?.get("price");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
-
-  const [searchProducts, { loading, data }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY
-  );
-  const [products, setProducts] = useState([]);
+  const [showPopover, setShowPopover] = useState<Boolean>(false);
+  const [popoverTitle, setPopoverTitle] = useState<string>("");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const pageSize = 10;
   const numberOfPages = Math.ceil(totalCount / pageSize);
-  console.log(numberOfPages);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  const { openProductDetails } = useProductDetails();
+
+  const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
+    ADD_TO_BASKET_MUTATION
+  );
+
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
+  const AddToBasket = (productId: string) => {
+    if (userId) {
+      addProductToBasket({
+        variables: {
+          input: {
+            userId: userId,
+            quantity: 1,
+            productId: productId,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product.id
+      );
+
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price: product.productDiscounts.length
+            ? product.productDiscounts[0].newPrice
+            : product.price,
+          quantity: 1,
+        });
+        openBasketDrawer();
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+  };
+  const handleMouseEnterHoverPop = (title: string) => {
+    setShowPopover(true);
+    setPopoverTitle(title);
+  };
+
+  const handleMouseLeaveHoverPop = () => {
+    setShowPopover(false);
+    setPopoverTitle("");
+  };
+  const addProductToCompare = useComparedProductsStore(
+    (state) => state.addProductToCompare
+  );
+  const addToCompare = (product: any) => {
+    addProductToCompare(product);
+  };
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+  const [searchProducts, { loading, data }] = useLazyQuery(
+    SEARCH_PRODUCTS_QUERY
+  );
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -115,10 +207,11 @@ const ProductsSection = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-between h-full ">
+         
           <div
             className={`${
               view === 3
-                ? "md:grid-cols-3 grid-cols-1 lg:grid-cols-5 "
+                ? "md:grid-cols-3 grid-cols-1 xl:grid-cols-4 "
                 : view === 2
                   ? "grid-cols-2"
                   : view === 1
@@ -139,6 +232,74 @@ const ProductsSection = () => {
               }
               group flex w-full overflow-hidden border border-gray-100 bg-white shadow-md`}
               >
+                 {/* <ul className="plus_button lg:opacity-0 group-hover:opacity-100  absolute right-3 z-50  top-14 flex flex-col gap-3  ">
+            <div
+              className="product-details relative w-fit cursor-crosshair"
+              onMouseEnter={() =>
+                handleMouseEnterHoverPop("produit en details")
+              }
+              onMouseLeave={handleMouseLeaveHoverPop}
+              onClick={() => openProductDetails(product)}
+            >
+              {showPopover && popoverTitle === "produit en details" && (
+                <PopHover title={popoverTitle} />
+              )}
+              <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
+                <FaRegEye color="white" />
+              </li>
+            </div>
+
+            <div
+              className="add-to-basket relative w-fit h-fit cursor-crosshair"
+              onMouseEnter={() => handleMouseEnterHoverPop("Ajouter au panier")}
+              onMouseLeave={handleMouseLeaveHoverPop}
+              onClick={() => AddToBasket(product?.id)}
+            >
+              {showPopover && popoverTitle === "Ajouter au panier" && (
+                <PopHover title={popoverTitle} />
+              )}
+              <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                <FaBasketShopping color="white" />
+              </li>
+            </div>
+
+            <div
+              className="Comparison relative w-fit cursor-crosshair"
+              onMouseEnter={() =>
+                handleMouseEnterHoverPop("Ajouter au comparatif")
+              }
+              onMouseLeave={handleMouseLeaveHoverPop}
+              onClick={() => addToCompare(product)}
+            >
+              {showPopover && popoverTitle === "Ajouter au comparatif" && (
+                <PopHover title={popoverTitle} />
+              )}
+              <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                <IoGitCompare color="white" />
+              </li>
+            </div>
+
+            <div
+              className="Favorite relative w-fit cursor-crosshair"
+              onMouseEnter={() =>
+                handleMouseEnterHoverPop("Ajouter à ma liste d'enviess")
+              }
+              onMouseLeave={handleMouseLeaveHoverPop}
+            >
+              {showPopover &&
+                popoverTitle === "Ajouter à ma liste d'enviess" && (
+                  <PopHover title={popoverTitle} />
+                )}
+              <li className="bg-strongBeige  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                <FavoriteProduct
+                  isFavorite={isFavorite}
+                  setIsFavorite={setIsFavorite}
+                  productId={product?.id}
+                  userId={userId}
+                />
+              </li>
+            </div>
+          </ul> */}
                 <Link
                   href={{
                     pathname: `products/tunisie/${prepRoute(product?.name)}`,
@@ -151,7 +312,7 @@ const ProductsSection = () => {
                       ],
                     },
                   }}
-                  className="relative flex h-56 w-56 overflow-hidden"
+                  className="relative flex w-40 h-40 md:h-56 md:w-56 overflow-hidden"
                 >
                   <div className="group">
                     <img

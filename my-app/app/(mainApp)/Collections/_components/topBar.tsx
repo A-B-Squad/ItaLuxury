@@ -10,7 +10,7 @@ import { useSidebarStore } from "../../../store/zustand";
 import { useAllProductViewStore } from "../../../store/zustand";
 const TopBar = () => {
   const { toggleOpenSidebar } = useSidebarStore();
-  const { changeProductView,view } = useAllProductViewStore();
+  const { changeProductView, view } = useAllProductViewStore();
 
   return (
     <div className="flex z-50 top-0 lg:relative fixed w-full border-t px-5 items-center white bg-white shadow-lg  justify-between border-b border-gray-200 ">
@@ -24,39 +24,47 @@ const TopBar = () => {
             <option value="desc">Price : Low To High</option>
           </select>
         </div>
-        <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
-  <button
-    type="button"
-    className="text-gray-400 hover:text-gray-500"
-    onClick={() => {
-      changeProductView(1);
-    }}
-  >
-    <span className="sr-only">View grid</span>
-    <BsFillGrid3X2GapFill size={20} color={view === 1 ? "black" : "currentColor"} />
-  </button>
-  <button
-    type="button"
-    className="border-l border-r px-2 text-gray-400 hover:text-gray-500"
-    onClick={() => {
-      changeProductView(2);
-    }}
-  >
-    <span className="sr-only">View grid</span>
-    <HiViewGrid size={20} color={view === 2 ? "black" : "currentColor"} />
-  </button>
-  <button
-    type="button"
-    onClick={() => {
-      changeProductView(3);
-    }}
-    className="text-gray-400 hover:text-gray-500"
-  >
-    <span className="sr-only">View grid</span>
-    <BsFillGrid3X3GapFill size={20} color={view === 3 ? "black" : "currentColor"} />
-  </button>
-</div>
-
+        <div className=" hidden md:flex items-center gap-3 sm:ml-7 md:ml-3">
+          <button
+            type="button"
+            className="text-gray-400 hover:text-gray-500"
+            onClick={() => {
+              changeProductView(1);
+            }}
+          >
+            <span className="sr-only">View grid</span>
+            <BsFillGrid3X2GapFill
+              size={20}
+              color={view === 1 ? "black" : "currentColor"}
+            />
+          </button>
+          <button
+            type="button"
+            className="border-l border-r px-2 text-gray-400 hover:text-gray-500"
+            onClick={() => {
+              changeProductView(2);
+            }}
+          >
+            <span className="sr-only">View grid</span>
+            <HiViewGrid
+              size={20}
+              color={view === 2 ? "black" : "currentColor"}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              changeProductView(3);
+            }}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <span className="sr-only">View grid</span>
+            <BsFillGrid3X3GapFill
+              size={20}
+              color={view === 3 ? "black" : "currentColor"}
+            />
+          </button>
+        </div>
 
         <button
           type="button"

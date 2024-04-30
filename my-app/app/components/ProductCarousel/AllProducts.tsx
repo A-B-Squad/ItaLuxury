@@ -57,6 +57,7 @@ const AllProducts = ({
   userId: string;
   carouselWidthClass: string;
 }) => {
+  
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState<string>("");
   const { openBasketDrawer } = useDrawerBasketStore();
@@ -128,7 +129,6 @@ const AllProducts = ({
     addProductToCompare(product);
   };
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-console.log( product?.categories[0]?.subcategories[0]?.name);
 
   return (
     <>
