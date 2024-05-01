@@ -83,33 +83,31 @@ const SideBar = () => {
   }, [searchParams]);
 
   const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-
-    let selectedQueries = selectedFilterQueries;
-    delete selectedQueries["query"]
-    if (selectedQueries[name]) {
-      if (type === "radio" || type === "range") {
-        selectedQueries[name] = [value];
-      } else if (selectedQueries[name].includes(value)) {
-        selectedQueries[name] = selectedQueries[name].filter(
+    const { name, value, type, checked } = e.target;
+    let updatedQueries = { ...selectedFilterQueries };
+    delete updatedQueries["query"]
+    
+    if (checked) {
+      if (updatedQueries[name]) {
+        updatedQueries[name] = [...updatedQueries[name], value];
+      } else {
+        updatedQueries[name] = [value];
+      }
+    } else {
+      if (updatedQueries[name]) {
+        updatedQueries[name] = updatedQueries[name].filter(
           (query) => query !== value
         );
-        if (!checkValidQuery(selectedQueries[name])) {
-          delete selectedQueries[name];
-        }
-      } else {
-        selectedQueries[name].push(value);
-      }
-    } else if (selectedQueries) {
-      selectedQueries[name] = [value];
-    }
 
-    router.push(
-      `/Collections/tunisie?${convertValidStringQueries(selectedQueries)}`,
-      {
-        scroll: false,
+        if (updatedQueries[name].length === 0) {
+          delete updatedQueries[name];
+        }
       }
-    );
+    }
+    setSelectedFilterQueries(updatedQueries);
+    const queryString = convertValidStringQueries(updatedQueries);
+
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
 
   const isChecked = (name: string, option: string) => {
@@ -206,9 +204,9 @@ const SideBar = () => {
                 type="range"
                 min="1"
                 max="3000"
-                defaultValue={searchParams?.get('price') || "500"}
+                defaultValue={searchParams?.get("price") || "500"}
                 name="price"
-                value={searchParams?.get('price') || price}
+                value={searchParams?.get("price") || price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   handleSelectFilterOptions(e);
@@ -256,7 +254,7 @@ const SideBar = () => {
                   <input
                     id={`filtre-color-${color.id}`}
                     name="color"
-                    type="radio"
+                    type="checkbox"
                     value={color.id}
                     checked={isChecked("color", color.id)}
                     style={{
@@ -303,7 +301,7 @@ const SideBar = () => {
                   <input
                     id={`filtre-color-${category.id}`}
                     name="category"
-                    type="radio"
+                    type="checkbox"
                     value={category.id}
                     checked={isChecked("category", category.id)}
                     className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"

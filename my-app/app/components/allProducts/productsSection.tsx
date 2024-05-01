@@ -17,7 +17,6 @@ import {
   useProductDetails,
   useProductsInBasketStore,
 } from "../../store/zustand";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { GoGitCompare } from "react-icons/go";
 import FavoriteProduct from "../ProductCarousel/FavoriteProduct";
