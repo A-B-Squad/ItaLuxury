@@ -23,7 +23,6 @@ export const createProduct = async (
     } = input;
 
     // Creating a new product using prisma
-    console.log(input);
     const productCreate = await prisma.product.create({
       // Defining the data for the new product
       data: {

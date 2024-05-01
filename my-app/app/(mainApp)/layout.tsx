@@ -1,7 +1,7 @@
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import React from "react";
+import React, { Suspense } from "react";
 import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 import BasketDrawer from "../components/BasketDrawer";
@@ -30,17 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={openSans.className}>
-        <DrawerMobile />
-        <BasketDrawer />
-
-          <main>
-            <Header />
-            <ApolloWrapper>{children}</ApolloWrapper>
-            <Footer />
-          </main>
-      </body>
-    </html>
+  
+        <div>
+            <DrawerMobile />
+            <BasketDrawer />
+          <Header />
+          <ApolloWrapper>{children}</ApolloWrapper>
+          <Footer />
+        </div>
+    
   );
 }

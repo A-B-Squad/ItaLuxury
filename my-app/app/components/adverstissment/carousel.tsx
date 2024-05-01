@@ -40,7 +40,9 @@ const AdsCarousel = () => {
             placeholder={""}
         >
           {images.map((image, index) => (
-            <Link key={index} href={data.advertismentByPosition[index]?.link}>
+            <Link key={index} 
+            rel="preload"
+            href={data.advertismentByPosition[index]?.link}>
               <Image
                 layout="fill"
                 src={image}

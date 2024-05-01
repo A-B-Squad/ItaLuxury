@@ -60,13 +60,19 @@ export const BASKET_QUERY = gql`
         price
         images
         categories {
+      id
+      name
+      subcategories {
+        id
+        name
+        parentId
+        subcategories {
           id
           name
-          subcategories {
-            id
-            name
-          }
+          parentId
         }
+      }
+    }
       }
     }
   }
@@ -83,13 +89,19 @@ export const TAKE_6_PRODUCTS = gql`
       inventory
       images
       categories {
+      id
+      name
+      subcategories {
         id
         name
+        parentId
         subcategories {
           id
           name
+          parentId
         }
       }
+    }
       Colors {
         color
         Hex
@@ -116,13 +128,19 @@ export const TAKE_10_PRODUCTS = gql`
       inventory
       images
       categories {
+      id
+      name
+      subcategories {
         id
         name
+        parentId
         subcategories {
           id
           name
+          parentId
         }
       }
+    }
       Colors {
         color
         Hex
@@ -149,13 +167,19 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
       inventory
       images
       categories {
+      id
+      name
+      subcategories {
         id
         name
+        parentId
         subcategories {
           id
           name
+          parentId
         }
       }
+    }
       Colors {
         color
         Hex
@@ -198,10 +222,16 @@ export const TOP_DEALS = gql`
           id
           name
           subcategories {
-           id
+            id
             name
-          }
-        }
+            parentId
+              subcategories {
+                id
+                name
+                parentId
+              }
+      }
+    }
         Colors {
           color
           Hex
@@ -277,12 +307,22 @@ export const SEARCH_PRODUCTS_QUERY = gql`
       inventory
       solde
       categories {
-         id
-          name
-          subcategories {
+      id
+      name
+      subcategories {
+        id
+        name
+        parentId
+        subcategories {
           id
           name
+          parentId
         }
+      }
+    }
+        Colors {
+          color
+          Hex
         }
         productDiscounts {
           price

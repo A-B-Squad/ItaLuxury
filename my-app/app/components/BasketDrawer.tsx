@@ -15,6 +15,7 @@ import {
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "../store/zustand";
+import Image from "next/image";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -77,10 +78,12 @@ const BasketDrawer = () => {
         },
       });
     } else {
-     
       setProductsInBasket(products);
       setQuantityInBasket(
-        products.reduce((acc: number, curr: any) => acc + curr.actualQuantity, 0)
+        products.reduce(
+          (acc: number, curr: any) => acc + curr.actualQuantity,
+          0
+        )
       );
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.actualQuantity;
@@ -178,8 +181,9 @@ const BasketDrawer = () => {
               <ul role="list" className=" divide-y divide-gray-200">
                 {productsInBasket?.map((product, index) => (
                   <li className="flex py-6 " key={index}>
-                    <div className="h-24 w-20 flex-shrink-0 rounded-md ">
-                      <img
+                    <div className=" relative h-24 w-20 flex-shrink-0 rounded-md ">
+                      <Image
+                        layout="fill"
                         src={product.images[0]}
                         alt={product.name}
                         className="h-full w-full object-cover object-center"
@@ -191,13 +195,18 @@ const BasketDrawer = () => {
                         <div className="flex justify-between text-base font-medium text-gray-900">
                           <Link
                             className="hover:text-mediumBeige transition-colors"
+                            rel="preload"
                             href={{
-                              pathname: `products/tunisie/${prepRoute(product?.name)}`,
+                              pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                               query: {
                                 productId: product?.id,
                                 collection: [
-                                  product?.categories[0]?.name,
-                                  product?.categories[0]?.id,
+                                  // product?.categories[0]?.name,
+                                  // product?.categories[0]?.id,
+                                  // product?.categories[0]?.subcategories[0]?.name,
+                                  // product?.categories[0]?.subcategories[0]?.id,
+                                  // product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
+                                  // product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
                                   product?.name,
                                 ],
                               },
@@ -220,7 +229,9 @@ const BasketDrawer = () => {
                       </div>
 
                       <div className="flex flex-1 items-end justify-between text-sm">
-                        <p className="text-gray-500">Qty {product?.actualQuantity}</p>
+                        <p className="text-gray-500">
+                          Qty {product?.actualQuantity}
+                        </p>
 
                         <div className="flex">
                           <button
@@ -236,7 +247,9 @@ const BasketDrawer = () => {
                                 );
                                 const updatedTotalPrice =
                                   updatedProducts.reduce((acc, curr: any) => {
-                                    return acc + curr.price * curr.actualQuantity;
+                                    return (
+                                      acc + curr.price * curr.actualQuantity
+                                    );
                                   }, 0);
                                 setProductsInBasket(updatedProducts);
                                 setTotalPrice(updatedTotalPrice);
@@ -264,6 +277,7 @@ const BasketDrawer = () => {
             </p>
             <div className="mt-6">
               <Link
+                rel="preload"
                 href={decodedToken ? "/Checkout" : "/signup"}
                 className="flex items-center justify-center transition-all rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
               >
@@ -271,6 +285,7 @@ const BasketDrawer = () => {
               </Link>
               <Link
                 onClick={closeBasketDrawer}
+                rel="preload"
                 href={decodedToken ? "/Basket" : "/signup"}
                 className="flex items-center transition-all justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
               >
@@ -280,8 +295,8 @@ const BasketDrawer = () => {
             <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
               <p>ou</p>
               <Link
+                rel="preload"
                 href={"/Touts-Les-Produits"}
-                type="button"
                 className="font-medium text-strongBeige transition-all hover:text-mediumBeige"
               >
                 Continuer vos achats
@@ -295,7 +310,8 @@ const BasketDrawer = () => {
           <h1 className="text-xl font-semibold">Votre panier est vide</h1>
           <MdOutlineRemoveShoppingCart color="grey" size={100} />
           <Link
-          href={"/Collections/tunisie"}
+            rel="preload"
+            href={"/Collections/tunisie"}
             type="button"
             className="font-medium text-strongBeige hover:text-amber-200 mt-20"
           >

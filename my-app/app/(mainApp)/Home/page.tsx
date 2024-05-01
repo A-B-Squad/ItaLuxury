@@ -17,6 +17,8 @@ import ProductInfo from "../../components/ProductInfo/ProductInfo";
 import ClientServices from "./_components/ClientServices";
 import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
+import Link from "next/link";
+import { MdKeyboardArrowRight } from "react-icons/md";
 const Home = () => {
   const [countdownToNextDay, setCountdownToNextDay] = useState<number>(0);
 
@@ -130,7 +132,17 @@ const Home = () => {
         </div>
         <FullWidth />
         <div className="Carousel_A_20DT">
-          <TitleProduct title={"l'essentiel a 20DT"} />
+          <div className="Heading flex items-center justify-between">
+            <TitleProduct title={"l'essentiel a 20DT"} />
+            <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
+              <Link
+              rel="preload"
+              href={"/Collections/tunisie?price=20"}>
+                Voir tous les produits
+              </Link>
+              <MdKeyboardArrowRight />
+            </div>
+          </div>
           <div>
             <ProductTabs
               data={Product_less_20}
@@ -145,8 +157,17 @@ const Home = () => {
         </div>
         <FullWidth />
         <div className="Promotion flex flex-col ">
-          <TitleProduct title={"Promotions"} />
-
+          <div className="flex items-center justify-between">
+            <TitleProduct title={"Promotions"} />
+            <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
+              <Link 
+              rel="preload"
+              href={"/Collections/tunisie"}>
+                Voir tous les produits
+              </Link>
+              <MdKeyboardArrowRight />
+            </div>
+          </div>
           <div className="flex  gap-3">
             <ProductTabs
               data={Products_6}

@@ -6,9 +6,10 @@ import React, { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
 import { RiShoppingCartLine } from "react-icons/ri";
-import { ADD_TO_BASKET_MUTATION } from '../../../graphql/mutations';
+import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
 import { useComparedProductsStore } from "../../store/zustand";
-
+import Link from "next/link";
+import prepRoute from "../../components/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -19,7 +20,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    }),
+    })
   );
 
   useEffect(() => {
@@ -29,8 +30,6 @@ const ProductComparison = () => {
       setDecodedToken(decoded);
     }
   }, []);
-
- 
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -47,22 +46,38 @@ const ProductComparison = () => {
                 {products.map((product: any) => (
                   <th scope="col" className="px-2 py-1">
                     <div className="relative m-2 flex w-[40rem] max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
-                      <a
+                      <Link
                         className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
-                        href="#"
+                        rel="preload"
+                        href={{
+                          pathname: `/products/tunisie/${prepRoute(product?.name)}`,
+                          query: {
+                            productId: product?.id,
+                            collection: [product?.name],
+                          },
+                        }}
                       >
                         <img
                           className="object-cover"
                           src={product.images[0]}
                           alt="product image"
                         />
-                      </a>
+                      </Link>
                       <div className="mt-4 px-3 pb-5">
-                        <a href="#">
+                        <Link
+                          rel="preload"
+                          href={{
+                            pathname: `/products/tunisie/${prepRoute(product?.name)}`,
+                            query: {
+                              productId: product?.id,
+                              collection: [product?.name],
+                            },
+                          }}
+                        >
                           <h5 className="text-lg text-center tracking-tight text-slate-900">
                             {product.name}
                           </h5>
-                        </a>
+                        </Link>
                         <div className="mt-2 mb-5 flex items-center justify-between">
                           <div className="prices flex flex-col">
                             {product.productDiscounts.length > 0 && (
@@ -73,7 +88,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3,
+                                    3
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND

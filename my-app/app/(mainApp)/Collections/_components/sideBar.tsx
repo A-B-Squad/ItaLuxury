@@ -16,6 +16,7 @@ import {
   useRouter,
   ReadonlyURLSearchParams,
 } from "next/navigation";
+import prepRoute from "../../../components/_prepRoute";
 
 // / ------------------!--------------------
 
@@ -86,7 +87,7 @@ const SideBar = () => {
     const { name, value, type } = e.target;
 
     let selectedQueries = selectedFilterQueries;
-    delete selectedQueries["query"]
+    delete selectedQueries["query"];
     if (selectedQueries[name]) {
       if (type === "radio" || type === "range") {
         selectedQueries[name] = [value];
@@ -165,30 +166,85 @@ const SideBar = () => {
         <h3 className="font-bold tracking-widest text-lg pb-2">
           Main Categories
         </h3>
+        {/* filter with choix */}
+        <div className="border-b border-gray-200 py-6">
+          <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
+            <Link
+              rel="preload"
+              href={"/Collections/tunisie"}
+              className="flex w-full items-center justify-between"
+            >
+              choix
+              <IoIosArrowForward />
+            </Link>
+          </h3>
 
+          <div
+            className="pt-6 overflow-y-scroll max-h-60"
+            id="filter-section-1"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <input
+                  id="en-promo"
+                  name="category"
+                  type="checkbox"
+                  value={"en-promo"}
+                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
+                  onChange={handleSelectFilterOptions}
+                />
+                <label className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all">
+                  En Promo
+                </label>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <input
+                  id="filtre-choix-nouveau-produit"
+                  name="category"
+                  type="checkbox"
+                  value={"nouveau-produit"}
+                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
+                  onChange={handleSelectFilterOptions}
+                />
+                <label
+                  htmlFor={`filtre-choix-nouveau-produit`}
+                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                >
+                  Nouveau Produit
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* filter with main categories */}
         <ul
           role="list"
           className="space-y-4 border-b  border-gray-200 pb-6 text-sm font-medium text-gray-900"
         >
           {categories?.map((category: any) => (
-            <li
-              key={category.id}
-              className="relative group transition-all border-b py-2 "
-            >
-              <button
-                type="button"
-                onClick={() => handleCategoryClick(category.id)}
-                className="focus:outline-none hover:text-black transition-colors"
+            <li className="relative group transition-all  border-b py-2 ">
+              <Link
+                href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+                key={category.id}
               >
-                {category.name}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryClick(category.id)}
+                  className="focus:outline-none hover:text-black transition-colors"
+                >
+                  {category.name}
+                </button>
+              </Link>
             </li>
           ))}
         </ul>
-
+        {/* filter with prices */}
         <div className="border-b border-gray-200 py-6">
           <h3 className=" tracking-widest  text-gray-900 font-semibold text-base">
             <Link
+              rel="preload"
               href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between "
             >
@@ -206,9 +262,9 @@ const SideBar = () => {
                 type="range"
                 min="1"
                 max="3000"
-                defaultValue={searchParams?.get('price') || "500"}
+                defaultValue={searchParams?.get("price") || "500"}
                 name="price"
-                value={searchParams?.get('price') || price}
+                value={searchParams?.get("price") || price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   handleSelectFilterOptions(e);
@@ -239,9 +295,11 @@ const SideBar = () => {
             </div>
           </div>
         </div>
+        {/* filter with colors */}
         <div className="border-b border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest font-semibold text-base text-gray-900">
             <Link
+              rel="preload"
               href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between     "
             >
@@ -249,6 +307,7 @@ const SideBar = () => {
               <IoIosArrowForward />
             </Link>
           </h3>
+
           <div className="pt-6 overflow-y-scroll max-h-60">
             <div className=" flex items-center flex-wrap px-3 w-full  gap-3">
               {colors?.map((color: any) => (
@@ -282,9 +341,11 @@ const SideBar = () => {
             </div>
           </div>
         </div>
+        {/* filter with ctegories */}
         <div className="border-b border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
             <Link
+              rel="preload"
               href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between"
             >
