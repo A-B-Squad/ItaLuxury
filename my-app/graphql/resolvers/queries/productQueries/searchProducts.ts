@@ -5,7 +5,7 @@ export const searchProducts = async (
   { input }: { input: ProductSearchInput & { page: number; pageSize: number } },
   { prisma }: Context
 ) => {
-  const { query, minPrice, maxPrice, categoryId, colorId, page, pageSize } =
+  const { query, minPrice, maxPrice, categoryId, colorId, page, choice, pageSize } =
     input;
 
   try {
@@ -34,6 +34,12 @@ export const searchProducts = async (
     if (colorId) {
       whereCondition.Colors = { id: colorId };
     }
+    if (choice === "in-discount") {
+      whereCondition.productDiscounts = { some: {} };
+    } else if (choice === "new-product") {
+      whereCondition.createdAt = { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }; // Filter products created within the last 30 days (adjust as needed)
+    }
+
 
     // Calculate skip based on page and pageSize
     const skip = (page - 1) * pageSize;
@@ -62,8 +68,8 @@ export const searchProducts = async (
     const totalCount = await prisma.product.count();
 
     const categories = await prisma.category.findMany({
-      where:{ name: { contains: query || "", mode: "insensitive" } },
-      take:5
+      where: { name: { contains: query || "", mode: "insensitive" } },
+      take: 5
     })
 
     return {

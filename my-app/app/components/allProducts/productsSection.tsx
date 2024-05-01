@@ -15,7 +15,7 @@ const ProductsSection = () => {
   const categoryParam = searchParams?.get("category");
   const sortParam = searchParams?.get("sort");
   const priceParamString = searchParams?.get("price");
-  const choiceParamString = searchParams?.get("choice");
+  const choiceParam = searchParams?.get("choice");
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
@@ -30,6 +30,7 @@ const ProductsSection = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      
       try {
         const { data } = await searchProducts({
           variables: {
@@ -39,7 +40,7 @@ const ProductsSection = () => {
               colorId: colorParam || undefined,
               minPrice: 1,
               maxPrice: priceParam || undefined,
-              choice: choiceParamString || undefined,
+              choice: choiceParam || undefined,
               page,
               pageSize,
             },
@@ -62,6 +63,7 @@ const ProductsSection = () => {
         console.error("Error fetching products:", error);
       }
     };
+console.log(productsData);
 
     fetchProducts();
   }, [
@@ -70,6 +72,7 @@ const ProductsSection = () => {
     colorParam,
     sortParam,
     priceParam,
+    choiceParam,
     page,
     pageSize,
   ]);

@@ -4,18 +4,10 @@ import Link from "next/link";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useSidebarStore } from "../../../store/zustand";
-import {
-  CATEGORY_QUERY,
-  COLORS_QUERY,
-  SEARCH_PRODUCTS_QUERY,
-} from "../../../../graphql/queries";
-import {
-  useSearchParams,
-  useRouter,
-  ReadonlyURLSearchParams,
-} from "next/navigation";
+import { CATEGORY_QUERY, COLORS_QUERY } from "../../../../graphql/queries";
+import { useSearchParams, useRouter } from "next/navigation";
 import prepRoute from "../../../components/_prepRoute";
 
 // / ------------------!--------------------
@@ -61,6 +53,7 @@ const SideBar = () => {
     Record<string, string[]>
   >({});
   const { isOpen } = useSidebarStore();
+
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
       setCategories(data.categories);
@@ -85,11 +78,10 @@ const SideBar = () => {
 
   const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
-    console.log(value);
-    
+
     let updatedQueries = { ...selectedFilterQueries };
-    delete updatedQueries["query"]
-    
+    delete updatedQueries["query"];
+
     if (checked) {
       if (updatedQueries[name]) {
         updatedQueries[name] = [...updatedQueries[name], value];
@@ -97,6 +89,7 @@ const SideBar = () => {
         updatedQueries[name] = [value];
       }
     } else {
+      console.log(updatedQueries[name]);
       if (updatedQueries[name]) {
         updatedQueries[name] = updatedQueries[name].filter(
           (query) => query !== value
@@ -107,6 +100,7 @@ const SideBar = () => {
         }
       }
     }
+
     setSelectedFilterQueries(updatedQueries);
     const queryString = convertValidStringQueries(updatedQueries);
 
@@ -146,11 +140,8 @@ const SideBar = () => {
   };
   const handleCategoryClick = (categoryId: string) => {
     const updatedQueries = { ...selectedFilterQueries };
-
     updatedQueries["category"] = [categoryId];
-
     setSelectedFilterQueries(updatedQueries);
-
     updateSearchParams(updatedQueries);
   };
   return (
@@ -185,14 +176,15 @@ const SideBar = () => {
                   id="filtre-choix-en-promo"
                   name="choice"
                   type="checkbox"
-                  value={"en-promo"}
+                  value={"in-discount"}
+                  checked={isChecked("choice", "in-discount")}
                   className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
                   onChange={handleSelectFilterOptions}
                 />
-                <label 
+                <label
                   htmlFor={`filtre-choix-en-promo`}
-                
-                className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all">
+                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                >
                   En Promo
                 </label>
               </div>
@@ -203,7 +195,8 @@ const SideBar = () => {
                   id="filtre-choix-nouveau-produit"
                   name="choice"
                   type="checkbox"
-                  value={"nouveau-produit"}
+                  value={"new-product"}
+                  checked={isChecked("choice", "new-product")}
                   className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
                   onChange={handleSelectFilterOptions}
                 />

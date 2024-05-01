@@ -2,12 +2,12 @@ const calcDateForNewProduct = (createdAt: Date) => {
   // Get the current date
   const currentDate = new Date();
 
-  // Calculate the date two months ago
-  const twoMonthsAgo = new Date();
-  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+  // Calculate the date 30 days ago
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  // Compare createdAt date with two months ago
-  const isNew = createdAt > twoMonthsAgo;
+  // Compare createdAt date with 30 days ago
+  const isNew = createdAt > thirtyDaysAgo;
   return isNew;
 };
 
