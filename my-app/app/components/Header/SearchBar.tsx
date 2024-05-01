@@ -3,8 +3,10 @@ import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 
+import { useRouter } from "next/navigation";
+import prepRoute from "../_prepRoute";
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -34,7 +36,7 @@ const SearchBar = () => {
   useEffect(() => {
     const handleMouseLeave = () => {
       if (!inputRef.current?.contains(document.activeElement) && !searching) {
-        setSearchQuery(""); 
+        setSearchQuery("");
       }
     };
 
@@ -47,7 +49,7 @@ const SearchBar = () => {
 
   useEffect(() => {
     if (!!data?.searchProducts?.results?.categories) {
-      setCategories(data.searchProducts.results.categories)
+      setCategories(data.searchProducts.results.categories);
     }
   }, [data]);
 
@@ -74,51 +76,75 @@ const SearchBar = () => {
         <CiSearch className="size-7 text-white" />
       </span>
       {data && searching && (
-        <div className="bg-lightBeige absolute top-10 z-50 overflow-y-scroll max-h-80 p-2">
-    
-          {
-            categories && (
-              <ul className="border-b-black mb-5">
-                <li className="font-bold">Catégories ({categories.length})</li>
-                {
-                  categories.map((category:any) =>(
-                    <li key={category.id} className="mb-2 border-b border-b-gray-300 pb-1 gap-2 cursor-pointer">{category.name}</li>
-                  ))
-                }
-              </ul>
-            )
-          }
-        
+        <div className="bg-white w-full left-0 absolute top-11 z-50 overflow-y-scroll max-h-80 py-2 pl-4">
+          {categories && (
+            <ul className="border-b-black mb-5">
+              <h3 className="font-bold tracking-wider ">
+                Catégories ({categories.length})
+              </h3>
+              {categories.map((category: any) => (
+                <Link href={`/Collections/tunisie?category=${category.id}`}>
+                  <li
+                    key={category.id}
+                    className="py-2  border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300  cursor-pointer"
+                  >
+                    {category.name}
+                  </li>
+                </Link>
+              ))}
+            </ul>
+          )}
+
           <ul className="border-b-black  mb-5">
-            <li className="font-bold">Produits ({data.searchProducts.results.products.length})</li>
+            <h3 className="font-bold tracking-wider">
+              Produits ({data.searchProducts.results.products.length})
+            </h3>
             {data.searchProducts.results.products.map((result: Product) => (
-              <Link
-                key={result.id}
-                href={""}
-                className="flex items-center mb-2 border-b border-b-gray-300 pb-1 gap-2 cursor-pointer"
-              >
-                <img
-                  src={result.images[0]}
-                  alt="product img"
-                  className="w-12 h-12"
-                />
-                <p className="text-sm flex flex-col">
-                  {result.name}
-                  <div className="flex gap-3">
-                    <span className="font-bold">
-                      {result.productDiscounts.length > 0
-                        ? `À partir de : ${result.productDiscounts[0].newPrice.toFixed(3)}`
-                        : result.price.toFixed(3)}
-                      TND
-                    </span>
-                    {result.productDiscounts.length > 0 && (
-                      <span className="font-bold line-through">
-                        {result.price.toFixed(3)} TND
+              <div>
+                <Link
+                  key={result.id}
+                  href={{
+                    pathname: `/products/tunisie/${prepRoute(result?.name)}`,
+                    query: {
+                      productId: result?.id,
+                      collection: [
+                        result?.categories[0]?.name,
+                        result?.categories[0]?.subcategories[0]?.name,
+                        result?.name,
+                      ],
+                    },
+                  }}
+                  className="flex items-center relative  border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300  cursor-pointer"
+                >
+                  {result.productDiscounts.length > 0 && (
+                    <p className="bg-red-500 py-1 px-2 absolute right-1 top-1 text-white text-xs">
+                      PROMO!
+                    </p>
+                  )}
+                  <Image
+                    width={80}
+                    height={80}
+                    src={result.images[0]}
+                    alt="product img"
+                  />
+                  <div className="text-sm flex flex-col">
+                    <p className="w-4/5">{result.name}</p>
+                    <div className="flex gap-3">
+                      <span className="font-bold">
+                        {result.productDiscounts.length > 0
+                          ? `À partir de : ${result.productDiscounts[0].newPrice.toFixed(3)}`
+                          : result.price.toFixed(3)}
+                        TND
                       </span>
-                    )}
+                      {result.productDiscounts.length > 0 && (
+                        <span className="font-bold line-through">
+                          {result.price.toFixed(3)} TND
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </p>
-              </Link>
+                </Link>
+              </div>
             ))}
           </ul>
         </div>

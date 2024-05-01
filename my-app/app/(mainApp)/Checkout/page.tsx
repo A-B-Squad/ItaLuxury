@@ -17,7 +17,7 @@ const Checkout = ({ searchParams }: any) => {
   const [governorat, setGovernorat] = useState<string>("");
   const [addresse, setAddresse] = useState<string>("");
   const router = useRouter();
-  const products = JSON.parse(searchParams.products);
+  const products = JSON.parse(searchParams?.products);
   console.log(searchParams);
 
   useEffect(() => {

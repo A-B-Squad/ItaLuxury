@@ -1,17 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { IoGrid } from "react-icons/io5";
-import { FaFilter } from "react-icons/fa";
-import { BsFillGrid3X3GapFill, BsFillGrid3X2GapFill } from "react-icons/bs";
-import { HiViewGrid } from "react-icons/hi";
 import {
-  useSearchParams,
   useRouter,
-  ReadonlyURLSearchParams,
+  useSearchParams
 } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
+import { FaFilter } from "react-icons/fa";
+import { HiViewGrid } from "react-icons/hi";
 import Breadcumb from "../../../components/Breadcumb";
-import { useSidebarStore } from "../../../store/zustand";
-import { useAllProductViewStore } from "../../../store/zustand";
+import { useAllProductViewStore, useSidebarStore } from "../../../store/zustand";
 import {
   convertStringToQueriesObject,
   convertValidStringQueries,

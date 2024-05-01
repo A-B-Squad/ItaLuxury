@@ -11,7 +11,11 @@ export const productsByCategory = async (_: any, { categoryName }: { categoryNam
                 }
             },
             include: {
-                categories: true, // Include categories related to products
+                categories: {
+                    include: {
+                        subcategories: true
+                    }
+                }, // Include categories related to products
                 productDiscounts: true, // Include product discount related to products
                 baskets: true, // Include baskets related to products
                 reviews: true, // Include reviews related to products

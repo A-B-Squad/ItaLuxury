@@ -77,9 +77,7 @@ const BasketDrawer = () => {
         },
       });
     } else {
-      console.log('====================================');
-      console.log(products);
-      console.log('====================================');
+     
       setProductsInBasket(products);
       setQuantityInBasket(
         products.reduce((acc: number, curr: any) => acc + curr.actualQuantity, 0)
@@ -197,7 +195,11 @@ const BasketDrawer = () => {
                               pathname: `products/tunisie/${prepRoute(product?.name)}`,
                               query: {
                                 productId: product?.id,
-                                collection: [product?.name],
+                                collection: [
+                                  product?.categories[0]?.name,
+                                  product?.categories[0]?.id,
+                                  product?.name,
+                                ],
                               },
                             }}
                           >
