@@ -84,33 +84,33 @@ const SideBar = () => {
   }, [searchParams]);
 
   const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-
-    let selectedQueries = selectedFilterQueries;
-    delete selectedQueries["query"];
-    if (selectedQueries[name]) {
-      if (type === "radio" || type === "range") {
-        selectedQueries[name] = [value];
-      } else if (selectedQueries[name].includes(value)) {
-        selectedQueries[name] = selectedQueries[name].filter(
+    const { name, value, checked } = e.target;
+    console.log(value);
+    
+    let updatedQueries = { ...selectedFilterQueries };
+    delete updatedQueries["query"]
+    
+    if (checked) {
+      if (updatedQueries[name]) {
+        updatedQueries[name] = [...updatedQueries[name], value];
+      } else {
+        updatedQueries[name] = [value];
+      }
+    } else {
+      if (updatedQueries[name]) {
+        updatedQueries[name] = updatedQueries[name].filter(
           (query) => query !== value
         );
-        if (!checkValidQuery(selectedQueries[name])) {
-          delete selectedQueries[name];
-        }
-      } else {
-        selectedQueries[name].push(value);
-      }
-    } else if (selectedQueries) {
-      selectedQueries[name] = [value];
-    }
 
-    router.push(
-      `/Collections/tunisie?${convertValidStringQueries(selectedQueries)}`,
-      {
-        scroll: false,
+        if (updatedQueries[name].length === 0) {
+          delete updatedQueries[name];
+        }
       }
-    );
+    }
+    setSelectedFilterQueries(updatedQueries);
+    const queryString = convertValidStringQueries(updatedQueries);
+
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
 
   const isChecked = (name: string, option: string) => {
@@ -139,10 +139,6 @@ const SideBar = () => {
     return flattenedCategories;
   };
   const flattenedCategories = flattenCategories(categories);
-
-  const checkValidQuery = (queries: string[]) => {
-    return queries.filter((query) => query !== "").length > 0;
-  };
 
   const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
     const queryString = convertValidStringQueries(updatedQueries);
@@ -186,14 +182,17 @@ const SideBar = () => {
             <div className="space-y-4">
               <div className="flex items-center">
                 <input
-                  id="en-promo"
-                  name="category"
+                  id="filtre-choix-en-promo"
+                  name="choice"
                   type="checkbox"
                   value={"en-promo"}
                   className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
                   onChange={handleSelectFilterOptions}
                 />
-                <label className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all">
+                <label 
+                  htmlFor={`filtre-choix-en-promo`}
+                
+                className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all">
                   En Promo
                 </label>
               </div>
@@ -202,7 +201,7 @@ const SideBar = () => {
               <div className="flex items-center">
                 <input
                   id="filtre-choix-nouveau-produit"
-                  name="category"
+                  name="choice"
                   type="checkbox"
                   value={"nouveau-produit"}
                   className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
@@ -315,7 +314,7 @@ const SideBar = () => {
                   <input
                     id={`filtre-color-${color.id}`}
                     name="color"
-                    type="radio"
+                    type="checkbox"
                     value={color.id}
                     checked={isChecked("color", color.id)}
                     style={{
@@ -364,7 +363,7 @@ const SideBar = () => {
                   <input
                     id={`filtre-color-${category.id}`}
                     name="category"
-                    type="radio"
+                    type="checkbox"
                     value={category.id}
                     checked={isChecked("category", category.id)}
                     className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"

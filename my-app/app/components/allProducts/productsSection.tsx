@@ -7,7 +7,6 @@ import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
 import { ProductBox } from "../ProductBox";
 import { useAllProductViewStore } from "../../store/zustand";
 
-import Loading from "./loading";
 import NoProductYet from "../ProductCarousel/NoProductYet";
 
 const ProductsSection = () => {
@@ -16,6 +15,7 @@ const ProductsSection = () => {
   const categoryParam = searchParams?.get("category");
   const sortParam = searchParams?.get("sort");
   const priceParamString = searchParams?.get("price");
+  const choiceParamString = searchParams?.get("choice");
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
@@ -39,6 +39,7 @@ const ProductsSection = () => {
               colorId: colorParam || undefined,
               minPrice: 1,
               maxPrice: priceParam || undefined,
+              choice: choiceParamString || undefined,
               page,
               pageSize,
             },

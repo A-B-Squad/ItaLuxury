@@ -91,7 +91,6 @@ export const ProductBox = ({ product }: any) => {
     toggleIsUpdated();
     openBasketDrawer();
   };
-  console.log(product);
 
   return (
     <>
