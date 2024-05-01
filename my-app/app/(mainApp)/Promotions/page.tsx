@@ -1,46 +1,37 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { BASKET_QUERY, SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { BASKET_QUERY, SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
-import { FaHeart } from "react-icons/fa";
-import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
-import prepRoute from "../_prepRoute";
-import Loading from "@/app/(mainApp)/loading";
+import prepRoute from "@/app/components/_prepRoute";
 import {
-  useAllProductViewStore,
   useBasketStore,
   useComparedProductsStore,
   useProductsInBasketStore,
-} from "../../store/zustand";
+} from "@/app/store/zustand";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import { GoGitCompare } from "react-icons/go";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import Cookies from "js-cookie";
+import { GoGitCompare } from "react-icons/go";
+import { FaHeart } from "react-icons/fa";
+import { SlBasket } from "react-icons/sl";
+import Loading from "../loading";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const ProductsSection = () => {
-  const searchParams = useSearchParams();
-  const colorParam = searchParams?.get("color");
-  const categoryParam = searchParams?.get("category");
-  const sortParam = searchParams?.get("sort");
-  const priceParamString = searchParams?.get("price");
-  const queryParam = searchParams?.get("query");
-  const priceParam = priceParamString ? +priceParamString : undefined;
-  const { view } = useAllProductViewStore();
-
-  const [searchProducts, { loading, data }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY
-  );
+const Promotions = () => {
   const [productsData, setProductsData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const pageSize = 10;
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const numberOfPages = Math.ceil(totalCount / pageSize);
+  const [searchProducts, { loading, data }] = useLazyQuery(
+    SEARCH_PRODUCTS_QUERY
+  );
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -58,31 +49,28 @@ const ProductsSection = () => {
   );
 
   useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+
     const fetchProducts = async () => {
       try {
         const { data } = await searchProducts({
           variables: {
             input: {
-              query:queryParam ||undefined,
-              categoryId: categoryParam || undefined,
-              colorId: colorParam || undefined,
-              minPrice: 1,
-              maxPrice: priceParam || undefined,
               page,
               pageSize,
             },
           },
         });
 
-        const fetchedProducts = [...(data?.searchProducts.results.products || [])];
-
-        if (sortParam === "asc") {
-          fetchedProducts.sort((a: any, b: any) => a.price - b.price);
-        } else if (sortParam === "desc") {
-          fetchedProducts.sort((a: any, b: any) => b.price - a.price);
-        }
-
-        setProductsData(fetchedProducts);
+        const fetchedProducts = data?.searchProducts.results.products
+        setProductsData(fetchedProducts.filter((product:Product)=> (product.productDiscounts?.length > 0) && product.productDiscounts));
+        console.log("====================================");
+        console.log(data?.searchProducts.results.products);
+        console.log("====================================");
         setTotalCount(data?.searchProducts.totalCount || 0);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -90,15 +78,7 @@ const ProductsSection = () => {
     };
 
     fetchProducts();
-  }, [
-    searchProducts,
-    categoryParam,
-    colorParam,
-    sortParam,
-    priceParam,
-    page,
-    pageSize,
-  ]);
+  }, [page, pageSize]);
 
   const handleNextPage = () => {
     if (page < numberOfPages) {
@@ -154,42 +134,18 @@ const ProductsSection = () => {
   };
 
   return (
-    <>
+    <div className="flex flex-col">
       {loading ? (
         <div className="flex items-center h-full justify-center">
           <Loading />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-between h-full ">
-          {
-            !!queryParam && (
-              <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">{productsData.length} résultats trouvé pour "{queryParam}"</h1>
-            )
-          }
-          <div
-            className={`${
-              view === 3
-                ? "md:grid-cols-3 grid-cols-1 lg:grid-cols-5 "
-                : view === 2
-                  ? "grid-cols-2"
-                  : view === 1
-                    ? " grid-cols-1 "
-                    : ""
-            } w-full py-5 grid  px-10 justify-items-center items-center gap-4 `}
-          >
+        <>
+          <div className=" w-full py-5 grid  px-10 justify-items-center items-center gap-4 md:grid-cols-3 grid-cols-1 lg:grid-cols-5">
             {productsData.map((product: Product) => (
               <div
-              key={product.id}
-                className={`
-              
-              ${
-                view === 3 || view == 2
-                  ? "flex-col items-center justify-center h-[335.5px]"
-                  : view === 1
-                    ? " flex-row h-52 gap-8 items-center justify-between px-6 "
-                    : ""
-              }
-              group flex w-full overflow-hidden border border-gray-100 bg-white shadow-md`}
+                key={product.id}
+                className="group flex flex-col w-64 overflow-hidden border border-gray-100 bg-white shadow-md"
               >
                 <Link
                   href={{
@@ -233,11 +189,7 @@ const ProductsSection = () => {
                     </button>
                   </div>
                 </Link>
-                <div
-                  className={`
-                ${view !== 1 ? " border-t" : ""}
-                mt-4 px-2 pb-5  w-full`}
-                >
+                <div className={`mt-4 px-2 pb-5  w-full`}>
                   <Link
                     href={{
                       pathname: `products/tunisie/${prepRoute(product?.name)}`,
@@ -327,7 +279,8 @@ const ProductsSection = () => {
               </div>
             ))}
           </div>
-          <div className="Page pagination justify-self-start h-32 ">
+
+          <div className="Page pagination self-center h-32 ">
             <ul className="inline-flex -space-x-px text-sm">
               <li>
                 <button
@@ -350,10 +303,10 @@ const ProductsSection = () => {
               </li>
             </ul>
           </div>
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 };
 
-export default ProductsSection;
+export default Promotions;
