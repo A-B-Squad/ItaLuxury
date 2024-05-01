@@ -27,7 +27,7 @@ const productDetailsDrawer = ({
     }
   }, []);
   return (
-    <div>
+    <div className="hidden md:flex">
       {isBottom && !!productDetails && (
         <div className="fixed bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
           <img
@@ -37,11 +37,11 @@ const productDetailsDrawer = ({
           />
 
           <div className="items-center ">
-            <h2 className="product_name tracking-wider text-2xl font-semibold ">
+            <h2 className="product_name tracking-wider text-xl font-semibold ">
               {productDetails.name}
             </h2>
             <div className="discount flex flex-col  gap-1 mt-2">
-              <p className="text-strongBeige tracking-wide text-xl font-bold">
+              <p className="text-strongBeige tracking-wide text-2xl font-bold">
                 {discount
                   ? discount.newPrice.toFixed(3)
                   : productDetails.price.toFixed(3)}{" "}

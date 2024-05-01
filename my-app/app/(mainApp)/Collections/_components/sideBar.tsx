@@ -4,18 +4,11 @@ import Link from "next/link";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useSidebarStore } from "../../../store/zustand";
-import {
-  CATEGORY_QUERY,
-  COLORS_QUERY,
-  SEARCH_PRODUCTS_QUERY,
-} from "../../../../graphql/queries";
-import {
-  useSearchParams,
-  useRouter,
-  ReadonlyURLSearchParams,
-} from "next/navigation";
+import { CATEGORY_QUERY, COLORS_QUERY } from "../../../../graphql/queries";
+import { useSearchParams, useRouter } from "next/navigation";
+import prepRoute from "../../../components/_prepRoute";
 
 // / ------------------!--------------------
 
@@ -60,6 +53,7 @@ const SideBar = () => {
     Record<string, string[]>
   >({});
   const { isOpen } = useSidebarStore();
+
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
       setCategories(data.categories);
@@ -83,10 +77,11 @@ const SideBar = () => {
   }, [searchParams]);
 
   const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
+
     let updatedQueries = { ...selectedFilterQueries };
-    delete updatedQueries["query"]
-    
+    delete updatedQueries["query"];
+
     if (checked) {
       if (updatedQueries[name]) {
         updatedQueries[name] = [...updatedQueries[name], value];
@@ -94,6 +89,7 @@ const SideBar = () => {
         updatedQueries[name] = [value];
       }
     } else {
+      console.log(updatedQueries[name]);
       if (updatedQueries[name]) {
         updatedQueries[name] = updatedQueries[name].filter(
           (query) => query !== value
@@ -104,6 +100,7 @@ const SideBar = () => {
         }
       }
     }
+
     setSelectedFilterQueries(updatedQueries);
     const queryString = convertValidStringQueries(updatedQueries);
 
@@ -137,21 +134,14 @@ const SideBar = () => {
   };
   const flattenedCategories = flattenCategories(categories);
 
-  const checkValidQuery = (queries: string[]) => {
-    return queries.filter((query) => query !== "").length > 0;
-  };
-
   const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
     const queryString = convertValidStringQueries(updatedQueries);
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
   const handleCategoryClick = (categoryId: string) => {
     const updatedQueries = { ...selectedFilterQueries };
-
     updatedQueries["category"] = [categoryId];
-
     setSelectedFilterQueries(updatedQueries);
-
     updateSearchParams(updatedQueries);
   };
   return (
@@ -163,30 +153,90 @@ const SideBar = () => {
         <h3 className="font-bold tracking-widest text-lg pb-2">
           Main Categories
         </h3>
+        {/* filter with choix */}
+        <div className="border-b border-gray-200 py-6">
+          <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
+            <Link
+              rel="preload"
+              href={"/Collections/tunisie"}
+              className="flex w-full items-center justify-between"
+            >
+              choix
+              <IoIosArrowForward />
+            </Link>
+          </h3>
 
+          <div
+            className="pt-6 overflow-y-scroll max-h-60"
+            id="filter-section-1"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <input
+                  id="filtre-choix-en-promo"
+                  name="choice"
+                  type="checkbox"
+                  value={"in-discount"}
+                  checked={isChecked("choice", "in-discount")}
+                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
+                  onChange={handleSelectFilterOptions}
+                />
+                <label
+                  htmlFor={`filtre-choix-en-promo`}
+                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                >
+                  En Promo
+                </label>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <input
+                  id="filtre-choix-nouveau-produit"
+                  name="choice"
+                  type="checkbox"
+                  value={"new-product"}
+                  checked={isChecked("choice", "new-product")}
+                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
+                  onChange={handleSelectFilterOptions}
+                />
+                <label
+                  htmlFor={`filtre-choix-nouveau-produit`}
+                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                >
+                  Nouveau Produit
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* filter with main categories */}
         <ul
           role="list"
           className="space-y-4 border-b  border-gray-200 pb-6 text-sm font-medium text-gray-900"
         >
           {categories?.map((category: any) => (
-            <li
-              key={category.id}
-              className="relative group transition-all border-b py-2 "
-            >
-              <button
-                type="button"
-                onClick={() => handleCategoryClick(category.id)}
-                className="focus:outline-none hover:text-black transition-colors"
+            <li className="relative group transition-all  border-b py-2 ">
+              <Link
+                href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+                key={category.id}
               >
-                {category.name}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryClick(category.id)}
+                  className="focus:outline-none hover:text-black transition-colors"
+                >
+                  {category.name}
+                </button>
+              </Link>
             </li>
           ))}
         </ul>
-
+        {/* filter with prices */}
         <div className="border-b border-gray-200 py-6">
           <h3 className=" tracking-widest  text-gray-900 font-semibold text-base">
             <Link
+              rel="preload"
               href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between "
             >
@@ -237,9 +287,11 @@ const SideBar = () => {
             </div>
           </div>
         </div>
+        {/* filter with colors */}
         <div className="border-b border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest font-semibold text-base text-gray-900">
             <Link
+              rel="preload"
               href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between     "
             >
@@ -247,6 +299,7 @@ const SideBar = () => {
               <IoIosArrowForward />
             </Link>
           </h3>
+
           <div className="pt-6 overflow-y-scroll max-h-60">
             <div className=" flex items-center flex-wrap px-3 w-full  gap-3">
               {colors?.map((color: any) => (
@@ -280,9 +333,11 @@ const SideBar = () => {
             </div>
           </div>
         </div>
+        {/* filter with ctegories */}
         <div className="border-b border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
             <Link
+              rel="preload"
               href={"/Collections/tunisie"}
               className="flex w-full items-center justify-between"
             >

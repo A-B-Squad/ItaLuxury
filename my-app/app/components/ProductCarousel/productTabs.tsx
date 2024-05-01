@@ -1,30 +1,16 @@
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
 import {
   Carousel,
   CarouselContent,
+  CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import React,{ useEffect, useState } from "react";
-import AllProducts from "./AllProducts";
+import React from "react";
 import Loading from "./Loading";
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+import { ProductBox } from "../ProductBox";
+import NoProductYet from "./NoProductYet";
 
 const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
-  const [userId, setUserId] = useState<string>("");
-
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setUserId(decoded.userId);
-    }
-  }, []);
-
   return (
     <div className="products-tabs relative cursor-pointer rounded-md shadow-lg grid">
       {loadingNewProduct && <Loading />}
@@ -34,14 +20,17 @@ const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
             <CarouselContent className="h-full gap-1 px-3  w-full ">
               {(data.products ? data.products : data.productsLessThen20).map(
                 (product: any, index: any) => (
-                  <AllProducts
-                    key={index}
-                    product={product}
-                    userId={userId}
-                    carouselWidthClass={carouselWidthClass}
-                  />
+                  <>
+                    <CarouselItem
+                      key={product?.id}
+                      className={`carousel-item  group hover:rounded-sm  h-[400px]    transition-all relative pb-2  flex  flex-col justify-between  items-center border shadow-xl basis-full  md:basis-1/2 lg:basis-1/4  xxl:basis-1/5 ${carouselWidthClass}`}
+                    >
+                      <ProductBox product={product} />
+                    </CarouselItem>
+                  </>
                 )
               )}
+              {/* {!data && <NoProductYet />} */}
             </CarouselContent>
             <CarouselPrevious className="px-2 left-5 transition-all bg-strongBeige text-white " />
             <CarouselNext className="px-2 transition-all right-5 bg-strongBeige text-white " />

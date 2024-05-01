@@ -11,7 +11,8 @@ export const favoriteProducts = async (_: any, { userId }: { userId: string }, {
             include: {
                 Product: {
 
-                    include: { categories: { include: { subcategories: true } } }
+                    include: {                 categories: { include: { subcategories: { include: { subcategories: true } } } }, // Include categories related to products
+                }
                 }
             }
         });

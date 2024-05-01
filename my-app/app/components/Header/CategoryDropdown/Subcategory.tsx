@@ -21,7 +21,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({ subcategories }) => {
         <div key={subIndex} className="ml-10 h-fit">
           <Link
             href={{
-              pathname: `Collections/${prepRoute(subcategory.name)}-tunisie`,
+              pathname: `/Collections/${prepRoute(subcategory.name)}/tunisie?category=${subcategory.id}`,
               query: {
                 category: subcategory.id,
               },

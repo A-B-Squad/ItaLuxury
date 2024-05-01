@@ -7,7 +7,9 @@ export const productsDiscounts = async (_: any, __: any, { prisma }: Context) =>
         const allProductDiscounts = await prisma.productDiscount.findMany({
             include: {
                 product: {
-                    include: { categories: { include: { subcategories: true } } }
+                    include: {
+                        categories: { include: { subcategories: { include: { subcategories: true } } } }, // Include categories related to products
+                    }
                 }
             }
         });

@@ -520,6 +520,7 @@ input ProductInputQuantity {
 
 input ProductSearchInput {
   query: String
+  choice: String
   minPrice: Float
   maxPrice: Float
   categoryId: ID

@@ -12,24 +12,52 @@ const Breadcumb = () => {
     <div className="flex gap-2 items-center text-xs md:text-sm w-full  lg:w-max tracking-wider my-5 lg:ml-5">
       <div className="hover:text-strongBeige transition-all  flex items-center gap-1">
         <IoHome />
-        <Link href={"/Home"}>Accueil</Link>
+        <Link 
+        rel="preload"
+        href={"/Home"}>Accueil</Link>
       </div>
       {position[0] && (
         <>
           <IoMdArrowDropright size={20} />
           <div className="hover:text-strongBeige transition-all flex items-center gap-2">
-            <Link href={`/Collections/tunisie?category=${position[1]}`}>
+            <Link 
+            rel="preload"
+            href={`/Collections/tunisie?category=${position[1]}`}>
               {position[0]}
             </Link>
           </div>
         </>
       )}
-
       {position[2] && (
         <>
           <IoMdArrowDropright size={20} />
+          <div className="hover:text-strongBeige transition-all flex items-center gap-2">
+            <Link 
+            rel="preload"
+            href={`/Collections/tunisie?category=${position[3]}`}>
+              {position[2]}
+            </Link>
+          </div>
+        </>
+      )}
+      {position[4] && (
+        <>
+          <IoMdArrowDropright size={20} />
+          <div className="hover:text-strongBeige transition-all flex items-center gap-2">
+            <Link 
+            rel="preload"
+            href={`/Collections/tunisie?category=${position[5]}`}>
+              {position[4]}
+            </Link>
+          </div>
+        </>
+      )}
+
+      {position[6] && (
+        <>
+          <IoMdArrowDropright size={20} />
           <div className="text-strongBeige transition-all flex items-center gap-2">
-            <p>{position[2]} </p>
+            <p>{position[6]} </p>
           </div>
         </>
       )}

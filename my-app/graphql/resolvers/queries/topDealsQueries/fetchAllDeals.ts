@@ -9,7 +9,13 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
                     include: {
                         productDiscounts: {
                             include: { Discount: true }
-                        }, Colors: true, attributes: true, categories: { include: { subcategories: true } }
+                        }, Colors: true, attributes: true, categories: {
+                            include: {
+                                subcategories: {
+                                    include: { subcategories: true }
+                                }
+                            }
+                        }
                     }
                 }
 

@@ -28,7 +28,6 @@ import {
 import Breadcumb from "../../../components/Breadcumb";
 import PopHover from "../../../components/PopHover";
 import ProductDetailsDrawer from "../../../components/ProductInfo/productDetailsDrawer";
-import ProductInfo from "../../../components/ProductInfo/ProductInfo";
 import {
   useBasketStore,
   useComparedProductsStore,
@@ -249,15 +248,14 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         )}
         <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
           <Breadcumb />
-          <ProductInfo />
 
           <div className="grid items-start grid-cols-12 gap-10  ">
             <div className=" flex lg:flex-row flex-col gap-2 col-span-10 lg:col-span-7 w-full text-center">
               <div className="relative shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
                 <InnerImageZoom
                   className="w-4/5 rounded object-cover"
-                  zoomSrc={bigImage}
-                  src={bigImage}
+                  zoomSrc={bigImage || ""}
+                  src={bigImage || ""}
                   zoomType="hover"
                   hideHint
                   zoomScale={1.5}
@@ -439,7 +437,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             price: discount
                               ? discount.newPrice
                               : productDetails?.price,
-                            actualQuantity,
+                            actualQuantity:1,
                           });
                         } else {
                           console.log("Product is already in the basket");
@@ -605,7 +603,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           </div>
         )}
       </div>
-      <ProductInfo />
       <div className="Carousel voir aussi px-10 mb-[15%]">
         <TitleProduct title={"Voir aussi"} />
         <div>

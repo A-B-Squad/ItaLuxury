@@ -38,7 +38,6 @@ const Basket = () => {
         quantity: basket.quantity,
         basketId: basket.id,
       }));
-console.log(fetchedProducts);
 
       setProducts(fetchedProducts);
       const total = fetchedProducts.reduce((acc: number, curr: Product) => {

@@ -1,5 +1,7 @@
 import React from "react";
 import Subcategory from "./Subcategory";
+import Link from "next/link";
+import prepRoute from "../../_prepRoute";
 
 interface CategoryProps {
   data: {
@@ -25,7 +27,8 @@ const Category: React.FC<CategoryProps> = ({
       <div className="parentCategory space-y-1">
         {data?.categories?.map((category: Category, index: number) => (
           <div data-parentcategory={category.name} key={index}>
-            <p
+            <Link
+              href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
               onMouseEnter={() => setActiveCategory(category.name)}
               className={` h-fit rounded-md py-1 px-2 w-fit cursor-pointer hover:bg-lightBeige hover:text-white transition-all ${
                 category.name === activeCategory
@@ -35,7 +38,7 @@ const Category: React.FC<CategoryProps> = ({
               data-category={category.name}
             >
               {category.name}
-            </p>
+            </Link>
           </div>
         ))}
       </div>

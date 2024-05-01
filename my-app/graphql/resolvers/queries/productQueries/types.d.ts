@@ -4,6 +4,8 @@ interface ProductSearchInput {
   maxPrice?: number;
   categoryId?: string | null;
   colorId?: string | null;
+  choice?: string | null;
   page?: number 
   pageSize?: number ;
+
 }
