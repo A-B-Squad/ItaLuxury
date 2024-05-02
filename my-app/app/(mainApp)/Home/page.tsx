@@ -6,6 +6,7 @@ import Right from "@/components/adverstissment/right";
 import SideAds from "@/components/adverstissment/sideAds";
 import ProductTabs from "@/components/ProductCarousel/productTabs";
 import TitleProduct from "@/components/ProductCarousel/titleProduct";
+import BestSales from "@/components/BestSales"
 import {
   SIDE_ADS_NEW_PRODUCT,
   TAKE_6_PRODUCTS,
@@ -182,6 +183,7 @@ const Home = () => {
           </div>
         </div>
         <ClientServices />
+        <BestSales/>
       </div>
     </div>
   );

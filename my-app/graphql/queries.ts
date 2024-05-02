@@ -60,19 +60,19 @@ export const BASKET_QUERY = gql`
         price
         images
         categories {
-      id
-      name
-      subcategories {
-        id
-        name
-        parentId
-        subcategories {
           id
           name
-          parentId
+          subcategories {
+            id
+            name
+            parentId
+            subcategories {
+              id
+              name
+              parentId
+            }
+          }
         }
-      }
-    }
       }
     }
   }
@@ -89,19 +89,19 @@ export const TAKE_6_PRODUCTS = gql`
       inventory
       images
       categories {
-      id
-      name
-      subcategories {
         id
         name
-        parentId
         subcategories {
           id
           name
           parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
         }
       }
-    }
       Colors {
         color
         Hex
@@ -128,19 +128,19 @@ export const TAKE_10_PRODUCTS = gql`
       inventory
       images
       categories {
-      id
-      name
-      subcategories {
         id
         name
-        parentId
         subcategories {
           id
           name
           parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
         }
       }
-    }
       Colors {
         color
         Hex
@@ -167,19 +167,19 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
       inventory
       images
       categories {
-      id
-      name
-      subcategories {
         id
         name
-        parentId
         subcategories {
           id
           name
           parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
         }
       }
-    }
       Colors {
         color
         Hex
@@ -225,13 +225,13 @@ export const TOP_DEALS = gql`
             id
             name
             parentId
-              subcategories {
-                id
-                name
-                parentId
-              }
-      }
-    }
+            subcategories {
+              id
+              name
+              parentId
+            }
+          }
+        }
         Colors {
           color
           Hex
@@ -282,7 +282,6 @@ export const CATEGORY_QUERY = gql`
   }
 `;
 
-
 export const COLORS_QUERY = gql`
   query Colors {
     colors {
@@ -295,53 +294,111 @@ export const COLORS_QUERY = gql`
 
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($input: ProductSearchInput!) {
-  searchProducts(input: $input) {
-  results {
-    products {
-      id
-      name
-      price
-      isVisible
-      reference
-      description
-      inventory
-      solde
-      categories {
-      id
-      name
-      subcategories {
-        id
-        name
-        parentId
-        subcategories {
+    searchProducts(input: $input) {
+      results {
+        products {
           id
           name
-          parentId
+          price
+          isVisible
+          reference
+          description
+          inventory
+          solde
+          categories {
+            id
+            name
+            subcategories {
+              id
+              name
+              parentId
+              subcategories {
+                id
+                name
+                parentId
+              }
+            }
+          }
+          Colors {
+            color
+            Hex
+          }
+          productDiscounts {
+            price
+            newPrice
+            Discount {
+              percentage
+            }
+          }
+          images
+          createdAt
+        }
+        categories {
+          id
+          name
+        }
+      }
+      totalCount
+    }
+  }
+`;
+
+export const FAVORITE_PRODUCTS_QUERY = gql`
+  query Product($userId: ID!) {
+    favoriteProducts(userId: $userId) {
+      Product {
+        id
+        name
+        price
+        isVisible
+        reference
+        description
+        inventory
+        solde
+        images
+        createdAt
+        categories {
+          id
+          name
+          subcategories {
+            id
+            name
+            subcategories {
+              id
+              name
+            }
+          }
+        }
+        productDiscounts {
+          id
+          price
+          newPrice
         }
       }
     }
-        Colors {
-          color
-          Hex
-        }
-        productDiscounts {
-          price
-          newPrice
-          Discount {
-            percentage
+  }
+`;
+
+export const BEST_SALES_QUERY = gql`
+  query GetBestSales {
+    getBestSales {
+      id
+      Product {
+        id
+        name
+        categories {
+          id
+          name
+          subcategories {
+            id
+            name
+            subcategories {
+              id
+              name
+            }
           }
         }
-      images
-      createdAt
-    
-    }
-    categories {
-      id
-      name
+      }
     }
   }
-  totalCount
-  }
-  
-}
 `;
