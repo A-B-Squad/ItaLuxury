@@ -1,14 +1,24 @@
 "use client";
-import {
-  useRouter,
-  useSearchParams
-} from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
 import { HiViewGrid } from "react-icons/hi";
 import Breadcumb from "../../../components/Breadcumb";
-import { useAllProductViewStore, useSidebarStore } from "../../../store/zustand";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  useAllProductViewStore,
+  useSidebarStore,
+} from "../../../store/zustand";
 import {
   convertStringToQueriesObject,
   convertValidStringQueries,
@@ -40,27 +50,39 @@ const TopBar = () => {
     );
   };
 
-  const handleSortSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedSort = e.target.value;
-    handleSortChange(selectedSort);
-  };
   return (
     <div className="flex z-10 top-0 lg:relative relative w-full border-t px-5 items-center white bg-white shadow-lg  justify-between border-b border-gray-200 ">
       <Breadcumb />
 
       <div className="flex items-center">
-        <div className="relative ">
-          <select
-            name="sort"
-            id="sort"
-            className="max-w-16 cursor-pointer"
-            onChange={handleSortSelection}
-          >
-            <option value="">Sort</option>
-            <option value="desc">Price : High to Low</option>
-            <option value="asc">Price : Low To High</option>
-          </select>
-        </div>
+ 
+
+        <Select
+          onValueChange={(value) => {
+            handleSortChange(value);
+          }}
+        >
+          <SelectTrigger className="w-[180px] outline-none">
+            <SelectValue placeholder="Trier par :" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectGroup>
+              <SelectItem
+                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
+                value="desc"
+              >
+                Prix, décroissant
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                value="asc"
+              >
+                Prix, croissant
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
         <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
           <button
             type="button"

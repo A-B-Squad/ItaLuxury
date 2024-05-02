@@ -48,6 +48,7 @@ const SideBar = () => {
   const [priceChanged, setPriceChanged] = useState(false);
   const [price, setPrice] = useState(500);
   const router = useRouter();
+
   const searchParams: URLSearchParams | null = useSearchParams();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<
     Record<string, string[]>
@@ -106,6 +107,27 @@ const SideBar = () => {
 
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
+  const handleChoiceFilterOptions = (value: string) => {
+    let updatedQueries = { ...selectedFilterQueries };
+
+    // Check if the value is "in-discount" or "new-product"
+    if (value === "in-discount") {
+      // If "En Promo" is selected, remove "Nouveau Produit"
+      delete updatedQueries["new_product"];
+      // Update selected option
+      updatedQueries["choice"] = [value];
+    } else if (value === "new-product") {
+      // If "Nouveau Produit" is selected, remove "En Promo"
+      delete updatedQueries["en_promo"];
+      // Update selected option
+      updatedQueries["choice"] = [value];
+    }
+
+    setSelectedFilterQueries(updatedQueries);
+    const queryString = convertValidStringQueries(updatedQueries);
+
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+  };
 
   const isChecked = (name: string, option: string) => {
     return Boolean(
@@ -149,12 +171,12 @@ const SideBar = () => {
       aria-labelledby="products-heading "
       className={`w-96   top-0 h-full bg-white shadow-md sticky ${isOpen ? "sticky" : "hidden md:block"} `}
     >
-      <form className="relative pl-5 pt-5  shadow-lg">
-        <h3 className="font-bold tracking-widest text-lg pb-2">
+      <form className="relative  pt-5  shadow-lg">
+        <h3 className="font-bold tracking-widest pl-5 text-lg pb-2">
           Main Categories
         </h3>
         {/* filter with choix */}
-        <div className="border-b border-gray-200 py-6">
+        <div className="border-b pl-5 border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
             <Link
               rel="preload"
@@ -166,57 +188,51 @@ const SideBar = () => {
             </Link>
           </h3>
 
-          <div
-            className="pt-6 overflow-y-scroll max-h-60"
-            id="filter-section-1"
-          >
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <input
-                  id="filtre-choix-en-promo"
-                  name="choice"
-                  type="checkbox"
-                  value={"in-discount"}
-                  checked={isChecked("choice", "in-discount")}
-                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
-                  onChange={handleSelectFilterOptions}
-                />
-                <label
-                  htmlFor={`filtre-choix-en-promo`}
-                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                >
-                  En Promo
-                </label>
-              </div>
+          <div className="pt-6 space-y-3 max-h-60" id="filter-section-1">
+            <div className="flex items-center group">
+              <input
+                id="filtre-choix-en-promo"
+                name="choice"
+                type="radio"
+                value={"in-discount"}
+                checked={isChecked("choice", "in-discount")}
+                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "in-discount") ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-strongBeige hover:shadow-lg cursor-pointer group   text-strongBeige `}
+                onChange={() => handleChoiceFilterOptions("in-discount")}
+              />
+              <label
+                htmlFor={`filtre-choix-en-promo`}
+                className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", "in-discount") ? "text-black font-semibold" : "text-gray-600"} group-hover:text-black group-hover:font-semibold  transition-all`}
+              >
+                En Promo
+              </label>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <input
-                  id="filtre-choix-nouveau-produit"
-                  name="choice"
-                  type="checkbox"
-                  value={"new-product"}
-                  checked={isChecked("choice", "new-product")}
-                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
-                  onChange={handleSelectFilterOptions}
-                />
-                <label
-                  htmlFor={`filtre-choix-nouveau-produit`}
-                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                >
-                  Nouveau Produit
-                </label>
-              </div>
+
+            <div className="flex items-center group">
+              <input
+                id="filtre-choix-nouveau-produit"
+                name="choice"
+                type="radio"
+                value={"new-product"}
+                checked={isChecked("choice", "new-product")}
+                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "new-product") ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-lightBeige hover:shadow-lg cursor-pointer group    text-strongBeige `}
+                onChange={() => handleChoiceFilterOptions("new-product")}
+              />
+              <label
+                htmlFor={`filtre-choix-nouveau-produit`}
+                className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", "new-product") ? "text-black font-semibold" : "text-gray-600"} group-hover:text-black group-hover:font-semibold  transition-all`}
+              >
+                Nouveau Produit
+              </label>
             </div>
           </div>
         </div>
         {/* filter with main categories */}
         <ul
           role="list"
-          className="space-y-4 border-b  border-gray-200 pb-6 text-sm font-medium text-gray-900"
+          className="space-y-4 pl-5   border-gray-200 pb-6 text-sm font-medium text-gray-900"
         >
           {categories?.map((category: any) => (
-            <li className="relative group transition-all  border-b py-2 ">
+            <li className="relative group transition-all flex items-center justify-between py-2 ">
               <Link
                 href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
                 key={category.id}
@@ -229,11 +245,12 @@ const SideBar = () => {
                   {category.name}
                 </button>
               </Link>
+              <span className=" h-full w-1 rounded-sm absolute right-0 group-hover:bg-strongBeige bg-mediumBeige border transition-all bg-red"></span>
             </li>
           ))}
         </ul>
         {/* filter with prices */}
-        <div className="border-b border-gray-200 py-6">
+        <div className="border-b pl-5 border-gray-200 py-6">
           <h3 className=" tracking-widest  text-gray-900 font-semibold text-base">
             <Link
               rel="preload"
@@ -288,7 +305,7 @@ const SideBar = () => {
           </div>
         </div>
         {/* filter with colors */}
-        <div className="border-b border-gray-200 py-6">
+        <div className="border-b pl-5 border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest font-semibold text-base text-gray-900">
             <Link
               rel="preload"
@@ -334,7 +351,7 @@ const SideBar = () => {
           </div>
         </div>
         {/* filter with ctegories */}
-        <div className="border-b border-gray-200 py-6">
+        <div className="border-b pl-5 border-gray-200 py-6">
           <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
             <Link
               rel="preload"

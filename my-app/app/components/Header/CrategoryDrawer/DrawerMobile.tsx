@@ -10,6 +10,7 @@ import { CATEGORY_QUERY } from "../../../../graphql/queries";
 import Cookies from "js-cookie";
 import { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
+import { MdKeyboardArrowRight } from "react-icons/md";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -88,6 +89,11 @@ export function DrawerMobile() {
             tard !
           </p>
         )}
+        <div onClick={closeCategoryDrawer}  className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2`}>
+        <Link href={"/Collections/tunisie"} className="capitalize font-bold">Voir Tous</Link>
+        <MdKeyboardArrowRight size={20} />
+
+        </div>
       </Drawer>
     </>
   );
