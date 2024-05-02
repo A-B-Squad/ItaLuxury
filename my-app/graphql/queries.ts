@@ -345,36 +345,60 @@ export const SEARCH_PRODUCTS_QUERY = gql`
 
 export const FAVORITE_PRODUCTS_QUERY = gql`
   query Product($userId: ID!) {
-  favoriteProducts(userId: $userId) {
-    Product {
-      id
-      name
-      price
-      isVisible
-      reference
-      description
-      inventory
-      solde
-      images
-      createdAt
-      categories {
+    favoriteProducts(userId: $userId) {
+      Product {
         id
         name
-        subcategories {
+        price
+        isVisible
+        reference
+        description
+        inventory
+        solde
+        images
+        createdAt
+        categories {
           id
           name
           subcategories {
             id
             name
+            subcategories {
+              id
+              name
+            }
           }
         }
-      }
-      productDiscounts {
-        id
-        price
-        newPrice
+        productDiscounts {
+          id
+          price
+          newPrice
+        }
       }
     }
   }
-}
+`;
+
+export const BEST_SALES_QUERY = gql`
+  query GetBestSales {
+    getBestSales {
+      id
+      Product {
+        id
+        name
+        categories {
+          id
+          name
+          subcategories {
+            id
+            name
+            subcategories {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
 `;

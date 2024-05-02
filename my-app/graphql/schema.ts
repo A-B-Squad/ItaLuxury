@@ -238,8 +238,23 @@ type SearchResult {
   totalCount: Int!
 }
 
+type BestSales {
+  id: String!
+  Product: Product
+}
+
+type Brand {
+  id: String!
+  name: String!
+  logo: String!
+}
+
 # Define the Query type
 type Query {
+
+  # Fetch Best Sales
+  getBestSales(limit:Int): [BestSales!]
+
   # Fetch all products
   products(limit:Int): [Product!]
 
@@ -498,13 +513,13 @@ input CreateModeratorInput {
 input ExchangePackageProductInput{
   packageId: String
   productId: String
-  cause:Cause,
+  cause:Cause
   description:String
   productQuantity:Int!
 }
 input ExchangePackageInput{
   packageId: String
-  cause:Cause,
+  cause:Cause
   description:String
 }
 
@@ -525,8 +540,8 @@ input ProductSearchInput {
   maxPrice: Float
   categoryId: ID
   colorId: ID
-  page:Int,
-  pageSize:Int,
+  page:Int
+  pageSize:Int
 }
 
 `;
