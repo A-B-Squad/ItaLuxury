@@ -1,24 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  BASKET_QUERY,
-  FAVORITE_PRODUCTS_QUERY,
-} from "../../../graphql/queries";
-import { useLazyQuery, useMutation } from "@apollo/client";
-import Link from "next/link";
-import prepRoute from "../../components/_prepRoute";
-import {
-  useBasketStore,
-  useComparedProductsStore,
-  useProductsInBasketStore,
-} from "../../store/zustand";
-import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import { FAVORITE_PRODUCTS_QUERY } from "../../../graphql/queries";
+import { useLazyQuery } from "@apollo/client";
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
-import { GoGitCompare } from "react-icons/go";
-import { FaHeart } from "react-icons/fa";
-import { SlBasket } from "react-icons/sl";
+
 import Loading from "../loading";
 import { ProductBox } from "../../components/ProductBox";
 
@@ -33,8 +21,6 @@ const FavoriteList = () => {
   const [getFavoriteProducts, { loading, data }] = useLazyQuery(
     FAVORITE_PRODUCTS_QUERY
   );
-
-  
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -52,15 +38,15 @@ const FavoriteList = () => {
         });
 
         const fetchedProducts = data?.favoriteProducts;
-        setProductsData(data?.favoriteProducts.map((fav:any)=> (fav.Product)));
-
+        setProductsData(data?.favoriteProducts.map((fav: any) => fav.Product));
       } catch (error) {
         console.error("Error fetching products:", error);
       }
     };
-
     fetchProducts();
   }, [data]);
+
+  
   return (
     <div className="flex flex-col">
       {loading ? (

@@ -42,12 +42,13 @@ model User {
 }
 
 model Category {
-  id            String     @id @default(uuid())
-  name          String     @unique
-  parent        Category?  @relation("Subcategories", fields: [parentId], references: [id], onDelete: Cascade)
+  id            String      @id @default(uuid())
+  name          String      @unique
+  parent        Category?   @relation("Subcategories", fields: [parentId], references: [id], onDelete: Cascade)
   parentId      String? // ID of the parent category
   products      Product[] // Products associated with this category
-  subcategories Category[] @relation("Subcategories") // One-to-Many self-relation
+  subcategories Category[]  @relation("Subcategories") // One-to-Many self-relation
+  BestSales     BestSales[]
 }
 
 model Product {
@@ -72,6 +73,15 @@ model Product {
   Colors            Colors?             @relation(fields: [colorsId], references: [id])
   colorsId          String?
   TopDeals          TopDeals?
+  BestSales         BestSales[]
+}
+
+model BestSales {
+  id         String    @id @default(uuid())
+  Category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  Product    Product?  @relation(fields: [productId], references: [id])
+  productId  String?
 }
 
 model Colors {
@@ -201,6 +211,12 @@ model CompanyInfo {
 
 model content_visibility {
   id                String  @id @default(uuid())
-  section   Int
+  section           Int
   visibility_status Boolean
+}
+
+model Brand {
+  id   String @id @default(uuid())
+  name String
+  logo String
 }
