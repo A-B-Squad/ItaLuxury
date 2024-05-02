@@ -147,7 +147,7 @@ export const ProductBox = ({ product }: any) => {
               Nouveau
             </span>
           )}
-          {product?.productDiscounts.length > 0 && (
+          {product?.productDiscounts?.length > 0 && (
             <span className="bg-red-500 w-fit shadow-md p-1">Promo</span>
           )}
         </div>
@@ -296,7 +296,7 @@ export const ProductBox = ({ product }: any) => {
                 )}
                 <p
                   className={`${
-                    product?.productDiscounts.length > 0
+                    product?.productDiscounts?.length > 0
                       ? "line-through text-base md:text-lg"
                       : "text-strongBeige text-base md:text-lg py-1"
                   } font-semibold`}

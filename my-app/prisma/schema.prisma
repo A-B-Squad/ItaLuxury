@@ -201,6 +201,6 @@ model CompanyInfo {
 
 model content_visibility {
   id                String  @id @default(uuid())
-  seaction   Int
+  section   Int
   visibility_status Boolean
 }

@@ -178,7 +178,7 @@ type FavoriteProducts {
   userId: ID!
   user: User!
   productId: ID!
-  product: Product!
+  Product: Product!
 }
 
 # Define the ProductAttribute type
