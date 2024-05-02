@@ -86,7 +86,7 @@ const SideBar = () => {
     const { name, value, type, checked } = e.target;
     let updatedQueries = { ...selectedFilterQueries };
     delete updatedQueries["query"]
-    
+  
     if (checked) {
       if (updatedQueries[name]) {
         updatedQueries[name] = [...updatedQueries[name], value];
@@ -108,6 +108,13 @@ const SideBar = () => {
     const queryString = convertValidStringQueries(updatedQueries);
 
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+  };
+
+  const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newPrice = +e.target.value;
+    setPrice(newPrice);
+    setPriceChanged(true);
+    router.push(`/Collections/tunisie?price=${newPrice}`, { scroll: false });
   };
 
   const isChecked = (name: string, option: string) => {
@@ -145,6 +152,8 @@ const SideBar = () => {
     const queryString = convertValidStringQueries(updatedQueries);
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
+
+
   const handleCategoryClick = (categoryId: string) => {
     const updatedQueries = { ...selectedFilterQueries };
 
@@ -154,6 +163,8 @@ const SideBar = () => {
 
     updateSearchParams(updatedQueries);
   };
+
+
   return (
     <section
       aria-labelledby="products-heading "
@@ -208,11 +219,7 @@ const SideBar = () => {
                 name="price"
                 value={searchParams?.get("price") || price}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  handleSelectFilterOptions(e);
-                  setPrice(+e.target.value);
-                  setPriceChanged(true);
-                }}
+                onChange={handlePriceChange}
               />
               <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">
                 Min (1 TND)

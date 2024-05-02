@@ -66,8 +66,13 @@ const Promotions = () => {
           },
         });
 
-        const fetchedProducts = data?.searchProducts.results.products
-        setProductsData(fetchedProducts.filter((product:Product)=> (product.productDiscounts?.length > 0) && product.productDiscounts));
+        const fetchedProducts = data?.searchProducts.results.products;
+        setProductsData(
+          fetchedProducts.filter(
+            (product: Product) =>
+              product.productDiscounts?.length > 0 && product.productDiscounts
+          )
+        );
         console.log("====================================");
         console.log(data?.searchProducts.results.products);
         console.log("====================================");
