@@ -63,6 +63,7 @@ const ClientServices = () => {
       <>
         {!loadingClientService1 && client1?.length > 0 && (
           <Link
+          rel="preload"
             href={client1[0].link}
             className="relative flex shadow-lg border-2 items-center flex-col justify-center w-full  max:w-[370px] h-full   min-h-[230px]   "
           >
@@ -78,6 +79,7 @@ const ClientServices = () => {
 
         {!loadingClientService2 && client2?.length > 0 && (
           <Link
+          rel="preload"
             href={client2[0].link}
             className="relative flex shadow-xl border-2 items-center flex-col justify-center w-full  max:w-[370px] h-full   min-h-[230px]  "
           >
@@ -93,6 +95,7 @@ const ClientServices = () => {
 
         {!loadingClientService3 && client3?.length > 0 && (
           <Link
+          rel="preload"
             href={client3[0].link}
             className="relative flex shadow-lg border-2 items-center flex-col col-span-1 justify-center w-full  max:w-[300px] h-full    min-h[230px]  "
           >

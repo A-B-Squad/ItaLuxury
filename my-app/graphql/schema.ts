@@ -178,7 +178,7 @@ type FavoriteProducts {
   userId: ID!
   user: User!
   productId: ID!
-  product: Product!
+  Product: Product!
 }
 
 # Define the ProductAttribute type
@@ -520,6 +520,7 @@ input ProductInputQuantity {
 
 input ProductSearchInput {
   query: String
+  choice: String
   minPrice: Float
   maxPrice: Float
   categoryId: ID

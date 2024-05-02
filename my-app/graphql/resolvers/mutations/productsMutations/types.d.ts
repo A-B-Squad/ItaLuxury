@@ -14,7 +14,10 @@ interface Product {
   reviews: Review[];
   favoriteProducts: FavoriteProducts[];
   attributes: ProductAttribute[];
-  colorsId?: string | undefined;
+  Colors: {
+    color
+    Hex
+  }
 }
 
 interface ProductInput {

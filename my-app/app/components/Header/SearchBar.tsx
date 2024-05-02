@@ -76,7 +76,7 @@ const SearchBar = () => {
         <CiSearch className="size-7 text-white" />
       </span>
       {data && searching && (
-        <div className="bg-white w-full left-0 absolute top-11 z-50 overflow-y-scroll max-h-80 py-2 pl-4">
+        <div className="bg-white border w-full left-0 absolute top-11 z-50 overflow-y-scroll max-h-80 py-2 pl-4">
           {categories && (
             <ul className="border-b-black mb-5">
               <h3 className="font-bold tracking-wider ">
@@ -109,7 +109,11 @@ const SearchBar = () => {
                       productId: result?.id,
                       collection: [
                         result?.categories[0]?.name,
+                        result?.categories[0]?.id,
                         result?.categories[0]?.subcategories[0]?.name,
+                        result?.categories[0]?.subcategories[0]?.id,
+                        result?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
+                        result?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
                         result?.name,
                       ],
                     },

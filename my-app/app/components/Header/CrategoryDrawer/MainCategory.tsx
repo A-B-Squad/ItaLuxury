@@ -2,6 +2,8 @@ import React from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
 import Subcategory from "./Subcategory";
+import Link from "next/link";
+import prepRoute from "../../_prepRoute";
 
 interface CategoryProps {
   data: {
@@ -43,7 +45,10 @@ const Category: React.FC<CategoryProps> = ({
                 : "translate-x-[full]"
             }`}
           >
-            <p className="capitalize">{category.name}</p>
+            <Link className="capitalize"
+              href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+            
+            >{category.name}</Link>
             {category.name === activeCategory ? (
               <MdKeyboardArrowDown size={20} />
             ) : (

@@ -1,3 +1,4 @@
+"use client"
 import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -12,6 +13,7 @@ import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
 import { useProductDetails } from "../../store/zustand";
 import { GoAlertFill } from "react-icons/go";
+import { SlBasket } from "react-icons/sl";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -72,8 +74,8 @@ const ProductInfo = () => {
             <div className="shadow-xl relative  border-2 max-w-40 h-fit md:max-w-xs flex items-center justify-center p-1 rounded-xl">
               <InnerImageZoom
                 className="relative  rounded object-cover"
-                zoomSrc={bigImage}
-                src={bigImage}
+                zoomSrc={bigImage || ""}
+                src={bigImage || ""}
                 zoomType="hover"
                 hideHint
                 zoomScale={1.5}
@@ -150,7 +152,9 @@ const ProductInfo = () => {
                     type="button"
                     className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                     onClick={() => {
-                      setActuelQuantity(actualQuantity > 1 ? actualQuantity - 1 : 1);
+                      setActuelQuantity(
+                        actualQuantity > 1 ? actualQuantity - 1 : 1
+                      );
                     }}
                   >
                     <RiSubtractFill />
@@ -221,7 +225,7 @@ const ProductInfo = () => {
 
               <button
                 type="button"
-                className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                 onClick={() => {
                   addToBasket({
                     variables: {
@@ -234,6 +238,7 @@ const ProductInfo = () => {
                   });
                 }}
               >
+                <SlBasket />
                 Ajouter au panier
               </button>
             </div>

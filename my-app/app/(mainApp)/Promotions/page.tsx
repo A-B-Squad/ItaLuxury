@@ -17,6 +17,7 @@ import { GoGitCompare } from "react-icons/go";
 import { FaHeart } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Loading from "../loading";
+import { ProductBox } from "../../components/ProductBox";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -148,140 +149,141 @@ const Promotions = () => {
         <>
           <div className=" w-full py-5 grid  px-10 justify-items-center items-center gap-4 md:grid-cols-3 grid-cols-1 lg:grid-cols-5">
             {productsData.map((product: Product) => (
-              <div
-                key={product.id}
-                className="group flex flex-col w-64 overflow-hidden border border-gray-100 bg-white shadow-md"
-              >
-                <Link
-                  href={{
-                    pathname: `products/tunisie/${prepRoute(product?.name)}`,
-                    query: {
-                      productId: product?.id,
-                      collection: [
-                        product?.categories[0]?.name,
-                        product?.categories[0]?.subcategories[0]?.name,
-                        product?.name,
-                      ],
-                    },
-                  }}
-                  className="relative flex h-56 w-56 overflow-hidden"
-                >
-                  <div className="group">
-                    <img
-                      className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0 h-full w-full object-cover"
-                      src={product.images[0]}
-                      alt="product image"
-                    />
-                    <img
-                      className="absolute group-hover:opacity-100 opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
-                      src={product.images[1]}
-                      alt="product image"
-                    />
-                  </div>
+              <ProductBox product={product} />
+              //         <div
+              //           key={product.id}
+              //           className="group flex flex-col w-64 overflow-hidden border border-gray-100 bg-white shadow-md"
+              //         >
+              //           <Link
+              //             href={{
+              //               pathname: `products/tunisie/${prepRoute(product?.name)}`,
+              //               query: {
+              //                 productId: product?.id,
+              //                 collection: [
+              //                   product?.categories[0]?.name,
+              //                   product?.categories[0]?.subcategories[0]?.name,
+              //                   product?.name,
+              //                 ],
+              //               },
+              //             }}
+              //             className="relative flex h-56 w-56 overflow-hidden"
+              //           >
+              //             <div className="group">
+              //               <img
+              //                 className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0 h-full w-full object-cover"
+              //                 src={product.images[0]}
+              //                 alt="product image"
+              //               />
+              //               <img
+              //                 className="absolute group-hover:opacity-100 opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
+              //                 src={product.images[1]}
+              //                 alt="product image"
+              //               />
+              //             </div>
 
-                  <div className="absolute -right-16 bottom-0 mr-2 mb-4 space-y-2 transition-all duration-300 group-hover:right-0 z-50">
-                    <button
-                      onClick={() => addProductToCompare(product)}
-                      className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700"
-                    >
-                      <GoGitCompare className="font-bold" />
-                    </button>
-                    <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
-                      <FaHeart />
-                    </button>
-                    <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
-                      <SlBasket />
-                    </button>
-                  </div>
-                </Link>
-                <div className={`mt-4 px-2 pb-5  w-full`}>
-                  <Link
-                    href={{
-                      pathname: `products/tunisie/${prepRoute(product?.name)}`,
-                      query: {
-                        productId: product?.id,
-                        collection: [
-                          product?.categories[0]?.name,
-                          product?.name,
-                        ],
-                      },
-                    }}
-                    product-name={product?.name}
-                    className="product-name tracking-wider hover:text-strongBeige transition-colors text-sm font-medium 
-      line-clamp-2 "
-                  >
-                    <p className="category  font-normal -tracking-tighter  text-xs py-1 capitalize">
-                      {product?.categories[2]?.name}
-                    </p>
-                    {product?.name}
-                  </Link>
-                  <div>
-                    <p
-                      className={`${
-                        product?.productDiscounts.length > 0
-                          ? "line-through text-lg"
-                          : "text-strongBeige text-xl py-1"
-                      } font-semibold`}
-                    >
-                      {product?.price.toFixed(3)} TND
-                    </p>
-                    {product?.productDiscounts.length > 0 && (
-                      <div className="flex items-center">
-                        <span className="text-gray-400 text-xs font-thin">
-                          A partir de :
-                        </span>
-                        <span className="text-red-500 font-bold ml-1 text-xl">
-                          {product?.productDiscounts[0]?.newPrice.toFixed(3)}{" "}
-                          TND
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    className="flex items-center gap-1 justify-center bg-strongBeige px-2 py-1 text-md text-white transition hover:bg-yellow-700"
-                    onClick={() => {
-                      if (decodedToken) {
-                        addToBasket({
-                          variables: {
-                            input: {
-                              userId: decodedToken?.userId,
-                              quantity: 1,
-                              productId: product.id,
-                            },
-                          },
-                          refetchQueries: [
-                            {
-                              query: BASKET_QUERY,
-                              variables: { userId: decodedToken?.userId },
-                            },
-                          ],
-                        });
-                      } else {
-                        const isProductAlreadyInBasket = products.some(
-                          (p: any) => p.id === product?.id
-                        );
+              //             <div className="absolute -right-16 bottom-0 mr-2 mb-4 space-y-2 transition-all duration-300 group-hover:right-0 z-50">
+              //               <button
+              //                 onClick={() => addProductToCompare(product)}
+              //                 className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700"
+              //               >
+              //                 <GoGitCompare className="font-bold" />
+              //               </button>
+              //               <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
+              //                 <FaHeart />
+              //               </button>
+              //               <button className="flex h-10 w-10 items-center justify-center bg-strongBeige text-white transition hover:bg-yellow-700">
+              //                 <SlBasket />
+              //               </button>
+              //             </div>
+              //           </Link>
+              //           <div className={`mt-4 px-2 pb-5  w-full`}>
+              //             <Link
+              //               href={{
+              //                 pathname: `products/tunisie/${prepRoute(product?.name)}`,
+              //                 query: {
+              //                   productId: product?.id,
+              //                   collection: [
+              //                     product?.categories[0]?.name,
+              //                     product?.name,
+              //                   ],
+              //                 },
+              //               }}
+              //               product-name={product?.name}
+              //               className="product-name tracking-wider hover:text-strongBeige transition-colors text-sm font-medium
+              // line-clamp-2 "
+              //             >
+              //               <p className="category  font-normal -tracking-tighter  text-xs py-1 capitalize">
+              //                 {product?.categories[2]?.name}
+              //               </p>
+              //               {product?.name}
+              //             </Link>
+              //             <div>
+              //               <p
+              //                 className={`${
+              //                   product?.productDiscounts.length > 0
+              //                     ? "line-through text-lg"
+              //                     : "text-strongBeige text-xl py-1"
+              //                 } font-semibold`}
+              //               >
+              //                 {product?.price.toFixed(3)} TND
+              //               </p>
+              //               {product?.productDiscounts.length > 0 && (
+              //                 <div className="flex items-center">
+              //                   <span className="text-gray-400 text-xs font-thin">
+              //                     A partir de :
+              //                   </span>
+              //                   <span className="text-red-500 font-bold ml-1 text-xl">
+              //                     {product?.productDiscounts[0]?.newPrice.toFixed(3)}{" "}
+              //                     TND
+              //                   </span>
+              //                 </div>
+              //               )}
+              //             </div>
+              //             <button
+              //               className="flex items-center gap-1 justify-center bg-strongBeige px-2 py-1 text-md text-white transition hover:bg-yellow-700"
+              //               onClick={() => {
+              //                 if (decodedToken) {
+              //                   addToBasket({
+              //                     variables: {
+              //                       input: {
+              //                         userId: decodedToken?.userId,
+              //                         quantity: 1,
+              //                         productId: product.id,
+              //                       },
+              //                     },
+              //                     refetchQueries: [
+              //                       {
+              //                         query: BASKET_QUERY,
+              //                         variables: { userId: decodedToken?.userId },
+              //                       },
+              //                     ],
+              //                   });
+              //                 } else {
+              //                   const isProductAlreadyInBasket = products.some(
+              //                     (p: any) => p.id === product?.id
+              //                   );
 
-                        if (!isProductAlreadyInBasket) {
-                          addProductToBasket({
-                            ...product,
-                            price:
-                              product.productDiscounts.length > 0
-                                ? product?.productDiscounts[0]?.newPrice
-                                : product?.price,
-                            actualQuantity: 1,
-                          });
-                        } else {
-                          console.log("Product is already in the basket");
-                        }
-                      }
-                      toggleIsUpdated();
-                    }}
-                  >
-                    <SlBasket />
-                    Ajouter au panier
-                  </button>
-                </div>
-              </div>
+              //                   if (!isProductAlreadyInBasket) {
+              //                     addProductToBasket({
+              //                       ...product,
+              //                       price:
+              //                         product.productDiscounts.length > 0
+              //                           ? product?.productDiscounts[0]?.newPrice
+              //                           : product?.price,
+              //                       actualQuantity: 1,
+              //                     });
+              //                   } else {
+              //                     console.log("Product is already in the basket");
+              //                   }
+              //                 }
+              //                 toggleIsUpdated();
+              //               }}
+              //             >
+              //               <SlBasket />
+              //               Ajouter au panier
+              //             </button>
+              //           </div>
+              //         </div>
             ))}
           </div>
 

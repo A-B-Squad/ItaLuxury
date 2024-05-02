@@ -27,7 +27,9 @@ const TopDeals = () => {
   const [popoverTitle, setPopoverTitle] = useState("");
   const [popoverIndex, setPopoverIndex] = useState<number>(0);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -88,9 +90,7 @@ const TopDeals = () => {
   const addToCompare = (product: any) => {
     addProductToCompare(product);
   };
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
-  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
@@ -110,7 +110,7 @@ const TopDeals = () => {
         return (
           <div
             key={index}
-            className="grid lg:grid-cols-3 group grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
+            className="grid lg:grid-cols-3 border group grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
           >
             <Link
               href={{
@@ -210,7 +210,6 @@ const TopDeals = () => {
                 </li>
               </div>
             </ul>
-
             <div className="lg:col-span-2 row-span-1 lg:row-span-1  place-self-stretch lg:mt-3 flex flex-col justify-around ">
               <Link
                 href={{
