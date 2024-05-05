@@ -2,11 +2,15 @@
 import Link from "next/link";
 
 import React, { ChangeEvent, useEffect, useState } from "react";
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowForward, IoIosClose } from "react-icons/io";
 
 import { useQuery } from "@apollo/client";
 import { useSidebarStore } from "../../../store/zustand";
-import { CATEGORY_QUERY, COLORS_QUERY } from "../../../../graphql/queries";
+import {
+  ALL_BRANDS,
+  CATEGORY_QUERY,
+  COLORS_QUERY,
+} from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
 import prepRoute from "../../../components/_prepRoute";
 
@@ -44,15 +48,17 @@ export const convertValidStringQueries = (
 
 const SideBar = () => {
   const [categories, setCategories] = useState([]);
+  const [Brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
   const [priceChanged, setPriceChanged] = useState(false);
   const [price, setPrice] = useState(500);
   const router = useRouter();
+
   const searchParams: URLSearchParams | null = useSearchParams();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<
     Record<string, string[]>
   >({});
-  const { isOpen } = useSidebarStore();
+  const { isOpenSideBard } = useSidebarStore();
 
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
@@ -70,6 +76,14 @@ const SideBar = () => {
       console.log(error);
     },
   });
+  const fetchMarkes = useQuery(ALL_BRANDS, {
+    onCompleted: (data) => {
+      setBrands(data.fetchBrands);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   useEffect(() => {
     const paramsObj = convertStringToQueriesObject(searchParams);
@@ -82,24 +96,60 @@ const SideBar = () => {
     let updatedQueries = { ...selectedFilterQueries };
     delete updatedQueries["query"];
 
-    if (checked) {
-      if (updatedQueries[name]) {
-        updatedQueries[name] = [...updatedQueries[name], value];
-      } else {
-        updatedQueries[name] = [value];
-      }
+    if (name === "brand") {
+      updatedQueries["brand"] = checked ? [value] : [];
     } else {
-      console.log(updatedQueries[name]);
-      if (updatedQueries[name]) {
-        updatedQueries[name] = updatedQueries[name].filter(
-          (query) => query !== value
-        );
+      if (checked) {
+        if (updatedQueries[name]) {
+          updatedQueries[name] = [...updatedQueries[name], value];
+        } else {
+          updatedQueries[name] = [value];
+        }
+      } else {
+        if (updatedQueries[name]) {
+          updatedQueries[name] = updatedQueries[name].filter(
+            (query) => query !== value
+          );
 
-        if (updatedQueries[name].length === 0) {
-          delete updatedQueries[name];
+          if (updatedQueries[name].length === 0) {
+            delete updatedQueries[name];
+          }
         }
       }
     }
+
+    setSelectedFilterQueries(updatedQueries);
+    const queryString = convertValidStringQueries(updatedQueries);
+
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+  };
+
+  const handleChoiceFilterOptions = (value: string) => {
+    let updatedQueries = { ...selectedFilterQueries };
+
+    // Check if the value is "in-discount" or "new-product"
+    if (value === "in-discount") {
+      // If "En Promo" is selected, remove "Nouveau Produit"
+      delete updatedQueries["new_product"];
+      // Update selected option
+      updatedQueries["choice"] = [value];
+    } else if (value === "new-product") {
+      // If "Nouveau Produit" is selected, remove "En Promo"
+      delete updatedQueries["en_promo"];
+      // Update selected option
+      updatedQueries["choice"] = [value];
+    }
+
+    setSelectedFilterQueries(updatedQueries);
+    const queryString = convertValidStringQueries(updatedQueries);
+
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+  };
+  const handleColorSelection = (colorId: string) => {
+    let updatedQueries = { ...selectedFilterQueries };
+
+    // Only allow one color selection
+    updatedQueries["color"] = [colorId];
 
     setSelectedFilterQueries(updatedQueries);
     const queryString = convertValidStringQueries(updatedQueries);
@@ -121,31 +171,26 @@ const SideBar = () => {
     );
   };
 
-  const flattenCategories = (categories: any) => {
-    let flattenedCategories: any = [];
+  const handleBrandSelection = (brandId: string) => {
+    let updatedQueries = { ...selectedFilterQueries };
 
-    const traverse = (category: any) => {
-      flattenedCategories.push(category);
+    updatedQueries["brand"] = [brandId];
 
-      if (category.subcategories && category.subcategories.length > 0) {
-        category.subcategories.forEach((subcategory: any) => {
-          traverse(subcategory);
-        });
-      }
-    };
-    categories?.forEach((category: any) => {
-      traverse(category);
-    });
+    setSelectedFilterQueries(updatedQueries);
+    const queryString = convertValidStringQueries(updatedQueries);
 
-    return flattenedCategories;
+    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
-  const flattenedCategories = flattenCategories(categories);
+
+  const handleClearFilters = () => {
+    setSelectedFilterQueries({});
+    router.push("/Collections/tunisie", { scroll: false });
+  };
 
   const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
     const queryString = convertValidStringQueries(updatedQueries);
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
   };
-
 
   const handleCategoryClick = (categoryId: string) => {
     const updatedQueries = { ...selectedFilterQueries };
@@ -154,108 +199,102 @@ const SideBar = () => {
     updateSearchParams(updatedQueries);
   };
 
-
   return (
     <section
       aria-labelledby="products-heading "
-      className={`w-96   top-0 h-full bg-white shadow-md sticky ${isOpen ? "sticky" : "hidden md:block"} `}
+      className={`w-96   top-0 h-full bg-white shadow-md sticky ${isOpenSideBard ? "sticky" : "hidden md:block"} `}
     >
-      <form className="relative pl-5 pt-5  shadow-lg">
-        <h3 className="font-bold tracking-widest text-lg pb-2">
-          Main Categories
+      <form className="relative  pt-5  shadow-lg">
+        <h3 className="font-semibold tracking-widest  pl-5 text-lg pb-2">
+          FILTRER
         </h3>
-        {/* filter with choix */}
-        <div className="border-b border-gray-200 py-6">
-          <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
-            <Link
-              rel="preload"
-              href={"/Collections/tunisie"}
-              className="flex w-full items-center justify-between"
-            >
-              choix
-              <IoIosArrowForward />
-            </Link>
-          </h3>
 
+        {Object.keys(selectedFilterQueries).length > 0 && (
           <div
-            className="pt-6 overflow-y-scroll max-h-60"
-            id="filter-section-1"
-          >
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <input
-                  id="filtre-choix-en-promo"
-                  name="choice"
-                  type="checkbox"
-                  value={"in-discount"}
-                  checked={isChecked("choice", "in-discount")}
-                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
-                  onChange={handleSelectFilterOptions}
-                />
-                <label
-                  htmlFor={`filtre-choix-en-promo`}
-                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                >
-                  En Promo
-                </label>
-              </div>
+          onClick={handleClearFilters}
+          className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer">
+            <button className="flex border rounded-md gap-2 items-center  py-1 shadow px-2" >
+              <IoIosClose size={25} />
+              Effacer Filters
+            </button>
+          </div>
+        )}
+        {/* filter with choix */}
+        <div className="border-b pl-5 border-gray-200 py-6">
+          <h3 className="font-normal tracking-widest   text-sm pb-6">CHOIX</h3>
+
+          <div className=" space-y-3 max-h-60" id="filter-section-1">
+            <div className="flex items-center group">
+              <input
+                id="filtre-choix-en-promo"
+                name="choice"
+                type="radio"
+                value={"in-discount"}
+                checked={isChecked("choice", "in-discount")}
+                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "in-discount") ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-strongBeige hover:shadow-lg cursor-pointer group   text-strongBeige `}
+                onChange={() => handleChoiceFilterOptions("in-discount")}
+              />
+              <label
+                htmlFor={`filtre-choix-en-promo`}
+                className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", "in-discount") ? "text-black font-semibold" : "text-gray-600"} group-hover:text-black group-hover:font-semibold  transition-all`}
+              >
+                En Promo
+              </label>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <input
-                  id="filtre-choix-nouveau-produit"
-                  name="choice"
-                  type="checkbox"
-                  value={"new-product"}
-                  checked={isChecked("choice", "new-product")}
-                  className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
-                  onChange={handleSelectFilterOptions}
-                />
-                <label
-                  htmlFor={`filtre-choix-nouveau-produit`}
-                  className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                >
-                  Nouveau Produit
-                </label>
-              </div>
+
+            <div className="flex items-center group">
+              <input
+                id="filtre-choix-nouveau-produit"
+                name="choice"
+                type="radio"
+                value={"new-product"}
+                checked={isChecked("choice", "new-product")}
+                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "new-product") ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-lightBeige hover:shadow-lg cursor-pointer group    text-strongBeige `}
+                onChange={() => handleChoiceFilterOptions("new-product")}
+              />
+              <label
+                htmlFor={`filtre-choix-nouveau-produit`}
+                className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", "new-product") ? "text-black font-semibold" : "text-gray-600"} group-hover:text-black group-hover:font-semibold  transition-all`}
+              >
+                Nouveau Produit
+              </label>
             </div>
           </div>
         </div>
         {/* filter with main categories */}
-        <ul
-          role="list"
-          className="space-y-4 border-b  border-gray-200 pb-6 text-sm font-medium text-gray-900"
-        >
-          {categories?.map((category: any) => (
-            <li className="relative group transition-all  border-b py-2 ">
-              <Link
-                href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
-                key={category.id}
+        <div className="border-b pl-5 border-gray-200  py-3">
+          <h3 className="font-normal tracking-widest text-sm  mb-6">
+            CATEGORIES
+          </h3>
+
+          <ul
+            role="list"
+            className="space-y-4 pl-5   border-gray-200 text-sm font-medium text-gray-900"
+          >
+            {categories?.map((category: any, index) => (
+              <li
+                key={index}
+                className={`${searchParams?.get("category") === category?.id ? "font-bold" : ""} hover:text-black hover:font-bold  relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2 `}
               >
-                <button
-                  type="button"
+                <Link
+                  href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+                  key={category.id}
+                  className="w-full h-full"
                   onClick={() => handleCategoryClick(category.id)}
-                  className="focus:outline-none hover:text-black transition-colors"
                 >
                   {category.name}
-                </button>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                </Link>
+                <span
+                  className={`  ${searchParams?.get("category") === category?.id ? "bg-strongBeige" : "bg-mediumBeige"} h-full w-[5px]  absolute right-0 group-hover:bg-strongBeige  rounded-lg border transition-all`}
+                ></span>
+              </li>
+            ))}
+          </ul>
+        </div>
         {/* filter with prices */}
-        <div className="border-b border-gray-200 py-6">
-          <h3 className=" tracking-widest  text-gray-900 font-semibold text-base">
-            <Link
-              rel="preload"
-              href={"/Collections/tunisie"}
-              className="flex w-full items-center justify-between "
-            >
-              Price
-              <IoIosArrowForward />
-            </Link>
-          </h3>
-          <div className="pt-6 w-11/12" id="filter-section-0">
+        <div className="border-b pl-5 border-gray-200 py-3">
+          <h3 className="font-normal tracking-widest text-sm pb-2">PRIX</h3>
+          <div className=" w-11/12" id="filter-section-0">
             <div className="relative mb-6">
               <label htmlFor="labels-range-input" className="sr-only">
                 Labels range
@@ -295,22 +334,15 @@ const SideBar = () => {
           </div>
         </div>
         {/* filter with colors */}
-        <div className="border-b border-gray-200 py-6">
-          <h3 className=" flow-root tracking-widest font-semibold text-base text-gray-900">
-            <Link
-              rel="preload"
-              href={"/Collections/tunisie"}
-              className="flex w-full items-center justify-between     "
-            >
-              Colors
-              <IoIosArrowForward />
-            </Link>
+        <div className="border-b pl-5 border-gray-200 py-6">
+          <h3 className="font-normal tracking-widest text-sm  mb-6">
+            COULEURS
           </h3>
 
-          <div className="pt-6 overflow-y-scroll max-h-60">
+          <div className=" overflow-y-scroll max-h-60">
             <div className=" flex items-center flex-wrap px-3 w-full  gap-3">
-              {colors?.map((color: any) => (
-                <div key={color.id} className="flex items-center">
+              {colors?.map((color: any, index) => (
+                <div key={index} className="flex items-center">
                   <input
                     id={`filtre-color-${color.id}`}
                     name="color"
@@ -333,48 +365,41 @@ const SideBar = () => {
                     }}
                     title={color.color}
                     className="color-checkbox cursor-pointer shadow-md shadow-white "
-                    onChange={handleSelectFilterOptions}
+                    onChange={() => handleColorSelection(color.id)}
                   />
                 </div>
               ))}
             </div>
           </div>
         </div>
-        {/* filter with ctegories */}
-        <div className="border-b border-gray-200 py-6">
-          <h3 className=" flow-root tracking-widest text-gray-900 font-semibold text-base">
-            <Link
-              rel="preload"
-              href={"/Collections/tunisie"}
-              className="flex w-full items-center justify-between"
-            >
-              Category
-              <IoIosArrowForward />
-            </Link>
-          </h3>
+        {/* filter with Brands */}
+        <div className="border-b pl-5 border-gray-200 py-6">
+          <h3 className="font-normal tracking-widest text-sm  mb-6">MARKES</h3>
 
-          <div
-            className="pt-6 overflow-y-scroll max-h-60"
-            id="filter-section-1"
-          >
+          <div className=" overflow-y-scroll max-h-60" id="filter-section-1">
             <div className="space-y-4">
-              {flattenedCategories?.map((category: any) => (
-                <div key={category.id} className="flex items-center">
+              {Brands?.map((brand: any) => (
+                <div key={brand.id} className="flex items-center">
                   <input
-                    id={`filtre-color-${category.id}`}
-                    name="category"
-                    type="checkbox"
-                    value={category.id}
-                    checked={isChecked("category", category.id)}
-                    className="h-4 w-4  cursor-pointer group border-gray-300  text-strongBeige focus:ring-strongBeige"
+                    id={`filtre-brand-${brand.id}`}
+                    name="brand"
+                    type="radio"
+                    value={brand.id}
+                    checked={isChecked("brand", brand.id)}
+                    className={` h-3 w-3 appearance-none outline-none ${isChecked("brand", brand.id) ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-strongBeige hover:shadow-lg cursor-pointer group   text-strongBeige `}
                     onChange={handleSelectFilterOptions}
                   />
-                  <label
-                    htmlFor={`filtre-color-${category.id}`}
-                    className="ml-3 text-sm text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                  >
-                    {category.name}
-                  </label>
+                  <div className="flex items-center justify-between  w-full">
+                    <label
+                      htmlFor={`filtre-brand-${brand.id}`}
+                      className="ml-3 text-sm tracking-wider text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                    >
+                      {brand.name}
+                    </label>
+                    <span className=" text-gray-600 mr-3">
+                      ({brand?.product?.length})
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

@@ -9,15 +9,25 @@ export const getBestSales = async (
     const bestSales = await prisma.bestSales.findMany({
       include: {
         Product: {
-          include:{
+          include: {
             categories: {
-              include: { subcategories: { include: { subcategories: true } } },
-            },
+              include: {
+                subcategories: {
+                  include: {
+                    subcategories: true
+                  }
+                }
+              }
+            }, productDiscounts: {
+              include: {
+                Discount: true
+              }
+            }
           }
         },
-     
+        Category: true
       },
-      take: limit || 3,
+
     });
     return bestSales;
   } catch (error) {

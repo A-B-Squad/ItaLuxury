@@ -49,6 +49,8 @@ const BasketDrawer = () => {
 
   useEffect(() => {
     const token = Cookies.get("Token");
+    console.log(token,"eeeee");
+    
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);

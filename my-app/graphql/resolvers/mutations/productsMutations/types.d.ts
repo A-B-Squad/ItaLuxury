@@ -18,6 +18,7 @@ interface Product {
     color
     Hex
   }
+  brand: Brand
 }
 
 interface ProductInput {
@@ -32,6 +33,7 @@ interface ProductInput {
   attributeInputs: ProductAttributeInput[];
   colorsId?: string | undefined;
   discount?: ProductDiscountInput[];
+  brandId?: string | undefined
 }
 
 interface ProductAttributeInput {
@@ -53,4 +55,9 @@ interface AddProductToFavoriteInput {
 }
 interface addTopDealProduct {
   productId: string;
+}
+interface Brand {
+  id: string;
+  name: string;
+  logo: string;
 }

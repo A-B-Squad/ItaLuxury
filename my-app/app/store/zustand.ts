@@ -152,14 +152,14 @@ export const useComparedProductsStore = create(
 );
 
 type SidebarStore = {
-  isOpen: boolean;
+  isOpenSideBard: boolean;
   toggleOpenSidebar: () => void;
 
 };
 
 export const useSidebarStore = create<SidebarStore>((set) => ({
-  isOpen: false,
-  toggleOpenSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
+  isOpenSideBard: false,
+  toggleOpenSidebar: () => set((state) => ({ isOpenSideBard: !state.isOpenSideBard })),
 
 }));
 interface AllProductViewStore {
@@ -170,4 +170,25 @@ interface AllProductViewStore {
 export const useAllProductViewStore = create<AllProductViewStore>((set) => ({
   view: 3,
   changeProductView: (gridNumber) => set({ view: gridNumber }),
+}));
+
+
+interface SideBarFilterStore {
+  filter: Record<string, any>;
+  setFilter: (key: string, value: any) => void;
+  deleteFilter: (key: string) => void;
+}
+
+export const useSideBarFilterWithStore = create<SideBarFilterStore>((set) => ({
+  filter: {},
+  setFilter: (key, value) => set((state) => ({
+    filter: {
+      ...state.filter,
+      [key]: value,
+    }
+  })),
+  deleteFilter: (key) => set((state) => {
+    const { [key]: deletedKey, ...rest } = state.filter;
+    return { filter: rest };
+  }),
 }));

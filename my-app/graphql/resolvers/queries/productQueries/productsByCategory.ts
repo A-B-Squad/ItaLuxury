@@ -4,6 +4,7 @@ export const productsByCategory = async (_: any, { categoryName }: { categoryNam
     try {
         const products = await prisma.product.findMany({
             where: {
+                isVisible: true,
                 categories: {
                     some: {
                         name: categoryName
@@ -18,7 +19,9 @@ export const productsByCategory = async (_: any, { categoryName }: { categoryNam
                 reviews: true, // Include reviews related to products
                 favoriteProducts: true, // Include favorite products related to products
                 Colors: true, // Include colors related to products
-                attributes: true // Include attributes related to products
+                attributes: true,// Include attributes related to products
+                Brand: true
+
             }
         });
         return products;

@@ -5,7 +5,7 @@ export const searchProducts = async (
   { input }: { input: ProductSearchInput & { page: number; pageSize: number } },
   { prisma }: Context
 ) => {
-  const { query, minPrice, maxPrice, categoryId, colorId, page, choice, pageSize } =
+  const { query, minPrice, maxPrice, categoryId, colorId, page, choice, markeId, pageSize } =
     input;
 
   try {
@@ -30,6 +30,9 @@ export const searchProducts = async (
     if (categoryId) {
       whereCondition.categories = { some: { id: categoryId } };
     }
+    if (markeId) {
+      whereCondition.Brand = { id: markeId };
+    }
 
     if (colorId) {
       whereCondition.Colors = { id: colorId };
@@ -46,7 +49,11 @@ export const searchProducts = async (
 
     // Fetch products based on specified filters and pagination
     const products = await prisma.product.findMany({
-      where: whereCondition,
+      where: {
+        ...whereCondition,
+        isVisible: true
+
+      },
       take: pageSize,
       skip,
       include: {
@@ -62,6 +69,8 @@ export const searchProducts = async (
         favoriteProducts: true,
         attributes: true,
         Colors: true,
+        Brand: true,
+
       },
     });
 

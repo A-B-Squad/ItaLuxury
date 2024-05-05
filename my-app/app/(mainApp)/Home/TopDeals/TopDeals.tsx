@@ -91,7 +91,6 @@ const TopDeals = () => {
     addProductToCompare(product);
   };
 
-
   const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
@@ -143,13 +142,11 @@ const TopDeals = () => {
             <ul className="plus_button lg:opacity-0 group-hover:opacity-100  absolute right-3 z-40  top-14 flex flex-col gap-3  ">
               <div
                 className="product-details relative w-fit cursor-crosshair"
-                onMouseEnter={() =>
-                  handleMouseEnterHoverPop("produit en details")
-                }
+                onMouseEnter={() => handleMouseEnterHoverPop("aperçu rapide")}
                 onMouseLeave={handleMouseLeaveHoverPop}
                 onClick={() => openProductDetails(products?.product)}
               >
-                {showPopover && popoverTitle === "produit en details" && (
+                {showPopover && popoverTitle === "aperçu rapide" && (
                   <PopHover title={popoverTitle} />
                 )}
                 <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">

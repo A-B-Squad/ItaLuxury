@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLazyQuery } from "@apollo/client";
-import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
+import { SEARCH_PRODUCTS_QUERY } from "../../../../graphql/queries";
+import { IoIosClose } from "react-icons/io";
 
-import { ProductBox } from "../ProductBox";
-import { useAllProductViewStore } from "../../store/zustand";
+import { ProductBox } from "../../../components/ProductBox";
+import { useAllProductViewStore } from "../../../store/zustand";
 
-import NoProductYet from "../ProductCarousel/NoProductYet";
+import NoProductYet from "../../../components/ProductCarousel/NoProductYet";
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
@@ -16,12 +17,14 @@ const ProductsSection = () => {
   const sortParam = searchParams?.get("sort");
   const priceParamString = searchParams?.get("price");
   const choiceParam = searchParams?.get("choice");
+  const brandParam = searchParams?.get("brand");
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
   const [searchProducts, { loading, data }] = useLazyQuery(
     SEARCH_PRODUCTS_QUERY
   );
+
   const [productsData, setProductsData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -30,7 +33,6 @@ const ProductsSection = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      
       try {
         const { data } = await searchProducts({
           variables: {
@@ -41,6 +43,7 @@ const ProductsSection = () => {
               minPrice: 1,
               maxPrice: priceParam || undefined,
               choice: choiceParam || undefined,
+              markeId: brandParam || undefined,
               page,
               pageSize,
             },
@@ -63,7 +66,7 @@ const ProductsSection = () => {
         console.error("Error fetching products:", error);
       }
     };
-console.log(productsData);
+    console.log(productsData);
 
     fetchProducts();
   }, [
@@ -72,6 +75,7 @@ console.log(productsData);
     colorParam,
     sortParam,
     priceParam,
+    brandParam,
     choiceParam,
     page,
     pageSize,
@@ -143,31 +147,19 @@ console.log(productsData);
               {productsData.length} résultats trouvé pour "{queryParam}"
             </h1>
           )}
-          {productsData.length > 0 && (
-            <div className="Page pagination justify-self-start  mt-10 ">
-              <ul className="inline-flex -space-x-px text-sm">
-                <li>
-                  <button
-                    onClick={handlePrevPage}
-                    disabled={page === 1}
-                    className="flex items-center cursor-pointer justify-center px-3 h-8 ms-0 leading-tight text-strongBeige bg-white border border-e-0 border-strongBeige rounded-s-lg hover:bg-strongBeige hover:text-white"
-                  >
-                    Previous
-                  </button>
-                </li>
-                {renderPageNumbers()}
-                <li>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === Math.ceil(totalCount / pageSize)}
-                    className="flex items-center cursor-pointer justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg hover:bg-strongBeige hover:text-white"
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
+          <div className="p-4 bg-[#f2f2f278] mt-3 w-11/12 tracking-wider flex items-center font-semibold">
+            Filtres actifs :
+            {choiceParam && (
+              <div>
+                <button className="border  bg-white hover:opacity-70 transition-opacity flex items-center gap-1 text-sm py-1 px-2 ml-4 font-light shadow">
+                  <p>Choix : </p>
+                  {choiceParam}
+                  <IoIosClose size={25} />
+                </button>
+              </div>
+            )}
+          </div>
+
           <div
             className={`${
               view === 3

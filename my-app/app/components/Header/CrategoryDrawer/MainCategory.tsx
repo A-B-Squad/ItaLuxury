@@ -31,7 +31,7 @@ const Category: React.FC<CategoryProps> = ({
           activeCategory !== "" ? "-translate-x-full" : ""
         }`}
       >
-        <h1 className="to-blue-300 text-xl font-bold text-center pr-7 py-2 ">
+        <h1 className="to-blue-300 text-lg font-bold text-center uppercase pr-7 py-2 ">
           Choisir une catégorie
         </h1>
 

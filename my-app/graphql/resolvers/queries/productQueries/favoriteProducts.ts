@@ -10,6 +10,7 @@ export const favoriteProducts = async (
     const userFavoriteProducts = await prisma.favoriteProducts.findMany({
       where: {
         userId: userId,
+       
       },
       include: {
         Product: {
@@ -17,7 +18,8 @@ export const favoriteProducts = async (
             categories: {
               include: { subcategories: { include: { subcategories: true } } },
             },
-            productDiscounts:true
+                    Brand:true,
+                    productDiscounts:true,
           },
         },
       },
