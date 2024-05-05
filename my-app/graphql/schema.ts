@@ -69,6 +69,7 @@ type Category {
     favoriteProducts: [FavoriteProducts!]
     attributes: [ProductAttribute!]!
     Colors: Colors
+    Brand:Brand
   }
 
   # Define the Colors type
@@ -241,12 +242,15 @@ type SearchResult {
 type BestSales {
   id: String!
   Product: Product
+  Category:Category
 }
+
 
 type Brand {
   id: String!
   name: String!
   logo: String!
+  product:[Product!]
 }
 
 # Define the Query type
@@ -258,13 +262,14 @@ type Query {
   # Fetch all products
   products(limit:Int): [Product!]
 
+  #Fetch Brands 
+  fetchBrands:[Brand!]
+
   # search products
   searchProducts(input: ProductSearchInput!): SearchResult!
 
-
   # Fetch all colors
   colors(limit:Int):[Colors!]!
-
   
   # Fetch all products price less then 20TND
   productsLessThen20(limit:Int): [Product!]
@@ -294,7 +299,7 @@ type Query {
   productDiscount(productId: ID!): ProductDiscount!
 
   # Fetch all product discounts
-  productsDiscounts: [ProductDiscount!]
+  productsDiscounts(limit:Int): [Product!]
 
   # Fetch product review information by product ID
   productReview(productId: ID!): [Review!]
@@ -416,6 +421,7 @@ input ProductInput {
   attributeInputs: [ProductAttributeInput!]
   discount: [CreateProductDiscountInput]
   colorsId: ID
+  brandId:ID
 }
 
 # Define the AttributeInput input type
@@ -536,6 +542,7 @@ input ProductInputQuantity {
 input ProductSearchInput {
   query: String
   choice: String
+  markeId: String
   minPrice: Float
   maxPrice: Float
   categoryId: ID

@@ -6,10 +6,11 @@ import Right from "@/components/adverstissment/right";
 import SideAds from "@/components/adverstissment/sideAds";
 import ProductTabs from "@/components/ProductCarousel/productTabs";
 import TitleProduct from "@/components/ProductCarousel/titleProduct";
-import BestSales from "@/components/BestSales"
+import BestSales from "./TopSales/BestSales";
 import {
   SIDE_ADS_NEW_PRODUCT,
   TAKE_6_PRODUCTS,
+  TAKE_6_PRODUCTS_IN_DISCOUNT,
   TAKE_6_PRODUCTS_PRICE_20,
 } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
@@ -47,6 +48,12 @@ const Home = () => {
       variables: { limit: 6 },
     }
   );
+  const { loading: loadingDiscountProduct, data: Products_inDiscount_6 } =
+    useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
+      variables: { limit: 6 },
+    });
+  console.log(Products_inDiscount_6);
+
   const { loading: loadingProduct, data: Product_less_20 } = useQuery(
     TAKE_6_PRODUCTS_PRICE_20,
     {
@@ -86,8 +93,13 @@ const Home = () => {
 
             <ProductTabs
               title={"nouveaux Produits"}
-              data={Products_6}
+              data={Products_6?.products}
               loadingNewProduct={loadingNewProduct}
+              carouselWidthClass={
+                Products_6?.products.length < 5
+                  ? " basis-full   md:basis-1/2  "
+                  : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+              }
             />
           </div>
         </div>
@@ -132,38 +144,32 @@ const Home = () => {
           <TopDeals />
         </div>
         <FullWidth />
-        <div className="Carousel_A_20DT">
+        <div className="Carousel_A_20DT ">
           <div className="Heading flex items-center justify-between">
             <TitleProduct title={"l'essentiel a 20DT"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
-              <Link
-              rel="preload"
-              href={"/Collections/tunisie?price=20"}>
+              <Link rel="preload" href={"/Collections/tunisie?price=20"}>
                 Voir tous les produits
               </Link>
               <MdKeyboardArrowRight />
             </div>
           </div>
-          <div>
-            <ProductTabs
-              data={Product_less_20}
-              loadingNewProduct={loadingProduct}
-              carouselWidthClass={
-                Product_less_20?.productsLessThen20?.length < 5
-                  ? "xl:basis-1/2"
-                  : ""
-              }
-            />
-          </div>
+          <ProductTabs
+            data={Product_less_20?.productsLessThen20}
+            loadingNewProduct={loadingProduct}
+            carouselWidthClass={
+              Product_less_20?.productsLessThen20.length < 5
+                ? " basis-full w-full   lg:basis-1/2  "
+                : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+            }
+          />
         </div>
         <FullWidth />
         <div className="Promotion flex flex-col ">
           <div className="flex items-center justify-between">
             <TitleProduct title={"Promotions"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
-              <Link 
-              rel="preload"
-              href={"/Collections/tunisie"}>
+              <Link rel="preload" href={"/Collections/tunisie"}>
                 Voir tous les produits
               </Link>
               <MdKeyboardArrowRight />
@@ -171,8 +177,13 @@ const Home = () => {
           </div>
           <div className="flex  gap-3">
             <ProductTabs
-              data={Products_6}
-              loadingNewProduct={loadingNewProduct}
+              data={Products_inDiscount_6?.productsDiscounts}
+              loadingNewProduct={loadingDiscountProduct}
+              carouselWidthClass={
+                Products_inDiscount_6?.productsDiscounts.length < 5
+                  ? " basis-full   md:basis-1/2  "
+                  : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+              }
             />
             <SideAds
               adsLoaded={loadingRightAdsNewProduct}
@@ -183,7 +194,7 @@ const Home = () => {
           </div>
         </div>
         <ClientServices />
-        <BestSales/>
+        <BestSales />
       </div>
     </div>
   );

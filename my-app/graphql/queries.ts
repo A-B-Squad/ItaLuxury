@@ -106,6 +106,11 @@ export const TAKE_6_PRODUCTS = gql`
         color
         Hex
       }
+      attributes {
+        id
+        name
+        value
+      }
       productDiscounts {
         price
         newPrice
@@ -115,6 +120,54 @@ export const TAKE_6_PRODUCTS = gql`
       }
     }
   }
+`;
+export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
+  
+  query ProductsDiscounts($limit: Int) {
+  productsDiscounts(limit: $limit) {
+    id
+      name
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
+        id
+        name
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      attributes {
+        id
+        name
+        value
+      }
+      Colors {
+        color
+        Hex
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
+      
+  }
+}
+
+  
 `;
 export const TAKE_10_PRODUCTS = gql`
   query Products($limit: Int!) {
@@ -144,6 +197,11 @@ export const TAKE_10_PRODUCTS = gql`
       Colors {
         color
         Hex
+      }
+      attributes {
+        id
+        name
+        value
       }
       productDiscounts {
         price
@@ -201,6 +259,18 @@ export const SIDE_ADS_NEW_PRODUCT = gql`
       link
     }
   }
+`;
+export const ALL_BRANDS = gql`
+query FetchBrands {
+  fetchBrands {
+    id
+    name
+    logo
+    product{
+      id
+    }
+  }
+}
 `;
 export const TOP_DEALS = gql`
   query AllDeals {
@@ -380,25 +450,49 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
 `;
 
 export const BEST_SALES_QUERY = gql`
-  query GetBestSales {
-    getBestSales {
+query GetBestSales {
+  getBestSales {
+    Product {
       id
-      Product {
+      name
+      images
+      price
+      productDiscounts {
+        newPrice
+        price
+        Discount {
+          id
+          percentage
+        }
+      }
+      categories {
         id
         name
-        categories {
+        subcategories {
           id
           name
+          parentId
           subcategories {
             id
             name
-            subcategories {
-              id
-              name
-            }
+            parentId
           }
         }
       }
     }
+    Category {
+      id
+      name
+    }
   }
+}
+
+`;
+export const GET_FAVORITE_STATUS = gql`
+query FavoriteProducts($userId: ID!) {
+  favoriteProducts(userId: $userId) {
+    id
+    productId
+  }
+}
 `;

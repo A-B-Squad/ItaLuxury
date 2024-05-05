@@ -99,7 +99,7 @@ export const ProductBox = ({ product }: any) => {
       >
         <div
           className="product-details relative w-fit cursor-crosshair"
-          title="produit en details"
+          title="aperçu rapide"
           onClick={() => openProductDetails(product)}
         >
           <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
@@ -141,16 +141,18 @@ export const ProductBox = ({ product }: any) => {
           </li>
         </div>
       </ul>
-      <div className={`${view===1&&"absolute top-0"}  flex justify-between w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4 `}>
-          {calcDateForNewProduct(product?.createdAt) && (
-            <span className="bg-green-500 w-fit justify-start shadow-md p-1">
-              Nouveau
-            </span>
-          )}
-          {product?.productDiscounts?.length > 0 && (
-            <span className="bg-red-500 w-fit shadow-md p-1">Promo</span>
-          )}
-        </div>
+      <div
+        className={`${view === 1 && "absolute top-0"}  flex justify-between w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4 `}
+      >
+        {calcDateForNewProduct(product?.createdAt) && (
+          <span className="bg-green-500 w-fit justify-start shadow-md p-1">
+            Nouveau
+          </span>
+        )}
+        {product?.productDiscounts?.length > 0 && (
+          <span className="bg-red-500 w-fit shadow-md p-1">Promo</span>
+        )}
+      </div>
       <Link
         className="relative flex w-40 h-52 md:w-56 overflow-hidden"
         rel="preload"
@@ -170,7 +172,6 @@ export const ProductBox = ({ product }: any) => {
           },
         }}
       >
-       
         <div className="images top-0 relative group h-40 w-40 md:h-full md:w-full">
           {product?.images.length > 1 ? (
             <>
@@ -204,34 +205,37 @@ export const ProductBox = ({ product }: any) => {
         </div>
       </Link>
 
-      <Link
-        rel="preload"
-        href={{
-          pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-          query: {
-            productId: product?.id,
-            collection: [
-              product?.categories[0]?.name,
-              product?.categories[0]?.id,
-              product?.categories[0]?.subcategories[0]?.name,
-              product?.categories[0]?.subcategories[0]?.id,
-              product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
-              product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
-              product?.name,
-            ],
-          },
-        }}
+      <div
         className={`
-                ${view !== 1 ? " border-t" : ""}
-                mt-4 px-2 pb-5  w-full`}
+ ${view !== 1 ? " border-t" : ""}
+ mt-4 px-2 pb-5  w-full`}
       >
-        
-        <div className="product-name pt-1 tracking-wider hover:text-strongBeige transition-colors text-sm font-semibold line-clamp-2 ">
-          <p className="category  font-normal -tracking-tighter  text-xs  capitalize">
-            {product?.categories[2]?.name}
-          </p>
-          {product?.name}
-        </div>
+        <Link
+          rel="preload"
+          href={{
+            pathname: `/products/tunisie/${prepRoute(product?.name)}`,
+            query: {
+              productId: product?.id,
+              collection: [
+                product?.categories[0]?.name,
+                product?.categories[0]?.id,
+                product?.categories[0]?.subcategories[0]?.name,
+                product?.categories[0]?.subcategories[0]?.id,
+                product?.categories[0]?.subcategories[0]?.subcategories[1]
+                  ?.name,
+                product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
+                product?.name,
+              ],
+            },
+          }}
+        >
+          <div className="product-name pt-1 tracking-wider hover:text-strongBeige transition-colors text-sm font-semibold line-clamp-2 ">
+            <p className="category  font-normal -tracking-tighter  text-xs  capitalize">
+              {product?.categories[2]?.name}
+            </p>
+            {product?.name}
+          </div>
+        </Link>
 
         {view !== 1 && (
           <>
@@ -324,7 +328,7 @@ export const ProductBox = ({ product }: any) => {
             </div>
           </div>
         )}
-      </Link>
+      </div>
     </>
   );
 };

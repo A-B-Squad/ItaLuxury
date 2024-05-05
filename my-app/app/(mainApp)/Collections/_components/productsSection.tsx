@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLazyQuery } from "@apollo/client";
-import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
+import { SEARCH_PRODUCTS_QUERY } from "../../../../graphql/queries";
 import { IoIosClose } from "react-icons/io";
 
-import { ProductBox } from "../ProductBox";
-import { useAllProductViewStore } from "../../store/zustand";
+import { ProductBox } from "../../../components/ProductBox";
+import { useAllProductViewStore } from "../../../store/zustand";
 
-import NoProductYet from "../ProductCarousel/NoProductYet";
+import NoProductYet from "../../../components/ProductCarousel/NoProductYet";
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
@@ -17,13 +17,14 @@ const ProductsSection = () => {
   const sortParam = searchParams?.get("sort");
   const priceParamString = searchParams?.get("price");
   const choiceParam = searchParams?.get("choice");
+  const brandParam = searchParams?.get("brand");
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
   const [searchProducts, { loading, data }] = useLazyQuery(
     SEARCH_PRODUCTS_QUERY
   );
-  
+
   const [productsData, setProductsData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -42,6 +43,7 @@ const ProductsSection = () => {
               minPrice: 1,
               maxPrice: priceParam || undefined,
               choice: choiceParam || undefined,
+              markeId: brandParam || undefined,
               page,
               pageSize,
             },
@@ -73,6 +75,7 @@ const ProductsSection = () => {
     colorParam,
     sortParam,
     priceParam,
+    brandParam,
     choiceParam,
     page,
     pageSize,
@@ -148,10 +151,7 @@ const ProductsSection = () => {
             Filtres actifs :
             {choiceParam && (
               <div>
-                <button
-                  className="border  bg-white hover:opacity-70 transition-opacity flex items-center gap-1 text-sm py-1 px-2 ml-4 font-light shadow"
-                 
-                >
+                <button className="border  bg-white hover:opacity-70 transition-opacity flex items-center gap-1 text-sm py-1 px-2 ml-4 font-light shadow">
                   <p>Choix : </p>
                   {choiceParam}
                   <IoIosClose size={25} />

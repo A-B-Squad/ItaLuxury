@@ -46,7 +46,6 @@ const FavoriteList = () => {
     fetchProducts();
   }, [data]);
 
-  
   return (
     <div className="flex flex-col">
       {loading ? (
@@ -55,7 +54,7 @@ const FavoriteList = () => {
         </div>
       ) : (
         <>
-          <div className=" w-full py-5 grid  px-10 justify-items-center items-center gap-4 md:grid-cols-3 grid-cols-1 lg:grid-cols-5">
+          <div className=" w-full py-5 grid  px-10 justify-items-center items-center  h-[400px] transition-all relative pb-2    flex-col justify-between   border shadow-xl  gap-4 md:grid-cols-3 grid-cols-1 lg:grid-cols-5">
             {productsData.map((product: Product) => (
               <ProductBox product={product} />
             ))}

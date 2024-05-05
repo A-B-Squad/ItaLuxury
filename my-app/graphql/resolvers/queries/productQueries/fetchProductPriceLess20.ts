@@ -9,6 +9,7 @@ export const productsLessThen20 = async (_: any, { limit }: { limit?: number, },
                 price: {
                     lte: 20 // Filter for prices less than or equal to 20
                 },
+                isVisible: true
             },
             include: {
                 categories: { include: { subcategories: { include: { subcategories: true } } } }, // Include categories related to products
@@ -21,7 +22,9 @@ export const productsLessThen20 = async (_: any, { limit }: { limit?: number, },
                 reviews: true,
                 favoriteProducts: true,
                 attributes: true,
-                Colors: true
+                Colors: true,
+                Brand: true
+
             },
             take: takeValue
         });

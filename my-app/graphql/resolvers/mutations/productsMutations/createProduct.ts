@@ -19,7 +19,7 @@ export const createProduct = async (
       categories,
       attributeInputs,
       colorsId,
-      discount,
+      discount, brandId
     } = input;
 
     // Creating a new product using prisma
@@ -33,15 +33,17 @@ export const createProduct = async (
         description,
         inventory,
         images,
-        colorsId
-        ,
+        colorsId,
+        brandId,
         categories: {
           // Connecting the new product to existing categories
           connect: categories.map((categoryId) => ({ id: categoryId })),
         },
-        attributes: { create: attributeInputs }, // Creating new attributes for the product
-      }, include: {
-        Colors: true
+        attributes: { create: attributeInputs }, 
+      },
+       include: {
+        Colors: true,
+        Brand: true
       }
     });
 
@@ -68,6 +70,5 @@ export const createProduct = async (
     // Handle errors gracefully
     console.error("Error creating product:", error);
     return error;
-    return `Failed to create product." ${error}.`;
   }
 };

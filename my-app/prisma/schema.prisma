@@ -74,6 +74,8 @@ model Product {
   colorsId          String?
   TopDeals          TopDeals?
   BestSales         BestSales[]
+  Brand             Brand?              @relation(fields: [brandId], references: [id])
+  brandId           String?
 }
 
 model BestSales {
@@ -216,7 +218,8 @@ model content_visibility {
 }
 
 model Brand {
-  id   String @id @default(uuid())
-  name String
-  logo String
+  id      String    @id @default(uuid())
+  name    String
+  logo    String
+  product Product[]
 }

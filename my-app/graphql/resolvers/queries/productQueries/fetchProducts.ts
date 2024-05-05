@@ -5,6 +5,10 @@ export const products = async (_: any, { limit }: { limit?: number }, { prisma }
         let takeValue = limit ? limit : undefined;
 
         const products = await prisma.product.findMany({
+            where:{
+                isVisible: true
+
+            },
             include: {
 
                 categories: { include: { subcategories: { include: { subcategories: true } } } }, // Include categories related to products
@@ -18,7 +22,9 @@ export const products = async (_: any, { limit }: { limit?: number }, { prisma }
                 reviews: true, // Include reviews related to products
                 favoriteProducts: true, // Include favorite products related to products
                 attributes: true,// Include attributes related to products
-                Colors: true
+                Colors: true,
+                Brand:true
+
             },
             take: takeValue // Limit the number of products to the value of takeValue
         });

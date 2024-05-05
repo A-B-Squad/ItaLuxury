@@ -9,7 +9,7 @@ const Breadcumb = () => {
   const position = params.getAll("collection");
 
   return (
-    <div className="flex gap-2 items-center text-xs md:text-sm w-full  lg:w-max tracking-wider my-5 lg:ml-5">
+    <div className="flex gap-2 flex-wrap items-center text-xs md:text-sm w-full  lg:w-max tracking-wider my-5 lg:ml-5">
       <div className="hover:text-strongBeige transition-all  flex items-center gap-1">
         <IoHome />
         <Link 

@@ -17,6 +17,7 @@ import { topDealsMutations } from "./resolvers/mutations/topDealsMutations/topDe
 import { dealsQueries } from './resolvers/queries/topDealsQueries/dealsQueries';
 import { colorsQueries } from "./resolvers/queries/colorsQueries/colorsQueries";
 import { bestSalesQueries } from "./resolvers/queries/bestSalesQuery/bestSalesQueries";
+import { BrandQueries } from "./resolvers/queries/BrandQuery/brandQueries";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -28,7 +29,8 @@ export const resolvers = {
     ...advertismentQueries,
     ...dealsQueries,
     ...colorsQueries,
-    ...bestSalesQueries
+    ...bestSalesQueries,
+    ...BrandQueries
   },
 
   Mutation: {
@@ -39,7 +41,7 @@ export const resolvers = {
     ...checkoutMutations,
     ...packageMutations,
     ...companyMutations,
-    ...adminMutations, 
+    ...adminMutations,
     ...topDealsMutations
   },
 };

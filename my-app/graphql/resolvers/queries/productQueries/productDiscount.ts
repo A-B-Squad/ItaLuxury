@@ -6,7 +6,10 @@ export const productDiscount = async (_: any, { productId }: { productId: string
         // Retrieve the product discount information based on productId
         const productDiscount = await prisma.productDiscount.findFirst({
             where: {
-                productId: productId
+                productId: productId,
+                product: {
+                    isVisible: true
+                }
             }
         });
 

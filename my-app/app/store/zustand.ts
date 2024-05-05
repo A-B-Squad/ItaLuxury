@@ -152,14 +152,14 @@ export const useComparedProductsStore = create(
 );
 
 type SidebarStore = {
-  isOpen: boolean;
+  isOpenSideBard: boolean;
   toggleOpenSidebar: () => void;
 
 };
 
 export const useSidebarStore = create<SidebarStore>((set) => ({
-  isOpen: false,
-  toggleOpenSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
+  isOpenSideBard: false,
+  toggleOpenSidebar: () => set((state) => ({ isOpenSideBard: !state.isOpenSideBard })),
 
 }));
 interface AllProductViewStore {

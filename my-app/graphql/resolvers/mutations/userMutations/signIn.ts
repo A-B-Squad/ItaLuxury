@@ -30,7 +30,10 @@ export const signIn = async (
   const token = jwt.sign({ userId: existingUser.id }, jwtSecret, {
     expiresIn: "1h",
   });
-
+  console.log("Email:", email);
+  console.log("Existing User:", existingUser);
+  console.log("Valid Password:", validPassword);
+  
   // Set the cookie
   res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
 
