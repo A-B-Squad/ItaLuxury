@@ -3,6 +3,9 @@ import { Context } from "@/pages/api/graphql";
 export const companyInfo = async (_: any, __: any, { prisma }: Context) => {
   try {
     const info = await prisma.companyInfo.findFirst();
+    console.log('====================================');
+    console.log(info);
+    console.log('====================================');
     return info;
   } catch (error) {
     // Handle errors

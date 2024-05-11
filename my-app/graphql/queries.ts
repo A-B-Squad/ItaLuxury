@@ -122,10 +122,9 @@ export const TAKE_6_PRODUCTS = gql`
   }
 `;
 export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
-  
   query ProductsDiscounts($limit: Int) {
-  productsDiscounts(limit: $limit) {
-    id
+    productsDiscounts(limit: $limit) {
+      id
       name
       price
       reference
@@ -163,11 +162,8 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
           percentage
         }
       }
-      
+    }
   }
-}
-
-  
 `;
 export const TAKE_10_PRODUCTS = gql`
   query Products($limit: Int!) {
@@ -261,16 +257,16 @@ export const SIDE_ADS_NEW_PRODUCT = gql`
   }
 `;
 export const ALL_BRANDS = gql`
-query FetchBrands {
-  fetchBrands {
-    id
-    name
-    logo
-    product{
+  query FetchBrands {
+    fetchBrands {
       id
+      name
+      logo
+      product {
+        id
+      }
     }
   }
-}
 `;
 export const TOP_DEALS = gql`
   query AllDeals {
@@ -450,49 +446,61 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
 `;
 
 export const BEST_SALES_QUERY = gql`
-query GetBestSales {
-  getBestSales {
-    Product {
-      id
-      name
-      images
-      price
-      productDiscounts {
-        newPrice
-        price
-        Discount {
-          id
-          percentage
-        }
-      }
-      categories {
+  query GetBestSales {
+    getBestSales {
+      Product {
         id
         name
-        subcategories {
+        images
+        price
+        productDiscounts {
+          newPrice
+          price
+          Discount {
+            id
+            percentage
+          }
+        }
+        categories {
           id
           name
-          parentId
           subcategories {
             id
             name
             parentId
+            subcategories {
+              id
+              name
+              parentId
+            }
           }
         }
       }
-    }
-    Category {
-      id
-      name
+      Category {
+        id
+        name
+      }
     }
   }
-}
-
 `;
 export const GET_FAVORITE_STATUS = gql`
-query FavoriteProducts($userId: ID!) {
-  favoriteProducts(userId: $userId) {
-    id
-    productId
+  query FavoriteProducts($userId: ID!) {
+    favoriteProducts(userId: $userId) {
+      id
+      productId
+    }
   }
-}
+`;
+
+export const COMPANY_INFO_QUERY = gql`
+  query CompanyInfo {
+    companyInfo {
+      id
+      phone
+      deliveringPrice
+      logo
+      facebook
+      instagram
+    }
+  }
 `;
