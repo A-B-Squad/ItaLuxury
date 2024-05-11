@@ -211,6 +211,8 @@ type CompanyInfo {
   phone: [Int!]!
   deliveringPrice: Int
   logo: String!
+  instagram:String!
+  facebook:String!
 }
 # Define the TopDeals type
 type TopDeals {
@@ -505,6 +507,8 @@ input CompanyInfoInput {
   phone: [Int!]
   deliveringPrice: Int
   logo: String
+  instagram: String
+  facebook: String
 }
 
 # Define the CreateModeratorInput input type

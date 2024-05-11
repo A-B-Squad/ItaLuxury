@@ -41,8 +41,18 @@ CREATE TABLE "Product" (
     "images" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "colorsId" TEXT,
+    "brandId" TEXT,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BestSales" (
+    "id" TEXT NOT NULL,
+    "categoryId" TEXT,
+    "productId" TEXT,
+
+    CONSTRAINT "BestSales_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -190,8 +200,28 @@ CREATE TABLE "CompanyInfo" (
     "phone" INTEGER[],
     "deliveringPrice" INTEGER NOT NULL,
     "logo" TEXT NOT NULL,
+    "instagram" TEXT NOT NULL,
+    "facebook" TEXT NOT NULL,
 
     CONSTRAINT "CompanyInfo_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "content_visibility" (
+    "id" TEXT NOT NULL,
+    "section" INTEGER NOT NULL,
+    "visibility_status" BOOLEAN NOT NULL,
+
+    CONSTRAINT "content_visibility_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Brand" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "logo" TEXT NOT NULL,
+
+    CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -232,6 +262,15 @@ ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("par
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BestSales" ADD CONSTRAINT "BestSales_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BestSales" ADD CONSTRAINT "BestSales_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TopDeals" ADD CONSTRAINT "TopDeals_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -209,6 +209,8 @@ model CompanyInfo {
   phone           Int[]
   deliveringPrice Int
   logo            String
+  instagram       String
+  facebook        String
 }
 
 model content_visibility {

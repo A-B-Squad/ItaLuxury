@@ -15,7 +15,7 @@ import { IoGitCompare } from "react-icons/io5";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
-const TopHeader = () => {
+const TopHeader = ({logo}:{logo:string}) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowLogout] = useState<Boolean>(false);
   const [LengthComparer, setLengthComparer] = useState<String>("");
@@ -43,7 +43,7 @@ const TopHeader = () => {
     <div className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 py-3">
       <div className="logo ">
         {/* <Image src="/logo2.png" alt="logo" width={180} height={30} priority /> */}
-        <h3 className="text-strongBeige text-3xl cursor-pointer">MaisonNg</h3>
+        <h3 className="text-strongBeige text-3xl cursor-pointer">{logo}</h3>
       </div>
       <SearchBar />
       <div className="list md:flex items-center gap-5 cursor-pointer text-md hidden">
