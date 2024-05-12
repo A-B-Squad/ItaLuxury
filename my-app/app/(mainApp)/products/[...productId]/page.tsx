@@ -437,7 +437,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             price: discount
                               ? discount.newPrice
                               : productDetails?.price,
-                            actualQuantity:1,
+                            actualQuantity: 1,
                           });
                         } else {
                           console.log("Product is already in the basket");

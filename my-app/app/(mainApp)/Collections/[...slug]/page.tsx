@@ -1,5 +1,5 @@
 import React from "react";
-import ProductsSection from "../../../components/allProducts/productsSection";
+import ProductsSection from '../_components/productsSection';
 const AllProducts = () => {
   return <ProductsSection />;
 };

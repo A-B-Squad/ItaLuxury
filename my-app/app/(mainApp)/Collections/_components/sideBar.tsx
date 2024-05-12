@@ -58,7 +58,7 @@ const SideBar = () => {
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<
     Record<string, string[]>
   >({});
-  const { isOpenSideBard } = useSidebarStore();
+  const { isOpenSideBard, toggleOpenSidebar } = useSidebarStore();
 
   const fetchCategories = useQuery(CATEGORY_QUERY, {
     onCompleted: (data) => {
@@ -144,6 +144,7 @@ const SideBar = () => {
     const queryString = convertValidStringQueries(updatedQueries);
 
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+    toggleOpenSidebar();
   };
   const handleColorSelection = (colorId: string) => {
     let updatedQueries = { ...selectedFilterQueries };
@@ -155,6 +156,7 @@ const SideBar = () => {
     const queryString = convertValidStringQueries(updatedQueries);
 
     router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+    toggleOpenSidebar();
   };
 
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -171,20 +173,10 @@ const SideBar = () => {
     );
   };
 
-  const handleBrandSelection = (brandId: string) => {
-    let updatedQueries = { ...selectedFilterQueries };
-
-    updatedQueries["brand"] = [brandId];
-
-    setSelectedFilterQueries(updatedQueries);
-    const queryString = convertValidStringQueries(updatedQueries);
-
-    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
-  };
-
   const handleClearFilters = () => {
     setSelectedFilterQueries({});
     router.push("/Collections/tunisie", { scroll: false });
+    toggleOpenSidebar();
   };
 
   const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
@@ -197,12 +189,13 @@ const SideBar = () => {
     updatedQueries["category"] = [categoryId];
     setSelectedFilterQueries(updatedQueries);
     updateSearchParams(updatedQueries);
+    toggleOpenSidebar();
   };
 
   return (
     <section
       aria-labelledby="products-heading "
-      className={`w-96   top-0 h-full bg-white shadow-md sticky ${isOpenSideBard ? "sticky" : "hidden md:block"} `}
+      className={`w-96   top-0 h-full transition-all bg-white shadow-md sticky ${isOpenSideBard ? "sticky" : "hidden md:block"} `}
     >
       <form className="relative  pt-5  shadow-lg">
         <h3 className="font-semibold tracking-widest  pl-5 text-lg pb-2">
@@ -211,9 +204,10 @@ const SideBar = () => {
 
         {Object.keys(selectedFilterQueries).length > 0 && (
           <div
-          onClick={handleClearFilters}
-          className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer">
-            <button className="flex border rounded-md gap-2 items-center  py-1 shadow px-2" >
+            onClick={handleClearFilters}
+            className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer"
+          >
+            <button className="flex border rounded-md gap-2 items-center  py-1 shadow px-2">
               <IoIosClose size={25} />
               Effacer Filters
             </button>

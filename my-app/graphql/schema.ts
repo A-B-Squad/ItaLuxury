@@ -241,8 +241,8 @@ type SearchResult {
 
 type BestSales {
   id: String!
-  Product: Product
-  Category:Category
+  Product: Product!
+  Category:Category!
 }
 
 

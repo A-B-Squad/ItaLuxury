@@ -2,8 +2,9 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div className=" left-0 top-0 h-screen w-screen bg-white absolute">
-      <div className="loader"></div>
+    <div className=" flex items-center justify-center h-screen w-full bg-white ">
+
+    <div className="loader"></div>
     </div>
   );
 };

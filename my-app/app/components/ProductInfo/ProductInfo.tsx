@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -62,7 +62,7 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed  z-50  ${isOpen ? "-translate-y-2/4 opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
+        className={`fixed  z-50  ${isOpen ? "-translate-y-2/4 opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-9/12 md:w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
       >
         <IoCloseOutline
           size={40}
@@ -126,13 +126,13 @@ const ProductInfo = () => {
                   <p className="line-through">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
-                  <p className="text-sm bg-violet-900 text-white p-1">
+                  <p className="text-sm bg-purple-400 text-white p-1">
                     Économisez{" "}
                     <span className="font-bold ml-1">
                       {(
                         productData?.productDiscounts[0].price -
                         productData?.productDiscounts[0].newPrice
-                      ).toFixed(3)}{" "}
+                      ).toFixed(3)}
                       TND
                     </span>
                   </p>
@@ -170,7 +170,7 @@ const ProductInfo = () => {
                     className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
                     onClick={() => {
                       setActuelQuantity(
-                        actualQuantity < productData?.inventory
+                        actualQuantity < (productData?.inventory ?? 0)
                           ? actualQuantity + 1
                           : actualQuantity
                       );

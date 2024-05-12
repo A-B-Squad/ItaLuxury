@@ -20,21 +20,11 @@ interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  images: string[];
-  actualQuantity: number;
-  basketId: string;
-  categories: string[];
-}
-
 const BasketDrawer = () => {
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
+  const [productsInBasket, setProductsInBasket] = useState<ProductInfo[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const { products, removeProductFromBasket, setQuantityInBasket } =
     useProductsInBasketStore((state) => ({
@@ -42,15 +32,14 @@ const BasketDrawer = () => {
       removeProductFromBasket: state.removeProductFromBasket,
       setQuantityInBasket: state.setQuantityInBasket,
     }));
-  const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
+  const { isUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
   }));
 
   useEffect(() => {
     const token = Cookies.get("Token");
-    console.log(token,"eeeee");
-    
+
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
@@ -70,7 +59,7 @@ const BasketDrawer = () => {
               0
             )
           );
-          const total = fetchedProducts.reduce((acc: number, curr: Product) => {
+          const total = fetchedProducts.reduce((acc: number, curr: any) => {
             return acc + curr.price * curr.actualQuantity;
           }, 0);
           setTotalPrice(total);
@@ -83,30 +72,31 @@ const BasketDrawer = () => {
       setProductsInBasket(products);
       setQuantityInBasket(
         products.reduce(
-          (acc: number, curr: any) => acc + curr.actualQuantity,
+          (acc: number, curr: BasketInfo) => acc + curr.actualQuantity,
           0
         )
       );
-      const total = products.reduce((acc: number, curr: Product) => {
+      const total = products.reduce((acc: number, curr: BasketInfo) => {
         return acc + curr.price * curr.actualQuantity;
       }, 0);
       setTotalPrice(total);
     }
   }, [isUpdated, isOpen]);
 
-  const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
+  const [fetchProducts] = useLazyQuery(BASKET_QUERY);
 
-  const [deleteBasketById, { loading: deletingLoading }] = useMutation(
-    DELETE_BASKET_BY_ID_MUTATION
-  );
+  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = productsInBasket.filter(
-      (product) => product.basketId !== basketId
+      (product: any) => product.basketId !== basketId
     );
-    const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
-      return acc + curr.price * curr.actualQuantity;
-    }, 0);
+    const updatedTotalPrice = updatedProducts.reduce(
+      (acc: number, curr: ProductBasket) => {
+        return acc + curr.price * curr.actualQuantity;
+      },
+      0
+    );
 
     setTotalPrice(updatedTotalPrice);
     setProductsInBasket(updatedProducts);
@@ -149,9 +139,17 @@ const BasketDrawer = () => {
       className="p-4 fixed h-[200vh]"
       size={400}
       placeholder={""}
+      onPointerEnterCapture={""}
+      onPointerLeaveCapture={""}
     >
       <div className="mb-6 flex items-center justify-between ">
-        <Typography placeholder={""} variant="h5" color="blue-gray">
+        <Typography
+          placeholder={""}
+          variant="h5"
+          color="blue-gray"
+          onPointerEnterCapture={""}
+          onPointerLeaveCapture={""}
+        >
           Panier
         </Typography>
         <IconButton
@@ -159,6 +157,8 @@ const BasketDrawer = () => {
           variant="text"
           color="blue-gray"
           onClick={closeBasketDrawer}
+          onPointerEnterCapture={""}
+          onPointerLeaveCapture={""}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -181,20 +181,21 @@ const BasketDrawer = () => {
           <div className="product-details h-full  overflow-hidden hover:overflow-y-auto">
             <div className="flow-root">
               <ul role="list" className=" divide-y divide-gray-200">
-                {productsInBasket?.map((product, index) => (
-                  <li className="flex py-6 " key={index}>
-                    <div className=" relative h-24 w-20 flex-shrink-0 rounded-md ">
+                {productsInBasket?.map((product: any, index) => (
+                  <li className="flex py-4 border-b" key={index}>
+                    <div  className=" relative h-24 w-20 flex-shrink-0 rounded-md ">
                       <Image
                         layout="fill"
+                        objectFit="contain"
                         src={product.images[0]}
                         alt={product.name}
                         className="h-full w-full object-cover object-center"
                       />
                     </div>
 
-                    <div className="ml-4 flex  flex-1 flex-col">
+                    <div className="ml-4 flex   flex-1 flex-col">
                       <div>
-                        <div className="flex justify-between text-base font-medium text-gray-900">
+                        <div className="flex items-center justify-between text-base font-medium text-gray-900">
                           <Link
                             className="hover:text-mediumBeige transition-colors"
                             rel="preload"
@@ -202,15 +203,7 @@ const BasketDrawer = () => {
                               pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                               query: {
                                 productId: product?.id,
-                                collection: [
-                                  // product?.categories[0]?.name,
-                                  // product?.categories[0]?.id,
-                                  // product?.categories[0]?.subcategories[0]?.name,
-                                  // product?.categories[0]?.subcategories[0]?.id,
-                                  // product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
-                                  // product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
-                                  product?.name,
-                                ],
+                                collection: [product?.name],
                               },
                             }}
                           >

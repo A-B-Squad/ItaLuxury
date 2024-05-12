@@ -137,6 +137,8 @@ export const ProductBox = ({ product }: any) => {
               setIsFavorite={setIsFavorite}
               productId={product?.id}
               userId={decodedToken?.userId}
+              heartColor={""}
+              heartSize={15}
             />
           </li>
         </div>
@@ -154,7 +156,7 @@ export const ProductBox = ({ product }: any) => {
         )}
       </div>
       <Link
-        className="relative flex w-40 h-52 md:w-56 overflow-hidden"
+        className={` ${view === 1 ? "flex items-center " : ""} relative flex w-40 h-52 md:w-56 overflow-hidden`}
         rel="preload"
         href={{
           pathname: `/products/tunisie/${prepRoute(product?.name)}`,
@@ -179,6 +181,7 @@ export const ProductBox = ({ product }: any) => {
                 src={product?.images[0]}
                 className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0  h-full w-full object-cover"
                 loading="eager"
+                objectFit="contain"
                 priority
                 alt={`products-${product?.name}`}
                 layout="fill"

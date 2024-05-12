@@ -65,11 +65,9 @@ export const BASKET_QUERY = gql`
           subcategories {
             id
             name
-            parentId
             subcategories {
               id
               name
-              parentId
             }
           }
         }
@@ -495,4 +493,13 @@ query FavoriteProducts($userId: ID!) {
     productId
   }
 }
+`;
+export const GET_BRANDS = gql`
+query FetchBrands {
+  fetchBrands {
+  id
+  logo
+  }
+}
+
 `;

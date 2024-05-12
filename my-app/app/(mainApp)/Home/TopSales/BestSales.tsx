@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { CiHeart } from "react-icons/ci";
 import { BASKET_QUERY, BEST_SALES_QUERY } from "@/graphql/queries";
 import Image from "next/image";
 import Link from "next/link";
 import prepRoute from "@/app/components/_prepRoute";
 import { FaBasketShopping } from "react-icons/fa6";
-import { FaRegEye, FaRegHeart } from "react-icons/fa";
+import { FaRegEye } from "react-icons/fa";
 import {
   useBasketStore,
-  useComparedProductsStore,
   useDrawerBasketStore,
   useProductDetails,
   useProductsInBasketStore,
@@ -19,50 +17,14 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 
-interface Discount {
-  id: string;
-  percentage: number;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  productDiscounts: {
-    newPrice: number;
-    price: number;
-    Discount: Discount;
-  }[];
-  categories: Category[];
-}
-
-interface BestSalesData {
-  Product: Product;
-  Category: Category;
-}
-
-interface BestSalesResponse {
-  data: {
-    products: {
-      getBestSales: BestSalesData[];
-    };
-  };
-}
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
 const BestSales: React.FC = () => {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [getBestSales, { loading, error }] =
-    useLazyQuery<BestSalesResponse>(BEST_SALES_QUERY);
+  const [allProducts, setAllProducts] = useState<SalesData[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [getBestSales] = useLazyQuery<SalesData>(BEST_SALES_QUERY);
 
   const { openBasketDrawer } = useDrawerBasketStore();
 
@@ -131,11 +93,13 @@ const BestSales: React.FC = () => {
       try {
         const { data } = await getBestSales();
         if (data) {
-          setAllProducts(data.getBestSales.map((item) => item.Product));
+          setAllProducts(data.getBestSales.map((item: any) => item.Product));
 
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
-            new Set(data.getBestSales.flatMap((item) => item.Category.name))
+            new Set(
+              data.getBestSales.flatMap((item: any) => item.Category.name)
+            )
           );
           setCategories(uniqueCategories);
         }
@@ -148,31 +112,30 @@ const BestSales: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center md:flex-row gap-3">
+    <div className="flex flex-col w-full items-center md:flex-row gap-3">
       {categories.map((category: string, index: number) => (
         <table key={index} className="text-sm text-gray-500 w-full">
           <thead>
             <tr>
               <th
                 scope="col"
-                className="px-6 py-3 text-white tracking-wide uppercase bg-strongBeige"
+                className=" px-3 py-3 text-white tracking-wider uppercase bg-strongBeige"
               >
                 {category}
               </th>
             </tr>
           </thead>
-          <tbody className="border max-h-96 h-96 overflow-y-scroll">
-            {/* Render products belonging to this category */}
+          <tbody className="border-2 w-full shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
             {allProducts
               .filter(
-                (product: Product) => product?.categories[0].name === category
+                (product: any) => product?.categories[0].name === category
               )
-              .map((product: Product) => (
+              .map((product: any) => (
                 <div
                   key={product.id}
-                  className="bg-white border-b relative  hover:opacity-90 transition-all group "
+                  className="bg-white border-b-2 shadow-sm  w-full  relative   hover:opacity-90 transition-all group "
                 >
-                  <td className=" flex font-medium  text-gray-900 w-full border-b relative">
+                  <td className=" flex font-medium  text-gray-900 w-full relative">
                     {/* Render product details */}
                     <div className="w-full flex gap-5  items-center">
                       <div className="relative h-28 w-28  ">
@@ -180,16 +143,16 @@ const BestSales: React.FC = () => {
                           <div
                             title="Ajouter au panier"
                             onClick={() => AddToBasket(product)}
-                            className="cursor-pointer hover:opacity-70 p-1 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
+                            className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
                           >
-                            <FaBasketShopping size={20} />
+                            <FaBasketShopping size={18} />
                           </div>
                           <div
-                            className="cursor-pointer hover:opacity-70 p-1 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
+                            className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
                             title="aperçu rapide"
                             onClick={() => openProductDetails(product)}
                           >
-                            <FaRegEye size={20} />
+                            <FaRegEye size={18} />
                           </div>
                         </span>
 
@@ -203,7 +166,7 @@ const BestSales: React.FC = () => {
 
                       <div className="flex flex-col gap-2">
                         <Link
-                          className="hover:text-strongBeige transition-all cursor-pointer tracking-wider  "
+                          className="hover:text-strongBeige text-base font-semibold transition-all cursor-pointer tracking-wider  "
                           title={product.name}
                           href={{
                             pathname: `/products/tunisie/${prepRoute(product?.name)}`,
@@ -227,13 +190,11 @@ const BestSales: React.FC = () => {
                         </Link>
 
                         {product.productDiscounts.length === 0 ? (
-                          <div className="flex gap-2 font-bold text-red-500 text-base ">
-                            <span className="">
-                              {product?.price.toFixed(3)} DT
-                            </span>
+                          <div className="flex gap-2 font-bold tracking-wider text-red-500 text-base ">
+                            <span>{product?.price.toFixed(3)} DT</span>
                           </div>
                         ) : (
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 tracking-wider">
                             <span className=" font-bold text-red-500 text-base">
                               {product.productDiscounts[0]?.price.toFixed(3)} DT
                             </span>
@@ -245,7 +206,7 @@ const BestSales: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    <div className="relative right-4 top-4">
+                    <div className="relative right-4 top-4 hover:text-black transition-colors">
                       <FavoriteProduct
                         isFavorite={isFavorite}
                         setIsFavorite={setIsFavorite}

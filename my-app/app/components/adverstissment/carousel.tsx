@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Carousel } from "@material-tailwind/react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import Image from "next/image";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
-import type { DrawerProps } from "@material-tailwind/react";
 
 const AdsCarousel = () => {
   const [images, setImages] = useState([]);
@@ -37,12 +36,16 @@ const AdsCarousel = () => {
         <Carousel
           autoplay
           className="rounded-xl relative lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px]  "
-            placeholder={""}
+          placeholder={""}
+          onPointerEnterCapture={""}
+          onPointerLeaveCapture={""}
         >
           {images.map((image, index) => (
-            <Link key={index} 
-            rel="preload"
-            href={data.advertismentByPosition[index]?.link}>
+            <Link
+              key={index}
+              rel="preload"
+              href={data.advertismentByPosition[index]?.link}
+            >
               <Image
                 layout="fill"
                 src={image}
@@ -52,7 +55,7 @@ const AdsCarousel = () => {
                 className=" hover:opacity-70 transition-all h-full w-full object-fill"
               />
             </Link>
-          ))} 
+          ))}
         </Carousel>
       )}
     </>

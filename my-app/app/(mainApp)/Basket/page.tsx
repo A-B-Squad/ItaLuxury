@@ -11,6 +11,7 @@ import {
   INCREASE_QUANTITY_MUTATION,
 } from "../../../graphql/mutations";
 import { BASKET_QUERY } from "../../../graphql/queries";
+import Image from "next/image";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -123,11 +124,13 @@ const Basket = () => {
               </thead>
               <tbody className="whitespace-nowrap divide-y">
                 {products.map((product) => (
-                  <tr>
-                    <td className="py-6 px-4">
+                  <tr className="b">
+                    <td className="py-6 px-4 ">
                       <div className="flex items-center gap-6 w-max">
-                        <div className="h-36 shrink-0">
-                          <img
+                        <div className="h-36 w-36 shrink-0">
+                          <Image
+                            alt={product.name}
+                            layout="fill"
                             src={product.images[0]}
                             className="w-full h-full object-contain"
                           />

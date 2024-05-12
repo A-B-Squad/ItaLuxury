@@ -203,6 +203,8 @@ const TopDeals = () => {
                     setIsFavorite={setIsFavorite}
                     productId={products?.product?.id}
                     userId={decodedToken?.userId}
+                    heartColor={""}
+                    heartSize={15}
                   />
                 </li>
               </div>
