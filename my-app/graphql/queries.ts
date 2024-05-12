@@ -503,3 +503,17 @@ query FetchBrands {
 }
 
 `;
+
+
+export const COMPANY_INFO_QUERY = gql`
+  query CompanyInfo {
+    companyInfo {
+      id
+      phone
+      deliveringPrice
+      logo
+      facebook
+      instagram
+    }
+  }
+`;

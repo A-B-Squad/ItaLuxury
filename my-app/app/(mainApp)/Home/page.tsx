@@ -21,7 +21,7 @@ import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
 import Link from "next/link";
 import { MdKeyboardArrowRight } from "react-icons/md";
-import { BrandsCarousel } from './_components/BrandCarousel';
+import { BrandsCarousel } from "./_components/BrandCarousel";
 const Home = () => {
   const [countdownToNextDay, setCountdownToNextDay] = useState<number>(0);
 
@@ -169,7 +169,10 @@ const Home = () => {
           <div className="flex items-center justify-between">
             <TitleProduct title={"Promotions"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
-              <Link rel="preload" href={"/Collections/tunisie"}>
+              <Link
+                rel="preload"
+                href={"/Collections/tunisie?choice=in-discount"}
+              >
                 Voir tous les produits
               </Link>
               <MdKeyboardArrowRight />
@@ -196,7 +199,7 @@ const Home = () => {
         <ClientServices />
         <div className="BestSeals">
           <BestSales />
-          <BrandsCarousel/>
+          <BrandsCarousel />
         </div>
       </div>
     </div>

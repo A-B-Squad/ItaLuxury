@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   FaDribbbleSquare,
   FaFacebookSquare,
@@ -6,20 +8,35 @@ import {
   FaInstagram,
   FaTwitterSquare,
 } from "react-icons/fa";
+import { useLazyQuery } from "@apollo/client";
+import { COMPANY_INFO_QUERY } from "@/graphql/queries";
+
 // Reusable SocialIcon component with hover effect
 const SocialIcon = ({ icon: Icon }) => (
   <Icon className="social-icon hover:text-[#00df9a]" size={30} />
 );
 // Footer component
 const Footer = () => {
+  const [instagramLink, setInstagramLink] = useState<string>("");
+  const [facebookLink, setFacebookLink] = useState<string>("");
+
+  const [getSocialLinks] = useLazyQuery(COMPANY_INFO_QUERY);
+
+  useEffect(() => {
+    getSocialLinks({
+      onCompleted(data) {
+        setInstagramLink(data.companyInfo.instagram);
+        setFacebookLink(data.companyInfo.facebook);
+      },
+    });
+  }, []);
+
   // Array defining the content and structure of the footer
   const items = [
     // Social media icons
-    { type: "icon", icon: FaFacebookSquare },
-    { type: "icon", icon: FaInstagram },
-    { type: "icon", icon: FaTwitterSquare },
-    { type: "icon", icon: FaGithubSquare },
-    { type: "icon", icon: FaDribbbleSquare },
+    { type: "icon", icon: FaFacebookSquare, link: facebookLink },
+    { type: "icon", icon: FaInstagram, link: instagramLink },
+
     // Footer sections
     {
       type: "section",
@@ -53,11 +70,19 @@ const Footer = () => {
           43 Avenue Fattouma Bourguiba Sidi Fraj Sokra 2036 La Soukra Tunisie
           Ariana Tunisie.
         </p>
-        <div className="flex justify-between md:w-[75%] my-6">
+        <div className="flex gap-5 md:w-[75%] my-6">
           {/* Mapping over social icons and rendering the SocialIcon component */}
           {items.map((item, index) =>
             item.type === "icon" ? (
-              <SocialIcon key={index} icon={item.icon} />
+              <>
+                <a href={item.link} target="_blank" onClick={()=>{
+                  console.log('====================================');
+                  console.log(item);
+                  console.log('====================================');
+                }}>
+                  <SocialIcon key={index} icon={item.icon} />
+                </a>
+              </>
             ) : null
           )}
         </div>

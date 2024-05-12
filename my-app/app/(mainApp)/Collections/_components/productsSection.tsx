@@ -234,7 +234,6 @@ const ProductsSection = () => {
             </div>
           )}
         </div>
-      )}
     </>
   );
 };
