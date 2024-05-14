@@ -12,6 +12,7 @@ import {
 } from "../../../graphql/mutations";
 import { BASKET_QUERY } from "../../../graphql/queries";
 import Image from "next/image";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -27,6 +28,8 @@ interface Product {
 }
 
 const Basket = () => {
+  const { toast } = useToast();
+
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -80,12 +83,13 @@ const Basket = () => {
       updateTotalPrice(updatedProducts);
     },
   });
-  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
+  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION, {});
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(
       (product) => product.basketId !== basketId
     );
+
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
     }, 0);
@@ -126,15 +130,12 @@ const Basket = () => {
                 {products.map((product) => (
                   <tr className="b">
                     <td className="py-6 px-4 ">
-                      <div className="flex items-center gap-6 w-max">
-                        <div className="h-36 w-36 shrink-0">
-                          <Image
+                      <div className="flex items-center gap-6 ">
+                          <img
                             alt={product.name}
-                            layout="fill"
+                           className="h-36 w-36"
                             src={product.images[0]}
-                            className="w-full h-full object-contain"
                           />
-                        </div>
                         <div>
                           <p className="text-md font-bold text-[#333]">
                             {product.name}
@@ -144,6 +145,11 @@ const Basket = () => {
                             className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               handleRemoveProduct(product.basketId);
+                              toast({
+                                title: "Notification de Panier",
+                                description: `Le produit "${product?.name}" a été retiré du panier.`,
+                                className: "bg-white",
+                              });
                             }}
                           >
                             <FaRegTrashAlt />
@@ -239,12 +245,12 @@ const Basket = () => {
                 TND
               </span>
             </li>
-          </ul>
+          </ul> 
           <Link
             href={{
               pathname: "/Checkout",
               query: {
-                total: totalPrice >= 499 ? totalPrice : totalPrice + 8,
+                total: totalPrice >= 499 ? totalPrice.toFixed(3) : totalPrice.toFixed(3) + 8,
                 products: JSON.stringify(products),
               },
             }}

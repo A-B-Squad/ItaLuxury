@@ -28,6 +28,7 @@ import {
 import Breadcumb from "../../../components/Breadcumb";
 import PopHover from "../../../components/PopHover";
 import ProductDetailsDrawer from "../../../components/ProductInfo/productDetailsDrawer";
+import { useToast } from "@/components/ui/use-toast";
 import {
   useBasketStore,
   useComparedProductsStore,
@@ -38,6 +39,7 @@ import {
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
   const productId = SearchParams?.get("productId");
+  const { toast } = useToast();
 
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
@@ -49,7 +51,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [reviews, setReviews] = useState<number>(0);
   const [actualQuantity, setActualQuantity] = useState<number>(1);
   const [quantity, setQuantity] = useState<number>(0);
-  const [successMsg, setSuccessMsg] = useState<string>("");
   const [attributes, setAttributes] = useState<any>(null);
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState("");
@@ -83,12 +84,51 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     userId: string;
   }
 
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: 1,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+    openBasketDrawer();
+  };
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
+    
     getReviews({
       variables: { productId: productId },
       onCompleted: (data) => {
@@ -179,7 +219,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   const addToCompare = (product: any) => {
     addProductToCompare(product);
-    setSuccessMsg("Produit ajouté au comparaison !");
   };
 
   const handleToggleFavorite = () => {
@@ -195,57 +234,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         },
       },
     });
-    setSuccessMsg("Produit ajouté avec succès au favoris !");
   };
 
   return (
     <>
       <div>
-        {successMsg && (
-          <div
-            id="alert-3"
-            className="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 "
-            role="alert"
-          >
-            <svg
-              className="flex-shrink-0 w-4 h-4"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-            </svg>
-            <span className="sr-only">Info</span>
-            <div className="ms-3 text-sm font-medium tracking-widest">
-              {successMsg}
-            </div>
-            <button
-              type="button"
-              className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 "
-              onClick={() => setSuccessMsg("")}
-              data-dismiss-target="#alert-3"
-              aria-label="Close"
-            >
-              <span className="sr-only">Close</span>
-              <svg
-                className="w-3 h-3"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 14"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  strokeWidth="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                />
-              </svg>
-            </button>
-          </div>
-        )}
         <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
           <Breadcumb />
 
@@ -410,41 +403,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     type="button"
                     className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                     onClick={() => {
-                      if (decodedToken) {
-                        addToBasket({
-                          variables: {
-                            input: {
-                              userId: decodedToken?.userId,
-                              quantity: actualQuantity,
-                              productId: productId,
-                            },
-                          },
-                          refetchQueries: [
-                            {
-                              query: BASKET_QUERY,
-                              variables: { userId: decodedToken?.userId },
-                            },
-                          ],
-                        });
-                      } else {
-                        const isProductAlreadyInBasket = products.some(
-                          (p: any) => p.id === productDetails?.id
-                        );
-
-                        if (!isProductAlreadyInBasket) {
-                          addProductToBasket({
-                            ...productDetails,
-                            price: discount
-                              ? discount.newPrice
-                              : productDetails?.price,
-                            actualQuantity: 1,
-                          });
-                        } else {
-                          console.log("Product is already in the basket");
-                        }
-                      }
-                      setSuccessMsg("Produit ajouté avec succès au panier !");
-                      toggleIsUpdated();
+                      AddToBasket(productDetails);
+                      toast({
+                        title: "Notification de Panier",
+                        description: `Le produit "${productDetails?.name}" a été ajouté au panier.`,
+                        className: "bg-white",
+                      });
                     }}
                   >
                     Ajouter au panier
@@ -481,7 +445,15 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       )}
                     <button
                       className=" text-strongBeige hover:text-black transition-colors text-xl font-bold rounded"
-                      onClick={() => addToCompare(productDetails)}
+                      onClick={() => {
+                        addToCompare(productDetails);
+
+                        toast({
+                          title: "Produit ajouté à la comparaison",
+                          description: `Le produit "${productDetails?.name}" a été ajouté à la comparaison.`,
+                          className: "bg-white",
+                        });
+                      }}
                     >
                       <GoGitCompare className="font-bold" />
                     </button>
@@ -620,7 +592,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         productId={productId}
         productDetails={productDetails}
         addToBasket={addToBasket}
-        setSuccessMsg={setSuccessMsg}
         discount={discount}
         actualQuantity={actualQuantity}
         setActualQuantity={setActualQuantity}

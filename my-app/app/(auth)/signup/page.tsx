@@ -18,9 +18,9 @@ const Signup = () => {
     password: "",
   });
 
-  const {products,clearBasket} = useProductsInBasketStore((state) => ({
-    products:state.products,
-    clearBasket:state.clearBasket
+  const { products, clearBasket } = useProductsInBasketStore((state) => ({
+    products: state.products,
+    clearBasket: state.clearBasket,
   }));
   const SIGNUP_MUTATION = gql`
     mutation SignUp($input: SignUpInput!) {
@@ -52,23 +52,23 @@ const Signup = () => {
       },
     },
     onCompleted: (data) => {
-      router.push("/");
+      router.replace("/Home");
       if (products.length > 0) {
         const newArray = products.map((product: any) => ({
-          quantity: product.quantity,
+          quantity: Number(product.quantity),
           productId: product.id,
         }));
         addMulipleProducts({
-          variables:{
+          variables: {
             input: {
               userId: data.signUp.user.id,
               products: newArray,
-            }
+            },
           },
-          onCompleted:()=>{
-            clearBasket()
-          }
-        })
+          onCompleted: () => {
+            clearBasket();
+          },
+        });
       }
     },
     onError: (error) => {

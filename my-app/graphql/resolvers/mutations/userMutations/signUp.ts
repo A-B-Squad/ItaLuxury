@@ -19,7 +19,7 @@ export const signUp = async (
   }
 
   // hash password
-  const hashedPassword = await bcrypt.hashSync(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // create new user
   const newUser = await prisma.user.create({
@@ -34,7 +34,7 @@ export const signUp = async (
 
   // Generate JWT token
   const token = jwt.sign({ userId: newUser.id }, jwtSecret);
-  res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
 
   return {
     user: newUser,

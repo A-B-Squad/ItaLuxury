@@ -12,10 +12,12 @@ import {
   useProductsInBasketStore,
 } from "../../store/zustand";
 import { IoGitCompare } from "react-icons/io5";
+import Image from "next/image";
+import { GoPackageDependents } from "react-icons/go";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
-const TopHeader = () => {
+const TopHeader = ({ logo }: { logo: string }) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowLogout] = useState<Boolean>(false);
   const [LengthComparer, setLengthComparer] = useState<String>("");
@@ -24,8 +26,8 @@ const TopHeader = () => {
     (state) => state.quantityInBasket
   );
 
-  const token = Cookies.get("Token");
   useEffect(() => {
+    const token = Cookies.get("Token");
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
@@ -41,9 +43,14 @@ const TopHeader = () => {
 
   return (
     <div className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 py-3">
-      <div className="logo ">
-        {/* <Image src="/logo2.png" alt="logo" width={180} height={30} priority /> */}
-        <h3 className="text-strongBeige text-3xl cursor-pointer">MaisonNg</h3>
+      <div className="logo relative w-48 h-24 ">
+        <Image
+          src={logo}
+          alt="logo"
+          layout="fill"
+          objectFit="contain"
+          priority
+        />
       </div>
       <SearchBar />
       <div className="list md:flex items-center gap-5 cursor-pointer text-md hidden">
@@ -57,7 +64,7 @@ const TopHeader = () => {
               <FiUser />
             </div>
             <div
-              className={` absolute w-60 border-2 text-base    bg-[#f8f9fd] flex  justify-center items-center flex-col text-center tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
+              className={` absolute w-60 border-2 text-base     flex  justify-center items-center flex-col text-center tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
               onMouseLeave={() => setShowLogout(false)}
             >
               {!decodedToken?.userId && (
@@ -66,7 +73,7 @@ const TopHeader = () => {
                   href={"/signin"}
                 >
                   <FiUser />
-                  Connexion
+                  <p className="font-semibold">Connexion</p>
                 </Link>
               )}
               {decodedToken?.userId && (
@@ -76,19 +83,18 @@ const TopHeader = () => {
                       Cookies.remove("Token");
                       window.sessionStorage.removeItem("productsInBasket");
                       window.sessionStorage.removeItem("comparedProducts");
-                      window.location.reload();
                     }
                   }}
                   className="w-full py-2 border-b gap-2 hover:bg-mediumBeige flex justify-center items-center hover:text-white transition-colors"
                   href={"/Home"}
                 >
                   <FiUser />
-                  Déconnexion
+                  <p className="font-semibold">Déconnexion</p>
                 </Link>
               )}
 
               <Link
-                href={decodedToken?.userId ? `/Mes-Favoris` : ""}
+                href={decodedToken?.userId ? `/FavoriteList` : ""}
                 onClick={() => {
                   if (!decodedToken || !decodedToken.userId) {
                     alert("Veuillez vous connecter pour voir vos favoris.");
@@ -97,7 +103,19 @@ const TopHeader = () => {
                 className="w-full border-b py-2 gap-2 text-center hover:bg-mediumBeige flex justify-center items-center hover:text-white transition-colors"
               >
                 <FiHeart />
-                <p>Mes Favoris</p>
+                <p className="font-semibold">Mes Favoris</p>
+              </Link>
+              <Link
+                href={decodedToken?.userId ? `/TrackingPackages` : ""}
+                onClick={() => {
+                  if (!decodedToken || !decodedToken.userId) {
+                    alert("Veuillez vous connecter pour voir vos commandes.");
+                  }
+                }}
+                className="w-full border-b py-2 gap-2 text-center hover:bg-mediumBeige flex justify-center items-center hover:text-white transition-colors"
+              >
+                <GoPackageDependents />
+                <p className="font-semibold">suivi vos commandes</p>
               </Link>
 
               <Link
@@ -105,7 +123,7 @@ const TopHeader = () => {
                 className=" w-full py-2 gap-2 hover:bg-mediumBeige flex justify-center items-center hover:text-white transition-colors"
               >
                 <IoGitCompare />
-                <p>Comparer ({LengthComparer})</p>
+                <p className="font-semibold">Comparer ({LengthComparer})</p>
               </Link>
             </div>
           </li>

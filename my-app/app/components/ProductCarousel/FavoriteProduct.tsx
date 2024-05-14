@@ -1,7 +1,7 @@
 import { ADD_TO_FAVORITE_MUTATION } from "@/graphql/mutations";
 import { GET_FAVORITE_STATUS } from "@/graphql/queries";
-import { useMutation, useQuery } from "@apollo/client";
-import React, { useEffect } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useEffect } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const FavoriteProduct = ({
@@ -9,15 +9,14 @@ const FavoriteProduct = ({
   userId,
   isFavorite,
   setIsFavorite,
-  heartColor,
-  heartSize,
+  heartColor,heartSize
 }: {
   productId: string;
   userId: string | undefined;
   isFavorite: boolean;
   setIsFavorite: any;
   heartColor: string;
-  heartSize: number;
+  heartSize:number
 }) => {
   const { data: favoriteData, refetch: refetchFavorite } = useQuery(
     GET_FAVORITE_STATUS,
@@ -68,11 +67,11 @@ const FavoriteProduct = ({
   };
 
   return (
-    <div onClick={handleToggleFavorite} className="cursor-pointer ">
+    <div onClick={handleToggleFavorite} className="cursor-pointer">
       {isFavorite ? (
-        <FaHeart size={heartSize || ""} color="red" />
+        <FaHeart size={heartSize||""} color="red" />
       ) : (
-        <FaRegHeart size={heartSize || ""} color={heartColor || "white"} />
+        <FaRegHeart size={heartSize||""} color={heartColor || "white"} />
       )}
     </div>
   );

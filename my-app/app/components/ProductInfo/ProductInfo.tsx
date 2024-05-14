@@ -10,10 +10,16 @@ import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
-import { useProductDetails } from "../../store/zustand";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import {
+  useBasketStore,
+  useDrawerBasketStore,
+  useProductDetails,
+  useProductsInBasketStore,
+} from "@/app/store/zustand";
 import { GoAlertFill } from "react-icons/go";
 import { SlBasket } from "react-icons/sl";
+import { BASKET_QUERY } from "@/graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -23,10 +29,20 @@ const ProductInfo = () => {
 
   const { isOpen, productData, closeProductDetails } = useProductDetails();
   const [bigImage, setBigImage] = useState<any>("");
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [actualQuantity, setActuelQuantity] = useState<number>(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { openBasketDrawer } = useDrawerBasketStore();
 
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
+
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  const { openProductDetails } = useProductDetails();
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -47,6 +63,43 @@ const ProductInfo = () => {
       window.removeEventListener("mousemove", moveCursor);
     };
   }, [productData]);
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: 1,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+    openBasketDrawer();
+  };
 
   return (
     <>
@@ -62,7 +115,7 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed  z-50  ${isOpen ? "-translate-y-2/4 opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-9/12 md:w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
+        className={`fixed  z-50  ${isOpen ? "-translate-y-2/4 opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
       >
         <IoCloseOutline
           size={40}
@@ -126,13 +179,13 @@ const ProductInfo = () => {
                   <p className="line-through">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
-                  <p className="text-sm bg-purple-400 text-white p-1">
-                    Économisez{" "}
+                  <p className="text-sm bg-purple-700 text-white p-1">
+                    Économisez
                     <span className="font-bold ml-1">
                       {(
                         productData?.productDiscounts[0].price -
                         productData?.productDiscounts[0].newPrice
-                      ).toFixed(3)}
+                      ).toFixed(3)}{" "}
                       TND
                     </span>
                   </p>
@@ -170,7 +223,7 @@ const ProductInfo = () => {
                     className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
                     onClick={() => {
                       setActuelQuantity(
-                        actualQuantity < (productData?.inventory ?? 0)
+                        actualQuantity < productData?.inventory
                           ? actualQuantity + 1
                           : actualQuantity
                       );
@@ -227,15 +280,7 @@ const ProductInfo = () => {
                 type="button"
                 className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                 onClick={() => {
-                  addToBasket({
-                    variables: {
-                      input: {
-                        userId: decodedToken?.userId,
-                        quantity: actualQuantity,
-                        productId: productData?.id,
-                      },
-                    },
-                  });
+                  AddToBasket(productData);
                 }}
               >
                 <SlBasket />

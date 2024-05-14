@@ -7,9 +7,16 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
-import { useComparedProductsStore } from "../../store/zustand";
+import {
+  useBasketStore,
+  useComparedProductsStore,
+  useDrawerBasketStore,
+  useProductsInBasketStore,
+} from "../../store/zustand";
 import Link from "next/link";
 import prepRoute from "../../components/_prepRoute";
+import { useToast } from "@/components/ui/use-toast";
+import { BASKET_QUERY } from "../../../graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -22,7 +29,12 @@ const ProductComparison = () => {
       removeProductFromCompare: state.removeProductFromCompare,
     })
   );
+  const { openBasketDrawer } = useDrawerBasketStore();
+  const { toast } = useToast();
 
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -30,9 +42,47 @@ const ProductComparison = () => {
       setDecodedToken(decoded);
     }
   }, []);
-
-  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-
+  const { addProductToBasket } = useProductsInBasketStore((state) => ({
+    addProductToBasket: state.addProductToBasket,
+    products: state.products,
+  }));
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: 1,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+    openBasketDrawer();
+  };
   return (
     <>
       {products.length > 0 ? (
@@ -99,6 +149,11 @@ const ProductComparison = () => {
                             className="text-red-700 flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               removeProductFromCompare(product.id);
+                              toast({
+                                title: "Produit retiré de la comparaison",
+                                description: `Le produit "${product?.name}" a été retiré de la comparaison.`,
+                                className: "bg-white",
+                              });
                             }}
                           >
                             {" "}
@@ -109,14 +164,12 @@ const ProductComparison = () => {
                         <button
                           className="flex items-center transition-all justify-center rounded-md bg-strongBeige px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-mediumBeige focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300"
                           onClick={() => {
-                            addToBasket({
-                              variables: {
-                                input: {
-                                  userId: decodedToken?.userId,
-                                  quantity: 1,
-                                  productId: product.id,
-                                },
-                              },
+                            AddToBasket(product);
+
+                            toast({
+                              title: "Notification de Panier",
+                              description: `Le produit "${product?.name}" a été ajouté au panier.`,
+                              className: "bg-white",
                             });
                           }}
                         >

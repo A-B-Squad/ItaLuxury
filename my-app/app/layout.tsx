@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import React from "react";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={openSans.className}>
         <ApolloWrapper>{children}</ApolloWrapper>
+        <Toaster />
       </body>
     </html>
   );

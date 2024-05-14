@@ -6,6 +6,7 @@ import "./globals.css";
 import { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
+
 export const metadata: Metadata = {
   title: "Page non trouvée",
   description:
@@ -16,6 +17,7 @@ if (process.env.NODE_ENV !== "production") {
   loadDevMessages();
   loadErrorMessages();
 }
+
 const openSans = Open_Sans({
   subsets: ["latin"],
 });

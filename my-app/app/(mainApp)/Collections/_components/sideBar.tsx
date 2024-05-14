@@ -13,6 +13,7 @@ import {
 } from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
 import prepRoute from "../../../components/_prepRoute";
+import { useToast } from "@/components/ui/use-toast";
 
 // / ------------------!--------------------
 
@@ -47,6 +48,8 @@ export const convertValidStringQueries = (
 };
 
 const SideBar = () => {
+  const { toast } = useToast();
+
   const [categories, setCategories] = useState([]);
   const [Brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
@@ -204,7 +207,14 @@ const SideBar = () => {
 
         {Object.keys(selectedFilterQueries).length > 0 && (
           <div
-            onClick={handleClearFilters}
+            onClick={() => {
+              handleClearFilters();
+              toast({
+                title: "Filtres réinitialisés",
+                description: "Les filtres ont été réinitialisés avec succès.",
+                className: "bg-white",
+              });
+            }}
             className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer"
           >
             <button className="flex border rounded-md gap-2 items-center  py-1 shadow px-2">
@@ -267,7 +277,7 @@ const SideBar = () => {
           >
             {categories?.map((category: any, index) => (
               <li
-                key={index}
+                key={category.id}
                 className={`${searchParams?.get("category") === category?.id ? "font-bold" : ""} hover:text-black hover:font-bold  relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2 `}
               >
                 <Link
@@ -335,8 +345,8 @@ const SideBar = () => {
 
           <div className=" overflow-y-scroll max-h-60">
             <div className=" flex items-center flex-wrap px-3 w-full  gap-3">
-              {colors?.map((color: any, index) => (
-                <div key={index} className="flex items-center">
+              {colors?.map((color: any) => (
+                <div key={color.id} className="flex items-center">
                   <input
                     id={`filtre-color-${color.id}`}
                     name="color"

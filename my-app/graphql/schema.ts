@@ -127,6 +127,7 @@ type ProductInCheckout {
   id: ID!
   checkoutId: ID!
   productId: ID!
+  product:Product!
   productQuantity: Int!
 }
 
@@ -211,6 +212,8 @@ type CompanyInfo {
   phone: [Int!]!
   deliveringPrice: Int
   logo: String!
+  instagram:String!
+  facebook:String!
 }
 # Define the TopDeals type
 type TopDeals {
@@ -321,6 +324,8 @@ type Query {
 
   # Fetch Package By ID
   packageById(packageId: ID!): Package!
+  # Fetch Package By User ID
+  packageByUserId(userId: ID!): [Package]!
 
   # Fetch All Package 
   getAllPackages: [Package!]
@@ -505,6 +510,8 @@ input CompanyInfoInput {
   phone: [Int!]
   deliveringPrice: Int
   logo: String
+  instagram: String
+  facebook: String
 }
 
 # Define the CreateModeratorInput input type

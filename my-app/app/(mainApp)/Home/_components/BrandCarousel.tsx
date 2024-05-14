@@ -25,7 +25,7 @@ export const BrandsCarousel = () => {
               <Slot className="w-24 bg-red-500 h-24">
                 <>
                 {brand.logo && (
-                  <img src={brand.logo} alt="" className="object-contain" />
+                  <img src={brand.logo} alt="" className="object-contain w-24 h-24" />
                 )}
 
                 {loadingBrand && (

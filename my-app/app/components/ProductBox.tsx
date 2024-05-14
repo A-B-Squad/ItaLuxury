@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { BASKET_QUERY } from "../../graphql/queries";
+import { BASKET_QUERY } from "@/graphql/queries";
 import { FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
@@ -138,7 +138,7 @@ export const ProductBox = ({ product }: any) => {
               productId={product?.id}
               userId={decodedToken?.userId}
               heartColor={""}
-              heartSize={15}
+              heartSize={18}
             />
           </li>
         </div>
@@ -156,7 +156,7 @@ export const ProductBox = ({ product }: any) => {
         )}
       </div>
       <Link
-        className={` ${view === 1 ? "flex items-center " : ""} relative flex w-40 h-52 md:w-56 overflow-hidden`}
+        className="relative flex w-40 h-52 md:w-56 overflow-hidden"
         rel="preload"
         href={{
           pathname: `/products/tunisie/${prepRoute(product?.name)}`,
@@ -181,8 +181,8 @@ export const ProductBox = ({ product }: any) => {
                 src={product?.images[0]}
                 className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0  h-full w-full object-cover"
                 loading="eager"
-                objectFit="contain"
                 priority
+                objectFit="contain"
                 alt={`products-${product?.name}`}
                 layout="fill"
               />
@@ -191,6 +191,7 @@ export const ProductBox = ({ product }: any) => {
                 className="absolute group-hover:opacity-100 opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
                 loading="eager"
                 priority
+                objectFit="contain"
                 alt={`products-${product?.name}`}
                 layout="fill"
               />

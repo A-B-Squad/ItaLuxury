@@ -16,6 +16,7 @@ import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -27,6 +28,7 @@ const BestSales: React.FC = () => {
   const [getBestSales] = useLazyQuery<SalesData>(BEST_SALES_QUERY);
 
   const { openBasketDrawer } = useDrawerBasketStore();
+  const { toast } = useToast();
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
@@ -142,7 +144,15 @@ const BestSales: React.FC = () => {
                         <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
                           <div
                             title="Ajouter au panier"
-                            onClick={() => AddToBasket(product)}
+                            onClick={() => {
+                              AddToBasket(product?.id);
+
+                              toast({
+                                title: "Notification de Panier",
+                                description: `Le produit "${product?.name}" a été ajouté au panier.`,
+                                className: "bg-white",
+                              });
+                            }}
                             className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
                           >
                             <FaBasketShopping size={18} />

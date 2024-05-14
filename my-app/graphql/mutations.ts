@@ -1,4 +1,16 @@
 import { gql } from "@apollo/client";
+
+export const SIGNIN_MUTATION = gql`
+    mutation SignIn($input: SignInInput!) {
+      signIn(input: $input) {
+        token
+        user {
+          fullName
+          email
+        }
+      }
+    }
+  `;
 export const ADD_TO_BASKET_MUTATION = gql`
 mutation AddToBasket($input: CreateToBasketInput!) {
   addToBasket(input: $input) {

@@ -41,9 +41,9 @@ export function DrawerMobile() {
         onClose={closeCategoryDrawer}
         placement="left"
         size={350}
-        className=" md:hidden  bg-[#f8f9fd]  overflow-y-auto"
-        onPointerEnterCapture={""}
-        onPointerLeaveCapture={""}
+        className=" md:hidden    overflow-y-auto"
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
       >
         <div className=" px-2 py-3 flex items-center justify-center text-white bg-strongBeige  ">
           <Link
@@ -60,9 +60,8 @@ export function DrawerMobile() {
             color="blue-gray"
             onClick={closeCategoryDrawer}
             className="ml-auto"
-            
-            onPointerEnterCapture={""}
-            onPointerLeaveCapture={""}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

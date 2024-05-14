@@ -15,11 +15,15 @@ export const signIn = async (
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
+  
   if (!existingUser) {
     return new Error("Invalid email or password");
   }
   // Check if the password is correct
   const validPassword = await bcrypt.compare(password, existingUser.password);
+  console.log(password);
+  console.log(existingUser.password);
+  console.log(validPassword);
 
 
   if (!validPassword) {
@@ -35,7 +39,7 @@ export const signIn = async (
   console.log("Valid Password:", validPassword);
   
   // Set the cookie
-  res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
 
 
   return {
@@ -59,7 +63,7 @@ export const refreshToken = async (
     });
 
     // Set the new access Token in the cookie
-    res.setHeader("Set-Cookie", `Token=${accessToken}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+    res.setHeader("Set-Cookie", `Token=${accessToken}; Path=/; SameSite=Strict; Secure`);
 
 
     // Return the new access Token

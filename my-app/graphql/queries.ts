@@ -22,6 +22,7 @@ export const PRODUCT_BY_ID_QUERY = gql`
       }
       Colors {
         id
+        id
         color
         Hex
       }
@@ -101,6 +102,7 @@ export const TAKE_6_PRODUCTS = gql`
         }
       }
       Colors {
+        id
         color
         Hex
       }
@@ -120,10 +122,9 @@ export const TAKE_6_PRODUCTS = gql`
   }
 `;
 export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
-  
   query ProductsDiscounts($limit: Int) {
-  productsDiscounts(limit: $limit) {
-    id
+    productsDiscounts(limit: $limit) {
+      id
       name
       price
       reference
@@ -151,6 +152,7 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
         value
       }
       Colors {
+        id
         color
         Hex
       }
@@ -161,11 +163,8 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
           percentage
         }
       }
-      
+    }
   }
-}
-
-  
 `;
 export const TAKE_10_PRODUCTS = gql`
   query Products($limit: Int!) {
@@ -193,6 +192,7 @@ export const TAKE_10_PRODUCTS = gql`
         }
       }
       Colors {
+        id
         color
         Hex
       }
@@ -237,6 +237,7 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
         }
       }
       Colors {
+        id
         color
         Hex
       }
@@ -259,16 +260,16 @@ export const SIDE_ADS_NEW_PRODUCT = gql`
   }
 `;
 export const ALL_BRANDS = gql`
-query FetchBrands {
-  fetchBrands {
-    id
-    name
-    logo
-    product{
+  query FetchBrands {
+    fetchBrands {
       id
+      name
+      logo
+      product {
+        id
+      }
     }
   }
-}
 `;
 export const TOP_DEALS = gql`
   query AllDeals {
@@ -301,6 +302,7 @@ export const TOP_DEALS = gql`
           }
         }
         Colors {
+          id
           color
           Hex
         }
@@ -352,6 +354,7 @@ export const CATEGORY_QUERY = gql`
 
 export const COLORS_QUERY = gql`
   query Colors {
+    id
     colors {
       id
       color
@@ -388,6 +391,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
             }
           }
           Colors {
+            id
             color
             Hex
           }
@@ -448,50 +452,50 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
 `;
 
 export const BEST_SALES_QUERY = gql`
-query GetBestSales {
-  getBestSales {
-    Product {
-      id
-      name
-      images
-      price
-      productDiscounts {
-        newPrice
-        price
-        Discount {
-          id
-          percentage
-        }
-      }
-      categories {
+  query GetBestSales {
+    getBestSales {
+      Product {
         id
         name
-        subcategories {
+        images
+        price
+        productDiscounts {
+          newPrice
+          price
+          Discount {
+            id
+            percentage
+          }
+        }
+        categories {
           id
           name
-          parentId
           subcategories {
             id
             name
             parentId
+            subcategories {
+              id
+              name
+              parentId
+            }
           }
         }
       }
-    }
-    Category {
-      id
-      name
+      Category {
+        id
+        name
+      }
     }
   }
-}
-
 `;
 export const GET_FAVORITE_STATUS = gql`
-query FavoriteProducts($userId: ID!) {
-  favoriteProducts(userId: $userId) {
-    id
-    productId
-  }
+  query FavoriteProducts($userId: ID!) {
+    favoriteProducts(userId: $userId) {
+      id
+      productId
+    }
+  
 }
 `;
 export const GET_BRANDS = gql`
@@ -516,4 +520,41 @@ export const COMPANY_INFO_QUERY = gql`
       instagram
     }
   }
+`;
+export const GET_PACKAGES_BY_USER_ID = gql`
+ query PackageByUserId($userId: ID!) {
+  packageByUserId(userId: $userId) {
+    id
+    Checkout {
+      products {
+        productId
+        product {
+        name
+      }
+      }
+    }
+    status
+    createdAt
+  }
+}
+
+`;
+export const GET_PACKAGES_BY_ID = gql`
+ query PackageByUserId($packageId: ID!) {
+  packageById(packageId: $packageId) {
+    id
+    Checkout {
+      products {
+        productId
+        product {
+        name
+      }
+      }
+    }
+    status
+    createdAt
+  }
+}
+
+
 `;

@@ -4,8 +4,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, gql } from "@apollo/client";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { SIGNIN_MUTATION } from "@/graphql/mutations";
 
 const Signin = () => {
+  const { toast } = useToast();
+
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [isError, setIsError] = useState(false);
@@ -14,17 +18,7 @@ const Signin = () => {
     password: "",
   });
 
-  const SIGNIN_MUTATION = gql`
-    mutation SignIn($input: SignInInput!) {
-      signIn(input: $input) {
-        token
-        user {
-          fullName
-          email
-        }
-      }
-    }
-  `;
+  
 
   const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
     variables: {
@@ -34,7 +28,12 @@ const Signin = () => {
       },
     },
     onCompleted: () => {
-      router.push("/");
+      toast({
+        title: "Connexion",
+        description: "Bienvenue",
+        className: "bg-white",
+      });
+      router.replace("/Home");
     },
     onError: (error) => {
       if (error) {
