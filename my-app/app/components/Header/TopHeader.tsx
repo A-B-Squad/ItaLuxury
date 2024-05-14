@@ -14,6 +14,7 @@ import {
 import { IoGitCompare } from "react-icons/io5";
 import Image from "next/image";
 import { GoPackageDependents } from "react-icons/go";
+import { useRouter } from "next/navigation";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -21,6 +22,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowLogout] = useState<Boolean>(false);
   const [LengthComparer, setLengthComparer] = useState<String>("");
+  const router = useRouter();
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
     (state) => state.quantityInBasket
@@ -42,7 +44,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   }, []);
 
   return (
-    <div className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 py-3">
+    <div className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 py-2">
       <div className="logo relative w-48 h-24 ">
         <Image
           src={logo}
@@ -83,6 +85,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                       Cookies.remove("Token");
                       window.sessionStorage.removeItem("productsInBasket");
                       window.sessionStorage.removeItem("comparedProducts");
+                      router.refresh();
                     }
                   }}
                   className="w-full py-2 border-b gap-2 hover:bg-mediumBeige flex justify-center items-center hover:text-white transition-colors"
