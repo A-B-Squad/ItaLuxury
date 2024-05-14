@@ -23,10 +23,13 @@ import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import Image from "next/image";
 import calcDateForNewProduct from "./_calcDateForNewProduct";
+import { useToast } from "@/components/ui/use-toast";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 export const ProductBox = ({ product }: any) => {
+  const { toast } = useToast();
+
   const { view } = useAllProductViewStore();
   const { openBasketDrawer } = useDrawerBasketStore();
 
@@ -56,6 +59,7 @@ export const ProductBox = ({ product }: any) => {
 
   const AddToBasket = (product: any) => {
     if (decodedToken) {
+
       addToBasket({
         variables: {
           input: {
@@ -70,6 +74,13 @@ export const ProductBox = ({ product }: any) => {
             variables: { userId: decodedToken?.userId },
           },
         ],
+        onCompleted: () => {
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit "${product?.name}" a été ajouté au panier.`,
+            className: "bg-white",
+          });
+        },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
@@ -120,7 +131,15 @@ export const ProductBox = ({ product }: any) => {
         <div
           className="Comparison relative w-fit cursor-crosshair"
           title="Ajouter au comparatif"
-          onClick={() => addProductToCompare(product)}
+          onClick={() => {
+            addProductToCompare(product);
+
+            toast({
+              title: "Produit ajouté à la comparaison",
+              description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
+              className: "bg-white",
+            });
+          }}
         >
           <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
             <IoGitCompare color="white" />

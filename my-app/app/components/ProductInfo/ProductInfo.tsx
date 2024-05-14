@@ -42,7 +42,6 @@ const ProductInfo = () => {
   );
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-  const { openProductDetails } = useProductDetails();
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -123,7 +122,7 @@ const ProductInfo = () => {
           className="absolute bg-white rounded-full p-2 hover:rotate-180 transition-all cursor-pointer -right-2 -top-3"
         />
         <div className="details    flex flex-col justify-center items-center   lg:flex-row   ">
-          <div className="flex relative lg:w-2/4   justify-center items-start flex-col gap-2 text-center">
+          <div className="flex relative lg:w-2/4   justify-center items-center md:items-start flex-col gap-2 text-center">
             <div className="shadow-xl relative  border-2 max-w-40 h-fit md:max-w-xs flex items-center justify-center p-1 rounded-xl">
               <InnerImageZoom
                 className="relative  rounded object-cover"

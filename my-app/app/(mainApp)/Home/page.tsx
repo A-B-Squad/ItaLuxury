@@ -98,7 +98,7 @@ const Home = () => {
               carouselWidthClass={
                 Products_6?.products.length < 5
                   ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4  xxl:basis-1/5"
               }
             />
           </div>
@@ -160,7 +160,7 @@ const Home = () => {
             carouselWidthClass={
               Product_less_20?.productsLessThen20.length < 5
                 ? " basis-full w-full   lg:basis-1/2  "
-                : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+                : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4  xxl:basis-1/5"
             }
           />
         </div>
@@ -185,7 +185,7 @@ const Home = () => {
               carouselWidthClass={
                 Products_inDiscount_6?.productsDiscounts.length < 5
                   ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
               }
             />
             <SideAds

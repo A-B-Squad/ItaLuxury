@@ -14,6 +14,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { GoPackageDependents } from "react-icons/go";
 import { IoIosLogOut } from "react-icons/io";
 import { IoGitCompare } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -22,7 +23,7 @@ const BottomHeader = ({ setShowDropdown }: any) => {
   const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [LengthComparer, setLengthComparer] = useState<number>(0);
-
+const router=useRouter()
   const quantityInBasket = useProductsInBasketStore(
     (state) => state.quantityInBasket
   );
@@ -96,6 +97,7 @@ const BottomHeader = ({ setShowDropdown }: any) => {
                     Cookies.remove("Token");
                     window.sessionStorage.removeItem("productsInBasket");
                     window.sessionStorage.removeItem("comparedProducts");
+                   router.refresh()
                   }
                 }}
                 className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all"

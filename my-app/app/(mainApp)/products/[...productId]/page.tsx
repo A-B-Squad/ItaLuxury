@@ -86,11 +86,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   const AddToBasket = (product: any) => {
     if (decodedToken) {
+      
       addToBasket({
         variables: {
           input: {
             userId: decodedToken?.userId,
-            quantity: 1,
+            quantity: actualQuantity,
             productId: product.id,
           },
         },
@@ -119,7 +120,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       }
     }
     toggleIsUpdated();
-    openBasketDrawer();
+    // openBasketDrawer();
   };
 
   useEffect(() => {
@@ -128,7 +129,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
-    
+
     getReviews({
       variables: { productId: productId },
       onCompleted: (data) => {
@@ -238,7 +239,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   return (
     <>
-      <div>
+      <div className="sm:flex sm:items-center sm:flex-col lg:block">
         <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
           <Breadcumb />
 
@@ -579,10 +580,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         <TitleProduct title={"Voir aussi"} />
         <div>
           <ProductTabs
-            data={Products_10}
+            data={Products_10?.products}
             loadingNewProduct={loadingNewProduct}
             carouselWidthClass={
-              Products_10?.productsLessThen20?.length < 5 ? "xl:basis-1/2" : ""
+              Products_10?.productsLessThen20?.length < 5
+                ? " basis-full   md:basis-1/2  "
+                : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
             }
           />
         </div>
