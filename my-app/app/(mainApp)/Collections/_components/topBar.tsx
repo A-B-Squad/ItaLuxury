@@ -10,7 +10,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -62,7 +61,7 @@ const TopBar = () => {
             handleSortChange(value);
           }}
         >
-          <SelectTrigger className="w-[180px] outline-none">
+          <SelectTrigger className="w-36 md:w-[180px] outline-none mr-3">
             <SelectValue placeholder="Trier par :" />
           </SelectTrigger>
           <SelectContent className="bg-white">
@@ -99,7 +98,7 @@ const TopBar = () => {
           </button>
           <button
             type="button"
-            className="border-l border-r px-2 text-gray-400 hover:text-gray-500"
+            className="border-l hidden md:block border-r px-2 text-gray-400 hover:text-gray-500"
             onClick={() => {
               changeProductView(2);
             }}
@@ -127,7 +126,7 @@ const TopBar = () => {
 
         <button
           type="button"
-          className=" p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
+          className=" p-2 text-gray-400 hover:text-gray-500 sm:ml-6 md:hidden"
           onClick={toggleOpenSidebar}
         >
           <span className="sr-only">Filters</span>

@@ -41,7 +41,9 @@ export function DrawerMobile() {
         onClose={closeCategoryDrawer}
         placement="left"
         size={350}
-        className=" md:hidden  bg-[#f8f9fd]  overflow-y-auto"
+        className=" md:hidden    overflow-y-auto"
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
       >
         <div className=" px-2 py-3 flex items-center justify-center text-white bg-strongBeige  ">
           <Link
@@ -58,6 +60,8 @@ export function DrawerMobile() {
             color="blue-gray"
             onClick={closeCategoryDrawer}
             className="ml-auto"
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -89,10 +93,14 @@ export function DrawerMobile() {
             tard !
           </p>
         )}
-        <div onClick={closeCategoryDrawer}  className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2`}>
-        <Link href={"/Collections/tunisie"} className="capitalize font-bold">Voir Tous</Link>
-        <MdKeyboardArrowRight size={20} />
-
+        <div
+          onClick={closeCategoryDrawer}
+          className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2`}
+        >
+          <Link href={"/Collections/tunisie"} className="capitalize font-bold">
+            Voir Tous
+          </Link>
+          <MdKeyboardArrowRight size={20} />
         </div>
       </Drawer>
     </>

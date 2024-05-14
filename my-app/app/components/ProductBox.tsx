@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { BASKET_QUERY } from "../../graphql/queries";
+import { BASKET_QUERY } from "@/graphql/queries";
 import { FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
@@ -137,6 +137,8 @@ export const ProductBox = ({ product }: any) => {
               setIsFavorite={setIsFavorite}
               productId={product?.id}
               userId={decodedToken?.userId}
+              heartColor={""}
+              heartSize={18}
             />
           </li>
         </div>
@@ -180,6 +182,7 @@ export const ProductBox = ({ product }: any) => {
                 className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0  h-full w-full object-cover"
                 loading="eager"
                 priority
+                objectFit="contain"
                 alt={`products-${product?.name}`}
                 layout="fill"
               />
@@ -188,6 +191,7 @@ export const ProductBox = ({ product }: any) => {
                 className="absolute group-hover:opacity-100 opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
                 loading="eager"
                 priority
+                objectFit="contain"
                 alt={`products-${product?.name}`}
                 layout="fill"
               />

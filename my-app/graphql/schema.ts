@@ -127,6 +127,7 @@ type ProductInCheckout {
   id: ID!
   checkoutId: ID!
   productId: ID!
+  product:Product!
   productQuantity: Int!
 }
 
@@ -243,8 +244,8 @@ type SearchResult {
 
 type BestSales {
   id: String!
-  Product: Product
-  Category:Category
+  Product: Product!
+  Category:Category!
 }
 
 
@@ -323,6 +324,8 @@ type Query {
 
   # Fetch Package By ID
   packageById(packageId: ID!): Package!
+  # Fetch Package By User ID
+  packageByUserId(userId: ID!): [Package]!
 
   # Fetch All Package 
   getAllPackages: [Package!]

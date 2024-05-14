@@ -22,6 +22,7 @@ export const PRODUCT_BY_ID_QUERY = gql`
       }
       Colors {
         id
+        id
         color
         Hex
       }
@@ -65,11 +66,9 @@ export const BASKET_QUERY = gql`
           subcategories {
             id
             name
-            parentId
             subcategories {
               id
               name
-              parentId
             }
           }
         }
@@ -103,6 +102,7 @@ export const TAKE_6_PRODUCTS = gql`
         }
       }
       Colors {
+        id
         color
         Hex
       }
@@ -152,6 +152,7 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
         value
       }
       Colors {
+        id
         color
         Hex
       }
@@ -191,6 +192,7 @@ export const TAKE_10_PRODUCTS = gql`
         }
       }
       Colors {
+        id
         color
         Hex
       }
@@ -235,6 +237,7 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
         }
       }
       Colors {
+        id
         color
         Hex
       }
@@ -299,6 +302,7 @@ export const TOP_DEALS = gql`
           }
         }
         Colors {
+          id
           color
           Hex
         }
@@ -350,6 +354,7 @@ export const CATEGORY_QUERY = gql`
 
 export const COLORS_QUERY = gql`
   query Colors {
+    id
     colors {
       id
       color
@@ -386,6 +391,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
             }
           }
           Colors {
+            id
             color
             Hex
           }
@@ -489,8 +495,19 @@ export const GET_FAVORITE_STATUS = gql`
       id
       productId
     }
-  }
+  
+}
 `;
+export const GET_BRANDS = gql`
+query FetchBrands {
+  fetchBrands {
+  id
+  logo
+  }
+}
+
+`;
+
 
 export const COMPANY_INFO_QUERY = gql`
   query CompanyInfo {
@@ -503,4 +520,41 @@ export const COMPANY_INFO_QUERY = gql`
       instagram
     }
   }
+`;
+export const GET_PACKAGES_BY_USER_ID = gql`
+ query PackageByUserId($userId: ID!) {
+  packageByUserId(userId: $userId) {
+    id
+    Checkout {
+      products {
+        productId
+        product {
+        name
+      }
+      }
+    }
+    status
+    createdAt
+  }
+}
+
+`;
+export const GET_PACKAGES_BY_ID = gql`
+ query PackageByUserId($packageId: ID!) {
+  packageById(packageId: $packageId) {
+    id
+    Checkout {
+      products {
+        productId
+        product {
+        name
+      }
+      }
+    }
+    status
+    createdAt
+  }
+}
+
+
 `;

@@ -42,7 +42,7 @@ const Header = () => {
 
   return (
     <div
-      className={`header relative  flex justify-center shadow-xl bg-[#f8f9fd] px-10 md:px-20 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}
+      className={`header relative  flex justify-center shadow-xl  px-10 md:px-20 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}
     >
       <nav className="container flex flex-col relative w-full items-center justify-center">
         <TopHeader logo={logo}/>

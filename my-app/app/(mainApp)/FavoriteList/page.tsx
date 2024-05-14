@@ -19,7 +19,10 @@ const FavoriteList = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const [getFavoriteProducts, { loading, data }] = useLazyQuery(
-    FAVORITE_PRODUCTS_QUERY
+    FAVORITE_PRODUCTS_QUERY,
+    {
+      fetchPolicy: "no-cache",
+    }
   );
 
   useEffect(() => {
@@ -28,37 +31,57 @@ const FavoriteList = () => {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
+  }, []);
 
-    const fetchProducts = async () => {
-      try {
-        const { data } = await getFavoriteProducts({
-          variables: {
-            userId: "b4110f43-f83f-4b39-b2c0-dba5f2981c30",
-          },
-        });
+  useEffect(() => {
+    if (decodedToken?.userId) {
+      const fetchProducts = async () => {
+        try {
+          const { data } = await getFavoriteProducts({
+            variables: {
+              userId: decodedToken.userId,
+            },
+          });
 
-        const fetchedProducts = data?.favoriteProducts;
-        setProductsData(data?.favoriteProducts.map((fav: any) => fav.Product));
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-    fetchProducts();
-  }, [data]);
+          if (data) {
+            const fetchedProducts = data.favoriteProducts.map(
+              (fav: any) => fav.Product
+            );
+            setProductsData(fetchedProducts);
+          }
+        } catch (error) {
+          console.error("Error fetching products:", error);
+        }
+      };
 
+      fetchProducts();
+    }
+  }, [decodedToken, getFavoriteProducts]);
   return (
-    <div className="flex flex-col">
+    <div className="flex min-h-screen flex-col">
       {loading ? (
         <div className="flex items-center h-full justify-center">
           <Loading />
         </div>
       ) : (
         <>
-          <div className=" w-full py-5 grid  px-10 justify-items-center items-center  h-[400px] transition-all relative pb-2    flex-col justify-between   border shadow-xl  gap-4 md:grid-cols-3 grid-cols-1 lg:grid-cols-5">
-            {productsData.map((product: Product) => (
-              <ProductBox product={product} />
+          <div
+            className={`w-full py-5 grid  px-10 justify-items-center items-center gap-2 relative md:grid-cols-2 lg:grid-cols-3 grid-cols-1 xl:grid-cols-4 `}
+          >
+            {productsData?.map((product: Product) => (
+              <div
+                className="flex-col items-center justify-between h-[400px] group flex relative w-full overflow-hidden border border-gray-100 bg-white shadow-md
+              "
+              >
+                <ProductBox product={product} />
+              </div>
             ))}
+
+          
           </div>
+          {productsData.length === 0 && (
+              <p className="text-red-600 flex items-center justify-center w-full self-center h-screen px-2 text-center tracking-widest">Aucun produit n'est présent dans la liste des favoris.</p>
+            )}
         </>
       )}
     </div>

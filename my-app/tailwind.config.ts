@@ -1,10 +1,12 @@
 import type { Config } from "tailwindcss";
+import withMT from "@material-tailwind/react/utils/withMT";
 
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**.{js,ts,jsx,tsx,mdx}",
     "./**/@material-tailwind/**/*.{html,js,ts,jsx,tsx,mdx}"
 
   ],
@@ -19,10 +21,12 @@ const config: Config = {
         lightBeige: "#F0EDD4",
         mediumBeige: "#ECCDB4",
         strongBeige: "#f17e7e",
-        lightBlack:"#00000030"
+        lightBlack: "#00000030"
       }
     },
   },
   plugins: [],
 };
-export default config;
+const withMaterialTailwind = withMT(config);
+
+export default withMaterialTailwind;

@@ -30,14 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-  
-        <div>
-            <DrawerMobile />
-            <BasketDrawer />
-          <Header />
-          <ApolloWrapper>{children}</ApolloWrapper>
-          <Footer />
-        </div>
-    
+    <div>
+      <DrawerMobile />
+      <BasketDrawer />
+      <Header />
+      <ApolloWrapper>{children}</ApolloWrapper>
+      <Footer />
+    </div>
   );
 }

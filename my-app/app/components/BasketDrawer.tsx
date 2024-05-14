@@ -49,8 +49,8 @@ const BasketDrawer = () => {
 
   useEffect(() => {
     const token = Cookies.get("Token");
-    console.log(token,"eeeee");
-    
+    console.log(token, "eeeee");
+
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
@@ -149,9 +149,17 @@ const BasketDrawer = () => {
       className="p-4 fixed h-[200vh]"
       size={400}
       placeholder={""}
+      onPointerEnterCapture={undefined}
+      onPointerLeaveCapture={undefined}
     >
       <div className="mb-6 flex items-center justify-between ">
-        <Typography placeholder={""} variant="h5" color="blue-gray">
+        <Typography
+          placeholder={""}
+          variant="h5"
+          color="blue-gray"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
           Panier
         </Typography>
         <IconButton
@@ -159,6 +167,8 @@ const BasketDrawer = () => {
           variant="text"
           color="blue-gray"
           onClick={closeBasketDrawer}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -44,7 +44,7 @@ export const addToBasket = async (
         },
         include: {
           Product: true,
-          User: true,   
+          User: true,
         },
       });
       return updatedBasket;

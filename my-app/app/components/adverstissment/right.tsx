@@ -41,11 +41,11 @@ const Right = () => {
         <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
           <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-mediumBeige flex flex-col justify-center items-center ">
             <p>{"Right Ads"}</p>
-            <p>320px x 374px</p>
+            <p>352px x 208px</p>
           </div>
           <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-mediumBeige flex flex-col justify-center items-center ">
             <p>{"Right Ads"}</p>
-            <p>352px x 207px</p>
+            <p>352px x 208px</p>
           </div>
         </div>
       )}
