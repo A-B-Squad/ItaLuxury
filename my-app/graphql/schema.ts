@@ -305,7 +305,8 @@ type Query {
   productsDiscounts(limit:Int): [Product!]
 
   # Fetch product review information by product ID
-  productReview(productId: ID!): [Review!]
+  productReview(productId: ID!, userId: ID): [Review!]
+
   
   # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): [FavoriteProducts!]

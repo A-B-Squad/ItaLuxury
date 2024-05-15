@@ -11,7 +11,6 @@ import { ProductBox } from "../ProductBox";
 import NoProductYet from "./NoProductYet";
 
 const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
-  console.log(data);
 
   return (
     <div className="products-tab w-full  relative cursor-pointer rounded-md shadow-lg grid">

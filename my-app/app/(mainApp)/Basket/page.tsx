@@ -131,11 +131,12 @@ const Basket = () => {
                   <tr className="b">
                     <td className="py-6 px-4 ">
                       <div className="flex items-center gap-6 ">
-                          <img
-                            alt={product.name}
-                           className="h-36 w-36"
-                            src={product.images[0]}
-                          />
+                        <Image
+                          width={150}
+                          height={150}
+                          alt={product.name}
+                          src={product.images[0]}
+                        />
                         <div>
                           <p className="text-md font-bold text-[#333]">
                             {product.name}
@@ -225,19 +226,26 @@ const Basket = () => {
           </h3>
           <ul className="text-[#333] divide-y mt-6">
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Total{" "}
-              <span className="ml-auto font-bold">
+              {products.length > 1 ? (
+                <span className="font-normal">
+                  {products.length}
+                  articles
+                </span>
+              ) : (
+                <span className="font-normal">1 article</span>
+              )}
+              <span className="ml-auto font-semibold">
                 {totalPrice.toFixed(3)} TND
               </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Expédition{" "}
-              <span className="ml-auto font-bold">
+            Livraison{" "}
+              <span className="ml-auto font-semibold">
                 {totalPrice >= 499 ? "Gratuit" : "8.000 TND"}
               </span>
             </li>
-            <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
-              Totale{" "}
+            <li className="flex flex-wrap gap-4 text-md py-4 font-semibold">
+              Total (TTC){" "}
               <span className="ml-auto">
                 {totalPrice >= 499
                   ? totalPrice.toFixed(3)
@@ -245,16 +253,19 @@ const Basket = () => {
                 TND
               </span>
             </li>
-          </ul> 
+          </ul>
           <Link
             href={{
               pathname: "/Checkout",
               query: {
-                total: totalPrice >= 499 ? totalPrice.toFixed(3) : totalPrice.toFixed(3) + 8,
+                total:
+                  totalPrice >= 499
+                    ? totalPrice.toFixed(3)
+                    : totalPrice.toFixed(3) + 8,
                 products: JSON.stringify(products),
               },
             }}
-            className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded cursor-pointer"
+            className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-strongBeige hover:bg-amber-200 text-white  cursor-pointer"
           >
             Vérifier
           </Link>

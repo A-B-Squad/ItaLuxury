@@ -139,14 +139,14 @@ const Checkout = ({ searchParams }: any) => {
                   Total du commande
                 </p>
                 <p className="font-semibold text-gray-900">
-                  {parseInt(searchParams.total).toFixed(3)} TND
+                  {Number(searchParams.total).toFixed(3)} TND
                 </p>
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-900">Expédition</p>
                 <p className="font-semibold text-gray-900">
                   {" "}
-                  {parseInt(searchParams.total) >= 499
+                  {Number(searchParams.total) >= 499
                     ? "Gratuit"
                     : "8.000 TND"}
                 </p>
@@ -155,7 +155,7 @@ const Checkout = ({ searchParams }: any) => {
             <div className="mt-6 flex items-center justify-between">
               <p className="text-sm font-medium text-gray-900">Total</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {parseInt(searchParams.total).toFixed(3)} TND
+                {Number(searchParams.total).toFixed(3)} TND
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ const Checkout = ({ searchParams }: any) => {
                 variables: {
                   input: {
                     userId: decodedToken?.userId,
-                    total: parseInt(searchParams.total),
+                    total: Number(searchParams.total),
                     phone: +phone,
                     governorateId: governorat,
                     address: addresse,

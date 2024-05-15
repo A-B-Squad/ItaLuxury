@@ -2,38 +2,27 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, gql } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
+import { useForm } from "react-hook-form";
 
 const Signin = () => {
   const { toast } = useToast();
-
-  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  
+  const router=useRouter()
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
   const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
-    variables: {
-      input: {
-        email: formData.email,
-        password: formData.password,
-      },
-    },
     onCompleted: () => {
       toast({
         title: "Connexion",
         description: "Bienvenue",
         className: "bg-white",
       });
-      router.replace("/Home");
+      router.replace("/Home")
     },
     onError: (error) => {
       if (error) {
@@ -46,6 +35,12 @@ const Signin = () => {
       }
     },
   });
+
+  const onSubmit = (data:any) => {
+    console.log(data,"jkfdhfkqjsd");
+    
+    SignIn({ variables: { input: data } });
+  };
 
   return (
     <div className="bg-lightBeige min-h-screen flex flex-col">
@@ -70,42 +65,30 @@ const Signin = () => {
               <div className="ms-3 text-sm font-medium">{errorMessage}</div>
             </div>
           )}
-          <input
-            type="text"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="email"
-            placeholder="E-mail"
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                email: e.target.value,
-              });
-            }}
-          />
-          <input
-            type="password"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="password"
-            placeholder="Mot de passe"
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                password: e.target.value,
-              });
-            }}
-          />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <input
+              type="text"
+              className="block border  border-grey-light w-full p-3 rounded mb-4"
+              placeholder="E-mail"
+              {...register("email", { required: "Email is required" })}
+            />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
+            <input
+              type="password"
+              className="block border border-grey-light w-full p-3 rounded mb-4"
+              placeholder="Mot de passe"
+              {...register("password", { required: "Password is required" })}
+            />
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message as string}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
-            onClick={(e) => {
-              e.preventDefault();
-              SignIn();
-            }}
-          >
-            {loading ? "Chargement..." : "Se Connecter"}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
+            >
+              {loading ? "Chargement..." : "Se Connecter"}
+            </button>
+          </form>
         </div>
 
         <div className="text-grey-dark mt-6">

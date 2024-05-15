@@ -1,27 +1,25 @@
 "use client";
-
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation, gql } from "@apollo/client";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
 import { useProductsInBasketStore } from "../../store/zustand";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Signup = () => {
-  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const router = useRouter();
   const [isError, setIsError] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    fullName: "",
-    number: "",
-    password: "",
-  });
-
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const { products, clearBasket } = useProductsInBasketStore((state) => ({
     products: state.products,
     clearBasket: state.clearBasket,
   }));
+
   const SIGNUP_MUTATION = gql`
     mutation SignUp($input: SignUpInput!) {
       signUp(input: $input) {
@@ -35,41 +33,9 @@ const Signup = () => {
     }
   `;
 
-  const ADD_MULTIPLE_PRODUCTS_TO_BASKET = gql`
-    mutation AddMultipleToBasket($input: AddMultipleToBasketInput!) {
-      addMultipleToBasket(input: $input)
-    }
-  `;
-
-  const [addMulipleProducts] = useMutation(ADD_MULTIPLE_PRODUCTS_TO_BASKET);
-  const [SignUp, { loading }] = useMutation(SIGNUP_MUTATION, {
-    variables: {
-      input: {
-        fullName: formData.fullName,
-        email: formData.email,
-        number: formData.number,
-        password: formData.number,
-      },
-    },
+  const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
     onCompleted: (data) => {
       router.replace("/Home");
-      if (products.length > 0) {
-        const newArray = products.map((product: any) => ({
-          quantity: Number(product.quantity),
-          productId: product.id,
-        }));
-        addMulipleProducts({
-          variables: {
-            input: {
-              userId: data.signUp.user.id,
-              products: newArray,
-            },
-          },
-          onCompleted: () => {
-            clearBasket();
-          },
-        });
-      }
     },
     onError: (error) => {
       setIsError(true);
@@ -81,24 +47,21 @@ const Signup = () => {
     },
   });
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (formData.password.length < 8) {
-      setErrorMessage("Le mot de passe doit comporter au moins 8 caractères");
-      setIsError(true);
-    } else if (
-      !formData.fullName ||
-      !formData.number ||
-      !formData.password ||
-      !formData.email
-    ) {
-      setErrorMessage("Veuillez remplir tous les champs");
-      setIsError(true);
-    } else if (formData.password !== confirmPassword) {
+  const onSubmit = (data: any) => {
+    if (data.password !== data.confirmPassword) {
       setErrorMessage("Les mots de passe ne correspondent pas");
       setIsError(true);
     } else {
-      SignUp();
+      signUp({
+        variables: {
+          input: {
+            fullName: data.fullName,
+            email: data.email,
+            number: data.number,
+            password: data.password,
+          },
+        },
+      });
     }
   };
 
@@ -109,7 +72,6 @@ const Signup = () => {
           <h1 className="mb-8 text-3xl text-center">S'inscrire</h1>
           {isError && (
             <div
-              id="alert-border-2"
               className="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-800 dark:bg-red-200 dark:border-red-800"
               role="alert"
             >
@@ -125,97 +87,65 @@ const Signup = () => {
               <div className="ms-3 text-sm font-medium">{errorMessage}</div>
             </div>
           )}
-          <input
-            type="text"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="fullname"
-            placeholder="Nom et prénom"
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                fullName: e.target.value,
-              });
-            }}
-          />
-
-          <input
-            type="email"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="email"
-            placeholder="E-mail"
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                email: e.target.value,
-              });
-            }}
-          />
-
-          <input
-            type="text"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="number"
-            placeholder="Téléphone"
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                number: e.target.value,
-              });
-            }}
-          />
-          <input
-            type="password"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="password"
-            placeholder="Mot de passe"
-            onChange={(e) => {
-              setFormData({
-                ...formData,
-                password: e.target.value,
-              });
-            }}
-          />
-          <input
-            type="password"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="confirm"
-            placeholder="Confirmer votre mot de passe"
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-            }}
-          />
-
-          <button
-            type="submit"
-            className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
-            disabled={loading}
-            onClick={handleSubmit}
-          >
-            {loading ? "Chargement..." : "Créer un compte"}
-          </button>
-
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <input
+              type="text"
+              className="block border border-grey-light w-full p-3 rounded mb-4"
+              placeholder="Nom et prénom"
+              {...register("fullName", { required: true })}
+            />
+            {errors.fullName && <span>Ce champ est requis.</span>}
+            <input
+              type="email"
+              className="block border border-grey-light w-full p-3 rounded mb-4"
+              placeholder="E-mail"
+              {...register("email", { required: true })}
+            />
+            {errors.email && <span>Ce champ est requis.</span>}
+            <input
+              type="text"
+              className="block border border-grey-light w-full p-3 rounded mb-4"
+              placeholder="Téléphone"
+              {...register("number", { required: true })}
+            />
+            {errors.number && <span>Ce champ est requis.</span>}
+            <input
+              type="password"
+              className="block border border-grey-light w-full p-3 rounded mb-4"
+              placeholder="Mot de passe"
+              {...register("password", { required: true, minLength: 8 })}
+            />
+            {errors.password && errors.password.type === "required" && (
+              <span>Ce champ est requis.</span>
+            )}
+            {errors.password && errors.password.type === "minLength" && (
+              <span>Le mot de passe doit comporter au moins 8 caractères.</span>
+            )}
+            <input
+              type="password"
+              className="block border border-grey-light w-full p-3 rounded mb-4"
+              placeholder="Confirmer votre mot de passe"
+              {...register("confirmPassword", { required: true })}
+            />
+            {errors.confirmPassword && <span>Ce champ est requis.</span>}
+            <button
+              type="submit"
+              className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
+              disabled={loading}
+            >
+              {loading ? "Chargement..." : "Créer un compte"}
+            </button>
+          </form>
           <div className="text-center text-sm text-grey-dark mt-4">
-            En vous inscrivant, vous acceptez les
-            <a
-              className="no-underline border-b border-grey-dark text-grey-dark"
-              href="#"
-            >
-              {" "}
-              Conditions d'utilisation
-            </a>{" "}
-            et
-            <a
-              className="no-underline border-b border-grey-dark text-grey-dark"
-              href="#"
-            >
-              {" "}
-              politique de confidentialité
-            </a>
+            <p className="no-underline border-b border-grey-dark">
+              En vous inscrivant, vous acceptez de vous conformer à nos{" "}
+              <span className="font-bold">Conditions d'Utilisation</span>.
+            </p>
           </div>
         </div>
 
         <div className="text-grey-dark mt-4 mb-4">
-          Vous avez déjà un compte?
+          Vous avez déjà un compte?{" "}
           <Link
             className="no-underline border-b border-blue text-blue-700"
             href="/signin"

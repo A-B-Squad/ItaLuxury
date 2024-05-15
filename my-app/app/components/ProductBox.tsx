@@ -185,7 +185,7 @@ export const ProductBox = ({ product }: any) => {
               product?.categories[0]?.name,
               product?.categories[0]?.id,
               product?.categories[0]?.subcategories[0]?.name,
-              product?.categories[0]?.subcategories[0]?.id,
+              product?.categories[1]?.subcategories[0]?.id,
               product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
               product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
               product?.name,

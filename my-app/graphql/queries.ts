@@ -49,6 +49,14 @@ export const GET_REVIEW_QUERY = gql`
     }
   }
 `;
+export const GET_USER_REVIEW_QUERY = gql`
+query ProductReview($productId: ID!, $userId: ID) {
+  productReview(productId: $productId, userId: $userId) {
+    id
+    rating
+  }
+}
+`;
 export const BASKET_QUERY = gql`
   query BasketByUserId($userId: ID!) {
     basketByUserId(userId: $userId) {

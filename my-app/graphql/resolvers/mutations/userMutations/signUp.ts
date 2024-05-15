@@ -36,6 +36,7 @@ export const signUp = async (
   const token = jwt.sign({ userId: newUser.id }, jwtSecret);
   res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
 
+  
   return {
     user: newUser,
     token,
