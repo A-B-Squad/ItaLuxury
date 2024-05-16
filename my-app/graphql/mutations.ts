@@ -11,6 +11,18 @@ export const SIGNIN_MUTATION = gql`
       }
     }
   `;
+export const SIGNUP_MUTATION = gql`
+    mutation SignUp($input: SignUpInput!) {
+      signUp(input: $input) {
+        user {
+          id
+          fullName
+          email
+        }
+        token
+      }
+    }
+  `;
 export const ADD_TO_BASKET_MUTATION = gql`
 mutation AddToBasket($input: CreateToBasketInput!) {
   addToBasket(input: $input) {

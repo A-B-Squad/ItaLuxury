@@ -1,17 +1,33 @@
 import { Context } from "@/pages/api/graphql";
 
-export const productReview = async (_: any, { productId }: { productId: string }, { prisma }: Context) => {
-    try {
-        // Retrieve product review for the specified product ID
-        const productReview = await prisma.review.findMany({
-            where: {
-                productId: productId
-            }
-        });
+export const productReview = async (
+  _: any,
+  { productId, userId }: { productId: string; userId?: string },
+  { prisma }: Context
+) => {
+  try {
+    if (userId) {
+      // If user ID is provided, fetch reviews for the specified user and product
+      const userProductReview = await prisma.review.findMany({
+        where: {
+          productId: productId,
+          userId: userId,
+        },
+      });
 
-        return productReview;
-    } catch (error) {
-        console.log(`Failed to fetch product review for product ID ${productId}:`, error);
-        return new Error(`Failed to fetch product review for product ID ${productId}`);
+      return userProductReview;
+    } else {
+      // If user ID is not provided, fetch all reviews for the specified product
+      const allProductReviews = await prisma.review.findMany({
+        where: {
+          productId: productId,
+        },
+      });
+
+      return allProductReviews;
     }
+  } catch (error) {
+    console.log(`Failed to fetch product review for product ID ${productId}:`, error);
+    return new Error(`Failed to fetch product review for product ID ${productId}`);
+  }
 };

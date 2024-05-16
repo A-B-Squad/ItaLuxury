@@ -55,8 +55,8 @@ const SearchBar = () => {
 
   return (
     <div
-      className="search z-50 flex items-center border-2 px-4 w-full relative max-w-md h-11 border-[#e0d7d0] rounded-lg pl-4"
-      onMouseEnter={() => setSearching(true)}
+      className="search z-50 flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full    pl-4"
+      onClick={() => setSearching(true)}
       onMouseLeave={() => setSearching(false)}
     >
       <input
@@ -68,7 +68,7 @@ const SearchBar = () => {
         onChange={handleSearchChange}
       />
       <span
-        className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-20 bg-mediumBeige"
+        className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-mediumBeige transition-all bg-strongBeige"
         onClick={() => {
           router.push(`/Collections?query=${searchQuery}`, { scroll: false });
         }}

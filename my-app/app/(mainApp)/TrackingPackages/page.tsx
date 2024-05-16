@@ -1,6 +1,6 @@
 "use client";
 import React, { ReactNode, useEffect, useState } from "react";
-import { useQuery,useLazyQuery } from "@apollo/client";
+import { useQuery, useLazyQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import {
@@ -68,24 +68,23 @@ const TrackingPackages: React.FC = () => {
         const { data } = await userPackages({
           variables: { userId: decodedToken?.userId },
         });
-        
+
         setPackages(data.packageByUserId);
       } catch (error) {
         console.error("Error fetching user packages:", error);
       }
     };
-  
+
     if (!searchPerformed) {
       fetchData();
     }
   }, [userPackages, searchPerformed, decodedToken?.userId]);
-  
 
   useEffect(() => {
     if (searchInput.length && packageById) {
       setPackages([packageById.packageById]);
       setSearchPerformed(true);
-    } 
+    }
   }, [packageById, searchInput, userPackages, decodedToken]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +92,8 @@ const TrackingPackages: React.FC = () => {
     setSearchPerformed(false);
   };
 
-  const translateStatus = (status: string) => {
-    const statusTranslations = {
+  const translateStatus = (status: string): string => {
+    const statusTranslations: { [key: string]: string } = {
       PENDING: "EN ATTENTE",
       BACK: "RETOUR",
       EXCHANGE: "ÉCHANGE",
@@ -102,7 +101,7 @@ const TrackingPackages: React.FC = () => {
       PROCESSING: "EN TRAITEMENT",
       PAYED: "PAYÉ",
     };
-
+  
     return statusTranslations[status] || status;
   };
 
@@ -111,14 +110,14 @@ const TrackingPackages: React.FC = () => {
       <div className="search-package border-b py-3 px-3 w-full flex justify-center items-center">
         <input
           type="text"
-          placeholder="Recherchez votre colis avec ID"
+          placeholder="Recherchez votre colis avec Reference"
           value={searchInput}
           onChange={handleInputChange}
           className="search-input outline-none p-3 border-strongBeige w-96 px-5 border rounded"
         />
       </div>
       <div className="package-list py-3 px-3">
-        { loadingPackageById ? (
+        {loadingPackageById ? (
           <Loading />
         ) : packages?.length > 0 ? (
           <Table>
@@ -155,7 +154,15 @@ const TrackingPackages: React.FC = () => {
             </TableBody>
           </Table>
         ) : (
-          <p>Aucun colis trouvé avec cet ID</p>
+          <div className="flex items-center justify-center">
+            <div className="border shadow-md p-3 w-4/5  py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
+              <p className="font-normal tracking-wider text-center text-gray-600">
+                {!searchInput && packages.length === 0
+                  ? "Bienvenue sur notre plateforme! Vous n'avez pas encore passé de commandes. Explorez nos produits et trouvez ce que vous aimez."
+                  : "Nous n'avons trouvé aucun colis correspondant à cette référence. Veuillez vérifier votre saisie ou contactez-nous pour obtenir de l'aide."}
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>

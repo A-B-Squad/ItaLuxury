@@ -143,7 +143,6 @@ const ProductsSection = () => {
         )}
         {productsData.length > 0 ? (
           <>
-          
             <div
               className={`${
                 view === 3

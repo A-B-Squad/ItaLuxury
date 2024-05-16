@@ -49,6 +49,14 @@ export const GET_REVIEW_QUERY = gql`
     }
   }
 `;
+export const GET_USER_REVIEW_QUERY = gql`
+query ProductReview($productId: ID!, $userId: ID) {
+  productReview(productId: $productId, userId: $userId) {
+    id
+    rating
+  }
+}
+`;
 export const BASKET_QUERY = gql`
   query BasketByUserId($userId: ID!) {
     basketByUserId(userId: $userId) {
@@ -166,9 +174,9 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
     }
   }
 `;
-export const TAKE_10_PRODUCTS = gql`
-  query Products($limit: Int!) {
-    products(limit: $limit) {
+export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
+  query productsByCategory($categoryName: String!,$limit: Int!) {
+    productsByCategory(categoryName: $categoryName, limit: $limit) {
       id
       name
       price

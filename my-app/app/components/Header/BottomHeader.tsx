@@ -14,7 +14,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { GoPackageDependents } from "react-icons/go";
 import { IoIosLogOut } from "react-icons/io";
 import { IoGitCompare } from "react-icons/io5";
-import { useRouter } from "next/navigation";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -23,7 +22,6 @@ const BottomHeader = ({ setShowDropdown }: any) => {
   const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [LengthComparer, setLengthComparer] = useState<number>(0);
-const router=useRouter()
   const quantityInBasket = useProductsInBasketStore(
     (state) => state.quantityInBasket
   );
@@ -97,7 +95,7 @@ const router=useRouter()
                     Cookies.remove("Token");
                     window.sessionStorage.removeItem("productsInBasket");
                     window.sessionStorage.removeItem("comparedProducts");
-                   router.refresh()
+                    window.location.reload();
                   }
                 }}
                 className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all"
@@ -108,7 +106,9 @@ const router=useRouter()
               </li>
             )}
             <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/Mes-Favoris`}>
+              <Link
+                href={`${decodedToken?.userId ? " /FavoriteList" : "/signin"}`}
+              >
                 <FiHeart />
               </Link>
             </li>
@@ -120,12 +120,14 @@ const router=useRouter()
               </li>
             )}
             <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-              <IoGitCompare />
-              {LengthComparer > 0 && (
-                <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
-                  {LengthComparer}
-                </span>
-              )}
+              <Link href={"/productComparison"}>
+                <IoGitCompare />
+                {LengthComparer > 0 && (
+                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
+                    {LengthComparer}
+                  </span>
+                )}
+              </Link>
             </li>
             <li
               onClick={openBasketDrawer}
