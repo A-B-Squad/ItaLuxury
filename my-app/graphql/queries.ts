@@ -174,9 +174,9 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
     }
   }
 `;
-export const TAKE_10_PRODUCTS = gql`
-  query Products($limit: Int!) {
-    products(limit: $limit) {
+export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
+  query productsByCategory($categoryName: String!,$limit: Int!) {
+    productsByCategory(categoryName: $categoryName, limit: $limit) {
       id
       name
       price

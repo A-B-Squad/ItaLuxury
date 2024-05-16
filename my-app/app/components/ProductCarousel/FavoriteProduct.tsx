@@ -1,3 +1,4 @@
+import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_FAVORITE_MUTATION } from "@/graphql/mutations";
 import { GET_FAVORITE_STATUS } from "@/graphql/queries";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -27,6 +28,7 @@ const FavoriteProduct = ({
       skip: !userId,
     }
   );
+  const { toast } = useToast();
 
   useEffect(() => {
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
@@ -48,7 +50,11 @@ const FavoriteProduct = ({
 
   const handleToggleFavorite = () => {
     if (!userId) {
-      alert("Please login to add to favorites.");
+      toast({
+        title: "Produit ajouté aux favoris",
+        description: "Vous devez vous connecter pour ajouter un produit aux favoris.",
+        className: "bg-red-800 text-white",
+      });
       return;
     }
 
@@ -62,6 +68,11 @@ const FavoriteProduct = ({
       onCompleted: () => {
         refetchFavorite();
         setIsFavorite(!isFavorite);
+        toast({
+          title: "Produit ajouté aux favoris",
+          description: `Le produit "${favoriteData?.name}" a été ajouté à vos favoris.`,
+          className: "bg-strongBeige text-white",
+        });
       },
     });
   };

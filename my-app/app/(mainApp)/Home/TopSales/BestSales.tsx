@@ -150,7 +150,7 @@ const BestSales: React.FC = () => {
                               toast({
                                 title: "Notification de Panier",
                                 description: `Le produit "${product?.name}" a été ajouté au panier.`,
-                                className: "bg-white",
+                                className: "bg-strongBeige text-white",
                               });
                             }}
                             className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"

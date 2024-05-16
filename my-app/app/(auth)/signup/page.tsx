@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useProductsInBasketStore } from "../../store/zustand";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SIGNUP_MUTATION } from "../../../graphql/mutations";
 
 const Signup = () => {
   const [errorMessage, setErrorMessage] = useState("");
@@ -15,23 +16,10 @@ const Signup = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { products, clearBasket } = useProductsInBasketStore((state) => ({
-    products: state.products,
-    clearBasket: state.clearBasket,
-  }));
-
-  const SIGNUP_MUTATION = gql`
-    mutation SignUp($input: SignUpInput!) {
-      signUp(input: $input) {
-        user {
-          id
-          fullName
-          email
-        }
-        token
-      }
-    }
-  `;
+  // const { products, clearBasket } = useProductsInBasketStore((state) => ({
+  //   products: state.products,
+  //   clearBasket: state.clearBasket,
+  // }));
 
   const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
     onCompleted: (data) => {

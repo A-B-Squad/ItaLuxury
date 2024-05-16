@@ -185,7 +185,7 @@ const TopDeals = () => {
                   toast({
                     title: "Notification de Panier",
                     description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,
-                    className: "bg-white",
+                    className: "bg-strongBeige text-white",
                   });
                 }}
               >
@@ -208,7 +208,7 @@ const TopDeals = () => {
                   toast({
                     title: "Produit ajouté à la comparaison",
                     description: `Le produit "${products?.product?.name}" a été ajouté à la comparaison.`,
-                    className: "bg-white",
+                    className: "bg-strongBeige text-white",
                   });
                 }}
               >
@@ -316,7 +316,7 @@ const TopDeals = () => {
                   toast({
                     title: "Notification de Panier",
                     description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,
-                    className: "bg-white",
+                    className: "bg-strongBeige text-white",
                   });
                 }}
               >

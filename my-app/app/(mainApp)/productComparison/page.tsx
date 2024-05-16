@@ -152,7 +152,7 @@ const ProductComparison = () => {
                               toast({
                                 title: "Produit retiré de la comparaison",
                                 description: `Le produit "${product?.name}" a été retiré de la comparaison.`,
-                                className: "bg-white",
+                                className: "bg-strongBeige text-white",
                               });
                             }}
                           >
@@ -169,7 +169,7 @@ const ProductComparison = () => {
                             toast({
                               title: "Notification de Panier",
                               description: `Le produit "${product?.name}" a été ajouté au panier.`,
-                              className: "bg-white",
+                              className: "bg-strongBeige text-white",
                             });
                           }}
                         >
@@ -209,11 +209,15 @@ const ProductComparison = () => {
           </table>
         </div>
       ) : (
-        <div className="flex justify-center items-center h-screen">
-          <div className="flex flex-col items-center justify-center">
-            <HiX className="text-red-400 text-[10rem]" />
-            <h1 className="text-red-400 text-2xl">Aucun produit à comparé !</h1>
-          </div>
+        <div className="h-screen flex justify-center item-center">
+
+        <div className="border shadow-md p-3 h w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center gap-3 justify-center ">
+          <HiX size={25} className="text-red-400 " />
+
+          <p className="  font-normal  tracking-wider">
+            Aucun produit à comparé !
+          </p>
+        </div>
         </div>
       )}
     </>

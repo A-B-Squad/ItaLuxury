@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
+import { useOutsideClick } from "../_outsideClick";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -29,6 +30,9 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const quantityInBasket = useProductsInBasketStore(
     (state) => state.quantityInBasket
   );
+  const clickOutside = useOutsideClick(() => {
+    setShowMenuUserMenu(false);
+  });
   const {
     register,
     handleSubmit,
@@ -43,7 +47,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
       toast({
         title: "Connexion",
         description: "Bienvenue",
-        className: "bg-white",
+        className: "bg-strongBeige text-white",
       });
     },
     onError: (error) => {
@@ -93,7 +97,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
       <div className="list md:flex items-center gap-5 cursor-pointer text-md hidden">
         <ul className="flex  gap-5">
           <li
-            className="whishlist relative group "
+            className="userMenu relative group "
             onMouseEnter={() => setShowMenuUserMenu(true)}
           >
             <div className="flex   items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
@@ -101,6 +105,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               <FiUser />
             </div>
             <div
+              ref={clickOutside}
               className={` absolute w-72 h-96 border-2  px-2 py-2   flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
             >
               {!decodedToken?.userId && (
@@ -108,23 +113,28 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   className="flex flex-col w-full"
                   onSubmit={handleSubmit(onSubmit)}
                 >
-                  <label htmlFor="" className="text-xs font-medium">
+                  <label htmlFor="email" className="text-xs font-medium mb-1">
                     Email
                   </label>
                   <input
+                    id="email"
                     type="text"
-                    className="block border outline-gray-400 border-gray-300 py-3   text-xs w-full p-1 rounded mb-4"
+                    className="block border outline-gray-400 border-gray-300 py-2.5  text-xs w-full p-1 rounded mb-4"
                     title="Email"
                     {...register("email", { required: "Email is required" })}
                   />
 
-                  <label htmlFor="" className="text-xs font-medium">
+                  <label
+                    htmlFor="password"
+                    className="text-xs font-medium mb-1"
+                  >
                     Mot de passe
                   </label>
                   <input
+                    id="password"
                     type="password"
                     title="Mot de passe"
-                    className="block border border-gray-300 py-3 outline-gray-400   text-xs w-full p-1 rounded mb-4"
+                    className="block border border-gray-300 py-2.5 outline-gray-400   text-xs w-full p-1 rounded mb-4"
                     {...register("password", {
                       required: "Password is required",
                     })}
@@ -151,7 +161,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {!decodedToken?.userId && (
                 <Link
-                  className="w-full py-2  text-xs border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                  className="w-full py-2  text-sm border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
                   href={"/signin"}
                 >
                   <FiUser />
@@ -168,7 +178,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                       window.location.reload();
                     }
                   }}
-                  className="w-full text-xs py-2 border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                  className="w-full text-sm py-2 border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
                   href={"/Home"}
                 >
                   <FiUser />
@@ -183,7 +193,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                     alert("Veuillez vous connecter pour voir vos favoris.");
                   }
                 }}
-                className="w-full text-xs border-b py-2 gap-2 text-center hover:text-strongBeige flex justify-start items-center  transition-colors"
+                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-strongBeige flex justify-start items-center  transition-colors"
               >
                 <FiHeart />
                 <p className="font-semibold uppercase">Ma Liste D'envies</p>
@@ -195,7 +205,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                     alert("Veuillez vous connecter pour voir vos commandes.");
                   }
                 }}
-                className="w-full text-xs border-b py-2 gap-2 text-center hover:text-strongBeige flex justify-start items-center  transition-colors"
+                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-strongBeige flex justify-start items-center  transition-colors"
               >
                 <GoPackageDependents />
                 <p className="font-semibold uppercase">Mes Commandes</p>
@@ -203,7 +213,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
 
               <Link
                 href={`/productComparison`}
-                className=" text-xs w-full py-2 gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                className=" text-sm w-full py-2 gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
               >
                 <IoGitCompare />
                 <p className="font-semibold uppercase">

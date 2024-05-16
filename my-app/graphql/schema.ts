@@ -278,7 +278,7 @@ type Query {
   productsLessThen20(limit:Int): [Product!]
   
   # Fetch products by category name
-  productsByCategory(categoryName: String!): [Product!]
+  productsByCategory(categoryName: String!,limit:Int): [Product!]
 
   # Fetch a product by its ID
   productById(id: ID!): Product!

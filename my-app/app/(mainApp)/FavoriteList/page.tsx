@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 
 import Loading from "../loading";
 import { ProductBox } from "../../components/ProductBox";
+import { HiX } from "react-icons/hi";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -76,12 +77,18 @@ const FavoriteList = () => {
                 <ProductBox product={product} />
               </div>
             ))}
-
-          
           </div>
           {productsData.length === 0 && (
-              <p className="text-red-600 flex items-center justify-center w-full self-center h-screen px-2 text-center tracking-widest">Aucun produit n'est présent dans la liste des favoris.</p>
-            )}
+            <div className="h-screen flex justify-center item-center">
+              <div className="border shadow-md p-3 h w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center gap-3 justify-center ">
+                <HiX size={25} className="text-red-400 " />
+
+                <p className="  font-normal  tracking-wider">
+                  Aucun produit n'est présent dans la liste des favoris.
+                </p>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -11,11 +11,10 @@ import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import {
   BASKET_QUERY,
-  GET_PRODUCT_IMAGES_QUERY,
   GET_REVIEW_QUERY,
   PRODUCT_BY_ID_QUERY,
-  TAKE_10_PRODUCTS,
   GET_USER_REVIEW_QUERY,
+  TAKE_10_PRODUCTS_BY_CATEGORY,
 } from "../../../../graphql/queries";
 
 import ProductTabs from "@/app/components/ProductCarousel/productTabs";
@@ -72,12 +71,16 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
 
-  const { loading: loadingNewProduct, data: Products_10 } = useQuery(
-    TAKE_10_PRODUCTS,
-    {
-      variables: { limit: 10 },
-    }
-  );
+  const { loading: loadingNewProduct, data: Products_10_by_category } =
+    useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
+      variables: {
+        limit: 10,
+        categoryName:
+          productDetails?.categories?.[0]?.subcategories?.[0]
+            ?.subcategories?.[1]?.name || "",
+      },
+    });
+
   const { loading } = useQuery(PRODUCT_BY_ID_QUERY, {
     variables: { productByIdId: productId },
     onCompleted: (data) => {
@@ -258,7 +261,12 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   const handleToggleFavorite = () => {
     if (!decodedToken?.userId) {
-      alert("Please login to add to favorites.");
+      toast({
+        title: "Produit ajouté aux favoris",
+        description:
+          "Vous devez vous connecter pour ajouter un produit aux favoris.",
+        className: "bg-red-800 text-white",
+      });
       return;
     }
     addToFavorite({
@@ -267,6 +275,13 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           userId: decodedToken?.userId,
           productId: productId,
         },
+      },
+      onCompleted: () => {
+        toast({
+          title: "Produit ajouté aux favoris",
+          description: `Le produit "${productDetails?.name}" a été ajouté à vos favoris.`,
+          className: "bg-strongBeige text-white",
+        });
       },
     });
   };
@@ -305,7 +320,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                   {smallImages?.map((image: string, index: number) => (
                     <div
                       key={index}
-                      className={`${image === bigImage ? "border-black" : ""} cursor-pointer border  h-fit rounded-md p-1`}
+                      className={`${image === bigImage ? "border-mediumBeige" : ""} cursor-pointer border-2  h-fit rounded-md p-1`}
                     >
                       <Image
                         width={90}
@@ -451,7 +466,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                         toast({
                           title: "Notification de Panier",
                           description: `Le produit "${productDetails?.name}" a été ajouté au panier.`,
-                          className: "bg-white",
+                          className: "bg-strongBeige text-white",
                         });
                       }}
                     >
@@ -497,7 +512,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           toast({
                             title: "Produit ajouté à la comparaison",
                             description: `Le produit "${productDetails?.name}" a été ajouté à la comparaison.`,
-                            className: "bg-white",
+                            className: "bg-strongBeige text-white",
                           });
                         }}
                       >
@@ -513,19 +528,32 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                     return (
                       <label key={currentIndex}>
                         <input
-                          className="hidden "
+                          className="hidden  "
                           type="radio"
                           name="rating"
                           value={currentIndex}
                           onClick={() => {
-                            setRating(currentIndex);
-                            addRating({
-                              variables: {
-                                productId: productId,
-                                userId: decodedToken?.userId,
-                                rating: currentIndex,
-                              },
-                            });
+                            if (decodedToken?.userId) {
+                              setRating(currentIndex);
+                              addRating({
+                                variables: {
+                                  productId: productId,
+                                  userId: decodedToken.userId,
+                                  rating: currentIndex,
+                                },
+                              });
+                              toast({
+                                title: "Notification d'ajout d'évaluation",
+                                description: `Merci d'avoir ajouté une évaluation.`,
+                                className: "bg-strongBeige text-white",
+                              });
+                            } else {
+                              toast({
+                                title: "Notification d'ajout d'évaluation",
+                                description: `Vous devez vous connecter pour ajouter une évaluation.`,
+                                className: "bg-red-800 text-white",
+                              });
+                            }
                           }}
                         />
                         <FaStar
@@ -562,19 +590,22 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                       ].map(({ rating, value }) => (
                         <div className="flex items-center gap-3" key={rating}>
                           <div className="flex items-center ">
-
-                          <p className="text-sm font-bold">{rating}.0</p>
-                          <FaStar size={20} className="text-strongBeige ml-1" />
+                            <p className="text-sm font-bold">{rating}.0</p>
+                            <FaStar
+                              size={20}
+                              className="text-strongBeige ml-1"
+                            />
                           </div>
                           <div className="relative bg-gray-400 rounded-md w-full h-2 ml-3">
                             <div
-                              style={{ width: `${(value / reviews) * 100||0}%` }}
+                              style={{
+                                width: `${(value / reviews) * 100 || 0}%`,
+                              }}
                               className="h-full rounded bg-strongBeige"
                             ></div>
-                            
                           </div>
                           <p className="text-sm font-bold ">
-                            {((value / reviews) * 100)||0}%
+                            {(value / reviews) * 100 || 0}%
                           </p>
                         </div>
                       ))}
@@ -607,10 +638,10 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         <TitleProduct title={"Voir aussi"} />
         <div>
           <ProductTabs
-            data={Products_10?.products}
+            data={Products_10_by_category?.productsByCategory}
             loadingNewProduct={loadingNewProduct}
             carouselWidthClass={
-              Products_10?.productsLessThen20?.length < 5
+              Products_10_by_category?.productsByCategory?.length < 5
                 ? " basis-full   md:basis-1/2  "
                 : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
             }

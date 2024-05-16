@@ -212,7 +212,7 @@ const SideBar = () => {
               toast({
                 title: "Filtres réinitialisés",
                 description: "Les filtres ont été réinitialisés avec succès.",
-                className: "bg-white",
+                className: "bg-strongBeige text-white",
               });
             }}
             className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer"

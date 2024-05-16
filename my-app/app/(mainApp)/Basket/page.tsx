@@ -149,7 +149,7 @@ const Basket = () => {
                               toast({
                                 title: "Notification de Panier",
                                 description: `Le produit "${product?.name}" a été retiré du panier.`,
-                                className: "bg-white",
+                                className: "bg-strongBeige text-white",
                               });
                             }}
                           >

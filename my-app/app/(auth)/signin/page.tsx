@@ -20,7 +20,7 @@ const Signin = () => {
       toast({
         title: "Connexion",
         description: "Bienvenue",
-        className: "bg-white",
+        className: "bg-strongBeige text-white",
       });
       router.replace("/Home")
     },

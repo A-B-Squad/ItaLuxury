@@ -78,7 +78,7 @@ export const ProductBox = ({ product }: any) => {
           toast({
             title: "Notification de Panier",
             description: `Le produit "${product?.name}" a été ajouté au panier.`,
-            className: "bg-white",
+            className: "bg-strongBeige text-white",
           });
         },
       });
@@ -137,7 +137,7 @@ export const ProductBox = ({ product }: any) => {
             toast({
               title: "Produit ajouté à la comparaison",
               description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
-              className: "bg-white",
+              className: "bg-strongBeige text-white",
             });
           }}
         >
