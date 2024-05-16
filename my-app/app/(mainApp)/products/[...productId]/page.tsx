@@ -568,13 +568,13 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                           </div>
                           <div className="relative bg-gray-400 rounded-md w-full h-2 ml-3">
                             <div
-                              style={{ width: `${(value / reviews) * 100}%` }}
+                              style={{ width: `${(value / reviews) * 100||0}%` }}
                               className="h-full rounded bg-strongBeige"
                             ></div>
                             
                           </div>
                           <p className="text-sm font-bold ">
-                            {((value / reviews) * 100)}%
+                            {((value / reviews) * 100)||0}%
                           </p>
                         </div>
                       ))}
