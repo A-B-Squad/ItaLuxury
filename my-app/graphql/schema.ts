@@ -361,7 +361,7 @@ type Mutation {
   
   # Basket mutations
   addToBasket(input: CreateToBasketInput!): Basket!
-  removeProductFromBasket(productId: ID!): String!
+  removeProductFromBasket(productId: ID!,basketId:String!): String!
   deleteBasketById(basketId: ID!): String!
   increaseQuantity(basketId: ID!): Basket!
   decreaseQuantity(basketId: ID!): Basket!

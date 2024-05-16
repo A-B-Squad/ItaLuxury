@@ -106,7 +106,9 @@ const BottomHeader = ({ setShowDropdown }: any) => {
               </li>
             )}
             <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/Mes-Favoris`}>
+              <Link
+                href={`${decodedToken?.userId ? " /FavoriteList" : "/signin"}`}
+              >
                 <FiHeart />
               </Link>
             </li>
@@ -118,12 +120,14 @@ const BottomHeader = ({ setShowDropdown }: any) => {
               </li>
             )}
             <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-              <IoGitCompare />
-              {LengthComparer > 0 && (
-                <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
-                  {LengthComparer}
-                </span>
-              )}
+              <Link href={"/productComparison"}>
+                <IoGitCompare />
+                {LengthComparer > 0 && (
+                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
+                    {LengthComparer}
+                  </span>
+                )}
+              </Link>
             </li>
             <li
               onClick={openBasketDrawer}

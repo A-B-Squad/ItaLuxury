@@ -83,7 +83,7 @@ const Basket = () => {
       updateTotalPrice(updatedProducts);
     },
   });
-  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION, {});
+  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = products.filter(

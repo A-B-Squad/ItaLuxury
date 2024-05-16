@@ -11,7 +11,7 @@ export const SIGNIN_MUTATION = gql`
       }
     }
   `;
-  export  const SIGNUP_MUTATION = gql`
+export const SIGNUP_MUTATION = gql`
     mutation SignUp($input: SignUpInput!) {
       signUp(input: $input) {
         user {

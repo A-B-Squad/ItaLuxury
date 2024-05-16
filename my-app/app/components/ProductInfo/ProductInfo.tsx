@@ -222,7 +222,7 @@ const ProductInfo = () => {
                     className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
                     onClick={() => {
                       setActuelQuantity(
-                        actualQuantity < productData?.inventory
+                        actualQuantity < (productData?.inventory ?? Infinity)
                           ? actualQuantity + 1
                           : actualQuantity
                       );
