@@ -37,8 +37,11 @@ export const ProductBox = ({ product }: any) => {
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-  const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+  const { addProductToCompare, productsInCompare } = useComparedProductsStore(
+    (state) => ({
+      addProductToCompare: state.addProductToCompare,
+      productsInCompare: state.products,
+    })
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -92,6 +95,17 @@ export const ProductBox = ({ product }: any) => {
     openBasketDrawer();
   };
 
+  const addToCompare = (product: any) => {
+    const isProductAlreadyInCompare = productsInCompare.some((p: any) => p.id === product.id);
+  
+    if (!isProductAlreadyInCompare) {
+      addProductToCompare(product);
+    } else {
+      console.log("Product is already in the compare list");
+    }
+  };
+
+
   return (
     <>
       <ul
@@ -120,7 +134,7 @@ export const ProductBox = ({ product }: any) => {
         <div
           className="Comparison relative w-fit cursor-crosshair"
           title="Ajouter au comparatif"
-          onClick={() => addProductToCompare(product)}
+          onClick={() => addToCompare(product)}
         >
           <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
             <IoGitCompare color="white" />

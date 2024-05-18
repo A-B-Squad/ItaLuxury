@@ -68,8 +68,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   };
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+  const { addProductToCompare, productsInCompare } = useComparedProductsStore(
+    (state) => ({
+      addProductToCompare: state.addProductToCompare,
+      productsInCompare: state.products,
+    })
   );
 
   const { addProductToBasket, products } = useProductsInBasketStore(
@@ -178,8 +181,14 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [addRating] = useMutation(ADD_RATING_MUTATION);
 
   const addToCompare = (product: any) => {
-    addProductToCompare(product);
-    setSuccessMsg("Produit ajouté au comparaison !");
+    const isProductAlreadyInCompare = productsInCompare.some((p: any) => p.id === product.id);
+  
+    if (!isProductAlreadyInCompare) {
+      addProductToCompare(product);
+      setSuccessMsg("Produit ajouté au comparaison !");
+    } else {
+      console.log("Product is already in the compare list");
+    }
   };
 
   const handleToggleFavorite = () => {
@@ -437,7 +446,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
                             price: discount
                               ? discount.newPrice
                               : productDetails?.price,
-                            actualQuantity:1,
+                            actualQuantity: 1,
                           });
                         } else {
                           console.log("Product is already in the basket");
