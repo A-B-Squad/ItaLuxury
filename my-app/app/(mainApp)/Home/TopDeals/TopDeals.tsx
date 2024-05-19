@@ -8,6 +8,7 @@ import {
   useProductDetails,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
+import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
@@ -28,6 +29,14 @@ const TopDeals = () => {
   const [popoverIndex, setPopoverIndex] = useState<number>(0);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const { toast } = useToast();
+
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   useEffect(() => {
@@ -35,6 +44,7 @@ const TopDeals = () => {
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
+
     }
   }, []);
   const handleMouseEnter = (title: string, index: number) => {
@@ -54,27 +64,43 @@ const TopDeals = () => {
   const { openBasketDrawer } = useDrawerBasketStore();
   const { openProductDetails } = useProductDetails();
 
-  const [addToBasketMutation, { loading: addToBasketLoading }] = useMutation(
-    ADD_TO_BASKET_MUTATION
-  );
-
-  const AddToBasket = (productId: string) => {
-    if (decodedToken?.userId) {
-      addToBasketMutation({
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
         variables: {
           input: {
             userId: decodedToken?.userId,
-            productId: productId,
             quantity: 1,
+            productId: product.id,
           },
         },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
       });
     } else {
-      window.sessionStorage.setItem("products", productId);
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
     }
+    toggleIsUpdated();
     openBasketDrawer();
   };
-
   const handleMouseEnterHoverPop = (title: string) => {
     setShowPopover(true);
     setPopoverTitle(title);
@@ -91,17 +117,10 @@ const TopDeals = () => {
     addProductToCompare(product);
   };
 
-  const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
+  const { toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
   }));
-
-  const { addProductToBasket, productsInBasket } = useProductsInBasketStore(
-    (state) => ({
-      addProductToBasket: state.addProductToBasket,
-      productsInBasket: state.products,
-    })
-  );
 
   return (
     <div className="md:grid grid-cols-2 gap-3 grid-flow-col overflow-hidden  block">
@@ -160,7 +179,15 @@ const TopDeals = () => {
                   handleMouseEnterHoverPop("Ajouter au panier")
                 }
                 onMouseLeave={handleMouseLeaveHoverPop}
-                onClick={() => AddToBasket(products?.product?.id)}
+                onClick={() => {
+                  AddToBasket(products?.product);
+
+                  toast({
+                    title: "Notification de Panier",
+                    description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,
+                    className: "bg-strongBeige text-white",
+                  });
+                }}
               >
                 {showPopover && popoverTitle === "Ajouter au panier" && (
                   <PopHover title={popoverTitle} />
@@ -176,7 +203,14 @@ const TopDeals = () => {
                   handleMouseEnterHoverPop("Ajouter au comparatif")
                 }
                 onMouseLeave={handleMouseLeaveHoverPop}
-                onClick={() => addToCompare(products?.product)}
+                onClick={() => {
+                  addToCompare(products?.product);
+                  toast({
+                    title: "Produit ajouté à la comparaison",
+                    description: `Le produit "${products?.product?.name}" a été ajouté à la comparaison.`,
+                    className: "bg-strongBeige text-white",
+                  });
+                }}
               >
                 {showPopover && popoverTitle === "Ajouter au comparatif" && (
                   <PopHover title={popoverTitle} />
@@ -203,6 +237,8 @@ const TopDeals = () => {
                     setIsFavorite={setIsFavorite}
                     productId={products?.product?.id}
                     userId={decodedToken?.userId}
+                    heartColor={""}
+                    heartSize={15}
                   />
                 </li>
               </div>
@@ -275,40 +311,13 @@ const TopDeals = () => {
               <button
                 className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors"
                 onClick={() => {
-                  if (decodedToken) {
-                    addToBasket({
-                      variables: {
-                        input: {
-                          userId: decodedToken?.userId,
-                          quantity: 1,
-                          productId: products?.product?.id,
-                        },
-                      },
-                      refetchQueries: [
-                        {
-                          query: BASKET_QUERY,
-                          variables: { userId: decodedToken?.userId },
-                        },
-                      ],
-                    });
-                  } else {
-                    const isProductAlreadyInBasket = productsInBasket.some(
-                      (p: any) => p.id === products?.product?.id
-                    );
+                  AddToBasket(products?.product);
 
-                    if (!isProductAlreadyInBasket) {
-                      addProductToBasket({
-                        ...products?.product,
-                        price: products?.product?.discount
-                          ? products?.product.discount?.newPrice
-                          : products?.product?.price,
-                        quantity: 1,
-                      });
-                    } else {
-                      console.log("Product is already in the basket");
-                    }
-                  }
-                  toggleIsUpdated();
+                  toast({
+                    title: "Notification de Panier",
+                    description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,
+                    className: "bg-strongBeige text-white",
+                  });
                 }}
               >
                 Acheter maintenant

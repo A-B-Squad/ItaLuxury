@@ -8,6 +8,7 @@ import BasketDrawer from "../components/BasketDrawer";
 import { DrawerMobile } from "../components/Header/CrategoryDrawer/DrawerMobile";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
+import Contact from "../components/Header/Contact";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -30,14 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-  
-        <div>
-            <DrawerMobile />
-            <BasketDrawer />
-          <Header />
-          <ApolloWrapper>{children}</ApolloWrapper>
-          <Footer />
-        </div>
-    
+    <>
+      <Contact />
+      <DrawerMobile />
+      <BasketDrawer />
+      <Header />
+      <ApolloWrapper>{children}</ApolloWrapper>
+      <Footer />
+    </>
   );
 }

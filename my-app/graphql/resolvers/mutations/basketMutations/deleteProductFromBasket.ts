@@ -2,12 +2,12 @@ import { Context } from "@/pages/api/graphql";
 
 export const removeProductFromBasket = async (
   _: any,
-  { productId }: { productId: string },
+  { productId, basketId }: { productId: string, basketId: string },
   { prisma }: Context
 ) => {
   try {
-    await prisma.basket.delete({
-      where: { productId }
+    await prisma.basket.deleteMany({
+      where: { id:basketId, productId }
     })
     return `product with id ${productId} Deleted`
   } catch (error) {

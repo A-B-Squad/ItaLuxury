@@ -37,8 +37,7 @@ const AdsCarousel = () => {
         <Carousel
           autoplay
           className="rounded-xl relative lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px]  "
-            placeholder={""}
-        >
+          placeholder={""}  onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}        >
           {images.map((image, index) => (
             <Link key={index} 
             rel="preload"

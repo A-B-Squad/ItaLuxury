@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { BASKET_QUERY } from "../../graphql/queries";
+import { BASKET_QUERY } from "@/graphql/queries";
 import { FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
@@ -23,10 +23,13 @@ import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import Image from "next/image";
 import calcDateForNewProduct from "./_calcDateForNewProduct";
+import { useToast } from "@/components/ui/use-toast";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 export const ProductBox = ({ product }: any) => {
+  const { toast } = useToast();
+
   const { view } = useAllProductViewStore();
   const { openBasketDrawer } = useDrawerBasketStore();
 
@@ -59,6 +62,7 @@ export const ProductBox = ({ product }: any) => {
 
   const AddToBasket = (product: any) => {
     if (decodedToken) {
+
       addToBasket({
         variables: {
           input: {
@@ -73,6 +77,13 @@ export const ProductBox = ({ product }: any) => {
             variables: { userId: decodedToken?.userId },
           },
         ],
+        onCompleted: () => {
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit "${product?.name}" a été ajouté au panier.`,
+            className: "bg-strongBeige text-white",
+          });
+        },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
@@ -151,6 +162,8 @@ export const ProductBox = ({ product }: any) => {
               setIsFavorite={setIsFavorite}
               productId={product?.id}
               userId={decodedToken?.userId}
+              heartColor={""}
+              heartSize={18}
             />
           </li>
         </div>
@@ -178,7 +191,7 @@ export const ProductBox = ({ product }: any) => {
               product?.categories[0]?.name,
               product?.categories[0]?.id,
               product?.categories[0]?.subcategories[0]?.name,
-              product?.categories[0]?.subcategories[0]?.id,
+              product?.categories[1]?.subcategories[0]?.id,
               product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
               product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
               product?.name,
@@ -194,6 +207,7 @@ export const ProductBox = ({ product }: any) => {
                 className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0  h-full w-full object-cover"
                 loading="eager"
                 priority
+                objectFit="contain"
                 alt={`products-${product?.name}`}
                 layout="fill"
               />
@@ -202,6 +216,7 @@ export const ProductBox = ({ product }: any) => {
                 className="absolute group-hover:opacity-100 opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
                 loading="eager"
                 priority
+                objectFit="contain"
                 alt={`products-${product?.name}`}
                 layout="fill"
               />

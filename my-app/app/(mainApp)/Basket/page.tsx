@@ -11,6 +11,8 @@ import {
   INCREASE_QUANTITY_MUTATION,
 } from "../../../graphql/mutations";
 import { BASKET_QUERY } from "../../../graphql/queries";
+import Image from "next/image";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -26,6 +28,8 @@ interface Product {
 }
 
 const Basket = () => {
+  const { toast } = useToast();
+
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -85,6 +89,7 @@ const Basket = () => {
     const updatedProducts = products.filter(
       (product) => product.basketId !== basketId
     );
+
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.quantity;
     }, 0);
@@ -123,15 +128,15 @@ const Basket = () => {
               </thead>
               <tbody className="whitespace-nowrap divide-y">
                 {products.map((product) => (
-                  <tr>
-                    <td className="py-6 px-4">
-                      <div className="flex items-center gap-6 w-max">
-                        <div className="h-36 shrink-0">
-                          <img
-                            src={product.images[0]}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                  <tr className="b">
+                    <td className="py-6 px-4 ">
+                      <div className="flex items-center gap-6 ">
+                        <Image
+                          width={150}
+                          height={150}
+                          alt={product.name}
+                          src={product.images[0]}
+                        />
                         <div>
                           <p className="text-md font-bold text-[#333]">
                             {product.name}
@@ -141,6 +146,11 @@ const Basket = () => {
                             className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               handleRemoveProduct(product.basketId);
+                              toast({
+                                title: "Notification de Panier",
+                                description: `Le produit "${product?.name}" a été retiré du panier.`,
+                                className: "bg-strongBeige text-white",
+                              });
                             }}
                           >
                             <FaRegTrashAlt />
@@ -216,19 +226,26 @@ const Basket = () => {
           </h3>
           <ul className="text-[#333] divide-y mt-6">
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Total{" "}
-              <span className="ml-auto font-bold">
+              {products.length > 1 ? (
+                <span className="font-normal">
+                  {products.length}
+                  articles
+                </span>
+              ) : (
+                <span className="font-normal">1 article</span>
+              )}
+              <span className="ml-auto font-semibold">
                 {totalPrice.toFixed(3)} TND
               </span>
             </li>
             <li className="flex flex-wrap gap-4 text-md py-4">
-              Expédition{" "}
-              <span className="ml-auto font-bold">
+            Livraison{" "}
+              <span className="ml-auto font-semibold">
                 {totalPrice >= 499 ? "Gratuit" : "8.000 TND"}
               </span>
             </li>
-            <li className="flex flex-wrap gap-4 text-md py-4 font-bold">
-              Totale{" "}
+            <li className="flex flex-wrap gap-4 text-md py-4 font-semibold">
+              Total (TTC){" "}
               <span className="ml-auto">
                 {totalPrice >= 499
                   ? totalPrice.toFixed(3)
@@ -241,11 +258,14 @@ const Basket = () => {
             href={{
               pathname: "/Checkout",
               query: {
-                total: totalPrice >= 499 ? totalPrice : totalPrice + 8,
+                total:
+                  totalPrice >= 499
+                    ? totalPrice.toFixed(3)
+                    : totalPrice.toFixed(3) + 8,
                 products: JSON.stringify(products),
               },
             }}
-            className="mt-6 text-md px-6 py-2.5 w-full bg-strongBeige hover:bg-amber-200 text-white rounded cursor-pointer"
+            className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-strongBeige hover:bg-amber-200 text-white  cursor-pointer"
           >
             Vérifier
           </Link>

@@ -11,10 +11,10 @@ import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import {
   BASKET_QUERY,
-  GET_PRODUCT_IMAGES_QUERY,
   GET_REVIEW_QUERY,
   PRODUCT_BY_ID_QUERY,
-  TAKE_10_PRODUCTS,
+  GET_USER_REVIEW_QUERY,
+  TAKE_10_PRODUCTS_BY_CATEGORY,
 } from "../../../../graphql/queries";
 
 import ProductTabs from "@/app/components/ProductCarousel/productTabs";
@@ -28,17 +28,22 @@ import {
 import Breadcumb from "../../../components/Breadcumb";
 import PopHover from "../../../components/PopHover";
 import ProductDetailsDrawer from "../../../components/ProductInfo/productDetailsDrawer";
+import { useToast } from "@/components/ui/use-toast";
+import Loading from "./loading";
 import {
   useBasketStore,
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "../../../store/zustand";
-
+import Image from "next/image";
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const SearchParams = useSearchParams();
   const productId = SearchParams?.get("productId");
-
+  const { toast } = useToast();
   const [productDetails, setProductDetails] = useState<any>(null);
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -47,15 +52,51 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [discount, setDiscount] = useState<any>(null);
   const [reviews, setReviews] = useState<number>(0);
+  const [userReviews, setUserReviews] = useState<number>(0);
+  const [oneStar, setOneStar] = useState<number>(0);
+  const [twoStar, setTwoStar] = useState<number>(0);
+  const [threeStar, setThreeStar] = useState<number>(0);
+  const [fourStar, setFourStar] = useState<number>(0);
+  const [fiveStar, setFiveStar] = useState<number>(0);
   const [actualQuantity, setActualQuantity] = useState<number>(1);
   const [quantity, setQuantity] = useState<number>(0);
-  const [successMsg, setSuccessMsg] = useState<string>("");
   const [attributes, setAttributes] = useState<any>(null);
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState("");
   const [isBottom, setIsBottom] = useState<Boolean>(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const { openBasketDrawer } = useDrawerBasketStore();
+  const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
+  const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+  const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
+
+  const { loading: loadingNewProduct, data: Products_10_by_category } =
+    useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
+      variables: {
+        limit: 10,
+        categoryName:
+          productDetails?.categories?.[0]?.subcategories?.[0]
+            ?.subcategories?.[1]?.name || "",
+      },
+    });
+
+  const { loading } = useQuery(PRODUCT_BY_ID_QUERY, {
+    variables: { productByIdId: productId },
+    onCompleted: (data) => {
+      setProductDetails(data.productById);
+      setBigImage(data.productById.images[0]);
+      setSmallImages(data.productById.images);
+      setDiscount(data.productById.productDiscounts[0]);
+      setAttributes(data.productById.attributes);
+      setQuantity(data.productById.inventory);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const [addRating] = useMutation(ADD_RATING_MUTATION);
 
   const handleMouseEnter = (title: any) => {
     setShowPopover(true);
@@ -82,23 +123,83 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     })
   );
 
-  interface DecodedToken extends JwtPayload {
-    userId: string;
-  }
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: actualQuantity,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+    openBasketDrawer();
+  };
 
   useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
     getReviews({
       variables: { productId: productId },
       onCompleted: (data) => {
         setReviews(data.productReview.length);
+        setOneStar(
+          data.productReview.filter(
+            (review: { rating: number }) => review.rating === 1
+          ).length
+        );
+        setTwoStar(
+          data.productReview.filter(
+            (review: { rating: number }) => review.rating === 2
+          ).length
+        );
+        setThreeStar(
+          data.productReview.filter(
+            (review: { rating: number }) => review.rating === 3
+          ).length
+        );
+        setFourStar(
+          data.productReview.filter(
+            (review: { rating: number }) => review.rating === 4
+          ).length
+        );
+        setFiveStar(
+          data.productReview.filter(
+            (review: { rating: number }) => review.rating === 5
+          ).length
+        );
       },
     });
-  }, [reviews]);
+    getUserReviews({
+      variables: { productId: productId, userId: decodedToken?.userId },
+      onCompleted: (data) => {
+        setUserReviews(data.productReview[0].rating);
+      },
+    });
+  }, [userReviews, rating]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -114,6 +215,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   }, [bigImage, smallImages]);
 
   useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
     const handleScroll = () => {
       const windowHeight = window.innerHeight;
       const scrollPosition = window.scrollY;
@@ -152,48 +258,18 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
     }
   }, [discount]);
 
-  const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
-  const [getProductImages] = useLazyQuery(GET_PRODUCT_IMAGES_QUERY);
-  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-  const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
-
-  const { loading: loadingNewProduct, data: Products_10 } = useQuery(
-    TAKE_10_PRODUCTS,
-    {
-      variables: { limit: 10 },
-    }
-  );
-  const productById = useQuery(PRODUCT_BY_ID_QUERY, {
-    variables: { productByIdId: productId },
-    onCompleted: (data) => {
-      setProductDetails(data.productById);
-      setBigImage(data.productById.images[0]);
-      setSmallImages(data.productById.images);
-      setDiscount(data.productById.productDiscounts[0]);
-      setAttributes(data.productById.attributes);
-      setQuantity(data.productById.inventory);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const [addRating] = useMutation(ADD_RATING_MUTATION);
-
   const addToCompare = (product: any) => {
-    const isProductAlreadyInCompare = productsInCompare.some((p: any) => p.id === product.id);
-  
-    if (!isProductAlreadyInCompare) {
-      addProductToCompare(product);
-      setSuccessMsg("Produit ajouté au comparaison !");
-    } else {
-      console.log("Product is already in the compare list");
-    }
+    addProductToCompare(product);
   };
 
   const handleToggleFavorite = () => {
     if (!decodedToken?.userId) {
-      alert("Please login to add to favorites.");
+      toast({
+        title: "Produit ajouté aux favoris",
+        description:
+          "Vous devez vous connecter pour ajouter un produit aux favoris.",
+        className: "bg-red-800 text-white",
+      });
       return;
     }
     addToFavorite({
@@ -203,423 +279,374 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
           productId: productId,
         },
       },
+      onCompleted: () => {
+        toast({
+          title: "Produit ajouté aux favoris",
+          description: `Le produit "${productDetails?.name}" a été ajouté à vos favoris.`,
+          className: "bg-strongBeige text-white",
+        });
+      },
     });
-    setSuccessMsg("Produit ajouté avec succès au favoris !");
   };
 
   return (
     <>
-      <div>
-        {successMsg && (
-          <div
-            id="alert-3"
-            className="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 "
-            role="alert"
-          >
-            <svg
-              className="flex-shrink-0 w-4 h-4"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-            </svg>
-            <span className="sr-only">Info</span>
-            <div className="ms-3 text-sm font-medium tracking-widest">
-              {successMsg}
-            </div>
-            <button
-              type="button"
-              className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 "
-              onClick={() => setSuccessMsg("")}
-              data-dismiss-target="#alert-3"
-              aria-label="Close"
-            >
-              <span className="sr-only">Close</span>
-              <svg
-                className="w-3 h-3"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 14"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  strokeWidth="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                />
-              </svg>
-            </button>
-          </div>
-        )}
-        <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
-          <Breadcumb />
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="sm:flex sm:items-center sm:flex-col lg:block">
+          <div className="p-6 lg:max-w-7xl max-w-2xl max-lg:mx-auto">
+            <Breadcumb />
 
-          <div className="grid items-start grid-cols-12 gap-10  ">
-            <div className=" flex lg:flex-row flex-col gap-2 col-span-10 lg:col-span-7 w-full text-center">
-              <div className="relative shadow-xl  border-2  flex items-center justify-center px-5 py-10 rounded-xl">
-                <InnerImageZoom
-                  className="w-4/5 rounded object-cover"
-                  zoomSrc={bigImage || ""}
-                  src={bigImage || ""}
-                  zoomType="hover"
-                  hideHint
-                  zoomScale={1.5}
-                />
-                <span
-                  className={
-                    "absolute top-2 right-0 p-2  bg-strongBeige text-xs font-400 text-white"
-                  }
-                >
-                  {productDetails?.inventory > 0
-                    ? "EN STOCK"
-                    : "STOCK EN RUPTURE "}
-                </span>
-              </div>
-              <div className="mt-6 flex lg:flex-col  justify-center gap-3 mx-auto">
-                {smallImages?.map((image: string, index: number) => (
-                  <div
-                    key={index}
-                    className="shadow-md w-fit h-fit rounded-md p-[7px]"
-                  >
-                    <img
-                      src={image}
-                      alt="Product2"
-                      className="w-24 cursor-pointer"
-                      onMouseEnter={() => {
-                        setBigImage(image);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="product lg:col-span-5 col-span-10 ">
-              <h2 className="product_name tracking-wider text-2xl font-semibold ">
-                {productDetails?.name}
-              </h2>
-
-              <div className="discount flex    flex-col  gap-1 mt-4">
-                <p className="text-strongBeige tracking-wide text-3xl font-bold">
-                  {discount
-                    ? discount.newPrice.toFixed(3)
-                    : productDetails?.price.toFixed(3)}{" "}
-                  <span className="text-2xl ">TND</span>
-                  {!discount && (
-                    <span className="text-sm text-gray-400 ml-2 font-medium">
-                      TTC
-                    </span>
-                  )}
-                </p>
-
-                {discount && (
-                  <>
-                    <div className="text-gray-400 tracking-wide flex items-center text-lg gap-2">
-                      <p className="line-through">
-                        {discount.price.toFixed(3)} TND
-                      </p>{" "}
-                      <p className="text-sm bg-violet-700 text-white p-1">
-                        Économisez
-                        <span className="font-bold ml-1 ">
-                          {(discount.price - discount.newPrice).toFixed(3)} TND
-                        </span>
-                      </p>
-                      <span className="text-sm">TTC</span>
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      {countdown ? (
-                        <>
-                          La réduction se termine dans :{" "}
-                          <span className="font-semibold">
-                            {Math.floor(countdown / (1000 * 60 * 60 * 24))} jrs,{" "}
-                            {Math.floor(
-                              (countdown % (1000 * 60 * 60 * 24)) /
-                                (1000 * 60 * 60)
-                            )}{" "}
-                            hrs,{" "}
-                            {Math.floor(
-                              (countdown % (1000 * 60 * 60)) / (1000 * 60)
-                            )}{" "}
-                            mins, {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
-                            secs
-                          </span>
-                        </>
-                      ) : (
-                        "La réduction a expiré"
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="Infomation_Details ">
-                <div className="Quantity flex items-center mt-4  space-x-2">
-                  <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
-                    Quantité
-                  </h3>
-                  <div className="flex divide-x border w-max overflow-hidden rounded-md">
-                    <button
-                      type="button"
-                      className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
-                      onClick={() => {
-                        setActualQuantity(
-                          actualQuantity > 1 ? actualQuantity - 1 : 1
-                        );
-                      }}
-                    >
-                      <RiSubtractFill />
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
-                    >
-                      {actualQuantity}
-                    </button>
-                    <button
-                      type="button"
-                      className={`${actualQuantity === quantity && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
-                      disabled={actualQuantity === productDetails?.inventory}
-                      onClick={() => {
-                        setActualQuantity(
-                          actualQuantity < productDetails?.inventory
-                            ? actualQuantity + 1
-                            : actualQuantity
-                        );
-                      }}
-                    >
-                      <FaPlus />
-                    </button>
-                  </div>
-                </div>
-                <div className="Description">
-                  <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-5">
-                    Description
-                  </h3>
-                  <ul className="space-y-3 tracking-widest list-disc mt-2 pl-4 text-sm text-gray-600">
-                    <li>{productDetails?.description}</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className={` user_interaction flex flex-col gap-2 mt-8`}>
-                {actualQuantity === quantity && (
-                  <div className="flex items-center gap-3 ">
-                    <GoAlertFill color="yellow" size={20} />
-                    <p className="text-red-600 font-semibold tracking-wider">
-                      La quantité maximale de produits est de {actualQuantity}.
-                    </p>
-                  </div>
-                )}
-                <div className="flex items-center  gap-4  ">
-                  <button
-                    type="button"
-                    className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
-                    onClick={() => {
-                      if (decodedToken) {
-                        addToBasket({
-                          variables: {
-                            input: {
-                              userId: decodedToken?.userId,
-                              quantity: actualQuantity,
-                              productId: productId,
-                            },
-                          },
-                          refetchQueries: [
-                            {
-                              query: BASKET_QUERY,
-                              variables: { userId: decodedToken?.userId },
-                            },
-                          ],
-                        });
-                      } else {
-                        const isProductAlreadyInBasket = products.some(
-                          (p: any) => p.id === productDetails?.id
-                        );
-
-                        if (!isProductAlreadyInBasket) {
-                          addProductToBasket({
-                            ...productDetails,
-                            price: discount
-                              ? discount.newPrice
-                              : productDetails?.price,
-                            actualQuantity: 1,
-                          });
-                        } else {
-                          console.log("Product is already in the basket");
-                        }
-                      }
-                      setSuccessMsg("Produit ajouté avec succès au panier !");
-                      toggleIsUpdated();
-                    }}
-                  >
-                    Ajouter au panier
-                  </button>
-
-                  <div
-                    className="relative"
-                    onMouseEnter={() => handleMouseEnter("Ajouter au favoris")}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    {showPopover && popoverTitle === "Ajouter au favoris" && (
-                      <PopHover title={popoverTitle} />
-                    )}
-
-                    <button
-                      type="button"
-                      className="transition-colors bg-transparent text-strongBeige text-xl hover:text-black font-bold rounded"
-                      onClick={handleToggleFavorite}
-                    >
-                      <FaRegHeart />
-                    </button>
-                  </div>
-
-                  <div
-                    className="relative"
-                    onMouseEnter={() =>
-                      handleMouseEnter("Ajouter au comparatif")
+            <div className="grid items-star grid-cols-12 gap-10  ">
+              <div className=" flex lg:flex-row flex-col gap-2 items-center col-span-10 lg:col-span-7 w-full text-center">
+                <div className="relative shadow-xl  border-2  flex items-center justify-center w-4/5 h-4/5 rounded-xl">
+                  <InnerImageZoom
+                    className="w-4/5 rounded object-cover"
+                    zoomSrc={bigImage || ""}
+                    src={bigImage || ""}
+                    zoomType="hover"
+                    hideHint
+                    zoomScale={1.5}
+                  />
+                  <span
+                    className={
+                      "absolute top-2 right-0 p-2  bg-strongBeige text-xs font-400 text-white"
                     }
-                    onMouseLeave={handleMouseLeave}
                   >
-                    {showPopover &&
-                      popoverTitle === "Ajouter au comparatif" && (
-                        <PopHover title={popoverTitle} />
-                      )}
-                    <button
-                      className=" text-strongBeige hover:text-black transition-colors text-xl font-bold rounded"
-                      onClick={() => addToCompare(productDetails)}
-                    >
-                      <GoGitCompare className="font-bold" />
-                    </button>
-                  </div>
+                    {productDetails?.inventory > 0
+                      ? "EN STOCK"
+                      : "STOCK EN RUPTURE "}
+                  </span>
                 </div>
-              </div>
-
-              <div className="Rating_stars flex col-span-7 space-x-2 mt-4 items-center">
-                {[...Array(5)].map((_, index) => {
-                  const currentIndex = index + 1;
-                  return (
-                    <label key={currentIndex}>
-                      <input
-                        className="hidden"
-                        type="radio"
-                        name="rating"
-                        value={currentIndex}
-                        onClick={() => {
-                          setRating(currentIndex);
-                          addRating({
-                            variables: {
-                              productId: productId,
-                              userId: decodedToken?.userId,
-                              rating: currentIndex,
-                            },
-                          });
+                <div className="mt-6 flex lg:flex-col  justify-center gap-3 px-2 py-2 mx-auto">
+                  {smallImages?.map((image: string, index: number) => (
+                    <div
+                      key={index}
+                      className={`${image === bigImage ? "border-mediumBeige" : ""} cursor-pointer border-2  h-fit rounded-md p-1`}
+                    >
+                      <Image
+                        width={90}
+                        height={90}
+                        objectFit="contain"
+                        src={image}
+                        alt="Product2"
+                        onMouseEnter={() => {
+                          setBigImage(image);
                         }}
                       />
-                      <FaStar
-                        size={20}
-                        className="cursor-pointer"
-                        color={
-                          currentIndex <= (hover || rating) ? "#f17e7e" : "grey"
-                        }
-                        onMouseEnter={() => setHover(currentIndex)}
-                        onMouseLeave={() => setHover(null)}
-                      />
-                    </label>
-                  );
-                })}
-                <h4 className="text-strongBeige text-sm">
-                  {reviews} Commentaires
-                </h4>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="Rating mt-8">
-                <div className="mt-8">
-                  <h3 className="text-lg font-bold text-strongBeige">
-                    Commentaires({reviews})
-                  </h3>
-                  <div className="space-y-3 mt-4">
-                    <div className="flex items-center">
-                      <p className="text-sm text-white font-bold">5.0</p>
+              <div className="product lg:col-span-5 col-span-10 ">
+                <h2 className="product_name tracking-wider text-2xl w-fit font-semibold ">
+                  {productDetails?.name}
+                </h2>
 
-                      <FaStar size={20} className="text-strongBeige" />
+                <div className="discount flex    flex-col  gap-1 mt-4">
+                  <p className="text-strongBeige tracking-wide text-3xl font-bold">
+                    {discount
+                      ? discount.newPrice.toFixed(3)
+                      : productDetails?.price.toFixed(3)}{" "}
+                    <span className="text-2xl ">TND</span>
+                    {!discount && (
+                      <span className="text-sm text-gray-400 ml-2 font-medium">
+                        TTC
+                      </span>
+                    )}
+                  </p>
 
-                      <div className="bg-gray-400 rounded w-full h-2 ml-3">
-                        <div className="w-2/3 h-full rounded bg-strongBeige"></div>
+                  {discount && (
+                    <>
+                      <div className="text-gray-400 tracking-wide flex items-center text-lg gap-2">
+                        <p className="line-through">
+                          {discount.price.toFixed(3)} TND
+                        </p>{" "}
+                        <p className="text-sm bg-violet-700 text-white p-1">
+                          Économisez
+                          <span className="font-bold ml-1 ">
+                            {(discount.price - discount.newPrice).toFixed(3)}{" "}
+                            TND
+                          </span>
+                        </p>
+                        <span className="text-sm">TTC</span>
                       </div>
-                      <p className="text-sm text-white font-bold ml-3">66%</p>
+                      <div className="text-sm text-gray-400">
+                        {countdown ? (
+                          <>
+                            La réduction se termine dans :{" "}
+                            <span className="font-semibold">
+                              {Math.floor(countdown / (1000 * 60 * 60 * 24))}{" "}
+                              jrs,{" "}
+                              {Math.floor(
+                                (countdown % (1000 * 60 * 60 * 24)) /
+                                  (1000 * 60 * 60)
+                              )}{" "}
+                              hrs,{" "}
+                              {Math.floor(
+                                (countdown % (1000 * 60 * 60)) / (1000 * 60)
+                              )}{" "}
+                              mins,{" "}
+                              {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
+                              secs
+                            </span>
+                          </>
+                        ) : (
+                          "La réduction a expiré"
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="Infomation_Details ">
+                  <div className="Quantity flex items-center mt-4  space-x-2">
+                    <h3 className="text-lg tracking-wider font-semibold  capitalize text-strongBeige">
+                      Quantité
+                    </h3>
+                    <div className="flex divide-x border w-max overflow-hidden rounded-md">
+                      <button
+                        type="button"
+                        className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          setActualQuantity(
+                            actualQuantity > 1 ? actualQuantity - 1 : 1
+                          );
+                        }}
+                      >
+                        <RiSubtractFill />
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+                      >
+                        {actualQuantity}
+                      </button>
+                      <button
+                        type="button"
+                        className={`${actualQuantity === quantity && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
+                        disabled={actualQuantity === productDetails?.inventory}
+                        onClick={() => {
+                          setActualQuantity(
+                            actualQuantity < productDetails?.inventory
+                              ? actualQuantity + 1
+                              : actualQuantity
+                          );
+                        }}
+                      >
+                        <FaPlus />
+                      </button>
                     </div>
-                    <div className="flex items-center">
-                      <p className="text-sm text-white font-bold">4.0</p>
-                      <FaStar size={20} className="text-strongBeige" />
+                  </div>
+                  <div className="Description">
+                    <h3 className="text-lg tracking-wider font-bold capitalize  text-strongBeige mt-5">
+                      Description
+                    </h3>
+                    <ul className="space-y-3 tracking-widest list-disc mt-2 pl-4 text-sm text-gray-600">
+                      <li>{productDetails?.description}</li>
+                    </ul>
+                  </div>
+                </div>
 
-                      <div className="bg-gray-400 rounded w-full h-2 ml-3">
-                        <div className="w-1/3 h-full rounded bg-strongBeige"></div>
-                      </div>
-                      <p className="text-sm text-white font-bold ml-3">33%</p>
+                <div className={` user_interaction flex flex-col gap-2 mt-8`}>
+                  {actualQuantity === quantity && (
+                    <div className="flex items-center gap-3 ">
+                      <GoAlertFill color="yellow" size={20} />
+                      <p className="text-red-600 font-semibold tracking-wider">
+                        La quantité maximale de produits est de {actualQuantity}
+                        .
+                      </p>
                     </div>
-                    <div className="flex items-center">
-                      <p className="text-sm text-white font-bold">3.0</p>
-                      <FaStar size={20} className="text-strongBeige" />
+                  )}
+                  <div className="flex items-center  gap-4  ">
+                    <button
+                      type="button"
+                      className="min-w-[200px] transition-colors px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                      onClick={() => {
+                        AddToBasket(productDetails);
+                        toast({
+                          title: "Notification de Panier",
+                          description: `Le produit "${productDetails?.name}" a été ajouté au panier.`,
+                          className: "bg-strongBeige text-white",
+                        });
+                      }}
+                    >
+                      Ajouter au panier
+                    </button>
 
-                      <div className="bg-gray-400 rounded w-full h-2 ml-3">
-                        <div className="w-1/6 h-full rounded bg-strongBeige"></div>
-                      </div>
-                      <p className="text-sm text-white font-bold ml-3">16%</p>
+                    <div
+                      className="relative"
+                      onMouseEnter={() =>
+                        handleMouseEnter("Ajouter au favoris")
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover && popoverTitle === "Ajouter au favoris" && (
+                        <PopHover title={popoverTitle} />
+                      )}
+
+                      <button
+                        type="button"
+                        className="transition-colors bg-transparent text-strongBeige text-xl hover:text-black font-bold rounded"
+                        onClick={handleToggleFavorite}
+                      >
+                        <FaRegHeart />
+                      </button>
                     </div>
-                    <div className="flex items-center">
-                      <p className="text-sm text-white font-bold">2.0</p>
-                      <FaStar size={20} className="text-strongBeige" />
 
-                      <div className="bg-gray-400 rounded w-full h-2 ml-3">
-                        <div className="w-1/12 h-full rounded bg-strongBeige"></div>
-                      </div>
-                      <p className="text-sm text-white font-bold ml-3">8%</p>
+                    <div
+                      className="relative"
+                      onMouseEnter={() =>
+                        handleMouseEnter("Ajouter au comparatif")
+                      }
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {showPopover &&
+                        popoverTitle === "Ajouter au comparatif" && (
+                          <PopHover title={popoverTitle} />
+                        )}
+                      <button
+                        className=" text-strongBeige hover:text-black transition-colors text-xl font-bold rounded"
+                        onClick={() => {
+                          addToCompare(productDetails);
+
+                          toast({
+                            title: "Produit ajouté à la comparaison",
+                            description: `Le produit "${productDetails?.name}" a été ajouté à la comparaison.`,
+                            className: "bg-strongBeige text-white",
+                          });
+                        }}
+                      >
+                        <GoGitCompare className="font-bold" />
+                      </button>
                     </div>
-                    <div className="flex items-center">
-                      <p className="text-sm text-white font-bold">1.0</p>
-                      <FaStar size={20} className="text-strongBeige" />
+                  </div>
+                </div>
 
-                      <div className="bg-gray-400 rounded w-full h-2 ml-3">
-                        <div className="w-[6%] h-full rounded bg-strongBeige"></div>
-                      </div>
-                      <p className="text-sm text-white font-bold ml-3">6%</p>
+                <div className="Rating_stars flex col-span-7 space-x-2 mt-4 items-center">
+                  {[...Array(5)].map((_, index) => {
+                    const currentIndex = index + 1;
+                    return (
+                      <label key={currentIndex}>
+                        <input
+                          className="hidden  "
+                          type="radio"
+                          name="rating"
+                          value={currentIndex}
+                          onClick={() => {
+                            if (decodedToken?.userId) {
+                              setRating(currentIndex);
+                              addRating({
+                                variables: {
+                                  productId: productId,
+                                  userId: decodedToken.userId,
+                                  rating: currentIndex,
+                                },
+                              });
+                              toast({
+                                title: "Notification d'ajout d'évaluation",
+                                description: `Merci d'avoir ajouté une évaluation.`,
+                                className: "bg-strongBeige text-white",
+                              });
+                            } else {
+                              toast({
+                                title: "Notification d'ajout d'évaluation",
+                                description: `Vous devez vous connecter pour ajouter une évaluation.`,
+                                className: "bg-red-800 text-white",
+                              });
+                            }
+                          }}
+                        />
+                        <FaStar
+                          size={18}
+                          className="cursor-pointer"
+                          color={
+                            currentIndex <= (hover || rating || userReviews)
+                              ? "#f17e7e"
+                              : "grey"
+                          }
+                          onMouseEnter={() => setHover(currentIndex)}
+                          onMouseLeave={() => setHover(null)}
+                        />
+                      </label>
+                    );
+                  })}
+                  <h4 className="text-strongBeige text-sm">
+                    {reviews} Commentaires
+                  </h4>
+                </div>
+
+                <div className="Rating mt-8">
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-strongBeige">
+                      Note globale ({reviews})
+                    </h3>
+                    <div className="space-y-4 mt-6">
+                      {[
+                        { rating: 5, value: fiveStar },
+                        { rating: 4, value: fourStar },
+                        { rating: 3, value: threeStar },
+                        { rating: 2, value: twoStar },
+                        { rating: 1, value: oneStar },
+                      ].map(({ rating, value }) => (
+                        <div className="flex items-center gap-3" key={rating}>
+                          <div className="flex items-center ">
+                            <p className="text-sm font-bold">{rating}.0</p>
+                            <FaStar
+                              size={20}
+                              className="text-strongBeige ml-1"
+                            />
+                          </div>
+                          <div className="relative bg-gray-400 rounded-md w-full h-2 ml-3">
+                            <div
+                              style={{
+                                width: `${(value / reviews) * 100 || 0}%`,
+                              }}
+                              className="h-full rounded bg-strongBeige"
+                            ></div>
+                          </div>
+                          <p className="text-sm font-bold ">
+                            {(value / reviews) * 100 || 0}%
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          {attributes && (
+            <div className=" my-10 mx-5 lg:mx-auto max-w-7xl m-auto  shadow-2xl ">
+              <h3 className="text-lg font-bold  text-white w-fit p-3 bg-strongBeige">
+                Information de produit
+              </h3>
+              <ul className="mt-6 space-y-6 text-[#333] p-6">
+                {attributes?.map((attribute: any, index: number) => (
+                  <li key={index} className="text-sm pb-2 border-b">
+                    {attribute.name.toUpperCase()}{" "}
+                    <span className="ml-4 float-right">
+                      {attribute.value.toUpperCase()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-        {attributes && (
-          <div className=" my-10 mx-5 lg:mx-auto max-w-7xl m-auto  shadow-2xl ">
-            <h3 className="text-lg font-bold  text-white w-fit p-3 bg-strongBeige">
-              Information de produit
-            </h3>
-            <ul className="mt-6 space-y-6 text-[#333] p-6">
-              {attributes?.map((attribute: any, index: number) => (
-                <li key={index} className="text-sm pb-2 border-b">
-                  {attribute.name.toUpperCase()}{" "}
-                  <span className="ml-4 float-right">
-                    {attribute.value.toUpperCase()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+      )}
       <div className="Carousel voir aussi px-10 mb-[15%]">
         <TitleProduct title={"Voir aussi"} />
         <div>
           <ProductTabs
-            data={Products_10}
+            data={Products_10_by_category?.productsByCategory}
             loadingNewProduct={loadingNewProduct}
             carouselWidthClass={
-              Products_10?.productsLessThen20?.length < 5 ? "xl:basis-1/2" : ""
+              Products_10_by_category?.productsByCategory?.length < 5
+                ? " basis-full   md:basis-1/2  "
+                : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
             }
           />
         </div>
@@ -629,7 +656,6 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
         productId={productId}
         productDetails={productDetails}
         addToBasket={addToBasket}
-        setSuccessMsg={setSuccessMsg}
         discount={discount}
         actualQuantity={actualQuantity}
         setActualQuantity={setActualQuantity}

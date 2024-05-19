@@ -7,9 +7,16 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
-import { useComparedProductsStore } from "../../store/zustand";
+import {
+  useBasketStore,
+  useComparedProductsStore,
+  useDrawerBasketStore,
+  useProductsInBasketStore,
+} from "../../store/zustand";
 import Link from "next/link";
 import prepRoute from "../../components/_prepRoute";
+import { useToast } from "@/components/ui/use-toast";
+import { BASKET_QUERY } from "../../../graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -22,7 +29,12 @@ const ProductComparison = () => {
       removeProductFromCompare: state.removeProductFromCompare,
     })
   );
+  const { openBasketDrawer } = useDrawerBasketStore();
+  const { toast } = useToast();
 
+  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -30,9 +42,47 @@ const ProductComparison = () => {
       setDecodedToken(decoded);
     }
   }, []);
-
-  const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-
+  const { addProductToBasket } = useProductsInBasketStore((state) => ({
+    addProductToBasket: state.addProductToBasket,
+    products: state.products,
+  }));
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: 1,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+    openBasketDrawer();
+  };
   return (
     <>
       {products.length > 0 ? (
@@ -99,6 +149,11 @@ const ProductComparison = () => {
                             className="text-red-700 flex items-center justify-center gap-1 cursor-pointer"
                             onClick={() => {
                               removeProductFromCompare(product.id);
+                              toast({
+                                title: "Produit retiré de la comparaison",
+                                description: `Le produit "${product?.name}" a été retiré de la comparaison.`,
+                                className: "bg-strongBeige text-white",
+                              });
                             }}
                           >
                             {" "}
@@ -109,14 +164,12 @@ const ProductComparison = () => {
                         <button
                           className="flex items-center transition-all justify-center rounded-md bg-strongBeige px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-mediumBeige focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300"
                           onClick={() => {
-                            addToBasket({
-                              variables: {
-                                input: {
-                                  userId: decodedToken?.userId,
-                                  quantity: 1,
-                                  productId: product.id,
-                                },
-                              },
+                            AddToBasket(product);
+
+                            toast({
+                              title: "Notification de Panier",
+                              description: `Le produit "${product?.name}" a été ajouté au panier.`,
+                              className: "bg-strongBeige text-white",
                             });
                           }}
                         >
@@ -156,11 +209,15 @@ const ProductComparison = () => {
           </table>
         </div>
       ) : (
-        <div className="flex justify-center items-center h-screen">
-          <div className="flex flex-col items-center justify-center">
-            <HiX className="text-red-400 text-[10rem]" />
-            <h1 className="text-red-400 text-2xl">Aucun produit à comparé !</h1>
-          </div>
+        <div className="h-screen flex justify-center item-center">
+
+        <div className="border shadow-md p-3 h w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center gap-3 justify-center ">
+          <HiX size={25} className="text-red-400 " />
+
+          <p className="  font-normal  tracking-wider">
+            Aucun produit à comparé !
+          </p>
+        </div>
         </div>
       )}
     </>

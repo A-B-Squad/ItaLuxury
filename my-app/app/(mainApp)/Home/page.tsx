@@ -21,6 +21,7 @@ import Services from "./_components/services";
 import TopDeals from "./TopDeals/TopDeals";
 import Link from "next/link";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import { BrandsCarousel } from "./_components/BrandCarousel";
 const Home = () => {
   const [countdownToNextDay, setCountdownToNextDay] = useState<number>(0);
 
@@ -52,7 +53,6 @@ const Home = () => {
     useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
       variables: { limit: 6 },
     });
-  console.log(Products_inDiscount_6);
 
   const { loading: loadingProduct, data: Product_less_20 } = useQuery(
     TAKE_6_PRODUCTS_PRICE_20,
@@ -98,7 +98,7 @@ const Home = () => {
               carouselWidthClass={
                 Products_6?.products.length < 5
                   ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4  xxl:basis-1/5"
               }
             />
           </div>
@@ -160,7 +160,7 @@ const Home = () => {
             carouselWidthClass={
               Product_less_20?.productsLessThen20.length < 5
                 ? " basis-full w-full   lg:basis-1/2  "
-                : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+                : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4  xxl:basis-1/5"
             }
           />
         </div>
@@ -169,7 +169,10 @@ const Home = () => {
           <div className="flex items-center justify-between">
             <TitleProduct title={"Promotions"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
-              <Link rel="preload" href={"/Collections/tunisie"}>
+              <Link
+                rel="preload"
+                href={"/Collections/tunisie?choice=in-discount"}
+              >
                 Voir tous les produits
               </Link>
               <MdKeyboardArrowRight />
@@ -182,7 +185,7 @@ const Home = () => {
               carouselWidthClass={
                 Products_inDiscount_6?.productsDiscounts.length < 5
                   ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/4   xxl:basis-1/5"
+                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
               }
             />
             <SideAds
@@ -194,7 +197,10 @@ const Home = () => {
           </div>
         </div>
         <ClientServices />
-        <BestSales />
+        <div className="BestSeals">
+          <BestSales />
+          <BrandsCarousel />
+        </div>
       </div>
     </div>
   );

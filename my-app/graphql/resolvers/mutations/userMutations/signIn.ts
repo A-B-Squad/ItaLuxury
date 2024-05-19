@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Context } from "@/pages/api/graphql";
+import { useRouter } from "next/router";
 
 export const signIn = async (
   _: any,
@@ -15,27 +16,28 @@ export const signIn = async (
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
+
   if (!existingUser) {
     return new Error("Invalid email or password");
-  }
-  // Check if the password is correct
-  const validPassword = await bcrypt.compare(password, existingUser.password);
+  } 
+
+    // Check if the password is correct
+    const validPassword = await bcrypt.compare(password, existingUser.password);
+  
+   
+    if (!validPassword) {
+      return new Error("Invalid password Or Email");
+    }
 
 
-  if (!validPassword) {
-    return new Error("Invalid password");
-  }
 
   // Generate JWT token
   const token = jwt.sign({ userId: existingUser.id }, jwtSecret, {
     expiresIn: "1h",
   });
-  console.log("Email:", email);
-  console.log("Existing User:", existingUser);
-  console.log("Valid Password:", validPassword);
-  
+ 
   // Set the cookie
-  res.setHeader("Set-Cookie", `Token=${token}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
 
 
   return {
@@ -59,7 +61,7 @@ export const refreshToken = async (
     });
 
     // Set the new access Token in the cookie
-    res.setHeader("Set-Cookie", `Token=${accessToken}; HttpOnly; Path=/; SameSite=Strict; Secure`);
+    res.setHeader("Set-Cookie", `Token=${accessToken}; Path=/; SameSite=Strict; Secure`);
 
 
     // Return the new access Token

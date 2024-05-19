@@ -16,6 +16,7 @@ import {
   useProductsInBasketStore,
 } from "../store/zustand";
 import Image from "next/image";
+import { CiTrash } from "react-icons/ci";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -49,13 +50,13 @@ const BasketDrawer = () => {
 
   useEffect(() => {
     const token = Cookies.get("Token");
-    console.log(token,"eeeee");
-    
+
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
       fetchProducts({
         variables: { userId: decodedToken?.userId },
+        fetchPolicy: "no-cache",
         onCompleted: (data) => {
           const fetchedProducts = data.basketByUserId.map((basket: any) => ({
             ...basket.Product,
@@ -149,9 +150,17 @@ const BasketDrawer = () => {
       className="p-4 fixed h-[200vh]"
       size={400}
       placeholder={""}
+      onPointerEnterCapture={undefined}
+      onPointerLeaveCapture={undefined}
     >
       <div className="mb-6 flex items-center justify-between ">
-        <Typography placeholder={""} variant="h5" color="blue-gray">
+        <Typography
+          placeholder={""}
+          variant="h5"
+          color="blue-gray"
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
           Panier
         </Typography>
         <IconButton
@@ -159,6 +168,8 @@ const BasketDrawer = () => {
           variant="text"
           color="blue-gray"
           onClick={closeBasketDrawer}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -177,26 +188,27 @@ const BasketDrawer = () => {
         </IconButton>
       </div>
       {productsInBasket.length > 0 ? (
-        <div className="flex  flex-col justify-between  h-full">
-          <div className="product-details h-full  overflow-hidden hover:overflow-y-auto">
+        <div className="flex  flex-col justify-between items-center h-full">
+          <div className="product-details h-full w-full overflow-hidden hover:overflow-y-auto">
             <div className="flow-root">
               <ul role="list" className=" divide-y divide-gray-200">
                 {productsInBasket?.map((product, index) => (
-                  <li className="flex py-6 " key={index}>
+                  <li className="flex py-2 " key={index}>
                     <div className=" relative h-24 w-20 flex-shrink-0 rounded-md ">
                       <Image
                         layout="fill"
+                        objectFit="contain"
                         src={product.images[0]}
                         alt={product.name}
                         className="h-full w-full object-cover object-center"
                       />
                     </div>
 
-                    <div className="ml-4 flex  flex-1 flex-col">
-                      <div>
-                        <div className="flex justify-between text-base font-medium text-gray-900">
+                    <div className="ml-4 flex justify-center-center w-full flex-col">
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-2  text-base font-medium w-full justify-between text-gray-900">
                           <Link
-                            className="hover:text-mediumBeige transition-colors"
+                            className="hover:text-mediumBeige text-sm w-5/6 transition-colors"
                             rel="preload"
                             href={{
                               pathname: `/products/tunisie/${prepRoute(product?.name)}`,
@@ -216,26 +228,14 @@ const BasketDrawer = () => {
                           >
                             {product.name}
                           </Link>
-                          <p className=" ">{product.price?.toFixed(3)} TND</p>
+                          <p className="quantiy font-light text-base text-gray-500">
+                            QTY: {product?.actualQuantity}
+                          </p>
+                          <p className=" font-semibold tracking-wide">
+                            {product.price?.toFixed(3)} TND
+                          </p>
                         </div>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                          {
-                            (
-                              product?.categories?.[
-                                product.categories.length - 1
-                              ] as { name?: string }
-                            )?.name
-                          }
-                        </p>
-                      </div>
-
-                      <div className="flex flex-1 items-end justify-between text-sm">
-                        <p className="text-gray-500">
-                          Qty {product?.actualQuantity}
-                        </p>
-
-                        <div className="flex">
+                        <div className="trash flex">
                           <button
                             type="button"
                             className="font-medium text-strongBeige hover:text-amber-200"
@@ -258,7 +258,7 @@ const BasketDrawer = () => {
                               }
                             }}
                           >
-                            Retirer
+                            <CiTrash size={25} />
                           </button>
                         </div>
                       </div>
@@ -280,7 +280,20 @@ const BasketDrawer = () => {
             <div className="mt-6">
               <Link
                 rel="preload"
-                href={decodedToken ? "/Checkout" : "/signup"}
+                href={
+                  decodedToken
+                    ? {
+                        pathname: "/Checkout",
+                        query: {
+                          total:
+                            totalPrice >= 499
+                              ? totalPrice.toFixed(3)
+                              : (totalPrice + 8).toFixed(3),
+                          products: JSON.stringify(productsInBasket),
+                        },
+                      }
+                    : "/signup"
+                }
                 className="flex items-center justify-center transition-all rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
               >
                 Vérifier

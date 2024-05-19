@@ -75,7 +75,7 @@ const Footer = () => {
           {items.map((item, index) =>
             item.type === "icon" ? (
               <>
-                <a href={item.link} target="_blank" onClick={()=>{
+                <a  href={item.link} target="_blank" onClick={()=>{
                   console.log('====================================');
                   console.log(item);
                   console.log('====================================');

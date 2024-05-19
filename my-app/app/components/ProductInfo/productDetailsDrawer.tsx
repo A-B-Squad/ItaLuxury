@@ -1,3 +1,10 @@
+import {
+  useBasketStore,
+  useComparedProductsStore,
+  useDrawerBasketStore,
+  useProductsInBasketStore,
+} from "@/app/store/zustand";
+import { BASKET_QUERY } from "@/graphql/queries";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useEffect, useState } from "react";
@@ -12,13 +19,58 @@ const productDetailsDrawer = ({
   productDetails,
   addToBasket,
   productId,
-  setSuccessMsg,
   discount,
   actualQuantity,
   setActualQuantity,
 }: any) => {
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  const { openBasketDrawer } = useDrawerBasketStore();
 
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
+
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: actualQuantity,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
+    }
+    toggleIsUpdated();
+    openBasketDrawer();
+  };
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -79,7 +131,8 @@ const productDetailsDrawer = ({
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
                       : actualQuantity
-                  );                }}
+                  );
+                }}
               >
                 <FaPlus />
               </button>
@@ -90,16 +143,7 @@ const productDetailsDrawer = ({
               type="button"
               className="bg-strongBeige text-white px-4 py-2 rounded"
               onClick={() => {
-                addToBasket({
-                  variables: {
-                    input: {
-                      userId: decodedToken?.userId,
-                      quantity: actualQuantity,
-                      productId: productId,
-                    },
-                  },
-                });
-                setSuccessMsg("Produit ajouté avec succès au panier !");
+                AddToBasket(productDetails);
               }}
             >
               Ajouter au panier

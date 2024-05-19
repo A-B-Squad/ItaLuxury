@@ -127,6 +127,7 @@ type ProductInCheckout {
   id: ID!
   checkoutId: ID!
   productId: ID!
+  product:Product!
   productQuantity: Int!
 }
 
@@ -243,8 +244,8 @@ type SearchResult {
 
 type BestSales {
   id: String!
-  Product: Product
-  Category:Category
+  Product: Product!
+  Category:Category!
 }
 
 
@@ -286,7 +287,7 @@ type Query {
   productsLessThen20(limit:Int): [Product!]
   
   # Fetch products by category name
-  productsByCategory(categoryName: String!): [Product!]
+  productsByCategory(categoryName: String!,limit:Int): [Product!]
 
   # Fetch a product by its ID
   productById(id: ID!): Product!
@@ -313,7 +314,8 @@ type Query {
   productsDiscounts(limit:Int): [Product!]
 
   # Fetch product review information by product ID
-  productReview(productId: ID!): [Review!]
+  productReview(productId: ID!, userId: ID): [Review!]
+
   
   # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): [FavoriteProducts!]
@@ -332,6 +334,8 @@ type Query {
 
   # Fetch Package By ID
   packageById(packageId: ID!): Package!
+  # Fetch Package By User ID
+  packageByUserId(userId: ID!): [Package]!
 
   # Fetch All Package 
   getAllPackages: [Package!]
@@ -370,7 +374,7 @@ type Mutation {
   
   # Basket mutations
   addToBasket(input: CreateToBasketInput!): Basket!
-  removeProductFromBasket(productId: ID!): String!
+  removeProductFromBasket(productId: ID!,basketId:String!): String!
   deleteBasketById(basketId: ID!): String!
   increaseQuantity(basketId: ID!): Basket!
   decreaseQuantity(basketId: ID!): Basket!

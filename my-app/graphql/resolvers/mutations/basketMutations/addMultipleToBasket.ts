@@ -26,7 +26,7 @@ export const addMultipleToBasket = async (
     // Iterate over each product in the input array
     for (const { productId, quantity } of products) {
       // Check if the product is already in the user's basket
-      const existingBasket = await prisma.basket.findUnique({
+      const existingBasket = await prisma.basket.findFirst({
         where: {   
             userId,
             productId,
