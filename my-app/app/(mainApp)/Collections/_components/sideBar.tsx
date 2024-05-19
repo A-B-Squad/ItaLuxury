@@ -281,7 +281,7 @@ const SideBar = () => {
                 className={`${searchParams?.get("category") === category?.id ? "font-bold" : ""} hover:text-black hover:font-bold  relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2 `}
               >
                 <Link
-                  href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+                  href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
                   key={category.id}
                   className="w-full h-full"
                   onClick={() => handleCategoryClick(category.id)}

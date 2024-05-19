@@ -1,3 +1,4 @@
+"use client"
 import prepRoute from "@/app/components/_prepRoute";
 import PopHover from "@/app/components/PopHover";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";

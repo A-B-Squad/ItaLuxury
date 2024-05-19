@@ -1,10 +1,10 @@
+"use client"
 import React, { useState } from "react";
 import { Carousel } from "@material-tailwind/react";
 import { useQuery, gql } from "@apollo/client";
 import Link from "next/link";
 import Image from "next/image";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
-import type { DrawerProps } from "@material-tailwind/react";
 
 const AdsCarousel = () => {
   const [images, setImages] = useState([]);

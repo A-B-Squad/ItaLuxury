@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { BASKET_QUERY, BEST_SALES_QUERY } from "@/graphql/queries";

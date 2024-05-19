@@ -3,12 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "../../../../graphql/queries";
-import { IoIosClose, IoMdArrowDropdown } from "react-icons/io";
+import {  IoMdArrowDropdown } from "react-icons/io";
 
 import { ProductBox } from "../../../components/ProductBox";
 import { useAllProductViewStore } from "../../../store/zustand";
 
-import NoProductYet from "../../../components/ProductCarousel/NoProductYet";
 import { FaRegTrashAlt } from "react-icons/fa";
 
 const ProductsSection = () => {

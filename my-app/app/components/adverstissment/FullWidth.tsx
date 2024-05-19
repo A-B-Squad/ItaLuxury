@@ -1,6 +1,6 @@
+"use client"
 import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
-import Link from "next/link";
 import { IoImageOutline } from "react-icons/io5";
 import Image from "next/image";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
