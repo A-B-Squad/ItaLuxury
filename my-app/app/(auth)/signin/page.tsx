@@ -100,6 +100,15 @@ const Signin = () => {
             S'inscrire
           </Link>
           .
+          <br />
+          Mot de passe oublié?
+          <Link
+            className="no-underline border-b border-blue text-blue-700"
+            href="/signup"
+          >
+            Changer mot de passe 
+          </Link>
+          .
         </div>
       </div>
     </div>

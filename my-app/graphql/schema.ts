@@ -256,9 +256,18 @@ type Brand {
   product:[Product!]
 }
 
+type content_visibility {
+  id: String!
+  section:Int
+  visibility_status: Boolean
+}
+
+
 # Define the Query type
 type Query {
 
+  # Get content visibility
+  getVisibilty:content_visibility!
   # Fetch Best Sales
   getBestSales(limit:Int): [BestSales!]
 
@@ -337,6 +346,10 @@ type Query {
 
 # Define the Mutation type
 type Mutation {
+
+  forgotPassword(email:String!):String!
+  resetPassword(password:String,id:String):String!
+
   # User mutations
   signUp(input: SignUpInput!): AuthPayload!
   signIn(input: SignInInput!): AuthPayload!

@@ -109,8 +109,11 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
   };
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+  const { addProductToCompare, productsInCompare } = useComparedProductsStore(
+    (state) => ({
+      addProductToCompare: state.addProductToCompare,
+      productsInCompare: state.products,
+    })
   );
 
   const { addProductToBasket, products } = useProductsInBasketStore(
