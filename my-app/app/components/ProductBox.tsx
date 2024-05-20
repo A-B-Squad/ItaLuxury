@@ -123,14 +123,14 @@ export const ProductBox = ({ product }: any) => {
   return (
     <>
       <ul
-        className={`plus_button ${view == 1 ? "top-5 hidden md:flex" : "flex top-14"}   items-center lg:opacity-0 group-hover:opacity-100  absolute right-3 z-20  justify-between  flex-col gap-3  `}
+        className={`plus_button ${view == 1 ? "top-5 hidden md:flex" : "flex top-14"}   items-center lg:opacity-0 group-hover:opacity-100  absolute right-3 z-30  justify-between  flex-col gap-3  `}
       >
         <div
           className="product-details relative w-fit cursor-crosshair"
           title="aperçu rapide"
           onClick={() => openProductDetails(product)}
         >
-          <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
+          <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
             <FaRegEye color="white" />
           </li>
         </div>
@@ -166,7 +166,7 @@ export const ProductBox = ({ product }: any) => {
               productId={product?.id}
               userId={decodedToken?.userId}
               heartColor={""}
-              heartSize={18}
+              heartSize={16}
             />
           </li>
         </div>

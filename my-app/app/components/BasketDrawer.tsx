@@ -43,7 +43,7 @@ const BasketDrawer = () => {
       removeProductFromBasket: state.removeProductFromBasket,
       setQuantityInBasket: state.setQuantityInBasket,
     }));
-  const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
+  const { isUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
   }));
@@ -117,7 +117,7 @@ const BasketDrawer = () => {
         // Assuming `data` contains the response from your deleteBasketById mutation
         if (data?.deleteBasketById) {
           // Read the current cache data
-          const existingData = cache.readQuery({
+          const existingData:any = cache.readQuery({
             query: BASKET_QUERY,
             variables: { userId: decodedToken?.userId },
           });

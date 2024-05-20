@@ -1,9 +1,9 @@
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
+import "./globals.css";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import React from "react";
-import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 if (process.env.NODE_ENV !== "production") {

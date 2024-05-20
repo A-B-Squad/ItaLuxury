@@ -23,16 +23,16 @@ const Category: React.FC<CategoryProps> = ({
   activeCategory,
 }) => {
   return (
-    <div className="categories flex  gap-3">
-      <div className="parentCategory space-y-1">
+    <div className="categories flex   gap-3">
+      <div className="parentCategory space-y-3">
         {data?.categories?.map((category: Category, index: number) => (
           <div data-parentcategory={category.name} key={index}>
             <Link
               href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
               onMouseEnter={() => setActiveCategory(category.name)}
-              className={` h-fit rounded-md py-1 px-2 w-fit cursor-pointer hover:bg-lightBeige hover:text-white transition-all ${
+              className={` h-fit rounded-md  py-1 px-2 w-fit cursor-pointer hover:bg-lightBeige hover:text-white transition-all ${
                 category.name === activeCategory
-                  ? "bg-strongBeige text-white"
+                  ? "bg-strongBeige text-white "
                   : ""
               }`}
               data-category={category.name}
@@ -43,7 +43,7 @@ const Category: React.FC<CategoryProps> = ({
         ))}
       </div>
 
-      <div className="subCategories-Container   grid grid-cols-3 auto-cols-max	justify-center	">
+      <div className="subCategories-Container   grid grid-flow-col auto-cols-max	justify-center	">
         {data?.categories
           ?.filter((category: Category) => category.name === activeCategory)
           .map((filteredCategory: Category, index: number) => (

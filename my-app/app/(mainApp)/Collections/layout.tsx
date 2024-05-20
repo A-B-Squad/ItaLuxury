@@ -25,6 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: Props) {
+  
   return (
    
         <div className="relative flex w-full flex-col">

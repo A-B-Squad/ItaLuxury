@@ -26,7 +26,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({ subcategories }) => {
                 category: subcategory.id,
               },
             }}
-            className="py-1  text-strongBeige hover:font-bold transition-colors  group border-b-2 cursor-pointer "
+            className="py-1 capitalize text-strongBeige hover:font-bold transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >
             {subcategory.name}

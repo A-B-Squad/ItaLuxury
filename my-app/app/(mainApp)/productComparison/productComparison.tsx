@@ -14,9 +14,9 @@ import {
   useProductsInBasketStore,
 } from "../../store/zustand";
 import Link from "next/link";
-import prepRoute from "../../components/_prepRoute";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY } from "../../../graphql/queries";
+import prepRoute from '@/app/components/Helpers/_prepRoute';
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -209,9 +209,9 @@ const ProductComparison = () => {
           </table>
         </div>
       ) : (
-        <div className="h-screen flex justify-center item-center">
+        <div className="h-screen flex justify-center item-center mt-5">
 
-        <div className="border shadow-md p-3 h w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center gap-3 justify-center ">
+        <div className="border shadow-md   w-4/5 text-center md:mt-36 h-24 md:h-32  flex items-center gap-3 justify-center ">
           <HiX size={25} className="text-red-400 " />
 
           <p className="  font-normal  tracking-wider">

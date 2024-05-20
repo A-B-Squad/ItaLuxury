@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 
-import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { IoIosArrowForward, IoIosClose } from "react-icons/io";
+import React, { useCallback, useEffect, useState } from "react";
+import { IoIosClose } from "react-icons/io";
 
 import { useQuery } from "@apollo/client";
 import { useSidebarStore } from "../../../store/zustand";
@@ -13,48 +13,20 @@ import {
 } from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import prepRoute from '@/app/components/Helpers/_prepRoute';
+import prepRoute from "@/app/components/Helpers/_prepRoute";
 
 // / ------------------!--------------------
 
-export const convertStringToQueriesObject = (
-  searchParams: URLSearchParams | null
-) => {
-  let selectedQueries: Record<string, string[]> = {};
-
-  if (searchParams) {
-    searchParams.forEach((values, key) => {
-      const queries = values.split(",");
-      if (selectedQueries[key]) {
-        selectedQueries[key].push(...queries);
-      } else {
-        selectedQueries[key] = queries;
-      }
-    });
-  }
-
-  return selectedQueries;
-};
-
-export const convertValidStringQueries = (
-  queries: Record<string, string[]>
-) => {
-  let q = "";
-  for (let [key, value] of Object.entries(queries)) {
-    q = q + `${q === "" ? "" : "&"}${key}=${value}`;
-  }
-
-  return q;
-};
-
+import { convertValidStringQueries } from "@/app/components/Helpers/_convertValidStringQueries";
+import { convertStringToQueriesObject } from "../../../components/Helpers/_convertStringToQueriesObject";
 const SideBar = () => {
   const { toast } = useToast();
-
+  
   const [categories, setCategories] = useState([]);
   const [Brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
   const [priceChanged, setPriceChanged] = useState(false);
-  const [price, setPrice] = useState(500);
+  const [localPrice, setLocalPrice] = useState(500); 
   const router = useRouter();
 
   const searchParams: URLSearchParams | null = useSearchParams();
@@ -63,29 +35,19 @@ const SideBar = () => {
   >({});
   const { isOpenSideBard, toggleOpenSidebar } = useSidebarStore();
 
-  const fetchCategories = useQuery(CATEGORY_QUERY, {
-    onCompleted: (data) => {
-      setCategories(data.categories);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+  useQuery(CATEGORY_QUERY, {
+    onCompleted: (data) => setCategories(data.categories),
+    onError: (error) => console.log(error),
   });
-  const fetchColors = useQuery(COLORS_QUERY, {
-    onCompleted: (data) => {
-      setColors(data.colors);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+
+  useQuery(COLORS_QUERY, {
+    onCompleted: (data) => setColors(data.colors),
+    onError: (error) => console.log(error),
   });
-  const fetchMarkes = useQuery(ALL_BRANDS, {
-    onCompleted: (data) => {
-      setBrands(data.fetchBrands);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+
+  useQuery(ALL_BRANDS, {
+    onCompleted: (data) => setBrands(data.fetchBrands),
+    onError: (error) => console.log(error),
   });
 
   useEffect(() => {
@@ -93,55 +55,87 @@ const SideBar = () => {
     setSelectedFilterQueries(paramsObj);
   }, [searchParams]);
 
-  const handleSelectFilterOptions = useCallback((e:any) => {
-    const { name, value, checked } = e.target;
-    const updatedQueries = { ...selectedFilterQueries };
-    delete updatedQueries["query"];
-    if (name === "brand") {
-      updatedQueries["brand"] = checked ? [value] : [];
-    } else {
-      if (checked) {
-        updatedQueries[name] = updatedQueries[name] ? [...updatedQueries[name], value] : [value];
+  const handleSelectFilterOptions = useCallback(
+    (e: any) => {
+      const { name, value, checked } = e.target;
+      const updatedQueries = { ...selectedFilterQueries };
+      delete updatedQueries["query"];
+      if (name === "brand") {
+        updatedQueries["brand"] = checked ? [value] : [];
       } else {
-        updatedQueries[name] = updatedQueries[name].filter((query) => query !== value);
-        if (updatedQueries[name].length === 0) {
-          delete updatedQueries[name];
+        if (checked) {
+          updatedQueries[name] = updatedQueries[name]
+            ? [...updatedQueries[name], value]
+            : [value];
+        } else {
+          updatedQueries[name] = updatedQueries[name].filter(
+            (query) => query !== value
+          );
+          if (updatedQueries[name].length === 0) {
+            delete updatedQueries[name];
+          }
         }
       }
+      setSelectedFilterQueries(updatedQueries);
+      router.push(
+        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
+        { scroll: true }
+      );
+    },
+    [selectedFilterQueries, router]
+  );
+
+  const handleChoiceFilterOptions = useCallback(
+    (value: any) => {
+      const updatedQueries = { ...selectedFilterQueries };
+      if (value === "in-discount") {
+        delete updatedQueries["new_product"];
+        updatedQueries["choice"] = [value];
+      } else if (value === "new-product") {
+        delete updatedQueries["en_promo"];
+        updatedQueries["choice"] = [value];
+      }
+      setSelectedFilterQueries(updatedQueries);
+      router.push(
+        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
+        { scroll: true }
+      );
+      toggleOpenSidebar();
+    },
+    [selectedFilterQueries, router, toggleOpenSidebar]
+  );
+
+  const handleColorSelection = useCallback(
+    (colorId: string) => {
+      const updatedQueries = { ...selectedFilterQueries, color: [colorId] };
+      setSelectedFilterQueries(updatedQueries);
+      router.push(
+        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
+        { scroll: true }
+      );
+      toggleOpenSidebar();
+    },
+    [selectedFilterQueries, router, toggleOpenSidebar]
+  );
+
+  useEffect(() => {
+    const paramsObj = convertStringToQueriesObject(searchParams);
+    setSelectedFilterQueries(paramsObj);
+    const priceFromParams = searchParams?.get("price");
+    if (priceFromParams) {
+      setLocalPrice(+priceFromParams);
     }
-    setSelectedFilterQueries(updatedQueries);
-    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: true });
-  }, [selectedFilterQueries, router]);
+  }, [searchParams]);
 
-  const handleChoiceFilterOptions = useCallback((value:any) => {
-    const updatedQueries = { ...selectedFilterQueries };
-    if (value === "in-discount") {
-      delete updatedQueries["new_product"];
-      updatedQueries["choice"] = [value];
-    } else if (value === "new-product") {
-      delete updatedQueries["en_promo"];
-      updatedQueries["choice"] = [value];
-    }
-    setSelectedFilterQueries(updatedQueries);
-    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: true });
-    toggleOpenSidebar();
-  }, [selectedFilterQueries, router, toggleOpenSidebar]);
+  const handlePriceChange = useCallback((e: any) => {
+    setPriceChanged(true);
+    setLocalPrice(+e.target.value);
+  }, []);
 
-  const handleColorSelection = useCallback((colorId:string) => {
-    const updatedQueries = { ...selectedFilterQueries, color: [colorId] };
-    setSelectedFilterQueries(updatedQueries);
-    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: true });
-    toggleOpenSidebar();
-  }, [selectedFilterQueries, router, toggleOpenSidebar]);
-
-  const handlePriceChange = useCallback((e:any) => {
-    const newPrice = +e.target.value;
-    setPrice(newPrice);
-    router.push(`/Collections/tunisie?price=${newPrice}`, { scroll: true });
-  }, [router]);
-  const isChecked = useCallback((name:string, option:any) => {
-    return Boolean(selectedFilterQueries[name] && selectedFilterQueries[name].includes(option.toLowerCase()));
-  }, [selectedFilterQueries]);
+  const handlePriceChangeEnd = useCallback(() => {
+    setLocalPrice(localPrice);
+    router.push(`/Collections/tunisie?price=${localPrice}`, { scroll: false });
+  }, [localPrice, router]);
 
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
@@ -154,23 +148,41 @@ const SideBar = () => {
     });
   }, [router, toggleOpenSidebar, toast]);
 
+  const updateSearchParams = useCallback(
+    (updatedQueries: any) => {
+      router.push(
+        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
+        { scroll: false }
+      );
+    },
+    [router]
+  );
 
-  const updateSearchParams = useCallback((updatedQueries:any) => {
-    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: false });
-  }, [router]);
-
-  const handleCategoryClick = useCallback((categoryId:string) => {
-    const updatedQueries = { ...selectedFilterQueries, category: [categoryId] };
-    setSelectedFilterQueries(updatedQueries);
-    updateSearchParams(updatedQueries);
-    toggleOpenSidebar();
-  }, [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]);
-
-
+  const handleCategoryClick = useCallback(
+    (categoryId: string) => {
+      const updatedQueries = {
+        ...selectedFilterQueries,
+        category: [categoryId],
+      };
+      setSelectedFilterQueries(updatedQueries);
+      updateSearchParams(updatedQueries);
+      toggleOpenSidebar();
+    },
+    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]
+  );
+  const isChecked = useCallback(
+    (name: string, option: string) => {
+      return Boolean(
+        selectedFilterQueries[name] &&
+          selectedFilterQueries[name].includes(option.toLowerCase())
+      );
+    },
+    [selectedFilterQueries]
+  );
   return (
     <section
       aria-labelledby="products-heading "
-      className={`w-96   top-0 h-full transition-all bg-white shadow-md sticky ${isOpenSideBard ? "sticky" : "hidden md:block"} `}
+      className={`w-96  z-30  top-0 h-full transition-all bg-white shadow-md sticky ${isOpenSideBard ? "sticky" : "hidden md:block"} `}
     >
       <form className="relative  pt-5  shadow-lg">
         <h3 className="font-semibold tracking-widest  pl-5 text-lg pb-2">
@@ -276,15 +288,17 @@ const SideBar = () => {
                 Labels range
               </label>
               <input
-                id={price.toString()}
+                id={localPrice.toString()}
                 type="range"
                 min="1"
                 max="3000"
                 defaultValue={searchParams?.get("price") || "500"}
                 name="price"
-                value={searchParams?.get("price") || price}
+                value={localPrice}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer "
                 onChange={handlePriceChange}
+                onMouseUp={handlePriceChangeEnd}
+                onTouchEnd={handlePriceChangeEnd}
               />
               <span className="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">
                 Min (1 TND)
@@ -295,17 +309,18 @@ const SideBar = () => {
               </span>
             </div>
             <div className="flex justify-between mt-10">
-              <span className="text-gray-400">from:</span>{" "}
+              <span className="text-gray-400">de :</span>{" "}
               <div className="w-20 maw-h-20 border flex justify-center border-gray-200 text-gray-400">
-                1 TND
+                1
               </div>
-              <span className="text-gray-400">to:</span>{" "}
-              <div
-                className={`w-20 max-h-20 flex justify-center border border-gray-200 ${priceChanged ? "text-black" : "text-gray-400"}`}
-              >
-                {" "}
-                {searchParams?.get("price") || price} TND
-              </div>
+              <span className="text-gray-400">à :</span>{" "}
+              <input
+                type="text"
+                className={`w-20 max-h-20 border text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${priceChanged ? "text-black" : "text-gray-400"}`}
+                value={localPrice || searchParams?.get("price") || 0}
+                onChange={(e: any) => setLocalPrice(e.target.value)}
+              />
+              <span className="text-gray-400">TND</span>
             </div>
           </div>
         </div>
@@ -386,4 +401,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default React.memo(SideBar);
