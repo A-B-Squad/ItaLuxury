@@ -63,18 +63,26 @@ const BottomHeader = ({ setShowDropdown }: any) => {
         <div className="dropDown hidden md:flex">
           <ul className="flex gap-5 ">
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/`}>Accueil</Link>
+              <Link
+              rel="preload"
+              href={`/`}>Accueil</Link>
             </li>
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/Collections/tunisie`}>Touts Les Produits</Link>
+              <Link
+              rel="preload"
+              href={`/Collections/tunisie`}>Touts Les Produits</Link>
             </li>
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/Collections/tunisie?choice=in-discount`}>
+              <Link
+              rel="preload"
+              href={`/Collections/tunisie?choice=in-discount`}>
                 Promotions
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={`/nous-contacter`}>Contact</Link>
+              <Link
+              rel="preload"
+              href={`/nous-contacter`}>Contact</Link>
             </li>
           </ul>
         </div>
@@ -83,7 +91,9 @@ const BottomHeader = ({ setShowDropdown }: any) => {
           <ul className="flex  gap-5">
             {!decodedToken?.userId && (
               <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-                <Link href={`/signin`}>
+                <Link
+                rel="preload"
+                href={`/signin`}>
                   <FiUser />
                 </Link>
               </li>
@@ -100,13 +110,17 @@ const BottomHeader = ({ setShowDropdown }: any) => {
                 }}
                 className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all"
               >
-                <Link href="/Home">
+                <Link
+                rel="preload"
+                href="/Home">
                   <IoIosLogOut />
                 </Link>
               </li>
             )}
             <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
               <Link
+rel="preload"
+
                 href={`${decodedToken?.userId ? " /FavoriteList" : "/signin"}`}
               >
                 <FiHeart />
@@ -114,13 +128,17 @@ const BottomHeader = ({ setShowDropdown }: any) => {
             </li>
             {decodedToken?.userId && (
               <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-                <Link href={`/TrackingPackages`}>
+                <Link
+                rel="preload"
+                href={`/TrackingPackages`}>
                   <GoPackageDependents />
                 </Link>
               </li>
             )}
             <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
-              <Link href={"/productComparison"}>
+              <Link
+              rel="preload"
+              href={"/productComparison"}>
                 <IoGitCompare />
                 {LengthComparer > 0 && (
                   <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">

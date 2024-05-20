@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import { MdOutlineArrowRight } from "react-icons/md";
-import prepRoute from "../../_prepRoute";
+import prepRoute from "../../Helpers/_prepRoute";
 
 interface Subcategory {
   id: string;

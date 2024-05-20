@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
 import { BASKET_QUERY } from "../../graphql/queries";
-import prepRoute from "../components/_prepRoute";
+import prepRoute from "./Helpers/_prepRoute";
 import {
   useBasketStore,
   useDrawerBasketStore,
@@ -43,7 +43,7 @@ const BasketDrawer = () => {
       removeProductFromBasket: state.removeProductFromBasket,
       setQuantityInBasket: state.setQuantityInBasket,
     }));
-  const { isUpdated, toggleIsUpdated } = useBasketStore((state) => ({
+  const { isUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
   }));
@@ -117,7 +117,7 @@ const BasketDrawer = () => {
         // Assuming `data` contains the response from your deleteBasketById mutation
         if (data?.deleteBasketById) {
           // Read the current cache data
-          const existingData = cache.readQuery({
+          const existingData:any = cache.readQuery({
             query: BASKET_QUERY,
             variables: { userId: decodedToken?.userId },
           });

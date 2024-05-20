@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";

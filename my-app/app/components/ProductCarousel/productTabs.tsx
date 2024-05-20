@@ -22,7 +22,7 @@ const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
               {data.map((product: any, index: any) => (
                 <>
                   <CarouselItem
-                    key={product?.id}
+                    key={index}
                     className={`carousel-item  group hover:rounded-sm  h-[400px] transition-all relative pb-2  flex  flex-col justify-between  items-center border shadow-xl   ${carouselWidthClass}`}
                   >
                     <ProductBox product={product} />

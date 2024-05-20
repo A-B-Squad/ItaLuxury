@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
-import { useOutsideClick } from "../_outsideClick";
+import { useOutsideClick } from "../Helpers/_outsideClick";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -151,6 +151,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {!decodedToken?.userId && (
                 <Link
+                  rel="preload"
                   href={"/signup"}
                   className="w-full py-2 px-1 text-xs border-b gap-2 bg-gray-100 hover:text-strongBeige flex justify-start items-center  transition-colors"
                 >
@@ -161,6 +162,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {!decodedToken?.userId && (
                 <Link
+                  rel="preload"
                   className="w-full py-2  text-sm border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
                   href={"/signin"}
                 >
@@ -170,6 +172,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {decodedToken?.userId && (
                 <Link
+                  rel="preload"
                   onClick={() => {
                     if (decodedToken?.userId) {
                       Cookies.remove("Token");
@@ -187,7 +190,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
 
               <Link
-                href={decodedToken?.userId ? `/FavoriteList` : ""}
+                rel="preload"
+                href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
                 onClick={() => {
                   if (!decodedToken || !decodedToken.userId) {
                     alert("Veuillez vous connecter pour voir vos favoris.");
@@ -199,7 +203,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <p className="font-semibold uppercase">Ma Liste D'envies</p>
               </Link>
               <Link
-                href={decodedToken?.userId ? `/TrackingPackages` : ""}
+                rel="preload"
+                href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
                 onClick={() => {
                   if (!decodedToken || !decodedToken.userId) {
                     alert("Veuillez vous connecter pour voir vos commandes.");
@@ -212,6 +217,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               </Link>
 
               <Link
+                rel="preload"
                 href={`/productComparison`}
                 className=" text-sm w-full py-2 gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
               >

@@ -1,6 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
 import { HiViewGrid } from "react-icons/hi";
@@ -18,44 +18,45 @@ import {
   useAllProductViewStore,
   useSidebarStore,
 } from "../../../store/zustand";
-import {
-  convertStringToQueriesObject,
-  convertValidStringQueries,
-} from "./sideBar";
-
+import { convertStringToQueriesObject } from "@/app/components/Helpers/_convertStringToQueriesObject";
+import { convertValidStringQueries } from "@/app/components/Helpers/_convertValidStringQueries";
 const TopBar = () => {
   const { toggleOpenSidebar } = useSidebarStore();
   const { changeProductView, view } = useAllProductViewStore();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<
     Record<string, string[]>
   >({});
+
   const searchParams: URLSearchParams | null = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    const paramsObj = convertStringToQueriesObject(searchParams);
-    setSelectedFilterQueries(paramsObj);
+    if (searchParams) {
+      const paramsObj = convertStringToQueriesObject(searchParams);
+      setSelectedFilterQueries(paramsObj);
+    }
   }, [searchParams]);
 
-  const handleSortChange = (selectedSort: string) => {
-    router.push(
-      `/Collections/tunisie?${convertValidStringQueries({
-        ...selectedFilterQueries,
-        sort: selectedSort,
-      })}`,
-      {
-        scroll: false,
-      }
-    );
-  };
+  const handleSortChange = useCallback(
+    (selectedSort: string) => {
+      router.push(
+        `/Collections/tunisie?${convertValidStringQueries({
+          ...selectedFilterQueries,
+          sort: selectedSort,
+        })}`,
+        {
+          scroll: true,
+        }
+      );
+    },
+    [selectedFilterQueries]
+  );
 
   return (
     <div className="flex z-10 top-0 lg:relative relative w-full border-t px-5 items-center white bg-white shadow-lg  justify-between border-b border-gray-200 ">
       <Breadcumb />
 
       <div className="flex items-center">
- 
-
         <Select
           onValueChange={(value) => {
             handleSortChange(value);
@@ -67,16 +68,28 @@ const TopBar = () => {
           <SelectContent className="bg-white">
             <SelectGroup>
               <SelectItem
-                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
-                value="desc"
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                value="name.asc"
               >
-                Prix, décroissant
+                NOM A à Z
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
+                value="name.desc"
+              >
+                NOM Z à A
               </SelectItem>
               <SelectItem
                 className="cursor-pointer hover:opacity-80 transition-opacity"
-                value="asc"
+                value="price.asc"
               >
-                Prix, croissant
+                Prix; (Croissant)
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
+                value="price.desc"
+              >
+                Prix, (Décroissant)
               </SelectItem>
             </SelectGroup>
           </SelectContent>

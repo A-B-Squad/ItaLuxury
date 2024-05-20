@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { useRouter } from "next/navigation";
-import prepRoute from "../_prepRoute";
+import prepRoute from "../Helpers/_prepRoute";
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -70,7 +70,7 @@ const SearchBar = () => {
       <span
         className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-mediumBeige transition-all bg-strongBeige"
         onClick={() => {
-          router.push(`/Collections?query=${searchQuery}`, { scroll: false });
+          router.push(`/Collections?query=${searchQuery}`, { scroll: true });
         }}
       >
         <CiSearch className="size-7 text-white" />
