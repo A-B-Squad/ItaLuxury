@@ -209,7 +209,7 @@ const Footer = async () => {
             <div key={index}>
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger>{section.title}</AccordionTrigger>
-                {/* {section.items?.map(
+                {section.items?.map(
                   (item: { name: string; id: string }, subIndex: number) => (
                     <AccordionContent key={subIndex}>
                       <Link
@@ -221,7 +221,7 @@ const Footer = async () => {
                       </Link>
                     </AccordionContent>
                   )
-                )} */}
+                )}
               </AccordionItem>
             </div>
           ))}
