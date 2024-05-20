@@ -2,13 +2,14 @@ import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
 
 import Image from "next/image";
 import Link from "next/link";
-import prepRoute from "../_prepRoute";
+import prepRoute from "../Helpers/_prepRoute";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import React from "react";
 // Reusable SocialIcon component with hover effect
 const SocialIcon = ({ icon: Icon, link }: any) => (
   <a href={link} target="_blank" rel="noopener noreferrer">
@@ -44,6 +45,7 @@ const Footer = async () => {
       }),
     }
   ).then((res) => res.json());
+  
   const { data: CategoryData } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
@@ -202,27 +204,28 @@ const Footer = async () => {
       </div>
       {/* Mobile accordion */}
       <div className="flex flex-col md:hidden w-full px-5">
-      <Accordion type="single" collapsible>
-  {sections.map((section, index) => (
-    <div key={index}>
-      <AccordionItem key={index} value={`item-${index}`}>
-        <AccordionTrigger>{section.title}</AccordionTrigger>
-        {section.items?.map((item: { name: string; id: string }, subIndex: number) => (
-          <AccordionContent key={subIndex}>
-            <Link
-                    className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
-                    href={`/Collections/tunisie/?category=${item.id}`}
-                    key={subIndex}
-                  >
-                      {item.name}
-                  </Link>
-            </AccordionContent>
-        ))}
-      </AccordionItem>
-    </div>
-  ))}
-</Accordion>
-
+        <Accordion type="single" collapsible>
+          {sections.map((section, index) => (
+            <div key={index}>
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger>{section.title}</AccordionTrigger>
+                {/* {section.items?.map(
+                  (item: { name: string; id: string }, subIndex: number) => (
+                    <AccordionContent key={subIndex}>
+                      <Link
+                        className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                        href={`/Collections/tunisie/?category=${item.id}`}
+                        key={subIndex}
+                      >
+                        {item.name}
+                      </Link>
+                    </AccordionContent>
+                  )
+                )} */}
+              </AccordionItem>
+            </div>
+          ))}
+        </Accordion>
       </div>
       <div className="mt-8 flex gap-5">
         <SocialIcon

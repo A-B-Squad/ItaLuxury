@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "../../../../graphql/queries";
-import {  IoMdArrowDropdown } from "react-icons/io";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 import { ProductBox } from "../../../components/ProductBox";
 import { useAllProductViewStore } from "../../../store/zustand";
@@ -29,44 +29,36 @@ const ProductsSection = () => {
   const pageSize = 10;
   const numberOfPages = Math.ceil(totalCount / pageSize);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data } = await searchProducts({
-          variables: {
-            input: {
-              query: queryParam || undefined,
-              categoryId: categoryParam || undefined,
-              colorId: colorParam || undefined,
-              minPrice: 1,
-              maxPrice: priceParam || undefined,
-              choice: choiceParam || undefined,
-              markeId: brandParam || undefined,
-              page,
-              pageSize,
-            },
+  const fetchProducts = useCallback(async () => {
+    try {
+      const { data } = await searchProducts({
+        variables: {
+          input: {
+            query: queryParam || undefined,
+            categoryId: categoryParam || undefined,
+            colorId: colorParam || undefined,
+            minPrice: 1,
+            maxPrice: priceParam || undefined,
+            choice: choiceParam || undefined,
+            markeId: brandParam || undefined,
+            page,
+            pageSize,
           },
-        });
+        },
+      });
 
-        const fetchedProducts: any = [
-          ...(data?.searchProducts.results.products || []),
-        ];
-
-        if (sortParam === "asc") {
-          fetchedProducts.sort((a: any, b: any) => a.price - b.price);
-        } else if (sortParam === "desc") {
-          fetchedProducts.sort((a: any, b: any) => b.price - a.price);
-        }
-
-        setProductsData(fetchedProducts);
-        setTotalCount(data?.searchProducts.totalCount || 0);
-      } catch (error) {
-        console.error("Error fetching products:", error);
+      const fetchedProducts = data?.searchProducts?.results?.products || [];
+      if (sortParam === "asc") {
+        fetchedProducts.sort((a: Product, b: Product) => a.price - b.price);
+      } else if (sortParam === "desc") {
+        fetchedProducts.sort((a: Product, b: Product) => b.price - a.price);
       }
-    };
-    console.log(productsData);
 
-    fetchProducts();
+      setProductsData(fetchedProducts);
+      setTotalCount(data?.searchProducts?.totalCount || 0);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   }, [
     searchProducts,
     categoryParam,
@@ -77,7 +69,12 @@ const ProductsSection = () => {
     choiceParam,
     page,
     pageSize,
+    queryParam,
   ]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleNextPage = () => {
     if (page < numberOfPages) {
@@ -93,7 +90,7 @@ const ProductsSection = () => {
 
   const renderPageNumbers = () => {
     const maxPagesToShow = 6;
-    const pages: any = [];
+    const pages = [];
     const startPage = Math.max(
       1,
       Math.min(
@@ -111,7 +108,11 @@ const ProductsSection = () => {
         <button
           key={i}
           onClick={() => setPage(i)}
-          className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-strongBeige border border-strongBeige hover:bg-strongBeige hover:text-white ${page === i ? "bg-strongBeige text-white" : "bg-white text-strongBeige"}`}
+          className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-strongBeige border border-strongBeige hover:bg-strongBeige hover:text-white ${
+            page === i
+              ? "bg-strongBeige text-white"
+              : "bg-white text-strongBeige"
+          }`}
         >
           {i}
         </button>
@@ -134,7 +135,7 @@ const ProductsSection = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center  h-full ">
+      <div className="flex flex-col justify-between items-center  h-full ">
         {!!queryParam && (
           <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">
             {productsData.length} résultats trouvé pour "{queryParam}"
@@ -185,7 +186,7 @@ const ProductsSection = () => {
               <button
                 className="hover:text-strongBeige gap-2 flex items-center justify-center transition-colors"
                 onClick={() => {
-                  router.push("/Collections/tunisie", { scroll: false });
+                  router.push("/Collections/tunisie", { scroll: true });
                 }}
               >
                 <FaRegTrashAlt />
@@ -203,13 +204,13 @@ const ProductsSection = () => {
           </div>
         )}
         {productsData.length > 0 && (
-          <div className="Page pagination justify-self-start h-32 ">
+          <div className="Page pagination justify-self-start h-32">
             <ul className="inline-flex -space-x-px text-sm">
               <li>
                 <button
                   onClick={handlePrevPage}
                   disabled={page === 1}
-                  className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-strongBeige bg-white border border-e-0 border-strongBeige rounded-s-lg hover:bg-strongBeige hover:text-white"
+                  className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-s-lg  ${page !== 1 && "hover:bg-strongBeige hover:text-white"} `}
                 >
                   Previous
                 </button>
@@ -219,7 +220,7 @@ const ProductsSection = () => {
                 <button
                   onClick={handleNextPage}
                   disabled={page === Math.ceil(totalCount / pageSize)}
-                  className="flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg hover:bg-strongBeige hover:text-white"
+                  className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-strongBeige hover:text-white"} `}
                 >
                   Next
                 </button>

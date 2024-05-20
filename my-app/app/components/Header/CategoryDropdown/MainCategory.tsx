@@ -1,7 +1,7 @@
 import React from "react";
 import Subcategory from "./Subcategory";
 import Link from "next/link";
-import prepRoute from "../../_prepRoute";
+import prepRoute from "../../Helpers/_prepRoute";
 
 interface CategoryProps {
   data: {

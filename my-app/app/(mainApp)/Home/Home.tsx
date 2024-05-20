@@ -104,7 +104,7 @@ const Home = () => {
           <div className="Heading flex items-center justify-between">
             <TitleProduct title={"l'essentiel a 20DT"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
-              <Link rel="preload" href={"/Collections/tunisie?price=20"}>
+              <Link href={"/Collections/tunisie?price=20"}>
                 Voir tous les produits
               </Link>
               <MdKeyboardArrowRight />

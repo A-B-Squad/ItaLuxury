@@ -44,7 +44,7 @@ const TopBar = () => {
         sort: selectedSort,
       })}`,
       {
-        scroll: false,
+        scroll: true,
       }
     );
   };

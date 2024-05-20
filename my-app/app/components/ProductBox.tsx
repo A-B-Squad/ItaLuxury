@@ -5,7 +5,6 @@ import { BASKET_QUERY } from "@/graphql/queries";
 import { FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
-import prepRoute from "./_prepRoute";
 import Cookies from "js-cookie";
 
 import {
@@ -22,8 +21,9 @@ import FavoriteProduct from "./ProductCarousel/FavoriteProduct";
 import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import Image from "next/image";
-import calcDateForNewProduct from "./_calcDateForNewProduct";
 import { useToast } from "@/components/ui/use-toast";
+import calcDateForNewProduct from './Helpers/_calcDateForNewProduct';
+import prepRoute from "./Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -40,8 +40,11 @@ export const ProductBox = ({ product }: any) => {
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-  const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+  const { addProductToCompare, productsInCompare } = useComparedProductsStore(
+    (state) => ({
+      addProductToCompare: state.addProductToCompare,
+      productsInCompare: state.products,
+    })
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -103,6 +106,20 @@ export const ProductBox = ({ product }: any) => {
     openBasketDrawer();
   };
 
+  const addToCompare = (product: any) => {
+    const isProductAlreadyInCompare = productsInCompare.some((p: any) => p.id === product.id);
+  
+    if (!isProductAlreadyInCompare) {
+      addProductToCompare(product);
+    } else {
+      toast({
+        title: "Produit ajouté à la comparaison",
+        description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
+        className: "bg-strongBeige text-white",
+      });    }
+  };
+
+
   return (
     <>
       <ul
@@ -131,15 +148,7 @@ export const ProductBox = ({ product }: any) => {
         <div
           className="Comparison relative w-fit cursor-crosshair"
           title="Ajouter au comparatif"
-          onClick={() => {
-            addProductToCompare(product);
-
-            toast({
-              title: "Produit ajouté à la comparaison",
-              description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
-              className: "bg-strongBeige text-white",
-            });
-          }}
+          onClick={() => addToCompare(product)}
         >
           <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
             <IoGitCompare color="white" />

@@ -23,7 +23,7 @@ const openSans = Open_Sans({
 });
 export default function NotFound() {
   return (
-    <html lang="en">
+    // <html lang="en">
       <body className={openSans.className}>
         <Header />
         <div className="flex flex-col items-center justify-center w-full ">
@@ -44,6 +44,6 @@ export default function NotFound() {
         </div>
         <Footer />
       </body>
-    </html>
+    // </html>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { IoIosArrowForward, IoIosClose } from "react-icons/io";
 
 import { useQuery } from "@apollo/client";
@@ -12,8 +12,8 @@ import {
   COLORS_QUERY,
 } from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
-import prepRoute from "../../../components/_prepRoute";
 import { useToast } from "@/components/ui/use-toast";
+import prepRoute from '@/app/components/Helpers/_prepRoute';
 
 // / ------------------!--------------------
 
@@ -93,107 +93,79 @@ const SideBar = () => {
     setSelectedFilterQueries(paramsObj);
   }, [searchParams]);
 
-  const handleSelectFilterOptions = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSelectFilterOptions = useCallback((e:any) => {
     const { name, value, checked } = e.target;
-
-    let updatedQueries = { ...selectedFilterQueries };
+    const updatedQueries = { ...selectedFilterQueries };
     delete updatedQueries["query"];
-
     if (name === "brand") {
       updatedQueries["brand"] = checked ? [value] : [];
     } else {
       if (checked) {
-        if (updatedQueries[name]) {
-          updatedQueries[name] = [...updatedQueries[name], value];
-        } else {
-          updatedQueries[name] = [value];
-        }
+        updatedQueries[name] = updatedQueries[name] ? [...updatedQueries[name], value] : [value];
       } else {
-        if (updatedQueries[name]) {
-          updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value
-          );
-
-          if (updatedQueries[name].length === 0) {
-            delete updatedQueries[name];
-          }
+        updatedQueries[name] = updatedQueries[name].filter((query) => query !== value);
+        if (updatedQueries[name].length === 0) {
+          delete updatedQueries[name];
         }
       }
     }
-
     setSelectedFilterQueries(updatedQueries);
-    const queryString = convertValidStringQueries(updatedQueries);
+    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: true });
+  }, [selectedFilterQueries, router]);
 
-    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
-  };
-
-  const handleChoiceFilterOptions = (value: string) => {
-    let updatedQueries = { ...selectedFilterQueries };
-
-    // Check if the value is "in-discount" or "new-product"
+  const handleChoiceFilterOptions = useCallback((value:any) => {
+    const updatedQueries = { ...selectedFilterQueries };
     if (value === "in-discount") {
-      // If "En Promo" is selected, remove "Nouveau Produit"
       delete updatedQueries["new_product"];
-      // Update selected option
       updatedQueries["choice"] = [value];
     } else if (value === "new-product") {
-      // If "Nouveau Produit" is selected, remove "En Promo"
       delete updatedQueries["en_promo"];
-      // Update selected option
       updatedQueries["choice"] = [value];
     }
-
     setSelectedFilterQueries(updatedQueries);
-    const queryString = convertValidStringQueries(updatedQueries);
-
-    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: true });
     toggleOpenSidebar();
-  };
-  const handleColorSelection = (colorId: string) => {
-    let updatedQueries = { ...selectedFilterQueries };
+  }, [selectedFilterQueries, router, toggleOpenSidebar]);
 
-    // Only allow one color selection
-    updatedQueries["color"] = [colorId];
-
+  const handleColorSelection = useCallback((colorId:string) => {
+    const updatedQueries = { ...selectedFilterQueries, color: [colorId] };
     setSelectedFilterQueries(updatedQueries);
-    const queryString = convertValidStringQueries(updatedQueries);
-
-    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
+    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: true });
     toggleOpenSidebar();
-  };
+  }, [selectedFilterQueries, router, toggleOpenSidebar]);
 
-  const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePriceChange = useCallback((e:any) => {
     const newPrice = +e.target.value;
     setPrice(newPrice);
-    setPriceChanged(true);
-    router.push(`/Collections/tunisie?price=${newPrice}`, { scroll: false });
-  };
+    router.push(`/Collections/tunisie?price=${newPrice}`, { scroll: true });
+  }, [router]);
+  const isChecked = useCallback((name:string, option:any) => {
+    return Boolean(selectedFilterQueries[name] && selectedFilterQueries[name].includes(option.toLowerCase()));
+  }, [selectedFilterQueries]);
 
-  const isChecked = (name: string, option: string) => {
-    return Boolean(
-      selectedFilterQueries[name] &&
-        selectedFilterQueries[name].includes(option.toLowerCase())
-    );
-  };
-
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
-    router.push("/Collections/tunisie", { scroll: false });
+    router.push("/Collections/tunisie", { scroll: true });
     toggleOpenSidebar();
-  };
+    toast({
+      title: "Filtres réinitialisés",
+      description: "Les filtres ont été réinitialisés avec succès.",
+      className: "bg-strongBeige text-white",
+    });
+  }, [router, toggleOpenSidebar, toast]);
 
-  const updateSearchParams = (updatedQueries: Record<string, string[]>) => {
-    const queryString = convertValidStringQueries(updatedQueries);
-    router.push(`/Collections/tunisie?${queryString}`, { scroll: false });
-  };
 
-  const handleCategoryClick = (categoryId: string) => {
-    const updatedQueries = { ...selectedFilterQueries };
-    updatedQueries["category"] = [categoryId];
+  const updateSearchParams = useCallback((updatedQueries:any) => {
+    router.push(`/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`, { scroll: false });
+  }, [router]);
+
+  const handleCategoryClick = useCallback((categoryId:string) => {
+    const updatedQueries = { ...selectedFilterQueries, category: [categoryId] };
     setSelectedFilterQueries(updatedQueries);
     updateSearchParams(updatedQueries);
     toggleOpenSidebar();
-  };
+  }, [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]);
+
 
   return (
     <section

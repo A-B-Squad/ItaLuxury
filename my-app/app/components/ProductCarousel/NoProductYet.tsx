@@ -1,10 +1,9 @@
 "use client";
-import prepRoute from "../_prepRoute";
+import prepRoute from "../Helpers/_prepRoute";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-
 } from "../../../components/ui/carousel";
 import React from "react";
 import { IoImageOutline } from "react-icons/io5";

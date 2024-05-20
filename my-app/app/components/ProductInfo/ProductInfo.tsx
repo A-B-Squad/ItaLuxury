@@ -3,45 +3,29 @@ import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import {
-  useBasketStore,
-  useDrawerBasketStore,
-  useProductDetails,
-  useProductsInBasketStore,
-} from "@/app/store/zustand";
+import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import { useProductDetails } from "../../store/zustand";
 import { GoAlertFill } from "react-icons/go";
 import { SlBasket } from "react-icons/sl";
-import { BASKET_QUERY } from "@/graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
 const ProductInfo = () => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-
   const { isOpen, productData, closeProductDetails } = useProductDetails();
-  const [bigImage, setBigImage] = useState<any>("");
-  const [actualQuantity, setActuelQuantity] = useState<number>(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const { openBasketDrawer } = useDrawerBasketStore();
-
+  const [bigImage, setBigImage] = useState<string>("");
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const { addProductToBasket, products } = useProductsInBasketStore(
-    (state) => ({
-      addProductToBasket: state.addProductToBasket,
-      products: state.products,
-    })
-  );
+  const [actualQuantity, setActualQuantity] = useState<number>(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -50,56 +34,50 @@ const ProductInfo = () => {
     }
   }, []);
 
+  const handleMouseEnter = useCallback((image: string) => {
+    setBigImage(image);
+  }, []);
+
+  const handleAddQuantity = useCallback(() => {
+    setActualQuantity((prevQuantity) =>
+      productData && prevQuantity < productData.inventory
+        ? prevQuantity + 1
+        : prevQuantity
+    );
+  }, [productData]);
+
+  const handleSubtractQuantity = useCallback(() => {
+    setActualQuantity((prevQuantity) =>
+      prevQuantity > 1 ? prevQuantity - 1 : 1
+    );
+  }, []);
+
+  const handleAddToBasket = useCallback(() => {
+    if (decodedToken && productData) {
+      addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken.userId,
+            quantity: actualQuantity,
+            productId: productData.id,
+          },
+        },
+      });
+    }
+  }, [addToBasket, decodedToken, actualQuantity, productData]);
+
   useEffect(() => {
-    setBigImage(productData?.images[0]);
-    const moveCursor = (e: any) => {
+    setBigImage(productData?.images[0] || "");
+
+    const moveCursor = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
 
     window.addEventListener("mousemove", moveCursor);
-
     return () => {
       window.removeEventListener("mousemove", moveCursor);
     };
   }, [productData]);
-  const AddToBasket = (product: any) => {
-    if (decodedToken) {
-      addToBasket({
-        variables: {
-          input: {
-            userId: decodedToken?.userId,
-            quantity: 1,
-            productId: product.id,
-          },
-        },
-        refetchQueries: [
-          {
-            query: BASKET_QUERY,
-            variables: { userId: decodedToken?.userId },
-          },
-        ],
-      });
-    } else {
-      const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
-      );
-      if (!isProductAlreadyInBasket) {
-        addProductToBasket({
-          ...product,
-          price:
-            product.productDiscounts.length > 0
-              ? product?.productDiscounts[0]?.newPrice
-              : product?.price,
-          actualQuantity: 1,
-        });
-      } else {
-        console.log("Product is already in the basket");
-      }
-    }
-    toggleIsUpdated();
-    openBasketDrawer();
-  };
-
   return (
     <>
       <div
@@ -122,7 +100,7 @@ const ProductInfo = () => {
           className="absolute bg-white rounded-full p-2 hover:rotate-180 transition-all cursor-pointer -right-2 -top-3"
         />
         <div className="details    flex flex-col justify-center items-center   lg:flex-row   ">
-          <div className="flex relative lg:w-2/4   justify-center items-center md:items-start flex-col gap-2 text-center">
+          <div className="flex relative lg:w-2/4   justify-center items-start flex-col gap-2 text-center">
             <div className="shadow-xl relative  border-2 max-w-40 h-fit md:max-w-xs flex items-center justify-center p-1 rounded-xl">
               <InnerImageZoom
                 className="relative  rounded object-cover"
@@ -178,8 +156,8 @@ const ProductInfo = () => {
                   <p className="line-through">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
-                  <p className="text-sm bg-purple-700 text-white p-1">
-                    Économisez
+                  <p className="text-sm bg-violet-900 text-white p-1">
+                    Économisez{" "}
                     <span className="font-bold ml-1">
                       {(
                         productData?.productDiscounts[0].price -
@@ -203,11 +181,7 @@ const ProductInfo = () => {
                   <button
                     type="button"
                     className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
-                    onClick={() => {
-                      setActuelQuantity(
-                        actualQuantity > 1 ? actualQuantity - 1 : 1
-                      );
-                    }}
+                    onClick={handleSubtractQuantity}
                   >
                     <RiSubtractFill />
                   </button>
@@ -220,13 +194,7 @@ const ProductInfo = () => {
                   <button
                     type="button"
                     className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
-                    onClick={() => {
-                      setActuelQuantity(
-                        actualQuantity < (productData?.inventory ?? Infinity)
-                          ? actualQuantity + 1
-                          : actualQuantity
-                      );
-                    }}
+                    onClick={handleAddQuantity}
                   >
                     <FaPlus />
                   </button>
@@ -279,7 +247,15 @@ const ProductInfo = () => {
                 type="button"
                 className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                 onClick={() => {
-                  AddToBasket(productData);
+                  addToBasket({
+                    variables: {
+                      input: {
+                        userId: decodedToken?.userId,
+                        quantity: actualQuantity,
+                        productId: productData?.id,
+                      },
+                    },
+                  });
                 }}
               >
                 <SlBasket />

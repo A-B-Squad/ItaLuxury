@@ -3,7 +3,6 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { FaPlus, FaRegHeart, FaStar } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
@@ -99,9 +98,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   };
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+  const { addProductToCompare, productsInCompare } = useComparedProductsStore(
+    (state) => ({
+      addProductToCompare: state.addProductToCompare,
+      productsInCompare: state.products,
+    })
   );
+
 
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
@@ -245,10 +248,20 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     }
   }, [discount]);
 
+ 
   const addToCompare = (product: any) => {
-    addProductToCompare(product);
+    const isProductAlreadyInCompare = productsInCompare.some((p: any) => p.id === product.id);
+  
+    if (!isProductAlreadyInCompare) {
+      addProductToCompare(product);
+    } else {
+      toast({
+        title: "Produit ajouté à la comparaison",
+        description: `Le produit "${productDetails?.name}" a été ajouté à la comparaison.`,
+        className: "bg-strongBeige text-white",
+      });
+    }
   };
-
   const handleToggleFavorite = () => {
     if (!decodedToken?.userId) {
       toast({

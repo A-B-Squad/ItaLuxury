@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
 import { BASKET_QUERY } from "../../graphql/queries";
-import prepRoute from "../components/_prepRoute";
+import prepRoute from "./Helpers/_prepRoute";
 import {
   useBasketStore,
   useDrawerBasketStore,
