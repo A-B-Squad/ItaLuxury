@@ -29,10 +29,9 @@ const FullWidthAds = ({
         <div className=" my-5 h-[180px] w-full relative  ">
           <Image
             src={FullImageAds}
-            className="w-full h-[180px]"
+            className="w-full h-[180px] object-fill"
             width={960}
             height={180}
-            objectFit="contain"
             loading="eager"
             alt="adsFullWidth"
           />
