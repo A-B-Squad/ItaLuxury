@@ -18,19 +18,20 @@ const FullWidthAds = ({
         </div>
       )}
 
-      {!FullAdsLoaded && FullImageAds?.length <= 0 && (
+      {!FullAdsLoaded && !FullImageAds && (
         <div className="rounded-xl relative w-full h-52 mt-12 bg-mediumBeige flex flex-col justify-center items-center ">
           <p>{"Full Ads"}</p>
-          <p>334px x 790px</p>
+          <p>180px x 960px</p>
         </div>
       )}
 
-      {FullImageAds?.length > 0 && !FullAdsLoaded && (
-        <div className="md:py-32 py-12  h-[334px] w-[790px] relative  ">
+      {FullImageAds&& !FullAdsLoaded && (
+        <div className=" my-5 h-[180px] w-full relative  ">
           <Image
             src={FullImageAds}
-            className="w-full h-full"
-            layout="fill"
+            className="w-full h-[180px]"
+            width={960}
+            height={180}
             objectFit="contain"
             loading="eager"
             alt="adsFullWidth"
