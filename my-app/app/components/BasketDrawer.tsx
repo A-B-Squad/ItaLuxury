@@ -29,6 +29,9 @@ interface Product {
   actualQuantity: number;
   basketId: string;
   categories: string[];
+  productDiscounts?: {
+    newPrice: number;
+  }[];
 }
 
 const BasketDrawer = () => {
@@ -68,11 +71,14 @@ const BasketDrawer = () => {
           setQuantityInBasket(
             fetchedProducts.reduce(
               (acc: number, curr: any) => acc + curr.actualQuantity,
-              0,
-            ),
+              0
+            )
           );
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
-            return acc + curr.price * curr.actualQuantity;
+            const price = curr.productDiscounts?.length
+              ? curr.productDiscounts[0].newPrice
+              : curr.price;
+            return acc + price * curr.actualQuantity;
           }, 0);
           setTotalPrice(total);
         },
@@ -85,11 +91,14 @@ const BasketDrawer = () => {
       setQuantityInBasket(
         products.reduce(
           (acc: number, curr: any) => acc + curr.actualQuantity,
-          0,
-        ),
+          0
+        )
       );
       const total = products.reduce((acc: number, curr: Product) => {
-        return acc + curr.price * curr.actualQuantity;
+        const price = curr.productDiscounts?.length
+          ? curr.productDiscounts[0].newPrice
+          : curr.price;
+        return acc + price * curr.actualQuantity;
       }, 0);
       setTotalPrice(total);
     }
@@ -98,15 +107,14 @@ const BasketDrawer = () => {
   const [fetchProducts] = useLazyQuery(BASKET_QUERY);
 
   const [deleteBasketById, { loading: deletingLoading }] = useMutation(
-    DELETE_BASKET_BY_ID_MUTATION,
+    DELETE_BASKET_BY_ID_MUTATION
   );
 
   const handleRemoveProduct = (basketId: string) => {
-    const updatedProducts = productsInBasket.filter(
-      (product) => product.basketId !== basketId,
-    );
+    const updatedProducts = productsInBasket.filter((product) => product.basketId !== basketId);
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
-      return acc + curr.price * curr.actualQuantity;
+      const price = curr.productDiscounts?.length ? curr.productDiscounts[0].newPrice : curr.price;
+      return acc + price * curr.actualQuantity;
     }, 0);
 
     setTotalPrice(updatedTotalPrice);
@@ -114,23 +122,19 @@ const BasketDrawer = () => {
     deleteBasketById({
       variables: { basketId },
       update: (cache, { data }) => {
-        // Assuming `data` contains the response from your deleteBasketById mutation
         if (data?.deleteBasketById) {
-          // Read the current cache data
           const existingData: any = cache.readQuery({
             query: BASKET_QUERY,
             variables: { userId: decodedToken?.userId },
           });
 
-          // Manipulate the cached data to reflect the deleted product
           const updatedData = {
             ...existingData,
             basketByUserId: existingData.basketByUserId.filter(
-              (basket: any) => basket.id !== basketId,
+              (basket: any) => basket.id !== basketId
             ),
           };
 
-          // Write the updated data back to the cache
           cache.writeQuery({
             query: BASKET_QUERY,
             variables: { userId: decodedToken?.userId },
@@ -214,15 +218,7 @@ const BasketDrawer = () => {
                               pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                               query: {
                                 productId: product?.id,
-                                collection: [
-                                  // product?.categories[0]?.name,
-                                  // product?.categories[0]?.id,
-                                  // product?.categories[0]?.subcategories[0]?.name,
-                                  // product?.categories[0]?.subcategories[0]?.id,
-                                  // product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
-                                  // product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
-                                  product?.name,
-                                ],
+                                collection: [product?.name],
                               },
                             }}
                           >
@@ -232,7 +228,12 @@ const BasketDrawer = () => {
                             QTY: {product?.actualQuantity}
                           </p>
                           <p className=" font-semibold tracking-wide">
-                            {product.price?.toFixed(3)} TND
+                          <p className=" font-semibold tracking-wide">
+                            {product.productDiscounts?.length
+                              ? product.productDiscounts[0].newPrice.toFixed(3)
+                              : product.price.toFixed(3)}{" "}
+                            TND
+                          </p>
                           </p>
                         </div>
                         <div className="trash flex">
@@ -245,7 +246,7 @@ const BasketDrawer = () => {
                               } else {
                                 removeProductFromBasket(product?.id);
                                 const updatedProducts = products.filter(
-                                  (pr: any) => pr.id !== product?.id,
+                                  (pr: any) => pr.id !== product?.id
                                 );
                                 const updatedTotalPrice =
                                   updatedProducts.reduce((acc, curr: any) => {

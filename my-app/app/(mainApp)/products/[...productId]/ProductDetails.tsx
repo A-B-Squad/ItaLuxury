@@ -364,7 +364,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         <p className="line-through">
                           {discount.price.toFixed(3)} TND
                         </p>{" "}
-                        <p className="text-sm bg-violet-700 text-white p-1">
+                        <p className="text-sm bg-blue-800 text-white p-1">
                           Économisez
                           <span className="font-bold ml-1 ">
                             {(discount.price - discount.newPrice).toFixed(3)}{" "}

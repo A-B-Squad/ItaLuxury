@@ -11,9 +11,14 @@ import { RiSubtractFill } from "react-icons/ri";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
-import { useProductDetails } from "../../store/zustand";
+import {
+  useProductDetails,
+  useProductsInBasketStore,
+} from "../../store/zustand";
 import { GoAlertFill } from "react-icons/go";
 import { SlBasket } from "react-icons/sl";
+import { BASKET_QUERY } from "@/graphql/queries";
+import { useToast } from "@/components/ui/use-toast";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -25,6 +30,7 @@ const ProductInfo = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [actualQuantity, setActualQuantity] = useState<number>(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { toast } = useToast();
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -42,30 +48,66 @@ const ProductInfo = () => {
     setActualQuantity((prevQuantity) =>
       productData && prevQuantity < productData.inventory
         ? prevQuantity + 1
-        : prevQuantity,
+        : prevQuantity
     );
   }, [productData]);
 
   const handleSubtractQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1,
+      prevQuantity > 1 ? prevQuantity - 1 : 1
     );
   }, []);
+  const { addProductToBasket, products } = useProductsInBasketStore(
+    (state) => ({
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    })
+  );
 
-  const handleAddToBasket = useCallback(() => {
-    if (decodedToken && productData) {
+  const AddToBasket = (product: any) => {
+    if (decodedToken) {
       addToBasket({
         variables: {
           input: {
-            userId: decodedToken.userId,
+            userId: decodedToken?.userId,
             quantity: actualQuantity,
-            productId: productData.id,
+            productId: product.id,
           },
         },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+        onCompleted: () => {
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit "${product?.name}" a été ajouté au panier.`,
+            className: "bg-strongBeige text-white",
+          });
+        },
       });
+    } else {
+      const isProductAlreadyInBasket = products.some(
+        (p: any) => p.id === product?.id
+      );
+      if (!isProductAlreadyInBasket) {
+        addProductToBasket({
+          ...product,
+          price:
+            product.productDiscounts.length > 0
+              ? product?.productDiscounts[0]?.newPrice
+              : product?.price,
+          actualQuantity: 1,
+        });
+      } else {
+        console.log("Product is already in the basket");
+      }
     }
-  }, [addToBasket, decodedToken, actualQuantity, productData]);
-
+    // toggleIsUpdated();
+    // openBasketDrawer();
+  };
   useEffect(() => {
     setBigImage(productData?.images[0] || "");
 
@@ -156,7 +198,7 @@ const ProductInfo = () => {
                   <p className="line-through">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
-                  <p className="text-sm bg-violet-900 text-white p-1">
+                  <p className="text-sm bg-blue-800 text-white p-1">
                     Économisez{" "}
                     <span className="font-bold ml-1">
                       {(
@@ -247,15 +289,7 @@ const ProductInfo = () => {
                 type="button"
                 className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
                 onClick={() => {
-                  addToBasket({
-                    variables: {
-                      input: {
-                        userId: decodedToken?.userId,
-                        quantity: actualQuantity,
-                        productId: productData?.id,
-                      },
-                    },
-                  });
+                  AddToBasket(productData);
                 }}
               >
                 <SlBasket />

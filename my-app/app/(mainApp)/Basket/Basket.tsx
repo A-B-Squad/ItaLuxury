@@ -13,18 +13,23 @@ import {
 import { BASKET_QUERY } from "../../../graphql/queries";
 import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
+import prepRoute from "@/app/components/Helpers/_prepRoute";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
 interface Product {
+  [x: string]: any;
   id: string;
   name: string;
   price: number;
   images: string[];
   quantity: number;
   basketId: string;
+  productDiscounts: {
+    newPrice: number;
+  }[];
 }
 
 const Basket = () => {
@@ -32,7 +37,7 @@ const Basket = () => {
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  // const [totalPrice, setTotalPrice] = useState<number>(0);
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -61,8 +66,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product,
-        ),
+            : product
+        )
       );
     },
   });
@@ -73,8 +78,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product,
-        ),
+            : product
+        )
       );
     },
   });
@@ -83,7 +88,7 @@ const Basket = () => {
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId),
+        prevProducts.filter((product) => product.basketId !== basketId)
       );
       deleteBasketById({ variables: { basketId } });
       toast({
@@ -92,17 +97,18 @@ const Basket = () => {
         className: "bg-strongBeige text-white",
       });
     },
-    [deleteBasketById, toast],
+    [deleteBasketById, toast]
   );
 
-  const totalPrice = useMemo(
-    () =>
-      products.reduce(
-        (acc, product) => acc + product.price * product.quantity,
-        0,
-      ),
-    [products],
-  );
+  const totalPrice = useMemo(() => {
+    return products.reduce((acc, product) => {
+      const productPrice =
+        product.productDiscounts?.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price;
+      return acc + productPrice * product.quantity;
+    }, 0);
+  }, [products]);
   return (
     <div className="">
       <div className="grid lg:grid-cols-3 gap-5 p-8">
@@ -124,21 +130,43 @@ const Basket = () => {
                   <th className="text-base text-[#333] p-4">Prix</th>
                 </tr>
               </thead>
-              <tbody className="whitespace-nowrap divide-y">
+              <tbody className=" divide-y w-full flex flex-col">
                 {products.map((product) => (
-                  <tr className="b">
-                    <td className="py-6 px-4 ">
-                      <div className="flex items-center gap-6 ">
+                  <tr className="  w-full ">
+                    <td className="py-6 px-4 w-4/5">
+                      <div className="flex items-center gap-6 w-11/12 ">
                         <Image
                           width={150}
                           height={150}
                           alt={product.name}
                           src={product.images[0]}
+                          objectFit="contain"
                         />
                         <div>
-                          <p className="text-md font-bold text-[#333]">
+                          <Link
+                            rel="preload"
+                            href={{
+                              pathname: `/products/tunisie/${prepRoute(product?.name)}`,
+                              query: {
+                                productId: product?.id,
+                                collection: [
+                                  product?.categories[0]?.name,
+                                  product?.categories[0]?.id,
+                                  product?.categories[0]?.subcategories[0]
+                                    ?.name,
+                                  product?.categories[1]?.subcategories[0]?.id,
+                                  product?.categories[0]?.subcategories[0]
+                                    ?.subcategories[1]?.name,
+                                  product?.categories[0]?.subcategories[0]
+                                    ?.subcategories[1]?.id,
+                                  product?.name,
+                                ],
+                              },
+                            }}
+                            className="text-md font-bold hover:text-strongBeige text-[#333]"
+                          >
                             {product.name}
-                          </p>
+                          </Link>
                           <button
                             type="button"
                             className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
@@ -157,11 +185,11 @@ const Basket = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-6 px-4">
+                    <td className="w-full">
                       <div className="flex divide-x border w-max">
                         <button
                           type="button"
-                          className="bg-lightBeige px-4 py-2 font-semibold cursor-pointer"
+                          className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
                           onClick={() => {
                             decreaseQuantity({
                               variables: { basketId: product.basketId },
@@ -179,15 +207,14 @@ const Basket = () => {
                             ></path>
                           </svg>
                         </button>
-                        <button
-                          type="button"
-                          className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md"
+                        <span
+                          className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md"
                         >
                           {product.quantity}
-                        </button>
+                        </span>
                         <button
                           type="button"
-                          className="bg-strongBeige text-white px-4 py-2 font-semibold cursor-pointer"
+                          className="bg-strongBeige text-white px-2 py-1 font-semibold cursor-pointer"
                           onClick={() => {
                             increaseQuantity({
                               variables: { basketId: product.basketId },
@@ -207,8 +234,15 @@ const Basket = () => {
                         </button>
                       </div>
                     </td>
-                    <td className="py-6 px-4">
-                      <h4 className="text-md font-bold text-[#333]">
+                    <td className="py-6 px-4   w-full gap-3">
+                      {product?.productDiscounts?.length > 0 && (
+                        <h4 className="text-md w-max font-bold text-[#333]">
+                          {product.productDiscounts[0].newPrice.toFixed(3)} TND
+                        </h4>
+                      )}
+                      <h4
+                        className={`text-md font-bold text-[#333] ${product?.productDiscounts?.length > 0 ? " text-gray-400 line-through" : ""}`}
+                      >
                         {product.price.toFixed(3)} TND
                       </h4>
                     </td>
@@ -229,7 +263,7 @@ const Basket = () => {
               ) : (
                 <span className="font-normal">1 article</span>
               )}
-              <span className="ml-auto font-semibold">
+              <span className="ml-auto font-sefmibold">
                 {totalPrice.toFixed(3)} TND
               </span>
             </li>

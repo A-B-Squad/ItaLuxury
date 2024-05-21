@@ -62,12 +62,12 @@ const Checkout = ({ products, total }: any) => {
   };
 
   return (
-    <div className="flex justify-center items-center w-full">
+    <div className="flex justify-center items-center w-full my-10">
       <div className="grid sm:px-10 place-content-between gap-20 lg:grid-cols-2 lg:px-20 xl:px-32 ">
         <div className="px-4 pt-8">
           <p className="text-xl font-medium">Récapitulatif de la commande</p>
           <p className="text-gray-400">Vérifiez vos articles.</p>
-          <div className="mt-8 space-y-3 rounded-lg border bg-white px-2 py-4 sm:px-6">
+          <div className="mt-8 space-y-3 divide-y-2 shadow-sm rounded-lg border bg-white px-2 py-4 sm:px-6">
             {products.map((product: any) => (
               <div
                 className="flex flex-col rounded-lg bg-white sm:flex-row"
@@ -84,8 +84,12 @@ const Checkout = ({ products, total }: any) => {
                 <div className="flex w-full flex-col px-4 py-4">
                   <span className="font-semibold">{product.name}</span>
                   <p className="mt-auto text-lg font-bold">
-                    {product.price.toFixed(3)} TND
+                    {product.productDiscounts?.length
+                      ? product.productDiscounts[0].newPrice.toFixed(3)
+                      : product.price.toFixed(3)}{" "}
+                    TND
                   </p>
+
                   <p className="mt-auto text-lg font-md text-gray-400">
                     Quantité: {product.quantity}
                   </p>

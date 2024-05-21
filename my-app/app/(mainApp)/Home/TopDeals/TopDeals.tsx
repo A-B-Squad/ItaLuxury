@@ -283,7 +283,7 @@ const TopDeals = () => {
                     </span>
                   </div>
 
-                  <ul className=" text-xs md:text-sm text-gray-500 tracking-wider mt-2">
+                  <ul className=" text-xs md:text-sm text-gray-500 tracking-wider  mt-2">
                     {products?.product?.attributes
                       .slice(0, 4)
                       .map((attribute: any, i: number) => (
@@ -291,7 +291,7 @@ const TopDeals = () => {
                           <span className="text-sm font-semibold">
                             {attribute.name}
                           </span>{" "}
-                          : <span className="text-base">{attribute.value}</span>
+                          : <span className="text-base font-light">{attribute.value}</span>
                         </li>
                       ))}
                   </ul>

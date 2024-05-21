@@ -68,6 +68,13 @@ export const BASKET_QUERY = gql`
         name
         price
         images
+        productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
         categories {
           id
           name
@@ -84,7 +91,7 @@ export const BASKET_QUERY = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS = gql`
+export const TAKE_6_PRODUCTS = `
   query Products($limit: Int!) {
     products(limit: $limit) {
       id
@@ -129,7 +136,7 @@ export const TAKE_6_PRODUCTS = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
+export const TAKE_6_PRODUCTS_IN_DISCOUNT = `
   query ProductsDiscounts($limit: Int) {
     productsDiscounts(limit: $limit) {
       id
@@ -219,7 +226,7 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS_PRICE_20 = gql`
+export const TAKE_6_PRODUCTS_PRICE_20 = `
   query ProductsLessThen20($limit: Int!) {
     productsLessThen20(limit: $limit) {
       id
@@ -259,7 +266,7 @@ export const TAKE_6_PRODUCTS_PRICE_20 = gql`
     }
   }
 `;
-export const SIDE_ADS_NEW_PRODUCT = gql`
+export const SIDE_ADS_NEW_PRODUCT = `
   query Query($position: String!) {
     advertismentByPosition(position: $position) {
       images
@@ -333,7 +340,7 @@ export const CLIENT_SERVICES = gql`
     }
   }
 `;
-export const ADVERTISSMENT_QUERY = gql`
+export const ADVERTISSMENT_QUERY = `
   query AdvertismentByPosition($position: String!) {
     advertismentByPosition(position: $position) {
       images
