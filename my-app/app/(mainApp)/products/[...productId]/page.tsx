@@ -260,6 +260,7 @@ const ProductDetails = ({ params }: { params: { productId: string } }) => {
 
   const addToCompare = (product: any) => {
     addProductToCompare(product);
+    setSuccessMsg("Produit ajouté au comparaison !");
   };
 
   const handleToggleFavorite = () => {
