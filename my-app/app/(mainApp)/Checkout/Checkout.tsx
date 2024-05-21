@@ -62,8 +62,8 @@ const Checkout = ({ products, total }: any) => {
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="grid sm:px-10 lg:grid-cols-2 lg:px-20 xl:px-32">
+    <div className="flex justify-center items-center w-full">
+      <div className="grid sm:px-10 place-content-between gap-20 lg:grid-cols-2 lg:px-20 xl:px-32 ">
         <div className="px-4 pt-8">
           <p className="text-xl font-medium">Récapitulatif de la commande</p>
           <p className="text-gray-400">Vérifiez vos articles.</p>
@@ -94,7 +94,7 @@ const Checkout = ({ products, total }: any) => {
             ))}
           </div>
         </div>
-        <div className="px-4 pt-8">
+        <div className="px-4 pt-8 ">
           <form onSubmit={handleSubmit(onSubmit)}>
             <label
               htmlFor="fullname"

@@ -82,13 +82,14 @@ const TopHeader = ({ logo }: { logo: string }) => {
       className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 "
       onMouseEnter={() => setShowMenuUserMenu(false)}
     >
-      <div className="logo relative w-48 h-24 ">
-        <Link href={"/Home"}>
+      <div className="logo relative w-48 h-24 content-center  ">
+        <Link href={"/Home"} >
           <Image
             src={logo}
             width={192}
             height={96}
             alt="logo"
+            property="true"
             layout="responsive"
             objectFit="contain"
           />

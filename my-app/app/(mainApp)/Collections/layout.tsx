@@ -5,6 +5,7 @@ import React, { ReactNode } from "react";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
+import keywords from "@/app/public/keywords";
 type Props = {
   children: ReactNode;
 };
@@ -24,6 +25,8 @@ export const metadata: Metadata = {
     "Vente en ligne en Tunisie : Découvrez des offres exclusives sur notre plateforme",
   description:
     "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits. Commandez dès maintenant !",
+
+  keywords: keywords,
 };
 
 export default function Layout({ children }: Props) {

@@ -1,8 +1,11 @@
 import React from "react";
 import ProductDetails from "./ProductDetails";
-
+import keywords from "@/app/public/keywords";
 export async function generateMetadata({ searchParams }: any) {
-  const { data } = await fetch("http://localhost:3000/api/graphql", {
+  if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+  const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,6 +29,7 @@ export async function generateMetadata({ searchParams }: any) {
   const productData = data.productById;
 
   return {
+    metadataBase: new URL(process.env.BASE_URL_DOMAIN),
     title: `${productData.name} - MaisonNg`,
     description: productData.description,
     openGraph: {
@@ -39,11 +43,20 @@ export async function generateMetadata({ searchParams }: any) {
         },
       ],
     },
+    keywords: keywords,
+    icons: {
+      icon: "../../public/images/logo.jpeg",
+      appleTouchIcon: "/images/logo.jpeg",
+      favicon: "../../public/images/favicon.ico",
+    },
   };
 }
 
 const page = async ({ searchParams }: any) => {
-  const { data } = await fetch("http://localhost:3000/api/graphql", {
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+  const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -179,7 +179,7 @@ const Footer = async () => {
           unique et original. Simplement extraordinaire !
         </p>
       </div>
-      <div className="w-full hidden md:grid max-w-6xl px-4  lg:grid-cols-5 place-content-center gap-8 border-t pt-8">
+      <div className="w-full hidden lg:grid max-w-6xl px-4  lg:grid-cols-5 place-content-center gap-8 border-t pt-8">
         {sections.map((section, index) => (
           <div key={index}>
             <h6 className="font-medium text-xl mb-4">{section.title}</h6>
@@ -203,7 +203,7 @@ const Footer = async () => {
         ))}
       </div>
       {/* Mobile accordion */}
-      <div className="flex flex-col md:hidden w-full px-5">
+      <div className="flex flex-col lg:hidden w-full px-5">
         <Accordion type="single" collapsible>
           {sections.map((section, index) => (
             <div key={index}>
