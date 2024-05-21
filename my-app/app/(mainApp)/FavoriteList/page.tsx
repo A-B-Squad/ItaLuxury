@@ -1,10 +1,8 @@
-import React from 'react'
-import FavoriteList from './FavoriteList'
+import React from "react";
+import FavoriteList from "./FavoriteList";
 
 const page = () => {
-  return (
-    <FavoriteList/>
-  )
-}
+  return <FavoriteList />;
+};
 
-export default page
+export default page;

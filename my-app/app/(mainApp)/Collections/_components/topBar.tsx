@@ -20,12 +20,13 @@ import {
 } from "../../../store/zustand";
 import { convertStringToQueriesObject } from "@/app/components/Helpers/_convertStringToQueriesObject";
 import { convertValidStringQueries } from "@/app/components/Helpers/_convertValidStringQueries";
+interface FilterQueries {
+  [key: string]: string[];
+}
 const TopBar = () => {
   const { toggleOpenSidebar } = useSidebarStore();
   const { changeProductView, view } = useAllProductViewStore();
-  const [selectedFilterQueries, setSelectedFilterQueries] = useState<
-    Record<string, string[]>
-  >({});
+  const [selectedFilterQueries, setSelectedFilterQueries] = useState<any>({});
 
   const searchParams: URLSearchParams | null = useSearchParams();
   const router = useRouter();
@@ -46,10 +47,10 @@ const TopBar = () => {
         })}`,
         {
           scroll: true,
-        }
+        },
       );
     },
-    [selectedFilterQueries]
+    [selectedFilterQueries],
   );
 
   return (

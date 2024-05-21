@@ -2,7 +2,7 @@
 import { useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import React, { useCallback, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoMdCloseCircleOutline } from "react-icons/io";
@@ -42,13 +42,13 @@ const ProductInfo = () => {
     setActualQuantity((prevQuantity) =>
       productData && prevQuantity < productData.inventory
         ? prevQuantity + 1
-        : prevQuantity
+        : prevQuantity,
     );
   }, [productData]);
 
   const handleSubtractQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1
+      prevQuantity > 1 ? prevQuantity - 1 : 1,
     );
   }, []);
 

@@ -1,10 +1,8 @@
-import React from 'react'
-import ProductComparison from './productComparison'
+import React from "react";
+import ProductComparison from "./productComparison";
 
 const page = () => {
-  return (
-    <ProductComparison/>
-  )
-}
+  return <ProductComparison />;
+};
 
-export default page
+export default page;

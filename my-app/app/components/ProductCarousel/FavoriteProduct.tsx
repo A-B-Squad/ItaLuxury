@@ -10,14 +10,15 @@ const FavoriteProduct = ({
   userId,
   isFavorite,
   setIsFavorite,
-  heartColor,heartSize
+  heartColor,
+  heartSize,
 }: {
   productId: string;
   userId: string | undefined;
   isFavorite: boolean;
   setIsFavorite: any;
   heartColor: string;
-  heartSize:number
+  heartSize: number;
 }) => {
   const { data: favoriteData, refetch: refetchFavorite } = useQuery(
     GET_FAVORITE_STATUS,
@@ -26,7 +27,7 @@ const FavoriteProduct = ({
         userId: userId,
       },
       skip: !userId,
-    }
+    },
   );
   const { toast } = useToast();
 
@@ -34,7 +35,7 @@ const FavoriteProduct = ({
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
       if (
         favoriteData.favoriteProducts.some(
-          (fav: any) => fav.productId === productId
+          (fav: any) => fav.productId === productId,
         )
       ) {
         setIsFavorite(true);
@@ -52,7 +53,8 @@ const FavoriteProduct = ({
     if (!userId) {
       toast({
         title: "Produit ajouté aux favoris",
-        description: "Vous devez vous connecter pour ajouter un produit aux favoris.",
+        description:
+          "Vous devez vous connecter pour ajouter un produit aux favoris.",
         className: "bg-red-800 text-white",
       });
       return;
@@ -80,9 +82,9 @@ const FavoriteProduct = ({
   return (
     <div onClick={handleToggleFavorite} className="cursor-pointer">
       {isFavorite ? (
-        <FaHeart size={heartSize||""} color="red" />
+        <FaHeart size={heartSize || ""} color="red" />
       ) : (
-        <FaRegHeart size={heartSize||""} color={heartColor || "white"} />
+        <FaRegHeart size={heartSize || ""} color={heartColor || "white"} />
       )}
     </div>
   );

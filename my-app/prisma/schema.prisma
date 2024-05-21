@@ -136,7 +136,7 @@ model Checkout {
   phone         Int[]
   address       String
   package       Package[]
-  total         Int
+  total         Float
   createdAt     DateTime            @default(now())
 }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import ProductsSection from "../_components/productsSection";
 export async function generateMetadata({ searchParams }: any) {
-
   const { data } = await fetch("http://localhost:3000/api/graphql", {
     method: "POST",
     headers: {
