@@ -1,9 +1,9 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { CLIENT_SERVICES } from "@/graphql/queries";
 
 const ClientServices = () => {
@@ -11,7 +11,6 @@ const ClientServices = () => {
   const [client2, setClient2] = useState<any>([]);
   const [client3, setClient3] = useState<any>([]);
 
- 
   const { loading: loadingClientService1, data: clientService1 } = useQuery(
     CLIENT_SERVICES,
     {
@@ -19,7 +18,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient1(data.advertismentByPosition);
       },
-    }
+    },
   );
   const { loading: loadingClientService2, data: clientService2 } = useQuery(
     CLIENT_SERVICES,
@@ -28,7 +27,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient2(data.advertismentByPosition);
       },
-    }
+    },
   );
   const { loading: loadingClientService3, data: clientService3 } = useQuery(
     CLIENT_SERVICES,
@@ -37,41 +36,44 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient3(data.advertismentByPosition);
       },
-    }
+    },
   );
 
   return (
-    <div className="service_client grid gap-5 py-10 grid-cols-1 rounded-md md:grid-cols-3 place-content-center  place-items-center">
+    <div className="service_client grid gap-10 py-10 grid-cols-1 rounded-md md:grid-cols-2 lg:grid-cols-3 place-content-center  place-items-center">
       <>
         {client1?.length <= 0 && !loadingClientService1 && (
           <div className="flex items-center justify-center w-full h-52 rounded-lg bg-mediumBeige">
-            <p>390px x 208px</p>
+            <p>384px x 218px</p>
           </div>
         )}
 
         {client2?.length <= 0 && !loadingClientService2 && (
           <div className="flex items-center justify-center w-full h-52 rounded-lg bg-mediumBeige">
-            <p>390px x 208px</p>
+            <p>384px x 218px</p>
           </div>
         )}
 
         {client3?.length <= 0 && !loadingClientService3 && (
           <div className="flex items-center justify-center w-full h-52 col-span-2 md:col-span-1 rounded-lg bg-mediumBeige">
-            <p>390px x 208px</p>
+            <p>384px x 218px</p>
           </div>
         )}
       </>
       <>
         {!loadingClientService1 && client1?.length > 0 && (
           <Link
-          rel="preload"
+            rel="preload"
             href={client1[0].link}
-            className="relative flex shadow-lg border-2 items-center flex-col justify-center w-full  max:w-[370px] h-full   min-h-[230px]   "
+            className="  shadow-lg border-2  w-[384px] h-[218px]     "
           >
             <Image
               src={client1[0].images[0]}
               alt="image 1"
-              layout="fill"
+              layout="responsive"
+              width={384}
+              height={218}
+              property="true"
               objectFit="contain"
               className=" cursor-pointer hover:opacity-50 transition-all"
             />
@@ -80,14 +82,17 @@ const ClientServices = () => {
 
         {!loadingClientService2 && client2?.length > 0 && (
           <Link
-          rel="preload"
+            rel="preload"
             href={client2[0].link}
-            className="relative flex shadow-xl border-2 items-center flex-col justify-center w-full  max:w-[370px] h-full   min-h-[230px]  "
+            className="  shadow-lg border-2 w-full h-full  max-w-[384px] max-h-[218px]  md:w-[384px] md:h-[218px]      "
           >
             <Image
               src={client2[0].images[0]}
               alt="image 2"
-              layout="fill"
+              layout="responsive"
+              width={384}
+              height={218}
+              property="true"
               objectFit="contain"
               className=" cursor-pointer hover:opacity-50 transition-all"
             />
@@ -96,14 +101,17 @@ const ClientServices = () => {
 
         {!loadingClientService3 && client3?.length > 0 && (
           <Link
-          rel="preload"
+            rel="preload"
             href={client3[0].link}
-            className="relative flex shadow-lg border-2 items-center flex-col col-span-1 justify-center w-full  max:w-[300px] h-full    min-h[230px]  "
+            className="  shadow-lg border-2  w-[384px] h-[218px]     "
           >
             <Image
               src={client3[0].images[0]}
               alt="image 3"
-              layout="fill"
+              layout="responsive"
+              width={384}
+              height={218}
+              property="true"
               objectFit="contain"
               className=" cursor-pointer hover:opacity-50 transition-all"
             />

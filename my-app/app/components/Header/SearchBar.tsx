@@ -3,7 +3,7 @@ import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 import { useRouter } from "next/navigation";
 import prepRoute from "../Helpers/_prepRoute";
@@ -12,7 +12,7 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY
+    SEARCH_PRODUCTS_QUERY,
   );
 
   const router = useRouter();

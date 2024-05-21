@@ -1,7 +1,7 @@
 import React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import Marquee from "react-fast-marquee";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useQuery } from "@apollo/client";
 import { GET_BRANDS } from "../../../../graphql/queries";
 import { IoImageOutline } from "react-icons/io5";
@@ -24,24 +24,27 @@ export const BrandsCarousel = () => {
             >
               <Slot className="w-24 bg-red-500 h-24">
                 <>
-                {brand.logo && (
-                  <img src={brand.logo} alt="" className="object-contain w-24 h-24" />
-                )}
+                  {brand.logo && (
+                    <img
+                      src={brand.logo}
+                      alt=""
+                      className="object-contain w-24 h-24"
+                    />
+                  )}
 
-                {loadingBrand && (
-                  <div className="flex">
-                    {[...Array(5)].map((_, index) => (
-                      <div
-                        key={index}
-                        className="h-28 w-28 rounded-lg bg-mediumBeige"
-                      >
-                        <IoImageOutline className="h-12 w-12 text-gray-500" />
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  {loadingBrand && (
+                    <div className="flex">
+                      {[...Array(5)].map((_, index) => (
+                        <div
+                          key={index}
+                          className="h-28 w-28 rounded-lg bg-mediumBeige"
+                        >
+                          <IoImageOutline className="h-12 w-12 text-gray-500" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
-
               </Slot>
             </div>
           ))}

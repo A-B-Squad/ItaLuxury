@@ -1,6 +1,6 @@
 import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
 
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Link from "next/link";
 import prepRoute from "../Helpers/_prepRoute";
 import {
@@ -43,9 +43,9 @@ const Footer = async () => {
       }
   `,
       }),
-    }
+    },
   ).then((res) => res.json());
-  
+
   const { data: CategoryData } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
@@ -162,7 +162,7 @@ const Footer = async () => {
   ];
 
   return (
-    <div className="bg-white shadow-2xl shadow-black text-black flex flex-col items-center pt-10">
+    <div className="bg-white shadow-2xl shadow-black text-black flex flex-col items-center pt-3">
       <div className="text-center mb-5 flex justify-center items-center flex-col">
         <Image
           src={CompanyInfoData?.companyInfo?.logo}
@@ -220,7 +220,7 @@ const Footer = async () => {
                         {item.name}
                       </Link>
                     </AccordionContent>
-                  )
+                  ),
                 )}
               </AccordionItem>
             </div>

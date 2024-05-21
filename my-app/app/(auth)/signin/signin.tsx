@@ -12,8 +12,12 @@ const Signin = () => {
   const { toast } = useToast();
   const [errorMessage, setErrorMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const router=useRouter()
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
     onCompleted: () => {
@@ -22,7 +26,7 @@ const Signin = () => {
         description: "Bienvenue",
         className: "bg-strongBeige text-white",
       });
-      router.replace("/Home")
+      router.replace("/Home");
     },
     onError: (error) => {
       if (error) {
@@ -36,9 +40,9 @@ const Signin = () => {
     },
   });
 
-  const onSubmit = (data:any) => {
-    console.log(data,"jkfdhfkqjsd");
-    
+  const onSubmit = (data: any) => {
+    console.log(data, "jkfdhfkqjsd");
+
     SignIn({ variables: { input: data } });
   };
 
@@ -72,14 +76,22 @@ const Signin = () => {
               placeholder="E-mail"
               {...register("email", { required: "Email is required" })}
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.email.message as string}
+              </p>
+            )}
             <input
               type="password"
               className="block border border-grey-light w-full p-3 rounded mb-4"
               placeholder="Mot de passe"
               {...register("password", { required: "Password is required" })}
             />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message as string}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.password.message as string}
+              </p>
+            )}
 
             <button
               type="submit"
@@ -106,7 +118,7 @@ const Signin = () => {
             className="no-underline border-b border-blue text-blue-700"
             href="/signup"
           >
-            Changer mot de passe 
+            Changer mot de passe
           </Link>
           .
         </div>

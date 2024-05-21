@@ -11,7 +11,7 @@ import {
   INCREASE_QUANTITY_MUTATION,
 } from "../../../graphql/mutations";
 import { BASKET_QUERY } from "../../../graphql/queries";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
 
 interface DecodedToken extends JwtPayload {
@@ -61,8 +61,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
     },
   });
@@ -73,8 +73,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
     },
   });
@@ -83,7 +83,7 @@ const Basket = () => {
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId)
+        prevProducts.filter((product) => product.basketId !== basketId),
       );
       deleteBasketById({ variables: { basketId } });
       toast({
@@ -92,16 +92,16 @@ const Basket = () => {
         className: "bg-strongBeige text-white",
       });
     },
-    [deleteBasketById, toast]
+    [deleteBasketById, toast],
   );
 
   const totalPrice = useMemo(
     () =>
       products.reduce(
         (acc, product) => acc + product.price * product.quantity,
-        0
+        0,
       ),
-    [products]
+    [products],
   );
   return (
     <div className="">
@@ -225,10 +225,7 @@ const Basket = () => {
           <ul className="text-[#333] divide-y mt-6">
             <li className="flex flex-wrap gap-4 text-md py-4">
               {products.length > 1 ? (
-                <span className="font-normal">
-                  {products.length}
-                  articles
-                </span>
+                <span className="font-normal">{products.length} articles</span>
               ) : (
                 <span className="font-normal">1 article</span>
               )}

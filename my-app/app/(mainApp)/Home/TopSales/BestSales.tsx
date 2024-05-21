@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { BASKET_QUERY, BEST_SALES_QUERY } from "@/graphql/queries";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Link from "next/link";
 import prepRoute from "@/app/components/Helpers/_prepRoute";
 import { FaBasketShopping } from "react-icons/fa6";
@@ -50,7 +50,7 @@ const BestSales: React.FC = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const AddToBasket = (product: any) => {
@@ -72,7 +72,7 @@ const BestSales: React.FC = () => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -101,8 +101,8 @@ const BestSales: React.FC = () => {
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
             new Set(
-              data.getBestSales.flatMap((item: any) => item.Category.name)
-            )
+              data.getBestSales.flatMap((item: any) => item.Category.name),
+            ),
           );
           setCategories(uniqueCategories);
         }
@@ -131,7 +131,7 @@ const BestSales: React.FC = () => {
           <tbody className="border-2 w-full shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
             {allProducts
               .filter(
-                (product: any) => product?.categories[0].name === category
+                (product: any) => product?.categories[0].name === category,
               )
               .map((product: any) => (
                 <div

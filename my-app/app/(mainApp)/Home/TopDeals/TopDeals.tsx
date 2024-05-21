@@ -15,7 +15,7 @@ import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaRegEye } from "react-icons/fa";
@@ -36,7 +36,7 @@ const TopDeals = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const TopDeals = () => {
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id
+          (p: any) => p.id === product.id,
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -101,7 +101,7 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ]
+    ],
   );
 
   const handleMouseEnter = useCallback((title: string, index: number) => {
@@ -117,7 +117,7 @@ const TopDeals = () => {
   }, []);
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   const addToCompare = useCallback(
@@ -129,7 +129,7 @@ const TopDeals = () => {
         className: "bg-strongBeige text-white",
       });
     },
-    [addProductToCompare, toast]
+    [addProductToCompare, toast],
   );
 
   const renderProducts = useMemo(() => {
@@ -274,7 +274,7 @@ const TopDeals = () => {
                   <div className="prices flex gap-3 text-lg lg:mt-3">
                     <span className="text-strongBeige font-semibold">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3
+                        3,
                       )}
                       TND
                     </span>

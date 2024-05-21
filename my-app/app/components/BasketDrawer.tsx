@@ -15,7 +15,7 @@ import {
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "../store/zustand";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { CiTrash } from "react-icons/ci";
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -68,8 +68,8 @@ const BasketDrawer = () => {
           setQuantityInBasket(
             fetchedProducts.reduce(
               (acc: number, curr: any) => acc + curr.actualQuantity,
-              0
-            )
+              0,
+            ),
           );
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             return acc + curr.price * curr.actualQuantity;
@@ -85,8 +85,8 @@ const BasketDrawer = () => {
       setQuantityInBasket(
         products.reduce(
           (acc: number, curr: any) => acc + curr.actualQuantity,
-          0
-        )
+          0,
+        ),
       );
       const total = products.reduce((acc: number, curr: Product) => {
         return acc + curr.price * curr.actualQuantity;
@@ -98,12 +98,12 @@ const BasketDrawer = () => {
   const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
 
   const [deleteBasketById, { loading: deletingLoading }] = useMutation(
-    DELETE_BASKET_BY_ID_MUTATION
+    DELETE_BASKET_BY_ID_MUTATION,
   );
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = productsInBasket.filter(
-      (product) => product.basketId !== basketId
+      (product) => product.basketId !== basketId,
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       return acc + curr.price * curr.actualQuantity;
@@ -117,7 +117,7 @@ const BasketDrawer = () => {
         // Assuming `data` contains the response from your deleteBasketById mutation
         if (data?.deleteBasketById) {
           // Read the current cache data
-          const existingData:any = cache.readQuery({
+          const existingData: any = cache.readQuery({
             query: BASKET_QUERY,
             variables: { userId: decodedToken?.userId },
           });
@@ -126,7 +126,7 @@ const BasketDrawer = () => {
           const updatedData = {
             ...existingData,
             basketByUserId: existingData.basketByUserId.filter(
-              (basket: any) => basket.id !== basketId
+              (basket: any) => basket.id !== basketId,
             ),
           };
 
@@ -245,7 +245,7 @@ const BasketDrawer = () => {
                               } else {
                                 removeProductFromBasket(product?.id);
                                 const updatedProducts = products.filter(
-                                  (pr: any) => pr.id !== product?.id
+                                  (pr: any) => pr.id !== product?.id,
                                 );
                                 const updatedTotalPrice =
                                   updatedProducts.reduce((acc, curr: any) => {

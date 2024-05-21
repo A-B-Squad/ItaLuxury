@@ -23,7 +23,7 @@ const FavoriteList = () => {
     FAVORITE_PRODUCTS_QUERY,
     {
       fetchPolicy: "no-cache",
-    }
+    },
   );
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const FavoriteList = () => {
 
           if (data) {
             const fetchedProducts = data.favoriteProducts.map(
-              (fav: any) => fav.Product
+              (fav: any) => fav.Product,
             );
             setProductsData(fetchedProducts);
           }

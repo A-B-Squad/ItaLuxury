@@ -31,7 +31,7 @@ const Home = () => {
     TAKE_6_PRODUCTS,
     {
       variables: { limit: 6 },
-    }
+    },
   );
   const { loading: loadingDiscountProduct, data: Products_inDiscount_6 } =
     useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
@@ -42,35 +42,35 @@ const Home = () => {
     TAKE_6_PRODUCTS_PRICE_20,
     {
       variables: { limit: 6 },
-    }
+    },
   );
 
   const { loading: loadingLeftAdsNewProduct, data: leftAds } = useQuery(
     SIDE_ADS_NEW_PRODUCT,
-    { variables: { position: "left_new_product" } }
+    { variables: { position: "left_new_product" } },
   );
 
   const { loading: loadingRightAdsNewProduct, data: rightAds } = useQuery(
     SIDE_ADS_NEW_PRODUCT,
-    { variables: { position: "rigth_new_product" } }
+    { variables: { position: "rigth_new_product" } },
   );
   const { data: FullAdsPromotion, loading: FullAdsPromotionLoaded } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "full_promotion" },
-    }
+    },
   );
   const { data: FullAds20Product, loading: FullAdsProduct20Loaded } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "full_ads_20" },
-    }
+    },
   );
   const { data: FullAdsTopDeals, loading: FullAdsTopDealsLoaded } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "full_ads_topDeals" },
-    }
+    },
   );
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">

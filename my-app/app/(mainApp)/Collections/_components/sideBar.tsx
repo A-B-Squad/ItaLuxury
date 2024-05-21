@@ -21,12 +21,12 @@ import { convertValidStringQueries } from "@/app/components/Helpers/_convertVali
 import { convertStringToQueriesObject } from "../../../components/Helpers/_convertStringToQueriesObject";
 const SideBar = () => {
   const { toast } = useToast();
-  
+
   const [categories, setCategories] = useState([]);
   const [Brands, setBrands] = useState([]);
   const [colors, setColors] = useState([]);
   const [priceChanged, setPriceChanged] = useState(false);
-  const [localPrice, setLocalPrice] = useState(500); 
+  const [localPrice, setLocalPrice] = useState(500);
   const router = useRouter();
 
   const searchParams: URLSearchParams | null = useSearchParams();
@@ -69,7 +69,7 @@ const SideBar = () => {
             : [value];
         } else {
           updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value
+            (query) => query !== value,
           );
           if (updatedQueries[name].length === 0) {
             delete updatedQueries[name];
@@ -79,10 +79,10 @@ const SideBar = () => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true }
+        { scroll: true },
       );
     },
-    [selectedFilterQueries, router]
+    [selectedFilterQueries, router],
   );
 
   const handleChoiceFilterOptions = useCallback(
@@ -98,11 +98,11 @@ const SideBar = () => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true }
+        { scroll: true },
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar]
+    [selectedFilterQueries, router, toggleOpenSidebar],
   );
 
   const handleColorSelection = useCallback(
@@ -111,11 +111,11 @@ const SideBar = () => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true }
+        { scroll: true },
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar]
+    [selectedFilterQueries, router, toggleOpenSidebar],
   );
 
   useEffect(() => {
@@ -152,10 +152,10 @@ const SideBar = () => {
     (updatedQueries: any) => {
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: false }
+        { scroll: false },
       );
     },
-    [router]
+    [router],
   );
 
   const handleCategoryClick = useCallback(
@@ -168,16 +168,16 @@ const SideBar = () => {
       updateSearchParams(updatedQueries);
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]
+    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar],
   );
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase())
+          selectedFilterQueries[name].includes(option.toLowerCase()),
       );
     },
-    [selectedFilterQueries]
+    [selectedFilterQueries],
   );
   return (
     <section

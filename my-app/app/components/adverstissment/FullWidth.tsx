@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
-import Image from "next/image";
+import Image from "next/legacy/image";
 const FullWidthAds = ({
   FullAdsLoaded,
   FullImageAds,
@@ -25,14 +25,13 @@ const FullWidthAds = ({
         </div>
       )}
 
-      {FullImageAds&& !FullAdsLoaded && (
-        <div className=" my-5 h-[180px] w-full relative  ">
+      {FullImageAds && !FullAdsLoaded && (
+        <div className=" md:my-8  w-full relative h-[85px] md:h-[200px]   ">
           <Image
+            className=" h-[85px] md:h-[200px]"
             src={FullImageAds}
-            className="w-full h-[180px]"
-            width={960}
-            height={180}
-            objectFit="contain"
+            layout="fill"
+            objectFit="fill"
             loading="eager"
             alt="adsFullWidth"
           />

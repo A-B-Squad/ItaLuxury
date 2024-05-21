@@ -94,7 +94,7 @@
 }
 
 .loader:before {
-  content: '';
+  content: "";
   width: 48px;
   height: 5px;
   background: #f0808050;
@@ -106,7 +106,7 @@
 }
 
 .loader:after {
-  content: '';
+  content: "";
   width: 100%;
   height: 100%;
   background: #f08080;
@@ -127,7 +127,7 @@
   }
 
   50% {
-    transform: translateY(18px) scale(1, .9) rotate(45deg);
+    transform: translateY(18px) scale(1, 0.9) rotate(45deg);
     border-bottom-right-radius: 40px;
   }
 
@@ -141,9 +141,8 @@
 }
 
 @keyframes shadow324 {
-
   0%,
-    100% {
+  100% {
     transform: scale(1, 1);
   }
 

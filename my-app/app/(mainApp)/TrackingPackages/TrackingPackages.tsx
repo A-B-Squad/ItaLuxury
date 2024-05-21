@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import { useQuery, useLazyQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -92,7 +92,7 @@ const TrackingPackages: React.FC = () => {
     setSearchPerformed(false);
   };
 
-  const translateStatus = (status: string): string => {
+  const translateStatus = useCallback((status: string): string => {
     const statusTranslations: { [key: string]: string } = {
       PENDING: "EN ATTENTE",
       BACK: "RETOUR",
@@ -101,9 +101,8 @@ const TrackingPackages: React.FC = () => {
       PROCESSING: "EN TRAITEMENT",
       PAYED: "PAYÉ",
     };
-  
     return statusTranslations[status] || status;
-  };
+  }, []);
 
   return (
     <div className="tracking-packages h-screen">

@@ -12,7 +12,7 @@ import {
   useProductsInBasketStore,
 } from "../../store/zustand";
 import { IoGitCompare } from "react-icons/io5";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { GoPackageDependents } from "react-icons/go";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
@@ -28,7 +28,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [LengthComparer, setLengthComparer] = useState<String>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket
+    (state) => state.quantityInBasket,
   );
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
@@ -75,8 +75,6 @@ const TopHeader = ({ logo }: { logo: string }) => {
     }
   }, []);
   const onSubmit = (data: any) => {
-    console.log(data, "jkfdhfkqjsd");
-
     SignIn({ variables: { input: data } });
   };
   return (
@@ -85,19 +83,22 @@ const TopHeader = ({ logo }: { logo: string }) => {
       onMouseEnter={() => setShowMenuUserMenu(false)}
     >
       <div className="logo relative w-48 h-24 ">
-        <Image
-          src={logo}
-          alt="logo"
-          layout="fill"
-          objectFit="contain"
-          priority
-        />
+        <Link href={"/Home"}>
+          <Image
+            src={logo}
+            width={192}
+            height={96}
+            alt="logo"
+            layout="responsive"
+            objectFit="contain"
+          />
+        </Link>
       </div>
       <SearchBar />
-      <div className="list md:flex items-center gap-5 cursor-pointer text-md hidden">
+      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden">
         <ul className="flex  gap-5">
           <li
-            className="userMenu relative group "
+            className="userMenu  group  "
             onMouseEnter={() => setShowMenuUserMenu(true)}
           >
             <div className="flex   items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
@@ -106,7 +107,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             </div>
             <div
               ref={clickOutside}
-              className={` absolute w-72 h-96 border-2  px-2 py-2   flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
+              className={` absolute w-72 h-96 border-2  px-2 py-2    flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
             >
               {!decodedToken?.userId && (
                 <form

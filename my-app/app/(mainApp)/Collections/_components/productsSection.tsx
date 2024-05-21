@@ -27,7 +27,7 @@ const ProductsSection = () => {
   const [productsData, setProductsData] = useState<any>([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const pageSize = 10;
   const numberOfPages = Math.ceil(totalCount / pageSize);
 
@@ -69,7 +69,7 @@ const ProductsSection = () => {
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   }, [
     searchProducts,
@@ -109,8 +109,8 @@ const ProductsSection = () => {
       1,
       Math.min(
         page - Math.floor(maxPagesToShow / 2),
-        numberOfPages - maxPagesToShow + 1
-      )
+        numberOfPages - maxPagesToShow + 1,
+      ),
     );
 
     for (
@@ -129,7 +129,7 @@ const ProductsSection = () => {
           }`}
         >
           {i}
-        </button>
+        </button>,
       );
     }
 
@@ -140,7 +140,7 @@ const ProductsSection = () => {
           className="flex items-center justify-center px-3 h-8 text-strongBeige border border-strongBeige"
         >
           ...
-        </span>
+        </span>,
       );
     }
 
