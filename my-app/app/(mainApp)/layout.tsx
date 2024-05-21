@@ -55,17 +55,49 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
+
+
+
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+  const { data: CompanyInfoData } = await fetch(
+    process.env.NEXT_PUBLIC_API_URL,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+      query CompanyInfo {
+        companyInfo {
+          id
+          phone
+          logo
+        }
+      }
+  `,
+      }),
+    },
+  ).then((res) => res.json());
+
+
+
+
   return (
     <>
-      <Contact />
+      <Contact CompanyInfoData={CompanyInfoData} />
       <DrawerMobile />
       <BasketDrawer />
-      <Header />
+      <Header CompanyInfoData={CompanyInfoData} />
       <ApolloWrapper>{children}</ApolloWrapper>
       <Footer />
     </>

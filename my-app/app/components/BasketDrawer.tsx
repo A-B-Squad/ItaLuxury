@@ -95,7 +95,7 @@ const BasketDrawer = () => {
     }
   }, [isUpdated, isOpen]);
 
-  const [fetchProducts, { loading }] = useLazyQuery(BASKET_QUERY);
+  const [fetchProducts] = useLazyQuery(BASKET_QUERY);
 
   const [deleteBasketById, { loading: deletingLoading }] = useMutation(
     DELETE_BASKET_BY_ID_MUTATION,

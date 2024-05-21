@@ -155,10 +155,12 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <Link
                   rel="preload"
                   href={"/signup"}
-                  className="w-full py-2 px-1 text-xs border-b gap-2 bg-gray-100 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                  className="w-full py-2 px-1 text-xs border-b  bg-gray-100 hover:text-strongBeige flex justify-between items-center  transition-colors"
                 >
                   <FiUser />
-                  NOUVEAU CLIENT?
+                 <p>
+                   NOUVEAU CLIENT?
+                  </p>
                   <span className="font-semibold">COMMENCER ICI</span>
                 </Link>
               )}

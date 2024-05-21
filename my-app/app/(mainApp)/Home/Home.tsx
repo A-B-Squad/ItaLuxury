@@ -26,7 +26,7 @@ import { BrandsCarousel } from "./_components/BrandCarousel";
 import TimeCountDown from "./_components/TimeCountDown";
 import FullWidthAds from "../../components/adverstissment/FullWidth";
 
-const Home = () => {
+const Home = ({data}:any) => {
   const { loading: loadingNewProduct, data: Products_6 } = useQuery(
     TAKE_6_PRODUCTS,
     {
