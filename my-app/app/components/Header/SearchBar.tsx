@@ -12,7 +12,7 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,
+    SEARCH_PRODUCTS_QUERY
   );
 
   const router = useRouter();
@@ -105,7 +105,7 @@ const SearchBar = () => {
               Produits ({data.searchProducts.results.products.length})
             </h3>
             {data.searchProducts.results.products.map((result: Product) => (
-              <div>
+              <div className="py-2">
                 <Link
                   key={result.id}
                   href={{
@@ -140,16 +140,20 @@ const SearchBar = () => {
                     alt="product img"
                   />
                   <div className="text-sm gap-2 flex flex-col">
-                    <p className="w-full">{result.name}</p>
+                    <p className="w-full text-base font-medium">
+                      {result.name}
+                    </p>
                     <div className="flex gap-3">
-                      <span className="font-bold">
+                      <span
+                        className={`${result.productDiscounts.length > 0 ? "text-strongBeige" : ""} font-bold text-base`}
+                      >
                         {result.productDiscounts.length > 0
                           ? `À partir de : ${result.productDiscounts[0].newPrice.toFixed(3)}`
                           : result.price.toFixed(3)}
                         TND
                       </span>
                       {result.productDiscounts.length > 0 && (
-                        <span className="font-bold line-through">
+                        <span className="font-bold line-through text-gray-700">
                           {result.price.toFixed(3)} TND
                         </span>
                       )}

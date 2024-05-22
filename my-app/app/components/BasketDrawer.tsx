@@ -5,7 +5,7 @@ import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
 import { BASKET_QUERY } from "../../graphql/queries";
@@ -53,10 +53,13 @@ const BasketDrawer = () => {
 
   useEffect(() => {
     const token = Cookies.get("Token");
-
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
+    }
+  }, []);
+  useEffect(() => {
+    if (decodedToken?.userId) {
       fetchProducts({
         variables: { userId: decodedToken?.userId },
         fetchPolicy: "no-cache",
@@ -82,9 +85,6 @@ const BasketDrawer = () => {
           }, 0);
           setTotalPrice(total);
         },
-        onError: (error) => {
-          console.error(error);
-        },
       });
     } else {
       setProductsInBasket(products);
@@ -106,14 +106,16 @@ const BasketDrawer = () => {
 
   const [fetchProducts] = useLazyQuery(BASKET_QUERY);
 
-  const [deleteBasketById, { loading: deletingLoading }] = useMutation(
-    DELETE_BASKET_BY_ID_MUTATION
-  );
+  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   const handleRemoveProduct = (basketId: string) => {
-    const updatedProducts = productsInBasket.filter((product) => product.basketId !== basketId);
+    const updatedProducts = productsInBasket.filter(
+      (product) => product.basketId !== basketId
+    );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
-      const price = curr.productDiscounts?.length ? curr.productDiscounts[0].newPrice : curr.price;
+      const price = curr.productDiscounts?.length
+        ? curr.productDiscounts[0].newPrice
+        : curr.price;
       return acc + price * curr.actualQuantity;
     }, 0);
 
@@ -228,12 +230,14 @@ const BasketDrawer = () => {
                             QTY: {product?.actualQuantity}
                           </p>
                           <p className=" font-semibold tracking-wide">
-                          <p className=" font-semibold tracking-wide">
-                            {product.productDiscounts?.length
-                              ? product.productDiscounts[0].newPrice.toFixed(3)
-                              : product.price.toFixed(3)}{" "}
-                            TND
-                          </p>
+                            <p className=" font-semibold tracking-wide">
+                              {product.productDiscounts?.length
+                                ? product.productDiscounts[0].newPrice.toFixed(
+                                    3
+                                  )
+                                : product.price.toFixed(3)}{" "}
+                              TND
+                            </p>
                           </p>
                         </div>
                         <div className="trash flex">

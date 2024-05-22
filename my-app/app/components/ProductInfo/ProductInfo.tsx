@@ -142,7 +142,7 @@ const ProductInfo = () => {
           className="absolute bg-white rounded-full p-2 hover:rotate-180 transition-all cursor-pointer -right-2 -top-3"
         />
         <div className="details    flex flex-col justify-center items-center   lg:flex-row   ">
-          <div className="flex relative lg:w-2/4   justify-center items-start flex-col gap-2 text-center">
+          <div className="flex  relative lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
             <div className="shadow-xl relative  border-2 max-w-40 h-fit md:max-w-xs flex items-center justify-center p-1 rounded-xl">
               <InnerImageZoom
                 className="relative  rounded object-cover"
@@ -195,7 +195,7 @@ const ProductInfo = () => {
               </p>
               {productData?.productDiscounts[0] && (
                 <div className="text-gray-400 tracking-wide flex flex-col md:flex-row w-fit md:items-center text-lg gap-2">
-                  <p className="line-through">
+                  <p className="line-through text-gray-700 font-semibold tracking-wider">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
                   <p className="text-sm bg-blue-800 text-white p-1">
@@ -212,7 +212,9 @@ const ProductInfo = () => {
                 </div>
               )}
             </div>
-            <p className=" text-sm">Reference:{productData?.reference}</p>
+            <p className=" text-sm font-semibold">
+              Reference : <span>{productData?.reference}</span>
+            </p>
 
             <div className="border-t-2 mt-4">
               <div className="flex items-center mt-4  space-x-2">

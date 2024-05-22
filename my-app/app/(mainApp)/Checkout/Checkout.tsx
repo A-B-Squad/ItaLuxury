@@ -1,5 +1,5 @@
 "use client";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { useRouter } from "next/navigation";
@@ -8,12 +8,13 @@ import { CiPhone, CiUser } from "react-icons/ci";
 import { useForm } from "react-hook-form"; // Import useForm from react-hook-form
 import { CREATE_CHECKOUT_MUTATION } from "../../../graphql/mutations";
 import Image from "next/legacy/image";
+import { GET_GOVERMENT_INFO } from "../../../graphql/queries";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const Checkout = ({ products, total }: any) => {
+const Checkout = ({ products, total, GovermentInfo }: any) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const {
@@ -31,6 +32,7 @@ const Checkout = ({ products, total }: any) => {
       setDecodedToken(decoded);
     }
   }, []);
+  console.log(GovermentInfo);
 
   const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
 
@@ -49,6 +51,7 @@ const Checkout = ({ products, total }: any) => {
       variables: {
         input: {
           userId: decodedToken.userId,
+          userName: data.fullName,
           total: total,
           phone: parseInt(data.phone),
           governorateId: data.governorate,
@@ -108,7 +111,7 @@ const Checkout = ({ products, total }: any) => {
             </label>
             <input
               type="text"
-              id="fullname"
+              id="fullName"
               {...register("fullname", { required: true })}
               className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
               placeholder="Nom et prénom"
@@ -145,11 +148,14 @@ const Checkout = ({ products, total }: any) => {
             <select
               id="governorate"
               {...register("governorate")}
-              className="w-full px-2 py-2 text-gray-700 bg-gray-200 rounded"
+              className="w-full px-2 outline-none py-2 text-gray-700 bg-gray-200 rounded"
             >
               <option value="">Sélectionner une governorat</option>
-              <option value="g1">Sousse</option>
-              {/* Add more options as needed */}
+              {GovermentInfo.map((goverment: { id: string; name: string }) => (
+                <option key={goverment.id} value={goverment.id}>
+                  {goverment.name}
+                </option>
+              ))}{" "}
             </select>
 
             <label

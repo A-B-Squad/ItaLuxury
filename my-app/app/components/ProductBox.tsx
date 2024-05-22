@@ -168,6 +168,7 @@ export const ProductBox = ({ product }: any) => {
               userId={decodedToken?.userId}
               heartColor={""}
               heartSize={16}
+              productName={product?.name}
             />
           </li>
         </div>
@@ -277,7 +278,7 @@ export const ProductBox = ({ product }: any) => {
                 <p
                   className={`${
                     product?.productDiscounts.length > 0
-                      ? "line-through text-lg"
+                      ? "line-through font-semibold text-lg text-gray-700"
                       : "text-strongBeige text-xl py-1"
                   } font-semibold`}
                 >
@@ -311,7 +312,7 @@ export const ProductBox = ({ product }: any) => {
             </div>
 
             <button
-              className={`flex items-center gap-2 self-center py-2 rounded-md m-auto w-4/5 justify-center bg-strongBeige px-2  text-md text-white transition hover:bg-mediumBeige`}
+              className={`flex items-center gap-2 self-center py-2  m-auto w-36 text-xs justify-center bg-strongBeige px-2  text-md text-white transition hover:bg-mediumBeige`}
               onClick={() => AddToBasket(product)}
             >
               <SlBasket />
@@ -334,7 +335,7 @@ export const ProductBox = ({ product }: any) => {
                 <p
                   className={`${
                     product?.productDiscounts?.length > 0
-                      ? "line-through text-base md:text-lg"
+                      ? "line-through text-base md:text-lg font-semibold text-gray-700"
                       : "text-strongBeige text-base md:text-lg py-1"
                   } font-semibold`}
                 >

@@ -47,7 +47,7 @@ const Category: React.FC<CategoryProps> = ({
           >
             <Link
               className="capitalize"
-              href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
             >
               {category.name}
             </Link>

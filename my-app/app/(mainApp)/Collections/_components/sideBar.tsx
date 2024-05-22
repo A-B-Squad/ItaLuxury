@@ -19,12 +19,9 @@ import prepRoute from "@/app/components/Helpers/_prepRoute";
 
 import { convertValidStringQueries } from "@/app/components/Helpers/_convertValidStringQueries";
 import { convertStringToQueriesObject } from "../../../components/Helpers/_convertStringToQueriesObject";
-const SideBar = () => {
+const SideBar = ({ colors, brands, categories }: any) => {
   const { toast } = useToast();
 
-  const [categories, setCategories] = useState([]);
-  const [Brands, setBrands] = useState([]);
-  const [colors, setColors] = useState([]);
   const [priceChanged, setPriceChanged] = useState(false);
   const [localPrice, setLocalPrice] = useState(500);
   const router = useRouter();
@@ -34,21 +31,6 @@ const SideBar = () => {
     Record<string, string[]>
   >({});
   const { isOpenSideBard, toggleOpenSidebar } = useSidebarStore();
-
-  useQuery(CATEGORY_QUERY, {
-    onCompleted: (data) => setCategories(data.categories),
-    onError: (error) => console.log(error),
-  });
-
-  useQuery(COLORS_QUERY, {
-    onCompleted: (data) => setColors(data.colors),
-    onError: (error) => console.log(error),
-  });
-
-  useQuery(ALL_BRANDS, {
-    onCompleted: (data) => setBrands(data.fetchBrands),
-    onError: (error) => console.log(error),
-  });
 
   useEffect(() => {
     const paramsObj = convertStringToQueriesObject(searchParams);
@@ -69,7 +51,7 @@ const SideBar = () => {
             : [value];
         } else {
           updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value,
+            (query) => query !== value
           );
           if (updatedQueries[name].length === 0) {
             delete updatedQueries[name];
@@ -79,10 +61,10 @@ const SideBar = () => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true },
+        { scroll: true }
       );
     },
-    [selectedFilterQueries, router],
+    [selectedFilterQueries, router]
   );
 
   const handleChoiceFilterOptions = useCallback(
@@ -98,11 +80,11 @@ const SideBar = () => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true },
+        { scroll: true }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const handleColorSelection = useCallback(
@@ -111,11 +93,11 @@ const SideBar = () => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true },
+        { scroll: true }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   useEffect(() => {
@@ -152,10 +134,10 @@ const SideBar = () => {
     (updatedQueries: any) => {
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: false },
+        { scroll: false }
       );
     },
-    [router],
+    [router]
   );
 
   const handleCategoryClick = useCallback(
@@ -168,16 +150,16 @@ const SideBar = () => {
       updateSearchParams(updatedQueries);
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar],
+    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]
   );
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase()),
+          selectedFilterQueries[name].includes(option.toLowerCase())
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
   return (
     <section
@@ -259,7 +241,7 @@ const SideBar = () => {
             role="list"
             className="space-y-4 pl-5   border-gray-200 text-sm font-medium text-gray-900"
           >
-            {categories?.map((category: any, index) => (
+            {categories?.map((category: any) => (
               <li
                 key={category.id}
                 className={`${searchParams?.get("category") === category?.id ? "font-bold" : ""} hover:text-black hover:font-bold  relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2 `}
@@ -369,7 +351,7 @@ const SideBar = () => {
 
           <div className=" overflow-y-scroll max-h-60" id="filter-section-1">
             <div className="space-y-4">
-              {Brands?.map((brand: any) => (
+              {brands?.map((brand: any) => (
                 <div key={brand.id} className="flex items-center">
                   <input
                     id={`filtre-brand-${brand.id}`}

@@ -241,7 +241,7 @@ const Basket = () => {
                         </h4>
                       )}
                       <h4
-                        className={`text-md font-bold text-[#333] ${product?.productDiscounts?.length > 0 ? " text-gray-400 line-through" : ""}`}
+                        className={`text-md font-semibold text-[#333] ${product?.productDiscounts?.length > 0 ? " text-gray-700 line-through" : ""}`}
                       >
                         {product.price.toFixed(3)} TND
                       </h4>

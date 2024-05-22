@@ -8,6 +8,7 @@ interface UpdateCategoryInput {
 
 interface CreateCheckoutInput {
   userId: string
+  userName: string
   phone: number[]
   governorateId: string
   address: string

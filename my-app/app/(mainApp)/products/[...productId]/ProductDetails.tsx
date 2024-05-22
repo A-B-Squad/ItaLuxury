@@ -233,8 +233,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   useEffect(() => {
     if (discount && discount.dateOfEnd) {
-      const endTime = discount.dateOfEnd;
-
+      const endTime = new Date(discount.dateOfEnd).getTime();
       const now = new Date().getTime();
       const timeRemaining = endTime - now;
       setCountdown(timeRemaining > 0 ? timeRemaining : 0);
@@ -243,9 +242,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         const newTimeRemaining = endTime - new Date().getTime();
         setCountdown(newTimeRemaining > 0 ? newTimeRemaining : 0);
       }, 1000);
+
       return () => clearInterval(interval);
     }
   }, [discount]);
+
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
@@ -360,8 +361,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
                   {discount && (
                     <>
-                      <div className="text-gray-400 tracking-wide flex items-center text-lg gap-2">
-                        <p className="line-through">
+                      <div className="text-gray-400 tracking-wide flex items-center text-xl gap-2">
+                        <p className="line-through text-gray-700 font-semibold">
                           {discount.price.toFixed(3)} TND
                         </p>{" "}
                         <p className="text-sm bg-blue-800 text-white p-1">
@@ -378,20 +379,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                           <>
                             La réduction se termine dans :{" "}
                             <span className="font-semibold">
-                              {Math.floor(countdown / (1000 * 60 * 60 * 24))}{" "}
-                              jrs,{" "}
-                              {Math.floor(
-                                (countdown % (1000 * 60 * 60 * 24)) /
-                                  (1000 * 60 * 60),
-                              )}{" "}
-                              hrs,{" "}
-                              {Math.floor(
-                                (countdown % (1000 * 60 * 60)) / (1000 * 60),
-                              )}{" "}
-                              mins,{" "}
-                              {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
-                              secs
-                            </span>
+            {Math.floor(countdown / (1000 * 60 * 60 * 24))} jrs,{" "}
+            {Math.floor((countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))} hrs,{" "}
+            {Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60))} mins,{" "}
+            {Math.floor((countdown % (1000 * 60)) / 1000)} secs
+          </span>
                           </>
                         ) : (
                           "La réduction a expiré"

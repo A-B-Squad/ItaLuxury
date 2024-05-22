@@ -7,6 +7,7 @@ import {
   TAKE_6_PRODUCTS_IN_DISCOUNT,
   TAKE_6_PRODUCTS_PRICE_20,
 } from "@/graphql/queries";
+import { CONTENT_VISIBILITY } from "../../../graphql/queries";
 
 const page = async () => {
   if (!process.env.NEXT_PUBLIC_API_URL) {
@@ -168,6 +169,7 @@ const page = async () => {
     process.env.NEXT_PUBLIC_API_URL,
     {
       method: "POST",
+      cache:"no-cache",
       headers: {
         "Content-Type": "application/json",
       },
@@ -197,6 +199,21 @@ const page = async () => {
     }),
   }).then((res) => res.json());
 
+  const { data: TopSellsSectionVisibility } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+     ${CONTENT_VISIBILITY}
+  `,
+      variables: {
+        section: "top sells",
+      },
+    }),
+  }).then((res) => res.json());
+
 
   return (
     <Home
@@ -211,6 +228,7 @@ const page = async () => {
       leftCarouselAds={leftCarouselAds}
       rightCarouselAds={rightCarouselAds}
       centerCarouselAds={centerCarouselAds}
+      TopSellsSectionVisibility={TopSellsSectionVisibility}
     />
   );
 };

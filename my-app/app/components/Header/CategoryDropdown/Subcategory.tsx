@@ -16,18 +16,13 @@ interface Subcategory {
 
 const Subcategory: React.FC<SubcategoryProps> = ({ subcategories }) => {
   return (
-    <>
+    <div className="flex relative flex-grow gap-3 flex-auto">
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
-        <div key={subIndex} className="ml-10 h-fit">
+        <div key={subIndex} className="w-full relative gap-4  h-fit">
           <Link
-            href={{
-              pathname: `/Collections/${prepRoute(subcategory.name)}/tunisie?category=${subcategory.id}`,
-              query: {
-                category: subcategory.id,
-              },
-            }}
-            className="py-1 capitalize text-strongBeige hover:font-bold transition-colors  group border-b-2 cursor-pointer "
+            className="py-1 capitalize text-strongBeige block hover:font-bold transition-colors w-full group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
+            href={`/Collections/tunisie/${prepRoute(subcategory.name)}/?category=${subcategory.id}`}
           >
             {subcategory.name}
           </Link>
@@ -38,7 +33,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({ subcategories }) => {
             )}
         </div>
       ))}
-    </>
+    </div>
   );
 };
 

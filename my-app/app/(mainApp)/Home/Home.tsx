@@ -29,9 +29,8 @@ const Home = ({
   FullAdsTopDeals,
   leftCarouselAds,
   rightCarouselAds,
-  centerCarouselAds,
+  centerCarouselAds,TopSellsSectionVisibility
 }: any) => {
-  console.log(Products_inDiscount_6);
   
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">
@@ -143,10 +142,10 @@ const Home = ({
           </div>
         </div>
         <ClientServices />
-        <div className="BestSeals">
-          <BestSales />
-          <BrandsCarousel />
+        <div className="BestSeals ">
+          <BestSales TopSellsSectionVisibility={TopSellsSectionVisibility.getSectionVisibility.visibility_status} />
         </div>
+          <BrandsCarousel />
       </div>
     </div>
   );

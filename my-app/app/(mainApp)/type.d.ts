@@ -1,4 +1,4 @@
-interface SalesData {
+interface SellsData {
   getBestSales: any;
   getBestSales: any;
   product: ProductInfo;

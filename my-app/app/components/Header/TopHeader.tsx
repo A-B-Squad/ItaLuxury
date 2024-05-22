@@ -89,7 +89,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             width={192}
             height={96}
             alt="logo"
-            property="true"
+            priority
             layout="responsive"
             objectFit="contain"
           />

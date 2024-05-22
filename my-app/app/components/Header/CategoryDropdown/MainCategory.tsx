@@ -2,6 +2,7 @@ import React from "react";
 import Subcategory from "./Subcategory";
 import Link from "next/link";
 import prepRoute from "../../Helpers/_prepRoute";
+import { IoIosArrowForward } from "react-icons/io";
 
 interface CategoryProps {
   data: {
@@ -23,37 +24,40 @@ const Category: React.FC<CategoryProps> = ({
   activeCategory,
 }) => {
   return (
-    <div className="categories flex   gap-3">
-      <div className="parentCategory space-y-3">
+    <>
+      <div className="parentCategory min-w-56 space-y-3 border-r">
         {data?.categories?.map((category: Category, index: number) => (
           <div data-parentcategory={category.name} key={index}>
             <Link
-              href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
               onMouseEnter={() => setActiveCategory(category.name)}
-              className={` h-fit rounded-md  py-1 px-2 w-fit cursor-pointer hover:bg-lightBeige hover:text-white transition-all ${
+              className={` h-fit  py-2 px-3 w-full cursor-pointer hover:bg-gray-100  justify-between flex items-center gap-1  hover:font-semibold font-light transition-all ${
                 category.name === activeCategory
-                  ? "bg-strongBeige text-white "
+                  ? "bg-gray-100 font-semibold  "
                   : ""
               }`}
               data-category={category.name}
             >
               {category.name}
+              <IoIosArrowForward size={13} />
             </Link>
           </div>
         ))}
       </div>
 
-      <div className="subCategories-Container   grid grid-flow-col auto-cols-max	justify-center	">
-        {data?.categories
-          ?.filter((category: Category) => category.name === activeCategory)
-          .map((filteredCategory: Category, index: number) => (
-            <Subcategory
-              key={index}
-              subcategories={filteredCategory.subcategories}
-            />
-          ))}
+      <div className="categories flex px-3 flex-grow flex-wrap flex-auto gap-2">
+        <div className="subCategories-Container  p-2   w-full		">
+          {data?.categories
+            ?.filter((category: Category) => category.name === activeCategory)
+            .map((filteredCategory: Category, index: number) => (
+              <Subcategory
+                key={index}
+                subcategories={filteredCategory.subcategories}
+              />
+            ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
