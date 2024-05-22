@@ -3,16 +3,16 @@ import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 import { useRouter } from "next/navigation";
-import prepRoute from "../_prepRoute";
+import prepRoute from "../Helpers/_prepRoute";
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY
+    SEARCH_PRODUCTS_QUERY,
   );
 
   const router = useRouter();
@@ -70,7 +70,7 @@ const SearchBar = () => {
       <span
         className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-mediumBeige transition-all bg-strongBeige"
         onClick={() => {
-          router.push(`/Collections?query=${searchQuery}`, { scroll: false });
+          router.push(`/Collections?query=${searchQuery}`, { scroll: true });
         }}
       >
         <CiSearch className="size-7 text-white" />

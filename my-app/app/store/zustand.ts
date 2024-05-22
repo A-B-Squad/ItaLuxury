@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import Cookies from 'js-cookie';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -35,8 +35,6 @@ type ProductsInBasketStore = {
   removeProductFromBasket: (productId: string) => void;
   clearBasket: () => void;
 };
-
-
 
 interface ProductData {
   id: string;
@@ -81,7 +79,7 @@ export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
     closeCategoryDrawer: () => set({ isOpen: false }),
-  })
+  }),
 );
 
 export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
@@ -90,13 +88,10 @@ export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
   closeBasketDrawer: () => set({ isOpen: false }),
 }));
 
-
-
 export const useBasketStore = create<BasketStore>((set) => ({
   isUpdated: false,
   toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
 }));
-
 
 const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
   products: [],
@@ -105,7 +100,7 @@ const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
   removeProductFromCompare: (productId: any) =>
     set((state: any) => ({
       products: state.products.filter(
-        (product: any) => product.id !== productId
+        (product: any) => product.id !== productId,
       ),
     })),
 });
@@ -115,8 +110,8 @@ const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
   quantityInBasket: 0,
   setQuantityInBasket: (quantity: number) => {
     set((state: any) => ({
-      quantityInBasket: quantity
-    }))
+      quantityInBasket: quantity,
+    }));
   },
   addProductToBasket: (product: any) => {
     set((state: any) => ({
@@ -126,7 +121,7 @@ const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
   removeProductFromBasket: (productId: string) => {
     set((state: any) => ({
       products: state.products.filter(
-        (product: any) => product.id !== productId
+        (product: any) => product.id !== productId,
       ),
     }));
   },
@@ -134,33 +129,32 @@ const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
     set((state: any) => ({
       products: [],
     }));
-  }
+  },
 });
 
 export const useProductsInBasketStore = create(
   persist(productsInBasketStore, {
     name: "productsInBasket",
     storage: createJSONStorage(() => sessionStorage),
-  })
-)
+  }),
+);
 
 export const useComparedProductsStore = create(
   persist(comparedProductsStore, {
     name: "comparedProducts",
     storage: createJSONStorage(() => sessionStorage),
-  })
+  }),
 );
 
 type SidebarStore = {
   isOpenSideBard: boolean;
   toggleOpenSidebar: () => void;
-
 };
 
 export const useSidebarStore = create<SidebarStore>((set) => ({
   isOpenSideBard: false,
-  toggleOpenSidebar: () => set((state) => ({ isOpenSideBard: !state.isOpenSideBard })),
-
+  toggleOpenSidebar: () =>
+    set((state) => ({ isOpenSideBard: !state.isOpenSideBard })),
 }));
 interface AllProductViewStore {
   view: number;
@@ -172,7 +166,6 @@ export const useAllProductViewStore = create<AllProductViewStore>((set) => ({
   changeProductView: (gridNumber) => set({ view: gridNumber }),
 }));
 
-
 interface SideBarFilterStore {
   filter: Record<string, any>;
   setFilter: (key: string, value: any) => void;
@@ -181,14 +174,16 @@ interface SideBarFilterStore {
 
 export const useSideBarFilterWithStore = create<SideBarFilterStore>((set) => ({
   filter: {},
-  setFilter: (key, value) => set((state) => ({
-    filter: {
-      ...state.filter,
-      [key]: value,
-    }
-  })),
-  deleteFilter: (key) => set((state) => {
-    const { [key]: deletedKey, ...rest } = state.filter;
-    return { filter: rest };
-  }),
+  setFilter: (key, value) =>
+    set((state) => ({
+      filter: {
+        ...state.filter,
+        [key]: value,
+      },
+    })),
+  deleteFilter: (key) =>
+    set((state) => {
+      const { [key]: deletedKey, ...rest } = state.filter;
+      return { filter: rest };
+    }),
 }));

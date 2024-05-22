@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/legacy/image";
@@ -32,7 +34,8 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
             alt="MaisonNg"
             objectFit="contain"
             objectPosition={0}
-            loading="lazy"           />
+            loading="lazy"
+          />
         </Link>
       )}
     </div>

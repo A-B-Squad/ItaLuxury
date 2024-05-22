@@ -1,5 +1,5 @@
 "use client";
-import prepRoute from "../_prepRoute";
+import prepRoute from "../Helpers/_prepRoute";
 import {
   Carousel,
   CarouselContent,

@@ -1,52 +1,37 @@
+"use client";
 import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
-import Link from "next/link";
 import { IoImageOutline } from "react-icons/io5";
-import Image from "next/image";
-import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
-const FullWidth = () => {
-  const [images, setImages] = useState([]);
-
-
-  const {
-    data,
-    loading: adsLoaded,
-    error,
-  } = useQuery(ADVERTISSMENT_QUERY, {
-    variables: { position: "left" },
-    onCompleted: (data) => {
-      if (data && data.advertismentByPosition) {
-        const allImages = data.advertismentByPosition.flatMap(
-          (ad: { images: string[] }) => ad.images
-        );
-        setImages(allImages);
-      }
-    },
-  });
+import Image from "next/legacy/image";
+const FullWidthAds = ({
+  FullAdsLoaded,
+  FullImageAds,
+}: {
+  FullAdsLoaded: Boolean;
+  FullImageAds: string;
+}) => {
   return (
     <>
-      {adsLoaded && (
+      {FullAdsLoaded && (
         <div className="grid relative animate-pulse w-full h-52 mt-12  place-items-center rounded-lg bg-mediumBeige ">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}
 
-      {!adsLoaded && images.length <= 0 && (
+      {!FullAdsLoaded && !FullImageAds && (
         <div className="rounded-xl relative w-full h-52 mt-12 bg-mediumBeige flex flex-col justify-center items-center ">
           <p>{"Full Ads"}</p>
-          <p>334px x 790px</p>
+          <p>180px x 960px</p>
         </div>
       )}
 
-      {images.length > 0 && !adsLoaded && (
-        <div className="md:py-32 py-12  h-full w-full relative  ">
+      {FullImageAds && !FullAdsLoaded && (
+        <div className=" md:my-8  w-full relative h-[85px] md:h-[200px]   ">
           <Image
-            src={
-              "https://res.cloudinary.com/dc1cdbirz/image/upload/v1711937168/gdgjwty4swrew5vyna74.jpg"
-            }
-            className="w-full h-full"
+            className=" h-[85px] md:h-[200px]"
+            src={FullImageAds}
             layout="fill"
-            objectFit="contain"
+            objectFit="fill"
             loading="eager"
             alt="adsFullWidth"
           />
@@ -56,4 +41,4 @@ const FullWidth = () => {
   );
 };
 
-export default FullWidth;
+export default FullWidthAds;

@@ -208,12 +208,12 @@ type Governorate {
 
 # Define the CompanyInfo type
 type CompanyInfo {
-  id: ID!
-  phone: [Int!]!
+  id: ID
+  phone: [Int]
   deliveringPrice: Int
-  logo: String!
-  instagram:String!
-  facebook:String!
+  logo: String
+  instagram:String
+  facebook:String
 }
 # Define the TopDeals type
 type TopDeals {

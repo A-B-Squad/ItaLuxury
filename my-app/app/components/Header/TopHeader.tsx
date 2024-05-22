@@ -12,13 +12,13 @@ import {
   useProductsInBasketStore,
 } from "../../store/zustand";
 import { IoGitCompare } from "react-icons/io5";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { GoPackageDependents } from "react-icons/go";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
-import { useOutsideClick } from "../_outsideClick";
+import { useOutsideClick } from "../Helpers/_outsideClick";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -28,7 +28,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [LengthComparer, setLengthComparer] = useState<String>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket
+    (state) => state.quantityInBasket,
   );
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
@@ -75,8 +75,6 @@ const TopHeader = ({ logo }: { logo: string }) => {
     }
   }, []);
   const onSubmit = (data: any) => {
-    console.log(data, "jkfdhfkqjsd");
-
     SignIn({ variables: { input: data } });
   };
   return (
@@ -85,19 +83,22 @@ const TopHeader = ({ logo }: { logo: string }) => {
       onMouseEnter={() => setShowMenuUserMenu(false)}
     >
       <div className="logo relative w-48 h-24 ">
-        <Image
-          src={logo}
-          alt="logo"
-          layout="fill"
-          objectFit="contain"
-          priority
-        />
+        <Link href={"/Home"}>
+          <Image
+            src={logo}
+            width={192}
+            height={96}
+            alt="logo"
+            layout="responsive"
+            objectFit="contain"
+          />
+        </Link>
       </div>
       <SearchBar />
-      <div className="list md:flex items-center gap-5 cursor-pointer text-md hidden">
+      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden">
         <ul className="flex  gap-5">
           <li
-            className="userMenu relative group "
+            className="userMenu  group  "
             onMouseEnter={() => setShowMenuUserMenu(true)}
           >
             <div className="flex   items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
@@ -106,7 +107,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             </div>
             <div
               ref={clickOutside}
-              className={` absolute w-72 h-96 border-2  px-2 py-2   flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-5 visible" : "invisible translate-y-36"}border-2    bg-white  -translate-x-5 z-50`}
+              className={` absolute w-72 h-96 border-2  px-2 py-2    flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
             >
               {!decodedToken?.userId && (
                 <form
@@ -151,6 +152,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {!decodedToken?.userId && (
                 <Link
+                  rel="preload"
                   href={"/signup"}
                   className="w-full py-2 px-1 text-xs border-b gap-2 bg-gray-100 hover:text-strongBeige flex justify-start items-center  transition-colors"
                 >
@@ -161,6 +163,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {!decodedToken?.userId && (
                 <Link
+                  rel="preload"
                   className="w-full py-2  text-sm border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
                   href={"/signin"}
                 >
@@ -170,6 +173,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
               {decodedToken?.userId && (
                 <Link
+                  rel="preload"
                   onClick={() => {
                     if (decodedToken?.userId) {
                       Cookies.remove("Token");
@@ -187,7 +191,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
               )}
 
               <Link
-                href={decodedToken?.userId ? `/FavoriteList` : ""}
+                rel="preload"
+                href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
                 onClick={() => {
                   if (!decodedToken || !decodedToken.userId) {
                     alert("Veuillez vous connecter pour voir vos favoris.");
@@ -199,7 +204,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <p className="font-semibold uppercase">Ma Liste D'envies</p>
               </Link>
               <Link
-                href={decodedToken?.userId ? `/TrackingPackages` : ""}
+                rel="preload"
+                href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
                 onClick={() => {
                   if (!decodedToken || !decodedToken.userId) {
                     alert("Veuillez vous connecter pour voir vos commandes.");
@@ -212,6 +218,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               </Link>
 
               <Link
+                rel="preload"
                 href={`/productComparison`}
                 className=" text-sm w-full py-2 gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
               >

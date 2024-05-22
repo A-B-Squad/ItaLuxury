@@ -874,7 +874,7 @@ export const forgotPassword = async (
     });
 
     if (!user) {
-      return "User doesn't exist!";
+      throw new Error("User doesn't exist!");
     }
 
     // Send the reset password email
@@ -883,6 +883,6 @@ export const forgotPassword = async (
     return "Email sent successfully";
   } catch (error) {
     console.error("Error in forgotPassword function:", error);
-    return "An error occurred, please try again later.";
+    throw new Error("An error occurred, please try again later.");
   }
 };

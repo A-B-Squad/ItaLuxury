@@ -5,7 +5,6 @@ import { BASKET_QUERY } from "@/graphql/queries";
 import { FaRegEye } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import Link from "next/link";
-import prepRoute from "./_prepRoute";
 import Cookies from "js-cookie";
 
 import {
@@ -21,9 +20,10 @@ import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "./ProductCarousel/FavoriteProduct";
 import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
-import Image from "next/image";
-import calcDateForNewProduct from "./_calcDateForNewProduct";
+import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
+import calcDateForNewProduct from "./Helpers/_calcDateForNewProduct";
+import prepRoute from "./Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -44,7 +44,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    })
+    }),
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -57,12 +57,11 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const AddToBasket = (product: any) => {
     if (decodedToken) {
-
       addToBasket({
         variables: {
           input: {
@@ -87,7 +86,7 @@ export const ProductBox = ({ product }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -107,27 +106,32 @@ export const ProductBox = ({ product }: any) => {
   };
 
   const addToCompare = (product: any) => {
-    const isProductAlreadyInCompare = productsInCompare.some((p: any) => p.id === product.id);
-  
+    const isProductAlreadyInCompare = productsInCompare.some(
+      (p: any) => p.id === product.id,
+    );
+
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);
     } else {
-      console.log("Product is already in the compare list");
+      toast({
+        title: "Produit ajouté à la comparaison",
+        description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
+        className: "bg-strongBeige text-white",
+      });
     }
   };
-
 
   return (
     <>
       <ul
-        className={`plus_button ${view == 1 ? "top-5 hidden md:flex" : "flex top-14"}   items-center lg:opacity-0 group-hover:opacity-100  absolute right-3 z-20  justify-between  flex-col gap-3  `}
+        className={`plus_button ${view == 1 ? "top-5 hidden md:flex" : "flex top-14"}   items-center lg:opacity-0 group-hover:opacity-100  absolute right-3 z-30  justify-between  flex-col gap-3  `}
       >
         <div
           className="product-details relative w-fit cursor-crosshair"
           title="aperçu rapide"
           onClick={() => openProductDetails(product)}
         >
-          <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
+          <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
             <FaRegEye color="white" />
           </li>
         </div>
@@ -163,7 +167,7 @@ export const ProductBox = ({ product }: any) => {
               productId={product?.id}
               userId={decodedToken?.userId}
               heartColor={""}
-              heartSize={18}
+              heartSize={16}
             />
           </li>
         </div>

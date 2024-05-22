@@ -1,8 +1,10 @@
+"use client";
+
 import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 
 const Right = () => {
@@ -17,7 +19,7 @@ const Right = () => {
     onCompleted: (data) => {
       if (data && data.advertismentByPosition) {
         const allImages = data.advertismentByPosition.flatMap(
-          (ad: { images: string[] }) => ad.images
+          (ad: { images: string[] }) => ad.images,
         );
         setImages(allImages);
       }
@@ -53,13 +55,14 @@ const Right = () => {
       {images.length > 0 && !adsLoaded && (
         <div className="right-ads flex lg:flex-col  gap-5 md:gap-12">
           <Link
-            className="relative w-[11rem] md:w-[15rem] lg:w-[13rem] xl:w-[20rem]"
-            href={data.advertismentByPosition[0].link}
+            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
+            href={data?.advertismentByPosition[0]?.link}
           >
             <Image
               layout="responsive"
-              width={352}
-              height={300}
+              width={360}
+              height={208}
+              objectFit="contain"
               src={images[0]}
               loading="eager"
               property="true"
@@ -68,14 +71,15 @@ const Right = () => {
             />
           </Link>
           <Link
-            className="relative w-[11rem] md:w-[15rem] lg:w-[13rem] xl:w-[20rem]"
-            href={data.advertismentByPosition[1].link}
+            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
+            href={data?.advertismentByPosition[1]?.link}
           >
             <Image
               layout="responsive"
-              width={352}
-              height={300}
+              width={360}
+              height={208}
               src={images[1]}
+              objectFit="contain"
               loading="eager"
               alt="right-ads 2"
               className="rounded-xl hover:opacity-50 transition-all"

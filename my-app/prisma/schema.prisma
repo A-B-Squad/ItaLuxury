@@ -123,7 +123,7 @@ model Basket {
   userId    String?
   quantity  Int
   Product   Product? @relation(fields: [productId], references: [id])
-  productId String   
+  productId String
 }
 
 model Checkout {
@@ -136,7 +136,7 @@ model Checkout {
   phone         Int[]
   address       String
   package       Package[]
-  total         Int
+  total         Float
   createdAt     DateTime            @default(now())
 }
 
