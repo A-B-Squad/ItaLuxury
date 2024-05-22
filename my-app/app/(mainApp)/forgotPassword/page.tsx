@@ -2,13 +2,41 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, gql } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { FORGOT_PASSWORD_MUTATION } from "../../../graphql/mutations";
+import { useToast } from "@/components/ui/use-toast";
 
 const ForgotPassword = () => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
+  const [ForgotPassword, { loading }] = useMutation(FORGOT_PASSWORD_MUTATION);
   const router = useRouter();
+  const { toast } = useToast();
+
+  const handleSubmit = (e: any) => {
+    
+    e.preventDefault();
+    ForgotPassword({
+      variables: {
+        email,
+      },
+      onCompleted: (data) => {
+        console.log(data);
+        
+        toast({
+          title: "E-mail envoyé",
+          description: "E-mail envoyé avec succeés",
+          className: "bg-strongBeige text-white",
+        });
+      },
+      onError: (error) => {
+        setIsError(true);
+        setErrorMessage("E-mail n'existe pas !");
+        console.log(error);
+      },
+    });
+  };
 
   return (
     <div className="bg-lightBeige min-h-screen flex flex-col">
@@ -46,11 +74,11 @@ const ForgotPassword = () => {
 
           <button
             type="submit"
-            //   disabled={loading}
+            onClick={handleSubmit}
+            disabled={loading}
             className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
           >
-            {/* {loading ? "Chargement..." : "Envoyer"} */}
-            Envoyer
+            {loading ? "Chargement..." : "Envoyer"}
           </button>
         </div>
       </div>

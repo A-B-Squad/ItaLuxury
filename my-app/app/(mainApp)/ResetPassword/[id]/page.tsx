@@ -1,13 +1,42 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { useToast } from "@/components/ui/use-toast";
+import { RESET_PASSWORD_MUTATION } from "@/graphql/mutations";
 
 const ResetPassword = () => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetPassword, { loading }] = useMutation(RESET_PASSWORD_MUTATION);
   const router = useRouter();
+  const params = useParams();
+  const { toast } = useToast();
+
+  const handleSubmit = () => {
+    if (password !== confirmPassword) {
+      setIsError(true);
+      setErrorMessage(
+        "Le mot de passe et la confirmation du mot de passe doivent être identiques !"
+      );
+    } else {
+      resetPassword({
+        variables: {
+          password,
+          resetPasswordId: params?.id,
+        },
+        onCompleted: () => {
+          router.replace("/signin");
+        },
+        onError: (error) => {
+          console.error(error);
+        },
+      });
+    }
+  };
 
   return (
     <div className="bg-lightBeige min-h-screen flex flex-col">
@@ -37,24 +66,29 @@ const ResetPassword = () => {
 
           <input
             type="password"
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
             className="block border border-grey-light w-full p-3 rounded mb-4"
             name="password"
             placeholder="Tapez votre mot de passe"
           />
           <input
             type="password"
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+            }}
             className="block border border-grey-light w-full p-3 rounded mb-4"
             name="confirm-password"
             placeholder="Confirmer votre mot de passe"
           />
 
           <button
-            type="submit"
-            //   disabled={loading}
+            onClick={handleSubmit}
+            disabled={loading}
             className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
           >
-            {/* {loading ? "Chargement..." : "Envoyer"} */}
-            Réinitialiser
+            {loading ? "Chargement..." : "Envoyer"}
           </button>
         </div>
       </div>

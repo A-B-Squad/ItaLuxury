@@ -164,13 +164,13 @@ const Footer = async () => {
   return (
     <div className="bg-white shadow-2xl shadow-black text-black flex flex-col items-center pt-3">
       <div className="text-center mb-5 flex justify-center items-center flex-col">
-        <Image
+        {/* <Image
           src={CompanyInfoData?.companyInfo?.logo}
           width={250}
           height={250}
           alt="Maison Ng"
           objectFit="contain"
-        />
+        /> */}
         <p className="mt-5 w-11/12 md:w-3/4 font-light">
           Maison Ng s'engage à simplifier et à embellir votre quotidien. Notre
           site propose une sélection raffinée d'articles de cuisine, d'arts de

@@ -41,7 +41,6 @@ const Signin = () => {
   });
 
   const onSubmit = (data: any) => {
-    console.log(data, "jkfdhfkqjsd");
 
     SignIn({ variables: { input: data } });
   };
