@@ -13,12 +13,12 @@ import {
 } from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import prepRoute from "@/app/components/Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 
 // / ------------------!--------------------
 
-import { convertValidStringQueries } from "@/app/components/Helpers/_convertValidStringQueries";
-import { convertStringToQueriesObject } from "../../../components/Helpers/_convertStringToQueriesObject";
+import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
+import { convertStringToQueriesObject } from "../../../Helpers/_convertStringToQueriesObject";
 const SideBar = ({ colors, brands, categories }: any) => {
   const { toast } = useToast();
 

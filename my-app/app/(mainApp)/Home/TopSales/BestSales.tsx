@@ -4,7 +4,7 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import { BASKET_QUERY, BEST_SALES_QUERY } from "@/graphql/queries";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import prepRoute from "@/app/components/Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 import { FaBasketShopping } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa";
 import {

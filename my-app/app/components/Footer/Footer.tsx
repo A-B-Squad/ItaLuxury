@@ -2,7 +2,7 @@ import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
 
 import Image from "next/legacy/image";
 import Link from "next/link";
-import prepRoute from "../Helpers/_prepRoute";
+import prepRoute from "../../Helpers/_prepRoute";
 import {
   Accordion,
   AccordionContent,
@@ -43,7 +43,7 @@ const Footer = async () => {
       }
   `,
       }),
-    },
+    }
   ).then((res) => res.json());
 
   const { data: CategoryData } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
@@ -220,7 +220,7 @@ const Footer = async () => {
                         {item.name}
                       </Link>
                     </AccordionContent>
-                  ),
+                  )
                 )}
               </AccordionItem>
             </div>

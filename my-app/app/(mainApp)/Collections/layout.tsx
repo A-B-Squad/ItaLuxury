@@ -5,7 +5,7 @@ import React, { ReactNode } from "react";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import keywords from "@/app/public/keywords";
+import keywords from "@/public/keywords";
 import { ALL_BRANDS, COLORS_QUERY } from "../../../graphql/queries";
 type Props = {
   children: ReactNode;
@@ -86,7 +86,11 @@ export default async function Layout({ children }: Props) {
     <div className="relative flex w-full flex-col">
       <TopBar />
       <div className="w-full flex">
-        <SideBar categories={Categories?.categories} brands={Brands?.fetchBrands} colors={Colors?.colors} />
+        <SideBar
+          categories={Categories?.categories}
+          brands={Brands?.fetchBrands}
+          colors={Colors?.colors}
+        />
         <main style={{ width: "inherit" }} className=" relative">
           <ProductInfo />
           {children}

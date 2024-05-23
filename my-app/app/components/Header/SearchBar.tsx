@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 
 import { useRouter } from "next/navigation";
-import prepRoute from "../Helpers/_prepRoute";
+import prepRoute from "../../Helpers/_prepRoute";
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);

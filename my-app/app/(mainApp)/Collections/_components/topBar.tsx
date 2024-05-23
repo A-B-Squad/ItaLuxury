@@ -18,8 +18,8 @@ import {
   useAllProductViewStore,
   useSidebarStore,
 } from "../../../store/zustand";
-import { convertStringToQueriesObject } from "@/app/components/Helpers/_convertStringToQueriesObject";
-import { convertValidStringQueries } from "@/app/components/Helpers/_convertValidStringQueries";
+import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
+import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
 interface FilterQueries {
   [key: string]: string[];
 }
@@ -47,10 +47,10 @@ const TopBar = () => {
         })}`,
         {
           scroll: true,
-        },
+        }
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
 
   return (

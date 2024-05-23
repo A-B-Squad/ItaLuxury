@@ -22,8 +22,8 @@ import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
-import calcDateForNewProduct from "./Helpers/_calcDateForNewProduct";
-import prepRoute from "./Helpers/_prepRoute";
+import calcDateForNewProduct from "../Helpers/_calcDateForNewProduct";
+import prepRoute from "../Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -44,7 +44,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -57,7 +57,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -86,7 +86,7 @@ export const ProductBox = ({ product }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -107,7 +107,7 @@ export const ProductBox = ({ product }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {

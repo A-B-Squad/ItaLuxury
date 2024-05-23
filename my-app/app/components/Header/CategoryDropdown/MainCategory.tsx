@@ -1,7 +1,7 @@
 import React from "react";
 import Subcategory from "./Subcategory";
 import Link from "next/link";
-import prepRoute from "../../Helpers/_prepRoute";
+import prepRoute from "../../../Helpers/_prepRoute";
 import { IoIosArrowForward } from "react-icons/io";
 
 interface CategoryProps {
@@ -31,7 +31,7 @@ const Category: React.FC<CategoryProps> = ({
             <Link
               href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
               onMouseEnter={() => setActiveCategory(category.name)}
-              className={` h-fit  py-2 px-3 w-full cursor-pointer hover:bg-gray-100  justify-between flex items-center gap-1  hover:font-semibold font-light transition-all ${
+              className={`  group h-fit  py-2 px-3 w-full cursor-pointer hover:bg-gray-100  justify-between flex items-center gap-1  hover:font-semibold font-light transition-all ${
                 category.name === activeCategory
                   ? "bg-gray-100 font-semibold  "
                   : ""
@@ -39,7 +39,15 @@ const Category: React.FC<CategoryProps> = ({
               data-category={category.name}
             >
               {category.name}
-              <IoIosArrowForward size={13} />
+              <IoIosArrowForward
+                className={` group-hover:text-black  transition-all ${
+                  
+                  category.name === activeCategory
+                    ? "text-black  "
+                    : "text-gray-700"
+                }`}
+                size={13}
+              />
             </Link>
           </div>
         ))}

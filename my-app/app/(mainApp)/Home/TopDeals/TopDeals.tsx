@@ -1,5 +1,5 @@
 "use client";
-import prepRoute from "@/app/components/Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 import PopHover from "@/app/components/PopHover";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import {
@@ -143,7 +143,8 @@ const TopDeals = () => {
                 className="h-56 lg:h-full  w-full"
               >
                 <span className="absolute left-5 top-5 z-20 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
-                  {products?.product?.productDiscounts[0]?.Discount?.percentage}%
+                  {products?.product?.productDiscounts[0]?.Discount?.percentage}
+                  %
                 </span>
 
                 <div className="relative lg:col-span-1 row-span-1 lg:row-span-1 h-56 lg:h-full  w-full">

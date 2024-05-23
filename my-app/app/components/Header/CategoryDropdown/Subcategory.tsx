@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import prepRoute from "../../Helpers/_prepRoute";
+import prepRoute from "../../../Helpers/_prepRoute";
 import Subsubcategory from "./Subsubcategory";
 
 interface SubcategoryProps {
