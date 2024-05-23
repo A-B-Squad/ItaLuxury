@@ -115,7 +115,7 @@ const Signin = () => {
           Mot de passe oublié?
           <Link
             className="no-underline border-b border-blue text-blue-700"
-            href="/signup"
+            href="/forgotPassword"
           >
             Changer mot de passe
           </Link>

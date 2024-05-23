@@ -30,7 +30,7 @@ const productDetailsDrawer = ({
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -53,7 +53,7 @@ const productDetailsDrawer = ({
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -93,7 +93,7 @@ const productDetailsDrawer = ({
               {productDetails.name}
             </h2>
             <div className="discount flex flex-col  gap-1 mt-2">
-              <p className="text-strongBeige tracking-wide text-2xl font-bold">
+              <p className="text-strongBeige  tracking-wide text-2xl font-bold">
                 {discount
                   ? discount.newPrice.toFixed(3)
                   : productDetails.price.toFixed(3)}{" "}
@@ -111,7 +111,7 @@ const productDetailsDrawer = ({
                 className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1,
+                    actualQuantity > 1 ? actualQuantity - 1 : 1
                   );
                 }}
               >
@@ -130,7 +130,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity,
+                      : actualQuantity
                   );
                 }}
               >

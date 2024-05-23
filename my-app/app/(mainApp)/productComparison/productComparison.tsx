@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY } from "../../../graphql/queries";
-import prepRoute from "@/app/components/Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -144,7 +144,7 @@ const ProductComparison = () => {
                         <div className="mt-2 mb-5 flex items-center justify-between">
                           <div className="prices flex flex-col">
                             {product.productDiscounts.length > 0 && (
-                              <p className="text-lg text-slate-900 line-through">
+                              <p className="text-lg text-gray-700 line-through font-semibold">
                                 {product.price.toFixed(3)} TND
                               </p>
                             )}

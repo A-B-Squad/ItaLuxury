@@ -68,6 +68,13 @@ export const BASKET_QUERY = gql`
         name
         price
         images
+        productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
         categories {
           id
           name
@@ -84,96 +91,7 @@ export const BASKET_QUERY = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS = gql`
-  query Products($limit: Int!) {
-    products(limit: $limit) {
-      id
-      name
-      price
-      reference
-      description
-      createdAt
-      inventory
-      images
-      categories {
-        id
-        name
-        subcategories {
-          id
-          name
-          parentId
-          subcategories {
-            id
-            name
-            parentId
-          }
-        }
-      }
-      Colors {
-        id
-        color
-        Hex
-      }
-      attributes {
-        id
-        name
-        value
-      }
-      productDiscounts {
-        price
-        newPrice
-        Discount {
-          percentage
-        }
-      }
-    }
-  }
-`;
-export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
-  query ProductsDiscounts($limit: Int) {
-    productsDiscounts(limit: $limit) {
-      id
-      name
-      price
-      reference
-      description
-      createdAt
-      inventory
-      images
-      categories {
-        id
-        name
-        subcategories {
-          id
-          name
-          parentId
-          subcategories {
-            id
-            name
-            parentId
-          }
-        }
-      }
-      attributes {
-        id
-        name
-        value
-      }
-      Colors {
-        id
-        color
-        Hex
-      }
-      productDiscounts {
-        price
-        newPrice
-        Discount {
-          percentage
-        }
-      }
-    }
-  }
-`;
+
 export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
   query productsByCategory($categoryName: String!,$limit: Int!) {
     productsByCategory(categoryName: $categoryName, limit: $limit) {
@@ -219,66 +137,7 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS_PRICE_20 = gql`
-  query ProductsLessThen20($limit: Int!) {
-    productsLessThen20(limit: $limit) {
-      id
-      name
-      price
-      reference
-      description
-      createdAt
-      inventory
-      images
-      categories {
-        id
-        name
-        subcategories {
-          id
-          name
-          parentId
-          subcategories {
-            id
-            name
-            parentId
-          }
-        }
-      }
-      Colors {
-        id
-        color
-        Hex
-      }
-      productDiscounts {
-        price
-        newPrice
-        Discount {
-          percentage
-        }
-      }
-    }
-  }
-`;
-export const SIDE_ADS_NEW_PRODUCT = gql`
-  query Query($position: String!) {
-    advertismentByPosition(position: $position) {
-      images
-      link
-    }
-  }
-`;
-export const ALL_BRANDS = gql`
-  query FetchBrands {
-    fetchBrands {
-      id
-      name
-      logo
-      product {
-        id
-      }
-    }
-  }
-`;
+
 export const TOP_DEALS = gql`
   query AllDeals {
     allDeals {
@@ -333,7 +192,7 @@ export const CLIENT_SERVICES = gql`
     }
   }
 `;
-export const ADVERTISSMENT_QUERY = gql`
+export const ADVERTISSMENT_QUERY = `
   query AdvertismentByPosition($position: String!) {
     advertismentByPosition(position: $position) {
       images
@@ -360,16 +219,7 @@ export const CATEGORY_QUERY = gql`
   }
 `;
 
-export const COLORS_QUERY = gql`
-  query Colors {
-    id
-    colors {
-      id
-      color
-      Hex
-    }
-  }
-`;
+
 
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($input: ProductSearchInput!) {
@@ -466,6 +316,7 @@ export const BEST_SALES_QUERY = gql`
         id
         name
         images
+        description
         price
         productDiscounts {
           newPrice
@@ -515,8 +366,6 @@ query FetchBrands {
 }
 
 `;
-
-
 export const COMPANY_INFO_QUERY = gql`
   query CompanyInfo {
     companyInfo {
@@ -565,4 +414,185 @@ export const GET_PACKAGES_BY_ID = gql`
 }
 
 
+`;
+
+//  QUERY TO FETCH DIRECT WITHOUT GQL
+export const TAKE_6_PRODUCTS_PRICE_20 = `
+  query ProductsLessThen20($limit: Int!) {
+    productsLessThen20(limit: $limit) {
+      id
+      name
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
+        id
+        name
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
+    }
+  }
+`;
+export const SIDE_ADS_NEW_PRODUCT = `
+  query Query($position: String!) {
+    advertismentByPosition(position: $position) {
+      images
+      link
+    }
+  }
+`;
+export const ALL_BRANDS = `
+  query FetchBrands {
+    fetchBrands {
+      id
+      name
+      logo
+      product {
+        id
+      }
+    }
+  }
+`;
+export const GET_GOVERMENT_INFO = `
+
+query AllGovernorate {
+  allGovernorate {
+    id
+    name
+  }
+}
+
+`;
+export const CONTENT_VISIBILITY = `
+
+query GetSectionVisibility($section: String!) {
+  getSectionVisibility(section: $section) {
+  section
+  visibility_status  
+  }
+}
+
+`;
+export const TAKE_6_PRODUCTS = `
+  query Products($limit: Int!) {
+    products(limit: $limit) {
+      id
+      name
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
+        id
+        name
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      attributes {
+        id
+        name
+        value
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
+    }
+  }
+`;
+export const TAKE_6_PRODUCTS_IN_DISCOUNT = `
+  query ProductsDiscounts($limit: Int) {
+    productsDiscounts(limit: $limit) {
+      id
+      name
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
+        id
+        name
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      attributes {
+        id
+        name
+        value
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
+    }
+  }
+`;
+export const COLORS_QUERY = `
+  query Colors {
+    colors {
+      id
+      color
+      Hex
+    }
+  }
 `;

@@ -97,7 +97,7 @@ export function DrawerMobile() {
           onClick={closeCategoryDrawer}
           className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2`}
         >
-          <Link href={"/Collections/tunisie"} className="capitalize font-bold">
+          <Link href={"/Collections/tunisie"} className="capitalize font-bold w-full">
             Voir Tous
           </Link>
           <MdKeyboardArrowRight size={20} />

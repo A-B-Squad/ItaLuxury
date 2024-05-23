@@ -65,7 +65,7 @@ const ClientServices = () => {
           <Link
             rel="preload"
             href={client1[0].link}
-            className="  shadow-lg border-2  w-[384px] h-[218px]     "
+            className="  shadow-lg border-2 w-[300px] h-[150px]   lg:w-[384px] lg:h-[218px]     "
           >
             <Image
               src={client1[0].images[0]}
@@ -84,7 +84,8 @@ const ClientServices = () => {
           <Link
             rel="preload"
             href={client2[0].link}
-            className="  shadow-lg border-2 w-full h-full  max-w-[384px] max-h-[218px]  md:w-[384px] md:h-[218px]      "
+
+            className="  shadow-lg border-2 w-[300px] h-[150px]   max-w-[384px] max-h-[218px]  lg:w-[384px] lg:h-[218px]      "
           >
             <Image
               src={client2[0].images[0]}
@@ -103,7 +104,7 @@ const ClientServices = () => {
           <Link
             rel="preload"
             href={client3[0].link}
-            className="  shadow-lg border-2  w-[384px] h-[218px]     "
+            className="  shadow-lg border-2 w-[300px] h-[150px]   lg:w-[384px] lg:h-[218px]     "
           >
             <Image
               src={client3[0].images[0]}

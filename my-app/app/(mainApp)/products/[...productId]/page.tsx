@@ -1,8 +1,12 @@
 import React from "react";
 import ProductDetails from "./ProductDetails";
-
+import keywords from "@/public/keywords";
 export async function generateMetadata({ searchParams }: any) {
-  const { data } = await fetch("http://localhost:3000/api/graphql", {
+  if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+
+  const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,29 +25,38 @@ export async function generateMetadata({ searchParams }: any) {
         productByIdId: searchParams.productId,
       },
     }),
-    next: { revalidate: 10 },
   }).then((res) => res.json());
-  const productData = data.productById;
+  const productData = data?.productById;
 
   return {
-    title: `${productData.name} - MaisonNg`,
-    description: productData.description,
+    metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+    title: `${productData?.name} - MaisonNg`,
+    description: productData?.description,
     openGraph: {
       type: "article",
       images: [
         {
-          url: productData.images[0],
+          url: productData?.images[0],
           width: 800,
           height: 600,
-          alt: productData.name,
+          alt: productData?.name,
         },
       ],
+    },
+    keywords: keywords,
+    icons: {
+      icon: "../../public/images/logo.jpeg",
+      appleTouchIcon: "/images/logo.jpeg",
+      favicon: "../../public/images/favicon.ico",
     },
   };
 }
 
 const page = async ({ searchParams }: any) => {
-  const { data } = await fetch("http://localhost:3000/api/graphql", {
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+  const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -88,11 +101,10 @@ const page = async ({ searchParams }: any) => {
         productByIdId: searchParams.productId,
       },
     }),
-    next: { revalidate: 10 },
   }).then((res) => res.json());
   return (
     <ProductDetails
-      productDetails={data.productById}
+      productDetails={data?.productById}
       productId={searchParams.productId}
     />
   );

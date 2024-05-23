@@ -18,6 +18,8 @@ import { dealsQueries } from './resolvers/queries/topDealsQueries/dealsQueries';
 import { colorsQueries } from "./resolvers/queries/colorsQueries/colorsQueries";
 import { bestSalesQueries } from "./resolvers/queries/bestSalesQuery/bestSalesQueries";
 import { BrandQueries } from "./resolvers/queries/BrandQuery/brandQueries";
+import { SectionVisibilityMutations } from "./resolvers/mutations/sectionVisibilityMutations/SectionVisibilityMutations";
+import { SectionQueries } from "./resolvers/queries/sectionVisibilityQueries/SectionVisibilityQueries";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -30,7 +32,8 @@ export const resolvers = {
     ...dealsQueries,
     ...colorsQueries,
     ...bestSalesQueries,
-    ...BrandQueries
+    ...BrandQueries,
+    ...SectionQueries
   },
 
   Mutation: {
@@ -42,6 +45,7 @@ export const resolvers = {
     ...packageMutations,
     ...companyMutations,
     ...adminMutations,
-    ...topDealsMutations
+    ...topDealsMutations,
+    ...SectionVisibilityMutations
   },
 };

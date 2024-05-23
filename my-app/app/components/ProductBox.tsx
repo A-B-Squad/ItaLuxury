@@ -22,8 +22,8 @@ import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
-import calcDateForNewProduct from "./Helpers/_calcDateForNewProduct";
-import prepRoute from "./Helpers/_prepRoute";
+import calcDateForNewProduct from "../Helpers/_calcDateForNewProduct";
+import prepRoute from "../Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -44,7 +44,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -57,7 +57,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -86,7 +86,7 @@ export const ProductBox = ({ product }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -107,7 +107,7 @@ export const ProductBox = ({ product }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {
@@ -168,6 +168,7 @@ export const ProductBox = ({ product }: any) => {
               userId={decodedToken?.userId}
               heartColor={""}
               heartSize={16}
+              productName={product?.name}
             />
           </li>
         </div>
@@ -277,7 +278,7 @@ export const ProductBox = ({ product }: any) => {
                 <p
                   className={`${
                     product?.productDiscounts.length > 0
-                      ? "line-through text-lg"
+                      ? "line-through font-semibold text-lg text-gray-700"
                       : "text-strongBeige text-xl py-1"
                   } font-semibold`}
                 >
@@ -311,7 +312,7 @@ export const ProductBox = ({ product }: any) => {
             </div>
 
             <button
-              className={`flex items-center gap-2 self-center py-2 rounded-md  w-full justify-center bg-strongBeige px-2  text-md text-white transition hover:bg-mediumBeige`}
+              className={`flex items-center gap-2 self-center py-2  m-auto w-36 text-xs justify-center bg-strongBeige px-2  text-md text-white transition hover:bg-mediumBeige`}
               onClick={() => AddToBasket(product)}
             >
               <SlBasket />
@@ -334,7 +335,7 @@ export const ProductBox = ({ product }: any) => {
                 <p
                   className={`${
                     product?.productDiscounts?.length > 0
-                      ? "line-through text-base md:text-lg"
+                      ? "line-through text-base md:text-lg font-semibold text-gray-700"
                       : "text-strongBeige text-base md:text-lg py-1"
                   } font-semibold`}
                 >

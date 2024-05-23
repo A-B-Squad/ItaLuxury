@@ -3,7 +3,7 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
 import Subcategory from "./Subcategory";
 import Link from "next/link";
-import prepRoute from "../../Helpers/_prepRoute";
+import prepRoute from "../../../Helpers/_prepRoute";
 
 interface CategoryProps {
   data: {
@@ -47,7 +47,7 @@ const Category: React.FC<CategoryProps> = ({
           >
             <Link
               className="capitalize"
-              href={`/Collections/${prepRoute(category.name)}/tunisie?category=${category.id}`}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
             >
               {category.name}
             </Link>
