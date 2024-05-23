@@ -55,7 +55,7 @@ const SearchBar = () => {
 
   return (
     <div
-      className="search z-50 flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full    pl-4"
+      className="search z-30 flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full    pl-4"
       onClick={() => setSearching(true)}
       onMouseLeave={() => setSearching(false)}
     >

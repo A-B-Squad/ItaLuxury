@@ -17,6 +17,11 @@ const nextConfig = {
         hostname: "wamia-media.s3.eu-west-1.amazonaws.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "png.pngtree.com",
+        pathname: "**",
+      },
 
     ],
   },

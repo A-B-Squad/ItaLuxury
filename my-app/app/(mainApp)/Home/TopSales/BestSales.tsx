@@ -129,7 +129,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="border-2 w-full shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
+            <tbody className="border-2 w-full p-5 shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
               {allProducts
                 .filter(
                   (product: any) => product?.categories[0].name === category
