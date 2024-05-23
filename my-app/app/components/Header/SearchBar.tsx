@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState, useRef, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
+import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
 import Image from "next/legacy/image";

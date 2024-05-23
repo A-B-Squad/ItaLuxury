@@ -1,7 +1,7 @@
 import React from "react";
 import Signup from "./signup";
 import { Metadata } from "next";
-import keywords from '@/app/public/keywords';
+import keywords from "@/public/keywords";
 
 if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");

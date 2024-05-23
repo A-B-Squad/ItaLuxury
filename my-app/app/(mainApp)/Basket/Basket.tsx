@@ -13,7 +13,7 @@ import {
 import { BASKET_QUERY } from "../../../graphql/queries";
 import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
-import prepRoute from "@/app/components/Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 
 interface DecodedToken extends JwtPayload {
   userId: string;

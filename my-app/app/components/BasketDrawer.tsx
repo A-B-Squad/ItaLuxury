@@ -5,7 +5,7 @@ import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
 import { BASKET_QUERY } from "../../graphql/queries";

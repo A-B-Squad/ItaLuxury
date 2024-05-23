@@ -1,6 +1,5 @@
 "use client";
 import prepRoute from "@/app/Helpers/_prepRoute";
-import PopHover from "@/app/components/PopHover";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import {
   useBasketStore,

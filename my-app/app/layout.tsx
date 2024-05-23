@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="./public/images/favicon.ico" sizes="any" />
+        <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
       </head>
       <body className={openSans.className}>
         <ApolloWrapper>{children}</ApolloWrapper>

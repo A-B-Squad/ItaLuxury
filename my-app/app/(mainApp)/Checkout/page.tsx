@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import Checkout from "./Checkout";
 import { Metadata } from "next";
-import keywords from "@/app/public/keywords";
+import keywords from "@/public/keywords";
 import { GET_GOVERMENT_INFO } from "@/graphql/queries";
 
 // Define a type for searchParams if possible

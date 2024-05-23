@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY } from "../../../graphql/queries";
-import prepRoute from "@/app/components/Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
