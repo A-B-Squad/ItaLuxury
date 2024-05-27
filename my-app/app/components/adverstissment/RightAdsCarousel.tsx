@@ -5,22 +5,24 @@ import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/legacy/image";
 
-const Right = ({ rightCarouselAds }: any) => {
+const RightAdsCarousel = ({
+  rightCarouselAds,
+  loadingRightAdsCarousel,
+}: any) => {
   const [images, setImages] = useState([]);
 
-  
   useEffect(() => {
-    if (rightCarouselAds && rightCarouselAds.advertismentByPosition) {
-      const allImages = rightCarouselAds.advertismentByPosition.flatMap(
+    if (rightCarouselAds) {
+      const allImages = rightCarouselAds.flatMap(
         (ad: { images: string[] }) => ad.images
       );
       setImages(allImages);
     }
-  }, []);
+  }, [loadingRightAdsCarousel]);
 
   return (
     <>
-      {images.length === 0 && (
+      {(images.length === 0 || loadingRightAdsCarousel) && (
         <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
           <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
@@ -31,13 +33,11 @@ const Right = ({ rightCarouselAds }: any) => {
         </div>
       )}
 
-    
-
-      {images.length > 0  && (
+      {images.length > 0 && (
         <div className="right-ads flex lg:flex-col  gap-5 md:gap-12">
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={rightCarouselAds?.advertismentByPosition[0]?.link}
+            href={rightCarouselAds[0]?.link}
           >
             <Image
               layout="responsive"
@@ -53,7 +53,7 @@ const Right = ({ rightCarouselAds }: any) => {
           </Link>
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={rightCarouselAds?.advertismentByPosition[1]?.link}
+            href={rightCarouselAds[1]?.link}
           >
             <Image
               layout="responsive"
@@ -72,4 +72,4 @@ const Right = ({ rightCarouselAds }: any) => {
   );
 };
 
-export default Right;
+export default RightAdsCarousel;

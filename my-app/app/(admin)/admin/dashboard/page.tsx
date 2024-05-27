@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { LuPackage2 } from "react-icons/lu";
 import { TbPackages } from "react-icons/tb";
 import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 import { LuUsers2 } from "react-icons/lu";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { useQuery } from "@apollo/client";
 import { PACKAGE_QUERY } from "@/graphql/queries";
+import { PiPackage } from "react-icons/pi";
+
 import {
   isToday,
   isYesterday,
@@ -16,7 +17,7 @@ import {
   isThisYear,
 } from "date-fns";
 
-const getStats = (packages:any) => {
+const getStats = (packages: any) => {
   const stats = {
     today: [0, 0],
     lastDay: [0, 0],
@@ -24,14 +25,15 @@ const getStats = (packages:any) => {
     thisMonth: [0, 0],
     thisYear: [0, 0],
   };
+console.log(packages);
 
-  packages.forEach((pkg:any) => {
+  packages.forEach((pkg: any) => {
     const packageDate = pkg.createdAt;
 
     if (pkg.status === "DELIVERED") {
-      console.log('====================================');
+      console.log("====================================");
       console.log(isToday(packageDate));
-      console.log('====================================');
+      console.log("====================================");
       if (isToday(packageDate)) {
         stats.today[0]++;
         stats.today[1] += pkg.Checkout.total;
@@ -83,34 +85,34 @@ const Dashborad = () => {
 
   return (
     <div className="w-full p-8">
-      <div className="main-cards grid grid-cols-4 gap-5 my-4">
+      <div className="main-cards container grid grid-cols-4 gap-5 my-4">
         <div className="card flex flex-col justify-around p-4 px-6 rounded bg-white border shadow-md">
-          <div className="card-inner text-lg text-blue-900 flex items-center justify-between">
+          <div className="card-inner text-lg text-mainColorAdminDash flex items-center justify-between">
             <h3>PRODUITS</h3>
-            <LuPackage2 className="card_icon" />
+            <PiPackage className="card_icon" />
           </div>
-          <h1 className="text-blue-900">300</h1>
+          <h1 className="text-mainColorAdminDash">300</h1>
         </div>
         <div className="card flex flex-col justify-around p-4 px-6 rounded bg-white border shadow-md">
-          <div className="card-inner text-lg text-blue-900 flex items-center justify-between">
-            <h3>COMMANDES</h3>
+          <div className="card-inner text-lg text-mainColorAdminDash flex items-center justify-between">
+            <h3 className="tracking-wider">COMMANDES</h3>
             <TbPackages className="card_icon" />
           </div>
-          <h1 className="text-blue-900">12</h1>
+          <h1 className="text-mainColorAdminDash">12</h1>
         </div>
         <div className="card flex flex-col justify-around p-4 px-6 rounded bg-white border shadow-md">
-          <div className="card-inner text-lg text-blue-900 flex items-center justify-between">
+          <div className="card-inner text-lg text-mainColorAdminDash flex items-center justify-between">
             <h3>CLIENTS</h3>
             <LuUsers2 className="card_icon" />
           </div>
-          <h1 className="text-blue-900">33</h1>
+          <h1 className="text-mainColorAdminDash">33</h1>
         </div>
         <div className="card flex flex-col justify-around p-4 px-6 rounded bg-white border shadow-md">
-          <div className="card-inner text-lg text-blue-900 flex items-center justify-between">
+          <div className="card-inner text-lg text-mainColorAdminDash flex items-center justify-between">
             <h3>UP SELLS</h3>
             <MdKeyboardDoubleArrowUp className="card_icon" />
           </div>
-          <h1 className="text-blue-900">42</h1>
+          <h1 className="text-mainColorAdminDash">42</h1>
         </div>
       </div>
       <div className="w-full mt-10 border shadow-md rounded-sm">
@@ -120,65 +122,76 @@ const Dashborad = () => {
         <div className="flex justify-around mt-8 p-5">
           <div className="border w-[45%] rounded-sm">
             <h1 className="flex items-center justify-center gap-2 p-3 font-bold w-full border-b-2">
-              <LuPackage2 size={24} />
+              <PiPackage className="card_icon" size={24} />
               Commandes
             </h1>
             <div className="m-5 border rounded-sm flex flex-col">
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Aujourd’hui</span>
-                <span className="font-bold">{stats.today[0]}</span>
+                <span className="font-semibold text-gray-600">Aujourd’hui</span>
+                <span className="font-semibold">{stats.today[0]}</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Hier</span>
-                <span className="font-bold">{stats.lastDay[0]}</span>
+                <span className="font-semibold text-gray-600">Hier</span>
+                <span className="font-semibold">{stats.lastDay[0]}</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Cette semaine</span>
-                <span className="font-bold">{stats.thisWeek[0]}</span>
+                <span className="font-semibold text-gray-600">
+                  Cette semaine
+                </span>
+                <span className="font-semibold">{stats.thisWeek[0]}</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Ce mois-ci</span>
-                <span className="font-bold">{stats.thisMonth[0]}</span>
+                <span className="font-semibold text-gray-600">Ce mois-ci</span>
+                <span className="font-semibold">{stats.thisMonth[0]}</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Cette année</span>
-                <span className="font-bold">{stats.thisYear[0]}</span>
+                <span className="font-semibold text-gray-600">Cette année</span>
+                <span className="font-semibold">{stats.thisYear[0]}</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Total</span>
-                <span className="font-bold">{packageData.length}</span>
+                <span className="font-semibold text-gray-600">Total</span>
+                <span className="font-semibold">{packageData.length}</span>
               </div>
             </div>
           </div>
           <div className="border w-[45%] rounded-sm">
-            <h1 className="flex items-center justify-center gap-2 p-3 font-bold w-full border-b-2">
+            <h1 className="flex items-center justify-center gap-2 p-3 tracking-wider font-bold w-full border-b-2">
               <MdOutlineAttachMoney size={24} />
               Gains
             </h1>
             <div className="m-5 border rounded-sm flex flex-col">
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Aujourd’hui</span>
-                <span className="font-bold">{stats.today[1]} TND</span>
+                <span className="font-semibold text-gray-600">Aujourd’hui</span>
+                <span className="font-semibold">{stats.today[1]} TND</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Hier</span>
-                <span className="font-bold">{stats.lastDay[1]} TND</span>
+                <span className="font-semibold text-gray-600">Hier</span>
+                <span className="font-semibold">{stats.lastDay[1]} TND</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Cette semaine</span>
-                <span className="font-bold">{stats.thisWeek[1]} TND</span>
+                <span className="font-semibold text-gray-600">
+                  Cette semaine
+                </span>
+                <span className="font-semibold">{stats.thisWeek[1]} TND</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Ce mois-ci</span>
-                <span className="font-bold">{stats.thisMonth[1]} TND</span>
+                <span className="font-semibold text-gray-600">Ce mois-ci</span>
+                <span className="font-semibold">{stats.thisMonth[1]} TND</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Cette année</span>
-                <span className="font-bold">{stats.thisYear[1]} TND</span>
+                <span className="font-semibold text-gray-600">Cette année</span>
+                <span className="font-semibold">{stats.thisYear[1]} TND</span>
               </div>
               <div className="flex justify-between border-b-2 p-4">
-                <span className="font-bold text-gray-600">Total</span>
-                <span className="font-bold">{stats.today[1] + stats.lastDay[1] + stats.thisWeek[1] + stats.thisMonth[1] + stats.thisYear[1]} TND</span>
+                <span className="font-semibold text-gray-600">Total</span>
+                <span className="font-semibold">
+                  {stats.today[1] +
+                    stats.lastDay[1] +
+                    stats.thisWeek[1] +
+                    stats.thisMonth[1] +
+                    stats.thisYear[1]}{" "}
+                  TND
+                </span>
               </div>
             </div>
           </div>

@@ -149,10 +149,10 @@ const ProductsSection = () => {
 
   return (
     <>
-      {loading ? ( // Render loader when loading state is true
+      {loading ? ( 
         <Loading />
       ) : (
-        <div className="flex flex-col justify-between items-center  h-full ">
+        <div className="flex flex-col justify-between items-center  h-full bg-white ">
           {!!queryParam && (
             <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">
               {productsData.length} résultats trouvé pour "{queryParam}"

@@ -75,7 +75,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   };
   return (
     <div
-      className={`bg-white transition-all duration-300 ${isFixed ? "fixed top-0 w-full z-50 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative"}`}
+      className={`bg-white transition-all duration-300 ${isFixed ? "fixed top-0 w-full z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative"}`}
       onMouseEnter={() => setShowDropdown(false)}
       >
       <div

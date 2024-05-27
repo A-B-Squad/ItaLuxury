@@ -1,12 +1,10 @@
+"use client";
+import "./globals.css";
 import Image from "next/legacy/image";
 import React from "react";
 import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
-import "./globals.css";
 import { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
-
 export const metadata: Metadata = {
   title: "Page non trouvée",
   description:
@@ -18,15 +16,11 @@ if (process.env.NODE_ENV !== "production") {
   loadErrorMessages();
 }
 
-const openSans = Open_Sans({
-  subsets: ["latin"],
-});
-export default function NotFound() {
+function NotFound() {
   return (
-    // <html lang="en">
-    <body className={openSans.className}>
+    <>
       <Header />
-      <div className="flex flex-col items-center justify-center w-full ">
+      <div className="flex flex-col items-center justify-center w-full  ">
         <Image
           alt="The guitarist in the concert."
           src={
@@ -34,16 +28,15 @@ export default function NotFound() {
           }
           priority={true}
           objectFit="contain"
-          width={500}
-          height={500}
+          width={400}
+          height={400}
           quality={100}
         />
         <p className="pt-2 pb-5 text-lg font-light">
           Je suis désolé, mais la page que vous demandez est introuvable.
         </p>
       </div>
-      <Footer />
-    </body>
-    // </html>
+    </>
   );
 }
+export default NotFound;

@@ -123,27 +123,27 @@ const BasketDrawer = () => {
     setProductsInBasket(updatedProducts);
     deleteBasketById({
       variables: { basketId },
-      update: (cache, { data }) => {
-        if (data?.deleteBasketById) {
-          const existingData: any = cache.readQuery({
-            query: BASKET_QUERY,
-            variables: { userId: decodedToken?.userId },
-          });
+      // update: (cache, { data }) => {
+      //   if (data?.deleteBasketById) {
+      //     const existingData: any = cache.readQuery({
+      //       query: BASKET_QUERY,
+      //       variables: { userId: decodedToken?.userId },
+      //     });
 
-          const updatedData = {
-            ...existingData,
-            basketByUserId: existingData.basketByUserId.filter(
-              (basket: any) => basket.id !== basketId
-            ),
-          };
+      //     const updatedData = {
+      //       ...existingData,
+      //       basketByUserId: existingData.basketByUserId.filter(
+      //         (basket: any) => basket.id !== basketId
+      //       ),
+      //     };
 
-          cache.writeQuery({
-            query: BASKET_QUERY,
-            variables: { userId: decodedToken?.userId },
-            data: updatedData,
-          });
-        }
-      },
+      //     cache.writeQuery({
+      //       query: BASKET_QUERY,
+      //       variables: { userId: decodedToken?.userId },
+      //       data: updatedData,
+      //     });
+      //   }
+      // },
     });
   };
 

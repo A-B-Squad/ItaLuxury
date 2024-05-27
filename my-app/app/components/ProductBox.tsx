@@ -176,13 +176,19 @@ export const ProductBox = ({ product }: any) => {
       <div
         className={`${view === 1 && "absolute top-0"}  flex justify-between w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4 `}
       >
-        {calcDateForNewProduct(product?.createdAt) && (
-          <span className="bg-green-500 w-fit justify-start shadow-md p-1">
-            Nouveau
-          </span>
-        )}
-        {product?.productDiscounts?.length > 0 && (
+        {calcDateForNewProduct(product?.createdAt) &&
+          product?.inventory !== 0 && (
+            <span className="bg-green-500 w-fit justify-start shadow-md p-1">
+              Nouveau
+            </span>
+          )}
+        {product?.productDiscounts?.length > 0 && product?.inventory !== 0 && (
           <span className="bg-red-500 w-fit shadow-md p-1">Promo</span>
+        )}
+        {product?.inventory === 0 && (
+          <span className="bg-black text-white w-fit shadow-md p-1">
+            En Rupture de Stock
+          </span>
         )}
       </div>
       <Link
@@ -312,8 +318,11 @@ export const ProductBox = ({ product }: any) => {
             </div>
 
             <button
-              className={`flex items-center gap-2 self-center py-2  m-auto w-36 text-xs justify-center bg-strongBeige px-2  text-md text-white transition hover:bg-mediumBeige`}
-              onClick={() => AddToBasket(product)}
+              className={`flex items-center gap-2 self-center py-2  m-auto  text-base w-fit justify-center bg-white px-2  text-md hover:text-white transition hover:bg-red-300 `}
+              onClick={() => {
+                
+                
+                AddToBasket(product)}}
             >
               <SlBasket />
               Ajouter au panier

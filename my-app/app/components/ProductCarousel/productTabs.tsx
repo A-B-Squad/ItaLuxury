@@ -6,14 +6,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import React from "react";
-import Loading from "./Loading";
 import { ProductBox } from "../ProductBox";
 import NoProductYet from "./NoProductYet";
 
 const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
   return (
     <div className="products-tab w-full  relative cursor-pointer rounded-md shadow-lg grid">
-      {loadingNewProduct && <Loading />}
       {!loadingNewProduct && data && data.length > 0 && (
         <div className=" overflow-hidden w-full h-fit  ">
           <Carousel

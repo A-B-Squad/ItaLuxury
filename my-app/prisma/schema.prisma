@@ -152,7 +152,7 @@ model ProductInCheckout {
 
 model Package {
   id         String    @id @default(uuid())
-  Checkout   Checkout? @relation(fields: [checkoutId], references: [id])
+  Checkout   Checkout? @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   checkoutId String?
   status     Status
   createdAt  DateTime  @default(now())
@@ -225,4 +225,12 @@ model Brand {
   name    String
   logo    String
   product Product[]
+}
+
+model ContactUs {
+  id       String  @id @default(uuid())
+  subject  String
+  email    String
+  document String?
+  message  String
 }

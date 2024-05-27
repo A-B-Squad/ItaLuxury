@@ -102,14 +102,14 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
 
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -131,7 +131,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -157,28 +157,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         setReviews(data.productReview.length);
         setOneStar(
           data.productReview.filter(
-            (review: { rating: number }) => review.rating === 1,
-          ).length,
+            (review: { rating: number }) => review.rating === 1
+          ).length
         );
         setTwoStar(
           data.productReview.filter(
-            (review: { rating: number }) => review.rating === 2,
-          ).length,
+            (review: { rating: number }) => review.rating === 2
+          ).length
         );
         setThreeStar(
           data.productReview.filter(
-            (review: { rating: number }) => review.rating === 3,
-          ).length,
+            (review: { rating: number }) => review.rating === 3
+          ).length
         );
         setFourStar(
           data.productReview.filter(
-            (review: { rating: number }) => review.rating === 4,
-          ).length,
+            (review: { rating: number }) => review.rating === 4
+          ).length
         );
         setFiveStar(
           data.productReview.filter(
-            (review: { rating: number }) => review.rating === 5,
-          ).length,
+            (review: { rating: number }) => review.rating === 5
+          ).length
         );
       },
     });
@@ -247,10 +247,9 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     }
   }, [discount]);
 
-
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {
@@ -308,7 +307,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     src={bigImage || ""}
                     zoomType="hover"
                     hideHint
-                    zoomScale={1.5}
+                    zoomScale={2}
                   />
                   <span
                     className={
@@ -379,11 +378,20 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                           <>
                             La réduction se termine dans :{" "}
                             <span className="font-semibold">
-            {Math.floor(countdown / (1000 * 60 * 60 * 24))} jrs,{" "}
-            {Math.floor((countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))} hrs,{" "}
-            {Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60))} mins,{" "}
-            {Math.floor((countdown % (1000 * 60)) / 1000)} secs
-          </span>
+                              {Math.floor(countdown / (1000 * 60 * 60 * 24))}{" "}
+                              jrs,{" "}
+                              {Math.floor(
+                                (countdown % (1000 * 60 * 60 * 24)) /
+                                  (1000 * 60 * 60)
+                              )}{" "}
+                              hrs,{" "}
+                              {Math.floor(
+                                (countdown % (1000 * 60 * 60)) / (1000 * 60)
+                              )}{" "}
+                              mins,{" "}
+                              {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
+                              secs
+                            </span>
                           </>
                         ) : (
                           "La réduction a expiré"
@@ -404,7 +412,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                         onClick={() => {
                           setActualQuantity(
-                            actualQuantity > 1 ? actualQuantity - 1 : 1,
+                            actualQuantity > 1 ? actualQuantity - 1 : 1
                           );
                         }}
                       >
@@ -424,7 +432,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                           setActualQuantity(
                             actualQuantity < productDetails?.inventory
                               ? actualQuantity + 1
-                              : actualQuantity,
+                              : actualQuantity
                           );
                         }}
                       >

@@ -14,7 +14,7 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
       },
     });
 
-    const resetPasswordUrl = `http://localhost:3000/ResetPassword/${id}`;
+    const resetPasswordUrl = `${process.env.BASE_URL_DOMAIN}/ResetPassword/${id}`;
 
     await transporter.sendMail({
       from: '"MaisonNg" <no-reply@maisonng.com>',

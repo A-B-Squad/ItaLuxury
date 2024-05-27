@@ -263,6 +263,14 @@ type content_visibility {
   visibility_status: Boolean!
 }
 
+type ContactUs {
+  id: String!
+  subject:String!
+  email: String!
+  message: String!
+  document:String
+}
+
 
 # Define the Query type
 type Query {
@@ -344,6 +352,8 @@ type Query {
 
   # Fetch Company Info 
   companyInfo: CompanyInfo!
+  # Fetch All ContactUs 
+  allContactUs: [ContactUs!]
 }
 
 # Define the Mutation type
@@ -416,6 +426,8 @@ type Mutation {
 
   # Admin mutation for creating a moderator
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
+  # Contact Us 
+  createContactUs(input:ContactUsInput!):ContactUs!
 }
 
 # Define the SignUpInput input type
@@ -577,5 +589,13 @@ input ProductSearchInput {
   page:Int
   pageSize:Int
 }
+
+input ContactUsInput {
+  subject:String!
+  email: String!
+  message: String!
+  document:String
+  }
+
 
 `;

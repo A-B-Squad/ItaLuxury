@@ -1,8 +1,8 @@
 import React from "react";
 import TrackingPackages from "./TrackingPackages";
 
-const page = () => {
+const TrackingPackagesPage = () => {
   return <TrackingPackages />;
 };
 
-export default page;
+export default TrackingPackagesPage;
