@@ -50,12 +50,12 @@ export const GET_REVIEW_QUERY = gql`
   }
 `;
 export const GET_USER_REVIEW_QUERY = gql`
-query ProductReview($productId: ID!, $userId: ID) {
-  productReview(productId: $productId, userId: $userId) {
-    id
-    rating
+  query ProductReview($productId: ID!, $userId: ID) {
+    productReview(productId: $productId, userId: $userId) {
+      id
+      rating
+    }
   }
-}
 `;
 export const BASKET_QUERY = gql`
   query BasketByUserId($userId: ID!) {
@@ -175,7 +175,7 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
   }
 `;
 export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
-  query productsByCategory($categoryName: String!,$limit: Int!) {
+  query productsByCategory($categoryName: String!, $limit: Int!) {
     productsByCategory(categoryName: $categoryName, limit: $limit) {
       id
       name
@@ -503,19 +503,16 @@ export const GET_FAVORITE_STATUS = gql`
       id
       productId
     }
-  
-}
+  }
 `;
 export const GET_BRANDS = gql`
-query FetchBrands {
-  fetchBrands {
-  id
-  logo
+  query FetchBrands {
+    fetchBrands {
+      id
+      logo
+    }
   }
-}
-
 `;
-
 
 export const COMPANY_INFO_QUERY = gql`
   query CompanyInfo {
@@ -530,39 +527,51 @@ export const COMPANY_INFO_QUERY = gql`
   }
 `;
 export const GET_PACKAGES_BY_USER_ID = gql`
- query PackageByUserId($userId: ID!) {
-  packageByUserId(userId: $userId) {
-    id
-    Checkout {
-      products {
-        productId
-        product {
-        name
+  query PackageByUserId($userId: ID!) {
+    packageByUserId(userId: $userId) {
+      id
+      Checkout {
+        products {
+          productId
+          product {
+            name
+          }
+        }
       }
-      }
+      status
+      createdAt
     }
-    status
-    createdAt
   }
-}
-
 `;
 export const GET_PACKAGES_BY_ID = gql`
- query PackageByUserId($packageId: ID!) {
-  packageById(packageId: $packageId) {
-    id
-    Checkout {
-      products {
-        productId
-        product {
-        name
+  query PackageByUserId($packageId: ID!) {
+    packageById(packageId: $packageId) {
+      id
+      Checkout {
+        products {
+          productId
+          product {
+            name
+          }
+        }
       }
+      status
+      createdAt
+    }
+  }
+`;
+
+export const PACKAGE_QUERY = gql`
+  query GetAllPackages {
+    getAllPackages {
+      id
+      checkoutId
+      status
+      createdAt
+      Checkout {
+        id
+        total
       }
     }
-    status
-    createdAt
   }
-}
-
-
 `;
