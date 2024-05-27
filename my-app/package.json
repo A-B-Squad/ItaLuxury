@@ -25,6 +25,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.0.0",
     "graphql": "^16.8.1",
     "js-cookie": "^3.0.5",

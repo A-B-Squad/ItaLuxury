@@ -14,9 +14,10 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-          'TopBanner-gradient': 'linear-gradient(90deg, rgba(245,260,203,1) 0%, rgba(129,97,84,1) 38%, rgba(124,103,63,1) 100%) ',
+        'TopBanner-gradient': 'linear-gradient(90deg, rgba(245,260,203,1) 0%, rgba(129,97,84,1) 38%, rgba(124,103,63,1) 100%) ',
       },
       colors: {
+        mainColorAdminDash: "#202939",
         lightBeige: "#F0EDD4",
         mediumBeige: "#ECCDB4",
         strongBeige: "#f17e7e",

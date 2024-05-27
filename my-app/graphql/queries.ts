@@ -50,12 +50,12 @@ export const GET_REVIEW_QUERY = gql`
   }
 `;
 export const GET_USER_REVIEW_QUERY = gql`
-query ProductReview($productId: ID!, $userId: ID) {
-  productReview(productId: $productId, userId: $userId) {
-    id
-    rating
+  query ProductReview($productId: ID!, $userId: ID) {
+    productReview(productId: $productId, userId: $userId) {
+      id
+      rating
+    }
   }
-}
 `;
 export const BASKET_QUERY = gql`
   query BasketByUserId($userId: ID!) {
@@ -68,13 +68,6 @@ export const BASKET_QUERY = gql`
         name
         price
         images
-        productDiscounts {
-        price
-        newPrice
-        Discount {
-          percentage
-        }
-      }
         categories {
           id
           name
@@ -93,7 +86,7 @@ export const BASKET_QUERY = gql`
 `;
 
 export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
-  query productsByCategory($categoryName: String!,$limit: Int!) {
+  query productsByCategory($categoryName: String!, $limit: Int!) {
     productsByCategory(categoryName: $categoryName, limit: $limit) {
       id
       name
@@ -134,6 +127,54 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
           percentage
         }
       }
+    }
+  }
+`;
+export const TAKE_6_PRODUCTS_PRICE_20 = gql`
+  query ProductsLessThen20($limit: Int!) {
+    productsLessThen20(limit: $limit) {
+      id
+      name
+      price
+      reference
+      description
+      createdAt
+      inventory
+      images
+      categories {
+        id
+        name
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      productDiscounts {
+        price
+        newPrice
+        Discount {
+          percentage
+        }
+      }
+    }
+  }
+`;
+export const SIDE_ADS_NEW_PRODUCT = gql`
+  query Query($position: String!) {
+    advertismentByPosition(position: $position) {
+      images
+      link
     }
   }
 `;
@@ -316,7 +357,6 @@ export const BEST_SALES_QUERY = gql`
         id
         name
         images
-        description
         price
         productDiscounts {
           newPrice
@@ -354,18 +394,17 @@ export const GET_FAVORITE_STATUS = gql`
       id
       productId
     }
-  
-}
+  }
 `;
 export const GET_BRANDS = gql`
-query FetchBrands {
-  fetchBrands {
-  id
-  logo
+  query FetchBrands {
+    fetchBrands {
+      id
+      logo
+    }
   }
-}
-
 `;
+
 export const COMPANY_INFO_QUERY = gql`
   query CompanyInfo {
     companyInfo {
@@ -379,92 +418,43 @@ export const COMPANY_INFO_QUERY = gql`
   }
 `;
 export const GET_PACKAGES_BY_USER_ID = gql`
- query PackageByUserId($userId: ID!) {
-  packageByUserId(userId: $userId) {
-    id
-    Checkout {
-      products {
-        productId
-        product {
-        name
-      }
-      }
-    }
-    status
-    createdAt
-  }
-}
-
-`;
-export const GET_PACKAGES_BY_ID = gql`
- query PackageByUserId($packageId: ID!) {
-  packageById(packageId: $packageId) {
-    id
-    Checkout {
-      products {
-        productId
-        product {
-        name
-      }
-      }
-    }
-    status
-    createdAt
-  }
-}
-
-
-`;
-
-export const TAKE_6_PRODUCTS_PRICE_20 = gql`
-  query ProductsLessThen20($limit: Int!) {
-    productsLessThen20(limit: $limit) {
+  query PackageByUserId($userId: ID!) {
+    packageByUserId(userId: $userId) {
       id
-      name
-      price
-      reference
-      description
-      createdAt
-      inventory
-      images
-      categories {
-        id
-        name
-        subcategories {
-          id
-          name
-          parentId
-          subcategories {
-            id
+      Checkout {
+        products {
+          productId
+          product {
             name
-            parentId
           }
         }
       }
-      Colors {
-        id
-        color
-        Hex
-      }
-      productDiscounts {
-        price
-        newPrice
-        Discount {
-          percentage
+      status
+      createdAt
+    }
+  }
+`;
+export const GET_PACKAGES_BY_ID = gql`
+  query PackageByUserId($packageId: ID!) {
+    packageById(packageId: $packageId) {
+      id
+      Checkout {
+        products {
+          productId
+          product {
+            name
+          }
         }
       }
+      status
+      createdAt
     }
   }
 `;
-export const SIDE_ADS_NEW_PRODUCT = gql`
-  query Query($position: String!) {
-    advertismentByPosition(position: $position) {
-      images
-      link
-    }
-  }
-`;
-export const ALL_BRANDS =`
+
+
+
+export const ALL_BRANDS = `
   query FetchBrands {
     fetchBrands {
       id
@@ -592,6 +582,20 @@ export const COLORS_QUERY = `
       id
       color
       Hex
+    }
+  }
+`;
+export const PACKAGE_QUERY = gql`
+  query GetAllPackages {
+    getAllPackages {
+      id
+      checkoutId
+      status
+      createdAt
+      Checkout {
+        id
+        total
+      }
     }
   }
 `;
