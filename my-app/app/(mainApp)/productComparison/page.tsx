@@ -1,8 +1,8 @@
 import React from "react";
 import ProductComparison from "./productComparison";
 
-const page = () => {
+const ProductComparisonPage = () => {
   return <ProductComparison />;
 };
 
-export default page;
+export default ProductComparisonPage;

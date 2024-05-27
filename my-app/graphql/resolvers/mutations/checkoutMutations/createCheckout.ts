@@ -6,7 +6,7 @@ export const createCheckout = async (
   { prisma }: Context
 ) => {
   try {
-    const { userId, governorateId, address, total, phone } = input;
+    const { userId, governorateId, address, total, phone, userName } = input;
 
     // Retrieve user's basket to get product IDs
     const userBasket = await prisma.basket.findMany({
@@ -32,6 +32,7 @@ export const createCheckout = async (
     const newCheckout = await prisma.checkout.create({
       data: {
         userId,
+        userName,
         governorateId,
         products: {
           create: products, // Associate products with the checkout
@@ -41,7 +42,10 @@ export const createCheckout = async (
         total,
       },
     });
-
+    //delete basket with User id
+    await prisma.basket.deleteMany({
+      where: { userId: userId }
+    })
     // Create a new package associated with the checkout ID
     await prisma.package.create({
       data: {

@@ -14,12 +14,12 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
         </div>
       )}
 
-      {/* {!image && !adsLoaded && (
+      {!image && !adsLoaded && (
         <div className="relative flex items-center flex-col justify-center h-[390px] w-[235px]   rounded-lg bg-mediumBeige">
           <p>{adsPositon}</p>
           <p> 230px x 390px </p>
         </div>
-      )} */}
+      )}
 
       { image && (
         <Link

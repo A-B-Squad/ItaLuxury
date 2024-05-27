@@ -192,7 +192,7 @@ export const CLIENT_SERVICES = gql`
     }
   }
 `;
-export const ADVERTISSMENT_QUERY = `
+export const ADVERTISSMENT_QUERY = gql`
   query AdvertismentByPosition($position: String!) {
     advertismentByPosition(position: $position) {
       images
@@ -416,8 +416,7 @@ export const GET_PACKAGES_BY_ID = gql`
 
 `;
 
-//  QUERY TO FETCH DIRECT WITHOUT GQL
-export const TAKE_6_PRODUCTS_PRICE_20 = `
+export const TAKE_6_PRODUCTS_PRICE_20 = gql`
   query ProductsLessThen20($limit: Int!) {
     productsLessThen20(limit: $limit) {
       id
@@ -457,7 +456,7 @@ export const TAKE_6_PRODUCTS_PRICE_20 = `
     }
   }
 `;
-export const SIDE_ADS_NEW_PRODUCT = `
+export const SIDE_ADS_NEW_PRODUCT = gql`
   query Query($position: String!) {
     advertismentByPosition(position: $position) {
       images
@@ -465,7 +464,7 @@ export const SIDE_ADS_NEW_PRODUCT = `
     }
   }
 `;
-export const ALL_BRANDS = `
+export const ALL_BRANDS =`
   query FetchBrands {
     fetchBrands {
       id
@@ -477,7 +476,7 @@ export const ALL_BRANDS = `
     }
   }
 `;
-export const GET_GOVERMENT_INFO = `
+export const GET_GOVERMENT_INFO = gql`
 
 query AllGovernorate {
   allGovernorate {
@@ -487,7 +486,7 @@ query AllGovernorate {
 }
 
 `;
-export const CONTENT_VISIBILITY = `
+export const CONTENT_VISIBILITY = gql`
 
 query GetSectionVisibility($section: String!) {
   getSectionVisibility(section: $section) {
@@ -497,7 +496,7 @@ query GetSectionVisibility($section: String!) {
 }
 
 `;
-export const TAKE_6_PRODUCTS = `
+export const TAKE_6_PRODUCTS = gql`
   query Products($limit: Int!) {
     products(limit: $limit) {
       id
@@ -542,7 +541,7 @@ export const TAKE_6_PRODUCTS = `
     }
   }
 `;
-export const TAKE_6_PRODUCTS_IN_DISCOUNT = `
+export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
   query ProductsDiscounts($limit: Int) {
     productsDiscounts(limit: $limit) {
       id

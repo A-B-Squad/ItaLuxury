@@ -52,7 +52,7 @@ export async function generateMetadata({ searchParams }: any) {
   };
 }
 
-const page = async ({ searchParams }: any) => {
+const ProductDetailsPage = async ({ searchParams }: any) => {
   if (!process.env.NEXT_PUBLIC_API_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
   }
@@ -110,4 +110,4 @@ const page = async ({ searchParams }: any) => {
   );
 };
 
-export default page;
+export default ProductDetailsPage;

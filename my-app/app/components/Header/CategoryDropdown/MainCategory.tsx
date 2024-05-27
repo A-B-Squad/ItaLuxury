@@ -25,7 +25,7 @@ const Category: React.FC<CategoryProps> = ({
 }) => {
   return (
     <>
-      <div className="parentCategory min-w-56 space-y-3 border-r">
+      <div className="parentCategory min-w-56 space-y-3  border-r">
         {data?.categories?.map((category: Category, index: number) => (
           <div data-parentcategory={category.name} key={index}>
             <Link

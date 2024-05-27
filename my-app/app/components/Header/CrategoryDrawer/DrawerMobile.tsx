@@ -1,5 +1,5 @@
 "use client";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Drawer, IconButton } from "@material-tailwind/react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -19,9 +19,9 @@ interface Subcategory {
   subcategories?: Subcategory[];
 }
 
-export function DrawerMobile() {
+function DrawerMobile() {
   const { isOpen, closeCategoryDrawer } = useDrawerMobileStore();
-  const { loading, error, data } = useQuery(CATEGORY_QUERY);
+  const {  error, data } = useQuery(CATEGORY_QUERY);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const [activeCategory, setActiveCategory] = useState<string>("");
@@ -97,7 +97,10 @@ export function DrawerMobile() {
           onClick={closeCategoryDrawer}
           className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2`}
         >
-          <Link href={"/Collections/tunisie"} className="capitalize font-bold w-full">
+          <Link
+            href={"/Collections/tunisie"}
+            className="capitalize font-bold w-full"
+          >
             Voir Tous
           </Link>
           <MdKeyboardArrowRight size={20} />
@@ -106,3 +109,4 @@ export function DrawerMobile() {
     </>
   );
 }
+export default DrawerMobile;

@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     ],
   },
 };
-const page = () => {
+const FavoriteListPage = () => {
   return <FavoriteList />;
 };
 
-export default page;
+export default FavoriteListPage;

@@ -1,10 +1,11 @@
-import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
-import SideBar from "./_components/sideBar";
+import dynamic from "next/dynamic";
 import TopBar from "./_components/topBar";
+const SideBar = dynamic(() => import("./_components/sideBar"));
+import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
+
 import React, { ReactNode } from "react";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
 import keywords from "@/public/keywords";
 import { ALL_BRANDS, COLORS_QUERY } from "../../../graphql/queries";
 type Props = {
@@ -16,10 +17,6 @@ if (process.env.NODE_ENV !== "production") {
   loadDevMessages();
   loadErrorMessages();
 }
-
-const openSans = Open_Sans({
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title:
@@ -83,7 +80,7 @@ export default async function Layout({ children }: Props) {
     }),
   }).then((res) => res.json());
   return (
-    <div className="relative flex w-full flex-col">
+    <div className="relative flex w-full flex-col z-50">
       <TopBar />
       <div className="w-full flex">
         <SideBar

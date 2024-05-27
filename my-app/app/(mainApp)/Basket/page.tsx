@@ -1,8 +1,8 @@
 import React from "react";
 import Basket from "./Basket";
 
-const page = () => {
+const BasketPage = () => {
   return <Basket />;
 };
 
-export default page;
+export default BasketPage;

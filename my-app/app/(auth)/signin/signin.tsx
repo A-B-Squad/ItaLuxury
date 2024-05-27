@@ -103,18 +103,18 @@ const Signin = () => {
         </div>
 
         <div className="text-grey-dark mt-6">
-          Vous n'avez pas un compte?
+          Vous n'avez pas un compte ? {" "}
           <Link
-            className="no-underline border-b border-blue text-blue-700"
+            className="no-underline border-b text-sm border-blue text-blue-700"
             href="/signup"
           >
             S'inscrire
           </Link>
           .
           <br />
-          Mot de passe oublié?
+          Mot de passe oublié ?{" "}  
           <Link
-            className="no-underline border-b border-blue text-blue-700"
+            className="no-underline text-sm border-b border-blue text-blue-700"
             href="/forgotPassword"
           >
             Changer mot de passe

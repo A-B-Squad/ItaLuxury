@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // the list of all allowed origins
-const allowedOrigins = ["http://localhost:3000/","http://localhost:3000/"];
+const allowedOrigins = ["http://localhost:3000/",`${process.env.BASE_URL_DOMAIN}/`];
 
 export function middleware(req: NextResponse) {
   // retrieve the current response

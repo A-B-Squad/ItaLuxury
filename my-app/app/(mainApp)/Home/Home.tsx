@@ -1,77 +1,153 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import AdsCarousel from "@/components/adverstissment/carousel";
-import Left from "@/components/adverstissment/left";
-import Right from "@/components/adverstissment/right";
+import RightAdsCarousel from "../../components/adverstissment/RightAdsCarousel";
 import SideAds from "@/components/adverstissment/sideAds";
-import ProductTabs from "@/components/ProductCarousel/productTabs";
 import TitleProduct from "@/components/ProductCarousel/titleProduct";
 import BestSales from "./TopSales/BestSales";
-import React from "react";
+import React, { useMemo } from "react";
 import ProductInfo from "../../components/ProductInfo/ProductInfo";
-import ClientServices from "./_components/ClientServices";
 import Services from "./_components/services";
-import TopDeals from "./TopDeals/TopDeals";
 import Link from "next/link";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { BrandsCarousel } from "./_components/BrandCarousel";
 import TimeCountDown from "./_components/TimeCountDown";
 import FullWidthAds from "../../components/adverstissment/FullWidth";
+import ProductTabs from "@/components/ProductCarousel/productTabs";
+import TopDeals from "./TopDeals/TopDeals";
+const ClientServices = dynamic(() => import("./_components/ClientServices"));
 
-const Home = ({
-  leftAds,
-  Product_less_20,
-  Products_6,
-  Products_inDiscount_6,
-  rightAds,
-  FullAdsPromotion,
-  FullAds20Product,
-  FullAdsTopDeals,
-  leftCarouselAds,
-  rightCarouselAds,
-  centerCarouselAds,TopSellsSectionVisibility
-}: any) => {
-  
+
+import { useQuery } from "@apollo/client";
+import {
+  ADVERTISSMENT_QUERY,
+  CONTENT_VISIBILITY,
+  TAKE_6_PRODUCTS,
+  TAKE_6_PRODUCTS_IN_DISCOUNT,
+  TAKE_6_PRODUCTS_PRICE_20,
+} from "../../../graphql/queries";
+const Home = () => {
+  const { data: leftAds, loading: loadingLeftAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "left_ads_product" },
+    }
+  );
+  const { data: rightAds, loading: loadingRightAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "right_ads_product" },
+    }
+  );
+  const { data: FullAdsPromotion, loading: loadingFullPromotionAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "FullAdsPromotion" },
+    }
+  );
+  const { data: leftCarouselAds, loading: loadingLeftCarouselAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "leftCarouselAds" },
+    }
+  );
+  const { data: rightCarouselAds, loading: loadingRightCarouselAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "rightCarouselAds" },
+    }
+  );
+
+  const { data: FullAds20Product, loading: loadingFull20ProductAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "full_ads_20" },
+    }
+  );
+  const { data: centerCarouselAds, loading: loadingCenterCarouselAds } =
+    useQuery(ADVERTISSMENT_QUERY, {
+      variables: { position: "slider" },
+    });
+  const { data: FullTopDealsAds, loading: loadingFullTopDealsAds } = useQuery(
+    ADVERTISSMENT_QUERY,
+    {
+      variables: { position: "full_ads_topDeals" },
+    }
+  );
+  const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
+    TAKE_6_PRODUCTS_PRICE_20,
+    {
+      variables: { limit: 6 },
+    }
+  );
+  const { data: Products_inDiscount_6, loading: loadingProducts_inDiscount_6 } =
+    useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
+      variables: { limit: 10 },
+    });
+  const { data: NewProducts_6, loading: loadingNewProducts_6 } = useQuery(
+    TAKE_6_PRODUCTS,
+    {
+      variables: { limit: 6 },
+    }
+  );
+  const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
+    variables: { section: "top sells" },
+  });
+
+  const newProducts = useMemo(() => NewProducts_6?.products, [NewProducts_6]);
+  const productsDiscounts = useMemo(
+    () => Products_inDiscount_6?.productsDiscounts,
+    [Products_inDiscount_6]
+  );
+  const productsLessThan20 = useMemo(
+    () => Products_less_20?.productsLessThen20,
+    [Products_less_20]
+  );
   return (
-    <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">
+    <div className="Home py-10 flex min-h-screen flex-col items-center px-8">
       <div className="container">
-        <section className="flex justify-center  lg:flex-row flex-col gap-4 items-center">
-          <Left leftCarouselAds={leftCarouselAds} />
-          <AdsCarousel centerCarouselAds={centerCarouselAds} />
-          <Right rightCarouselAds={rightCarouselAds} />
+        <section className="flex justify-center lg:flex-row flex-col gap-4 items-center">
+          <RightAdsCarousel
+            loadingRightAdsCarousel={loadingRightCarouselAds}
+            rightCarouselAds={rightCarouselAds?.advertismentByPosition}
+          />
+          <AdsCarousel
+            loadingCenterAdsCarousel={loadingCenterCarouselAds}
+            centerCarouselAds={centerCarouselAds?.advertismentByPosition}
+          />
         </section>
         <Services />
         <ProductInfo />
-        <div className="nouveaux-product-parent-tabs flex flex-col ">
-          <TitleProduct title={"nouveaux Produits"} />
+        <div className="nouveaux-product-parent-tabs flex flex-col">
+          <TitleProduct title={"Nouveaux Produits"} />
           <div className="Carousel_new_product flex gap-3">
             <SideAds
-              adsLoaded={!!!leftAds.advertismentByPosition.length}
+              adsLoaded={loadingLeftAds}
               image={leftAds?.advertismentByPosition[0]?.images[0]}
               link={leftAds?.advertismentByPosition[0]?.link}
               adsPositon={"Left Ads"}
             />
-
             <ProductTabs
-              title={"nouveaux Produits"}
-              data={Products_6?.products}
-              loadingNewProduct={Products_6?.products.length === 0}
+              title={"Nouveaux Produits"}
+              data={newProducts}
+              loadingNewProduct={loadingNewProducts_6}
               carouselWidthClass={
-                Products_6?.products.length < 5
-                  ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4  xxl:basis-1/5"
+                NewProducts_6?.products.length < 5
+                  ? "basis-full md:basis-1/2"
+                  : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 xxl:basis-1/5"
               }
             />
           </div>
         </div>
         <FullWidthAds
-          FullAdsLoaded={!!!FullAdsTopDeals.advertismentByPosition}
-          FullImageAds={FullAdsTopDeals?.advertismentByPosition[0]?.images[0]}
+          FullAdsLoaded={loadingFullTopDealsAds}
+          FullImageAds={FullTopDealsAds?.advertismentByPosition[0]?.images[0]}
         />
         <div className="TopDeals">
-          <div className=" flex justify-between flex-col md:flex-row gap-2 items-start  ">
-            <TitleProduct title={"Meilleures offres du jour"} />
-            <div className="flex items-start flex-col md:flex-row md:pt-3  ">
+          <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
+            <TitleProduct title={"Meilleures Offres du Jour"} />
+            <div className="flex items-start flex-col md:flex-row md:pt-3">
               <p className="md:p-2 font-bold">
                 Hâtez-vous ! L'offre se termine dans :
               </p>
@@ -81,12 +157,12 @@ const Home = ({
           <TopDeals />
         </div>
         <FullWidthAds
-          FullAdsLoaded={!!!FullAds20Product.advertismentByPosition}
+          FullAdsLoaded={loadingFull20ProductAds}
           FullImageAds={FullAds20Product?.advertismentByPosition[0]?.images[0]}
         />
-        <div className="Carousel_A_20DT ">
+        <div className="Carousel_A_20DT">
           <div className="Heading flex items-center justify-between">
-            <TitleProduct title={"l'essentiel a 20DT"} />
+            <TitleProduct title={"L'essentiel à 20DT"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
               <Link href={"/Collections/tunisie?price=20"}>
                 Voir tous les produits
@@ -95,20 +171,20 @@ const Home = ({
             </div>
           </div>
           <ProductTabs
-            data={Product_less_20?.productsLessThen20}
-            loadingNewProduct={Product_less_20.productsLessThen20.length === 0}
+            data={productsLessThan20}
+            loadingNewProduct={loadingProducts_less_20}
             carouselWidthClass={
-              Product_less_20?.productsLessThen20.length < 5
-                ? " basis-full w-full   lg:basis-1/2  "
-                : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4  xxl:basis-1/5"
+              Products_less_20?.productsLessThen20.length < 5
+                ? "basis-full w-full lg:basis-1/2"
+                : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 xxl:basis-1/5"
             }
           />
         </div>
         <FullWidthAds
-          FullAdsLoaded={!!!FullAdsPromotion.advertismentByPosition}
+          FullAdsLoaded={loadingFullPromotionAds}
           FullImageAds={FullAdsPromotion?.advertismentByPosition[0]?.images[0]}
         />
-        <div className="Promotion flex flex-col ">
+        <div className="Promotion flex flex-col">
           <div className="flex items-center justify-between">
             <TitleProduct title={"Promotions"} />
             <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
@@ -121,20 +197,18 @@ const Home = ({
               <MdKeyboardArrowRight />
             </div>
           </div>
-          <div className="flex  gap-3">
+          <div className="flex gap-3">
             <ProductTabs
-              data={Products_inDiscount_6?.productsDiscounts}
-              loadingNewProduct={
-                Products_inDiscount_6?.productsDiscounts.length === 0
-              }
+              data={productsDiscounts}
+              loadingNewProduct={loadingProducts_inDiscount_6}
               carouselWidthClass={
                 Products_inDiscount_6?.productsDiscounts.length < 5
-                  ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
+                  ? "basis-full md:basis-1/2"
+                  : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 xxl:basis-1/5"
               }
             />
             <SideAds
-              adsLoaded={rightAds?.advertismentByPosition.length === 0}
+              adsLoaded={loadingRightAds}
               image={rightAds?.advertismentByPosition[0]?.images[0]}
               link={rightAds?.advertismentByPosition[0]?.link}
               adsPositon={"Right Ads"}
@@ -142,10 +216,14 @@ const Home = ({
           </div>
         </div>
         <ClientServices />
-        <div className="BestSeals ">
-          <BestSales TopSellsSectionVisibility={TopSellsSectionVisibility.getSectionVisibility.visibility_status} />
+        <div className="BestSeals">
+          <BestSales
+            TopSellsSectionVisibility={
+              TopSellsSectionVisibility?.getSectionVisibility?.visibility_status
+            }
+          />
         </div>
-          <BrandsCarousel />
+        <BrandsCarousel />
       </div>
     </div>
   );

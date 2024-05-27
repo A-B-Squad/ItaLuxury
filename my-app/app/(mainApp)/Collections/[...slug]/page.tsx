@@ -32,7 +32,7 @@ export async function generateMetadata({ searchParams }: any) {
       type: "article",
       images: [
         {
-          url: CompanyInfo.logo,
+          url: CompanyInfo?.logo,
           width: 800,
           height: 600,
           alt: "Maison Ng",
@@ -48,8 +48,8 @@ export async function generateMetadata({ searchParams }: any) {
     },
   };
 }
-const AllProducts = () => {
+const AllProductsPage = () => {
   return <ProductsSection />;
 };
 
-export default AllProducts;
+export default AllProductsPage;

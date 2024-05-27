@@ -88,7 +88,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             src={logo}
             width={192}
             height={96}
-            alt="logo"
+            alt="Maison Ng"
             priority
             layout="responsive"
             objectFit="contain"
@@ -108,11 +108,11 @@ const TopHeader = ({ logo }: { logo: string }) => {
             </div>
             <div
               ref={clickOutside}
-              className={` absolute w-72 h-96 border-2  px-2 py-2    flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
+              className={` absolute w-72 h-96 border-2  px-2 py-2  z-[60]  flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
             >
               {!decodedToken?.userId && (
                 <form
-                  className="flex flex-col w-full"
+                  className="flex flex-col w-full "
                   onSubmit={handleSubmit(onSubmit)}
                 >
                   <label htmlFor="email" className="text-xs font-medium mb-1">
