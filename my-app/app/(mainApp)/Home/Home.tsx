@@ -7,14 +7,6 @@ import SideAds from "@/components/adverstissment/sideAds";
 import ProductTabs from "@/components/ProductCarousel/productTabs";
 import TitleProduct from "@/components/ProductCarousel/titleProduct";
 import BestSales from "./TopSales/BestSales";
-import {
-  ADVERTISSMENT_QUERY,
-  SIDE_ADS_NEW_PRODUCT,
-  TAKE_6_PRODUCTS,
-  TAKE_6_PRODUCTS_IN_DISCOUNT,
-  TAKE_6_PRODUCTS_PRICE_20,
-} from "@/graphql/queries";
-import { useQuery } from "@apollo/client";
 import React from "react";
 import ProductInfo from "../../components/ProductInfo/ProductInfo";
 import ClientServices from "./_components/ClientServices";
@@ -26,59 +18,27 @@ import { BrandsCarousel } from "./_components/BrandCarousel";
 import TimeCountDown from "./_components/TimeCountDown";
 import FullWidthAds from "../../components/adverstissment/FullWidth";
 
-const Home = () => {
-  const { loading: loadingNewProduct, data: Products_6 } = useQuery(
-    TAKE_6_PRODUCTS,
-    {
-      variables: { limit: 6 },
-    },
-  );
-  const { loading: loadingDiscountProduct, data: Products_inDiscount_6 } =
-    useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
-      variables: { limit: 6 },
-    });
-
-  const { loading: loadingProduct, data: Product_less_20 } = useQuery(
-    TAKE_6_PRODUCTS_PRICE_20,
-    {
-      variables: { limit: 6 },
-    },
-  );
-
-  const { loading: loadingLeftAdsNewProduct, data: leftAds } = useQuery(
-    SIDE_ADS_NEW_PRODUCT,
-    { variables: { position: "left_new_product" } },
-  );
-
-  const { loading: loadingRightAdsNewProduct, data: rightAds } = useQuery(
-    SIDE_ADS_NEW_PRODUCT,
-    { variables: { position: "rigth_new_product" } },
-  );
-  const { data: FullAdsPromotion, loading: FullAdsPromotionLoaded } = useQuery(
-    ADVERTISSMENT_QUERY,
-    {
-      variables: { position: "full_promotion" },
-    },
-  );
-  const { data: FullAds20Product, loading: FullAdsProduct20Loaded } = useQuery(
-    ADVERTISSMENT_QUERY,
-    {
-      variables: { position: "full_ads_20" },
-    },
-  );
-  const { data: FullAdsTopDeals, loading: FullAdsTopDealsLoaded } = useQuery(
-    ADVERTISSMENT_QUERY,
-    {
-      variables: { position: "full_ads_topDeals" },
-    },
-  );
+const Home = ({
+  leftAds,
+  Product_less_20,
+  Products_6,
+  Products_inDiscount_6,
+  rightAds,
+  FullAdsPromotion,
+  FullAds20Product,
+  FullAdsTopDeals,
+  leftCarouselAds,
+  rightCarouselAds,
+  centerCarouselAds,TopSellsSectionVisibility
+}: any) => {
+  
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8 ">
       <div className="container">
         <section className="flex justify-center  lg:flex-row flex-col gap-4 items-center">
-          <Left />
-          <AdsCarousel />
-          <Right />
+          <Left leftCarouselAds={leftCarouselAds} />
+          <AdsCarousel centerCarouselAds={centerCarouselAds} />
+          <Right rightCarouselAds={rightCarouselAds} />
         </section>
         <Services />
         <ProductInfo />
@@ -86,7 +46,7 @@ const Home = () => {
           <TitleProduct title={"nouveaux Produits"} />
           <div className="Carousel_new_product flex gap-3">
             <SideAds
-              adsLoaded={loadingLeftAdsNewProduct}
+              adsLoaded={!!!leftAds.advertismentByPosition.length}
               image={leftAds?.advertismentByPosition[0]?.images[0]}
               link={leftAds?.advertismentByPosition[0]?.link}
               adsPositon={"Left Ads"}
@@ -95,7 +55,7 @@ const Home = () => {
             <ProductTabs
               title={"nouveaux Produits"}
               data={Products_6?.products}
-              loadingNewProduct={loadingNewProduct}
+              loadingNewProduct={Products_6?.products.length === 0}
               carouselWidthClass={
                 Products_6?.products.length < 5
                   ? " basis-full   md:basis-1/2  "
@@ -105,7 +65,7 @@ const Home = () => {
           </div>
         </div>
         <FullWidthAds
-          FullAdsLoaded={FullAdsTopDealsLoaded}
+          FullAdsLoaded={!!!FullAdsTopDeals.advertismentByPosition}
           FullImageAds={FullAdsTopDeals?.advertismentByPosition[0]?.images[0]}
         />
         <div className="TopDeals">
@@ -121,7 +81,7 @@ const Home = () => {
           <TopDeals />
         </div>
         <FullWidthAds
-          FullAdsLoaded={FullAdsProduct20Loaded}
+          FullAdsLoaded={!!!FullAds20Product.advertismentByPosition}
           FullImageAds={FullAds20Product?.advertismentByPosition[0]?.images[0]}
         />
         <div className="Carousel_A_20DT ">
@@ -136,7 +96,7 @@ const Home = () => {
           </div>
           <ProductTabs
             data={Product_less_20?.productsLessThen20}
-            loadingNewProduct={loadingProduct}
+            loadingNewProduct={Product_less_20.productsLessThen20.length === 0}
             carouselWidthClass={
               Product_less_20?.productsLessThen20.length < 5
                 ? " basis-full w-full   lg:basis-1/2  "
@@ -145,7 +105,7 @@ const Home = () => {
           />
         </div>
         <FullWidthAds
-          FullAdsLoaded={FullAdsPromotionLoaded}
+          FullAdsLoaded={!!!FullAdsPromotion.advertismentByPosition}
           FullImageAds={FullAdsPromotion?.advertismentByPosition[0]?.images[0]}
         />
         <div className="Promotion flex flex-col ">
@@ -164,7 +124,9 @@ const Home = () => {
           <div className="flex  gap-3">
             <ProductTabs
               data={Products_inDiscount_6?.productsDiscounts}
-              loadingNewProduct={loadingDiscountProduct}
+              loadingNewProduct={
+                Products_inDiscount_6?.productsDiscounts.length === 0
+              }
               carouselWidthClass={
                 Products_inDiscount_6?.productsDiscounts.length < 5
                   ? " basis-full   md:basis-1/2  "
@@ -172,7 +134,7 @@ const Home = () => {
               }
             />
             <SideAds
-              adsLoaded={loadingRightAdsNewProduct}
+              adsLoaded={rightAds?.advertismentByPosition.length === 0}
               image={rightAds?.advertismentByPosition[0]?.images[0]}
               link={rightAds?.advertismentByPosition[0]?.link}
               adsPositon={"Right Ads"}
@@ -180,10 +142,10 @@ const Home = () => {
           </div>
         </div>
         <ClientServices />
-        <div className="BestSeals">
-          <BestSales />
-          <BrandsCarousel />
+        <div className="BestSeals ">
+          <BestSales TopSellsSectionVisibility={TopSellsSectionVisibility.getSectionVisibility.visibility_status} />
         </div>
+          <BrandsCarousel />
       </div>
     </div>
   );

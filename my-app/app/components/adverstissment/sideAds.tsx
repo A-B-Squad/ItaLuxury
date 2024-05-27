@@ -14,27 +14,26 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
         </div>
       )}
 
-      {!image && !adsLoaded && (
+      {/* {!image && !adsLoaded && (
         <div className="relative flex items-center flex-col justify-center h-[390px] w-[235px]   rounded-lg bg-mediumBeige">
           <p>{adsPositon}</p>
           <p> 230px x 390px </p>
         </div>
-      )}
+      )} */}
 
-      {!adsLoaded && image && (
+      { image && (
         <Link
           className="relative flex items-center flex-col justify-center h-[374px] w-[320px] min-w-[290px] min-h-[374px] rounded-lg "
           href={link}
         >
           <Image
             src={image}
-            width={300} // Set the desired width
-            height={300} // Set the desired height
-            layout="fill" // Ensure responsive behavior
+            width={300} 
+            height={300} 
+            layout="fill" 
             alt="MaisonNg"
             objectFit="contain"
             objectPosition={0}
-            loading="lazy"
           />
         </Link>
       )}

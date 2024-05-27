@@ -21,6 +21,8 @@ export const metadata: Metadata = {
     "Vente en ligne en Tunisie : Découvrez des offres exclusives sur notre plateforme",
   description:
     "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits. Commandez dès maintenant !",
+  
+
 };
 
 export default function RootLayout({
@@ -30,6 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
+      </head>
       <body className={openSans.className}>
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import { IoArrowBack } from "react-icons/io5";
-import prepRoute from "../../Helpers/_prepRoute";
+import prepRoute from "../../../Helpers/_prepRoute";
 import Subsubcategory from "./Subsubcategory";
 
 interface SubcategoryProps {
@@ -33,7 +33,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
       {subcategories.map((subcategory: Subcategory, subIndex: number) => (
         <div key={subIndex} className="  h-fit  cursor-pointer">
           <Link
-            href={`/Collections/${prepRoute(subcategory.name)}/tunisie?category=${subcategory.id}`}
+            href={`/Collections/tunisie/${prepRoute(subcategory.name)}/?category=${subcategory.id}`}
             className="py-1  pl-5 font-bold text-strongBeige hover:font-bold w-full block transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >

@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
-import { useOutsideClick } from "../Helpers/_outsideClick";
+import { useOutsideClick } from "../../Helpers/_outsideClick";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -28,7 +28,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [LengthComparer, setLengthComparer] = useState<String>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket,
+    (state) => state.quantityInBasket
   );
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
@@ -82,13 +82,14 @@ const TopHeader = ({ logo }: { logo: string }) => {
       className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 "
       onMouseEnter={() => setShowMenuUserMenu(false)}
     >
-      <div className="logo relative w-48 h-24 ">
+      <div className="logo relative w-48 h-24 content-center  ">
         <Link href={"/Home"}>
           <Image
             src={logo}
             width={192}
             height={96}
             alt="logo"
+            priority
             layout="responsive"
             objectFit="contain"
           />
@@ -154,10 +155,10 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <Link
                   rel="preload"
                   href={"/signup"}
-                  className="w-full py-2 px-1 text-xs border-b gap-2 bg-gray-100 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                  className="w-full py-2 px-1 text-xs border-b  bg-gray-100 hover:text-strongBeige flex justify-between items-center  transition-colors"
                 >
                   <FiUser />
-                  NOUVEAU CLIENT?
+                  <p>NOUVEAU CLIENT?</p>
                   <span className="font-semibold">COMMENCER ICI</span>
                 </Link>
               )}

@@ -1,34 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/legacy/image";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 
-const Left = () => {
+const Left = ({ leftCarouselAds }: any) => {
   const [images, setImages] = useState([]);
 
-  const {
-    data,
-    loading: adsLoaded,
-    error,
-  } = useQuery(ADVERTISSMENT_QUERY, {
-    variables: { position: "left" },
-    onCompleted: (data) => {
-      if (data && data.advertismentByPosition) {
-        const allImages = data.advertismentByPosition.flatMap(
-          (ad: { images: string[] }) => ad.images,
-        );
-        setImages(allImages);
-      }
-    },
-  });
+
+  useEffect(() => {
+    if (leftCarouselAds && leftCarouselAds.advertismentByPosition) {
+      const allImages = leftCarouselAds.advertismentByPosition.flatMap(
+        (ad: { images: string[] }) => ad.images
+      );
+      setImages(allImages);
+    }
+  }, []);
 
   return (
     <>
-      {adsLoaded && (
+      {images.length === 0 && (
         <div className="left flex lg:flex-col flex-row items-center justify-center  gap-5 md:gap-12">
           <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
@@ -39,24 +33,12 @@ const Left = () => {
         </div>
       )}
 
-      {!adsLoaded && images.length <= 0 && (
-        <div className="left flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="rounded-xl w-[10rem] md:w-[22rem] h-52 bg-mediumBeige flex flex-col justify-center items-center ">
-            <p>{"Left Ads"}</p>
-            <p>352px x 208px</p>
-          </div>
-          <div className="rounded-xl w-[10rem] md:w-[360px] h-52 bg-mediumBeige flex flex-col justify-center items-center ">
-            <p>{"Left Ads"}</p>
-            <p>360px x 208px</p>
-          </div>
-        </div>
-      )}
 
-      {images.length > 0 && !adsLoaded && (
+      {images.length > 0 && (
         <div className="left flex lg:flex-col  gap-5 md:gap-12">
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={data?.advertismentByPosition[0]?.link}
+            href={leftCarouselAds?.advertismentByPosition[0]?.link}
           >
             <Image
               src={images[0]}
@@ -71,7 +53,7 @@ const Left = () => {
           </Link>
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={data?.advertismentByPosition[1]?.link}
+            href={leftCarouselAds?.advertismentByPosition[1]?.link}
           >
             <Image
               layout="responsive"

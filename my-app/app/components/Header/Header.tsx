@@ -3,15 +3,11 @@ import React, { useEffect, useState } from "react";
 import BottomHeader from "./BottomHeader";
 import Dropdown from "./CategoryDropdown/Dropdown";
 import TopHeader from "./TopHeader";
-import { useLazyQuery } from "@apollo/client";
-import { COMPANY_INFO_QUERY } from "../../../graphql/queries";
 
-const Header = () => {
+
+const Header = ({ CompanyInfoData }: any) => {
   const [showCategoryDropdown, setShowDropdown] = useState<Boolean>(false);
-  const [logo, setLogo] = useState<string>("");
   const [isFixed, setIsFixed] = useState<boolean>(false);
-
-  const [getLogo] = useLazyQuery(COMPANY_INFO_QUERY);
 
   // Add state to track if the header should be fixed
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
@@ -27,12 +23,6 @@ const Header = () => {
 
   // Attach scroll event listener when component mounts
   useEffect(() => {
-    getLogo({
-      onCompleted: (data) => {
-        setLogo(data.companyInfo.logo);
-      },
-    });
-
     window.addEventListener("scroll", handleScroll);
     // Clean up event listener when component unmounts
     return () => {
@@ -45,7 +35,7 @@ const Header = () => {
       className={`header relative  flex justify-center shadow-xl  px-10 md:px-14 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}
     >
       <nav className="container flex flex-col relative w-full items-center justify-center">
-        <TopHeader logo={logo} />
+        <TopHeader logo={CompanyInfoData?.companyInfo?.logo} />
         <BottomHeader
           isFixed={isFixed}
           setIsFixed={setIsFixed}

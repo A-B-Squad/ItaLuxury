@@ -114,11 +114,12 @@ type Basket {
 type Checkout {
   id: ID!
   userId: ID!
+  userName:String!
   governorateId: ID!
   products: [ProductInCheckout]!
   phone: [Int!]!
   address: String!
-  total: Int!
+  total: Float!
   createdAt: String!
 }
 
@@ -258,8 +259,8 @@ type Brand {
 
 type content_visibility {
   id: String!
-  section:Int
-  visibility_status: Boolean
+  section:String!
+  visibility_status: Boolean!
 }
 
 
@@ -267,7 +268,8 @@ type content_visibility {
 type Query {
 
   # Get content visibility
-  getVisibilty:content_visibility!
+  getSectionVisibility(section:String!):content_visibility!
+  
   # Fetch Best Sales
   getBestSales(limit:Int): [BestSales!]
 
@@ -349,6 +351,9 @@ type Mutation {
 
   forgotPassword(email:String!):String!
   resetPassword(password:String,id:String):String!
+
+# update Section Visibility
+  updateSectionVisibility(section: String!, visibility_status: Boolean!): content_visibility!
 
   # User mutations
   signUp(input: SignUpInput!): AuthPayload!
@@ -500,10 +505,11 @@ input CreateToBasketInput {
 input CreateCheckoutInput {
   userId: ID!
   governorateId: ID!
+  userName:String
   products: [ProductInCheckoutInput!]
   phone: [Int!]
   address: String!
-  total: Int!
+  total: Float!
 }
 
 # Define the CreatePackageInput input type

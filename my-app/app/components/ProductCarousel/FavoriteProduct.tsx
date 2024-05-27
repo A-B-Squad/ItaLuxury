@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const FavoriteProduct = ({
+  productName,
   productId,
   userId,
   isFavorite,
@@ -13,6 +14,7 @@ const FavoriteProduct = ({
   heartColor,
   heartSize,
 }: {
+  productName: string;
   productId: string;
   userId: string | undefined;
   isFavorite: boolean;
@@ -29,6 +31,7 @@ const FavoriteProduct = ({
       skip: !userId,
     },
   );
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,7 +75,7 @@ const FavoriteProduct = ({
         setIsFavorite(!isFavorite);
         toast({
           title: "Produit ajouté aux favoris",
-          description: `Le produit "${favoriteData?.name}" a été ajouté à vos favoris.`,
+          description: `Le produit "${productName}" a été ajouté à vos favoris.`,
           className: "bg-strongBeige text-white",
         });
       },

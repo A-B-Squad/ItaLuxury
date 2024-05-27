@@ -1,7 +1,7 @@
 import { Context } from "../../../../pages/api/graphql";
 import nodemailer from "nodemailer";
 
-const sendResetPasswordEmail = async (email: string,id:string) => {
+const sendResetPasswordEmail = async (email: string, id: string) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -654,7 +654,7 @@ const sendResetPasswordEmail = async (email: string,id:string) => {
                                               line-height: 25.2px;
                                               color: #666666;
                                             "
-                                            >Hello,</span
+                                            >Bienvenue,</span
                                           >
                                         </p>
                                         <p style="font-size: 14px; line-height: 140%">
@@ -667,9 +667,7 @@ const sendResetPasswordEmail = async (email: string,id:string) => {
                                               line-height: 25.2px;
                                               color: #666666;
                                             "
-                                            >We have sent you this email in response
-                                            to your request to reset your password on
-                                            MaisonNg.</span
+                                            >Nous vous avons envoyé cet email en réponse à votre demande de réinitialisation de mot de passe sur MaisonNg.</span
                                           >
                                         </p>
                                         <p style="font-size: 14px; line-height: 140%">
@@ -682,7 +680,7 @@ const sendResetPasswordEmail = async (email: string,id:string) => {
                                               line-height: 25.2px;
                                               color: #666666;
                                             "
-                                            >To reset your password, please follow the
+                                            Pour réinitialiser votre mot de passe, veuillez suivre les étapes suivantes :
                                             link below:
                                           </span>
                                         </p>
@@ -755,7 +753,7 @@ const sendResetPasswordEmail = async (email: string,id:string) => {
                                                 background-color: #f17e7e;
                                                 padding: 15px;
                                               "
-                                              >Reset Password</a
+                                              >réinitialiser votre mot de passe</a
                                             
                                           >
                                         </a>
@@ -878,7 +876,7 @@ export const forgotPassword = async (
     }
 
     // Send the reset password email
-    await sendResetPasswordEmail(email,user.id);
+    await sendResetPasswordEmail(email, user.id);
 
     return "Email sent successfully";
   } catch (error) {

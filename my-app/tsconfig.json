@@ -21,7 +21,10 @@
       "@/*": [
         "./*",
         "./app/*",
-        "./app/(mainApp)/*",
+        "./app/(mainApp)/*"
+      ],
+      "@/app/public/*": [
+        "./app/public/*"
       ]
     }
   },

@@ -1,8 +1,11 @@
 import React from "react";
 import ProductsSection from "../_components/productsSection";
-
+import keywords from "@/public/keywords";
 export async function generateMetadata({ searchParams }: any) {
-  const { data } = await fetch("http://localhost:3000/api/graphql", {
+  if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+  const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,6 +23,8 @@ export async function generateMetadata({ searchParams }: any) {
   const CompanyInfo = data;
 
   return {
+    metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+
     title: `Tous Les Produits ${searchParams.choice ? (searchParams.choice === "new-product" ? "Nouveau Produit" : "En Promotions") : ""} - MaisonNg`,
     description:
       "Découvrez tous les produits disponibles chez MaisonNg, que ce soit des nouveautés ou des promotions. Profitez des meilleures offres sur une large gamme de produits.",
@@ -33,6 +38,13 @@ export async function generateMetadata({ searchParams }: any) {
           alt: "Maison Ng",
         },
       ],
+    },
+    keywords: keywords,
+
+    icons: {
+      icon: "../../public/images/logo.jpeg",
+      appleTouchIcon: "/images/logo.jpeg",
+      favicon: "../../public/images/favicon.ico",
     },
   };
 }

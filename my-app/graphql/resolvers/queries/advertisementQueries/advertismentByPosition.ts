@@ -9,7 +9,6 @@ export const advertismentByPosition = async (_: any, { position }: { position: s
 
         // Retrieve advertisement by position
         const advertisement = await prisma.advertisement.findMany({ where: { position } });
-console.log(advertisement);
 
         if (!advertisement) {
             return new Error("Advertisement not found");
