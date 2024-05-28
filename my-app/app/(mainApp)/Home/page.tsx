@@ -1,7 +1,15 @@
 import React from "react";
 import Home from "./Home";
-
+import dynamic from "next/dynamic";
+const CenterAds = dynamic(
+  () => import("../../components/adverstissment/centerAds")
+);
 const HomePage = () => {
-  return <Home />;
+  return (
+    <>
+      <CenterAds />
+      <Home />
+    </>
+  );
 };
 export default HomePage;

@@ -29,8 +29,9 @@ console.log(packages);
 
   packages.forEach((pkg: any) => {
     const packageDate = pkg.createdAt;
-
+    
     if (pkg.status === "DELIVERED") {
+      console.log(packageDate);
       console.log("====================================");
       console.log(isToday(packageDate));
       console.log("====================================");

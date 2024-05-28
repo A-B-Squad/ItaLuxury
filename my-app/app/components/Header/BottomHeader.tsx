@@ -120,7 +120,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-strongBeige transition-all">
-              <Link rel="preload" href={`/nous-contacter`}>
+              <Link rel="preload" href={`/Contact-us`}>
                 Contact
               </Link>
             </li>

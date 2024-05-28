@@ -212,6 +212,8 @@ model CompanyInfo {
   logo            String
   instagram       String
   facebook        String
+  location        String
+  email           String
 }
 
 model content_visibility {

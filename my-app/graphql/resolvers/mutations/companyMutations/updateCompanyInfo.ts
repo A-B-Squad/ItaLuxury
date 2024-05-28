@@ -6,14 +6,14 @@ export const updateCompanyInfo = async (
     { prisma }: Context
 ) => {
     try {
-        const { phone, deliveringPrice, logo } = input;
+        const { phone, deliveringPrice, logo, email, facebook, instagram, location } = input;
         // Update the company info with the provided data
         const updatedCompanyInfo = await prisma.companyInfo.update({
             where: { id },
             data: {
                 phone,
                 deliveringPrice,
-                logo
+                logo, email, facebook, instagram, location
             },
         });
 

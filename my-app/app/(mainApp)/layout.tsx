@@ -11,9 +11,7 @@ const DrawerMobile = dynamic(
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
-const CenterAds = dynamic(
-  () => import("../components/adverstissment/centerAds")
-);
+
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
   loadDevMessages();
@@ -65,18 +63,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
-      </head>
-      <body className={`${openSans.className} relative`}>
-        <CenterAds />
+    // <html lang="en">
+    //   <head>
+    //     <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
+    //   </head>
+      <div className={`${openSans.className} relative`}>
         <DrawerMobile />
         <BasketDrawer />
         <Header />
         <ApolloWrapper>{children}</ApolloWrapper>
         <Footer />
-      </body>
-    </html>
+      </div>
+    // </html>
   );
 }

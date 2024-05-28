@@ -1,5 +1,4 @@
 import React from "react";
-// import Checkout from "./Checkout";
 import { Metadata } from "next";
 import keywords from "@/public/keywords";
 import dynamic from "next/dynamic";
