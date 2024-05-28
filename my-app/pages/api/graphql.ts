@@ -5,6 +5,8 @@ import { PrismaClient } from "@prisma/client"; // Prisma ORM Client
 import { prisma } from "../../prisma/db"; // Prisma database instance
 import { typeDefs } from "../../graphql/schema"; // GraphQL schema definitions
 import { resolvers } from "../../graphql/resolvers"; // GraphQL resolvers
+import cors from "cors"; // Import the CORS middleware
+import { NextApiRequest, NextApiResponse } from 'next';
 
 // Define the JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || "JWT secret";
@@ -18,12 +20,31 @@ export type Context = {
 };
 
 // Create a new instance of ApolloServer with provided type definitions and resolvers
-const apolloServer = new ApolloServer<Context>({typeDefs, resolvers,});
+const apolloServer = new ApolloServer<Context>({ typeDefs, resolvers, });
 
 
-
-// Export the Next.js server handler by starting ApolloServer and integrating it with Next.js
-export default startServerAndCreateNextHandler(apolloServer, {
-  // Define context function to provide context to ApolloServer
-  context: async (req, res) => ({ req, res, prisma, jwtSecret: JWT_SECRET }), // Include request, response, Prisma client, and JWT secret in context
+// Middleware to handle CORS
+const corsMiddleware = cors({
+  origin: process.env.NEXT_ALLOW_REQUEST_API_URL  , // Allow requests from this origin
+  credentials: true, // Allow cookies and other credentials
 });
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Apply CORS middleware
+  await new Promise<void>((resolve, reject) => {
+    corsMiddleware(req, res, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+
+  // Handle GraphQL requests
+  return startServerAndCreateNextHandler(apolloServer, {
+    context: async () => ({ req, res, prisma, jwtSecret: JWT_SECRET }),
+  })(req, res);
+}
+
+export default handler;

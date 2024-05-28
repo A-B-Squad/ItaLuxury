@@ -16,6 +16,7 @@ function makeClient() {
   const httpLink = new HttpLink({
     uri: `${process.env.NEXT_PUBLIC_API_URL}`,
     credentials:'include',
+    
   });
 
   return new NextSSRApolloClient({
