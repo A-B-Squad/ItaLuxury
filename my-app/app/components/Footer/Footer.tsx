@@ -39,6 +39,8 @@ const Footer = async () => {
           logo
           facebook
           instagram
+          location
+          email
         }
       }
   `,
@@ -68,9 +70,11 @@ const Footer = async () => {
     {
       title: "Informations",
       content: (
-        <>
+        <div>
+          <p>(+216) {CompanyInfoData?.companyInfo?.location}</p>
+          <p>(+216) {CompanyInfoData?.companyInfo?.email}</p>
           <p>(+216) {CompanyInfoData?.companyInfo?.phone}</p>
-        </>
+        </div>
       ),
     },
     {
@@ -162,7 +166,7 @@ const Footer = async () => {
   ];
 
   return (
-    <div className="bg-white shadow-2xl shadow-black text-black flex flex-col items-center pt-3">
+    <div className="bg-white shadow-2xl shadow-black border-t-2 text-black flex flex-col items-center pt-3">
       <div className="text-center  flex justify-center items-center flex-col">
         <Image
           src={CompanyInfoData?.companyInfo?.logo}

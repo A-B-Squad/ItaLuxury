@@ -7,14 +7,15 @@ export const createCompanyInfo = async (
   { prisma }: Context
 ) => {
   try {
-    const { phone, deliveringPrice, logo, facebook, instagram } = input;
+
+    const { phone, deliveringPrice, logo, facebook, instagram, location,email } = input;
 
     // Create the company info with the provided data
     const newCompanyInfo = await prisma.companyInfo.create({
       data: {
         phone,
         deliveringPrice,
-        logo, facebook, instagram
+        logo, facebook, instagram, location,email
       },
     });
 

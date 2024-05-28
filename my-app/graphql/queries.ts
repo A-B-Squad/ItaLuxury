@@ -414,6 +414,8 @@ export const COMPANY_INFO_QUERY = gql`
       logo
       facebook
       instagram
+      location
+      email
     }
   }
 `;

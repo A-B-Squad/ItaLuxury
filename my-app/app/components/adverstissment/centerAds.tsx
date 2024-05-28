@@ -20,7 +20,9 @@ const CenterAds = () => {
     }, 10000);
   }, []);
   return (
-    <div className={`${showAds ? "opacity-100 block" : "opacity-0 hidden"} transition-all`}>
+    <div
+      className={`${showAds ? "opacity-100 block" : "opacity-0 hidden"} transition-all`}
+    >
       <div className="bg-lightBlack absolute z-[60] left-0 top-0 w-full h-full"></div>
       <div
         className={` bg-white shadow-2xl flex items-center justify-center text-center w-[350px] h-[250px] md:w-[700px] md:h-[450px] fixed rounded-md  z-[60]  top-2/4 left-2/4 -translate-y-2/4  -translate-x-2/4 transition-all`}
@@ -33,11 +35,13 @@ const CenterAds = () => {
         />
         {centerAds?.advertismentByPosition.length === 0 ? (
           <>
-            <p className="hidden md:block">700px x 450px</p>
-            <p className="md:hidden block">300px x 250px</p>
+            <p className="hidden md:block">700px X 450px</p>
+            <p className="md:hidden block">300px X 250px</p>
           </>
         ) : (
-          <Link href={`${process.env.BASE_URL_DOMAIN}/Collections/tunisie`}>
+          <Link href={`${centerAds?.advertismentByPosition[0]?.link[0]}`}
+          className="cursor-pointer"
+          >
             <Image
               layout="fill"
               objectFit="contain"

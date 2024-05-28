@@ -215,6 +215,9 @@ type CompanyInfo {
   logo: String
   instagram:String
   facebook:String
+  location:String
+  email:String
+
 }
 # Define the TopDeals type
 type TopDeals {
@@ -427,7 +430,7 @@ type Mutation {
   # Admin mutation for creating a moderator
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
   # Contact Us 
-  createContactUs(input:ContactUsInput!):ContactUs!
+  createContactUs(input:ContactUsInput!):String!
 }
 
 # Define the SignUpInput input type
@@ -544,6 +547,8 @@ input CompanyInfoInput {
   logo: String
   instagram: String
   facebook: String
+  location: String
+  email:String
 }
 
 # Define the CreateModeratorInput input type

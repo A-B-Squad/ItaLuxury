@@ -11,6 +11,11 @@ export const SIGNIN_MUTATION = gql`
     }
   }
 `;
+export const CONTACT_US_MUTATION = gql`
+mutation CreateContactUs($input: ContactUsInput!) {
+  createContactUs(input: $input)
+}
+`;
 export const SIGNUP_MUTATION = gql`
   mutation SignUp($input: SignUpInput!) {
     signUp(input: $input) {
