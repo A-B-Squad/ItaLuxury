@@ -12,7 +12,7 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY
+    SEARCH_PRODUCTS_QUERY,
   );
 
   const router = useRouter();

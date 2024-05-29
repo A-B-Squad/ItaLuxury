@@ -8,7 +8,7 @@ interface Subcategory {
 }
 
 const Dropdown = ({ setShowDropdown, showCategoryDropdown, isFixed }: any) => {
-  const {  error, data } = useQuery(CATEGORY_QUERY);
+  const { error, data } = useQuery(CATEGORY_QUERY);
   const [activeCategory, setActiveCategory] = useState<string>("  ");
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown, isFixed }: any) => {
   return (
     <div
       onMouseLeave={() => setShowDropdown(false)}
-      className={`md:border  hidden z-[60] bg-white md:flex  left-24  md:gap-2 ${isFixed ? "fixed top-[90px]" : "absolute top-[155px]"} w-full max-w-[1000px] md:shadow-md h-fit transition-all  ${
+      className={`md:border  hidden z-[60] bg-white md:flex  left-24  md:gap-2 ${isFixed ? "fixed top-[90px]" : "absolute top-[155px]"} w-full max-w-[900px] md:shadow-md h-fit transition-all  ${
         showCategoryDropdown ? "opacity-100 visible" : "opacity-0 invisible"
       }`}
     >
@@ -35,7 +35,7 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown, isFixed }: any) => {
       )}
 
       {data?.categories.length <= 0 && (
-        <p className="px-10 py-3  text-center tracking-wider ">
+        <p className="px-5 w-fit py-3  text-center tracking-wider ">
           Aucune catégorie disponible pour le moment. Veuillez revenir plus tard
           !
         </p>

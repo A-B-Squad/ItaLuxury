@@ -10,9 +10,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import React from "react";
+import { MdEmail, MdLocalPhone, MdMyLocation } from "react-icons/md";
+import { IoLocationSharp } from "react-icons/io5";
 // Reusable SocialIcon component with hover effect
-const SocialIcon = ({ icon: Icon, link }: any) => (
-  <a href={link} target="_blank" rel="noopener noreferrer">
+const SocialIcon = ({ icon: Icon, navLink }: any) => (
+  <a href={navLink} target="_blank" rel="noopener noreferrer">
     <Icon className="social-icon hover:text-[#00df9a]" size={30} />
   </a>
 );
@@ -45,7 +47,7 @@ const Footer = async () => {
       }
   `,
       }),
-    }
+    },
   ).then((res) => res.json());
 
   const { data: CategoryData } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
@@ -70,17 +72,51 @@ const Footer = async () => {
     {
       title: "Informations",
       content: (
-        <div>
-          <p>(+216) {CompanyInfoData?.companyInfo?.location}</p>
-          <p>(+216) {CompanyInfoData?.companyInfo?.email}</p>
-          <p>(+216) {CompanyInfoData?.companyInfo?.phone}</p>
+        <div className="leading-7 w-60">
+          <div className="flex gap-1 items-start tracking-wider text-gray-700">
+            <IoLocationSharp size={40} />
+
+            <p>{CompanyInfoData?.companyInfo?.location}</p>
+          </div>
+          <div className="flex gap-5 tracking-wider items-center text-gray-700 ">
+            <MdEmail size={18} />
+
+            <p> {CompanyInfoData?.companyInfo?.email}</p>
+          </div>
+          <div className="flex gap-1 items-center tracking-wider text-gray-700 ">
+            <MdLocalPhone size={18} />
+
+            <p>(+216) {CompanyInfoData?.companyInfo?.phone}</p>
+          </div>
         </div>
       ),
+      items: [
+        {
+          name: CompanyInfoData?.companyInfo?.location,
+          navLink: "",
+
+          id: "0",
+        },
+        {
+          name: `
+          ${CompanyInfoData?.companyInfo?.email}`,
+          navLink: "",
+
+          id: "1",
+        },
+        {
+          name: `(+216) ${CompanyInfoData?.companyInfo?.phone}`,
+          navLink: "",
+
+          id: "2",
+        },
+      ],
     },
     {
       title: "Nos Catégories",
       items: CategoryData?.categories.map((category: any) => ({
         name: category.name,
+        navLink: `/Collections/tunisie/?category=${category.id}`,
         id: category.id,
       })),
     },
@@ -88,10 +124,13 @@ const Footer = async () => {
       title: "Notre Entreprise",
       content: (
         <>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
+          <Link
+            href={"/Delivery"}
+            className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+          >
             {" "}
             Livraison
-          </p>
+          </Link>
           <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
             {" "}
             Politique de Confidentialité
@@ -100,20 +139,47 @@ const Footer = async () => {
             {" "}
             Conditions d'utilisation
           </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
+          <Link
+            href={"/Contact-us"}
+            className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+          >
             {" "}
             Contactez-nous
-          </p>
+          </Link>
           <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
             {" "}
             Plan du site
           </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            {" "}
-            Magasins
-          </p>
         </>
       ),
+      items: [
+        {
+          name: "Livraison",
+          navLink: "/Delivery",
+          id: "0",
+        },
+        {
+          name: "Politique de Confidentialité",
+          navLink: "/",
+
+          id: "1",
+        },
+        {
+          name: "Conditions d'utilisation",
+          id: "2",
+        },
+        {
+          name: " Contactez-nous",
+          navLink: "/Contact-us",
+
+          id: "3",
+        },
+        {
+          name: "Plan du site",
+          navLink: "/",
+          id: "4",
+        },
+      ],
     },
     {
       title: "Votre Compte",
@@ -125,15 +191,13 @@ const Footer = async () => {
           <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
             Commandes
           </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Avoirs
-          </p>
+
           <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
             Adresses
           </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
+          {/* <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
             Bons de réduction
-          </p>
+          </p> */}
           <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
             Mes listes de souhaits
           </p>
@@ -142,6 +206,37 @@ const Footer = async () => {
           </p>
         </>
       ),
+
+      items: [
+        {
+          name: "Informations personnelles",
+          navLink: "/",
+          id: "0",
+        },
+        {
+          name: "Commandes",
+          navLink: "/",
+          id: "1",
+        },
+        {
+          name: "Adresses",
+          navLink: "/",
+
+          id: "2",
+        },
+        {
+          name: " Mes listes de souhaits",
+          navLink: "/",
+
+          id: "3",
+        },
+        {
+          name: " Mes alertes",
+          navLink: "/",
+
+          id: "4",
+        },
+      ],
     },
     {
       title: "Newsletter",
@@ -150,7 +245,7 @@ const Footer = async () => {
           <input
             type="email"
             placeholder="Votre adresse e-mail"
-            className="p-2 rounded w-full text-black"
+            className="p-2 rounded w-full border text-black"
           />
           <button className="mt-2 p-2 bg-[#00df9a] text-white rounded w-full">
             S'ABONNER
@@ -175,7 +270,7 @@ const Footer = async () => {
           alt="Maison Ng"
           objectFit="contain"
         />
-        <p className="mt-5 w-11/12 md:w-3/4 font-light">
+        <p className="my-5 w-11/12 md:w-3/4 font-light text-base leading-7 tracking-wider">
           Maison Ng s'engage à simplifier et à embellir votre quotidien. Notre
           site propose une sélection raffinée d'articles de cuisine, d'arts de
           la table, d'accessoires de salle de bain et de bagagerie, tous
@@ -183,7 +278,7 @@ const Footer = async () => {
           unique et original. Simplement extraordinaire !
         </p>
       </div>
-      <div className="w-full hidden lg:grid max-w-6xl px-4  lg:grid-cols-5 place-content-center gap-8 border-t pt-8">
+      <div className="w-full hidden lg:grid max-w-7xl px-3   lg:grid-cols-5 place-content-center gap-4 border-t pt-8">
         {sections.map((section, index) => (
           <div key={index}>
             <h6 className="font-medium text-xl mb-4">{section.title}</h6>
@@ -214,17 +309,20 @@ const Footer = async () => {
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger>{section.title}</AccordionTrigger>
                 {section.items?.map(
-                  (item: { name: string; id: string }, subIndex: number) => (
+                  (
+                    item: { name: string; id: string; navLink: string },
+                    subIndex: number,
+                  ) => (
                     <AccordionContent key={subIndex}>
                       <Link
                         className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
-                        href={`/Collections/tunisie/?category=${item.id}`}
+                        href={item?.navLink}
                         key={subIndex}
                       >
                         {item.name}
                       </Link>
                     </AccordionContent>
-                  )
+                  ),
                 )}
               </AccordionItem>
             </div>
@@ -234,11 +332,11 @@ const Footer = async () => {
       <div className="mt-8 flex gap-5">
         <SocialIcon
           icon={FaFacebookSquare}
-          link={CompanyInfoData?.companyInfo?.facebook}
+          navLink={CompanyInfoData?.companyInfo?.facebook}
         />
         <SocialIcon
           icon={FaInstagram}
-          link={CompanyInfoData?.companyInfo?.instagram}
+          navLink={CompanyInfoData?.companyInfo?.instagram}
         />
       </div>
       <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-base font-light mt-2 w-full">

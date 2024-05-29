@@ -28,7 +28,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [LengthComparer, setLengthComparer] = useState<String>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket
+    (state) => state.quantityInBasket,
   );
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);

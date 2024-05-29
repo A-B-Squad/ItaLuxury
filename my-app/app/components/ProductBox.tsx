@@ -44,7 +44,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    })
+    }),
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -57,7 +57,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const AddToBasket = (product: any) => {
@@ -86,7 +86,7 @@ export const ProductBox = ({ product }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -107,7 +107,7 @@ export const ProductBox = ({ product }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id
+      (p: any) => p.id === product.id,
     );
 
     if (!isProductAlreadyInCompare) {
@@ -320,9 +320,8 @@ export const ProductBox = ({ product }: any) => {
             <button
               className={`flex items-center gap-2 self-center py-2  m-auto  text-base w-fit justify-center bg-white px-2  text-md hover:text-white transition hover:bg-red-300 `}
               onClick={() => {
-                
-                
-                AddToBasket(product)}}
+                AddToBasket(product);
+              }}
             >
               <SlBasket />
               Ajouter au panier

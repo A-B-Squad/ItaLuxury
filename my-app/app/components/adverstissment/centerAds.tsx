@@ -12,7 +12,7 @@ const CenterAds = () => {
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "center_ads_product" },
-    }
+    },
   );
   useEffect(() => {
     setTimeout(() => {
@@ -39,8 +39,9 @@ const CenterAds = () => {
             <p className="md:hidden block">300px X 250px</p>
           </>
         ) : (
-          <Link href={`${centerAds?.advertismentByPosition[0]?.link[0]}`}
-          className="cursor-pointer"
+          <Link
+            href={`${centerAds?.advertismentByPosition[0]?.link[0]}`}
+            className="cursor-pointer"
           >
             <Image
               layout="fill"

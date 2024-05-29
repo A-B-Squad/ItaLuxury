@@ -14,6 +14,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { GoPackageDependents } from "react-icons/go";
 import { IoIosLogOut } from "react-icons/io";
 import { IoGitCompare } from "react-icons/io5";
+import { GrContact } from "react-icons/gr";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -77,7 +78,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
     <div
       className={`bg-white transition-all duration-300 ${isFixed ? "fixed top-0 w-full z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative"}`}
       onMouseEnter={() => setShowDropdown(false)}
-      >
+    >
       <div
         className="BottomHeader  flex justify-between items-center py-3 "
         onMouseEnter={() => setShowDropdown(false)}
@@ -181,6 +182,16 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                   {quantityInBasket}
                 </span>
               )}
+            </li>
+            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+              <Link rel="preload" href={"/Contact-us"}>
+                <GrContact />
+                {LengthComparer > 0 && (
+                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
+                    {LengthComparer}
+                  </span>
+                )}
+              </Link>
             </li>
           </ul>
         </div>

@@ -98,8 +98,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
       toggleIsUpdated();
     },
@@ -120,8 +120,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
       toggleIsUpdated();
     },
@@ -131,7 +131,7 @@ const Basket = () => {
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId)
+        prevProducts.filter((product) => product.basketId !== basketId),
       );
       deleteBasketById({ variables: { basketId } });
       toggleIsUpdated();
@@ -142,7 +142,7 @@ const Basket = () => {
         className: "bg-strongBeige text-white",
       });
     },
-    [deleteBasketById, toast]
+    [deleteBasketById, toast],
   );
 
   return (

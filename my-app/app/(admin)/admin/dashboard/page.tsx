@@ -25,11 +25,11 @@ const getStats = (packages: any) => {
     thisMonth: [0, 0],
     thisYear: [0, 0],
   };
-console.log(packages);
+  console.log(packages);
 
   packages.forEach((pkg: any) => {
     const packageDate = pkg.createdAt;
-    
+
     if (pkg.status === "DELIVERED") {
       console.log(packageDate);
       console.log("====================================");

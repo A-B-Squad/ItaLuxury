@@ -41,7 +41,6 @@ const Signin = () => {
   });
 
   const onSubmit = (data: any) => {
-
     SignIn({ variables: { input: data } });
   };
 
@@ -103,7 +102,7 @@ const Signin = () => {
         </div>
 
         <div className="text-grey-dark mt-6">
-          Vous n'avez pas un compte ? {" "}
+          Vous n'avez pas un compte ?{" "}
           <Link
             className="no-underline border-b text-sm border-blue text-blue-700"
             href="/signup"
@@ -112,7 +111,7 @@ const Signin = () => {
           </Link>
           .
           <br />
-          Mot de passe oublié ?{" "}  
+          Mot de passe oublié ?{" "}
           <Link
             className="no-underline text-sm border-b border-blue text-blue-700"
             href="/forgotPassword"

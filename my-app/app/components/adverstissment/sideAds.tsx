@@ -21,16 +21,16 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
         </div>
       )}
 
-      { image && (
+      {image && (
         <Link
           className="relative flex items-center flex-col justify-center h-[374px] w-[320px] min-w-[290px] min-h-[374px] rounded-lg "
           href={link}
         >
           <Image
             src={image}
-            width={300} 
-            height={300} 
-            layout="fill" 
+            width={300}
+            height={300}
+            layout="fill"
             alt="MaisonNg"
             objectFit="contain"
             objectPosition={0}

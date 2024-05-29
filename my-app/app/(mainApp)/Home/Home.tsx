@@ -18,7 +18,6 @@ import ProductTabs from "@/components/ProductCarousel/productTabs";
 import TopDeals from "./TopDeals/TopDeals";
 const ClientServices = dynamic(() => import("./_components/ClientServices"));
 
-
 import { useQuery } from "@apollo/client";
 import {
   ADVERTISSMENT_QUERY,
@@ -32,38 +31,38 @@ const Home = () => {
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "left_ads_product" },
-    }
+    },
   );
   const { data: rightAds, loading: loadingRightAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "right_ads_product" },
-    }
+    },
   );
   const { data: FullAdsPromotion, loading: loadingFullPromotionAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "FullAdsPromotion" },
-    }
+    },
   );
   const { data: leftCarouselAds, loading: loadingLeftCarouselAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "leftCarouselAds" },
-    }
+    },
   );
   const { data: rightCarouselAds, loading: loadingRightCarouselAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "rightCarouselAds" },
-    }
+    },
   );
 
   const { data: FullAds20Product, loading: loadingFull20ProductAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "full_ads_20" },
-    }
+    },
   );
   const { data: centerCarouselAds, loading: loadingCenterCarouselAds } =
     useQuery(ADVERTISSMENT_QUERY, {
@@ -73,13 +72,13 @@ const Home = () => {
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "full_ads_topDeals" },
-    }
+    },
   );
   const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
     TAKE_6_PRODUCTS_PRICE_20,
     {
       variables: { limit: 6 },
-    }
+    },
   );
   const { data: Products_inDiscount_6, loading: loadingProducts_inDiscount_6 } =
     useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
@@ -89,7 +88,7 @@ const Home = () => {
     TAKE_6_PRODUCTS,
     {
       variables: { limit: 6 },
-    }
+    },
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
     variables: { section: "top sells" },
@@ -98,11 +97,11 @@ const Home = () => {
   const newProducts = useMemo(() => NewProducts_6?.products, [NewProducts_6]);
   const productsDiscounts = useMemo(
     () => Products_inDiscount_6?.productsDiscounts,
-    [Products_inDiscount_6]
+    [Products_inDiscount_6],
   );
   const productsLessThan20 = useMemo(
     () => Products_less_20?.productsLessThen20,
-    [Products_less_20]
+    [Products_less_20],
   );
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8">

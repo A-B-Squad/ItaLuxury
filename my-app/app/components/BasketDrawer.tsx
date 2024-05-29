@@ -74,8 +74,8 @@ const BasketDrawer = () => {
           setQuantityInBasket(
             fetchedProducts.reduce(
               (acc: number, curr: any) => acc + curr.actualQuantity,
-              0
-            )
+              0,
+            ),
           );
           const total = fetchedProducts.reduce((acc: number, curr: Product) => {
             const price = curr.productDiscounts?.length
@@ -91,8 +91,8 @@ const BasketDrawer = () => {
       setQuantityInBasket(
         products.reduce(
           (acc: number, curr: any) => acc + curr.actualQuantity,
-          0
-        )
+          0,
+        ),
       );
       const total = products.reduce((acc: number, curr: Product) => {
         const price = curr.productDiscounts?.length
@@ -110,7 +110,7 @@ const BasketDrawer = () => {
 
   const handleRemoveProduct = (basketId: string) => {
     const updatedProducts = productsInBasket.filter(
-      (product) => product.basketId !== basketId
+      (product) => product.basketId !== basketId,
     );
     const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
       const price = curr.productDiscounts?.length
@@ -233,7 +233,7 @@ const BasketDrawer = () => {
                             <p className=" font-semibold tracking-wide">
                               {product.productDiscounts?.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
+                                    3,
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND
@@ -250,7 +250,7 @@ const BasketDrawer = () => {
                               } else {
                                 removeProductFromBasket(product?.id);
                                 const updatedProducts = products.filter(
-                                  (pr: any) => pr.id !== product?.id
+                                  (pr: any) => pr.id !== product?.id,
                                 );
                                 const updatedTotalPrice =
                                   updatedProducts.reduce((acc, curr: any) => {

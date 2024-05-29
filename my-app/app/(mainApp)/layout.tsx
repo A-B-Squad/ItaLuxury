@@ -7,7 +7,7 @@ import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 const BasketDrawer = dynamic(() => import("../components/BasketDrawer"));
 const DrawerMobile = dynamic(
-  () => import("../components/Header/CrategoryDrawer/DrawerMobile")
+  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -67,13 +67,13 @@ export default async function RootLayout({
     //   <head>
     //     <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
     //   </head>
-      <div className={`${openSans.className} relative`}>
-        <DrawerMobile />
-        <BasketDrawer />
-        <Header />
-        <ApolloWrapper>{children}</ApolloWrapper>
-        <Footer />
-      </div>
+    <div className={`${openSans.className} relative`}>
+      <DrawerMobile />
+      <BasketDrawer />
+      <Header />
+      <ApolloWrapper>{children}</ApolloWrapper>
+      <Footer />
+    </div>
     // </html>
   );
 }

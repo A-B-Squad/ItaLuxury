@@ -149,7 +149,7 @@ const ProductsSection = () => {
 
   return (
     <>
-      {loading ? ( 
+      {loading ? (
         <Loading />
       ) : (
         <div className="flex flex-col justify-between items-center  h-full bg-white ">

@@ -32,7 +32,7 @@ const TopDeals = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const TopDeals = () => {
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id
+          (p: any) => p.id === product.id,
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -97,11 +97,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ]
+    ],
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   const addToCompare = useCallback(
@@ -113,7 +113,7 @@ const TopDeals = () => {
         className: "bg-strongBeige text-white",
       });
     },
-    [addProductToCompare, toast]
+    [addProductToCompare, toast],
   );
 
   const renderProducts = useMemo(() => {
@@ -239,7 +239,7 @@ const TopDeals = () => {
                   <div className="prices flex gap-3 items-center lg:mt-3">
                     <span className="text-strongBeige font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3
+                        3,
                       )}
                       TND
                     </span>
@@ -299,7 +299,14 @@ const TopDeals = () => {
         })}
       </>
     );
-  }, [topDeals, AddToBasket, addToCompare,setIsFavorite ,isFavorite, decodedToken]);
+  }, [
+    topDeals,
+    AddToBasket,
+    addToCompare,
+    setIsFavorite,
+    isFavorite,
+    decodedToken,
+  ]);
 
   return (
     <div className="md:grid grid-cols-2 gap-3 grid-flow-col overflow-hidden block">

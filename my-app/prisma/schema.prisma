@@ -230,9 +230,10 @@ model Brand {
 }
 
 model ContactUs {
-  id       String  @id @default(uuid())
-  subject  String
-  email    String
-  document String?
-  message  String
+  id        String   @id @default(uuid())
+  subject   String
+  email     String
+  document  String?
+  message   String
+  createdAt DateTime @default(now())
 }

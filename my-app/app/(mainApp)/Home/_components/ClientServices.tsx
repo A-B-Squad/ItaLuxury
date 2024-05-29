@@ -84,7 +84,6 @@ const ClientServices = () => {
           <Link
             rel="preload"
             href={client2[0].link}
-
             className="  shadow-lg border-2 w-[300px] h-[150px]   max-w-[384px] max-h-[218px]  lg:w-[384px] lg:h-[218px]      "
           >
             <Image

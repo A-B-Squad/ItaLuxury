@@ -26,7 +26,6 @@ const SideBar = () => {
           <ul className="mt-4">
             <li className="flex w-full py-4 px-4 justify-between text-white cursor-pointer outline-none items-center transition">
               <button
-                
                 className="flex items-center focus:outline-none focus:ring-2 outline-none focus:ring-white"
                 onClick={toggleSidebar}
               >

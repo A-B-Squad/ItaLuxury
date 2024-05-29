@@ -10,11 +10,10 @@ import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 const Left = ({ leftCarouselAds }: any) => {
   const [images, setImages] = useState([]);
 
-
   useEffect(() => {
     if (leftCarouselAds && leftCarouselAds.advertismentByPosition) {
       const allImages = leftCarouselAds.advertismentByPosition.flatMap(
-        (ad: { images: string[] }) => ad.images
+        (ad: { images: string[] }) => ad.images,
       );
       setImages(allImages);
     }
@@ -32,7 +31,6 @@ const Left = ({ leftCarouselAds }: any) => {
           </div>
         </div>
       )}
-
 
       {images.length > 0 && (
         <div className="left flex lg:flex-col  gap-5 md:gap-12">

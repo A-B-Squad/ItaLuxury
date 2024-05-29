@@ -174,7 +174,7 @@ const Checkout = () => {
                       <option key={goverment.id} value={goverment.id}>
                         {goverment.name}
                       </option>
-                    )
+                    ),
                   )}{" "}
                 </select>
 
@@ -199,7 +199,7 @@ const Checkout = () => {
                     <p className="font-semibold text-gray-900">
                       {Number(total) >= 499
                         ? Number(total).toFixed(3)
-                        : (Number(total)-8).toFixed(3)}{" "}
+                        : (Number(total) - 8).toFixed(3)}{" "}
                       TND
                     </p>
                   </div>

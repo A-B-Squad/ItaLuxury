@@ -8,17 +8,19 @@ if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.BASE_URL_DOMAIN),
   title: "Connexion - MaisonNg",
-  description: "Connectez-vous à votre compte MaisonNg pour accéder à votre profil et effectuer des achats en ligne.",
+  description:
+    "Connectez-vous à votre compte MaisonNg pour accéder à votre profil et effectuer des achats en ligne.",
   keywords: keywords, // Use the imported keywords
-  
+
   openGraph: {
     url: `${process.env.BASE_URL_DOMAIN}/signin`,
     type: "website",
     title: "Connexion - MaisonNg",
-    description: "Connectez-vous à votre compte MaisonNg pour accéder à votre profil et effectuer des achats en ligne.", 
+    description:
+      "Connectez-vous à votre compte MaisonNg pour accéder à votre profil et effectuer des achats en ligne.",
     images: [
       {
-        url: `${process.env.BASE_URL_DOMAIN}/images/logo.jpeg`, 
+        url: `${process.env.BASE_URL_DOMAIN}/images/logo.jpeg`,
         width: 800,
         height: 600,
         alt: "Maison Ng",
