@@ -18,7 +18,7 @@ const CenterAds = () => {
   }, []);
   return (
     <div
-      className={`${showAds ? "opacity-100 z-50 block" : "opacity-0 hidden"} transition-all`}
+      className={`${showAds ? "opacity-100 z-50 block" : "opacity-0 translate-y-6 hidden"} transition-all`}
     >
       <div className="bg-lightBlack absolute z-[100] left-0 top-0 w-full h-full"></div>
       <div
