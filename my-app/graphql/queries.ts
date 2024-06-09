@@ -1,5 +1,15 @@
 import { gql } from "@apollo/client";
 
+
+
+export const USER_QUERIES = gql`
+query FetchUsersById($userId: ID!) {
+  fetchUsersById(userId: $userId) {
+  fullName
+ 
+  }
+}
+`
 export const PRODUCT_BY_ID_QUERY = gql`
   query ProductById($productByIdId: ID!) {
     productById(id: $productByIdId) {
@@ -217,6 +227,7 @@ export const TOP_DEALS = gql`
         productDiscounts {
           price
           newPrice
+          dateOfEnd
           Discount {
             percentage
           }
@@ -423,7 +434,9 @@ export const GET_PACKAGES_BY_USER_ID = gql`
   query PackageByUserId($userId: ID!) {
     packageByUserId(userId: $userId) {
       id
+      
       Checkout {
+        total
         products {
           productId
           product {
@@ -601,3 +614,20 @@ export const PACKAGE_QUERY = gql`
     }
   }
 `;
+export const DELETE_ALL_DISCOUNTS_QUERY = gql`
+query Query {
+  deleteAutoProductDiscount
+}
+`;
+
+
+export const FIND_UNIQUE_COUPONS = gql`
+query FindUniqueCoupons($codeInput: String!) {
+  findUniqueCoupons(codeInput: $codeInput) {
+    id
+    discount
+  }
+}
+`;
+
+

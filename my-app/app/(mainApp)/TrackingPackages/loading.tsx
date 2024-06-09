@@ -2,7 +2,7 @@ import React from "react";
 import "./loader.css";
 const Loading = () => {
   return (
-    <div className="loaderCard z-[1000]">
+    <div className="loaderCard z-[1000] bg-white">
       <div className="truckWrapper">
         <div className="truckBody">
           <svg

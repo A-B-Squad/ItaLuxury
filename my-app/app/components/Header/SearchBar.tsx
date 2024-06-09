@@ -12,7 +12,7 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY
+    SEARCH_PRODUCTS_QUERY,
   );
 
   const router = useRouter();
@@ -55,13 +55,13 @@ const SearchBar = () => {
 
   return (
     <div
-      className="search z-30 flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full    pl-4"
+      className="search z-30 flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full mb-5 md:my-0   pl-4"
       onClick={() => setSearching(true)}
       onMouseLeave={() => setSearching(false)}
     >
       <input
         ref={inputRef}
-        className="h-full w-full outline-none"
+        className="h-full w-full outline-none "
         type="text"
         placeholder="Rechercher..."
         value={searchQuery}

@@ -12,6 +12,7 @@ import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
 import {
+  useBasketStore,
   useProductDetails,
   useProductsInBasketStore,
 } from "../../store/zustand";
@@ -40,28 +41,29 @@ const ProductInfo = () => {
     }
   }, []);
 
-  const handleMouseEnter = useCallback((image: string) => {
-    setBigImage(image);
-  }, []);
+  const { toggleIsUpdated } = useBasketStore((state) => ({
+    isUpdated: state.isUpdated,
+    toggleIsUpdated: state.toggleIsUpdated,
+  }));
 
   const handleAddQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
       productData && prevQuantity < productData.inventory
         ? prevQuantity + 1
-        : prevQuantity
+        : prevQuantity,
     );
   }, [productData]);
 
   const handleSubtractQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1
+      prevQuantity > 1 ? prevQuantity - 1 : 1,
     );
   }, []);
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const AddToBasket = (product: any) => {
@@ -90,7 +92,7 @@ const ProductInfo = () => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -105,8 +107,7 @@ const ProductInfo = () => {
         console.log("Product is already in the basket");
       }
     }
-    // toggleIsUpdated();
-    // openBasketDrawer();
+    toggleIsUpdated();
   };
   useEffect(() => {
     setBigImage(productData?.images[0] || "");

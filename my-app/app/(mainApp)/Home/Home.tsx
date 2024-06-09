@@ -18,11 +18,11 @@ import ProductTabs from "@/components/ProductCarousel/productTabs";
 import TopDeals from "./TopDeals/TopDeals";
 const ClientServices = dynamic(() => import("./_components/ClientServices"));
 
-
 import { useQuery } from "@apollo/client";
 import {
   ADVERTISSMENT_QUERY,
   CONTENT_VISIBILITY,
+  DELETE_ALL_DISCOUNTS_QUERY,
   TAKE_6_PRODUCTS,
   TAKE_6_PRODUCTS_IN_DISCOUNT,
   TAKE_6_PRODUCTS_PRICE_20,
@@ -94,6 +94,7 @@ const Home = () => {
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
     variables: { section: "top sells" },
   });
+  useQuery(DELETE_ALL_DISCOUNTS_QUERY);
 
   const newProducts = useMemo(() => NewProducts_6?.products, [NewProducts_6]);
   const productsDiscounts = useMemo(
@@ -143,6 +144,8 @@ const Home = () => {
         <FullWidthAds
           FullAdsLoaded={loadingFullTopDealsAds}
           FullImageAds={FullTopDealsAds?.advertismentByPosition[0]?.images[0]}
+          LinkTo={"/"}
+
         />
         <div className="TopDeals">
           <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
@@ -159,6 +162,7 @@ const Home = () => {
         <FullWidthAds
           FullAdsLoaded={loadingFull20ProductAds}
           FullImageAds={FullAds20Product?.advertismentByPosition[0]?.images[0]}
+          LinkTo={"/Collections/tunisie?price=20"}
         />
         <div className="Carousel_A_20DT">
           <div className="Heading flex items-center justify-between">
@@ -183,6 +187,8 @@ const Home = () => {
         <FullWidthAds
           FullAdsLoaded={loadingFullPromotionAds}
           FullImageAds={FullAdsPromotion?.advertismentByPosition[0]?.images[0]}
+          LinkTo={"/Collections/tunisie?choice=in-discount"}
+
         />
         <div className="Promotion flex flex-col">
           <div className="flex items-center justify-between">

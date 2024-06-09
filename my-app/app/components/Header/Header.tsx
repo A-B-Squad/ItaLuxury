@@ -35,7 +35,7 @@ const Header = () => {
 
   return (
     <>
-      <Contact CompanyInfoData={CompanyInfoData}   />
+      <Contact CompanyInfoData={CompanyInfoData} />
 
       <div
         className={`header relative  flex justify-center shadow-lg  px-10 md:px-14 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}

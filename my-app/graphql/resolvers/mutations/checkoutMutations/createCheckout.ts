@@ -6,7 +6,7 @@ export const createCheckout = async (
   { prisma }: Context
 ) => {
   try {
-    const { userId, governorateId, address, total, phone, userName } = input;
+    const { userId, governorateId, address, total, phone, userName, couponsId } = input;
 
     // Retrieve user's basket to get product IDs
     const userBasket = await prisma.basket.findMany({
@@ -28,6 +28,7 @@ export const createCheckout = async (
       productQuantity: basket.quantity,
     }));
 
+
     // Create the checkout with the provided data and product IDs from the basket
     const newCheckout = await prisma.checkout.create({
       data: {
@@ -35,12 +36,13 @@ export const createCheckout = async (
         userName,
         governorateId,
         products: {
-          create: products, // Associate products with the checkout
+          create: products,
         },
         phone,
         address,
         total,
-      },
+        couponsId: couponsId || null
+      }
     });
     //delete basket with User id
     await prisma.basket.deleteMany({
@@ -58,6 +60,6 @@ export const createCheckout = async (
   } catch (error) {
     // Handle errors
     console.error("Error creating checkout:", error);
-    return new Error("Failed to create checkout");
+    return error;
   }
 };

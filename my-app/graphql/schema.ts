@@ -13,6 +13,7 @@ enum Status {
   EXCHANGE
   PROCESSING
   DELIVERED
+  PAYED
 }
 
 # Define the cause enumeration
@@ -32,6 +33,8 @@ type User {
   baskets: [Basket]!
   reviews: [Review]!
   favoriteProducts: [FavoriteProducts]!
+ 
+
 }
 
 # Define the AuthPayload type
@@ -121,6 +124,7 @@ type Checkout {
   address: String!
   total: Float!
   createdAt: String!
+  couponsId: String
 }
 
 # Define the ProductInCheckout type
@@ -132,13 +136,7 @@ type ProductInCheckout {
   productQuantity: Int!
 }
 
-# Define the input type for ProductInCheckout
-input ProductInCheckoutInput {
-  id: ID!
-  checkoutId: ID!
-  productId: ID!
-  productQuantity: Int!
-}
+
 
 # Define the type for a product in a basket
 type productInBasket {
@@ -153,6 +151,7 @@ type Package {
   status: Status!
   createdAt: String!
   Checkout: Checkout!
+  couponsId:String!
 }
 
 # Define the BackOrExchange type
@@ -275,15 +274,31 @@ type ContactUs {
 }
 
 
+type Coupons {
+  id: String!
+  code:String!
+  discount:Int!
+  checkout:Checkout!
+}
+
+
+
+
+
 # Define the Query type
 type Query {
-
+  
+  #fetch Users
+  fetchAllUsers:[User]!
+  fetchUsersById(userId:ID!):User!
   # Get content visibility
   getSectionVisibility(section:String!):content_visibility!
   
   # Fetch Best Sales
   getBestSales(limit:Int): [BestSales!]
-
+#fetch Coupons
+findUniqueCoupons(codeInput:String!):Coupons
+fetchAllCoupons:[Coupons!]
   # Fetch all products
   products(limit:Int): [Product!]
 
@@ -357,6 +372,9 @@ type Query {
   companyInfo: CompanyInfo!
   # Fetch All ContactUs 
   allContactUs: [ContactUs!]
+# delete Auto ProductDiscounts
+ deleteAutoProductDiscount:String!
+
 }
 
 # Define the Mutation type
@@ -407,7 +425,7 @@ type Mutation {
   exchangePackageProduct(input: ExchangePackageProductInput!): String!
   cancalPackage(input:CancelPackageInput! ): String!
   cancalPackageProduct(input:CancelProductPackageInput! ): String!
-  
+  payedPackage(packageId:ID!):String!
   # Category mutations
   createCategory(input: CreateCategoryInput!): Category
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
@@ -431,6 +449,7 @@ type Mutation {
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
   # Contact Us 
   createContactUs(input:ContactUsInput!):String!
+
 }
 
 # Define the SignUpInput input type
@@ -462,7 +481,13 @@ input ProductInput {
   colorsId: ID
   brandId:ID
 }
-
+# Define the input type for ProductInCheckout
+input ProductInCheckoutInput {
+  id: ID!
+  checkoutId: ID!
+  productId: ID!
+  productQuantity: Int!
+}
 # Define the AttributeInput input type
 input ProductAttributeInput {
   name: String!
@@ -525,6 +550,7 @@ input CreateCheckoutInput {
   phone: [Int!]
   address: String!
   total: Float!
+  couponsId:String
 }
 
 # Define the CreatePackageInput input type

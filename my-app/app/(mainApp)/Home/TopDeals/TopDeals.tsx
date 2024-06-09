@@ -280,6 +280,7 @@ const TopDeals = () => {
                 </Link>
 
                 <button
+                  type="button"
                   className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors"
                   onClick={() => {
                     AddToBasket(products?.product);
@@ -299,7 +300,14 @@ const TopDeals = () => {
         })}
       </>
     );
-  }, [topDeals, AddToBasket, addToCompare,setIsFavorite ,isFavorite, decodedToken]);
+  }, [
+    topDeals,
+    AddToBasket,
+    addToCompare,
+    setIsFavorite,
+    isFavorite,
+    decodedToken,
+  ]);
 
   return (
     <div className="md:grid grid-cols-2 gap-3 grid-flow-col overflow-hidden block">

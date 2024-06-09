@@ -14,7 +14,7 @@ const RightAdsCarousel = ({
   useEffect(() => {
     if (rightCarouselAds) {
       const allImages = rightCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images
+        (ad: { images: string[] }) => ad.images,
       );
       setImages(allImages);
     }

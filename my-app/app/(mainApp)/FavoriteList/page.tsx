@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.BASE_URL_DOMAIN),
   title: "Liste des favoris - MaisonNg",
   description: "Consultez votre liste de favoris sur MaisonNg.",
-  keywords: keywords, 
+  keywords: keywords,
 
   openGraph: {
     url: `${process.env.BASE_URL_DOMAIN}/favorites`,

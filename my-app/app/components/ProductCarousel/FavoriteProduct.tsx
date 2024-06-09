@@ -31,7 +31,7 @@ const FavoriteProduct = ({
       skip: !userId,
     },
   );
-  
+
   const { toast } = useToast();
 
   useEffect(() => {

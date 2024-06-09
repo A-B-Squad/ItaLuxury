@@ -153,7 +153,7 @@ const BasketDrawer = () => {
       open={isOpen}
       onClose={closeBasketDrawer}
       overlay={false}
-      className="p-4 fixed h-[200vh]"
+      className="p-4 fixed  h-[200vh]"
       size={400}
       placeholder={""}
       onPointerEnterCapture={undefined}
@@ -290,11 +290,11 @@ const BasketDrawer = () => {
                     ? {
                         pathname: "/Checkout",
                         query: {
+                          products: JSON.stringify(productsInBasket),
                           total:
                             totalPrice >= 499
                               ? totalPrice.toFixed(3)
                               : (totalPrice + 8).toFixed(3),
-                          products: JSON.stringify(productsInBasket),
                         },
                       }
                     : "/signup"

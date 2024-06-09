@@ -10,7 +10,6 @@ export const createContactUs = async (
         const { subject, email, message, document } = input;
 
         // Create the company info with the provided data
-        console.log(input,"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&x²x²");
         const createdContactMessage = await prisma.contactUs.create({
             data: {
                 subject,

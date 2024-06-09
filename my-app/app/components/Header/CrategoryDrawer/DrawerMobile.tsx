@@ -11,6 +11,8 @@ import Cookies from "js-cookie";
 import { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import Loading from "@/app/(mainApp)/Collections/loading";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -21,10 +23,10 @@ interface Subcategory {
 
 function DrawerMobile() {
   const { isOpen, closeCategoryDrawer } = useDrawerMobileStore();
-  const {  error, data } = useQuery(CATEGORY_QUERY);
+  const { loading, error, data } = useQuery(CATEGORY_QUERY);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-
   const [activeCategory, setActiveCategory] = useState<string>("");
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -32,7 +34,16 @@ function DrawerMobile() {
       setDecodedToken(decoded);
     }
   }, []);
-  if (error) return <p>Error: {error.message}</p>;
+
+  // Render a loading state to ensure consistency during hydration
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
   return (
     <>
       <Drawer
@@ -41,18 +52,17 @@ function DrawerMobile() {
         onClose={closeCategoryDrawer}
         placement="left"
         size={350}
-        className=" md:hidden    overflow-y-auto"
+        className="md:hidden overflow-y-auto"
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
       >
-        <div className=" px-2 py-3 flex items-center justify-center text-white bg-strongBeige  ">
+        <div className="px-2 py-3 flex items-center justify-center text-white bg-strongBeige">
           <Link
             href={`${decodedToken?.userId ? "/Collections/tunisie" : "/signin"}`}
-            className="font-bold text-xl flex items-center gap-2 "
+            className="font-bold text-xl flex items-center gap-2"
           >
             <FaUser />
-            Bonjour
-            {`${decodedToken?.userId ? "" : ",Identifiez-vous"}`}
+            Bonjour{`${decodedToken?.userId ? "" : ",Identifiez-vous"}`}
           </Link>
           <IconButton
             placeholder={""}
@@ -80,22 +90,22 @@ function DrawerMobile() {
           </IconButton>
         </div>
 
-        {data?.categories.length > 0 && (
+        {data?.categories.length > 0 ? (
           <Category
             data={data}
             activeCategory={activeCategory}
             setActiveCategory={setActiveCategory}
           />
-        )}
-        {data?.categories.length <= 0 && (
+        ) : (
           <p>
             Aucune catégorie disponible pour le moment. Veuillez revenir plus
             tard !
           </p>
         )}
+
         <div
           onClick={closeCategoryDrawer}
-          className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2`}
+          className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between px-7 w-full border-b-2`}
         >
           <Link
             href={"/Collections/tunisie"}
@@ -109,4 +119,5 @@ function DrawerMobile() {
     </>
   );
 }
+
 export default DrawerMobile;

@@ -3,12 +3,15 @@ import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Image from "next/legacy/image";
+import Link from "next/link";
 const FullWidthAds = ({
   FullAdsLoaded,
   FullImageAds,
+  LinkTo,
 }: {
   FullAdsLoaded: Boolean;
   FullImageAds: string;
+  LinkTo: string;
 }) => {
   return (
     <>
@@ -26,16 +29,18 @@ const FullWidthAds = ({
       )}
 
       {FullImageAds && !FullAdsLoaded && (
-        <div className=" md:my-8  w-full relative h-[85px] md:h-[200px]   ">
-          <Image
-            className=" h-[85px] md:h-[200px]"
-            src={FullImageAds}
-            layout="fill"
-            objectFit="fill"
-            loading="eager"
-            alt="adsFullWidth"
-          />
-        </div>
+        <Link href={LinkTo}>
+          <div className=" md:my-8  w-full relative h-[85px] md:h-[200px]   ">
+            <Image
+              className=" h-[85px] md:h-[200px]"
+              src={FullImageAds}
+              layout="fill"
+              objectFit="fill"
+              loading="eager"
+              alt="adsFullWidth"
+            />
+          </div>
+        </Link>
       )}
     </>
   );

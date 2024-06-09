@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Context } from "@/pages/api/graphql";
-import { useRouter } from "next/router";
 
 export const signIn = async (
   _: any,
@@ -19,15 +18,15 @@ export const signIn = async (
 
   if (!existingUser) {
     return new Error("Invalid email or password");
-  } 
+  }
 
-    // Check if the password is correct
-    const validPassword = await bcrypt.compare(password, existingUser.password);
-  
-   
-    if (!validPassword) {
-      return new Error("Invalid password Or Email");
-    }
+  // Check if the password is correct
+  const validPassword = await bcrypt.compare(password, existingUser.password);
+
+
+  if (!validPassword) {
+    return new Error("Invalid password Or Email");
+  }
 
 
 
@@ -35,7 +34,7 @@ export const signIn = async (
   const token = jwt.sign({ userId: existingUser.id }, jwtSecret, {
     expiresIn: "1h",
   });
- 
+
   // Set the cookie
   res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
 

@@ -14,12 +14,13 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { GoPackageDependents } from "react-icons/go";
 import { IoIosLogOut } from "react-icons/io";
 import { IoGitCompare } from "react-icons/io5";
+import { GrContact } from "react-icons/gr";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 function debounce<T extends (...args: any[]) => void>(
   func: T,
-  wait: number,
+  wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -34,7 +35,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [LengthComparer, setLengthComparer] = useState<number>(0);
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket,
+    (state) => state.quantityInBasket
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -77,12 +78,13 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
     <div
       className={`bg-white transition-all duration-300 ${isFixed ? "fixed top-0 w-full z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative"}`}
       onMouseEnter={() => setShowDropdown(false)}
-      >
+    >
       <div
         className="BottomHeader  flex justify-between items-center py-3 "
         onMouseEnter={() => setShowDropdown(false)}
       >
         <button
+          type="button"
           className="p-1 md:hidden block  rounded-md border-2"
           onClick={openCategoryDrawer}
         >
@@ -90,6 +92,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
         </button>
 
         <button
+          type="button"
           className="p-1 md:flex gap-3  hidden rounded-md "
           onMouseEnter={() => setShowDropdown(true)}
         >
@@ -181,6 +184,11 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                   {quantityInBasket}
                 </span>
               )}
+            </li>
+            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+              <Link rel="preload" href={"/Contact-us"}>
+                <GrContact />
+              </Link>
             </li>
           </ul>
         </div>

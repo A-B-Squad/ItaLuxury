@@ -22,6 +22,8 @@ import { SectionVisibilityMutations } from "./resolvers/mutations/sectionVisibil
 import { SectionQueries } from "./resolvers/queries/sectionVisibilityQueries/SectionVisibilityQueries";
 import { contactUsMutations } from "./resolvers/mutations/conatctUsMutations/contactUsMutations";
 import { contactUsQueries } from "./resolvers/queries/contactUsQueries/contactUsQueries";
+import { usersQueries } from "./resolvers/queries/usersQueries/usersQueries";
+import { couponsQueries } from "./resolvers/queries/coupons/couponsQueries";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -35,7 +37,7 @@ export const resolvers = {
     ...colorsQueries,
     ...bestSalesQueries,
     ...BrandQueries,
-    ...SectionQueries, ...contactUsQueries
+    ...SectionQueries, ...contactUsQueries, ...usersQueries, ...couponsQueries
   },
 
   Mutation: {

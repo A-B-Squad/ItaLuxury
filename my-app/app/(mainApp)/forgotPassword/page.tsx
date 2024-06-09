@@ -15,7 +15,6 @@ const ForgotPassword = () => {
   const { toast } = useToast();
 
   const handleSubmit = (e: any) => {
-    
     e.preventDefault();
     ForgotPassword({
       variables: {
@@ -23,7 +22,7 @@ const ForgotPassword = () => {
       },
       onCompleted: (data) => {
         console.log(data);
-        
+
         toast({
           title: "E-mail envoyé",
           description: "E-mail envoyé avec succeés",

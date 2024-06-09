@@ -5,6 +5,7 @@ import React from "react";
 import Header from "./components/Header/Header";
 import { Metadata } from "next";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
+
 export const metadata: Metadata = {
   title: "Page non trouvée",
   description:

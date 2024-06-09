@@ -41,7 +41,6 @@ const Category: React.FC<CategoryProps> = ({
               {category.name}
               <IoIosArrowForward
                 className={` group-hover:text-black  transition-all ${
-                  
                   category.name === activeCategory
                     ? "text-black  "
                     : "text-gray-700"

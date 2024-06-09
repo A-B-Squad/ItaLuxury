@@ -30,7 +30,7 @@ const productDetailsDrawer = ({
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -53,7 +53,7 @@ const productDetailsDrawer = ({
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -79,9 +79,9 @@ const productDetailsDrawer = ({
     }
   }, []);
   return (
-    <div className="hidden md:flex">
+    <div className="hidden md:flex ">
       {isBottom && !!productDetails && (
-        <div className="fixed bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
+        <div className="fixed z-50 bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
           <img
             src={productDetails.images[0]}
             className="max-h-full"
@@ -111,7 +111,7 @@ const productDetailsDrawer = ({
                 className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1
+                    actualQuantity > 1 ? actualQuantity - 1 : 1,
                   );
                 }}
               >
@@ -130,7 +130,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity
+                      : actualQuantity,
                   );
                 }}
               >

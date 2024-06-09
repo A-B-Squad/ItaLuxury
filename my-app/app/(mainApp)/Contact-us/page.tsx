@@ -1,4 +1,3 @@
-
 import React from "react";
 import Breadcumb from "../../components/Breadcumb";
 import { useQuery } from "@apollo/client";
@@ -8,7 +7,6 @@ import { AiOutlineMail } from "react-icons/ai";
 import CompanyInfoBar from "./componants/companyInfoBar";
 import ContactUsForm from "./componants/contactUsForm";
 const ContactUsPage = () => {
- 
   return (
     <div className="contactUs flex  items-center justify-center  ">
       <div className=" container flex flex-col gap-10  py-10">

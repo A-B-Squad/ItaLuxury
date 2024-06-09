@@ -4,13 +4,7 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 
-import { useQuery } from "@apollo/client";
 import { useSidebarStore } from "../../../store/zustand";
-import {
-  ALL_BRANDS,
-  CATEGORY_QUERY,
-  COLORS_QUERY,
-} from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import prepRoute from "@/app/Helpers/_prepRoute";
@@ -183,7 +177,10 @@ const SideBar = ({ colors, brands, categories }: any) => {
             }}
             className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer"
           >
-            <button className="flex border rounded-md gap-2 items-center  py-1 shadow px-2">
+            <button
+              type="button"
+              className="flex border rounded-md gap-2 items-center  py-1 shadow px-2"
+            >
               <IoIosClose size={25} />
               Effacer Filters
             </button>

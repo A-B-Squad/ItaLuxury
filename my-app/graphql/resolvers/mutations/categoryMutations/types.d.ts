@@ -14,5 +14,6 @@ interface CreateCheckoutInput {
   address: string
   productIds: any
   total: number
+  couponsId: string | null
 }
 

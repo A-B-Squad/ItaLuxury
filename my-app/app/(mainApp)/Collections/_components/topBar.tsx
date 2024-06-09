@@ -47,10 +47,10 @@ const TopBar = () => {
         })}`,
         {
           scroll: true,
-        }
+        },
       );
     },
-    [selectedFilterQueries]
+    [selectedFilterQueries],
   );
 
   return (

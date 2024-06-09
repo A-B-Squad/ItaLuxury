@@ -1,22 +1,28 @@
 "use client";
-import { useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CiPhone, CiUser } from "react-icons/ci";
-import { useForm } from "react-hook-form"; // Import useForm from react-hook-form
+import { useForm } from "react-hook-form";
 import { CREATE_CHECKOUT_MUTATION } from "../../../graphql/mutations";
 import Image from "next/legacy/image";
-import { GET_GOVERMENT_INFO } from "../../../graphql/queries";
+import {
+  FIND_UNIQUE_COUPONS,
+  GET_GOVERMENT_INFO,
+} from "../../../graphql/queries";
 import { useSearchParams } from "next/navigation";
 import Loading from "./loading";
+import { useToast } from "@/components/ui/use-toast";
+import { useBasketStore } from "@/app/store/zustand";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
 const Checkout = () => {
+  // State declarations
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [GovermentInfo, setGovermentInfo] = useState([]);
   const {
@@ -25,10 +31,19 @@ const Checkout = () => {
     formState: { errors },
   } = useForm();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const total = searchParams?.get("total") || "0";
   const products = JSON.parse(searchParams?.get("products") || "[]");
-  const router = useRouter();
+  const [showInputCoupon, setShowInputCoupon] = useState<Boolean>(false);
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
+  const [couponsId, setCouponsId] = useState<String>("");
+  const { toast } = useToast();
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  const [changeCouponCode, setChangeCouponCode] = useState<string>("");
 
+  const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
+
+  // Decode the JWT token on component mount
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -37,16 +52,18 @@ const Checkout = () => {
     }
   }, []);
 
+  // Mutation to create a new checkout
   const [createCheckout] = useMutation(CREATE_CHECKOUT_MUTATION);
 
+  // Query to get the government information
   useQuery(GET_GOVERMENT_INFO, {
     onCompleted: (data) => {
       setGovermentInfo(data.allGovernorate);
     },
   });
 
+  // Handle form submission
   const onSubmit = (data: any) => {
-    // Handle form submission here
     if (!decodedToken) return;
 
     // Validate phone number
@@ -56,21 +73,67 @@ const Checkout = () => {
       return;
     }
 
+    // Calculate the discounted total
+    const discountedTotal = discountPercentage
+      ? (+total - (+total * discountPercentage) / 100).toFixed(3)
+      : Number(total).toFixed(3);
+
+    // Create the checkout mutation
     createCheckout({
       variables: {
         input: {
           userId: decodedToken.userId,
-          userName: data.fullName,
-          total: total,
+          userName: data.fullname,
+          total: parseFloat(discountedTotal),
           phone: Number(data.phone),
           governorateId: data.governorate,
           address: data.address,
+          couponsId: couponsId,
         },
       },
       onCompleted: () => {
-        router.push("/Home");
+        router.push("/");
+        toggleIsUpdated();
       },
     });
+  };
+
+  // Handle coupon verification
+  const handleCouponsVerification = async () => {
+    if (changeCouponCode.length === 30) {
+      const { data: uniqueCoupons } = await uniqueCouponsData({
+        variables: {
+          codeInput: changeCouponCode,
+        },
+      });
+
+      if (uniqueCoupons && uniqueCoupons.findUniqueCoupons) {
+        const couponsId = uniqueCoupons.findUniqueCoupons.id;
+        const validCoupon = uniqueCoupons.findUniqueCoupons.discount;
+        setCouponsId(couponsId);
+        setDiscountPercentage(validCoupon);
+      } else {
+        toast({
+          title: "Code Promo",
+          description: "Code promo invalide ou déjà utilisé",
+          className: "bg-red-800 text-white",
+        });
+      }
+    } else {
+      toast({
+        title: "Code Promo",
+        description: "Code promo invalide ",
+        className: "bg-red-800 text-white",
+      });
+    }
+  };
+
+  // Calculate the total with discounts applied
+  const calculateTotal = () => {
+    if (discountPercentage) {
+      return (+total - (+total * discountPercentage) / 100).toFixed(3);
+    }
+    return Number(total).toFixed(3);
   };
 
   return (
@@ -79,7 +142,7 @@ const Checkout = () => {
         <Loading />
       ) : (
         <div className="flex justify-center items-center w-full my-10">
-          <div className="grid sm:px-10 place-content-between w-full gap-20 lg:grid-cols-2 lg:px-20 xl:px-32 ">
+          <div className=" container grid sm:px-10  w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32 ">
             <div className="px-4 pt-8 ">
               <p className="text-xl font-medium">
                 Récapitulatif de la commande
@@ -172,7 +235,7 @@ const Checkout = () => {
                   {GovermentInfo.map(
                     (goverment: { id: string; name: string }) => (
                       <option key={goverment.id} value={goverment.id}>
-                        {goverment.name}
+                        {goverment.name.toUpperCase()}
                       </option>
                     )
                   )}{" "}
@@ -190,6 +253,66 @@ const Checkout = () => {
                   className="w-full rounded-md border border-gray-200 px-4 py-3 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Saisissez votre adresse"
                 ></textarea>
+                <div className="Coupons flex flex-col gap-3  ">
+                  <div className="flex gap-1 items-center ">
+                    <label
+                      htmlFor="address"
+                      className=" block text-sm font-semibold"
+                    >
+                      Code promo
+                    </label>
+                    <button
+                      type="button"
+                      className="text-blue-800 font-semibold text-sm"
+                      onClick={() => {
+                        setShowInputCoupon(!showInputCoupon);
+                      }}
+                    >
+                      {showInputCoupon ? "Annuler" : "Afficher"}
+                    </button>
+                  </div>
+                  {showInputCoupon && (
+                    <div className="bg-gray-100  w-fit px-8 py-6  flex flex-col gap-3">
+                      <div className="inputs flex items-start  gap-2 ">
+                        <div className="flex flex-col ">
+                          <input
+                            type="text"
+                            className="border-2 px-3 py-2 text-sm w-72 outline-none "
+                            maxLength={30}
+                            onChange={(e) => {
+                              if (changeCouponCode.length < 30) {
+                                setChangeCouponCode(e.target.value);
+                              }
+                            }}
+                            placeholder="Saisissez un code de promo"
+                          />
+                          <p className="text-sm ml-5 mt-2">
+                            {changeCouponCode.length}/30
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          className="bg-blue-800 hover:bg-blue-500 transition-all font-semibold rounded-md text-white px-3 py-2 text-sm"
+                          onClick={handleCouponsVerification}
+                        >
+                          Appliquer
+                        </button>
+                      </div>
+                      <p className="font-normal text-sm leading-6">
+                        En passant à la caisse, vous acceptez nos{" "}
+                        <span className="text-blue-800 font-semibold">
+                          Termes de service
+                        </span>{" "}
+                        et confirmez que vous avez lu nos{" "}
+                        <span className="text-blue-800 font-semibold">
+                          Politique de confidentialité.
+                        </span>{" "}
+                        Vous pouvez annuler les paiements récurrents à tout
+                        moment.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 <div className="mt-6 border-t border-b py-2">
                   <div className="flex items-center justify-between">
@@ -199,7 +322,7 @@ const Checkout = () => {
                     <p className="font-semibold text-gray-900">
                       {Number(total) >= 499
                         ? Number(total).toFixed(3)
-                        : (Number(total)-8).toFixed(3)}{" "}
+                        : (Number(total) - 8).toFixed(3)}{" "}
                       TND
                     </p>
                   </div>
@@ -212,12 +335,20 @@ const Checkout = () => {
                       {Number(total) >= 499 ? "Gratuit" : "8.000 TND"}
                     </p>
                   </div>
+                  {discountPercentage > 0 && (
+                    <p className="text-strongBeige font-normal ">
+                      <span className="text-sm font-medium text-gray-900">
+                        Code Promo:
+                      </span>{" "}
+                      Vous avez reçu une remise de {discountPercentage}%.
+                    </p>
+                  )}
                 </div>
 
                 <div className="mt-6 flex items-center justify-between">
                   <p className="text-sm font-medium text-gray-900">Total</p>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {Number(total).toFixed(3)} TND
+                    {calculateTotal()} TND
                   </p>
                 </div>
 

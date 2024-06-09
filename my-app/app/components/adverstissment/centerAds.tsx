@@ -8,24 +8,21 @@ import { IoIosClose } from "react-icons/io";
 
 const CenterAds = () => {
   const [showAds, setShowAds] = useState(false);
-  const { data: centerAds, loading: loadingCenterAds } = useQuery(
-    ADVERTISSMENT_QUERY,
-    {
-      variables: { position: "center_ads_product" },
-    }
-  );
+  const { data: centerAds } = useQuery(ADVERTISSMENT_QUERY, {
+    variables: { position: "center_ads_product" },
+  });
   useEffect(() => {
     setTimeout(() => {
       setShowAds(true);
-    }, 10000);
+    }, 40000);
   }, []);
   return (
     <div
-      className={`${showAds ? "opacity-100 block" : "opacity-0 hidden"} transition-all`}
+      className={`${showAds ? "opacity-100 z-50 block" : "opacity-0 hidden"} transition-all`}
     >
-      <div className="bg-lightBlack absolute z-[60] left-0 top-0 w-full h-full"></div>
+      <div className="bg-lightBlack absolute z-[100] left-0 top-0 w-full h-full"></div>
       <div
-        className={` bg-white shadow-2xl flex items-center justify-center text-center w-[350px] h-[250px] md:w-[700px] md:h-[450px] fixed rounded-md  z-[60]  top-2/4 left-2/4 -translate-y-2/4  -translate-x-2/4 transition-all`}
+        className={` bg-white shadow-2xl flex items-center justify-center text-center w-[350px] h-[250px] md:w-[700px] md:h-[450px] fixed rounded-md  z-[110]  top-2/4 left-2/4 -translate-y-2/4  -translate-x-2/4 transition-all`}
       >
         <IoIosClose
           size={30}
@@ -39,8 +36,9 @@ const CenterAds = () => {
             <p className="md:hidden block">300px X 250px</p>
           </>
         ) : (
-          <Link href={`${centerAds?.advertismentByPosition[0]?.link[0]}`}
-          className="cursor-pointer"
+          <Link
+            href={`${centerAds?.advertismentByPosition[0]?.link[0]}`}
+            className="cursor-pointer"
           >
             <Image
               layout="fill"

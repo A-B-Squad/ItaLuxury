@@ -12,7 +12,9 @@ const CompanyInfoBar = () => {
   const email = CompanyInfoData?.companyInfo?.email;
   return (
     <div className="w-full border  shadow-lg">
-      <h1 className="py-4 px-2 border-b text-xl capitalize bg-gray-50">Informations </h1>
+      <h1 className="py-4 px-2 border-b text-xl capitalize bg-gray-50">
+        Informations{" "}
+      </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 min-h-52 h-full divide-y md:divide-x">
         <div className="location flex flex-col text-center justify-center items-center p-4">
           <CiLocationOn className="text-gray-600" size={35} />

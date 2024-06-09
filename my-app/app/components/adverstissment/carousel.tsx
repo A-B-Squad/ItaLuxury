@@ -11,7 +11,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
   useEffect(() => {
     if (centerCarouselAds) {
       const allImages = centerCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images
+        (ad: { images: string[] }) => ad.images,
       );
       console.log(allImages);
 
