@@ -23,7 +23,7 @@ const Signup = () => {
 
   const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
     onCompleted: (data) => {
-      router.replace("/Home");
+      router.replace("/");
     },
     onError: (error) => {
       setIsError(true);

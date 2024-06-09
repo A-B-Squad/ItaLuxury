@@ -4,13 +4,7 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 
-import { useQuery } from "@apollo/client";
 import { useSidebarStore } from "../../../store/zustand";
-import {
-  ALL_BRANDS,
-  CATEGORY_QUERY,
-  COLORS_QUERY,
-} from "../../../../graphql/queries";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import prepRoute from "@/app/Helpers/_prepRoute";
@@ -51,7 +45,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
             : [value];
         } else {
           updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value,
+            (query) => query !== value
           );
           if (updatedQueries[name].length === 0) {
             delete updatedQueries[name];
@@ -61,10 +55,10 @@ const SideBar = ({ colors, brands, categories }: any) => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true },
+        { scroll: true }
       );
     },
-    [selectedFilterQueries, router],
+    [selectedFilterQueries, router]
   );
 
   const handleChoiceFilterOptions = useCallback(
@@ -80,11 +74,11 @@ const SideBar = ({ colors, brands, categories }: any) => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true },
+        { scroll: true }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const handleColorSelection = useCallback(
@@ -93,11 +87,11 @@ const SideBar = ({ colors, brands, categories }: any) => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true },
+        { scroll: true }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   useEffect(() => {
@@ -134,10 +128,10 @@ const SideBar = ({ colors, brands, categories }: any) => {
     (updatedQueries: any) => {
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: false },
+        { scroll: false }
       );
     },
-    [router],
+    [router]
   );
 
   const handleCategoryClick = useCallback(
@@ -150,16 +144,16 @@ const SideBar = ({ colors, brands, categories }: any) => {
       updateSearchParams(updatedQueries);
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar],
+    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]
   );
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase()),
+          selectedFilterQueries[name].includes(option.toLowerCase())
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
   return (
     <section
@@ -183,7 +177,10 @@ const SideBar = ({ colors, brands, categories }: any) => {
             }}
             className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer"
           >
-            <button className="flex border rounded-md gap-2 items-center  py-1 shadow px-2">
+            <button
+              type="button"
+              className="flex border rounded-md gap-2 items-center  py-1 shadow px-2"
+            >
               <IoIosClose size={25} />
               Effacer Filters
             </button>

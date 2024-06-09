@@ -139,6 +139,8 @@ model Checkout {
   package       Package[]
   total         Float
   createdAt     DateTime            @default(now())
+  Coupons       Coupons?            @relation(fields: [couponsId], references: [id])
+  couponsId     String?
 }
 
 model ProductInCheckout {
@@ -151,11 +153,11 @@ model ProductInCheckout {
 }
 
 model Package {
-  id         String    @id @default(uuid())
-  Checkout   Checkout? @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  checkoutId String?
+  id         String   @id @default(uuid())
+  Checkout   Checkout @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  checkoutId String
   status     Status
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime @default(now())
 }
 
 model BackOrExchange {
@@ -236,4 +238,11 @@ model ContactUs {
   document  String?
   message   String
   createdAt DateTime @default(now())
+}
+
+model Coupons {
+  id       String     @id @default(uuid())
+  code     String
+  discount Int?       @default(0)
+  checkout Checkout[]
 }

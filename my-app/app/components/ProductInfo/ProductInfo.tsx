@@ -12,6 +12,7 @@ import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
 import {
+  useBasketStore,
   useProductDetails,
   useProductsInBasketStore,
 } from "../../store/zustand";
@@ -40,9 +41,10 @@ const ProductInfo = () => {
     }
   }, []);
 
-  const handleMouseEnter = useCallback((image: string) => {
-    setBigImage(image);
-  }, []);
+  const { toggleIsUpdated } = useBasketStore((state) => ({
+    isUpdated: state.isUpdated,
+    toggleIsUpdated: state.toggleIsUpdated,
+  }));
 
   const handleAddQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
@@ -105,8 +107,7 @@ const ProductInfo = () => {
         console.log("Product is already in the basket");
       }
     }
-    // toggleIsUpdated();
-    // openBasketDrawer();
+    toggleIsUpdated();
   };
   useEffect(() => {
     setBigImage(productData?.images[0] || "");

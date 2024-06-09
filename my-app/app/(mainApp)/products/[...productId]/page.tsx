@@ -1,6 +1,7 @@
 import React from "react";
 import ProductDetails from "./ProductDetails";
 import keywords from "@/public/keywords";
+import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
 export async function generateMetadata({ searchParams }: any) {
   if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
@@ -8,6 +9,8 @@ export async function generateMetadata({ searchParams }: any) {
 
   const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
+  cache:"no-cache",
+
     headers: {
       "Content-Type": "application/json",
     },
@@ -58,6 +61,7 @@ const ProductDetailsPage = async ({ searchParams }: any) => {
   }
   const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
+    cache:"reload",
     headers: {
       "Content-Type": "application/json",
     },
@@ -103,10 +107,13 @@ const ProductDetailsPage = async ({ searchParams }: any) => {
     }),
   }).then((res) => res.json());
   return (
+    <>
     <ProductDetails
       productDetails={data?.productById}
       productId={searchParams.productId}
-    />
+      />
+    <ProductInfo/>
+      </>
   );
 };
 

@@ -26,7 +26,7 @@ const Signin = () => {
         description: "Bienvenue",
         className: "bg-strongBeige text-white",
       });
-      router.replace("/Home");
+      router.replace("/");
     },
     onError: (error) => {
       if (error) {

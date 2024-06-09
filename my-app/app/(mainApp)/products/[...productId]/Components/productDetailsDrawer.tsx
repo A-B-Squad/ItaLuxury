@@ -79,9 +79,9 @@ const productDetailsDrawer = ({
     }
   }, []);
   return (
-    <div className="hidden md:flex">
+    <div className="hidden md:flex ">
       {isBottom && !!productDetails && (
-        <div className="fixed bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
+        <div className="fixed z-50 bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
           <img
             src={productDetails.images[0]}
             className="max-h-full"

@@ -133,6 +133,7 @@ const ContactUsForm = () => {
                 {({ open }) => {
                   return (
                     <button
+                      type="button"
                       className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-strongBeige shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
                       onClick={() => open()}
                     >

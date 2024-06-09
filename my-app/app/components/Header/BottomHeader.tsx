@@ -20,7 +20,7 @@ interface DecodedToken extends JwtPayload {
 }
 function debounce<T extends (...args: any[]) => void>(
   func: T,
-  wait: number,
+  wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -35,7 +35,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [LengthComparer, setLengthComparer] = useState<number>(0);
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket,
+    (state) => state.quantityInBasket
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -84,6 +84,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
         onMouseEnter={() => setShowDropdown(false)}
       >
         <button
+          type="button"
           className="p-1 md:hidden block  rounded-md border-2"
           onClick={openCategoryDrawer}
         >
@@ -91,6 +92,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
         </button>
 
         <button
+          type="button"
           className="p-1 md:flex gap-3  hidden rounded-md "
           onMouseEnter={() => setShowDropdown(true)}
         >
@@ -186,11 +188,6 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
             <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
               <Link rel="preload" href={"/Contact-us"}>
                 <GrContact />
-                {LengthComparer > 0 && (
-                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
-                    {LengthComparer}
-                  </span>
-                )}
               </Link>
             </li>
           </ul>

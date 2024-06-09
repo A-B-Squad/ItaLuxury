@@ -47,16 +47,22 @@ interface Product {
 }
 
 const Basket = () => {
+  // Toast for notifications
   const { toast } = useToast();
 
+  // State to store decoded token
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  // State to store products in the basket
   const [products, setProducts] = useState<Product[]>([]);
-  const [totalPrice, setTotalPrice] = useState<Number>(0);
+  // State to store total price of products in the basket
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  // Zustand store function to toggle update status
   const { toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
   }));
 
+  // Function to calculate total price of products in the basket
   const calculateTotalPrice = useCallback(() => {
     return products.reduce((acc, product) => {
       const productPrice =
@@ -67,6 +73,7 @@ const Basket = () => {
     }, 0);
   }, [products]);
 
+  // Effect to decode the JWT token from cookies and set the decoded token state
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -74,10 +81,12 @@ const Basket = () => {
       setDecodedToken(decoded);
     }
   }, []);
-
+  // Effect to update total price when products change
   useEffect(() => {
     setTotalPrice(calculateTotalPrice());
   }, [products, calculateTotalPrice]);
+
+  // Query to fetch basket data
   const { loading } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     onCompleted: (data) => {
@@ -92,14 +101,16 @@ const Basket = () => {
       console.error(error);
     },
   });
+
+  // Mutation to increase product quantity
   const [increaseQuantity] = useMutation(INCREASE_QUANTITY_MUTATION, {
     onCompleted: ({ increaseQuantity }) => {
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product,
-        ),
+            : product
+        )
       );
       toggleIsUpdated();
     },
@@ -114,37 +125,39 @@ const Basket = () => {
     },
   });
 
+  // Mutation to decrease product quantity
   const [decreaseQuantity] = useMutation(DECREASE_QUANTITY_MUTATION, {
     onCompleted: ({ decreaseQuantity }) => {
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product,
-        ),
+            : product
+        )
       );
       toggleIsUpdated();
     },
   });
+
+  // Mutation to delete product from basket
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
+  // Function to handle product removal from basket
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId),
+        prevProducts.filter((product) => product.basketId !== basketId)
       );
       deleteBasketById({ variables: { basketId } });
       toggleIsUpdated();
-
       toast({
         title: "Notification de Panier",
         description: `Le produit a été retiré du panier.`,
         className: "bg-strongBeige text-white",
       });
     },
-    [deleteBasketById, toast],
+    [deleteBasketById, toast, toggleIsUpdated]
   );
-
   return (
     <div className="">
       <div className="grid lg:grid-cols-3 gap-5 h-max my-8 py-5">
@@ -315,11 +328,11 @@ const Basket = () => {
                 href={{
                   pathname: "/Checkout",
                   query: {
+                    products: JSON.stringify(products),
                     total:
                       Number(totalPrice) >= 499
                         ? Number(totalPrice).toFixed(3)
                         : (Number(totalPrice) + 8).toFixed(3),
-                    products: JSON.stringify(products),
                   },
                 }}
                 className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-strongBeige hover:bg-amber-200 text-white  cursor-pointer"

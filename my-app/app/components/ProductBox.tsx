@@ -318,6 +318,7 @@ export const ProductBox = ({ product }: any) => {
             </div>
 
             <button
+                type="button"
               className={`flex items-center gap-2 self-center py-2  m-auto  text-base w-fit justify-center bg-white px-2  text-md hover:text-white transition hover:bg-red-300 `}
               onClick={() => {
                 AddToBasket(product);

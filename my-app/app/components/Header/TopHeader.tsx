@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import {
+  useComparedProductsStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "../../store/zustand";
@@ -25,11 +26,13 @@ interface DecodedToken extends JwtPayload {
 const TopHeader = ({ logo }: { logo: string }) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowMenuUserMenu] = useState<Boolean>(false);
-  const [LengthComparer, setLengthComparer] = useState<String>("");
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket,
+    (state) => state.quantityInBasket
   );
+  const { productsInCompare } = useComparedProductsStore((state) => ({
+    productsInCompare: state.products,
+  }));
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
   });
@@ -60,20 +63,15 @@ const TopHeader = ({ logo }: { logo: string }) => {
       }
     },
   });
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
-    const comparedProductsString =
-      window.sessionStorage.getItem("comparedProducts");
-
-    if (comparedProductsString !== null) {
-      const comparedProducts = JSON.parse(comparedProductsString);
-      setLengthComparer(comparedProducts?.state?.products.length);
-    }
   }, []);
+
   const onSubmit = (data: any) => {
     SignIn({ variables: { input: data } });
   };
@@ -83,7 +81,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
       onMouseEnter={() => setShowMenuUserMenu(false)}
     >
       <div className="logo relative w-48 h-24 content-center  ">
-        <Link href={"/Home"}>
+        <Link href={"/"}>
           <Image
             src={logo}
             width={192}
@@ -96,8 +94,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
         </Link>
       </div>
       <SearchBar />
-      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden">
-        <ul className="flex  gap-5">
+      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden z-[100]">
+        <ul className="flex items-center gap-5">
           <li
             className="userMenu  group  "
             onMouseEnter={() => setShowMenuUserMenu(true)}
@@ -184,7 +182,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                     }
                   }}
                   className="w-full text-sm py-2 border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
-                  href={"/Home"}
+                  href={"/"}
                 >
                   <FiUser />
                   <p className="font-semibold uppercase">Déconnexion</p>
@@ -225,7 +223,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               >
                 <IoGitCompare />
                 <p className="font-semibold uppercase">
-                  Comparer ({LengthComparer})
+                  Comparer ({productsInCompare.length})
                 </p>
               </Link>
             </div>

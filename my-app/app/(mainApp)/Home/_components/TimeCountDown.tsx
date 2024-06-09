@@ -1,45 +1,56 @@
 "use client";
+import { TOP_DEALS } from "@/graphql/queries";
+import { useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
+import moment from "moment-timezone";
+
+const DEFAULT_TIMEZONE = "Africa/Tunis";
 
 const TimeCountDown = () => {
-  const [countdownToNextDay, setCountdownToNextDay] = useState<number>(0);
+  const { data: topDeals } = useQuery(TOP_DEALS);
+  const [countdown, setCountdown] = useState<number>(0);
+
+  const createdAt =
+    topDeals?.allDeals[0]?.product?.productDiscounts[0]?.dateOfEnd;
 
   useEffect(() => {
     const updateCountdown = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
+      if (createdAt) {
+        const now = moment().tz(DEFAULT_TIMEZONE);
+        const targetDate = moment.tz(parseInt(createdAt), DEFAULT_TIMEZONE);
+        console.log("now:", now.format(), "targetDate:", targetDate.format());
+        targetDate.subtract(1, "hours");
 
-      const timeUntilNextDay = tomorrow.getTime() - now.getTime();
-      setCountdownToNextDay(timeUntilNextDay > 0 ? timeUntilNextDay : 0);
+        const timeUntilTarget = targetDate.diff(now);
+        setCountdown(timeUntilTarget > 0 ? timeUntilTarget : 0);
+      }
     };
 
-    updateCountdown(); // Initialize the countdown immediately
-    const interval = setInterval(updateCountdown, 1000); // Update every second
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [createdAt]);
 
   return (
     <div className="grid grid-flow-col bg-strongBeige text-white text-center auto-cols-max">
       <div className="flex items-center gap-2 md:p-2 p-1 rounded-box">
         <span className="countdown font-mono text-base">
-          <span>{Math.floor(countdownToNextDay / (1000 * 60 * 60))}</span>
+          <span>{Math.floor(countdown / (1000 * 60 * 60))}</span>
         </span>
         <span className="">Heures</span>
       </div>
       <div className="flex items-center gap-1 md:p-2 p-1">
         <span className="countdown font-mono text-base">
           <span>
-            {Math.floor((countdownToNextDay % (1000 * 60 * 60)) / (1000 * 60))}
+            {Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60))}
           </span>
         </span>
         <span>Minutes</span>
       </div>
       <div className="flex items-center gap-1 md:p-2 p-1">
         <span className="countdown font-mono text-base">
-          <span>{Math.floor((countdownToNextDay % (1000 * 60)) / 1000)}</span>
+          <span>{Math.floor((countdown % (1000 * 60)) / 1000)}</span>
         </span>
         <span>Secondes</span>
       </div>

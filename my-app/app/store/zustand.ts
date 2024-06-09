@@ -24,17 +24,7 @@ type BasketStore = {
   toggleIsUpdated: () => void;
 };
 
-type ComparedProductsStore = {
-  products: any[];
-  addProductToCompare: (product: any) => void;
-};
 
-type ProductsInBasketStore = {
-  products: any[];
-  addProductToBasket: (product: any) => void;
-  removeProductFromBasket: (productId: string) => void;
-  clearBasket: () => void;
-};
 
 interface ProductData {
   id: string;
@@ -93,10 +83,16 @@ export const useBasketStore = create<BasketStore>((set) => ({
   toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
 }));
 
-const comparedProductsStore = <ComparedProductsStore>(set: any) => ({
+const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
   products: [],
-  addProductToCompare: (product: any) =>
-    set((state: any) => ({ products: [...state.products, product] })),
+  addProductToCompare: (product: any) => {
+    const currentProducts = get().products;
+    // Check if the product already exists in the products array
+    const isProductInStore = currentProducts.some((p: any) => p.id === product.id);
+    if (!isProductInStore) {
+      set((state: any) => ({ products: [...state.products, product] }));
+    }
+  },
   removeProductFromCompare: (productId: any) =>
     set((state: any) => ({
       products: state.products.filter(

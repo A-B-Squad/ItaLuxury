@@ -1,270 +1,73 @@
+"use client";
 import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
-
 import Image from "next/legacy/image";
 import Link from "next/link";
-import prepRoute from "../../Helpers/_prepRoute";
+import React, { useEffect, useState } from "react";
+import { MdEmail, MdLocalPhone } from "react-icons/md";
+import Cookies from "js-cookie";
+import { IoLocationSharp } from "react-icons/io5";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import React from "react";
-import { MdEmail, MdLocalPhone, MdMyLocation } from "react-icons/md";
-import { IoLocationSharp } from "react-icons/io5";
+import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@apollo/client";
+import { CATEGORY_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
+import jwt from "jsonwebtoken";
+
+interface DecodedToken extends jwt.JwtPayload {
+  userId: string;
+}
+
 // Reusable SocialIcon component with hover effect
-const SocialIcon = ({ icon: Icon, navLink }: any) => (
-  <a href={navLink} target="_blank" rel="noopener noreferrer">
+const SocialIcon = ({
+  icon: Icon,
+  navLink,
+}: {
+  icon: any;
+  navLink: string;
+}) => (
+  <Link href={navLink} target="_blank" rel="noopener noreferrer">
     <Icon className="social-icon hover:text-[#00df9a]" size={30} />
-  </a>
+  </Link>
 );
 
 // Footer component
-const Footer = async () => {
-  if (!process.env.NEXT_PUBLIC_API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
-  }
-  const { data: CompanyInfoData } = await fetch(
-    process.env.NEXT_PUBLIC_API_URL,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-      query CompanyInfo {
-        companyInfo {
-          id
-          phone
-          deliveringPrice
-          logo
-          facebook
-          instagram
-          location
-          email
-        }
-      }
-  `,
-      }),
-    },
-  ).then((res) => res.json());
+const Footer = () => {
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const { data: companyInfoData } = useQuery(COMPANY_INFO_QUERY);
+  const { data: categoriesData } = useQuery(CATEGORY_QUERY);
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
-  const { data: CategoryData } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-      query Categories {
-        categories {
-          id
-          name
-        }
-      }
-  `,
-    }),
-  }).then((res) => res.json());
+  const companyInfo = companyInfoData?.companyInfo;
+  const categories = categoriesData?.categories || [];
 
-  // Footer sections
-  const sections = [
-    {
-      title: "Informations",
-      content: (
-        <div className="leading-7 w-60">
-          <div className="flex gap-1 items-start tracking-wider text-gray-700">
-            <IoLocationSharp size={40} />
+  const handleSubscription = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "Notification de S'ABONNER",
+      description: `Merci de vous abonner avec ${email}`,
+      className: "bg-strongBeige text-white",
+    });
+    setEmail("");
+  };
 
-            <p>{CompanyInfoData?.companyInfo?.location}</p>
-          </div>
-          <div className="flex gap-5 tracking-wider items-center text-gray-700 ">
-            <MdEmail size={18} />
-
-            <p> {CompanyInfoData?.companyInfo?.email}</p>
-          </div>
-          <div className="flex gap-1 items-center tracking-wider text-gray-700 ">
-            <MdLocalPhone size={18} />
-
-            <p>(+216) {CompanyInfoData?.companyInfo?.phone}</p>
-          </div>
-        </div>
-      ),
-      items: [
-        {
-          name: CompanyInfoData?.companyInfo?.location,
-          navLink: "",
-
-          id: "0",
-        },
-        {
-          name: `
-          ${CompanyInfoData?.companyInfo?.email}`,
-          navLink: "",
-
-          id: "1",
-        },
-        {
-          name: `(+216) ${CompanyInfoData?.companyInfo?.phone}`,
-          navLink: "",
-
-          id: "2",
-        },
-      ],
-    },
-    {
-      title: "Nos Catégories",
-      items: CategoryData?.categories.map((category: any) => ({
-        name: category.name,
-        navLink: `/Collections/tunisie/?category=${category.id}`,
-        id: category.id,
-      })),
-    },
-    {
-      title: "Notre Entreprise",
-      content: (
-        <>
-          <Link
-            href={"/Delivery"}
-            className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
-          >
-            {" "}
-            Livraison
-          </Link>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            {" "}
-            Politique de Confidentialité
-          </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            {" "}
-            Conditions d'utilisation
-          </p>
-          <Link
-            href={"/Contact-us"}
-            className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
-          >
-            {" "}
-            Contactez-nous
-          </Link>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            {" "}
-            Plan du site
-          </p>
-        </>
-      ),
-      items: [
-        {
-          name: "Livraison",
-          navLink: "/Delivery",
-          id: "0",
-        },
-        {
-          name: "Politique de Confidentialité",
-          navLink: "/",
-
-          id: "1",
-        },
-        {
-          name: "Conditions d'utilisation",
-          id: "2",
-        },
-        {
-          name: " Contactez-nous",
-          navLink: "/Contact-us",
-
-          id: "3",
-        },
-        {
-          name: "Plan du site",
-          navLink: "/",
-          id: "4",
-        },
-      ],
-    },
-    {
-      title: "Votre Compte",
-      content: (
-        <>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Informations personnelles
-          </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Commandes
-          </p>
-
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Adresses
-          </p>
-          {/* <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Bons de réduction
-          </p> */}
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Mes listes de souhaits
-          </p>
-          <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-            Mes alertes
-          </p>
-        </>
-      ),
-
-      items: [
-        {
-          name: "Informations personnelles",
-          navLink: "/",
-          id: "0",
-        },
-        {
-          name: "Commandes",
-          navLink: "/",
-          id: "1",
-        },
-        {
-          name: "Adresses",
-          navLink: "/",
-
-          id: "2",
-        },
-        {
-          name: " Mes listes de souhaits",
-          navLink: "/",
-
-          id: "3",
-        },
-        {
-          name: " Mes alertes",
-          navLink: "/",
-
-          id: "4",
-        },
-      ],
-    },
-    {
-      title: "Newsletter",
-      content: (
-        <div>
-          <input
-            type="email"
-            placeholder="Votre adresse e-mail"
-            className="p-2 rounded w-full border text-black"
-          />
-          <button className="mt-2 p-2 bg-[#00df9a] text-white rounded w-full">
-            S'ABONNER
-          </button>
-          <p className="mt-2 text-sm">
-            Vous pouvez vous désinscrire à tout moment. Vous trouverez pour cela
-            nos informations de contact dans les conditions d'utilisation du
-            site.
-          </p>
-        </div>
-      ),
-    },
-  ];
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
 
   return (
     <div className="bg-white shadow-2xl shadow-black border-t-2 text-black flex flex-col items-center pt-3">
-      <div className="text-center  flex justify-center items-center flex-col">
+      <div className="text-center flex justify-center items-center flex-col">
         <Image
-          src={CompanyInfoData?.companyInfo?.logo}
+          src={companyInfo?.logo}
           width={250}
           height={250}
           alt="Maison Ng"
@@ -278,68 +81,237 @@ const Footer = async () => {
           unique et original. Simplement extraordinaire !
         </p>
       </div>
-      <div className="w-full hidden lg:grid max-w-7xl px-3   lg:grid-cols-5 place-content-center gap-4 border-t pt-8">
-        {sections.map((section, index) => (
-          <div key={index}>
-            <h6 className="font-medium text-xl mb-4">{section.title}</h6>
-            {section.items ? (
-              <ul>
-                {section.items.map((item: any, subIndex: number) => (
-                  <Link
-                    href={`/Collections/tunisie/?category=${item.id}`}
-                    key={subIndex}
-                  >
-                    <li className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-                      {item.name}
-                    </li>
-                  </Link>
-                ))}
-              </ul>
-            ) : (
-              section.content
-            )}
+      <div className="w-full hidden lg:grid max-w-7xl  lg:grid-cols-6 place-content-center gap-4 border-t pt-8">
+        <div className="CompanyInfo w-full lg:col-span-2">
+          <h6 className="font-medium text-xl mb-4">Informations</h6>
+          <div className="leading-8 ">
+            <div className="flex gap-1 items-start tracking-wider text-gray-700">
+              <IoLocationSharp size={40} />
+              <p>{companyInfo?.location}</p>
+            </div>
+            <div className="flex gap-5 tracking-wider items-center text-gray-700">
+              <MdEmail size={18} />
+              <p>{companyInfo?.email}</p>
+            </div>
+            <div className="flex gap-1 items-center tracking-wider text-gray-700">
+              <MdLocalPhone size={18} />
+              <p>(+216) {companyInfo?.phone}</p>
+            </div>
           </div>
-        ))}
+        </div>
+        <div className="Categories">
+          <h6 className="font-medium text-xl mb-4">Nos Catégories</h6>
+          <ul>
+            {categories.map(
+              (category: { name: string; id: string }, subIndex: number) => (
+                <li key={subIndex}>
+                  <Link
+                    href={`/Collections/tunisie/?category=${category?.id}`}
+                    className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                  >
+                    {category?.name}
+                  </Link>
+                </li>
+              )
+            )}
+          </ul>
+        </div>
+        <div className="entreprise">
+          <h6 className="font-medium text-xl mb-4">Notre Entreprise</h6>
+          <div className="flex flex-col">
+            <Link
+              href="/Delivery"
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Livraison
+            </Link>
+            <Link
+              href={"/Privacy-Policy"}
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Politique de Confidentialité
+            </Link>
+            <Link
+              href={"/Terms-of-use"}
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Conditions d'utilisation
+            </Link>
+            <Link
+              href="/Contact-us"
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Contactez-nous
+            </Link>
+            <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
+              Plan du site
+            </p>
+          </div>
+        </div>
+        <div className="entreprise">
+          <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
+          <div className="flex flex-col">
+            <Link
+              href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Mes Commandes
+            </Link>
+            <Link
+              href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Ma Liste D'envies
+            </Link>
+
+            <Link
+              href={""}
+              className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+            >
+              Mes listes de souhaits
+            </Link>
+          </div>
+        </div>
+
+        <div>
+          <form onSubmit={handleSubscription}>
+            <input
+              type="email"
+              placeholder="Votre adresse e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="p-2 rounded w-full border text-black"
+              required
+            />
+            <button
+              type="submit"
+              className="mt-2 p-2 bg-[#00df9a] text-white rounded w-full"
+            >
+              S'ABONNER
+            </button>
+          </form>
+          <p className="mt-2 text-sm">
+            Vous pouvez vous désinscrire à tout moment. Vous trouverez pour cela
+            nos informations de contact dans les conditions d'utilisation du
+            site.
+          </p>
+        </div>
       </div>
       {/* Mobile accordion */}
       <div className="flex flex-col lg:hidden w-full px-5">
         <Accordion type="single" collapsible>
-          {sections.map((section, index) => (
-            <div key={index}>
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger>{section.title}</AccordionTrigger>
-                {section.items?.map(
-                  (
-                    item: { name: string; id: string; navLink: string },
-                    subIndex: number,
-                  ) => (
-                    <AccordionContent key={subIndex}>
-                      <Link
-                        className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
-                        href={item?.navLink}
-                        key={subIndex}
-                      >
-                        {item.name}
-                      </Link>
-                    </AccordionContent>
-                  ),
-                )}
-              </AccordionItem>
-            </div>
-          ))}
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Informations</AccordionTrigger>
+            <AccordionContent>
+              <div className="leading-7">
+                <div className="flex gap-1 items-start tracking-wider text-gray-700">
+                  <IoLocationSharp size={20} />
+                  <p>{companyInfo?.location}</p>
+                </div>
+                <div className="flex gap-5 tracking-wider items-center text-gray-700">
+                  <MdEmail size={18} />
+                  <p>{companyInfo?.email}</p>
+                </div>
+                <div className="flex gap-1 items-center tracking-wider text-gray-700">
+                  <MdLocalPhone size={18} />
+                  <p>(+216) {companyInfo?.phone}</p>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionTrigger>Nos Catégories</AccordionTrigger>
+            <AccordionContent>
+              <ul>
+                {categories.map((category: { name: string; id: string }) => (
+                  <li key={category?.id} className="py-2">
+                    <Link
+                      href={`/Collections/tunisie/?category=${category?.id}`}
+                      className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 "
+                    >
+                      {category?.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-3">
+            <AccordionTrigger>Notre Entreprise</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col">
+                <Link
+                  href="/Delivery"
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Livraison
+                </Link>
+                <Link
+                  href={""}
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Politique de Confidentialité
+                </Link>
+                <Link
+                  href={""}
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Conditions d'utilisation
+                </Link>
+                <Link
+                  href="/Contact-us"
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Contactez-nous
+                </Link>
+                <Link
+                  href={""}
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Plan du site
+                </Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-4">
+            <AccordionTrigger>Votre Compte</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col">
+                <Link
+                  href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Mes Commandes
+                </Link>
+                <Link
+                  href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Ma Liste D'envies
+                </Link>
+
+                <Link
+                  href={""}
+                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
+                >
+                  Mes listes de souhaits
+                </Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
       </div>
       <div className="mt-8 flex gap-5">
         <SocialIcon
           icon={FaFacebookSquare}
-          navLink={CompanyInfoData?.companyInfo?.facebook}
+          navLink={companyInfo?.facebook || "/"}
         />
         <SocialIcon
           icon={FaInstagram}
-          navLink={CompanyInfoData?.companyInfo?.instagram}
+          navLink={companyInfo?.instagram || "/"}
         />
       </div>
-      <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-base font-light mt-2 w-full">
+      <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-strongBeige transition-colors ">
         © 2024 MaisonNg.Tn By Maison Ng Team
       </div>
     </div>

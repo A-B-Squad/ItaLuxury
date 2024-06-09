@@ -109,8 +109,8 @@ const ProductsSection = () => {
       1,
       Math.min(
         page - Math.floor(maxPagesToShow / 2),
-        numberOfPages - maxPagesToShow + 1,
-      ),
+        numberOfPages - maxPagesToShow + 1
+      )
     );
 
     for (
@@ -121,6 +121,7 @@ const ProductsSection = () => {
       pages.push(
         <button
           key={i}
+          type="button"
           onClick={() => setPage(i)}
           className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-strongBeige border border-strongBeige hover:bg-strongBeige hover:text-white ${
             page === i
@@ -129,7 +130,7 @@ const ProductsSection = () => {
           }`}
         >
           {i}
-        </button>,
+        </button>
       );
     }
 
@@ -140,7 +141,7 @@ const ProductsSection = () => {
           className="flex items-center justify-center px-3 h-8 text-strongBeige border border-strongBeige"
         >
           ...
-        </span>,
+        </span>
       );
     }
 
@@ -201,6 +202,7 @@ const ProductsSection = () => {
                 <IoMdArrowDropdown size={20} />
 
                 <button
+                  type="button"
                   className="hover:text-strongBeige gap-2 flex items-center justify-center transition-colors"
                   onClick={() => {
                     router.push("/Collections/tunisie", { scroll: true });
@@ -225,6 +227,7 @@ const ProductsSection = () => {
               <ul className="inline-flex -space-x-px text-sm">
                 <li>
                   <button
+                    type="button"
                     onClick={handlePrevPage}
                     disabled={page === 1}
                     className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-s-lg  ${page !== 1 && "hover:bg-strongBeige hover:text-white"} `}
@@ -235,6 +238,7 @@ const ProductsSection = () => {
                 {renderPageNumbers()}
                 <li>
                   <button
+                    type="button"
                     onClick={handleNextPage}
                     disabled={page === Math.ceil(totalCount / pageSize)}
                     className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-strongBeige hover:text-white"} `}
