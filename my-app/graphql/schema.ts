@@ -379,7 +379,11 @@ fetchAllCoupons:[Coupons!]
 
 # Define the Mutation type
 type Mutation {
-
+  #advertisment 
+  createCarouselAdvertisement(input:[advertisementInput]):String
+  createBannerAdvertisement(input:[advertisementInput]):String
+  createSideAdvertisement(input:[advertisementInput]):String
+#Forgot Password
   forgotPassword(email:String!):String!
   resetPassword(password:String,id:String):String!
 
@@ -628,5 +632,10 @@ input ContactUsInput {
   document:String
   }
 
+input advertisementInput{
+  images:[String!]!
+  position: String!
+  link:String!
+}
 
 `;

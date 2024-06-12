@@ -33,7 +33,7 @@ const TimeCountDown = () => {
   }, [createdAt]);
 
   return (
-    <div className="grid grid-flow-col bg-strongBeige text-white text-center auto-cols-max">
+    <div className="grid grid-flow-col bg-primaryColor text-white text-center auto-cols-max">
       <div className="flex items-center gap-2 md:p-2 p-1 rounded-box">
         <span className="countdown font-mono text-base">
           <span>{Math.floor(countdown / (1000 * 60 * 60))}</span>

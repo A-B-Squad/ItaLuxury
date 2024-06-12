@@ -24,7 +24,7 @@ const Signin = () => {
       toast({
         title: "Connexion",
         description: "Bienvenue",
-        className: "bg-strongBeige text-white",
+        className: "bg-primaryColor text-white",
       });
       router.replace("/");
     },
@@ -94,7 +94,7 @@ const Signin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
+              className="w-full text-center py-3 rounded bg-secondaryColor text-white hover:bg-primaryColor focus:outline-none my-1 transition-all"
             >
               {loading ? "Chargement..." : "Se Connecter"}
             </button>

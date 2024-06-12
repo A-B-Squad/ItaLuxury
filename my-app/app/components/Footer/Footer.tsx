@@ -50,7 +50,7 @@ const Footer = () => {
     toast({
       title: "Notification de S'ABONNER",
       description: `Merci de vous abonner avec ${email}`,
-      className: "bg-strongBeige text-white",
+      className: "bg-primaryColor text-white",
     });
     setEmail("");
   };
@@ -311,7 +311,7 @@ const Footer = () => {
           navLink={companyInfo?.instagram || "/"}
         />
       </div>
-      <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-strongBeige transition-colors ">
+      <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors ">
         © 2024 MaisonNg.Tn By Maison Ng Team
       </div>
     </div>

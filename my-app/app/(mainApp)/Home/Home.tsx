@@ -5,7 +5,7 @@ import AdsCarousel from "@/components/adverstissment/carousel";
 import RightAdsCarousel from "../../components/adverstissment/RightAdsCarousel";
 import SideAds from "@/components/adverstissment/sideAds";
 import TitleProduct from "@/components/ProductCarousel/titleProduct";
-import BestSales from "./TopSales/BestSales";
+import BestSales from "./@TopSales/BestSales";
 import React, { useMemo } from "react";
 import ProductInfo from "../../components/ProductInfo/ProductInfo";
 import Services from "./_components/services";
@@ -15,7 +15,7 @@ import { BrandsCarousel } from "./_components/BrandCarousel";
 import TimeCountDown from "./_components/TimeCountDown";
 import FullWidthAds from "../../components/adverstissment/FullWidth";
 import ProductTabs from "@/components/ProductCarousel/productTabs";
-import TopDeals from "./TopDeals/TopDeals";
+import TopDeals from "./@TopDeals/TopDeals";
 const ClientServices = dynamic(() => import("./_components/ClientServices"));
 
 import { useQuery } from "@apollo/client";
@@ -31,19 +31,19 @@ const Home = () => {
   const { data: leftAds, loading: loadingLeftAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
-      variables: { position: "left_ads_product" },
+      variables: { position: "SideNewProduct" },
     }
   );
   const { data: rightAds, loading: loadingRightAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
-      variables: { position: "right_ads_product" },
+      variables: { position: "SidePromotion" },
     }
   );
-  const { data: FullAdsPromotion, loading: loadingFullPromotionAds } = useQuery(
+  const { data: BannerPromotion, loading: loadingFullPromotionAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
-      variables: { position: "FullAdsPromotion" },
+      variables: { position: "BannerPromotion" },
     }
   );
   const { data: leftCarouselAds, loading: loadingLeftCarouselAds } = useQuery(
@@ -59,20 +59,20 @@ const Home = () => {
     }
   );
 
-  const { data: FullAds20Product, loading: loadingFull20ProductAds } = useQuery(
+  const { data: BannerLessThen20, loading: loadingFull20ProductAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
-      variables: { position: "full_ads_20" },
+      variables: { position: "BannerLessThen20" },
     }
   );
   const { data: centerCarouselAds, loading: loadingCenterCarouselAds } =
     useQuery(ADVERTISSMENT_QUERY, {
       variables: { position: "slider" },
     });
-  const { data: FullTopDealsAds, loading: loadingFullTopDealsAds } = useQuery(
+  const { data: BannerBestDeals, loading: loadingFullTopDealsAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
-      variables: { position: "full_ads_topDeals" },
+      variables: { position: "BannerBestDeals" },
     }
   );
   const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
@@ -127,7 +127,7 @@ const Home = () => {
               adsLoaded={loadingLeftAds}
               image={leftAds?.advertismentByPosition[0]?.images[0]}
               link={leftAds?.advertismentByPosition[0]?.link}
-              adsPositon={"Left Ads"}
+              adsPositon={"SideNewProduct"}
             />
             <ProductTabs
               title={"Nouveaux Produits"}
@@ -143,9 +143,8 @@ const Home = () => {
         </div>
         <FullWidthAds
           FullAdsLoaded={loadingFullTopDealsAds}
-          FullImageAds={FullTopDealsAds?.advertismentByPosition[0]?.images[0]}
+          FullImageAds={BannerBestDeals?.advertismentByPosition[0]?.images[0]}
           LinkTo={"/"}
-
         />
         <div className="TopDeals">
           <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
@@ -161,13 +160,13 @@ const Home = () => {
         </div>
         <FullWidthAds
           FullAdsLoaded={loadingFull20ProductAds}
-          FullImageAds={FullAds20Product?.advertismentByPosition[0]?.images[0]}
+          FullImageAds={BannerLessThen20?.advertismentByPosition[0]?.images[0]}
           LinkTo={"/Collections/tunisie?price=20"}
         />
         <div className="Carousel_A_20DT">
           <div className="Heading flex items-center justify-between">
             <TitleProduct title={"L'essentiel à 20DT"} />
-            <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
+            <div className="flex items-center gap-1 font-medium hover:text-secondaryColor transition-colors">
               <Link href={"/Collections/tunisie?price=20"}>
                 Voir tous les produits
               </Link>
@@ -186,14 +185,13 @@ const Home = () => {
         </div>
         <FullWidthAds
           FullAdsLoaded={loadingFullPromotionAds}
-          FullImageAds={FullAdsPromotion?.advertismentByPosition[0]?.images[0]}
+          FullImageAds={BannerPromotion?.advertismentByPosition[0]?.images[0]}
           LinkTo={"/Collections/tunisie?choice=in-discount"}
-
         />
         <div className="Promotion flex flex-col">
           <div className="flex items-center justify-between">
             <TitleProduct title={"Promotions"} />
-            <div className="flex items-center gap-1 font-medium hover:text-mediumBeige transition-colors">
+            <div className="flex items-center gap-1 font-medium hover:text-secondaryColor transition-colors">
               <Link
                 rel="preload"
                 href={"/Collections/tunisie?choice=in-discount"}

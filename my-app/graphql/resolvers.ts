@@ -24,6 +24,7 @@ import { contactUsMutations } from "./resolvers/mutations/conatctUsMutations/con
 import { contactUsQueries } from "./resolvers/queries/contactUsQueries/contactUsQueries";
 import { usersQueries } from "./resolvers/queries/usersQueries/usersQueries";
 import { couponsQueries } from "./resolvers/queries/coupons/couponsQueries";
+import { advertismentMutations } from "./resolvers/mutations/advertisementMutations/advertismentMutations";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -51,6 +52,6 @@ export const resolvers = {
     ...adminMutations,
     ...topDealsMutations,
     ...SectionVisibilityMutations,
-    ...contactUsMutations
+    ...contactUsMutations, ...advertismentMutations
   },
 };

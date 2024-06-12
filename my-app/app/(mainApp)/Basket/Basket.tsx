@@ -153,7 +153,7 @@ const Basket = () => {
       toast({
         title: "Notification de Panier",
         description: `Le produit a été retiré du panier.`,
-        className: "bg-strongBeige text-white",
+        className: "bg-primaryColor text-white",
       });
     },
     [deleteBasketById, toast, toggleIsUpdated]
@@ -214,7 +214,7 @@ const Basket = () => {
                               ],
                             },
                           }}
-                          className="text-md font-bold hover:text-strongBeige text-[#333]"
+                          className="text-md font-bold hover:text-primaryColor text-[#333]"
                         >
                           {product.name}
                         </Link>
@@ -226,7 +226,7 @@ const Basket = () => {
                             toast({
                               title: "Notification de Panier",
                               description: `Le produit "${product?.name}" a été retiré du panier.`,
-                              className: "bg-strongBeige text-white",
+                              className: "bg-primaryColor text-white",
                             });
                           }}
                         >
@@ -255,7 +255,7 @@ const Basket = () => {
                         </span>
                         <button
                           type="button"
-                          className="bg-strongBeige text-white px-2 py-1 font-semibold cursor-pointer"
+                          className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
                           onClick={() => {
                             increaseQuantity({
                               variables: { basketId: product.basketId },
@@ -335,7 +335,7 @@ const Basket = () => {
                         : (Number(totalPrice) + 8).toFixed(3),
                   },
                 }}
-                className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-strongBeige hover:bg-amber-200 text-white  cursor-pointer"
+                className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-primaryColor hover:bg-amber-200 text-white  cursor-pointer"
               >
                 Vérifier
               </Link>

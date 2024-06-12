@@ -14,7 +14,7 @@ const RightAdsCarousel = ({
   useEffect(() => {
     if (rightCarouselAds) {
       const allImages = rightCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images,
+        (ad: { images: string[] }) => ad.images
       );
       setImages(allImages);
     }
@@ -24,10 +24,10 @@ const RightAdsCarousel = ({
     <>
       {(images.length === 0 || loadingRightAdsCarousel) && (
         <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         </div>

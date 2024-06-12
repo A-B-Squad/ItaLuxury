@@ -336,7 +336,7 @@ const Checkout = () => {
                     </p>
                   </div>
                   {discountPercentage > 0 && (
-                    <p className="text-strongBeige font-normal ">
+                    <p className="text-primaryColor font-normal ">
                       <span className="text-sm font-medium text-gray-900">
                         Code Promo:
                       </span>{" "}
@@ -354,7 +354,7 @@ const Checkout = () => {
 
                 <button
                   type="submit"
-                  className="mt-4 mb-8 w-full rounded-md bg-strongBeige px-6 py-3 font-medium text-white"
+                  className="mt-4 mb-8 w-full rounded-md bg-primaryColor px-6 py-3 font-medium text-white"
                 >
                   Passer la commande
                 </button>

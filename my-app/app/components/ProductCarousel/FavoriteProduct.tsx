@@ -29,7 +29,7 @@ const FavoriteProduct = ({
         userId: userId,
       },
       skip: !userId,
-    },
+    }
   );
 
   const { toast } = useToast();
@@ -38,7 +38,7 @@ const FavoriteProduct = ({
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
       if (
         favoriteData.favoriteProducts.some(
-          (fav: any) => fav.productId === productId,
+          (fav: any) => fav.productId === productId
         )
       ) {
         setIsFavorite(true);
@@ -76,7 +76,7 @@ const FavoriteProduct = ({
         toast({
           title: "Produit ajouté aux favoris",
           description: `Le produit "${productName}" a été ajouté à vos favoris.`,
-          className: "bg-strongBeige text-white",
+          className: "bg-primaryColor text-white",
         });
       },
     });

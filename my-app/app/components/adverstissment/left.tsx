@@ -13,7 +13,7 @@ const Left = ({ leftCarouselAds }: any) => {
   useEffect(() => {
     if (leftCarouselAds && leftCarouselAds.advertismentByPosition) {
       const allImages = leftCarouselAds.advertismentByPosition.flatMap(
-        (ad: { images: string[] }) => ad.images,
+        (ad: { images: string[] }) => ad.images
       );
       setImages(allImages);
     }
@@ -23,10 +23,10 @@ const Left = ({ leftCarouselAds }: any) => {
     <>
       {images.length === 0 && (
         <div className="left flex lg:flex-col flex-row items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         </div>

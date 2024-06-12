@@ -26,7 +26,7 @@ const ForgotPassword = () => {
         toast({
           title: "E-mail envoyé",
           description: "E-mail envoyé avec succeés",
-          className: "bg-strongBeige text-white",
+          className: "bg-primaryColor text-white",
         });
       },
       onError: (error) => {
@@ -75,7 +75,7 @@ const ForgotPassword = () => {
             type="submit"
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
+            className="w-full text-center py-3 rounded bg-secondaryColor text-white hover:bg-primaryColor focus:outline-none my-1 transition-all"
           >
             {loading ? "Chargement..." : "Envoyer"}
           </button>

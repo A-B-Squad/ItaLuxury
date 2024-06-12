@@ -104,17 +104,17 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
         <div className="dropDown hidden md:flex">
           <ul className="flex gap-5 ">
-            <li className=" cursor-pointer hover:text-strongBeige transition-all">
+            <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link rel="preload" href={`/`}>
                 Accueil
               </Link>
             </li>
-            <li className=" cursor-pointer hover:text-strongBeige transition-all">
+            <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link rel="preload" href={`/Collections/tunisie`}>
                 Touts Les Produits
               </Link>
             </li>
-            <li className=" cursor-pointer hover:text-strongBeige transition-all">
+            <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
                 href={`/Collections/tunisie?choice=in-discount`}
@@ -122,7 +122,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                 Promotions
               </Link>
             </li>
-            <li className=" cursor-pointer hover:text-strongBeige transition-all">
+            <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link rel="preload" href={`/Contact-us`}>
                 Contact
               </Link>
@@ -133,7 +133,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
         <div className="list md:hidden items-center gap-5 cursor-pointer text-xl flex">
           <ul className="flex  gap-5">
             {!decodedToken?.userId && (
-              <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+              <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
                 <Link rel="preload" href={`/signin`}>
                   <FiUser />
                 </Link>
@@ -142,14 +142,14 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
             {decodedToken?.userId && (
               <li
                 onClick={handleLogout}
-                className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all"
+                className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
               >
                 <Link rel="preload" href="/Home">
                   <IoIosLogOut />
                 </Link>
               </li>
             )}
-            <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+            <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
                 href={`${decodedToken?.userId ? " /FavoriteList" : "/signin"}`}
@@ -158,17 +158,17 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               </Link>
             </li>
             {decodedToken?.userId && (
-              <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+              <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
                 <Link rel="preload" href={`/TrackingPackages`}>
                   <GoPackageDependents />
                 </Link>
               </li>
             )}
-            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               <Link rel="preload" href={"/productComparison"}>
                 <IoGitCompare />
                 {LengthComparer > 0 && (
-                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
+                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                     {LengthComparer}
                   </span>
                 )}
@@ -176,16 +176,16 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
             </li>
             <li
               onClick={openBasketDrawer}
-              className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all"
+              className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
             >
               <RiShoppingCartLine />
               {quantityInBasket > 0 && (
-                <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
+                <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                   {quantityInBasket}
                 </span>
               )}
             </li>
-            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               <Link rel="preload" href={"/Contact-us"}>
                 <GrContact />
               </Link>

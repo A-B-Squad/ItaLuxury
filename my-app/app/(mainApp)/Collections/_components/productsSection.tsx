@@ -123,10 +123,10 @@ const ProductsSection = () => {
           key={i}
           type="button"
           onClick={() => setPage(i)}
-          className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-strongBeige border border-strongBeige hover:bg-strongBeige hover:text-white ${
+          className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-primaryColor border border-primaryColor hover:bg-primaryColor hover:text-white ${
             page === i
-              ? "bg-strongBeige text-white"
-              : "bg-white text-strongBeige"
+              ? "bg-primaryColor text-white"
+              : "bg-white text-primaryColor"
           }`}
         >
           {i}
@@ -138,7 +138,7 @@ const ProductsSection = () => {
       pages.push(
         <span
           key="more-pages"
-          className="flex items-center justify-center px-3 h-8 text-strongBeige border border-strongBeige"
+          className="flex items-center justify-center px-3 h-8 text-primaryColor border border-primaryColor"
         >
           ...
         </span>
@@ -155,7 +155,7 @@ const ProductsSection = () => {
       ) : (
         <div className="flex flex-col justify-between items-center  h-full bg-white ">
           {!!queryParam && (
-            <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">
+            <h1 className="text-xl font-bold text-primaryColor mt-10 mb-10">
               {productsData.length} résultats trouvé pour "{queryParam}"
             </h1>
           )}
@@ -203,7 +203,7 @@ const ProductsSection = () => {
 
                 <button
                   type="button"
-                  className="hover:text-strongBeige gap-2 flex items-center justify-center transition-colors"
+                  className="hover:text-primaryColor gap-2 flex items-center justify-center transition-colors"
                   onClick={() => {
                     router.push("/Collections/tunisie", { scroll: true });
                   }}
@@ -230,7 +230,7 @@ const ProductsSection = () => {
                     type="button"
                     onClick={handlePrevPage}
                     disabled={page === 1}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-s-lg  ${page !== 1 && "hover:bg-strongBeige hover:text-white"} `}
+                    className={`flex items-center justify-center px-3 h-8 leading-tight text-primaryColor bg-white border border-primaryColor rounded-s-lg  ${page !== 1 && "hover:bg-primaryColor hover:text-white"} `}
                   >
                     Previous
                   </button>
@@ -241,7 +241,7 @@ const ProductsSection = () => {
                     type="button"
                     onClick={handleNextPage}
                     disabled={page === Math.ceil(totalCount / pageSize)}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-strongBeige hover:text-white"} `}
+                    className={`flex items-center justify-center px-3 h-8 leading-tight text-primaryColor bg-white border border-primaryColor rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-primaryColor hover:text-white"} `}
                   >
                     Next
                   </button>

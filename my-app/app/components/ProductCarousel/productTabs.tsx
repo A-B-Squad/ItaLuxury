@@ -29,8 +29,8 @@ const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
                 </>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="px-2 left-5 transition-all bg-strongBeige text-white " />
-            <CarouselNext className="px-2 transition-all right-5 bg-strongBeige text-white " />
+            <CarouselPrevious className="px-2 left-5 transition-all bg-primaryColor text-white " />
+            <CarouselNext className="px-2 transition-all right-5 bg-primaryColor text-white " />
           </Carousel>
         </div>
       )}

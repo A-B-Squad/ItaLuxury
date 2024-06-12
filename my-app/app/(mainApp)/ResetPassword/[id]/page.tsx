@@ -20,7 +20,7 @@ const ResetPassword = () => {
     if (password !== confirmPassword) {
       setIsError(true);
       setErrorMessage(
-        "Le mot de passe et la confirmation du mot de passe doivent être identiques !",
+        "Le mot de passe et la confirmation du mot de passe doivent être identiques !"
       );
     } else {
       resetPassword({
@@ -86,7 +86,7 @@ const ResetPassword = () => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
+            className="w-full text-center py-3 rounded bg-secondaryColor text-white hover:bg-primaryColor focus:outline-none my-1 transition-all"
           >
             {loading ? "Chargement..." : "Envoyer"}
           </button>

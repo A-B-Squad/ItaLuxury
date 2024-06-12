@@ -50,20 +50,20 @@ const ProductInfo = () => {
     setActualQuantity((prevQuantity) =>
       productData && prevQuantity < productData.inventory
         ? prevQuantity + 1
-        : prevQuantity,
+        : prevQuantity
     );
   }, [productData]);
 
   const handleSubtractQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1,
+      prevQuantity > 1 ? prevQuantity - 1 : 1
     );
   }, []);
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -86,13 +86,13 @@ const ProductInfo = () => {
           toast({
             title: "Notification de Panier",
             description: `Le produit "${product?.name}" a été ajouté au panier.`,
-            className: "bg-strongBeige text-white",
+            className: "bg-primaryColor text-white",
           });
         },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -159,7 +159,7 @@ const ProductInfo = () => {
                 <div
                   key={index}
                   className={`shadow-md w-20 h-20 md:w-24 md:h-24 rounded-md p-[7px] ${
-                    image === bigImage ? "border-2 border-mediumBeige" : ""
+                    image === bigImage ? "border-2 border-secondaryColor" : ""
                   }`}
                 >
                   <Image
@@ -183,7 +183,7 @@ const ProductInfo = () => {
               {productData?.name}
             </h2>
             <div className="flex flex-col gap-1 mt-4">
-              <p className="text-strongBeige tracking-wide text-3xl font-bold">
+              <p className="text-primaryColor tracking-wide text-3xl font-bold">
                 {productData?.productDiscounts[0]
                   ? productData?.productDiscounts[0].newPrice.toFixed(3)
                   : productData?.price.toFixed(3)}{" "}
@@ -219,13 +219,13 @@ const ProductInfo = () => {
 
             <div className="border-t-2 mt-4">
               <div className="flex items-center mt-4  space-x-2">
-                <h3 className="text-lg tracking-wider font-bold  capitalize text-strongBeige">
+                <h3 className="text-lg tracking-wider font-bold  capitalize text-primaryColor">
                   Quantité
                 </h3>
                 <div className="flex divide-x border w-max overflow-hidden rounded-md">
                   <button
                     type="button"
-                    className="bg-lightBeige hover:bg-mediumBeige transition-all  px-3 py-1 font-semibold cursor-pointer"
+                    className="bg-lightBeige hover:bg-secondaryColor transition-all  px-3 py-1 font-semibold cursor-pointer"
                     onClick={handleSubtractQuantity}
                   >
                     <RiSubtractFill />
@@ -238,7 +238,7 @@ const ProductInfo = () => {
                   </button>
                   <button
                     type="button"
-                    className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-strongBeige text-white px-3 py-1 font-semibold cursor-pointer`}
+                    className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-primaryColor text-white px-3 py-1 font-semibold cursor-pointer`}
                     onClick={handleAddQuantity}
                   >
                     <FaPlus />
@@ -246,7 +246,7 @@ const ProductInfo = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <h3 className="text-lg tracking-wider font-bold capitalize text-strongBeige">
+                <h3 className="text-lg tracking-wider font-bold capitalize text-primaryColor">
                   Description
                 </h3>
                 <p className="text-sm text-gray-600 mt-2">
@@ -290,7 +290,7 @@ const ProductInfo = () => {
 
               <button
                 type="button"
-                className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-strongBeige hover:bg-mediumBeige text-white text-sm font-bold rounded"
+                className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold rounded"
                 onClick={() => {
                   AddToBasket(productData);
                 }}

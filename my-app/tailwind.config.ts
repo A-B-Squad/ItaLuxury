@@ -16,10 +16,9 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
-        mainColorAdminDash: "#202939",
         lightBeige: "#F0EDD4",
-        mediumBeige: "#e0e0dc",
-        strongBeige: "#c7ae91",
+        secondaryColor: "#e0e0dc",
+        primaryColor: "#c7ae91",
         lightBlack: "#00000030",
         TopBanner: '#53366e',
       }

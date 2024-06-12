@@ -12,7 +12,7 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,
+    SEARCH_PRODUCTS_QUERY
   );
 
   const router = useRouter();
@@ -68,7 +68,7 @@ const SearchBar = () => {
         onChange={handleSearchChange}
       />
       <span
-        className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-mediumBeige transition-all bg-strongBeige"
+        className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-secondaryColor transition-all bg-primaryColor"
         onClick={() => {
           router.push(`/Collections?query=${searchQuery}`, { scroll: true });
         }}
@@ -145,7 +145,7 @@ const SearchBar = () => {
                     </p>
                     <div className="flex gap-3">
                       <span
-                        className={`${result.productDiscounts.length > 0 ? "text-strongBeige" : ""} font-bold text-base`}
+                        className={`${result.productDiscounts.length > 0 ? "text-primaryColor" : ""} font-bold text-base`}
                       >
                         {result.productDiscounts.length > 0
                           ? `À partir de : ${result.productDiscounts[0].newPrice.toFixed(3)}`

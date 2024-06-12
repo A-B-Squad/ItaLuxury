@@ -37,7 +37,7 @@ export const BrandsCarousel = () => {
                       {[...Array(5)].map((_, index) => (
                         <div
                           key={index}
-                          className="h-28 w-28 rounded-lg bg-mediumBeige"
+                          className="h-28 w-28 rounded-lg bg-secondaryColor"
                         >
                           <IoImageOutline className="h-12 w-12 text-gray-500" />
                         </div>

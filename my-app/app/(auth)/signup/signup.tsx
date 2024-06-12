@@ -118,7 +118,7 @@ const Signup = () => {
             {errors.confirmPassword && <span>Ce champ est requis.</span>}
             <button
               type="submit"
-              className="w-full text-center py-3 rounded bg-mediumBeige text-white hover:bg-strongBeige focus:outline-none my-1 transition-all"
+              className="w-full text-center py-3 rounded bg-secondaryColor text-white hover:bg-primaryColor focus:outline-none my-1 transition-all"
               disabled={loading}
             >
               {loading ? "Chargement..." : "Créer un compte"}

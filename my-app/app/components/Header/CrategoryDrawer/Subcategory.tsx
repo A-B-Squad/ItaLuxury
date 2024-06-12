@@ -34,7 +34,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
         <div key={subIndex} className="  h-fit  cursor-pointer">
           <Link
             href={`/Collections/tunisie/${prepRoute(subcategory.name)}/?category=${subcategory.id}`}
-            className="py-1  pl-5 font-bold text-strongBeige hover:font-bold w-full block transition-colors  group border-b-2 cursor-pointer "
+            className="py-1  pl-5 font-bold text-primaryColor hover:font-bold w-full block transition-colors  group border-b-2 cursor-pointer "
             data-parentcategory={subcategory.parentId}
           >
             {subcategory.name}

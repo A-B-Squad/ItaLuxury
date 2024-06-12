@@ -11,9 +11,8 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
   useEffect(() => {
     if (centerCarouselAds) {
       const allImages = centerCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images,
+        (ad: { images: string[] }) => ad.images
       );
-      console.log(allImages);
 
       setImages(allImages);
     }
@@ -21,7 +20,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
   return (
     <>
       {(images.length === 0 || loadingCenterAdsCarousel) && (
-        <div className="rounded-xl animate-pulse lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-mediumBeige flex flex-col justify-center items-center ">
+        <div className="rounded-xl animate-pulse lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-secondaryColor flex flex-col justify-center items-center ">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}

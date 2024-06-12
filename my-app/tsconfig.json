@@ -18,15 +18,10 @@
         "name": "next"
       }
     ],
+
     "paths": {
-      "@/*": [
-        "./*",
-        "./app/*",
-        "./app/(mainApp)/*"
-      ],
-      "@/app/public/*": [
-        "./app/public/*"
-      ]
+      "@/*": ["./*", "./app/*", "./app/(mainApp)/*"],
+      "@/app/public/*": ["./app/public/*"]
     }
   },
   "include": [
