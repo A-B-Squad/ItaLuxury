@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useQuery, gql } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/legacy/image";
-import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 
-const Left = ({ leftCarouselAds }: any) => {
+const LeftAdsCarousel = ({ leftCarouselAds }: any) => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
@@ -35,7 +33,7 @@ const Left = ({ leftCarouselAds }: any) => {
       {images.length > 0 && (
         <div className="left flex lg:flex-col  gap-5 md:gap-12">
           <Link
-            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
+            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem] h-64"
             href={leftCarouselAds?.advertismentByPosition[0]?.link}
           >
             <Image
@@ -50,7 +48,7 @@ const Left = ({ leftCarouselAds }: any) => {
             />
           </Link>
           <Link
-            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
+            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem] h-64"
             href={leftCarouselAds?.advertismentByPosition[1]?.link}
           >
             <Image
@@ -69,4 +67,4 @@ const Left = ({ leftCarouselAds }: any) => {
   );
 };
 
-export default Left;
+export default LeftAdsCarousel;

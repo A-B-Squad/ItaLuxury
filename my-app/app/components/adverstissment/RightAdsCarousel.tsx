@@ -6,14 +6,16 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 
 const RightAdsCarousel = ({
-  rightCarouselAds,
+  AdsNextToCarousel,
   loadingRightAdsCarousel,
 }: any) => {
   const [images, setImages] = useState([]);
+  console.log(AdsNextToCarousel,"d,lkd,klsq,kl,");
+  
 
   useEffect(() => {
-    if (rightCarouselAds) {
-      const allImages = rightCarouselAds.flatMap(
+    if (AdsNextToCarousel) {
+      const allImages = AdsNextToCarousel.flatMap(
         (ad: { images: string[] }) => ad.images
       );
       setImages(allImages);
@@ -37,7 +39,7 @@ const RightAdsCarousel = ({
         <div className="right-ads flex lg:flex-col  gap-5 md:gap-12">
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={rightCarouselAds[0]?.link}
+            href={AdsNextToCarousel[0]?.link}
           >
             <Image
               layout="responsive"
@@ -53,7 +55,7 @@ const RightAdsCarousel = ({
           </Link>
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={rightCarouselAds[1]?.link}
+            href={AdsNextToCarousel[1]?.link}
           >
             <Image
               layout="responsive"

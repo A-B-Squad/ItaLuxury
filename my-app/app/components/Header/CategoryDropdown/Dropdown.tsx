@@ -22,7 +22,7 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown, isFixed }: any) => {
   return (
     <div
       onMouseLeave={() => setShowDropdown(false)}
-      className={`md:border  hidden z-[60] bg-white md:flex  left-24  md:gap-2 ${isFixed ? "fixed top-[90px]" : "absolute top-[155px]"} w-full max-w-[900px] md:shadow-md h-fit transition-all  ${
+      className={` container md:border  hidden z-[60] bg-white md:flex  left-10  md:gap-2 ${isFixed ? "fixed top-[90px]" : "absolute top-[155px]"} w-full max-w-[900px] md:shadow-md h-fit transition-all  ${
         showCategoryDropdown ? "opacity-100 visible" : "opacity-0 invisible"
       }`}
     >

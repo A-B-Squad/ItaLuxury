@@ -35,7 +35,7 @@ import {
 } from "../../../store/zustand";
 import Image from "next/legacy/image";
 import moment from "moment-timezone";
-import TitleProduct from '@';
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }

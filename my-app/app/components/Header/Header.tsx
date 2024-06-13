@@ -40,19 +40,21 @@ const Header = () => {
       <div
         className={`header relative  flex justify-center shadow-lg  px-10 md:px-14 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-50" : "relative"}`}
       >
-        <nav className="container flex flex-col relative w-full items-center justify-center">
-          <TopHeader logo={CompanyInfoData?.companyInfo?.logo} />
-          <BottomHeader
-            isFixed={isFixed}
-            setIsFixed={setIsFixed}
+        <div className="container relative">
+          <nav className=" flex flex-col relative w-full items-center justify-center">
+            <TopHeader logo={CompanyInfoData?.companyInfo?.logo} />
+            <BottomHeader
+              isFixed={isFixed}
+              setIsFixed={setIsFixed}
+              setShowDropdown={setShowDropdown}
+            />
+          </nav>
+          <Dropdown
             setShowDropdown={setShowDropdown}
+            showCategoryDropdown={showCategoryDropdown}
+            isFixed={isFixed}
           />
-        </nav>
-        <Dropdown
-          setShowDropdown={setShowDropdown}
-          showCategoryDropdown={showCategoryDropdown}
-          isFixed={isFixed}
-        />
+        </div>
       </div>
     </>
   );

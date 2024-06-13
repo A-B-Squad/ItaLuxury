@@ -52,12 +52,12 @@ const Home = () => {
       variables: { position: "leftCarouselAds" },
     }
   );
-  const { data: rightCarouselAds, loading: loadingRightCarouselAds } = useQuery(
-    ADVERTISSMENT_QUERY,
-    {
-      variables: { position: "rightCarouselAds" },
-    }
-  );
+  const { data: AdsNextToCarousel, loading: loadingAdsNextToCarousel } =
+    useQuery(ADVERTISSMENT_QUERY, {
+      variables: { position: "NextToCarouselAds" },
+    });
+    console.log(AdsCarousel);
+    
 
   const { data: BannerLessThen20, loading: loadingFull20ProductAds } = useQuery(
     ADVERTISSMENT_QUERY,
@@ -110,8 +110,8 @@ const Home = () => {
       <div className="container">
         <section className="flex justify-center lg:flex-row flex-col gap-4 items-center">
           <RightAdsCarousel
-            loadingRightAdsCarousel={loadingRightCarouselAds}
-            rightCarouselAds={rightCarouselAds?.advertismentByPosition}
+            loadingRightAdsCarousel={loadingAdsNextToCarousel}
+            AdsNextToCarousel={AdsNextToCarousel?.advertismentByPosition}
           />
           <AdsCarousel
             loadingCenterAdsCarousel={loadingCenterCarouselAds}

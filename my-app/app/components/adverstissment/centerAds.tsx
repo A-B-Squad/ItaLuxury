@@ -9,7 +9,7 @@ import { IoIosClose } from "react-icons/io";
 const CenterAds = () => {
   const [showAds, setShowAds] = useState(false);
   const { data: centerAds } = useQuery(ADVERTISSMENT_QUERY, {
-    variables: { position: "center_ads_product" },
+    variables: { position: "BigAds" },
   });
   useEffect(() => {
     setTimeout(() => {

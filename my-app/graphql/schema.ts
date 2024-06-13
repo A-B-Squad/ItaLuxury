@@ -383,6 +383,8 @@ type Mutation {
   createCarouselAdvertisement(input:[advertisementInput]):String
   createBannerAdvertisement(input:[advertisementInput]):String
   createSideAdvertisement(input:[advertisementInput]):String
+  createLeftNextToCarouselAds(input:[advertisementInput]):String
+  createBigAds(input:advertisementInput):String
 #Forgot Password
   forgotPassword(email:String!):String!
   resetPassword(password:String,id:String):String!
