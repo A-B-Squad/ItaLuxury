@@ -17,7 +17,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
           Accueil
         </Link>
       </div>
-      {pageName !== "" && (
+      {pageName && (
         <>
           <IoMdArrowDropright size={20} />
           <div className="hover:text-primaryColor transition-all flex items-center gap-2">

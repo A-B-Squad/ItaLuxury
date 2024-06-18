@@ -33,8 +33,6 @@ type User {
   baskets: [Basket]!
   reviews: [Review]!
   favoriteProducts: [FavoriteProducts]!
- 
-
 }
 
 # Define the AuthPayload type
@@ -51,6 +49,16 @@ type Category {
   parent: Category
   products: [Product!]!
   subcategories: [Category!]!
+
+}
+type MainCategory {
+  id: ID!
+  name: String!
+  parentId: ID
+  bigImage:String
+  smallImage:String
+  subcategories: [Category!]!
+
 }
 
 # Define the Product type
@@ -325,6 +333,8 @@ fetchAllCoupons:[Coupons!]
 
   # Fetch all categories
   categories: [Category!]!
+  # Fetch all main categories
+  fetchMainCategories: [MainCategory!]!
 
   # Fetch subcategories by parent category ID
   subcategoriesByParentId(parentId: ID!): [Category!]
@@ -338,6 +348,8 @@ fetchAllCoupons:[Coupons!]
   # Fetch product discount information by product ID
   productDiscount(productId: ID!): ProductDiscount!
 
+  # Fetch all  discounts percentage
+  DiscountsPercentage:[Discount!]
   # Fetch all product discounts
   productsDiscounts(limit:Int): [Product!]
 
@@ -441,15 +453,13 @@ type Mutation {
   addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
 
   # Mutation to add Company Info
-  createCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
+  createOrUpdateCompanyInfo (input: CompanyInfoInput!): CompanyInfo!
 
 #create Top Deals mutations
   createTopDeals(input: CreateTopDealsInput!): TopDeals!
 #delete Top Deals mutations
   deleteTopDeals(input: CreateTopDealsInput!): String!
 
-  # Mutation to update Company Info
-  updateCompanyInfo(input: CompanyInfoInput!, id: String!): CompanyInfo!
 
   # Admin mutation for creating a moderator
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
@@ -504,6 +514,8 @@ input ProductAttributeInput {
 input CreateCategoryInput {
   name: String!
   parentId: ID
+  bigImage:String
+smallImage:String
 }
 
 # Define the UpdateCategoryInput input type

@@ -19,16 +19,17 @@ const ProductsSection = () => {
   const priceParamString = searchParams?.get("price");
   const choiceParam = searchParams?.get("choice");
   const brandParam = searchParams?.get("brand");
+  const pageParam = searchParams?.get("page");
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
   const [searchProducts] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
   const router = useRouter();
   const [productsData, setProductsData] = useState<any>([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(Number(searchParams?.get("page")) || 1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const pageSize = 10;
+  const pageSize = 12;
   const numberOfPages = Math.ceil(totalCount / pageSize);
 
   const fetchProducts = useCallback(async () => {
@@ -81,48 +82,90 @@ const ProductsSection = () => {
     choiceParam,
     page,
     pageSize,
+    pageParam,
     queryParam,
   ]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+  
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams();
+    if (queryParam) newSearchParams.set("query", queryParam);
+    if (categoryParam) newSearchParams.set("category", categoryParam);
+    if (colorParam) newSearchParams.set("color", colorParam);
+    if (sortParam) newSearchParams.set("sort", sortParam);
+    if (priceParamString) newSearchParams.set("price", priceParamString);
+    if (choiceParam) newSearchParams.set("choice", choiceParam);
+    if (brandParam) newSearchParams.set("brand", brandParam);
+    newSearchParams.set("page", page.toString());
+
+    router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
+  }, [page, router, queryParam, categoryParam, colorParam, sortParam, priceParamString, choiceParam, brandParam]);
+
+
+  useEffect(() => {
+    // Update page state when URL changes
+    const currentPage = Number(searchParams?.get("page")) || 1;
+    if (currentPage !== page) {
+      setPage(currentPage);
+    }
+  }, [searchParams, page]);
 
   const handleNextPage = () => {
     if (page < numberOfPages) {
-      setPage(page + 1);
+      setPage((prevPage) => prevPage + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePrevPage = () => {
     if (page > 1) {
-      setPage(page - 1);
+      setPage((prevPage) => prevPage - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
   const renderPageNumbers = () => {
-    const maxPagesToShow = 6;
+    const maxPagesToShow = 12;
     const pages: React.ReactNode[] = [];
     const startPage = Math.max(
       1,
       Math.min(
         page - Math.floor(maxPagesToShow / 2),
-        numberOfPages - maxPagesToShow + 1
+        totalCount - maxPagesToShow + 1
       )
     );
 
     for (
       let i = startPage;
-      i < startPage + maxPagesToShow && i <= numberOfPages;
+      i <=
+      Math.min(
+        startPage + maxPagesToShow - 1,
+        Math.ceil(totalCount / pageSize)
+      );
       i++
     ) {
       pages.push(
         <button
           key={i}
           type="button"
-          onClick={() => setPage(i)}
+          onClick={() => {
+            const newSearchParams = new URLSearchParams();
+            if (queryParam) newSearchParams.set("query", queryParam);
+            if (categoryParam) newSearchParams.set("category", categoryParam);
+            if (colorParam) newSearchParams.set("color", colorParam);
+            if (sortParam) newSearchParams.set("sort", sortParam);
+            if (priceParamString)
+              newSearchParams.set("price", priceParamString);
+            if (choiceParam) newSearchParams.set("choice", choiceParam);
+            if (brandParam) newSearchParams.set("brand", brandParam);
+            newSearchParams.set("page", i.toString());
+
+            router.push(
+              `${window.location.pathname}?${newSearchParams.toString()}`
+            );
+          }}
           className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-primaryColor border border-primaryColor hover:bg-primaryColor hover:text-white ${
             page === i
               ? "bg-primaryColor text-white"
@@ -222,10 +265,10 @@ const ProductsSection = () => {
               </p>
             </div>
           )}
-          {productsData.length > 0 && (
-            <div className="Page pagination justify-self-start h-32">
-              <ul className="inline-flex -space-x-px text-sm">
-                <li>
+          {/* {productsData.length > 0 && ( */}
+          <div className="Page pagination justify-self-start h-32">
+            <ul className="inline-flex -space-x-px text-sm">
+              {/* <li>
                   <button
                     type="button"
                     onClick={handlePrevPage}
@@ -234,9 +277,9 @@ const ProductsSection = () => {
                   >
                     Previous
                   </button>
-                </li>
-                {renderPageNumbers()}
-                <li>
+                </li> */}
+              {renderPageNumbers()}
+              {/* <li>
                   <button
                     type="button"
                     onClick={handleNextPage}
@@ -245,10 +288,10 @@ const ProductsSection = () => {
                   >
                     Next
                   </button>
-                </li>
-              </ul>
-            </div>
-          )}
+                </li> */}
+            </ul>
+          </div>
+          {/* )} */}
         </div>
       )}
     </>

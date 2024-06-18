@@ -305,15 +305,14 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           <div className="p-6 lg:max-w-max max-w-2xl max-lg:mx-auto">
             <Breadcumb />
 
-            <div className="grid items-star grid-cols-12 lg:place-content-center gap-10  max-w-max ">
+            <div className="grid items-start grid-cols-12 lg:place-content-center gap-10  max-w-max ">
               <div className=" flex lg:flex-row flex-col gap-2 items-center col-span-10 lg:col-span-7 w-full text-center">
-                <div className="relative shadow-xl overflow-hidden  border-2  flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-xl">
+                <div className="relative shadow-md overflow-hidden  border-2  flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-xl">
                   <InnerImageZoom
-                    className="w-11/12 h-fit  rounded "
+                    className=" h-fit flex items-center justify-center rounded "
                     zoomSrc={bigImage || ""}
                     src={bigImage || ""}
                     zoomType="hover"
-                    // zoomScale={2}
                   />
                   <span
                     className={
@@ -327,11 +326,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         : "DERNIER ARTICLE EN STOCK"}
                   </span>
                 </div>
-                <div className="mt-6 flex lg:flex-col  justify-center gap-3 px-2 py-2 mx-auto">
+                <div className="mt-6 flex lg:flex-col items-center justify-center gap-3 px-2 py-2 mx-auto">
                   {smallImages?.map((image: string, index: number) => (
                     <div
                       key={index}
-                      className={`${image === bigImage ? "border-secondaryColor" : ""} cursor-pointer border-2  h-fit rounded-md p-1`}
+                      className={`${image === bigImage ? "border-secondaryColor" : ""} cursor-pointer border-2  h-fit rounded-md  flex p-1`}
                     >
                       <Image
                         width={90}
@@ -366,7 +365,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     )}
                   </p>
 
-                  {discount && (
+                  {discount && countdown && (
                     <>
                       <div className="text-gray-400 tracking-wide flex items-center text-xl gap-2">
                         <p className="line-through text-gray-700 font-semibold">
@@ -410,13 +409,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
 
                 <div className="Infomation_Details ">
-                  <div className="Reference flex items-center gap-1">
+                  <div className="Reference mt-3 flex items-center gap-1">
                     <h3 className="text-base tracking-wider font-semibold capitalize  ">
-                      SKU :
+                      Reference :
                     </h3>
                     <p className="text-gray-600">{productDetails?.reference}</p>
                   </div>
-                  <div className="Quantity flex items-center mt-4  space-x-2">
+                  <div className="Quantity flex items-center mt-3  space-x-2">
                     <h3 className="text-lg tracking-wider font-semibold  capitalize text-primaryColor">
                       Quantité
                     </h3>
@@ -459,9 +458,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     <h3 className="text-lg tracking-wider font-bold capitalize  text-primaryColor mt-5">
                       Description
                     </h3>
-                    <ul className="space-y-3 tracking-widest list-disc mt-2 pl-4 text-sm text-gray-600">
-                      <li>{productDetails?.description}</li>
-                    </ul>
+
+                    <div
+                      className="product-description"
+                      dangerouslySetInnerHTML={{
+                        __html: productDetails?.description,
+                      }}
+                    />
                   </div>
                 </div>
 

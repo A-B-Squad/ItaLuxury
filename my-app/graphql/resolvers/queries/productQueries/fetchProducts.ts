@@ -5,7 +5,7 @@ const DEFAULT_TIMEZONE = 'Africa/Tunis';
 
 export const products = async (_: any, { limit }: { limit?: number }, { prisma }: Context) => {
     try {
-        let takeValue = limit ? limit : undefined;
+        let takeValue = Number(limit) ? Number(limit) : undefined;
 
         const products = await prisma.product.findMany({
             where: {

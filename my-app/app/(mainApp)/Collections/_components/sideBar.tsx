@@ -54,7 +54,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
       }
       setSelectedFilterQueries(updatedQueries);
       router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
+        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}&page=1`,
         { scroll: true }
       );
     },
@@ -115,7 +115,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
 
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
-    router.push("/Collections/tunisie", { scroll: true });
+    router.replace("/Collections/tunisie?page=1", { scroll: true });
     toggleOpenSidebar();
     toast({
       title: "Filtres réinitialisés",

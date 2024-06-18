@@ -7,7 +7,7 @@ import { IoImageOutline } from "react-icons/io5";
 
 const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
   console.log(image);
-  
+
   return (
     <div className="side_ads relative hidden   hover:opacity-85 transition-opacity md:flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
       {adsLoaded && (
@@ -17,26 +17,22 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
       )}
 
       {!image && !adsLoaded && (
-        <div className="relative flex items-center flex-col justify-center h-[390px] w-[235px]   rounded-lg bg-secondaryColor">
+        <div className="relative flex items-center flex-col justify-center h-[390px] w-[240px]   rounded-lg bg-secondaryColor">
           <p>{adsPositon}</p>
-          <p> 230px x 390px </p>
+          <p> 240px x 390px </p>
         </div>
       )}
 
       {image && (
         <Link
-          className="relative flex items-center border-2  flex-col justify-center h-[374px] w-[320px] min-w-[290px] min-h-[374px] rounded-lg "
+          className="relative group flex items-center border-2  flex-col justify-center w-[240px] h-[390px]  min-w-[240px] min-h-[390px] rounded-lg "
           href={link}
         >
-          <Image
-            src={image}
-            width={300}
-            height={300}
-            layout="fill"
-            alt="MaisonNg"
-            objectFit="contain"
-            objectPosition={0}
-          />
+          <span
+            className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[100px] shadow-xl   group-hover:block z-50 absolute  left-0 w-[2000px] h-6 transition-all duration-500"
+            style={{ animation: "slide-diagonal 1.2s forwards" }}
+          ></span>
+          <Image src={image} layout="fill" alt="MaisonNg" objectFit="cover" />
         </Link>
       )}
     </div>

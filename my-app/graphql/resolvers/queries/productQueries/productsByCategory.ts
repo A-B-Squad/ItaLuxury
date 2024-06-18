@@ -17,7 +17,7 @@ export const productsByCategory = async (
     }
 
     // Ensure takeValue is either undefined or a positive integer
-    const takeValue = limit && limit > 0 ? limit : undefined;
+    const takeValue = Number(limit) && Number(limit) > 0 ? limit : undefined;
 
     const products = await prisma.product.findMany({
       where: whereCondition,

@@ -61,7 +61,7 @@ const ProductDetailsPage = async ({ searchParams }: any) => {
   }
   const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
-    cache:"reload",
+    cache:"no-cache",
     headers: {
       "Content-Type": "application/json",
     },

@@ -19,6 +19,8 @@ import TopDeals from "./@TopDeals/TopDeals";
 const ClientServices = dynamic(() => import("./_components/ClientServices"));
 
 import { useQuery } from "@apollo/client";
+import MainCategoriesSlide from './@mainCategoriesSlide/mainCategoriesSlide';
+import LeftAdsCarousel from '../../components/adverstissment/LeftAdsCarousel';
 import {
   ADVERTISSMENT_QUERY,
   CONTENT_VISIBILITY,
@@ -109,7 +111,7 @@ const Home = () => {
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8">
       <div className="container">
         <section className="flex justify-center lg:flex-row flex-col gap-4 items-center">
-          <RightAdsCarousel
+          <LeftAdsCarousel
             loadingRightAdsCarousel={loadingAdsNextToCarousel}
             AdsNextToCarousel={AdsNextToCarousel?.advertismentByPosition}
           />
@@ -119,6 +121,7 @@ const Home = () => {
           />
         </section>
         <Services />
+        <MainCategoriesSlide/>
         <ProductInfo />
         <div className="nouveaux-product-parent-tabs flex flex-col">
           <TitleProduct title={"Nouveaux Produits"} />

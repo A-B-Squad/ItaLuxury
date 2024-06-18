@@ -365,9 +365,12 @@ export const ProductBox = ({ product }: any) => {
                   />
                 )}
               </div>
-              <p className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-3">
-                {product?.description}
-              </p>
+              <p
+                className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-2"
+                dangerouslySetInnerHTML={{
+                  __html: product?.description,
+                }}
+              />
             </div>
           </div>
         )}

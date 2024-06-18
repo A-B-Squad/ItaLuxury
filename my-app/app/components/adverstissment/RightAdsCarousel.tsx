@@ -10,7 +10,6 @@ const RightAdsCarousel = ({
   loadingRightAdsCarousel,
 }: any) => {
   const [images, setImages] = useState([]);
-  console.log(AdsNextToCarousel,"d,lkd,klsq,kl,");
   
 
   useEffect(() => {

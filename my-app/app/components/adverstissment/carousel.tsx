@@ -28,11 +28,12 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
       {images.length > 0 && (
         <Carousel
           autoplay
-          className="rounded-xl relative lg:min-w-4/5 w-full h-60 md:h-72 lg:min-h-[400px]  "
+          className="rounded-xl relative lg:min-w-4/5 group w-full h-60 md:h-72 lg:min-h-[400px]  "
           placeholder={""}
           onPointerEnterCapture={undefined}
           onPointerLeaveCapture={undefined}
         >
+     
           {images.map((image, index) => (
             <Link key={index} rel="preload" href={centerCarouselAds[0]?.link}>
               <Image
@@ -42,7 +43,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
                 loading="eager"
                 property="true"
                 alt={`image ${index + 1}`}
-                className=" hover:opacity-70 transition-all relative h-full w-full "
+                className="  transition-all relative h-full w-full "
               />
             </Link>
           ))}

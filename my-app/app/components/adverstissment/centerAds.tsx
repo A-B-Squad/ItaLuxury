@@ -25,9 +25,9 @@ const CenterAds = () => {
         className={` bg-white shadow-2xl flex items-center justify-center text-center w-[350px] h-[250px] md:w-[700px] md:h-[450px] fixed rounded-md  z-[110]  top-2/4 left-2/4 -translate-y-2/4  -translate-x-2/4 transition-all`}
       >
         <IoIosClose
-          size={30}
+          size={50}
           color="black"
-          className="right-0 rounded-full w-8 h-8 absolute top-0 cursor-pointer"
+          className="right-0 rounded-full w-8 h-8 z-50 absolute top-0 cursor-pointer"
           onClick={() => setShowAds(false)}
         />
         {centerAds?.advertismentByPosition.length === 0 ? (

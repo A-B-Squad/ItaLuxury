@@ -1,6 +1,5 @@
-import { createCompanyInfo } from "./createCompanyInfo";
-import { updateCompanyInfo } from "./updateCompanyInfo";
+import { createOrUpdateCompanyInfo } from "./createOrUpdateCompanyInfo";
+
 export const companyMutations = {
-    createCompanyInfo, 
-    updateCompanyInfo
+    createOrUpdateCompanyInfo
 }

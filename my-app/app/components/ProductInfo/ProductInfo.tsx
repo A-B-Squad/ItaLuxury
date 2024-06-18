@@ -125,7 +125,7 @@ const ProductInfo = () => {
     <>
       <div
         onClick={closeProductDetails}
-        className={`fixed cursor-none z-50  ${isOpen ? "translate-y-0 opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`fixed cursor-none z-[14514]  ${isOpen ? "translate-y-0 opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
       >
         <IoCloseOutline
           size={40}
@@ -135,7 +135,7 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed  z-50  ${isOpen ? "-translate-y-2/4 opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
+        className={`fixed overflow-y-scroll overflow-x-hidden h-[550px] z-[11111600]  ${isOpen ? "-translate-y-[45%] opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
       >
         <IoCloseOutline
           size={40}
@@ -195,7 +195,7 @@ const ProductInfo = () => {
                 )}
               </p>
               {productData?.productDiscounts[0] && (
-                <div className="text-gray-400 tracking-wide flex flex-col md:flex-row w-fit md:items-center text-lg gap-2">
+                <div className="text-gray-400  tracking-wide flex flex-col md:flex-row w-fit md:items-center text-lg gap-2">
                   <p className="line-through text-gray-700 font-semibold tracking-wider">
                     {productData?.productDiscounts[0].price.toFixed(3)} TND
                   </p>
@@ -222,7 +222,7 @@ const ProductInfo = () => {
                 <h3 className="text-lg tracking-wider font-bold  capitalize text-primaryColor">
                   Quantité
                 </h3>
-                <div className="flex divide-x border w-max overflow-hidden rounded-md">
+                <div className="flex divide-x border w-max overflow-y-scrollounded-md">
                   <button
                     type="button"
                     className="bg-lightBeige hover:bg-secondaryColor transition-all  px-3 py-1 font-semibold cursor-pointer"
@@ -245,11 +245,11 @@ const ProductInfo = () => {
                   </button>
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-3 ">
                 <h3 className="text-lg tracking-wider font-bold capitalize text-primaryColor">
                   Description
                 </h3>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm overflow-y-scroll h-32 text-gray-600 mt-2">
                   {productData?.description}
                 </p>
               </div>
