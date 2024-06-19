@@ -258,7 +258,7 @@ const ProductsSection = () => {
             )
           )}
           {productsData.length === 0 && (
-            <div className="border shadow-md p-3  py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
+            <div className="border shadow-md p-3  mb-14 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
               <p className="  font-light  tracking-wider">
                 Désolé, mais de nombreux produits ne sont actuellement
                 disponibles.

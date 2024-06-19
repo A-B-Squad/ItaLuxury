@@ -191,9 +191,9 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                                     ?.name,
                                   product?.categories[0]?.subcategories[0]?.id,
                                   product?.categories[0]?.subcategories[0]
-                                    ?.subcategories[1]?.name,
+                                    ?.subcategories[0]?.name,
                                   product?.categories[0]?.subcategories[0]
-                                    ?.subcategories[1]?.id,
+                                    ?.subcategories[0]?.id,
                                   product?.name,
                                 ],
                               },

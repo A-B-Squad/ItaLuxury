@@ -221,6 +221,7 @@ const BasketDrawer = () => {
                               query: {
                                 productId: product?.id,
                                 collection: [product?.name],
+                                
                               },
                             }}
                           >

@@ -5,6 +5,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
+
 import {
   Table,
   TableBody,
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import {
   DECREASE_QUANTITY_MUTATION,
   DELETE_BASKET_BY_ID_MUTATION,
@@ -205,11 +205,9 @@ const Basket = () => {
                                 product?.categories[0]?.name,
                                 product?.categories[0]?.id,
                                 product?.categories[0]?.subcategories[0]?.name,
-                                product?.categories[1]?.subcategories[0]?.id,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[1]?.name,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[1]?.id,
+                                product?.categories[0]?.subcategories[0]?.id,
+                                product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                                 product?.name,
                               ],
                             },

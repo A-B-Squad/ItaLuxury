@@ -20,7 +20,6 @@ export const createProduct = async (
       colorsId,
       discount, brandId
     } = input;
-console.log(input);
 
     // Creating a new product using prisma
     const productCreate = await prisma.product.create({
@@ -65,7 +64,7 @@ console.log(input);
       }
     }
 
-    return productCreate;
+    return "product Created";
   } catch (error: any) {
     // Handle errors gracefully
     console.error("Error creating product:", error);

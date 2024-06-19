@@ -59,6 +59,7 @@ export default async function Layout({ children }: Props) {
   }).then((res) => res.json());
   const { data: Brands } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
+    cache:"reload",
     headers: {
       "Content-Type": "application/json",
     },

@@ -116,7 +116,17 @@ const ProductComparison = () => {
                           pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                           query: {
                             productId: product?.id,
-                            collection: [product?.name],
+                            collection: [
+                              product?.categories[0]?.name,
+                              product?.categories[0]?.id,
+                              product?.categories[0]?.subcategories[0]?.name,
+                              product?.categories[0]?.subcategories[0]?.id,
+                              product?.categories[0]?.subcategories[0]
+                                ?.subcategories[0]?.name,
+                              product?.categories[0]?.subcategories[0]
+                                ?.subcategories[0]?.id,
+                              product?.name,
+                            ],
                           },
                         }}
                       >
@@ -133,7 +143,17 @@ const ProductComparison = () => {
                             pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                             query: {
                               productId: product?.id,
-                              collection: [product?.name],
+                              collection: [
+                                product?.categories[0]?.name,
+                                product?.categories[0]?.id,
+                                product?.categories[0]?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]?.id,
+                                product?.categories[0]?.subcategories[0]
+                                  ?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]
+                                  ?.subcategories[0]?.id,
+                                product?.name,
+                              ],
                             },
                           }}
                         >

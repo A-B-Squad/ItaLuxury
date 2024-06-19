@@ -412,8 +412,8 @@ type Mutation {
   refreshToken(Token: String!): String!
   
   # Product mutations
-  createProduct(input: ProductInput!): Product!
-  updateProduct(productId: ID!, input: ProductInput!): Product!
+  createProduct(input: ProductInput!): String!
+  updateProduct(productId: ID!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
   addRating(productId:ID!,userId:ID!,rating:Int!):String!
 

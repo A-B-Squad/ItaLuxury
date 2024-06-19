@@ -135,8 +135,13 @@ const TopDeals = () => {
                     collection: [
                       products?.product?.categories[0]?.name,
                       products?.product?.categories[0]?.id,
+                      products?.product?.categories[0]?.subcategories[0]?.name,
+                      products?.product?.categories[0]?.subcategories[0]?.id,
+                      products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                      products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                       products?.product?.name,
                     ],
+              
                   },
                 }}
                 className="h-56 lg:h-full  w-full"
@@ -228,6 +233,10 @@ const TopDeals = () => {
                       collection: [
                         products?.product?.categories[0]?.name,
                         products?.product?.categories[0]?.id,
+                        products?.product?.categories[0]?.subcategories[0]?.name,
+                        products?.product?.categories[0]?.subcategories[0]?.id,
+                        products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                        products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                         products?.product?.name,
                       ],
                     },

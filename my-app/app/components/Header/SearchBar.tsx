@@ -55,7 +55,7 @@ const SearchBar = () => {
 
   return (
     <div
-      className="search z-30 flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full mb-5 md:my-0   pl-4"
+      className="search z-[404] flex items-center border border-gray-300 px-4 w-full relative max-w-md h-11 rounded-full mb-5 md:my-0   pl-4"
       onClick={() => setSearching(true)}
       onMouseLeave={() => setSearching(false)}
     >
@@ -68,7 +68,7 @@ const SearchBar = () => {
         onChange={handleSearchChange}
       />
       <span
-        className="flex items-center right-0 absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-secondaryColor transition-all bg-primaryColor"
+        className="flex items-center right-0  absolute justify-center cursor-pointer h-full w-14 rounded-full hover:bg-secondaryColor transition-all bg-primaryColor"
         onClick={() => {
           router.push(`/Collections?query=${searchQuery}`, { scroll: true });
         }}
@@ -76,7 +76,7 @@ const SearchBar = () => {
         <CiSearch className="size-7 text-white" />
       </span>
       {data && searching && (
-        <div className="bg-white border w-full left-0 absolute top-11 z-50 overflow-y-scroll max-h-80 py-2 pl-4">
+        <div className="bg-gray-50 border-2 w-full left-0 absolute top-11  overflow-y-scroll max-h-80 py-2 pl-4">
           {categories && (
             <ul className="border-b-black mb-5">
               <h3 className="font-bold tracking-wider ">
@@ -100,12 +100,12 @@ const SearchBar = () => {
             </ul>
           )}
 
-          <ul className="border-b-black  mb-5">
+          <ul className="border-b-black flex items-start w-full flex-col justify-center mb-5">
             <h3 className="font-bold tracking-wider">
               Produits ({data.searchProducts.results.products.length})
             </h3>
             {data.searchProducts.results.products.map((result: Product) => (
-              <div className="py-2">
+              <div className="py-2 bg-white w-full">
                 <Link
                   key={result.id}
                   href={{
@@ -118,9 +118,9 @@ const SearchBar = () => {
                         result?.categories[0]?.subcategories[0]?.name,
                         result?.categories[0]?.subcategories[0]?.id,
                         result?.categories[0]?.subcategories[0]
-                          ?.subcategories[1]?.name,
+                          ?.subcategories[0]?.name,
                         result?.categories[0]?.subcategories[0]
-                          ?.subcategories[1]?.id,
+                          ?.subcategories[0]?.id,
                         result?.name,
                       ],
                     },
@@ -143,17 +143,24 @@ const SearchBar = () => {
                     <p className="w-full text-base font-medium">
                       {result.name}
                     </p>
-                    <div className="flex gap-3">
-                      <span
-                        className={`${result.productDiscounts.length > 0 ? "text-primaryColor" : ""} font-bold text-base`}
-                      >
-                        {result.productDiscounts.length > 0
-                          ? `À partir de : ${result.productDiscounts[0].newPrice.toFixed(3)}`
-                          : result.price.toFixed(3)}
-                        TND
-                      </span>
+                    <div className="flex flex-col md:flex-row items-start md:items-center md:gap-3">
+                      <p className={`  flex items-center `}>
+                        {result.productDiscounts.length > 0 ? (
+                          <span className="text-xs text-gray-400 font-medium">
+                            À partir de :
+                            <span className="text-primaryColor text-sm md:text-base font-bold">
+                              {result.productDiscounts[0].newPrice.toFixed(3)}{" "}
+                              TND
+                            </span>
+                          </span>
+                        ) : (
+                          <p className="font-bold tracking-wide text-lg text-primaryColor">
+                            {result.price.toFixed(3) + " TND"}
+                          </p>
+                        )}
+                      </p>
                       {result.productDiscounts.length > 0 && (
-                        <span className="font-bold line-through text-gray-700">
+                        <span className="font-bold line-through text-sm md:text-base text-gray-700">
                           {result.price.toFixed(3)} TND
                         </span>
                       )}
