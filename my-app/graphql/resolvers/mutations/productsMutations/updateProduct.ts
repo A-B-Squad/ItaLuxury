@@ -24,10 +24,11 @@ const updateAttributes = async (
 
   const attributesToCreate: AttributeInput[] = [];
   const attributesToUpdate: { id: string; data: { value: string } }[] = [];
+  const attributesToDelete: string[] = [];
 
   attributeInputs?.forEach((attribute) => {
     const existingAttribute = existingAttributes.find(
-      (attr) => attr.name === attribute.name
+      (attr) => attr.name.trim() === attribute.name.trim()
     );
     if (existingAttribute) {
       attributesToUpdate.push({
@@ -39,6 +40,16 @@ const updateAttributes = async (
         name: attribute.name,
         value: attribute.value,
       });
+    }
+  });
+
+  // Identify attributes to delete
+  existingAttributes.forEach((existingAttribute) => {
+    const isStillPresent = attributeInputs.find(
+      (attr) => attr.name.trim() === existingAttribute.name.trim()
+    );
+    if (!isStillPresent) {
+      attributesToDelete.push(existingAttribute.id);
     }
   });
 
@@ -61,7 +72,15 @@ const updateAttributes = async (
       },
     });
   }
+
+  // Delete attributes that no longer exist in attributeInputs
+  for (const id of attributesToDelete) {
+    await prisma.productAttribute.delete({
+      where: { id },
+    });
+  }
 };
+
 
 const updateDiscounts = async (
   prisma: PrismaClient,

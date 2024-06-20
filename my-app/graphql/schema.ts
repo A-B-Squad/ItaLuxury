@@ -44,6 +44,8 @@ type AuthPayload {
 # Define the Category type
 type Category {
   id: ID!
+  smallImage:String
+  bigImage:String
   name: String!
   parentId: ID
   parent: Category

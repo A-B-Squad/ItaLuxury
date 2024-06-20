@@ -140,7 +140,7 @@ const ProductInfo = () => {
         <IoCloseOutline
           size={40}
           onClick={closeProductDetails}
-          className="absolute bg-white rounded-full p-2 hover:rotate-180 transition-all cursor-pointer -right-2 -top-3"
+          className="absolute bg-white rounded-full p-2  hover:rotate-180 transition-all cursor-pointer -right-0 -top-0"
         />
         <div className="details    flex flex-col justify-center items-center   lg:flex-row   ">
           <div className="flex  relative lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
