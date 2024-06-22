@@ -89,7 +89,7 @@ const ProductsSection = () => {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
-  
+
   useEffect(() => {
     const newSearchParams = new URLSearchParams();
     if (queryParam) newSearchParams.set("query", queryParam);
@@ -102,8 +102,17 @@ const ProductsSection = () => {
     newSearchParams.set("page", page.toString());
 
     router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
-  }, [page, router, queryParam, categoryParam, colorParam, sortParam, priceParamString, choiceParam, brandParam]);
-
+  }, [
+    page,
+    router,
+    queryParam,
+    categoryParam,
+    colorParam,
+    sortParam,
+    priceParamString,
+    choiceParam,
+    brandParam,
+  ]);
 
   useEffect(() => {
     // Update page state when URL changes
@@ -196,7 +205,7 @@ const ProductsSection = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-between items-center  h-full bg-white ">
+        <div className="flex flex-col justify-between items-center  h-full  ">
           {!!queryParam && (
             <h1 className="text-xl font-bold text-primaryColor mt-10 mb-10">
               {productsData.length} résultats trouvé pour "{queryParam}"
@@ -218,7 +227,7 @@ const ProductsSection = () => {
                 {productsData.map((product: Product) => (
                   <div
                     key={product.id}
-                    className={`
+                    className={` bg-white
               
               ${
                 view === 3 || view == 2

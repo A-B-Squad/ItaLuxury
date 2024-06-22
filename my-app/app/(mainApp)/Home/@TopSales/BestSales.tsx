@@ -118,7 +118,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
     TopSellsSectionVisibility && (
       <div className="flex flex-col w-full items-center md:flex-row gap-3">
         {categories.map((category: string, index: number) => (
-          <table key={index} className="text-sm text-gray-500 w-full">
+          <table key={index} className="text-sm text-gray-500 bg-white w-full">
             <thead>
               <tr>
                 <th

@@ -46,6 +46,7 @@ type Category {
   id: ID!
   smallImage:String
   bigImage:String
+  description:String
   name: String!
   parentId: ID
   parent: Category
@@ -447,9 +448,9 @@ type Mutation {
   cancalPackageProduct(input:CancelProductPackageInput! ): String!
   payedPackage(packageId:ID!):String!
   # Category mutations
-  createCategory(input: CreateCategoryInput!): Category
+  createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-  deleteCategory(id: ID!): Category!
+  deleteCategory(id: ID!): String!
 
   # Mutation to add product to favorites
   addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
@@ -518,11 +519,14 @@ input CreateCategoryInput {
   parentId: ID
   bigImage:String
 smallImage:String
+description:String
+
 }
 
 # Define the UpdateCategoryInput input type
 input UpdateCategoryInput {
   name: String
+  description: String
 }
 
 # Define the BackOrExchange input type

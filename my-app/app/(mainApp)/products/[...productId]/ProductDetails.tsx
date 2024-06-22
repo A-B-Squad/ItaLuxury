@@ -297,17 +297,18 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   };
 
   return (
-    <>
-      {!productDetails ? (
-        <Loading />
-      ) : (
-        <div className=" block md:flex items-center flex-col  ">
-          <div className="p-6 lg:max-w-max max-w-2xl max-lg:mx-auto">
+    <div className="productDetails">
+      <div className="container relative  ">
+        {!productDetails ? (
+          <Loading />
+        ) : (
+          <div className="   p-6  ">
             <Breadcumb />
 
-            <div className="grid items-start grid-cols-12 lg:place-content-center gap-10  max-w-max ">
-              <div className=" flex lg:flex-row flex-col gap-2 items-center col-span-10 lg:col-span-7 w-full text-center">
-                <div className="relative shadow-md overflow-hidden  border-2  flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-xl">
+            <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-center gap-10 bg-white p-4 border rounded-sm  ">
+           
+              <div className=" flex lg:flex-row flex-col  items-center col-span-9 lg:col-span-6 w-full text-center">
+                <div className="relative shadow-sm overflow-hidden  border  flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
                   <InnerImageZoom
                     className=" h-fit flex items-center justify-center rounded "
                     zoomSrc={bigImage || ""}
@@ -326,7 +327,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         : "DERNIER ARTICLE EN STOCK"}
                   </span>
                 </div>
-                <div className="mt-6 flex lg:flex-col items-center justify-center gap-3 px-2 py-2 mx-auto">
+                <div className="mt-6 flex lg:flex-col items-center justify-center gap-3 px-2 py-2 ">
                   {smallImages?.map((image: string, index: number) => (
                     <div
                       key={index}
@@ -347,7 +348,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
               </div>
 
-              <div className="product lg:col-span-4 col-span-10 ">
+              <div className="product lg:col-span-5 col-span-10 ">
                 <h2 className="product_name tracking-wider text-2xl w-fit font-semibold ">
                   {productDetails?.name}
                 </h2>
@@ -544,7 +545,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </div>
                 </div>
 
-                <div className="Rating_stars flex col-span-7 space-x-2 mt-4 items-center">
+                <div className="Rating_stars flex col-span-10 space-x-2 mt-4 items-center">
                   {[...Array(5)].map((_, index) => {
                     const currentIndex = index + 1;
                     return (
@@ -597,7 +598,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </h4>
                 </div>
 
-                <div className="Rating mt-8">
+                <div className="Rating mt-8 w-full">
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-primaryColor">
                       Note globale ({reviews})
@@ -636,50 +637,50 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
               </div>
             </div>
+            {attributes && (
+              <div className=" my-10 mx-5 lg:mx-auto w-11/12 m-auto bg-white  shadow-md ">
+                <h3 className="text-lg font-bold  text-white w-fit p-3 bg-primaryColor">
+                  Information de produit
+                </h3>
+                <ul className="mt-6 space-y-6 text-[#333] p-6">
+                  {attributes?.map((attribute: any, index: number) => (
+                    <li key={index} className="text-sm pb-2 border-b">
+                      {attribute.name.toUpperCase()}{" "}
+                      <span className="ml-4 float-right">
+                        {attribute.value.toUpperCase()}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-          {attributes && (
-            <div className=" my-10 mx-5 lg:mx-auto w-11/12 m-auto  shadow-2xl ">
-              <h3 className="text-lg font-bold  text-white w-fit p-3 bg-primaryColor">
-                Information de produit
-              </h3>
-              <ul className="mt-6 space-y-6 text-[#333] p-6">
-                {attributes?.map((attribute: any, index: number) => (
-                  <li key={index} className="text-sm pb-2 border-b">
-                    {attribute.name.toUpperCase()}{" "}
-                    <span className="ml-4 float-right">
-                      {attribute.value.toUpperCase()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+        )}
+        <div className="Carousel voir aussi px-10 mb-[15%] ">
+          <TitleProduct title={"Produits apparentés"} />
+          <div>
+            <ProductTabs
+              data={Products_10_by_category?.productsByCategory}
+              loadingNewProduct={loadingNewProduct}
+              carouselWidthClass={
+                Products_10_by_category?.productsByCategory?.length < 5
+                  ? " basis-full   md:basis-1/2  "
+                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
+              }
+            />
+          </div>
         </div>
-      )}
-      <div className="Carousel voir aussi px-10 mb-[15%] ">
-        <TitleProduct title={"Produits apparentés"} />
-        <div>
-          <ProductTabs
-            data={Products_10_by_category?.productsByCategory}
-            loadingNewProduct={loadingNewProduct}
-            carouselWidthClass={
-              Products_10_by_category?.productsByCategory?.length < 5
-                ? " basis-full   md:basis-1/2  "
-                : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
-            }
-          />
-        </div>
+        <ProductDetailsDrawer
+          isBottom={isBottom}
+          productId={productId}
+          productDetails={productDetails}
+          addToBasket={addToBasket}
+          discount={discount}
+          actualQuantity={actualQuantity}
+          setActualQuantity={setActualQuantity}
+        />
       </div>
-      <ProductDetailsDrawer
-        isBottom={isBottom}
-        productId={productId}
-        productDetails={productDetails}
-        addToBasket={addToBasket}
-        discount={discount}
-        actualQuantity={actualQuantity}
-        setActualQuantity={setActualQuantity}
-      />
-    </>
+    </div>
   );
 };
 

@@ -58,7 +58,6 @@ const Home = () => {
     useQuery(ADVERTISSMENT_QUERY, {
       variables: { position: "NextToCarouselAds" },
     });
-    console.log(AdsCarousel);
     
 
   const { data: BannerLessThen20, loading: loadingFull20ProductAds } = useQuery(

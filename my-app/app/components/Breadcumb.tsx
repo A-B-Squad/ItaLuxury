@@ -10,7 +10,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
   const position = params?.getAll("collection") ?? [];
 
   return (
-    <div className="flex gap-2 self-start md:bg-white bg-gray-50 shadow-sm py-5 md:py-2 justify-self-start pl-12 flex-wrap items-center text-xs md:text-sm w-full  lg:w-max tracking-wider my-5 lg:ml-5">
+    <div className="flex gap-2 self-start md:bg-white  py-5 md:py-2 justify-self-start pl-12 flex-wrap items-center text-xs md:text-sm w-full  lg:w-max tracking-wider my-5 lg:ml-5">
       <div className="hover:text-primaryColor transition-all  flex items-center gap-1">
         <IoHome />
         <Link rel="preload" href={"/"}>

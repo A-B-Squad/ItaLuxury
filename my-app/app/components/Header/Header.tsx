@@ -38,7 +38,7 @@ const Header = () => {
       <Contact CompanyInfoData={CompanyInfoData} />
 
       <div
-        className={`header relative  flex justify-center shadow-lg  px-10 md:px-14 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-[100]" : "relative"}`}
+        className={`header  relative  flex justify-center shadow-md bg-white  px-10 md:px-14 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-[100]" : "relative"}`}
       >
         <div className="container relative">
           <nav className=" flex flex-col relative w-full items-center justify-center">

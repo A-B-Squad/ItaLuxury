@@ -150,6 +150,9 @@
     transform: scale(1.2, 1);
   }
 }
+body{
+  background-color: #fafafa;
+}
 
 .adminLoader {
   position: relative;

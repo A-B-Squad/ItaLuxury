@@ -9,6 +9,14 @@ const config: Config = {
 
   ],
   theme: {
+
+    container: {
+      center:true,
+      screens: {
+        sm: '1700px',
+      
+      },
+    },
     extend: {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

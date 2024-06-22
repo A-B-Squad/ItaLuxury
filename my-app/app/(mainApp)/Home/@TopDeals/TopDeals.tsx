@@ -124,7 +124,7 @@ const TopDeals = () => {
           return (
             <div
               key={products?.product?.id}
-              className="grid lg:grid-cols-3 border group grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
+              className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
             >
               <Link
                 rel="preload"

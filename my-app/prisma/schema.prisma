@@ -50,6 +50,7 @@ model Category {
   subcategories Category[]  @relation("Subcategories") // One-to-Many self-relation
   bigImage      String?
   smallImage    String?
+  description    String?
   BestSales     BestSales[]
 }
 

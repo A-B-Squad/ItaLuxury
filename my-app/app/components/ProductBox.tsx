@@ -120,7 +120,6 @@ export const ProductBox = ({ product }: any) => {
       });
     }
   };
-console.log(product?.categories);
 
   return (
     <>
@@ -175,7 +174,7 @@ console.log(product?.categories);
         </div>
       </ul>
       <div
-        className={`${view === 1 && "absolute top-0"}  flex justify-between w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4 `}
+        className={`${view === 1 && "absolute top-0"}  flex justify-between w-full px-3  z-20 uppercase text-white text-[11px] translate-y-4 `}
       >
         {calcDateForNewProduct(product?.createdAt) &&
           product?.inventory !== 0 && (
@@ -192,6 +191,7 @@ console.log(product?.categories);
           </span>
         )}
       </div>
+      
       <Link
         className="relative flex w-40 h-52 md:w-56 overflow-hidden"
         rel="preload"
@@ -208,7 +208,6 @@ console.log(product?.categories);
               product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
               product?.name,
             ],
-        
           },
         }}
       >
@@ -263,11 +262,11 @@ console.log(product?.categories);
                 product?.categories[0]?.id,
                 product?.categories[0]?.subcategories[0]?.name,
                 product?.categories[0]?.subcategories[0]?.id,
-                product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                product?.categories[0]?.subcategories[0]?.subcategories[0]
+                  ?.name,
                 product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                 product?.name,
               ],
-          
             },
           }}
         >

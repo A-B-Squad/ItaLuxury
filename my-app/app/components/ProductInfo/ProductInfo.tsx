@@ -125,7 +125,7 @@ const ProductInfo = () => {
     <>
       <div
         onClick={closeProductDetails}
-        className={`fixed cursor-none z-[14514]  ${isOpen ? "translate-y-0 opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`fixed cursor-none z-[14514]   ${isOpen ? "translate-y-0 opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
       >
         <IoCloseOutline
           size={40}
@@ -135,7 +135,7 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed overflow-y-scroll overflow-x-hidden h-[550px] z-[11111600]  ${isOpen ? "-translate-y-[45%] opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white w-4/5 shadow-xl p-8 place-content-center rounded-md  `}
+        className={`fixed overflow-y-auto overflow-x-hidden h-4/5 z-[11111600] border  ${isOpen ? "-translate-y-[45%] opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white md:w-4/5 w-11/12 shadow-xl p-8 place-content-center rounded-md  `}
       >
         <IoCloseOutline
           size={40}
@@ -144,7 +144,7 @@ const ProductInfo = () => {
         />
         <div className="details    flex flex-col justify-center items-center   lg:flex-row   ">
           <div className="flex  relative lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
-            <div className="shadow-xl relative  border-2 max-w-40 h-fit md:max-w-xs flex items-center justify-center p-1 rounded-xl">
+            <div className="shadow-xl relative  border-2  h-fit md:max-w-md flex items-center justify-center p-1 rounded-xl">
               <InnerImageZoom
                 className="relative  rounded object-cover"
                 zoomSrc={bigImage || ""}
@@ -178,7 +178,7 @@ const ProductInfo = () => {
             </div>
           </div>
 
-          <div className="productData lg:w-2/4 ">
+          <div className="productData lg:w-2/4 w-full ">
             <h2 className="product_name tracking-wider text-2xl font-semibold ">
               {productData?.name}
             </h2>
@@ -249,7 +249,7 @@ const ProductInfo = () => {
                 <h3 className="text-lg tracking-wider font-bold capitalize text-primaryColor">
                   Description
                 </h3>
-                <p className="text-sm overflow-y-scroll h-32 text-gray-600 mt-2">
+                <p className="text-sm  overflow-y-auto h-32 text-gray-600 mt-2">
                   {productData?.description}
                 </p>
               </div>

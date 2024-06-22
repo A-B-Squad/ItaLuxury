@@ -4,7 +4,7 @@ import { MdOutlineSupportAgent } from "react-icons/md";
 
 const Services = () => {
   return (
-    <section className="mt-10 border p-5 hidden lg:block">
+    <section className="mt-10 border p-5 hidden lg:block bg-white">
       <ul className="flex justify-center gap-20">
         <li className="flex justify-center items-center gap-3 pr-4 border-r-2">
           <CiDeliveryTruck className="text-primaryColor text-[4rem]" />
