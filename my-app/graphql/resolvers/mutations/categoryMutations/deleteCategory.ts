@@ -21,14 +21,14 @@ export const deleteCategory = async (
 ) => {
   try {
     // Recursively delete subcategories
-    await deleteSubcategories(prisma, id);
+    // await deleteSubcategories(prisma, id);
 
     // Delete the category
-    const deletedCategory = await prisma.category.delete({
+    await prisma.category.delete({
       where: { id }
     });
 
-    return deletedCategory;
+    return "deleted Category";
   } catch (error) {
     console.error("Error deleting category:", error);
     return new Error("Failed to delete category");

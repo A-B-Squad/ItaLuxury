@@ -1,4 +1,5 @@
 import SideAds from "@/app/components/adverstissment/sideAds";
+import Breadcumb from "@/app/components/Breadcumb";
 import keywords from "@/public/keywords";
 import { Metadata } from "next";
 import React from "react";
@@ -21,20 +22,22 @@ const DeliveryPage = async () => {
       },
       body: JSON.stringify({
         query: `
-      query Query($position: String!) {
-        advertismentByPosition(position: $position) {
-          images
-          link
-        }
-      }
+       query Query($position: String!) {
+    advertismentByPosition(position: $position) {
+      images
+      link
+    }
+  }
   `,
         variables: { position: "clinetContactSideAds" },
       }),
     }).then((res) => res.json());
-    
+
   return (
-    <div className="flex  items-center  justify-center  h-max mb-16 py-10 px-2 relative ">
+    <div className="flex flex-col  items-center  justify-center  h-max mb-16 py-10 px-2 relative ">
+    <Breadcumb pageName={"Expéditions et retours"} pageLink={"Delivery"}/>
       <div className="container flex gap-8 relative h-full">
+
         <div className="leftAds h-fit  sticky top-24">
           <SideAds
             adsLoaded={loadingclinetContactSideAds}
@@ -44,7 +47,9 @@ const DeliveryPage = async () => {
           />
         </div>
         <div className="h-full">
-          <h1 className="font-bold text-3xl md:text-5xl w-full py-3">Expéditions et retours</h1>
+          <h1 className="font-bold text-3xl md:text-5xl w-full py-3">
+            Expéditions et retours
+          </h1>
           <h3 className="font-semibold text-xl md:text-4xl py-3">
             Expédition de votre colis
           </h3>

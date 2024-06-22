@@ -33,8 +33,6 @@ type User {
   baskets: [Basket]!
   reviews: [Review]!
   favoriteProducts: [FavoriteProducts]!
- 
-
 }
 
 # Define the AuthPayload type
@@ -46,11 +44,24 @@ type AuthPayload {
 # Define the Category type
 type Category {
   id: ID!
+  smallImage:String
+  bigImage:String
+  description:String
   name: String!
   parentId: ID
   parent: Category
   products: [Product!]!
   subcategories: [Category!]!
+
+}
+type MainCategory {
+  id: ID!
+  name: String!
+  parentId: ID
+  bigImage:String
+  smallImage:String
+  subcategories: [Category!]!
+
 }
 
 # Define the Product type
@@ -325,6 +336,8 @@ fetchAllCoupons:[Coupons!]
 
   # Fetch all categories
   categories: [Category!]!
+  # Fetch all main categories
+  fetchMainCategories: [MainCategory!]!
 
   # Fetch subcategories by parent category ID
   subcategoriesByParentId(parentId: ID!): [Category!]
@@ -338,6 +351,8 @@ fetchAllCoupons:[Coupons!]
   # Fetch product discount information by product ID
   productDiscount(productId: ID!): ProductDiscount!
 
+  # Fetch all  discounts percentage
+  DiscountsPercentage:[Discount!]
   # Fetch all product discounts
   productsDiscounts(limit:Int): [Product!]
 
@@ -379,7 +394,13 @@ fetchAllCoupons:[Coupons!]
 
 # Define the Mutation type
 type Mutation {
-
+  #advertisment 
+  createCarouselAdvertisement(input:[advertisementInput]):String
+  createBannerAdvertisement(input:[advertisementInput]):String
+  createSideAdvertisement(input:[advertisementInput]):String
+  createLeftNextToCarouselAds(input:[advertisementInput]):String
+  createBigAds(input:advertisementInput):String
+#Forgot Password
   forgotPassword(email:String!):String!
   resetPassword(password:String,id:String):String!
 
@@ -394,8 +415,8 @@ type Mutation {
   refreshToken(Token: String!): String!
   
   # Product mutations
-  createProduct(input: ProductInput!): Product!
-  updateProduct(productId: ID!, input: ProductInput!): Product!
+  createProduct(input: ProductInput!): String!
+  updateProduct(productId: ID!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
   addRating(productId:ID!,userId:ID!,rating:Int!):String!
 
@@ -427,23 +448,21 @@ type Mutation {
   cancalPackageProduct(input:CancelProductPackageInput! ): String!
   payedPackage(packageId:ID!):String!
   # Category mutations
-  createCategory(input: CreateCategoryInput!): Category
+  createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-  deleteCategory(id: ID!): Category!
+  deleteCategory(id: ID!): String!
 
   # Mutation to add product to favorites
   addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
 
   # Mutation to add Company Info
-  createCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
+  createOrUpdateCompanyInfo (input: CompanyInfoInput!): CompanyInfo!
 
 #create Top Deals mutations
   createTopDeals(input: CreateTopDealsInput!): TopDeals!
 #delete Top Deals mutations
   deleteTopDeals(input: CreateTopDealsInput!): String!
 
-  # Mutation to update Company Info
-  updateCompanyInfo(input: CompanyInfoInput!, id: String!): CompanyInfo!
 
   # Admin mutation for creating a moderator
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
@@ -498,11 +517,16 @@ input ProductAttributeInput {
 input CreateCategoryInput {
   name: String!
   parentId: ID
+  bigImage:String
+smallImage:String
+description:String
+
 }
 
 # Define the UpdateCategoryInput input type
 input UpdateCategoryInput {
   name: String
+  description: String
 }
 
 # Define the BackOrExchange input type
@@ -628,5 +652,10 @@ input ContactUsInput {
   document:String
   }
 
+input advertisementInput{
+  images:[String!]!
+  position: String!
+  link:String!
+}
 
 `;

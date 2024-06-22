@@ -44,7 +44,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -57,7 +57,7 @@ export const ProductBox = ({ product }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -80,13 +80,13 @@ export const ProductBox = ({ product }: any) => {
           toast({
             title: "Notification de Panier",
             description: `Le produit "${product?.name}" a été ajouté au panier.`,
-            className: "bg-strongBeige text-white",
+            className: "bg-primaryColor text-white",
           });
         },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -107,7 +107,7 @@ export const ProductBox = ({ product }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {
@@ -116,7 +116,7 @@ export const ProductBox = ({ product }: any) => {
       toast({
         title: "Produit ajouté à la comparaison",
         description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
-        className: "bg-strongBeige text-white",
+        className: "bg-primaryColor text-white",
       });
     }
   };
@@ -131,7 +131,7 @@ export const ProductBox = ({ product }: any) => {
           title="aperçu rapide"
           onClick={() => openProductDetails(product)}
         >
-          <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+          <li className="bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
             <FaRegEye color="white" />
           </li>
         </div>
@@ -141,7 +141,7 @@ export const ProductBox = ({ product }: any) => {
           title="Ajouter au panier"
           onClick={() => AddToBasket(product)}
         >
-          <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+          <li className="bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
             <FaBasketShopping color="white" />
           </li>
         </div>
@@ -151,7 +151,7 @@ export const ProductBox = ({ product }: any) => {
           title="Ajouter au comparatif"
           onClick={() => addToCompare(product)}
         >
-          <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+          <li className="bg-primaryColor rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
             <IoGitCompare color="white" />
           </li>
         </div>
@@ -160,7 +160,7 @@ export const ProductBox = ({ product }: any) => {
           className="Favorite relative w-fit cursor-crosshair"
           title="Ajouter à ma liste d'enviess"
         >
-          <li className="bg-strongBeige  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+          <li className="bg-primaryColor  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
             <FavoriteProduct
               isFavorite={isFavorite}
               setIsFavorite={setIsFavorite}
@@ -174,7 +174,7 @@ export const ProductBox = ({ product }: any) => {
         </div>
       </ul>
       <div
-        className={`${view === 1 && "absolute top-0"}  flex justify-between w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4 `}
+        className={`${view === 1 && "absolute top-0"}  flex justify-between w-full px-3  z-20 uppercase text-white text-[11px] translate-y-4 `}
       >
         {calcDateForNewProduct(product?.createdAt) &&
           product?.inventory !== 0 && (
@@ -191,6 +191,7 @@ export const ProductBox = ({ product }: any) => {
           </span>
         )}
       </div>
+      
       <Link
         className="relative flex w-40 h-52 md:w-56 overflow-hidden"
         rel="preload"
@@ -202,9 +203,9 @@ export const ProductBox = ({ product }: any) => {
               product?.categories[0]?.name,
               product?.categories[0]?.id,
               product?.categories[0]?.subcategories[0]?.name,
-              product?.categories[1]?.subcategories[0]?.id,
-              product?.categories[0]?.subcategories[0]?.subcategories[1]?.name,
-              product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
+              product?.categories[0]?.subcategories[0]?.id,
+              product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+              product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
               product?.name,
             ],
           },
@@ -261,15 +262,15 @@ export const ProductBox = ({ product }: any) => {
                 product?.categories[0]?.id,
                 product?.categories[0]?.subcategories[0]?.name,
                 product?.categories[0]?.subcategories[0]?.id,
-                product?.categories[0]?.subcategories[0]?.subcategories[1]
+                product?.categories[0]?.subcategories[0]?.subcategories[0]
                   ?.name,
-                product?.categories[0]?.subcategories[0]?.subcategories[1]?.id,
+                product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                 product?.name,
               ],
             },
           }}
         >
-          <div className="product-name pt-1 tracking-wider hover:text-strongBeige transition-colors text-sm font-semibold line-clamp-2 ">
+          <div className="product-name pt-1 tracking-wider hover:text-primaryColor transition-colors text-sm font-semibold line-clamp-2 ">
             <p className="category  font-normal -tracking-tighter  text-xs  capitalize">
               {product?.categories[2]?.name}
             </p>
@@ -285,7 +286,7 @@ export const ProductBox = ({ product }: any) => {
                   className={`${
                     product?.productDiscounts.length > 0
                       ? "line-through font-semibold text-lg text-gray-700"
-                      : "text-strongBeige text-xl py-1"
+                      : "text-primaryColor text-xl py-1"
                   } font-semibold`}
                 >
                   {product?.price.toFixed(3)} TND
@@ -318,7 +319,7 @@ export const ProductBox = ({ product }: any) => {
             </div>
 
             <button
-                type="button"
+              type="button"
               className={`flex items-center gap-2 self-center py-2  m-auto  text-base w-fit justify-center bg-white px-2  text-md hover:text-white transition hover:bg-red-300 `}
               onClick={() => {
                 AddToBasket(product);
@@ -345,7 +346,7 @@ export const ProductBox = ({ product }: any) => {
                   className={`${
                     product?.productDiscounts?.length > 0
                       ? "line-through text-base md:text-lg font-semibold text-gray-700"
-                      : "text-strongBeige text-base md:text-lg py-1"
+                      : "text-primaryColor text-base md:text-lg py-1"
                   } font-semibold`}
                 >
                   {product?.price.toFixed(3)} TND
@@ -365,9 +366,12 @@ export const ProductBox = ({ product }: any) => {
                   />
                 )}
               </div>
-              <p className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-3">
-                {product?.description}
-              </p>
+              <p
+                className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-2"
+                dangerouslySetInnerHTML={{
+                  __html: product?.description,
+                }}
+              />
             </div>
           </div>
         )}

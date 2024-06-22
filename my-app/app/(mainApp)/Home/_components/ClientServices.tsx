@@ -18,7 +18,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient1(data.advertismentByPosition);
       },
-    },
+    }
   );
   const { loading: loadingClientService2, data: clientService2 } = useQuery(
     CLIENT_SERVICES,
@@ -27,7 +27,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient2(data.advertismentByPosition);
       },
-    },
+    }
   );
   const { loading: loadingClientService3, data: clientService3 } = useQuery(
     CLIENT_SERVICES,
@@ -36,26 +36,26 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient3(data.advertismentByPosition);
       },
-    },
+    }
   );
 
   return (
     <div className="service_client grid gap-10 py-10 grid-cols-1 rounded-md md:grid-cols-2 lg:grid-cols-3 place-content-center  place-items-center">
       <>
         {client1?.length <= 0 && !loadingClientService1 && (
-          <div className="flex items-center justify-center w-full h-52 rounded-lg bg-mediumBeige">
+          <div className="flex items-center justify-center w-full h-52 rounded-lg bg-secondaryColor">
             <p>384px x 218px</p>
           </div>
         )}
 
         {client2?.length <= 0 && !loadingClientService2 && (
-          <div className="flex items-center justify-center w-full h-52 rounded-lg bg-mediumBeige">
+          <div className="flex items-center justify-center w-full h-52 rounded-lg bg-secondaryColor">
             <p>384px x 218px</p>
           </div>
         )}
 
         {client3?.length <= 0 && !loadingClientService3 && (
-          <div className="flex items-center justify-center w-full h-52 col-span-2 md:col-span-1 rounded-lg bg-mediumBeige">
+          <div className="flex items-center justify-center w-full h-52 col-span-2 md:col-span-1 rounded-lg bg-secondaryColor">
             <p>384px x 218px</p>
           </div>
         )}
@@ -120,19 +120,19 @@ const ClientServices = () => {
       </>
       <>
         {client1?.length > 0 && loadingClientService1 && (
-          <div className="grid animate-pulse w-full h-52 place-items-center rounded-lg bg-mediumBeige">
+          <div className="grid animate-pulse w-full h-52 place-items-center rounded-lg bg-secondaryColor">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         )}
 
         {client2?.length > 0 && loadingClientService2 && (
-          <div className="grid animate-pulse w-full h-52 place-items-center rounded-lg bg-mediumBeige">
+          <div className="grid animate-pulse w-full h-52 place-items-center rounded-lg bg-secondaryColor">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         )}
 
         {client3?.length > 0 && loadingClientService3 && (
-          <div className="grid animate-pulse w-full h-52 place-items-center rounded-lg bg-mediumBeige">
+          <div className="grid animate-pulse w-full h-52 place-items-center rounded-lg bg-secondaryColor">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         )}

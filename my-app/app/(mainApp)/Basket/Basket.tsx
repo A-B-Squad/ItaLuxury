@@ -5,6 +5,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
+
 import {
   Table,
   TableBody,
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import {
   DECREASE_QUANTITY_MUTATION,
   DELETE_BASKET_BY_ID_MUTATION,
@@ -153,7 +153,7 @@ const Basket = () => {
       toast({
         title: "Notification de Panier",
         description: `Le produit a été retiré du panier.`,
-        className: "bg-strongBeige text-white",
+        className: "bg-primaryColor text-white",
       });
     },
     [deleteBasketById, toast, toggleIsUpdated]
@@ -205,16 +205,14 @@ const Basket = () => {
                                 product?.categories[0]?.name,
                                 product?.categories[0]?.id,
                                 product?.categories[0]?.subcategories[0]?.name,
-                                product?.categories[1]?.subcategories[0]?.id,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[1]?.name,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[1]?.id,
+                                product?.categories[0]?.subcategories[0]?.id,
+                                product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                                 product?.name,
                               ],
                             },
                           }}
-                          className="text-md font-bold hover:text-strongBeige text-[#333]"
+                          className="text-md font-bold hover:text-primaryColor text-[#333]"
                         >
                           {product.name}
                         </Link>
@@ -226,7 +224,7 @@ const Basket = () => {
                             toast({
                               title: "Notification de Panier",
                               description: `Le produit "${product?.name}" a été retiré du panier.`,
-                              className: "bg-strongBeige text-white",
+                              className: "bg-primaryColor text-white",
                             });
                           }}
                         >
@@ -255,7 +253,7 @@ const Basket = () => {
                         </span>
                         <button
                           type="button"
-                          className="bg-strongBeige text-white px-2 py-1 font-semibold cursor-pointer"
+                          className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
                           onClick={() => {
                             increaseQuantity({
                               variables: { basketId: product.basketId },
@@ -335,7 +333,7 @@ const Basket = () => {
                         : (Number(totalPrice) + 8).toFixed(3),
                   },
                 }}
-                className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-strongBeige hover:bg-amber-200 text-white  cursor-pointer"
+                className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-primaryColor hover:bg-amber-200 text-white  cursor-pointer"
               >
                 Vérifier
               </Link>

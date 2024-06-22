@@ -1,5 +1,5 @@
 import React from "react";
-import ProductsSection from "../_components/productsSection";
+import ProductsSection from "./productsSection";
 import keywords from "@/public/keywords";
 export async function generateMetadata({ searchParams }: any) {
   if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {

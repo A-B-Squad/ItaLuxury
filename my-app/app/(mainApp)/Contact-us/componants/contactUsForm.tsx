@@ -33,7 +33,7 @@ const ContactUsForm = () => {
         toast({
           title: "Merci pour votre Message",
           description: "Votre message a été envoyé avec succès!",
-          className: "bg-strongBeige text-white",
+          className: "bg-primaryColor text-white",
         });
         reset();
         setFileName("");
@@ -134,7 +134,7 @@ const ContactUsForm = () => {
                   return (
                     <button
                       type="button"
-                      className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-strongBeige shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
+                      className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-primaryColor shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
                       onClick={() => open()}
                     >
                       choisir un fichier
@@ -169,7 +169,7 @@ const ContactUsForm = () => {
           <div className="float-end mt-10">
             <button
               type="submit"
-              className="py-2 px-4 bg-strongBeige text-white shadow-lg hover:bg-mediumBeige transition-colors uppercase"
+              className="py-2 px-4 bg-primaryColor text-white shadow-lg hover:bg-mediumBeige transition-colors uppercase"
             >
               Envoyer
             </button>

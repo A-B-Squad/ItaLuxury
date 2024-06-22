@@ -28,7 +28,7 @@ export const createCategory = async (
         },
       });
     }
-    return newCategory;
+    return "new Category created";
   } catch (error) {
     console.error("Error creating category:", error);
     return new Error("Failed to create category");

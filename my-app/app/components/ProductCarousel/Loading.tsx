@@ -21,24 +21,24 @@ const Loading = () => {
               className="carousel-item  transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
             >
               <div className="mt-6 w-96 animate-pulse">
-                <div className="relative grid h-56 rounded-lg  place-items-center bg-mediumBeige">
+                <div className="relative grid h-56 rounded-lg  place-items-center bg-secondaryColor">
                   <IoImageOutline className="h-12 w-12 text-gray-500" />
                 </div>
 
                 <div className="mt-5 left-24 relative ">
-                  <p className="mb-3 h-3 w-32 rounded-full bg-mediumBeige">
+                  <p className="mb-3 h-3 w-32 rounded-full bg-secondaryColor">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-40 rounded-full bg-mediumBeige">
+                  <p className="mb-2 h-2 w-40 rounded-full bg-secondaryColor">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-44 rounded-full bg-mediumBeige">
+                  <p className="mb-2 h-2 w-44 rounded-full bg-secondaryColor">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-48 rounded-full bg-mediumBeige">
+                  <p className="mb-2 h-2 w-48 rounded-full bg-secondaryColor">
                     &nbsp;
                   </p>
-                  <p className="mb-2 h-2 w-52 rounded-full bg-mediumBeige">
+                  <p className="mb-2 h-2 w-52 rounded-full bg-secondaryColor">
                     &nbsp;
                   </p>
                 </div>

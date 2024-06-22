@@ -50,7 +50,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -72,7 +72,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -101,8 +101,8 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
             new Set(
-              data.getBestSales.flatMap((item: any) => item.Category.name),
-            ),
+              data.getBestSales.flatMap((item: any) => item.Category.name)
+            )
           );
           setCategories(uniqueCategories);
         }
@@ -118,12 +118,12 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
     TopSellsSectionVisibility && (
       <div className="flex flex-col w-full items-center md:flex-row gap-3">
         {categories.map((category: string, index: number) => (
-          <table key={index} className="text-sm text-gray-500 w-full">
+          <table key={index} className="text-sm text-gray-500 bg-white w-full">
             <thead>
               <tr>
                 <th
                   scope="col"
-                  className=" px-3 py-3 text-white tracking-wider uppercase bg-strongBeige"
+                  className=" px-3 py-3 text-white tracking-wider uppercase bg-primaryColor"
                 >
                   {category}
                 </th>
@@ -132,7 +132,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
             <tbody className="border-2 w-full p-5 shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
               {allProducts
                 .filter(
-                  (product: any) => product?.categories[0].name === category,
+                  (product: any) => product?.categories[0].name === category
                 )
                 .map((product: any) => (
                   <div
@@ -152,15 +152,15 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                                 toast({
                                   title: "Notification de Panier",
                                   description: `Le produit "${product?.name}" a été ajouté au panier.`,
-                                  className: "bg-strongBeige text-white",
+                                  className: "bg-primaryColor text-white",
                                 });
                               }}
-                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
+                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
                             >
                               <FaBasketShopping size={18} />
                             </div>
                             <div
-                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-strongBeige bg-white text-black hover:text-white rounded-full transition-all"
+                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
                               title="aperçu rapide"
                               onClick={() => openProductDetails(product)}
                             >
@@ -178,7 +178,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
 
                         <div className="flex flex-col gap-2">
                           <Link
-                            className="hover:text-strongBeige text-base font-semibold transition-all cursor-pointer tracking-wider  "
+                            className="hover:text-primaryColor text-base font-semibold transition-all cursor-pointer tracking-wider  "
                             title={product.name}
                             href={{
                               pathname: `/products/tunisie/${prepRoute(product?.name)}`,
@@ -191,9 +191,9 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                                     ?.name,
                                   product?.categories[0]?.subcategories[0]?.id,
                                   product?.categories[0]?.subcategories[0]
-                                    ?.subcategories[1]?.name,
+                                    ?.subcategories[0]?.name,
                                   product?.categories[0]?.subcategories[0]
-                                    ?.subcategories[1]?.id,
+                                    ?.subcategories[0]?.id,
                                   product?.name,
                                 ],
                               },
@@ -203,14 +203,14 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                           </Link>
 
                           {product.productDiscounts.length === 0 ? (
-                            <div className="flex gap-2 font-bold text-lg tracking-wider text-strongBeige    ">
+                            <div className="flex gap-2 font-bold text-lg tracking-wider text-primaryColor    ">
                               <span>{product?.price.toFixed(3)} DT</span>
                             </div>
                           ) : (
                             <div className="flex gap-2 tracking-wider items-center">
-                              <span className="text-strongBeige font-bold text-lg ">
+                              <span className="text-primaryColor font-bold text-lg ">
                                 {product.productDiscounts[0]?.newPrice.toFixed(
-                                  3,
+                                  3
                                 )}{" "}
                                 DT
                               </span>

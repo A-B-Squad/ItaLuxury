@@ -150,6 +150,9 @@
     transform: scale(1.2, 1);
   }
 }
+body{
+  background-color: #fafafa;
+}
 
 .adminLoader {
   position: relative;
@@ -486,4 +489,21 @@
   100% {
     transform: scale(1, 1);
   }
+}
+
+@keyframes slide-diagonal {
+  0% {
+    transform: translateY(0%) translateX(-100%) rotate(-45deg);
+  }
+  100% {
+    transform: translateY(0) translateX(100%) rotate(-45deg);
+  }
+}
+.HoverBackgroundSlide {
+  
+  background: rgb(244,244,244);
+  background: -moz-linear-gradient(90deg, rgba(244,244,244,0.4963235294117647) 6%, rgba(255,255,255,0.6195728291316527) 51%, rgba(244,244,244,0.5019257703081232) 90%);
+  background: -webkit-linear-gradient(90deg, rgba(244,244,244,0.4963235294117647) 6%, rgba(255,255,255,0.6195728291316527) 51%, rgba(244,244,244,0.5019257703081232) 90%);
+  background: linear-gradient(90deg, rgba(244,244,244,0.4963235294117647) 6%, rgba(255,255,255,0.6195728291316527) 51%, rgba(244,244,244,0.5019257703081232) 90%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f4f4f4",endColorstr="#f4f4f4",GradientType=1);
 }

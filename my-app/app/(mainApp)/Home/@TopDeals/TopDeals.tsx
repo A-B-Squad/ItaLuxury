@@ -110,7 +110,7 @@ const TopDeals = () => {
       toast({
         title: "Produit ajouté à la comparaison",
         description: `Le produit "${product.name}" a été ajouté à la comparaison.`,
-        className: "bg-strongBeige text-white",
+        className: "bg-primaryColor text-white",
       });
     },
     [addProductToCompare, toast]
@@ -124,7 +124,7 @@ const TopDeals = () => {
           return (
             <div
               key={products?.product?.id}
-              className="grid lg:grid-cols-3 border group grid-cols-1 rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
+              className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
             >
               <Link
                 rel="preload"
@@ -135,8 +135,13 @@ const TopDeals = () => {
                     collection: [
                       products?.product?.categories[0]?.name,
                       products?.product?.categories[0]?.id,
+                      products?.product?.categories[0]?.subcategories[0]?.name,
+                      products?.product?.categories[0]?.subcategories[0]?.id,
+                      products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                      products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                       products?.product?.name,
                     ],
+              
                   },
                 }}
                 className="h-56 lg:h-full  w-full"
@@ -162,7 +167,7 @@ const TopDeals = () => {
                   title="aperçu rapide"
                   onClick={() => openProductDetails(products?.product)}
                 >
-                  <li className="bg-strongBeige rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-mediumBeige transition-all">
+                  <li className="bg-primaryColor rounded-full  lg:translate-x-20 group-hover:translate-x-0   p-2 shadow-md hover:bg-secondaryColor transition-all">
                     <FaRegEye color="white" />
                   </li>
                 </div>
@@ -176,11 +181,11 @@ const TopDeals = () => {
                     toast({
                       title: "Notification de Panier",
                       description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,
-                      className: "bg-strongBeige text-white",
+                      className: "bg-primaryColor text-white",
                     });
                   }}
                 >
-                  <li className="bg-strongBeige rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                  <li className="bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
                     <FaBasketShopping color="white" />
                   </li>
                 </div>
@@ -193,11 +198,11 @@ const TopDeals = () => {
                     toast({
                       title: "Produit ajouté à la comparaison",
                       description: `Le produit "${products?.product?.name}" a été ajouté à la comparaison.`,
-                      className: "bg-strongBeige text-white",
+                      className: "bg-primaryColor text-white",
                     });
                   }}
                 >
-                  <li className="bg-strongBeige rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                  <li className="bg-primaryColor rounded-full  delay-150 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
                     <IoGitCompare color="white" />
                   </li>
                 </div>
@@ -206,7 +211,7 @@ const TopDeals = () => {
                   className="Favorite relative w-fit cursor-crosshair"
                   title="Ajouter à ma liste d'enviess"
                 >
-                  <li className="bg-strongBeige  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-mediumBeige ">
+                  <li className="bg-primaryColor  rounded-full delay-200 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
                     <FavoriteProduct
                       isFavorite={isFavorite}
                       setIsFavorite={setIsFavorite}
@@ -228,16 +233,20 @@ const TopDeals = () => {
                       collection: [
                         products?.product?.categories[0]?.name,
                         products?.product?.categories[0]?.id,
+                        products?.product?.categories[0]?.subcategories[0]?.name,
+                        products?.product?.categories[0]?.subcategories[0]?.id,
+                        products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+                        products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
                         products?.product?.name,
                       ],
                     },
                   }}
                 >
-                  <h2 className="tracking-wider hover:text-mediumBeige transition-colors">
+                  <h2 className="tracking-wider hover:text-secondaryColor transition-colors">
                     {products?.product?.name}
                   </h2>
                   <div className="prices flex gap-3 items-center lg:mt-3">
-                    <span className="text-strongBeige font-bold text-xl">
+                    <span className="text-primaryColor font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
                         3
                       )}
@@ -281,14 +290,14 @@ const TopDeals = () => {
 
                 <button
                   type="button"
-                  className=" rounded-lg bg-strongBeige w-full py-2 text-white lg:mt-3 hover:bg-mediumBeige transition-colors"
+                  className=" rounded-lg bg-primaryColor w-full py-2 text-white lg:mt-3 hover:bg-secondaryColor transition-colors"
                   onClick={() => {
                     AddToBasket(products?.product);
 
                     toast({
                       title: "Notification de Panier",
                       description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,
-                      className: "bg-strongBeige text-white",
+                      className: "bg-primaryColor text-white",
                     });
                   }}
                 >

@@ -214,13 +214,14 @@ const BasketDrawer = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex flex-col gap-2  text-base font-medium w-full justify-between text-gray-900">
                           <Link
-                            className="hover:text-mediumBeige text-sm w-5/6 transition-colors"
+                            className="hover:text-secondaryColor text-sm w-5/6 transition-colors"
                             rel="preload"
                             href={{
                               pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                               query: {
                                 productId: product?.id,
                                 collection: [product?.name],
+                                
                               },
                             }}
                           >
@@ -243,7 +244,7 @@ const BasketDrawer = () => {
                         <div className="trash flex">
                           <button
                             type="button"
-                            className="font-medium text-strongBeige hover:text-amber-200"
+                            className="font-medium text-primaryColor hover:text-amber-200"
                             onClick={() => {
                               if (decodedToken) {
                                 handleRemoveProduct(product?.basketId);
@@ -299,7 +300,7 @@ const BasketDrawer = () => {
                       }
                     : "/signup"
                 }
-                className="flex items-center justify-center transition-all rounded-md border border-transparent bg-strongBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
+                className="flex items-center justify-center transition-all rounded-md border border-transparent bg-primaryColor px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
               >
                 Vérifier
               </Link>
@@ -317,7 +318,7 @@ const BasketDrawer = () => {
               <Link
                 rel="preload"
                 href={"/Touts-Les-Produits"}
-                className="font-medium text-strongBeige transition-all hover:text-mediumBeige"
+                className="font-medium text-primaryColor transition-all hover:text-secondaryColor"
               >
                 Continuer vos achats
                 <span aria-hidden="true"> &rarr;</span>
@@ -333,7 +334,7 @@ const BasketDrawer = () => {
             rel="preload"
             href={"/Collections/tunisie"}
             type="button"
-            className="font-medium text-strongBeige hover:text-amber-200 mt-20"
+            className="font-medium text-primaryColor hover:text-amber-200 mt-20"
           >
             Continuer vos achats
             <span aria-hidden="true"> &rarr;</span>

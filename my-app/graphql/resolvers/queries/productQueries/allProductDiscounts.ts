@@ -3,7 +3,7 @@ import { Context } from "@/pages/api/graphql";
 export const productsDiscounts = async (_: any, { limit }: { limit?: number }, { prisma }: Context) => {
     try {
         // Retrieve all product discounts
-        let takeValue = limit ? limit : undefined;
+        let takeValue = Number(limit) ? Number(limit) : undefined;
 
         const allProductDiscounts = await prisma.productDiscount.findMany({
             where: {

@@ -1,3 +1,4 @@
+import Breadcumb from "@/app/components/Breadcumb";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -9,8 +10,17 @@ export const metadata: Metadata = {
     "Consultez notre politique de confidentialité pour comprendre comment nous traitons vos données personnelles.",
 };
 
-const page = () => {
-  return <PrivacyPolicy />;
+const pagePricacyPolicy = () => {
+  return (
+    <>
+      <Breadcumb
+        pageName={"Politique de Confidentialité"}
+        pageLink={"Privacy-Policy"}
+      />
+
+      <PrivacyPolicy />
+    </>
+  );
 };
 
-export default page;
+export default pagePricacyPolicy;

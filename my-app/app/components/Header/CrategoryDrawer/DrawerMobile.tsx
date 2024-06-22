@@ -56,7 +56,7 @@ function DrawerMobile() {
         onPointerEnterCapture={undefined}
         onPointerLeaveCapture={undefined}
       >
-        <div className="px-2 py-3 flex items-center justify-center text-white bg-strongBeige">
+        <div className="px-2 py-3 flex items-center justify-center text-white bg-primaryColor">
           <Link
             href={`${decodedToken?.userId ? "/Collections/tunisie" : "/signin"}`}
             className="font-bold text-xl flex items-center gap-2"

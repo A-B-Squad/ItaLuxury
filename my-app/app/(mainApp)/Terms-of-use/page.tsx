@@ -1,3 +1,4 @@
+import Breadcumb from "@/app/components/Breadcumb";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -9,8 +10,13 @@ export const metadata: Metadata = {
   description:
     "Consultez nos conditions d'utilisation pour utiliser notre site ecommerce en toute sécurité.",
 };
-const page = () => {
-  return <PrivacyPolicy />;
+const pageTermsOfUse = () => {
+  return (
+    <>
+      <Breadcumb pageName={"Conditions d'Utilisation"} pageLink={"Terms-of-use"} />
+      <PrivacyPolicy />;
+    </>
+  );
 };
 
-export default page;
+export default pageTermsOfUse;

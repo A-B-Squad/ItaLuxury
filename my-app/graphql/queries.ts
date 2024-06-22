@@ -270,6 +270,19 @@ export const CATEGORY_QUERY = gql`
     }
   }
 `;
+export const MAIN_CATEGORY_QUERY = gql`
+ query FetchMainCategories {
+  fetchMainCategories {
+    id
+    name 
+    bigImage
+    smallImage
+    subcategories {
+      id
+    }
+  }
+}
+`;
 
 
 

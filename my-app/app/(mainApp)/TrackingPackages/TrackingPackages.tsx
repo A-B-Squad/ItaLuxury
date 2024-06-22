@@ -143,10 +143,10 @@ const TrackingPackages: React.FC = () => {
     "EN TRAITEMENT": "bg-orange-400",
     PAYÉ: "bg-green-400",
   };
-  
+
   // Function to get the background color based on status
   const getStatusColor = (status: Status) => {
-    return statusColors[status] || "bg-gray-400"; 
+    return statusColors[status] || "bg-gray-400";
   };
 
   return (
@@ -157,7 +157,7 @@ const TrackingPackages: React.FC = () => {
           placeholder="Recherchez votre colis avec Reference"
           value={searchInput}
           onChange={handleInputChange}
-          className="search-input outline-none p-3 border-strongBeige w-96 px-5 border rounded"
+          className="search-input outline-none p-3 border-primaryColor w-96 px-5 border rounded"
         />
       </div>
       <div className="package-list py-3 px-3 h-full">

@@ -54,7 +54,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
       }
       setSelectedFilterQueries(updatedQueries);
       router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
+        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}&page=1`,
         { scroll: true }
       );
     },
@@ -115,12 +115,12 @@ const SideBar = ({ colors, brands, categories }: any) => {
 
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
-    router.push("/Collections/tunisie", { scroll: true });
+    router.replace("/Collections/tunisie?page=1", { scroll: true });
     toggleOpenSidebar();
     toast({
       title: "Filtres réinitialisés",
       description: "Les filtres ont été réinitialisés avec succès.",
-      className: "bg-strongBeige text-white",
+      className: "bg-primaryColor text-white",
     });
   }, [router, toggleOpenSidebar, toast]);
 
@@ -172,7 +172,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
               toast({
                 title: "Filtres réinitialisés",
                 description: "Les filtres ont été réinitialisés avec succès.",
-                className: "bg-strongBeige text-white",
+                className: "bg-primaryColor text-white",
               });
             }}
             className="flex  items-center justify-center transition-all hover:text-red-700   cursor-pointer"
@@ -198,7 +198,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
                 type="radio"
                 value={"in-discount"}
                 checked={isChecked("choice", "in-discount")}
-                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "in-discount") ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-strongBeige hover:shadow-lg cursor-pointer group   text-strongBeige `}
+                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "in-discount") ? "bg-secondaryColor" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group   text-primaryColor `}
                 onChange={() => handleChoiceFilterOptions("in-discount")}
               />
               <label
@@ -216,7 +216,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
                 type="radio"
                 value={"new-product"}
                 checked={isChecked("choice", "new-product")}
-                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "new-product") ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-lightBeige hover:shadow-lg cursor-pointer group    text-strongBeige `}
+                className={` h-3 w-3 appearance-none outline-none ${isChecked("choice", "new-product") ? "bg-secondaryColor" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-lightBeige hover:shadow-lg cursor-pointer group    text-primaryColor `}
                 onChange={() => handleChoiceFilterOptions("new-product")}
               />
               <label
@@ -252,7 +252,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
                   {category.name}
                 </Link>
                 <span
-                  className={`  ${searchParams?.get("category") === category?.id ? "bg-strongBeige" : "bg-mediumBeige"} h-full w-[5px]  absolute right-0 group-hover:bg-strongBeige  rounded-lg border transition-all`}
+                  className={`  ${searchParams?.get("category") === category?.id ? "bg-primaryColor" : "bg-secondaryColor"} h-full w-[5px]  absolute right-0 group-hover:bg-primaryColor  rounded-lg border transition-all`}
                 ></span>
               </li>
             ))}
@@ -356,7 +356,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
                     type="radio"
                     value={brand.id}
                     checked={isChecked("brand", brand.id)}
-                    className={` h-3 w-3 appearance-none outline-none ${isChecked("brand", brand.id) ? "bg-mediumBeige" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-strongBeige hover:shadow-lg cursor-pointer group   text-strongBeige `}
+                    className={` h-3 w-3 appearance-none outline-none ${isChecked("brand", brand.id) ? "bg-secondaryColor" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group   text-primaryColor `}
                     onChange={handleSelectFilterOptions}
                   />
                   <div className="flex items-center justify-between  w-full">

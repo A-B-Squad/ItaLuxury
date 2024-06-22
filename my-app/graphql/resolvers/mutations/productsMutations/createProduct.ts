@@ -4,11 +4,10 @@ export const createProduct = async (
   // Defining an async function called createProduct
   _: any,
   { input }: { input: ProductInput }, // Destructuring the second argument into input
-  { prisma }: Context // Destructuring the third argument into prisma
+  { prisma }: Context 
 ) => {
   try {
     const {
-      // Destructuring the input object
       name,
       price,
       isVisible,
@@ -39,9 +38,9 @@ export const createProduct = async (
           // Connecting the new product to existing categories
           connect: categories.map((categoryId) => ({ id: categoryId })),
         },
-        attributes: { create: attributeInputs }, 
+        attributes: { create: attributeInputs },
       },
-       include: {
+      include: {
         Colors: true,
         Brand: true
       }
@@ -54,18 +53,18 @@ export const createProduct = async (
         // Creating a new product discount
         await prisma.productDiscount.create({
           data: {
-            productId: productCreate.id, // Associating the discount with the new product
-            newPrice: discountInput.newPrice, // Setting the new price for the discount
-            price, // Associating the discount with the original price
-            dateOfEnd: new Date(discountInput.dateOfEnd), // Correctly format dateOfEnd
-            dateOfStart: new Date(discountInput.dateOfStart), // Setting the start date of the discount
-            discountId: discountInput.discountId, // Associating the discount with a discount ID
+            productId: productCreate.id,
+            newPrice: discountInput.newPrice,
+            price,
+            dateOfEnd: new Date(discountInput.dateOfEnd),
+            dateOfStart: new Date(discountInput.dateOfStart),
+            discountId: discountInput.discountId || null,
           },
         });
       }
     }
 
-    return productCreate;
+    return "product Created";
   } catch (error: any) {
     // Handle errors gracefully
     console.error("Error creating product:", error);

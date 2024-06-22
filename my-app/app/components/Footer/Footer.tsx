@@ -50,7 +50,7 @@ const Footer = () => {
     toast({
       title: "Notification de S'ABONNER",
       description: `Merci de vous abonner avec ${email}`,
-      className: "bg-strongBeige text-white",
+      className: "bg-primaryColor text-white",
     });
     setEmail("");
   };
@@ -64,7 +64,7 @@ const Footer = () => {
   }, []);
 
   return (
-    <div className="bg-white shadow-2xl shadow-black border-t-2 text-black flex flex-col items-center pt-3">
+    <div className="bg-white shadow-lg shadow-black border-t-2 text-black flex flex-col items-center pt-3">
       <div className="text-center flex justify-center items-center flex-col">
         <Image
           src={companyInfo?.logo}
@@ -85,8 +85,8 @@ const Footer = () => {
         <div className="CompanyInfo w-full lg:col-span-2">
           <h6 className="font-medium text-xl mb-4">Informations</h6>
           <div className="leading-8 ">
-            <div className="flex gap-1 items-start tracking-wider text-gray-700">
-              <IoLocationSharp size={40} />
+            <div className="flex gap-5 items-center tracking-wider text-gray-700">
+              <IoLocationSharp size={20} />
               <p>{companyInfo?.location}</p>
             </div>
             <div className="flex gap-5 tracking-wider items-center text-gray-700">
@@ -95,7 +95,8 @@ const Footer = () => {
             </div>
             <div className="flex gap-1 items-center tracking-wider text-gray-700">
               <MdLocalPhone size={18} />
-              <p>(+216) {companyInfo?.phone}</p>
+              <p>(+216) {companyInfo?.phone[0]}</p>
+              <p>/ (+216) {companyInfo?.phone[1]}</p>
             </div>
           </div>
         </div>
@@ -204,17 +205,20 @@ const Footer = () => {
             <AccordionTrigger>Informations</AccordionTrigger>
             <AccordionContent>
               <div className="leading-7">
-                <div className="flex gap-1 items-start tracking-wider text-gray-700">
+                <div className="flex gap-4 items-start tracking-wider text-gray-700">
                   <IoLocationSharp size={20} />
                   <p>{companyInfo?.location}</p>
                 </div>
-                <div className="flex gap-5 tracking-wider items-center text-gray-700">
+                <div className="flex gap-4 tracking-wider items-center text-gray-700">
                   <MdEmail size={18} />
                   <p>{companyInfo?.email}</p>
                 </div>
-                <div className="flex gap-1 items-center tracking-wider text-gray-700">
+                <div className="flex gap-4 items-center tracking-wider text-gray-700">
                   <MdLocalPhone size={18} />
-                  <p>(+216) {companyInfo?.phone}</p>
+                  <div>
+                    <p>(+216) {companyInfo?.phone[0]}</p>
+                    <p>/ (+216) {companyInfo?.phone[1]}</p>
+                  </div>
                 </div>
               </div>
             </AccordionContent>
@@ -311,7 +315,7 @@ const Footer = () => {
           navLink={companyInfo?.instagram || "/"}
         />
       </div>
-      <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-strongBeige transition-colors ">
+      <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors ">
         © 2024 MaisonNg.Tn By Maison Ng Team
       </div>
     </div>

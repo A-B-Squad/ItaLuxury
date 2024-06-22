@@ -6,15 +6,16 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 
 const RightAdsCarousel = ({
-  rightCarouselAds,
+  AdsNextToCarousel,
   loadingRightAdsCarousel,
 }: any) => {
   const [images, setImages] = useState([]);
+  
 
   useEffect(() => {
-    if (rightCarouselAds) {
-      const allImages = rightCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images,
+    if (AdsNextToCarousel) {
+      const allImages = AdsNextToCarousel.flatMap(
+        (ad: { images: string[] }) => ad.images
       );
       setImages(allImages);
     }
@@ -24,10 +25,10 @@ const RightAdsCarousel = ({
     <>
       {(images.length === 0 || loadingRightAdsCarousel) && (
         <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-mediumBeige ">
+          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         </div>
@@ -37,7 +38,7 @@ const RightAdsCarousel = ({
         <div className="right-ads flex lg:flex-col  gap-5 md:gap-12">
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={rightCarouselAds[0]?.link}
+            href={AdsNextToCarousel[0]?.link}
           >
             <Image
               layout="responsive"
@@ -53,7 +54,7 @@ const RightAdsCarousel = ({
           </Link>
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={rightCarouselAds[1]?.link}
+            href={AdsNextToCarousel[1]?.link}
           >
             <Image
               layout="responsive"

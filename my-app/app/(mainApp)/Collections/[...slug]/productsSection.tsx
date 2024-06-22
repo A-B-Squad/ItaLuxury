@@ -19,16 +19,17 @@ const ProductsSection = () => {
   const priceParamString = searchParams?.get("price");
   const choiceParam = searchParams?.get("choice");
   const brandParam = searchParams?.get("brand");
+  const pageParam = searchParams?.get("page");
   const queryParam = searchParams?.get("query");
   const priceParam = priceParamString ? +priceParamString : undefined;
   const { view } = useAllProductViewStore();
   const [searchProducts] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
   const router = useRouter();
   const [productsData, setProductsData] = useState<any>([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(Number(searchParams?.get("page")) || 1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const pageSize = 10;
+  const pageSize = 12;
   const numberOfPages = Math.ceil(totalCount / pageSize);
 
   const fetchProducts = useCallback(async () => {
@@ -81,6 +82,7 @@ const ProductsSection = () => {
     choiceParam,
     page,
     pageSize,
+    pageParam,
     queryParam,
   ]);
 
@@ -88,45 +90,95 @@ const ProductsSection = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams();
+    if (queryParam) newSearchParams.set("query", queryParam);
+    if (categoryParam) newSearchParams.set("category", categoryParam);
+    if (colorParam) newSearchParams.set("color", colorParam);
+    if (sortParam) newSearchParams.set("sort", sortParam);
+    if (priceParamString) newSearchParams.set("price", priceParamString);
+    if (choiceParam) newSearchParams.set("choice", choiceParam);
+    if (brandParam) newSearchParams.set("brand", brandParam);
+    newSearchParams.set("page", page.toString());
+
+    router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
+  }, [
+    page,
+    router,
+    queryParam,
+    categoryParam,
+    colorParam,
+    sortParam,
+    priceParamString,
+    choiceParam,
+    brandParam,
+  ]);
+
+  useEffect(() => {
+    // Update page state when URL changes
+    const currentPage = Number(searchParams?.get("page")) || 1;
+    if (currentPage !== page) {
+      setPage(currentPage);
+    }
+  }, [searchParams, page]);
+
   const handleNextPage = () => {
     if (page < numberOfPages) {
-      setPage(page + 1);
+      setPage((prevPage) => prevPage + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePrevPage = () => {
     if (page > 1) {
-      setPage(page - 1);
+      setPage((prevPage) => prevPage - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
   const renderPageNumbers = () => {
-    const maxPagesToShow = 6;
+    const maxPagesToShow = 12;
     const pages: React.ReactNode[] = [];
     const startPage = Math.max(
       1,
       Math.min(
         page - Math.floor(maxPagesToShow / 2),
-        numberOfPages - maxPagesToShow + 1
+        totalCount - maxPagesToShow + 1
       )
     );
 
     for (
       let i = startPage;
-      i < startPage + maxPagesToShow && i <= numberOfPages;
+      i <=
+      Math.min(
+        startPage + maxPagesToShow - 1,
+        Math.ceil(totalCount / pageSize)
+      );
       i++
     ) {
       pages.push(
         <button
           key={i}
           type="button"
-          onClick={() => setPage(i)}
-          className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-strongBeige border border-strongBeige hover:bg-strongBeige hover:text-white ${
+          onClick={() => {
+            const newSearchParams = new URLSearchParams();
+            if (queryParam) newSearchParams.set("query", queryParam);
+            if (categoryParam) newSearchParams.set("category", categoryParam);
+            if (colorParam) newSearchParams.set("color", colorParam);
+            if (sortParam) newSearchParams.set("sort", sortParam);
+            if (priceParamString)
+              newSearchParams.set("price", priceParamString);
+            if (choiceParam) newSearchParams.set("choice", choiceParam);
+            if (brandParam) newSearchParams.set("brand", brandParam);
+            newSearchParams.set("page", i.toString());
+
+            router.push(
+              `${window.location.pathname}?${newSearchParams.toString()}`
+            );
+          }}
+          className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-primaryColor border border-primaryColor hover:bg-primaryColor hover:text-white ${
             page === i
-              ? "bg-strongBeige text-white"
-              : "bg-white text-strongBeige"
+              ? "bg-primaryColor text-white"
+              : "bg-white text-primaryColor"
           }`}
         >
           {i}
@@ -138,7 +190,7 @@ const ProductsSection = () => {
       pages.push(
         <span
           key="more-pages"
-          className="flex items-center justify-center px-3 h-8 text-strongBeige border border-strongBeige"
+          className="flex items-center justify-center px-3 h-8 text-primaryColor border border-primaryColor"
         >
           ...
         </span>
@@ -153,9 +205,9 @@ const ProductsSection = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-between items-center  h-full bg-white ">
+        <div className="flex flex-col justify-between items-center  h-full  ">
           {!!queryParam && (
-            <h1 className="text-xl font-bold text-strongBeige mt-10 mb-10">
+            <h1 className="text-xl font-bold text-primaryColor mt-10 mb-10">
               {productsData.length} résultats trouvé pour "{queryParam}"
             </h1>
           )}
@@ -175,7 +227,7 @@ const ProductsSection = () => {
                 {productsData.map((product: Product) => (
                   <div
                     key={product.id}
-                    className={`
+                    className={` bg-white
               
               ${
                 view === 3 || view == 2
@@ -203,7 +255,7 @@ const ProductsSection = () => {
 
                 <button
                   type="button"
-                  className="hover:text-strongBeige gap-2 flex items-center justify-center transition-colors"
+                  className="hover:text-primaryColor gap-2 flex items-center justify-center transition-colors"
                   onClick={() => {
                     router.push("/Collections/tunisie", { scroll: true });
                   }}
@@ -215,40 +267,40 @@ const ProductsSection = () => {
             )
           )}
           {productsData.length === 0 && (
-            <div className="border shadow-md p-3  py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
+            <div className="border shadow-md p-3  mb-14 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
               <p className="  font-light  tracking-wider">
                 Désolé, mais de nombreux produits ne sont actuellement
                 disponibles.
               </p>
             </div>
           )}
-          {productsData.length > 0 && (
-            <div className="Page pagination justify-self-start h-32">
-              <ul className="inline-flex -space-x-px text-sm">
-                <li>
+          {/* {productsData.length > 0 && ( */}
+          <div className="Page pagination justify-self-start h-32">
+            <ul className="inline-flex -space-x-px text-sm">
+              {/* <li>
                   <button
                     type="button"
                     onClick={handlePrevPage}
                     disabled={page === 1}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-s-lg  ${page !== 1 && "hover:bg-strongBeige hover:text-white"} `}
+                    className={`flex items-center justify-center px-3 h-8 leading-tight text-primaryColor bg-white border border-primaryColor rounded-s-lg  ${page !== 1 && "hover:bg-primaryColor hover:text-white"} `}
                   >
                     Previous
                   </button>
-                </li>
-                {renderPageNumbers()}
-                <li>
+                </li> */}
+              {renderPageNumbers()}
+              {/* <li>
                   <button
                     type="button"
                     onClick={handleNextPage}
                     disabled={page === Math.ceil(totalCount / pageSize)}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-strongBeige bg-white border border-strongBeige rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-strongBeige hover:text-white"} `}
+                    className={`flex items-center justify-center px-3 h-8 leading-tight text-primaryColor bg-white border border-primaryColor rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-primaryColor hover:text-white"} `}
                   >
                     Next
                   </button>
-                </li>
-              </ul>
-            </div>
-          )}
+                </li> */}
+            </ul>
+          </div>
+          {/* )} */}
         </div>
       )}
     </>

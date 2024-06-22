@@ -11,7 +11,7 @@ export const BrandsCarousel = () => {
 
   return (
     <>
-      <div className="py-1 mt-10 w-full overflow-hidden z-20 bg-[#ffffffcc] shadow-md">
+      <div className="h-40 flex items-center mt-10 w-full overflow-hidden z-20 bg-[#ffffffcc] shadow-md">
         <Marquee
           gradient
           gradientColor="hsl(var(--widget))"
@@ -37,7 +37,7 @@ export const BrandsCarousel = () => {
                       {[...Array(5)].map((_, index) => (
                         <div
                           key={index}
-                          className="h-28 w-28 rounded-lg bg-mediumBeige"
+                          className="h-28 w-28 rounded-lg bg-secondaryColor"
                         >
                           <IoImageOutline className="h-12 w-12 text-gray-500" />
                         </div>

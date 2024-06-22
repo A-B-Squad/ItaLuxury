@@ -54,7 +54,7 @@ const TopBar = () => {
   );
 
   return (
-    <div className="flex z-10 top-0 lg:relative relative w-full border-t px-5 items-center white bg-white shadow-lg  justify-between border-b border-gray-200 ">
+    <div className="flex z-10 top-0 lg:relative relative w-full border-t px-5 items-center white bg-white shadow-md  justify-between border-b border-gray-200 ">
       <Breadcumb />
 
       <div className="flex items-center">

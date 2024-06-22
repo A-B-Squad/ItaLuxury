@@ -11,9 +11,8 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
   useEffect(() => {
     if (centerCarouselAds) {
       const allImages = centerCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images,
+        (ad: { images: string[] }) => ad.images
       );
-      console.log(allImages);
 
       setImages(allImages);
     }
@@ -21,7 +20,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
   return (
     <>
       {(images.length === 0 || loadingCenterAdsCarousel) && (
-        <div className="rounded-xl animate-pulse lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-mediumBeige flex flex-col justify-center items-center ">
+        <div className="rounded-xl animate-pulse lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-secondaryColor flex flex-col justify-center items-center ">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}
@@ -29,11 +28,12 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
       {images.length > 0 && (
         <Carousel
           autoplay
-          className="rounded-xl relative lg:min-w-4/5 w-full h-60 md:h-72 lg:min-h-[400px]  "
+          className="rounded-xl relative lg:min-w-4/5 group w-full h-60 md:h-72 lg:min-h-[400px]  "
           placeholder={""}
           onPointerEnterCapture={undefined}
           onPointerLeaveCapture={undefined}
         >
+     
           {images.map((image, index) => (
             <Link key={index} rel="preload" href={centerCarouselAds[0]?.link}>
               <Image
@@ -43,7 +43,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
                 loading="eager"
                 property="true"
                 alt={`image ${index + 1}`}
-                className=" hover:opacity-70 transition-all relative h-full w-full "
+                className="  transition-all relative h-full w-full "
               />
             </Link>
           ))}

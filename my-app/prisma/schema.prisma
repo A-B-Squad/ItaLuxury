@@ -48,6 +48,9 @@ model Category {
   parentId      String? // ID of the parent category
   products      Product[] // Products associated with this category
   subcategories Category[]  @relation("Subcategories") // One-to-Many self-relation
+  bigImage      String?
+  smallImage    String?
+  description    String?
   BestSales     BestSales[]
 }
 

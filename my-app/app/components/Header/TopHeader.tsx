@@ -50,7 +50,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
       toast({
         title: "Connexion",
         description: "Bienvenue",
-        className: "bg-strongBeige text-white",
+        className: "bg-primaryColor text-white",
       });
     },
     onError: (error) => {
@@ -100,7 +100,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             className="userMenu  group  "
             onMouseEnter={() => setShowMenuUserMenu(true)}
           >
-            <div className="flex   items-center gap-2 cursor-pointer hover:text-strongBeige transition-all">
+            <div className="flex   items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               Votre Compte
               <FiUser />
             </div>
@@ -143,7 +143,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full text-center py-1 px-5 text-sm font-semibold  rounded-full bg-strongBeige text-white hover:bg-mediumBeige focus:outline-none my-1 transition-all"
+                    className="w-full text-center py-1 px-5 text-sm font-semibold  rounded-full bg-primaryColor text-white hover:bg-secondaryColor focus:outline-none my-1 transition-all"
                   >
                     {loading ? "Chargement..." : "CONNEXION"}
                   </button>
@@ -153,7 +153,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <Link
                   rel="preload"
                   href={"/signup"}
-                  className="w-full py-2 px-1 text-xs border-b  bg-gray-100 hover:text-strongBeige flex justify-between items-center  transition-colors"
+                  className="w-full py-2 px-1 text-xs border-b  bg-gray-100 hover:text-primaryColor flex justify-between items-center  transition-colors"
                 >
                   <FiUser />
                   <p>NOUVEAU CLIENT?</p>
@@ -163,7 +163,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               {!decodedToken?.userId && (
                 <Link
                   rel="preload"
-                  className="w-full py-2  text-sm border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                  className="w-full py-2  text-sm border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
                   href={"/signin"}
                 >
                   <FiUser />
@@ -181,7 +181,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                       window.location.reload();
                     }
                   }}
-                  className="w-full text-sm py-2 border-b gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                  className="w-full text-sm py-2 border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
                   href={"/"}
                 >
                   <FiUser />
@@ -197,7 +197,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                     alert("Veuillez vous connecter pour voir vos favoris.");
                   }
                 }}
-                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-strongBeige flex justify-start items-center  transition-colors"
+                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-primaryColor flex justify-start items-center  transition-colors"
               >
                 <FiHeart />
                 <p className="font-semibold uppercase">Ma Liste D'envies</p>
@@ -210,7 +210,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                     alert("Veuillez vous connecter pour voir vos commandes.");
                   }
                 }}
-                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-strongBeige flex justify-start items-center  transition-colors"
+                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-primaryColor flex justify-start items-center  transition-colors"
               >
                 <GoPackageDependents />
                 <p className="font-semibold uppercase">Mes Commandes</p>
@@ -219,7 +219,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               <Link
                 rel="preload"
                 href={`/productComparison`}
-                className=" text-sm w-full py-2 gap-2 hover:text-strongBeige flex justify-start items-center  transition-colors"
+                className=" text-sm w-full py-2 gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
               >
                 <IoGitCompare />
                 <p className="font-semibold uppercase">
@@ -232,13 +232,13 @@ const TopHeader = ({ logo }: { logo: string }) => {
           <li
             onClick={openBasketDrawer}
             title="Votre Panier"
-            className="whishlist flex items-center gap-2 cursor-pointer hover:text-strongBeige transition-all"
+            className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
           >
             <p>Panier</p>
             <div className="relative inline-flex">
               <RiShoppingCartLine className="text-xl" />
               {quantityInBasket > 0 && (
-                <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-strongBeige text-white min-w-[20px] min-h-[20px]">
+                <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                   {quantityInBasket}
                 </span>
               )}

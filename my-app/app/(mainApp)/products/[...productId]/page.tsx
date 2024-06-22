@@ -9,7 +9,7 @@ export async function generateMetadata({ searchParams }: any) {
 
   const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
-  cache:"no-cache",
+    cache: "no-cache",
 
     headers: {
       "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const ProductDetailsPage = async ({ searchParams }: any) => {
   }
   const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
-    cache:"reload",
+    cache: "no-cache",
     headers: {
       "Content-Type": "application/json",
     },
@@ -107,13 +107,13 @@ const ProductDetailsPage = async ({ searchParams }: any) => {
     }),
   }).then((res) => res.json());
   return (
-    <>
-    <ProductDetails
-      productDetails={data?.productById}
-      productId={searchParams.productId}
+    <div className="bg-gray-50">
+      <ProductDetails
+        productDetails={data?.productById}
+        productId={searchParams.productId}
       />
-    <ProductInfo/>
-      </>
+      <ProductInfo />
+    </div>
   );
 };
 

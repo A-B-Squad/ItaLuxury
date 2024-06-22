@@ -16,13 +16,13 @@ const FullWidthAds = ({
   return (
     <>
       {FullAdsLoaded && (
-        <div className="grid relative animate-pulse w-full h-52 mt-12  place-items-center rounded-lg bg-mediumBeige ">
+        <div className="grid relative animate-pulse w-full h-52 mt-12  place-items-center rounded-lg bg-secondaryColor ">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}
 
       {!FullAdsLoaded && !FullImageAds && (
-        <div className="rounded-xl relative w-full h-52 mt-12 bg-mediumBeige flex flex-col justify-center items-center ">
+        <div className="rounded-xl relative w-full h-52 mt-12 bg-secondaryColor flex flex-col justify-center items-center ">
           <p>{"Full Ads"}</p>
           <p>180px x 960px</p>
         </div>

@@ -13,6 +13,7 @@ export const subcategoriesByParentId = async (
       include: {
         products: true, // Include products related to subcategories
         subcategories: true // Include subcategories related to subcategories
+        
       }
     });
 
