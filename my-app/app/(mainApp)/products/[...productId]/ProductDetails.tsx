@@ -14,6 +14,7 @@ import {
   GET_USER_REVIEW_QUERY,
   TAKE_10_PRODUCTS_BY_CATEGORY,
 } from "../../../../graphql/queries";
+import { AiTwotoneAlert } from "react-icons/ai";
 
 import ProductTabs from "@/app/components/ProductCarousel/productTabs";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
@@ -36,6 +37,7 @@ import {
 import Image from "next/legacy/image";
 import moment from "moment-timezone";
 import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
+import { HiOutlineBellAlert } from "react-icons/hi2";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -240,7 +242,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           parseInt(discount.dateOfEnd),
           DEFAULT_TIMEZONE
         );
-        console.log("now:", now.format(), "targetDate:", targetDate.format());
         targetDate.subtract(1, "hours");
 
         const timeUntilTarget = targetDate.diff(now);
@@ -302,13 +303,12 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         {!productDetails ? (
           <Loading />
         ) : (
-          <div className="   p-6  ">
+          <div className="p-6">
             <Breadcumb />
 
-            <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-center gap-10 bg-white p-4 border rounded-sm  ">
-           
-              <div className=" flex lg:flex-row flex-col  items-center col-span-9 lg:col-span-6 w-full text-center">
-                <div className="relative shadow-sm overflow-hidden  border  flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
+            <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm  ">
+              <div className=" flex lg:flex-row flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
+                <div className="relative shadow-sm overflow-hidden    flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
                   <InnerImageZoom
                     className=" h-fit flex items-center justify-center rounded "
                     zoomSrc={bigImage || ""}
@@ -331,7 +331,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   {smallImages?.map((image: string, index: number) => (
                     <div
                       key={index}
-                      className={`${image === bigImage ? "border-secondaryColor" : ""} cursor-pointer border-2  h-fit rounded-md  flex p-1`}
+                      className={`${image === bigImage ? "border-secondaryColor" : ""} cursor-pointer border-b-2  h-fit   flex p-1`}
                     >
                       <Image
                         width={90}
@@ -348,7 +348,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
               </div>
 
-              <div className="product lg:col-span-5 col-span-10 ">
+              <div className="product lg:col-span-6 col-span-12 p-3 w-full ">
                 <h2 className="product_name tracking-wider text-2xl w-fit font-semibold ">
                   {productDetails?.name}
                 </h2>
@@ -411,50 +411,12 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
                 <div className="Infomation_Details ">
                   <div className="Reference mt-3 flex items-center gap-1">
-                    <h3 className="text-base tracking-wider font-semibold capitalize  ">
+                    <h3 className="text-base tracking-wider font-semibold  capitalize  ">
                       Reference :
                     </h3>
                     <p className="text-gray-600">{productDetails?.reference}</p>
                   </div>
-                  <div className="Quantity flex items-center mt-3  space-x-2">
-                    <h3 className="text-lg tracking-wider font-semibold  capitalize text-primaryColor">
-                      Quantité
-                    </h3>
 
-                    <div className="flex border  divide-x-0 w-max overflow-hidden rounded-md">
-                      <button
-                        type="button"
-                        className="bg-lightBeige hover:bg-secondaryColor transition-all  px-3 py-1 font-semibold cursor-pointer"
-                        onClick={() => {
-                          setActualQuantity(
-                            actualQuantity > 1 ? actualQuantity - 1 : 1
-                          );
-                        }}
-                      >
-                        <RiSubtractFill />
-                      </button>
-                      <button
-                        type="button"
-                        className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
-                      >
-                        {actualQuantity}
-                      </button>
-                      <button
-                        type="button"
-                        className={`${actualQuantity === quantity && "opacity-45"}  bg-primaryColor text-white px-3 py-1 font-semibold cursor-pointer`}
-                        disabled={actualQuantity === productDetails?.inventory}
-                        onClick={() => {
-                          setActualQuantity(
-                            actualQuantity < productDetails?.inventory
-                              ? actualQuantity + 1
-                              : actualQuantity
-                          );
-                        }}
-                      >
-                        <FaPlus />
-                      </button>
-                    </div>
-                  </div>
                   <div className="Description">
                     <h3 className="text-lg tracking-wider font-bold capitalize  text-primaryColor mt-5">
                       Description
@@ -471,18 +433,68 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
                 <div className={` user_interaction flex flex-col gap-2 mt-8`}>
                   {actualQuantity === quantity && (
-                    <div className="flex items-center gap-3 ">
-                      <GoAlertFill color="yellow" size={20} />
+                    <div className="flex items-center text-sm gap-3 ">
+                      <GoAlertFill color="red" size={20} />
                       <p className="text-red-600 font-semibold tracking-wider">
                         La quantité maximale de produits est de {actualQuantity}
                         .
                       </p>
                     </div>
                   )}
-                  <div className="flex items-center  gap-4  ">
+                  {quantity == 1 && (
+                    <div className="flex text-sm items-center gap-3">
+
+                      <HiOutlineBellAlert color="orange" size={20} />
+                      <p className="text-red-600 font-semibold tracking-wider">
+                        Attention: Il ne reste qu'un 1 article en stock.
+                      </p>
+                    </div>
+                  )}
+                  <div className="Quantity flex items-center mt-3   space-x-2">
+                    <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
+                      Quantité: {" "}
+                    </h3>
+
+                    <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
+                   
+                      <button
+                        type="button"
+                        className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
+                        onClick={() => {
+                          setActualQuantity(
+                            actualQuantity > 1 ? actualQuantity - 1 : 1
+                          );
+                        }}
+                      >
+                        <RiSubtractFill />
+                      </button>
+
+                      <button
+                        type="button"
+                        className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
+                      >
+                        {actualQuantity}
+                      </button>
+                      <button
+                        type="button"
+                        className={`${actualQuantity === quantity && "opacity-45"} w-fit h-fit  bg-primaryColor text-white p-2 text-sm  font-semibold cursor-pointer`}
+                        disabled={actualQuantity === productDetails?.inventory}
+                        onClick={() => {
+                          setActualQuantity(
+                            actualQuantity < productDetails?.inventory
+                              ? actualQuantity + 1
+                              : actualQuantity
+                          );
+                        }}
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="addToBasket flex items-center mt-4  gap-4  ">
                     <button
                       type="button"
-                      className="min-w-[200px] transition-colors px-4 py-3 bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold rounded"
+                      className="min-w-[250px] transition-colors  py-4  shadow-lg bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold "
                       onClick={() => {
                         AddToBasket(productDetails);
                         toast({
@@ -545,7 +557,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </div>
                 </div>
 
-                <div className="Rating_stars flex col-span-10 space-x-2 mt-4 items-center">
+                <div className="Rating_stars flex  space-x-2 mt-4 items-center">
                   {[...Array(5)].map((_, index) => {
                     const currentIndex = index + 1;
                     return (
@@ -598,7 +610,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </h4>
                 </div>
 
-                <div className="Rating mt-8 w-full">
+                <div className="Rating mt-8 w-4/5">
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-primaryColor">
                       Note globale ({reviews})

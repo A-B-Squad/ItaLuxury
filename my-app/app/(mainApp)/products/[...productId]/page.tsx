@@ -1,7 +1,7 @@
 import React from "react";
 import ProductDetails from "./ProductDetails";
-import keywords from "@/public/keywords";
 import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
+import keywords from '@/public/keywords';
 export async function generateMetadata({ searchParams }: any) {
   if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");

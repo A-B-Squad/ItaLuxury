@@ -11,13 +11,13 @@ export default function PrivacyPolicy() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="leftAds h-fit  sticky top-24">
-          {/* <SideAds
+        {/* <SideAds
             adsLoaded={loadingclinetContactSideAds}
             image={clinetContactSideAds?.advertismentByPosition[0]?.images[0]}
             link={clinetContactSideAds?.advertismentByPosition[0]?.link}
             adsPositon={"Left Ads"}
           /> */}
-        </div>
+      </div>
       <header className="mb-8">
         <h1 className="text-3xl font-bold">Politique de Confidentialité</h1>
       </header>

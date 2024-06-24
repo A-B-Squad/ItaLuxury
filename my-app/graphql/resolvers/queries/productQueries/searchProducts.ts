@@ -5,8 +5,17 @@ export const searchProducts = async (
   { input }: { input: ProductSearchInput & { page: number; pageSize: number } },
   { prisma }: Context
 ) => {
-  const { query, minPrice, maxPrice, categoryId, colorId, page, choice, markeId, pageSize } =
-    input;
+  const {
+    query,
+    minPrice,
+    maxPrice,
+    categoryId,
+    colorId,
+    page,
+    choice,
+    markeId,
+    pageSize,
+  } = input;
 
   try {
     let whereCondition: any = {};
@@ -15,8 +24,11 @@ export const searchProducts = async (
       whereCondition.OR = [
         { name: { contains: query, mode: "insensitive" } },
         { description: { contains: query, mode: "insensitive" } },
-        { categories: { some: { name: { contains: query, mode: "insensitive" } } } },
-
+        {
+          categories: {
+            some: { name: { contains: query, mode: "insensitive" } },
+          },
+        },
       ];
     }
 
@@ -40,9 +52,10 @@ export const searchProducts = async (
     if (choice === "in-discount") {
       whereCondition.productDiscounts = { some: {} };
     } else if (choice === "new-product") {
-      whereCondition.createdAt = { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }; // Filter products created within the last 30 days (adjust as needed)
+      whereCondition.createdAt = {
+        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      }; // Filter products created within the last 30 days (adjust as needed)
     }
-
 
     // Calculate skip based on page and pageSize
     const skip = (page - 1) * pageSize;
@@ -51,13 +64,14 @@ export const searchProducts = async (
     const products = await prisma.product.findMany({
       where: {
         ...whereCondition,
-        isVisible: true
-
+        isVisible: true,
       },
       take: pageSize,
       skip,
       include: {
-        categories: { include: { subcategories: { include: { subcategories: true } } } }, // Include categories related to products
+        categories: {
+          include: { subcategories: { include: { subcategories: true } } },
+        }, // Include categories related to products
 
         productDiscounts: {
           include: {
@@ -70,7 +84,6 @@ export const searchProducts = async (
         attributes: true,
         Colors: true,
         Brand: true,
-
       },
     });
 
@@ -78,13 +91,13 @@ export const searchProducts = async (
 
     const categories = await prisma.category.findMany({
       where: { name: { contains: query || "", mode: "insensitive" } },
-      take: 5
-    })
+      take: 5,
+    });
 
     return {
       results: {
         products,
-        categories
+        categories,
       },
       totalCount: totalCount,
     };

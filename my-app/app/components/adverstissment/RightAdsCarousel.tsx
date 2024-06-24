@@ -10,12 +10,11 @@ const RightAdsCarousel = ({
   loadingRightAdsCarousel,
 }: any) => {
   const [images, setImages] = useState([]);
-  
 
   useEffect(() => {
     if (AdsNextToCarousel) {
       const allImages = AdsNextToCarousel.flatMap(
-        (ad: { images: string[] }) => ad.images
+        (ad: { images: string[] }) => ad.images,
       );
       setImages(allImages);
     }

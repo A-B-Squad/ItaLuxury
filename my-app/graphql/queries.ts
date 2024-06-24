@@ -1,15 +1,12 @@
 import { gql } from "@apollo/client";
 
-
-
 export const USER_QUERIES = gql`
-query FetchUsersById($userId: ID!) {
-  fetchUsersById(userId: $userId) {
-  fullName
- 
+  query FetchUsersById($userId: ID!) {
+    fetchUsersById(userId: $userId) {
+      fullName
+    }
   }
-}
-`
+`;
 export const PRODUCT_BY_ID_QUERY = gql`
   query ProductById($productByIdId: ID!) {
     productById(id: $productByIdId) {
@@ -271,20 +268,18 @@ export const CATEGORY_QUERY = gql`
   }
 `;
 export const MAIN_CATEGORY_QUERY = gql`
- query FetchMainCategories {
-  fetchMainCategories {
-    id
-    name 
-    bigImage
-    smallImage
-    subcategories {
+  query FetchMainCategories {
+    fetchMainCategories {
       id
+      name
+      bigImage
+      smallImage
+      subcategories {
+        id
+      }
     }
   }
-}
 `;
-
-
 
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($input: ProductSearchInput!) {
@@ -447,7 +442,7 @@ export const GET_PACKAGES_BY_USER_ID = gql`
   query PackageByUserId($userId: ID!) {
     packageByUserId(userId: $userId) {
       id
-      
+
       Checkout {
         total
         products {
@@ -480,8 +475,6 @@ export const GET_PACKAGES_BY_ID = gql`
   }
 `;
 
-
-
 export const ALL_BRANDS = `
   query FetchBrands {
     fetchBrands {
@@ -495,24 +488,20 @@ export const ALL_BRANDS = `
   }
 `;
 export const GET_GOVERMENT_INFO = gql`
-
-query AllGovernorate {
-  allGovernorate {
-    id
-    name
+  query AllGovernorate {
+    allGovernorate {
+      id
+      name
+    }
   }
-}
-
 `;
 export const CONTENT_VISIBILITY = gql`
-
-query GetSectionVisibility($section: String!) {
-  getSectionVisibility(section: $section) {
-  section
-  visibility_status  
+  query GetSectionVisibility($section: String!) {
+    getSectionVisibility(section: $section) {
+      section
+      visibility_status
+    }
   }
-}
-
 `;
 export const TAKE_6_PRODUCTS = gql`
   query Products($limit: Int!) {
@@ -628,19 +617,16 @@ export const PACKAGE_QUERY = gql`
   }
 `;
 export const DELETE_ALL_DISCOUNTS_QUERY = gql`
-query Query {
-  deleteAutoProductDiscount
-}
+  query Query {
+    deleteAutoProductDiscount
+  }
 `;
-
 
 export const FIND_UNIQUE_COUPONS = gql`
-query FindUniqueCoupons($codeInput: String!) {
-  findUniqueCoupons(codeInput: $codeInput) {
-    id
-    discount
+  query FindUniqueCoupons($codeInput: String!) {
+    findUniqueCoupons(codeInput: $codeInput) {
+      id
+      discount
+    }
   }
-}
 `;
-
-

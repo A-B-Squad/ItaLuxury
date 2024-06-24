@@ -6,7 +6,7 @@ import { checkoutMutations } from "./resolvers/mutations/checkoutMutations/check
 import { productQueries } from "./resolvers/queries/productQueries/productQueries";
 import { categoryQueries } from "./resolvers/queries/categoryQueries/categoryQueries";
 import { basketQueries } from "./resolvers/queries/basketQueries/basketQueries";
-import { governorateQueries } from './resolvers/queries/governorateQueries/governorateQueries';
+import { governorateQueries } from "./resolvers/queries/governorateQueries/governorateQueries";
 import { packageMutations } from "./resolvers/mutations/packagesMutations/packagesMutations";
 import { packageQueries } from "./resolvers/queries/packageQueries/packageQueries";
 import { CompanyInfoQueries } from "./resolvers/queries/companyInfoQueries.ts/companyInfoQueries";
@@ -14,7 +14,7 @@ import { companyMutations } from "./resolvers/mutations/companyMutations/company
 import { advertismentQueries } from "./resolvers/queries/advertisementQueries/advertismentQueries";
 import { adminMutations } from "./resolvers/mutations/adminMutations/adminMutations";
 import { topDealsMutations } from "./resolvers/mutations/topDealsMutations/topDealsMutations";
-import { dealsQueries } from './resolvers/queries/topDealsQueries/dealsQueries';
+import { dealsQueries } from "./resolvers/queries/topDealsQueries/dealsQueries";
 import { colorsQueries } from "./resolvers/queries/colorsQueries/colorsQueries";
 import { bestSalesQueries } from "./resolvers/queries/bestSalesQuery/bestSalesQueries";
 import { BrandQueries } from "./resolvers/queries/BrandQuery/brandQueries";
@@ -39,7 +39,11 @@ export const resolvers = {
     ...colorsQueries,
     ...bestSalesQueries,
     ...BrandQueries,
-    ...SectionQueries, ...contactUsQueries, ...usersQueries, ...couponsQueries, ...discountsQueries
+    ...SectionQueries,
+    ...contactUsQueries,
+    ...usersQueries,
+    ...couponsQueries,
+    ...discountsQueries,
   },
 
   Mutation: {
@@ -53,6 +57,7 @@ export const resolvers = {
     ...adminMutations,
     ...topDealsMutations,
     ...SectionVisibilityMutations,
-    ...contactUsMutations, ...advertismentMutations
+    ...contactUsMutations,
+    ...advertismentMutations,
   },
 };

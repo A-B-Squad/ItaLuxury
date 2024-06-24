@@ -45,7 +45,7 @@ const SideBar = ({ colors, brands, categories }: any) => {
             : [value];
         } else {
           updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value
+            (query) => query !== value,
           );
           if (updatedQueries[name].length === 0) {
             delete updatedQueries[name];
@@ -55,10 +55,10 @@ const SideBar = ({ colors, brands, categories }: any) => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}&page=1`,
-        { scroll: true }
+        { scroll: true },
       );
     },
-    [selectedFilterQueries, router]
+    [selectedFilterQueries, router],
   );
 
   const handleChoiceFilterOptions = useCallback(
@@ -74,11 +74,11 @@ const SideBar = ({ colors, brands, categories }: any) => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true }
+        { scroll: true },
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar]
+    [selectedFilterQueries, router, toggleOpenSidebar],
   );
 
   const handleColorSelection = useCallback(
@@ -87,11 +87,11 @@ const SideBar = ({ colors, brands, categories }: any) => {
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: true }
+        { scroll: true },
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar]
+    [selectedFilterQueries, router, toggleOpenSidebar],
   );
 
   useEffect(() => {
@@ -128,10 +128,10 @@ const SideBar = ({ colors, brands, categories }: any) => {
     (updatedQueries: any) => {
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        { scroll: false }
+        { scroll: false },
       );
     },
-    [router]
+    [router],
   );
 
   const handleCategoryClick = useCallback(
@@ -144,16 +144,16 @@ const SideBar = ({ colors, brands, categories }: any) => {
       updateSearchParams(updatedQueries);
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar]
+    [selectedFilterQueries, updateSearchParams, toggleOpenSidebar],
   );
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase())
+          selectedFilterQueries[name].includes(option.toLowerCase()),
       );
     },
-    [selectedFilterQueries]
+    [selectedFilterQueries],
   );
   return (
     <section

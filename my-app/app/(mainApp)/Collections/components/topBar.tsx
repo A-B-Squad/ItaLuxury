@@ -47,15 +47,17 @@ const TopBar = () => {
         })}`,
         {
           scroll: true,
-        },
+        }
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
 
   return (
-    <div className="flex z-10 top-0 lg:relative relative w-full border-t px-5 items-center white bg-white shadow-md  justify-between border-b border-gray-200 ">
-      <Breadcumb />
+    <div className=" container flex z-10 top-0 py-5  lg:relative relative w-full border-t px-5 items-center white bg-white shadow-md  justify-between border-b border-gray-200 ">
+      <div className="ml-4">
+        <Breadcumb />
+      </div>
 
       <div className="flex items-center">
         <Select

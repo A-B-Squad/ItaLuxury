@@ -102,13 +102,14 @@ const productDetailsDrawer = ({
             </div>
           </div>
           <div className="Quantity flex items-center  space-x-2">
-            <h3 className="text-lg tracking-wider font-semibold  capitalize text-primaryColor">
-              Quantité
-            </h3>
-            <div className="flex divide-x border w-max overflow-hidden rounded-md">
-              <button
+          <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
+                      Quantité: {" "}
+                    </h3>
+
+            <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
+            <button
                 type="button"
-                className="bg-lightBeige hover:bg-secondaryColor transition-all  px-3 py-1 font-semibold cursor-pointer"
+                className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
                     actualQuantity > 1 ? actualQuantity - 1 : 1
@@ -119,13 +120,13 @@ const productDetailsDrawer = ({
               </button>
               <button
                 type="button"
-                className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+                className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
               >
                 {actualQuantity}
               </button>
               <button
                 type="button"
-                className={`${actualQuantity === productDetails?.inventory && "opacity-45"} bg-primaryColor text-white px-3 py-1 font-semibold cursor-pointer`}
+                className={`${actualQuantity === productDetails?.inventory && "opacity-45"}w-fit h-fit  bg-primaryColor text-white p-2 text-sm  font-semibold cursor-pointer`}
                 onClick={() => {
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
@@ -138,10 +139,10 @@ const productDetailsDrawer = ({
               </button>
             </div>
           </div>
-          <div className="flex items-center w-60">
+          <div className="flex items-center w-60 transition-colors bg-primaryColor hover:bg-secondaryColor">
             <button
               type="button"
-              className="bg-primaryColor text-white px-4 py-2 rounded"
+              className=" text-white  py-3  w-full shadow-lg"
               onClick={() => {
                 AddToBasket(productDetails);
               }}

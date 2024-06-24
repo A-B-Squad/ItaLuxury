@@ -9,7 +9,7 @@ import ContactUsForm from "./componants/contactUsForm";
 const ContactUsPage = () => {
   return (
     <div className="contactUs flex flex-col items-center justify-center  ">
-      <Breadcumb pageName={"Contactez-Nous"} pageLink={"Contact-us"}/>
+      <Breadcumb pageName={"Contactez-Nous"} pageLink={"Contact-us"} />
       <div className=" container flex flex-col gap-10  py-10">
         <CompanyInfoBar />
         <ContactUsForm />

@@ -113,7 +113,7 @@ const Footer = () => {
                     {category?.name}
                   </Link>
                 </li>
-              )
+              ),
             )}
           </ul>
         </div>

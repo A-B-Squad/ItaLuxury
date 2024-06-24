@@ -109,8 +109,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
       toggleIsUpdated();
     },
@@ -132,8 +132,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
       toggleIsUpdated();
     },
@@ -146,7 +146,7 @@ const Basket = () => {
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId)
+        prevProducts.filter((product) => product.basketId !== basketId),
       );
       deleteBasketById({ variables: { basketId } });
       toggleIsUpdated();
@@ -156,7 +156,7 @@ const Basket = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [deleteBasketById, toast, toggleIsUpdated]
+    [deleteBasketById, toast, toggleIsUpdated],
   );
   return (
     <div className="">
@@ -206,8 +206,10 @@ const Basket = () => {
                                 product?.categories[0]?.id,
                                 product?.categories[0]?.subcategories[0]?.name,
                                 product?.categories[0]?.subcategories[0]?.id,
-                                product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
-                                product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
+                                product?.categories[0]?.subcategories[0]
+                                  ?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]
+                                  ?.subcategories[0]?.id,
                                 product?.name,
                               ],
                             },

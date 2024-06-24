@@ -7,7 +7,7 @@ import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 const BasketDrawer = dynamic(() => import("../components/BasketDrawer"));
 const DrawerMobile = dynamic(
-  () => import("../components/Header/CrategoryDrawer/DrawerMobile")
+  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const openSans = Open_Sans({
-  subsets: ["latin"],
+  subsets: ["cyrillic"],
 });
 if (!process.env.BASE_URL_DOMAIN) {
   throw new Error("BASE_URL_DOMAIN is not defined");

@@ -32,7 +32,7 @@ const TopDeals = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const TopDeals = () => {
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id
+          (p: any) => p.id === product.id,
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -97,11 +97,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ]
+    ],
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   const addToCompare = useCallback(
@@ -113,7 +113,7 @@ const TopDeals = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [addProductToCompare, toast]
+    [addProductToCompare, toast],
   );
 
   const renderProducts = useMemo(() => {
@@ -124,7 +124,7 @@ const TopDeals = () => {
           return (
             <div
               key={products?.product?.id}
-              className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-lg relative"
+              className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-sm relative"
             >
               <Link
                 rel="preload"
@@ -137,11 +137,12 @@ const TopDeals = () => {
                       products?.product?.categories[0]?.id,
                       products?.product?.categories[0]?.subcategories[0]?.name,
                       products?.product?.categories[0]?.subcategories[0]?.id,
-                      products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
-                      products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
+                      products?.product?.categories[0]?.subcategories[0]
+                        ?.subcategories[0]?.name,
+                      products?.product?.categories[0]?.subcategories[0]
+                        ?.subcategories[0]?.id,
                       products?.product?.name,
                     ],
-              
                   },
                 }}
                 className="h-56 lg:h-full  w-full"
@@ -233,10 +234,13 @@ const TopDeals = () => {
                       collection: [
                         products?.product?.categories[0]?.name,
                         products?.product?.categories[0]?.id,
-                        products?.product?.categories[0]?.subcategories[0]?.name,
+                        products?.product?.categories[0]?.subcategories[0]
+                          ?.name,
                         products?.product?.categories[0]?.subcategories[0]?.id,
-                        products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name,
-                        products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.id,
+                        products?.product?.categories[0]?.subcategories[0]
+                          ?.subcategories[0]?.name,
+                        products?.product?.categories[0]?.subcategories[0]
+                          ?.subcategories[0]?.id,
                         products?.product?.name,
                       ],
                     },
@@ -248,7 +252,7 @@ const TopDeals = () => {
                   <div className="prices flex gap-3 items-center lg:mt-3">
                     <span className="text-primaryColor font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3
+                        3,
                       )}
                       TND
                     </span>
@@ -319,7 +323,7 @@ const TopDeals = () => {
   ]);
 
   return (
-    <div className="md:grid grid-cols-2 gap-3 grid-flow-col overflow-hidden block">
+    <div className="md:grid grid-cols-2 gap-3 grid-flow-col bg-white border py-2 overflow-hidden block">
       {renderProducts}
     </div>
   );

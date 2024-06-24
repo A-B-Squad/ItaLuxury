@@ -237,7 +237,7 @@ const Checkout = () => {
                       <option key={goverment.id} value={goverment.id}>
                         {goverment.name.toUpperCase()}
                       </option>
-                    )
+                    ),
                   )}{" "}
                 </select>
 

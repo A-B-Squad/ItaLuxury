@@ -1,9 +1,10 @@
 import { categories } from "./fetchCategories";
 import { subcategoriesByParentId } from "./subcategoriesByParentId";
-import { categoryByName } from "./categoryByName";
+import { categoryById } from "./categoryById";
 import { fetchMainCategories } from "./fetchMainCategories";
 export const categoryQueries = {
-    categories,
-    subcategoriesByParentId,
-    categoryByName, fetchMainCategories
-}
+  categories,
+  subcategoriesByParentId,
+  categoryById,
+  fetchMainCategories,
+};

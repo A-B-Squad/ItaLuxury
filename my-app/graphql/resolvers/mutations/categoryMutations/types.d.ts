@@ -1,9 +1,16 @@
 interface CreateCategoryInput {
   name: string;
-  parentId: any;
+  parentId: string;
+  bigImage:string
+  smallImage:string
+  description:string
 }
 interface UpdateCategoryInput {
   name: string;
+  parentId: string;
+  bigImage:string
+  smallImage:string
+  description:string
 }
 
 interface CreateCheckoutInput {

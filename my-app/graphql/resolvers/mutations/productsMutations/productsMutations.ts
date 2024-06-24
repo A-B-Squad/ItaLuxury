@@ -6,6 +6,7 @@ import { sellProduct } from "./sellProduct";
 import { undoSellProduct } from "./undoSellProduct";
 import { deleteProductDiscount } from "./deleteProductDiscount";
 import { addRating } from "./addRating";
+import { addProductInventory } from "./addProductInventory";
 
 export const productsMutations = {
   createProduct,
@@ -15,5 +16,5 @@ export const productsMutations = {
   deleteProductDiscount, 
   undoSellProduct, 
   sellProduct,
-  addRating
+  addRating,addProductInventory
 };

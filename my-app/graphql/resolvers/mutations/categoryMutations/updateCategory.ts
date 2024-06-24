@@ -1,23 +1,26 @@
 import { Context } from "@/pages/api/graphql";
 
-
 export const updateCategory = async (
   _: any,
-  { id, input }: { id: string, input: UpdateCategoryInput },
+  { id, input }: { id: string; input: UpdateCategoryInput },
   { prisma }: Context
 ) => {
   try {
-    const { name } = input;
+    const { name, parentId, bigImage, smallImage, description } = input;
 
     // Update the category
-    const updatedCategory = await prisma.category.update({
+    await prisma.category.update({
       where: { id },
       data: {
-        name
-      }
+        name,
+        parentId: parentId || null,
+        bigImage: bigImage || null,
+        smallImage,
+        description,
+      },
     });
 
-    return updatedCategory;
+    return "Category Updated ";
   } catch (error) {
     console.error("Error updating category:", error);
     return new Error("Failed to update category");

@@ -6,12 +6,20 @@ export const createCategory = async (
   { prisma }: Context
 ) => {
   try {
-    const { name, parentId } = input;
+    const { name, parentId,
+      bigImage,
+      smallImage,
+      description
+
+    } = input;
     // Create the new category
     const newCategory = await prisma.category.create({
       data: {
         name,
-        parentId: parentId || null, // Set parentId to null if it's not provided
+        parentId: parentId || null,
+        bigImage: bigImage || null,
+        smallImage,
+        description,
       },
     });
 
@@ -30,6 +38,8 @@ export const createCategory = async (
     }
     return "new Category created";
   } catch (error) {
+    console.log(error, "============================");
+
     console.error("Error creating category:", error);
     return new Error("Failed to create category");
   }
