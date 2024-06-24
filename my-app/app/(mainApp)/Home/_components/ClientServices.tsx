@@ -18,7 +18,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient1(data.advertismentByPosition);
       },
-    }
+    },
   );
   const { loading: loadingClientService2, data: clientService2 } = useQuery(
     CLIENT_SERVICES,
@@ -27,7 +27,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient2(data.advertismentByPosition);
       },
-    }
+    },
   );
   const { loading: loadingClientService3, data: clientService3 } = useQuery(
     CLIENT_SERVICES,
@@ -36,7 +36,7 @@ const ClientServices = () => {
       onCompleted: (data) => {
         setClient3(data.advertismentByPosition);
       },
-    }
+    },
   );
 
   return (

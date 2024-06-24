@@ -11,7 +11,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
   useEffect(() => {
     if (centerCarouselAds) {
       const allImages = centerCarouselAds.flatMap(
-        (ad: { images: string[] }) => ad.images
+        (ad: { images: string[] }) => ad.images,
       );
 
       setImages(allImages);
@@ -28,12 +28,11 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
       {images.length > 0 && (
         <Carousel
           autoplay
-          className="rounded-xl relative lg:min-w-4/5 group w-full h-60 md:h-72 lg:min-h-[400px]  "
+          className="rounded-md border relative lg:min-w-4/5 group w-full h-60 md:h-72 lg:min-h-[400px]  "
           placeholder={""}
           onPointerEnterCapture={undefined}
           onPointerLeaveCapture={undefined}
         >
-     
           {images.map((image, index) => (
             <Link key={index} rel="preload" href={centerCarouselAds[0]?.link}>
               <Image

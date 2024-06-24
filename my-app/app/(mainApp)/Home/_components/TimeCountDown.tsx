@@ -18,7 +18,6 @@ const TimeCountDown = () => {
       if (createdAt) {
         const now = moment().tz(DEFAULT_TIMEZONE);
         const targetDate = moment.tz(parseInt(createdAt), DEFAULT_TIMEZONE);
-        console.log("now:", now.format(), "targetDate:", targetDate.format());
         targetDate.subtract(1, "hours");
 
         const timeUntilTarget = targetDate.diff(now);

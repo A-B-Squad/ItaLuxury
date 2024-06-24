@@ -10,6 +10,7 @@ import { useAllProductViewStore } from "../../../store/zustand";
 
 import { FaRegTrashAlt } from "react-icons/fa";
 import Loading from "../loading";
+import Pagination from "../components/Paginations";
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
@@ -142,8 +143,8 @@ const ProductsSection = () => {
       1,
       Math.min(
         page - Math.floor(maxPagesToShow / 2),
-        totalCount - maxPagesToShow + 1
-      )
+        totalCount - maxPagesToShow + 1,
+      ),
     );
 
     for (
@@ -151,7 +152,7 @@ const ProductsSection = () => {
       i <=
       Math.min(
         startPage + maxPagesToShow - 1,
-        Math.ceil(totalCount / pageSize)
+        Math.ceil(totalCount / pageSize),
       );
       i++
     ) {
@@ -172,7 +173,7 @@ const ProductsSection = () => {
             newSearchParams.set("page", i.toString());
 
             router.push(
-              `${window.location.pathname}?${newSearchParams.toString()}`
+              `${window.location.pathname}?${newSearchParams.toString()}`,
             );
           }}
           className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-primaryColor border border-primaryColor hover:bg-primaryColor hover:text-white ${
@@ -182,7 +183,7 @@ const ProductsSection = () => {
           }`}
         >
           {i}
-        </button>
+        </button>,
       );
     }
 
@@ -193,7 +194,7 @@ const ProductsSection = () => {
           className="flex items-center justify-center px-3 h-8 text-primaryColor border border-primaryColor"
         >
           ...
-        </span>
+        </span>,
       );
     }
 
@@ -246,7 +247,7 @@ const ProductsSection = () => {
           ) : (
             productsData.length > 0 &&
             !!searchParams?.getAll("") && (
-              <div className="border shadow-md p-3  py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
+              <div className="border bg-white shadow-md p-3  py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
                 <p className="  font-light  tracking-wider">
                   Désolé, mais de nombreux produits ne sont pas disponibles avec
                   cette option de filtrage.
@@ -267,40 +268,30 @@ const ProductsSection = () => {
             )
           )}
           {productsData.length === 0 && (
-            <div className="border shadow-md p-3  mb-14 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
+            <div className="border shadow-md p-3 bg-white mb-14 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
               <p className="  font-light  tracking-wider">
                 Désolé, mais de nombreux produits ne sont actuellement
                 disponibles.
               </p>
             </div>
           )}
+
+{productsData.length > 0 && (
+              <Pagination
+                currentPage={page}
+                totalPages={Math.ceil(totalCount / pageSize)}
+                onPageChange={setPage}
+              />
+            )}
+
           {/* {productsData.length > 0 && ( */}
-          <div className="Page pagination justify-self-start h-32">
+          {/* <div className="Page pagination justify-self-start h-32">
             <ul className="inline-flex -space-x-px text-sm">
-              {/* <li>
-                  <button
-                    type="button"
-                    onClick={handlePrevPage}
-                    disabled={page === 1}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-primaryColor bg-white border border-primaryColor rounded-s-lg  ${page !== 1 && "hover:bg-primaryColor hover:text-white"} `}
-                  >
-                    Previous
-                  </button>
-                </li> */}
+          
               {renderPageNumbers()}
-              {/* <li>
-                  <button
-                    type="button"
-                    onClick={handleNextPage}
-                    disabled={page === Math.ceil(totalCount / pageSize)}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-primaryColor bg-white border border-primaryColor rounded-e-lg  ${page !== Math.ceil(totalCount / pageSize) && "hover:bg-primaryColor hover:text-white"} `}
-                  >
-                    Next
-                  </button>
-                </li> */}
+            
             </ul>
-          </div>
-          {/* )} */}
+          </div> */}
         </div>
       )}
     </>

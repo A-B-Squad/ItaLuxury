@@ -343,7 +343,7 @@ fetchAllCoupons:[Coupons!]
   subcategoriesByParentId(parentId: ID!): [Category!]
 
   # Fetch a category by its name
-  categoryByName(categoryName: String!): Category!
+  categoryById(categoryId: String!): Category!
 
   # Fetch the basket of a user by user ID
   basketByUserId(userId: ID!): [Basket!]!
@@ -419,7 +419,8 @@ type Mutation {
   updateProduct(productId: ID!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
   addRating(productId:ID!,userId:ID!,rating:Int!):String!
-
+  addProductInventory(productId:ID!, inventory:Int!):String!
+  
   # New mutation to undo product sale
   undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
   
@@ -449,7 +450,7 @@ type Mutation {
   payedPackage(packageId:ID!):String!
   # Category mutations
   createCategory(input: CreateCategoryInput!): String!
-  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  updateCategory(id: ID!, input: UpdateCategoryInput!): String!
   deleteCategory(id: ID!): String!
 
   # Mutation to add product to favorites
@@ -518,15 +519,18 @@ input CreateCategoryInput {
   name: String!
   parentId: ID
   bigImage:String
-smallImage:String
-description:String
+  smallImage:String
+  description:String
 
 }
 
 # Define the UpdateCategoryInput input type
 input UpdateCategoryInput {
   name: String
+  parentId:ID
   description: String
+  smallImage:String
+  bigImage:String
 }
 
 # Define the BackOrExchange input type

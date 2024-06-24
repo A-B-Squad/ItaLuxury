@@ -20,7 +20,7 @@ const ResetPassword = () => {
     if (password !== confirmPassword) {
       setIsError(true);
       setErrorMessage(
-        "Le mot de passe et la confirmation du mot de passe doivent être identiques !"
+        "Le mot de passe et la confirmation du mot de passe doivent être identiques !",
       );
     } else {
       resetPassword({

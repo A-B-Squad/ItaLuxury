@@ -33,7 +33,7 @@ function NotFound() {
           height={400}
           quality={100}
         />
-        <p className="pt-2 pb-5 text-lg font-light">
+        <p className="pt-2 bg-white pb-5 text-lg font-light">
           Je suis désolé, mais la page que vous demandez est introuvable.
         </p>
       </div>

@@ -13,7 +13,10 @@ export const metadata: Metadata = {
 const pageTermsOfUse = () => {
   return (
     <>
-      <Breadcumb pageName={"Conditions d'Utilisation"} pageLink={"Terms-of-use"} />
+      <Breadcumb
+        pageName={"Conditions d'Utilisation"}
+        pageLink={"Terms-of-use"}
+      />
       <PrivacyPolicy />;
     </>
   );

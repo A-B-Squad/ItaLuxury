@@ -58,7 +58,7 @@ const MainCategoriesSlide = () => {
                 </Link>
               </CarouselItem>
             </>
-          )
+          ),
         )}
       </CarouselContent>
       <CarouselPrevious className="px-2 left-5 transition-all bg-primaryColor text-white " />

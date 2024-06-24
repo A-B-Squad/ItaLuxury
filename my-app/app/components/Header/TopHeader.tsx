@@ -28,7 +28,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [showLogout, setShowMenuUserMenu] = useState<Boolean>(false);
   const { openBasketDrawer } = useDrawerBasketStore();
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket
+    (state) => state.quantityInBasket,
   );
   const { productsInCompare } = useComparedProductsStore((state) => ({
     productsInCompare: state.products,

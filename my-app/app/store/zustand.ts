@@ -24,8 +24,6 @@ type BasketStore = {
   toggleIsUpdated: () => void;
 };
 
-
-
 interface ProductData {
   id: string;
   name: string;
@@ -88,7 +86,9 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
   addProductToCompare: (product: any) => {
     const currentProducts = get().products;
     // Check if the product already exists in the products array
-    const isProductInStore = currentProducts.some((p: any) => p.id === product.id);
+    const isProductInStore = currentProducts.some(
+      (p: any) => p.id === product.id,
+    );
     if (!isProductInStore) {
       set((state: any) => ({ products: [...state.products, product] }));
     }

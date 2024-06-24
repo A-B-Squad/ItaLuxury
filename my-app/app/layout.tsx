@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const openSans = Open_Sans({
-  subsets: ["latin"],
+  subsets: ["cyrillic"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
       </head>
-      <body className={openSans.className }>
+      <body className={openSans.className}>
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
       </body>

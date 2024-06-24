@@ -1,13 +1,13 @@
 import dynamic from "next/dynamic";
-import TopBar from "./_components/topBar";
-const SideBar = dynamic(() => import("./_components/sideBar"));
-import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
+import TopBar from "./components/topBar";
+const SideBar = dynamic(() => import("./components/sideBar"));
 
 import React, { ReactNode } from "react";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import keywords from "@/public/keywords";
 import { ALL_BRANDS, COLORS_QUERY } from "../../../graphql/queries";
+import ProductInfo from '@/app/components/ProductInfo/ProductInfo';
 type Props = {
   children: ReactNode;
 };
@@ -59,7 +59,7 @@ export default async function Layout({ children }: Props) {
   }).then((res) => res.json());
   const { data: Brands } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
     method: "POST",
-    cache:"reload",
+    cache: "reload",
     headers: {
       "Content-Type": "application/json",
     },

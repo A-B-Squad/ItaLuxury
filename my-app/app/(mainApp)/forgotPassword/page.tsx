@@ -21,7 +21,6 @@ const ForgotPassword = () => {
         email,
       },
       onCompleted: (data) => {
-        console.log(data);
 
         toast({
           title: "E-mail envoyé",

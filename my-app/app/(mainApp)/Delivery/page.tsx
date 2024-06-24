@@ -35,9 +35,8 @@ const DeliveryPage = async () => {
 
   return (
     <div className="flex flex-col  items-center  justify-center  h-max mb-16 py-10 px-2 relative ">
-    <Breadcumb pageName={"Expéditions et retours"} pageLink={"Delivery"}/>
+      <Breadcumb pageName={"Expéditions et retours"} pageLink={"Delivery"} />
       <div className="container flex gap-8 relative h-full">
-
         <div className="leftAds h-fit  sticky top-24">
           <SideAds
             adsLoaded={loadingclinetContactSideAds}

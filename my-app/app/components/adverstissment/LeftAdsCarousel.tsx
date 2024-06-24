@@ -14,7 +14,7 @@ const LeftAdsCarousel = ({
   useEffect(() => {
     if (AdsNextToCarousel) {
       const allImages = AdsNextToCarousel.flatMap(
-        (ad: { images: string[] }) => ad.images
+        (ad: { images: string[] }) => ad.images,
       );
       setImages(allImages);
     }
@@ -36,7 +36,7 @@ const LeftAdsCarousel = ({
       {images.length > 0 && (
         <div className="left-ads flex lg:flex-col  gap-5 md:gap-12">
           <Link
-            className="relative group w-[12rem] overflow-hidden md:w-[15rem] hover:opacity-90 transition-all xl:w-[20rem]"
+            className="relative group w-[12rem] rounded-md border bg-white overflow-hidden md:w-[15rem] hover:opacity-90 transition-all xl:w-[20rem]"
             href={AdsNextToCarousel[0]?.link}
           >
             <span
@@ -56,7 +56,7 @@ const LeftAdsCarousel = ({
             />
           </Link>
           <Link
-            className="relative group w-[12rem] md:w-[15rem] overflow-hidden  xl:w-[20rem]"
+            className="relative group w-[12rem] rounded-md bg-white border md:w-[15rem] overflow-hidden  xl:w-[20rem]"
             href={AdsNextToCarousel[1]?.link}
           >
             <span
