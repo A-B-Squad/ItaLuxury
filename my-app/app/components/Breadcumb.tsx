@@ -3,7 +3,6 @@ import React from "react";
 import { IoHome } from "react-icons/io5";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { IoMdArrowDropright } from "react-icons/io";
 
 const Breadcumb = ({ pageName, pageLink }: any) => {
   const params = useSearchParams();

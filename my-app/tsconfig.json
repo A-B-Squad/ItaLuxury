@@ -18,18 +18,22 @@
         "name": "next"
       }
     ],
-
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*", "./app/*", "./app/(mainApp)/*"],
-      "@/app/public/*": ["./app/public/*"]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/app/*": ["./app/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/public/*": ["./public/*"]
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/.tsx",
+    "**/*.tsx",
     ".next/types/**/*.ts",
-    "lib/apollo-wrapper.tsx"
-, "app/(mainApp)/Home/@mainCategoriesSlide/mainCategoriesSlide.tsx"  ],
+    "lib/apollo-wrapper.tsx",
+    "app/(mainApp)/Home/@mainCategoriesSlide/mainCategoriesSlide.tsx"
+  ],
   "exclude": ["node_modules"]
 }

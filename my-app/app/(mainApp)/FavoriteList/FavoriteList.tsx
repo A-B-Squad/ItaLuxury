@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { FAVORITE_PRODUCTS_QUERY } from "../../../graphql/queries";
+import { FAVORITE_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
 
 import Loading from "../loading";
-import { ProductBox } from "../../components/ProductBox";
+import { ProductBox } from "@/app/components/ProductBox";
 import { HiX } from "react-icons/hi";
 
 interface DecodedToken extends JwtPayload {

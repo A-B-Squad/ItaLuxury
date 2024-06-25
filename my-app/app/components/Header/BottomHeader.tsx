@@ -8,7 +8,7 @@ import {
   useDrawerBasketStore,
   useDrawerMobileStore,
   useProductsInBasketStore,
-} from "../../store/zustand";
+} from "@/app/store/zustand";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { GoPackageDependents } from "react-icons/go";

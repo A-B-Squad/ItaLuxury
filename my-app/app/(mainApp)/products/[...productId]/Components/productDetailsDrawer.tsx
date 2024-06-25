@@ -1,6 +1,5 @@
 import {
   useBasketStore,
-  useComparedProductsStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";

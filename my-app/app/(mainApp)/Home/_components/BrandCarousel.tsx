@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import Marquee from "react-fast-marquee";
 import Image from "next/legacy/image";
 import { useQuery } from "@apollo/client";
-import { GET_BRANDS } from "../../../../graphql/queries";
+import { GET_BRANDS } from "@/graphql/queries";
 import { IoImageOutline } from "react-icons/io5";
 
 export const BrandsCarousel = () => {

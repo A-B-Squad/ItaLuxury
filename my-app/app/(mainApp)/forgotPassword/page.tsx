@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
-import { FORGOT_PASSWORD_MUTATION } from "../../../graphql/mutations";
+import { FORGOT_PASSWORD_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
 
 const ForgotPassword = () => {

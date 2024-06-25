@@ -1,11 +1,6 @@
-import { useEffect } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 
 type DrawerMobileCategoryStore = {
   isOpen: boolean;

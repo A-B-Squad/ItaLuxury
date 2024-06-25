@@ -3,7 +3,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "../../../components/ui/carousel";
+} from "@/components/ui/carousel";
 import React from "react";
 import { IoImageOutline } from "react-icons/io5";
 

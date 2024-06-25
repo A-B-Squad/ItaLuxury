@@ -11,7 +11,7 @@ import {
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
-} from "../../store/zustand";
+} from "@/app/store/zustand";
 import { IoGitCompare } from "react-icons/io5";
 import Image from "next/legacy/image";
 import { GoPackageDependents } from "react-icons/go";
@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
-import { useOutsideClick } from "../../Helpers/_outsideClick";
+import { useOutsideClick } from "@/app/Helpers/_outsideClick";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }

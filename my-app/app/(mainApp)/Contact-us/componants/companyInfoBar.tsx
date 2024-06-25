@@ -3,7 +3,7 @@ import React from "react";
 import { useQuery } from "@apollo/client";
 import { CiLocationOn, CiPhone } from "react-icons/ci";
 import { AiOutlineMail } from "react-icons/ai";
-import { COMPANY_INFO_QUERY } from "../../../../graphql/queries";
+import { COMPANY_INFO_QUERY } from "@/graphql/queries";
 
 const CompanyInfoBar = () => {
   const { data: CompanyInfoData } = useQuery(COMPANY_INFO_QUERY);

@@ -14,7 +14,7 @@ import {
   useDrawerBasketStore,
   useProductDetails,
   useProductsInBasketStore,
-} from "../store/zustand";
+} from "@/app/store/zustand";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "./ProductCarousel/FavoriteProduct";
@@ -23,7 +23,7 @@ import { FaBasketShopping } from "react-icons/fa6";
 import Image from "next/legacy/image";
 import { useToast } from "@/components/ui/use-toast";
 import calcDateForNewProduct from "../Helpers/_calcDateForNewProduct";
-import prepRoute from "../Helpers/_prepRoute";
+import prepRoute from "@/app/Helpers/_prepRoute";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }

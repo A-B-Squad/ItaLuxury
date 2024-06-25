@@ -6,13 +6,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
 import { RiShoppingCartLine } from "react-icons/ri";
-import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import {
   useBasketStore,
   useComparedProductsStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
-} from "../../store/zustand";
+} from "@/app/store/zustand";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY } from "../../../graphql/queries";
@@ -27,7 +27,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    }),
+    })
   );
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
@@ -51,7 +51,7 @@ const ProductComparison = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast],
+    [removeProductFromCompare, toast]
   );
 
   const { addProductToBasket } = useProductsInBasketStore((state) => ({
@@ -78,7 +78,7 @@ const ProductComparison = () => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -171,7 +171,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3,
+                                    3
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND

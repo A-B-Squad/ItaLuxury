@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
 import { HiViewGrid } from "react-icons/hi";
-import Breadcumb from "../../../components/Breadcumb";
+import Breadcumb from "@/app/components/Breadcumb";
 import {
   Select,
   SelectContent,
