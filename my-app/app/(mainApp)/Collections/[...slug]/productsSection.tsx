@@ -2,11 +2,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLazyQuery } from "@apollo/client";
-import { SEARCH_PRODUCTS_QUERY } from "../../../../graphql/queries";
+import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { IoMdArrowDropdown } from "react-icons/io";
 
-import { ProductBox } from "../../../components/ProductBox";
-import { useAllProductViewStore } from "../../../store/zustand";
+import { ProductBox } from "@/app/components/ProductBox";
+import { useAllProductViewStore } from "@/app/store/zustand";
 
 import { FaRegTrashAlt } from "react-icons/fa";
 import Loading from "../loading";
@@ -143,8 +143,8 @@ const ProductsSection = () => {
       1,
       Math.min(
         page - Math.floor(maxPagesToShow / 2),
-        totalCount - maxPagesToShow + 1,
-      ),
+        totalCount - maxPagesToShow + 1
+      )
     );
 
     for (
@@ -152,7 +152,7 @@ const ProductsSection = () => {
       i <=
       Math.min(
         startPage + maxPagesToShow - 1,
-        Math.ceil(totalCount / pageSize),
+        Math.ceil(totalCount / pageSize)
       );
       i++
     ) {
@@ -173,7 +173,7 @@ const ProductsSection = () => {
             newSearchParams.set("page", i.toString());
 
             router.push(
-              `${window.location.pathname}?${newSearchParams.toString()}`,
+              `${window.location.pathname}?${newSearchParams.toString()}`
             );
           }}
           className={`flex items-center justify-center px-3 h-8 leading-tight cursor-pointer text-primaryColor border border-primaryColor hover:bg-primaryColor hover:text-white ${
@@ -183,7 +183,7 @@ const ProductsSection = () => {
           }`}
         >
           {i}
-        </button>,
+        </button>
       );
     }
 
@@ -194,7 +194,7 @@ const ProductsSection = () => {
           className="flex items-center justify-center px-3 h-8 text-primaryColor border border-primaryColor"
         >
           ...
-        </span>,
+        </span>
       );
     }
 
@@ -276,13 +276,13 @@ const ProductsSection = () => {
             </div>
           )}
 
-{productsData.length > 0 && (
-              <Pagination
-                currentPage={page}
-                totalPages={Math.ceil(totalCount / pageSize)}
-                onPageChange={setPage}
-              />
-            )}
+          {productsData.length > 0 && (
+            <Pagination
+              currentPage={page}
+              totalPages={Math.ceil(totalCount / pageSize)}
+              onPageChange={setPage}
+            />
+          )}
 
           {/* {productsData.length > 0 && ( */}
           {/* <div className="Page pagination justify-self-start h-32">

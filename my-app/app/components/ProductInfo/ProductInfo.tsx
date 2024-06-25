@@ -10,12 +10,12 @@ import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { ADD_TO_BASKET_MUTATION } from "../../../graphql/mutations";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import {
   useBasketStore,
   useProductDetails,
   useProductsInBasketStore,
-} from "../../store/zustand";
+} from "@/app/store/zustand";
 import { GoAlertFill } from "react-icons/go";
 import { SlBasket } from "react-icons/sl";
 import { BASKET_QUERY } from "@/graphql/queries";

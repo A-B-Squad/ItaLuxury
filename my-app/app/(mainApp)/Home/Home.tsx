@@ -1,20 +1,20 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import AdsCarousel from "@/components/adverstissment/carousel";
+import AdsCarousel from "@/app/components/adverstissment/carousel";
 import RightAdsCarousel from "../../components/adverstissment/RightAdsCarousel";
-import SideAds from "@/components/adverstissment/sideAds";
-import TitleProduct from "@/components/ProductCarousel/titleProduct";
+import SideAds from "@/app/components/adverstissment/sideAds";
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import BestSales from "./@TopSales/BestSales";
 import React, { useMemo } from "react";
-import ProductInfo from "../../components/ProductInfo/ProductInfo";
+import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
 import Services from "./_components/services";
 import Link from "next/link";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { BrandsCarousel } from "./_components/BrandCarousel";
 import TimeCountDown from "./_components/TimeCountDown";
-import FullWidthAds from "../../components/adverstissment/FullWidth";
-import ProductTabs from "@/components/ProductCarousel/productTabs";
+import FullWidthAds from "@/app/components/adverstissment/FullWidth";
+import ProductTabs from "@/app/components/ProductCarousel/productTabs";
 import TopDeals from "./@TopDeals/TopDeals";
 const ClientServices = dynamic(() => import("./_components/ClientServices"));
 
@@ -34,25 +34,25 @@ const Home = () => {
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "SideNewProduct" },
-    },
+    }
   );
   const { data: rightAds, loading: loadingRightAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "SidePromotion" },
-    },
+    }
   );
   const { data: BannerPromotion, loading: loadingFullPromotionAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "BannerPromotion" },
-    },
+    }
   );
   const { data: leftCarouselAds, loading: loadingLeftCarouselAds } = useQuery(
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "leftCarouselAds" },
-    },
+    }
   );
   const { data: AdsNextToCarousel, loading: loadingAdsNextToCarousel } =
     useQuery(ADVERTISSMENT_QUERY, {
@@ -63,7 +63,7 @@ const Home = () => {
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "BannerLessThen20" },
-    },
+    }
   );
   const { data: centerCarouselAds, loading: loadingCenterCarouselAds } =
     useQuery(ADVERTISSMENT_QUERY, {
@@ -73,13 +73,13 @@ const Home = () => {
     ADVERTISSMENT_QUERY,
     {
       variables: { position: "BannerBestDeals" },
-    },
+    }
   );
   const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
     TAKE_6_PRODUCTS_PRICE_20,
     {
       variables: { limit: 6 },
-    },
+    }
   );
   const { data: Products_inDiscount_6, loading: loadingProducts_inDiscount_6 } =
     useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, {
@@ -89,7 +89,7 @@ const Home = () => {
     TAKE_6_PRODUCTS,
     {
       variables: { limit: 6 },
-    },
+    }
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
     variables: { section: "top sells" },
@@ -99,11 +99,11 @@ const Home = () => {
   const newProducts = useMemo(() => NewProducts_6?.products, [NewProducts_6]);
   const productsDiscounts = useMemo(
     () => Products_inDiscount_6?.productsDiscounts,
-    [Products_inDiscount_6],
+    [Products_inDiscount_6]
   );
   const productsLessThan20 = useMemo(
     () => Products_less_20?.productsLessThen20,
-    [Products_less_20],
+    [Products_less_20]
   );
   return (
     <div className="Home py-10 flex min-h-screen flex-col items-center px-8">

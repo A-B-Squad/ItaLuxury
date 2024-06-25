@@ -7,14 +7,14 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
-import { DELETE_BASKET_BY_ID_MUTATION } from "../../graphql/mutations";
-import { BASKET_QUERY } from "../../graphql/queries";
-import prepRoute from "../Helpers/_prepRoute";
+import { DELETE_BASKET_BY_ID_MUTATION } from "@/graphql/mutations";
+import { BASKET_QUERY } from "@/graphql/queries";
+import prepRoute from "@/app/Helpers/_prepRoute";
 import {
   useBasketStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
-} from "../store/zustand";
+} from "@/app/store/zustand";
 import Image from "next/legacy/image";
 import { CiTrash } from "react-icons/ci";
 interface DecodedToken extends JwtPayload {

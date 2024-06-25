@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useProductsInBasketStore } from "../../store/zustand";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SIGNUP_MUTATION } from "../../../graphql/mutations";
+import { SIGNUP_MUTATION } from "@/graphql/mutations";
 
 const Signup = () => {
   const [errorMessage, setErrorMessage] = useState("");
