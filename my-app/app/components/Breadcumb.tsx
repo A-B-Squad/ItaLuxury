@@ -19,7 +19,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
       {pageName && (
         <>
           <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
+          <div className=" text-primaryColor  transition-all flex items-center gap-2">
             <Link rel="preload" href={`/${pageLink}`}>
               {pageName}
             </Link>

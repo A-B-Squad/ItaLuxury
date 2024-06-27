@@ -13,7 +13,7 @@ export const searchProducts = async (
     colorId,
     page,
     choice,
-    markeId,
+    brandId,
     pageSize,
   } = input;
 
@@ -42,8 +42,8 @@ export const searchProducts = async (
     if (categoryId) {
       whereCondition.categories = { some: { id: categoryId } };
     }
-    if (markeId) {
-      whereCondition.Brand = { id: markeId };
+    if (brandId) {
+      whereCondition.Brand = { id: brandId };
     }
 
     if (colorId) {

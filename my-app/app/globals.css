@@ -78,13 +78,13 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #f17e7e;
-  border-radius: 5px;
+  background: #c7ae91;
+  /* border-radius: 5px; */
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #f17e7e;
+  background: #c7ae91;
 }
 .loader {
   width: 48px;

@@ -6,9 +6,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import React from "react";
-import { ProductBox } from "../ProductBox";
 import NoProductYet from "./NoProductYet";
-
+import ProductBox from "../ProductBox/ProductBox";
 const ProductTabs = ({ data, loadingNewProduct, carouselWidthClass }: any) => {
   return (
     <div className="products-tab w-full  relative cursor-pointer rounded-md shadow-sm grid">

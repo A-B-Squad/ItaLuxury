@@ -1,7 +1,7 @@
 import Breadcumb from "@/app/components/Breadcumb";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
-import React from "react";
+import React, { Fragment } from "react";
 const PrivacyPolicy = dynamic(() => import("./Privacy-Policy"));
 
 export const metadata: Metadata = {
@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 
 const pagePricacyPolicy = () => {
   return (
-    <>
+    <div className="p-6">
       <Breadcumb
         pageName={"Politique de Confidentialité"}
         pageLink={"Privacy-Policy"}
       />
 
       <PrivacyPolicy />
-    </>
+    </div>
   );
 };
 

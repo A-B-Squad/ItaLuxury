@@ -249,6 +249,24 @@ export const ADVERTISSMENT_QUERY = gql`
     }
   }
 `;
+export const CATEGORIES_QUERY = `
+  query Categories {
+    categories {
+      id
+      name
+      subcategories {
+        id
+        name
+        parentId
+        subcategories {
+          id
+          name
+          parentId
+        }
+      }
+    }
+  }
+`;
 export const CATEGORY_QUERY = gql`
   query Categories {
     categories {

@@ -1,23 +1,28 @@
 "use client";
 import { useQuery } from "@apollo/client";
 import React from "react";
-import { COMPANY_INFO_QUERY } from "@/graphql/queries";
+import { ADVERTISSMENT_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
+import SideAds from "@/app/components/adverstissment/sideAds";
 
 export default function PrivacyPolicy() {
   const { data: companyInfoData } = useQuery(COMPANY_INFO_QUERY);
 
   const companyInfo = companyInfoData?.companyInfo;
-
+  const { data: clinetContactSideAds, loading: loadingclinetContactSideAds } =
+    useQuery(ADVERTISSMENT_QUERY, {
+      variables: { position: "clinetContactSideAds" },
+    });
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="leftAds h-fit  sticky top-24">
-        {/* <SideAds
-            adsLoaded={loadingclinetContactSideAds}
-            image={clinetContactSideAds?.advertismentByPosition[0]?.images[0]}
-            link={clinetContactSideAds?.advertismentByPosition[0]?.link}
-            adsPositon={"Left Ads"}
-          /> */}
+    <div className="container flex gap-14  px-10 bg-white border ">
+      <div className="clinetContactSideAds h-fit  sticky top-24">
+        <SideAds
+          adsLoaded={loadingclinetContactSideAds}
+          image={clinetContactSideAds?.advertismentByPosition[0]?.images[0]}
+          link={clinetContactSideAds?.advertismentByPosition[0]?.link}
+          adsPositon={"clinet Contact"}
+        />
       </div>
+      <div className="flex flex-col">
       <header className="mb-8">
         <h1 className="text-3xl font-bold">Politique de Confidentialité</h1>
       </header>
@@ -92,6 +97,8 @@ export default function PrivacyPolicy() {
           </ul>
         </section>
       </main>
+      </div>
+
     </div>
   );
 }

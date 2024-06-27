@@ -8,8 +8,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import Cookies from "js-cookie";
 
 import Loading from "../loading";
-import { ProductBox } from "@/app/components/ProductBox";
 import { HiX } from "react-icons/hi";
+import ProductBox from "../../components/ProductBox/ProductBox";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -23,7 +23,7 @@ const FavoriteList = () => {
     FAVORITE_PRODUCTS_QUERY,
     {
       fetchPolicy: "no-cache",
-    },
+    }
   );
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const FavoriteList = () => {
 
           if (data) {
             const fetchedProducts = data.favoriteProducts.map(
-              (fav: any) => fav.Product,
+              (fav: any) => fav.Product
             );
             setProductsData(fetchedProducts);
           }

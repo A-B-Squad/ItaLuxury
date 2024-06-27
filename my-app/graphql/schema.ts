@@ -640,7 +640,7 @@ input ProductInputQuantity {
 input ProductSearchInput {
   query: String
   choice: String
-  markeId: String
+  brandId: String
   minPrice: Float
   maxPrice: Float
   categoryId: ID
