@@ -5,7 +5,7 @@ interface ProductSearchInput {
   categoryId?: string | null;
   colorId?: string | null;
   choice?: string | null;
-  markeId?: string | null;
+  brandId?: string | null;
   page?: number 
   pageSize?: number ;
 

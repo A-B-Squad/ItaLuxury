@@ -33,7 +33,7 @@ const FullWidthAds = ({
               className=" h-[85px] md:h-[200px]"
               src={FullImageAds}
               layout="fill"
-              objectFit="fill"
+              objectFit="contain"
               loading="eager"
               alt="adsFullWidth"
             />

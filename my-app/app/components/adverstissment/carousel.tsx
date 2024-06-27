@@ -38,7 +38,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: any) => {
               <Image
                 layout="fill"
                 src={image}
-                objectFit="cover"
+                objectFit="contain"
                 loading="eager"
                 property="true"
                 alt={`image ${index + 1}`}

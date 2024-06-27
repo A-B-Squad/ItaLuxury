@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 };
 const pageTermsOfUse = () => {
   return (
-    <>
+    <div className="p-6">
       <Breadcumb
         pageName={"Conditions d'Utilisation"}
         pageLink={"Terms-of-use"}
       />
       <PrivacyPolicy />;
-    </>
+    </div>
   );
 };
 

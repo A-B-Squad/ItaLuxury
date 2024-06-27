@@ -11,7 +11,7 @@ const CompanyInfoBar = () => {
   const location = CompanyInfoData?.companyInfo?.location;
   const email = CompanyInfoData?.companyInfo?.email;
   return (
-    <div className="w-full border  shadow-lg">
+    <div className="  w-full border  shadow-lg">
       <h1 className="py-4 px-2 border-b text-xl capitalize bg-gray-50">
         Informations{" "}
       </h1>

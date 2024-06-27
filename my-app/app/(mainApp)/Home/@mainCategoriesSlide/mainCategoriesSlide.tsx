@@ -43,7 +43,7 @@ const MainCategoriesSlide = () => {
                       width={100}
                       height={100}
                       alt={category.name}
-                      objectFit="cover"
+                      objectFit="contain"
                       className="h-24 w-24 object-cover"
                     />
                   )}

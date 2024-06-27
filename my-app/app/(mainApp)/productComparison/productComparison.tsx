@@ -99,7 +99,7 @@ const ProductComparison = () => {
   return (
     <>
       {products.length > 0 ? (
-        <div className="relative overflow-x-auto p-8">
+        <div className="relative overflow-x-auto p-6">
           <h1 className="font-bold text-2xl">
             Compare Produits ({products?.length})
           </h1>

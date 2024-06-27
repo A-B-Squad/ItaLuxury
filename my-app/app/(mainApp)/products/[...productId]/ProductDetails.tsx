@@ -303,7 +303,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         {!productDetails ? (
           <Loading />
         ) : (
-          <div className="p-6">
+          <div>
             <Breadcumb />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm  ">
@@ -443,7 +443,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   )}
                   {quantity == 1 && (
                     <div className="flex text-sm items-center gap-3">
-
                       <HiOutlineBellAlert color="orange" size={20} />
                       <p className="text-red-600 font-semibold tracking-wider">
                         Attention: Il ne reste qu'un 1 article en stock.
@@ -452,11 +451,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   )}
                   <div className="Quantity flex items-center mt-3   space-x-2">
                     <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
-                      Quantité: {" "}
+                      Quantité:{" "}
                     </h3>
 
                     <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
-                   
                       <button
                         type="button"
                         className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
