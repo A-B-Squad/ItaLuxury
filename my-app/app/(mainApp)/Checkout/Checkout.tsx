@@ -143,12 +143,12 @@ const Checkout = () => {
       ) : (
         <div className="flex justify-center items-center w-full my-10">
           <div className=" container grid sm:px-10  w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32 ">
-            <div className="px-4 pt-8 ">
+            <div className="p-8 bg-white h-fit ">
               <p className="text-xl font-medium">
                 Récapitulatif de la commande
               </p>
               <p className="text-gray-400">Vérifiez vos articles.</p>
-              <div className="mt-8 space-y-3 divide-y-2 shadow-sm rounded-lg border bg-white px-2 py-4 sm:px-6">
+              <div className="mt-8 space-y-3 divide-y-2 shadow-sm rounded-lg border  px-2 py-4 sm:px-6">
                 {products.map((product: any) => (
                   <div
                     className="flex flex-col rounded-lg bg-white sm:flex-row"
@@ -179,7 +179,7 @@ const Checkout = () => {
                 ))}
               </div>
             </div>
-            <div className="px-4 pt-8  ">
+            <div className="px-4 pt-8 bg-white border ">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <label
                   htmlFor="fullname"

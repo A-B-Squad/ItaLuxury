@@ -12,7 +12,7 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,
+    SEARCH_PRODUCTS_QUERY
   );
 
   const router = useRouter();
@@ -76,7 +76,7 @@ const SearchBar = () => {
         <CiSearch className="size-7 text-white" />
       </span>
       {data && searching && (
-        <div className="bg-gray-50 border-2 w-full left-0 absolute top-11  overflow-y-scroll max-h-80 py-2 pl-4">
+        <div className="bg-white border-2 w-full left-0 absolute top-11  overflow-y-scroll max-h-80 py-2 pl-4">
           {categories && (
             <ul className="border-b-black mb-5">
               <h3 className="font-bold tracking-wider ">
@@ -125,20 +125,22 @@ const SearchBar = () => {
                       ],
                     },
                   }}
-                  className="flex items-center relative gap-3 border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300  cursor-pointer"
+                  className="flex items-center relative gap-3  border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300  cursor-pointer"
                 >
                   {result.productDiscounts.length > 0 && (
                     <p className="bg-red-500 py-1 px-2 absolute right-1 top-1 text-white text-xs">
                       PROMO!
                     </p>
                   )}
-                  <Image
-                    width={80}
-                    height={80}
-                    src={result.images[0]}
-                    objectFit="contain"
-                    alt="product img"
-                  />
+                  <div className="h-16 w-16 relative">
+                    <Image
+                      layout="fill"
+                      src={result.images[0]}
+                      objectFit="contain"
+                      className=""
+                      alt="product img"
+                    />
+                  </div>
                   <div className="text-sm gap-2 flex flex-col">
                     <p className="w-full text-base font-medium">
                       {result.name}

@@ -64,14 +64,13 @@ const TrackingPackages: React.FC = () => {
   const [userPackages] = useLazyQuery(GET_PACKAGES_BY_USER_ID);
 
   // Query to fetch package by ID based on search input
-  const {
-    loading: loadingPackageById,
-    data: packageById,
-    error: packageByIdError,
-  } = useQuery(GET_PACKAGES_BY_ID, {
-    variables: { packageId: searchInput },
-    skip: !searchInput,
-  });
+  const { loading: loadingPackageById, data: packageById } = useQuery(
+    GET_PACKAGES_BY_ID,
+    {
+      variables: { packageId: searchInput },
+      skip: !searchInput,
+    }
+  );
 
   // Effect to fetch user packages if no search has been performed and user is authenticated
   useEffect(() => {
@@ -117,7 +116,7 @@ const TrackingPackages: React.FC = () => {
     | "EN ATTENTE"
     | "RETOUR"
     | "ÉCHANGE"
-    | "LIVRÉ"
+    | "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON"
     | "EN TRAITEMENT"
     | "PAYÉ";
 
@@ -127,7 +126,7 @@ const TrackingPackages: React.FC = () => {
       PENDING: "EN ATTENTE",
       BACK: "RETOUR",
       EXCHANGE: "ÉCHANGE",
-      DELIVERED: "LIVRÉ",
+      TRANSFER_TO_DELIVERY_COMPANY: "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON",
       PROCESSING: "EN TRAITEMENT",
       PAYED: "PAYÉ",
     };
@@ -139,7 +138,7 @@ const TrackingPackages: React.FC = () => {
     "EN ATTENTE": "bg-yellow-400",
     RETOUR: "bg-blue-400",
     ÉCHANGE: "bg-purple-400",
-    LIVRÉ: "bg-green-400",
+    "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON": "bg-green-400",
     "EN TRAITEMENT": "bg-orange-400",
     PAYÉ: "bg-green-400",
   };
@@ -164,7 +163,7 @@ const TrackingPackages: React.FC = () => {
         {loadingPackageById ? (
           <Loading />
         ) : packages?.length > 0 ? (
-          <Table>
+          <Table className="border">
             <TableCaption>Liste de vos colis récents.</TableCaption>
             <TableHeader className="bg-[#cc8c70] text-white">
               <TableRow>
@@ -175,7 +174,7 @@ const TrackingPackages: React.FC = () => {
                 <TableHead>Total</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="bg-white ">
               {packages.map((pkg) => (
                 <TableRow key={pkg.id} className="relative">
                   <TableCell>{pkg.id}</TableCell>
@@ -207,7 +206,7 @@ const TrackingPackages: React.FC = () => {
           </Table>
         ) : (
           <div className="flex items-center justify-center">
-            <div className="border shadow-md p-3 w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
+            <div className="border shadow-md p-3 w-4/5 py-5 bg-white text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center ">
               <p className="font-normal tracking-wider text-center text-gray-600">
                 {!searchInput && packages.length === 0
                   ? "Bienvenue sur notre plateforme! Vous n'avez pas encore passé de commandes. Explorez nos produits et trouvez ce que vous aimez."

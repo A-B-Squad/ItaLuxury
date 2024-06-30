@@ -4,14 +4,16 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
+import Image from "next/image";
+import "../../globals.css"
+
 import { useToast } from "@/components/ui/use-toast";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useForm } from "react-hook-form";
-
+import { FaEnvelope, FaLock, FaGoogle, FaFacebook } from "react-icons/fa";
 const Signin = () => {
   const { toast } = useToast();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isError, setIsError] = useState(false);
   const router = useRouter();
   const {
     register,
@@ -22,21 +24,18 @@ const Signin = () => {
   const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
     onCompleted: () => {
       toast({
-        title: "Connexion",
-        description: "Bienvenue",
-        className: "bg-primaryColor text-white",
+        title: "Connexion réussie",
+        description: "Bienvenue sur MaisonNg",
+        className: "bg-green-500 text-white",
       });
       router.replace("/");
     },
     onError: (error) => {
-      if (error) {
-        setIsError(true);
-        if (error.message === "Invalid email or password") {
-          setErrorMessage("Email ou mot de passe invalide");
-        } else if (error.message === "Invalid password") {
-          setErrorMessage("Mot de passe invalide");
-        }
-      }
+      setErrorMessage(
+        error.message === "Invalid email or password"
+          ? "Email ou mot de passe invalide"
+          : "Une erreur s'est produite. Veuillez réessayer."
+      );
     },
   });
 
@@ -45,80 +44,162 @@ const Signin = () => {
   };
 
   return (
-    <div className="bg-lightBeige min-h-screen flex flex-col">
-      <div className="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">
-        <div className="bg-white px-6 py-8 rounded shadow-md text-black w-full">
-          <h1 className="mb-8 text-3xl text-center">Se Connecter</h1>
-          {isError && (
+    <div className="bg-gray-100 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Image
+          className="mx-auto  "
+          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1715518497/hoyr6n9tf2n68kiklveg.jpg"
+          alt="MaisonNg"
+          width={200}
+          height={200}
+        />
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Connectez-vous à votre compte
+        </h2>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {errorMessage && (
             <div
-              id="alert-border-2"
-              className="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-800 dark:bg-red-200 dark:border-red-800"
+              className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
               role="alert"
             >
-              <svg
-                className="flex-shrink-0 w-4 h-4"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-              </svg>
-              <div className="ms-3 text-sm font-medium">{errorMessage}</div>
+              <span className="block sm:inline">{errorMessage}</span>
             </div>
           )}
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <input
-              type="text"
-              className="block border  border-grey-light w-full p-3 rounded mb-4"
-              placeholder="E-mail"
-              {...register("email", { required: "Email is required" })}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.email.message as string}
-              </p>
-            )}
-            <input
-              type="password"
-              className="block border border-grey-light w-full p-3 rounded mb-4"
-              placeholder="Mot de passe"
-              {...register("password", { required: "Password is required" })}
-            />
-            {errors.password && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.password.message as string}
-              </p>
-            )}
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Adresse e-mail
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaEnvelope
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
+                    errors.email ? "border-red-300" : ""
+                  }`}
+                  placeholder="vous@exemple.com"
+                  {...register("email", { required: "L'email est requis" })}
+                />
+              </div>
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.email.message as string}
+                </p>
+              )}
+            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full text-center py-3 rounded bg-secondaryColor text-white hover:bg-primaryColor focus:outline-none my-1 transition-all"
-            >
-              {loading ? "Chargement..." : "Se Connecter"}
-            </button>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Mot de passe
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="********"
+                  autoComplete="current-password"
+                  className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
+                    errors.password ? "border-red-300" : ""
+                  }`}
+                  {...register("password", {
+                    required: "Le mot de passe est requis",
+                  })}
+                />
+              </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.password.message as string}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                {loading ? "Chargement..." : "Se connecter"}
+              </button>
+            </div>
           </form>
-        </div>
+          {/* //Google
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  Ou continuer avec
+                </span>
+              </div>
+            </div>
 
-        <div className="text-grey-dark mt-6">
-          Vous n'avez pas un compte ?{" "}
-          <Link
-            className="no-underline border-b text-sm border-blue text-blue-700"
-            href="/signup"
-          >
-            S'inscrire
-          </Link>
-          .
-          <br />
-          Mot de passe oublié ?{" "}
-          <Link
-            className="no-underline text-sm border-b border-blue text-blue-700"
-            href="/forgotPassword"
-          >
-            Changer mot de passe
-          </Link>
-          .
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div>
+                <Link
+                  href="#"
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <FaGoogle className="h-5 w-5" />
+                  <span className="sr-only">Sign in with Google</span>
+                </Link>
+              </div>
+
+              <div>
+                <Link
+                  href="#"
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <FaFacebook className="h-5 w-5" />
+                  <span className="sr-only">Sign in with Facebook</span>
+                </Link>
+              </div>
+            </div>
+          </div> */}
+
+          <div className="mt-6 flex flex-col space-y-2 text-center text-sm">
+            <p className="text-gray-600">
+              Vous n'avez pas de compte ?{" "}
+              <Link
+                href="/signup"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                S'inscrire
+              </Link>
+            </p>
+            <p className="text-gray-600">
+              <Link
+                href="/forgotPassword"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

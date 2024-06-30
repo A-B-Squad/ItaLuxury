@@ -17,7 +17,7 @@ enum Status {
   PENDING
   BACK
   EXCHANGE
-  DELIVERED
+  TRANSFER_TO_DELIVERY_COMPANY
   PROCESSING
   PAYED
 }
@@ -50,7 +50,7 @@ model Category {
   subcategories Category[]  @relation("Subcategories") // One-to-Many self-relation
   bigImage      String?
   smallImage    String?
-  description    String?
+  description   String?
   BestSales     BestSales[]
 }
 
@@ -157,6 +157,7 @@ model ProductInCheckout {
 
 model Package {
   id         String   @id @default(uuid())
+  customId   String   @unique
   Checkout   Checkout @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   checkoutId String
   status     Status
@@ -244,8 +245,9 @@ model ContactUs {
 }
 
 model Coupons {
-  id       String     @id @default(uuid())
-  code     String
-  discount Int?       @default(0)
-  checkout Checkout[]
+  id        String     @id @default(uuid())
+  code      String
+  discount  Int?       @default(0)
+  available Boolean    @default(true)
+  checkout  Checkout[]
 }
