@@ -12,8 +12,8 @@ enum Status {
   BACK
   EXCHANGE
   PROCESSING
-  DELIVERED
-  PAYED
+  TRANSFER_TO_DELIVERY_COMPANY
+    PAYED
 }
 
 # Define the cause enumeration
@@ -158,6 +158,7 @@ type productInBasket {
 # Define the Package type
 type Package {
   id: ID!
+  customId:String!
   checkoutId: ID!
   status: Status!
   createdAt: String!
@@ -286,10 +287,11 @@ type ContactUs {
 
 
 type Coupons {
-  id: String!
-  code:String!
-  discount:Int!
-  checkout:Checkout!
+  id: String
+  code:String
+  discount:Int
+  available:Boolean
+  checkout:[Checkout!]
 }
 
 
@@ -307,9 +309,9 @@ type Query {
   
   # Fetch Best Sales
   getBestSales(limit:Int): [BestSales!]
-#fetch Coupons
-findUniqueCoupons(codeInput:String!):Coupons
-fetchAllCoupons:[Coupons!]
+  #fetch Coupons
+  findUniqueCoupons(codeInput:String!):Coupons
+  fetchAllCoupons(page:Int,pageSize:Int):[Coupons!]
   # Fetch all products
   products(limit:Int): [Product!]
 
@@ -469,6 +471,11 @@ type Mutation {
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
   # Contact Us 
   createContactUs(input:ContactUsInput!):String!
+
+# delete coupons
+deleteCoupons(couponsId: ID!): String!
+  createCoupons(input:CreateCouponInput!):String!
+
 
 }
 
@@ -660,6 +667,11 @@ input advertisementInput{
   images:[String!]!
   position: String!
   link:String!
+}
+# Coupons input
+input CreateCouponInput{
+  code:String!
+  discount:Int!
 }
 
 `;

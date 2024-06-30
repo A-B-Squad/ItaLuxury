@@ -26,6 +26,7 @@ import { usersQueries } from "./resolvers/queries/usersQueries/usersQueries";
 import { couponsQueries } from "./resolvers/queries/coupons/couponsQueries";
 import { advertismentMutations } from "./resolvers/mutations/advertisementMutations/advertismentMutations";
 import { discountsQueries } from "./resolvers/queries/discountsQueries/discountsQueries";
+import { couponsMutations } from "./resolvers/mutations/couponsMutations/couponsMutations";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -58,6 +59,6 @@ export const resolvers = {
     ...topDealsMutations,
     ...SectionVisibilityMutations,
     ...contactUsMutations,
-    ...advertismentMutations,
+    ...advertismentMutations,...couponsMutations
   },
 };

@@ -113,7 +113,7 @@ const Footer = () => {
                     {category?.name}
                   </Link>
                 </li>
-              ),
+              )
             )}
           </ul>
         </div>
@@ -144,9 +144,6 @@ const Footer = () => {
             >
               Contactez-nous
             </Link>
-            <p className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm">
-              Plan du site
-            </p>
           </div>
         </div>
         <div className="entreprise">
@@ -267,12 +264,6 @@ const Footer = () => {
                   className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                 >
                   Contactez-nous
-                </Link>
-                <Link
-                  href={""}
-                  className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
-                >
-                  Plan du site
                 </Link>
               </div>
             </AccordionContent>

@@ -19,33 +19,40 @@ if (process.env.NODE_ENV === "development") {
 interface LayoutProps {
   children: ReactNode;
 }
+if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+  throw new Error("NEXT_PUBLIC_API_URL is not defined");
+}
 
 export const metadata: Metadata = {
-  title:
-    "Vente en ligne en Tunisie : Découvrez des offres exclusives sur notre plateforme",
+  metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+  title: "Vente en ligne en Tunisie | Offres exclusives | MaisonNg",
   description:
-    "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits. Commandez dès maintenant !",
+    "Découvrez les meilleures offres et produits en ligne en Tunisie sur MaisonNg. Large gamme de produits de qualité avec promotions exceptionnelles. Livraison rapide et paiement sécurisé.",
   keywords: keywords.join(", "),
   openGraph: {
-    title: "Vente en ligne en Tunisie - Offres exclusives",
+    title: "Vente en ligne en Tunisie | Offres exclusives | MaisonNg",
     description:
-      "Découvrez les meilleures offres et produits en ligne en Tunisie. Commandez maintenant !",
+      "Découvrez les meilleures offres et produits en ligne en Tunisie sur MaisonNg. Commandez maintenant !",
     type: "website",
     locale: "fr_TN",
-    siteName: "Your Site Name",
+    siteName: "MaisonNg",
+    images: [
+      {
+        url: "../../../public/images/logo.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "MaisonNg - Vente en ligne en Tunisie",
+      },
+    ],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Vente en ligne en Tunisie - Offres exclusives",
-    description:
-      "Découvrez les meilleures offres et produits en ligne en Tunisie. Commandez maintenant !",
+
+  alternates: {
+    canonical: "/products",
   },
 };
 
 async function fetchData() {
-  if (!process.env.NEXT_PUBLIC_API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
-  }
+
 
   const [categoriesData, brandsData, colorsData] = await Promise.all([
     fetchGraphQLData(CATEGORIES_QUERY),
@@ -69,9 +76,7 @@ export default async function Layout({ children }: LayoutProps) {
         <TopBar />
       </header>
       <div className="w-full flex">
-        {/* <aside className="sticky"> */}
-          <SideBar categories={categories} brands={brands} colors={colors} />
-        {/* </aside> */}
+        <SideBar categories={categories} brands={brands} colors={colors} />
         <main style={{ width: "inherit" }} className="relative">
           <ProductInfo />
           {children}

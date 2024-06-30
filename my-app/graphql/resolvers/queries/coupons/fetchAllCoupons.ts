@@ -1,8 +1,25 @@
 import { Context } from "@/pages/api/graphql";
 
-export const fetchAllCoupons = async (_: any, __: any, { prisma }: Context) => {
+export const fetchAllCoupons = async (
+  _: any,
+  { page, pageSize }: any,
+  { prisma }: Context,
+) => {
   try {
-    const allCoupons = prisma.coupons.findMany();
+    console.log(page);
+    console.log(pageSize);
+    
+    //  Calculate skip based on page and pageSize
+    const skip = (page - 1) * pageSize;
+    const allCoupons = prisma.coupons.findMany({
+      include: {
+        checkout: {
+          include: { products: true },
+        },
+      },
+      take: pageSize,
+      skip,
+    });
     return allCoupons;
   } catch (error) {
     console.log(`Failed to fetch All coupons`, error);

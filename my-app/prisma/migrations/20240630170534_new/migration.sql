@@ -2,7 +2,7 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'DELIVERED', 'PROCESSING', 'PAYED');
+CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'TRANSFER_TO_DELIVERY_COMPANY', 'PROCESSING', 'PAYED');
 
 -- CreateEnum
 CREATE TYPE "Cause" AS ENUM ('BROKEN', 'CANCEL', 'COLOR');
@@ -24,6 +24,9 @@ CREATE TABLE "Category" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "parentId" TEXT,
+    "bigImage" TEXT,
+    "smallImage" TEXT,
+    "description" TEXT,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -106,12 +109,14 @@ CREATE TABLE "Basket" (
 -- CreateTable
 CREATE TABLE "Checkout" (
     "id" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
     "userId" TEXT,
     "governorateId" TEXT,
     "phone" INTEGER[],
     "address" TEXT NOT NULL,
-    "total" INTEGER NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "couponsId" TEXT,
 
     CONSTRAINT "Checkout_pkey" PRIMARY KEY ("id")
 );
@@ -129,7 +134,8 @@ CREATE TABLE "ProductInCheckout" (
 -- CreateTable
 CREATE TABLE "Package" (
     "id" TEXT NOT NULL,
-    "checkoutId" TEXT,
+    "customId" TEXT NOT NULL,
+    "checkoutId" TEXT NOT NULL,
     "status" "Status" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -202,6 +208,8 @@ CREATE TABLE "CompanyInfo" (
     "logo" TEXT NOT NULL,
     "instagram" TEXT NOT NULL,
     "facebook" TEXT NOT NULL,
+    "location" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
 
     CONSTRAINT "CompanyInfo_pkey" PRIMARY KEY ("id")
 );
@@ -209,7 +217,7 @@ CREATE TABLE "CompanyInfo" (
 -- CreateTable
 CREATE TABLE "content_visibility" (
     "id" TEXT NOT NULL,
-    "section" INTEGER NOT NULL,
+    "section" TEXT NOT NULL,
     "visibility_status" BOOLEAN NOT NULL,
 
     CONSTRAINT "content_visibility_pkey" PRIMARY KEY ("id")
@@ -222,6 +230,28 @@ CREATE TABLE "Brand" (
     "logo" TEXT NOT NULL,
 
     CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ContactUs" (
+    "id" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "document" TEXT,
+    "message" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ContactUs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Coupons" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "discount" INTEGER DEFAULT 0,
+    "available" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "Coupons_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -249,7 +279,7 @@ CREATE UNIQUE INDEX "TopDeals_productId_key" ON "TopDeals"("productId");
 CREATE UNIQUE INDEX "ProductDiscount_productId_key" ON "ProductDiscount"("productId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Basket_productId_key" ON "Basket"("productId");
+CREATE UNIQUE INDEX "Package_customId_key" ON "Package"("customId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_CategoryToProduct_AB_unique" ON "_CategoryToProduct"("A", "B");
@@ -294,13 +324,16 @@ ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_userId_fkey" FOREIGN KEY ("userI
 ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_governorateId_fkey" FOREIGN KEY ("governorateId") REFERENCES "Governorate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_couponsId_fkey" FOREIGN KEY ("couponsId") REFERENCES "Coupons"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProductInCheckout" ADD CONSTRAINT "ProductInCheckout_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductInCheckout" ADD CONSTRAINT "ProductInCheckout_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Package" ADD CONSTRAINT "Package_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Package" ADD CONSTRAINT "Package_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "BackOrExchange" ADD CONSTRAINT "BackOrExchange_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
