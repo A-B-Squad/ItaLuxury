@@ -152,12 +152,6 @@ const ProductsSection = () => {
 
   return (
     <div className="flex flex-col justify-between items-center h-full pb-10">
-      {searchParams?.get("query") && (
-        <h1 className="text-xl font-bold text-primaryColor mt-10 mb-10">
-          {productsData.length} résultats trouvé pour "
-          {searchParams.get("query")}"
-        </h1>
-      )}
 
       {productsData.length > 0 ? (
         renderProducts()

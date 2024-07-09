@@ -14,7 +14,7 @@ export const fetchAllCoupons = async (
     const allCoupons = prisma.coupons.findMany({
       include: {
         checkout: {
-          include: { products: true },
+          include: { productInCheckout: true },
         },
       },
       take: pageSize,

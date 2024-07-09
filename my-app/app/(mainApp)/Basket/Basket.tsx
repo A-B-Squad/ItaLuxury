@@ -109,8 +109,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product,
-        ),
+            : product
+        )
       );
       toggleIsUpdated();
     },
@@ -132,8 +132,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product,
-        ),
+            : product
+        )
       );
       toggleIsUpdated();
     },
@@ -146,7 +146,7 @@ const Basket = () => {
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId),
+        prevProducts.filter((product) => product.basketId !== basketId)
       );
       deleteBasketById({ variables: { basketId } });
       toggleIsUpdated();
@@ -156,7 +156,7 @@ const Basket = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [deleteBasketById, toast, toggleIsUpdated],
+    [deleteBasketById, toast, toggleIsUpdated]
   );
   return (
     <div className="">
@@ -329,10 +329,7 @@ const Basket = () => {
                   pathname: "/Checkout",
                   query: {
                     products: JSON.stringify(products),
-                    total:
-                      Number(totalPrice) >= 499
-                        ? Number(totalPrice).toFixed(3)
-                        : (Number(totalPrice) + 8).toFixed(3),
+                    total: Number(totalPrice).toFixed(3),
                   },
                 }}
                 className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-primaryColor hover:bg-amber-200 text-white  cursor-pointer"

@@ -14,8 +14,9 @@ enum Role {
 }
 
 enum Status {
-  PENDING
+  REFUNDED
   BACK
+  CANCELLED
   EXCHANGE
   TRANSFER_TO_DELIVERY_COMPANY
   PROCESSING
@@ -25,7 +26,7 @@ enum Status {
 enum Cause {
   BROKEN
   CANCEL
-  COLOR
+  REFUND
 }
 
 model User {
@@ -63,6 +64,7 @@ model Product {
   description       String
   inventory         Int
   solde             Int                 @default(0)
+  broken            Int                 @default(0)
   images            String[]
   createdAt         DateTime            @default(now())
   categories        Category[]
@@ -71,7 +73,6 @@ model Product {
   reviews           Review[]
   favoriteProducts  FavoriteProducts[]
   attributes        ProductAttribute[]
-  backOrExchange    BackOrExchange[]
   ProductInCheckout ProductInCheckout[]
   Colors            Colors?             @relation(fields: [colorsId], references: [id])
   colorsId          String?
@@ -79,6 +80,7 @@ model Product {
   BestSales         BestSales[]
   Brand             Brand?              @relation(fields: [brandId], references: [id])
   brandId           String?
+  BreakedProduct    BreakedProduct[]
 }
 
 model BestSales {
@@ -136,7 +138,7 @@ model Checkout {
   userId        String?
   Governorate   Governorate?        @relation(fields: [governorateId], references: [id])
   governorateId String?
-  products      ProductInCheckout[]
+  productInCheckout      ProductInCheckout[]
   phone         Int[]
   address       String
   package       Package[]
@@ -153,6 +155,8 @@ model ProductInCheckout {
   product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId       String
   productQuantity Int
+  price           Float   
+  discountedPrice   Float   @default(0)
 }
 
 model Package {
@@ -162,15 +166,16 @@ model Package {
   checkoutId String
   status     Status
   createdAt  DateTime @default(now())
+  comments   String[]
 }
 
-model BackOrExchange {
-  id          String   @id @default(uuid())
-  cause       Cause
-  createdAt   DateTime @default(now())
-  description String?
-  Product     Product? @relation(fields: [productId], references: [id])
-  productId   String
+model BreakedProduct {
+  id        String   @id @default(uuid())
+  cause     String   @default("BROKEN")
+  createdAt DateTime @default(now())
+  quantity  Int      @default(0)
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId String
 }
 
 model Review {

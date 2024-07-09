@@ -8,18 +8,19 @@ enum Role {
 
 # Define the status enumeration
 enum Status {
-  PENDING
+  REFUNDED
   BACK
   EXCHANGE
   PROCESSING
   TRANSFER_TO_DELIVERY_COMPANY
     PAYED
+    CANCELLED
 }
 
 # Define the cause enumeration
 enum Cause {
   BROKEN
-  COLOR
+  REFUND
   CANCEL
 }
 
@@ -73,6 +74,7 @@ type MainCategory {
     reference: String!
     description: String!
     inventory: Int!
+    broken: Int!
     solde: Int!
     images: [String!]
     createdAt: String!
@@ -130,12 +132,13 @@ type Checkout {
   userId: ID!
   userName:String!
   governorateId: ID!
-  products: [ProductInCheckout]!
+  productInCheckout: [ProductInCheckout]!
   phone: [Int!]!
   address: String!
   total: Float!
   createdAt: String!
   couponsId: String
+  Coupons:Coupons
 }
 
 # Define the ProductInCheckout type
@@ -145,6 +148,8 @@ type ProductInCheckout {
   productId: ID!
   product:Product!
   productQuantity: Int!
+  price:Int!
+  discountedPrice:Int
 }
 
 
@@ -163,15 +168,15 @@ type Package {
   status: Status!
   createdAt: String!
   Checkout: Checkout!
-  couponsId:String!
+  couponsId:String
+  comments:[String!]
 }
 
-# Define the BackOrExchange type
-type BackOrExchange {
+# Define the BreakedProduct type
+type BreakedProduct {
   id: ID!
-  cause: Cause!
+  cause: String!
   createdAt: String!
-  description: String
   productId: String!
 }
 
@@ -447,9 +452,11 @@ type Mutation {
   updatePackage(input: UpdatePackageInput!): String!
   exchangePackage(input: ExchangePackageInput!): String!
   exchangePackageProduct(input: ExchangePackageProductInput!): String!
-  cancalPackage(input:CancelPackageInput! ): String!
+  cancelPackage(input:CancelPackageInput! ): String!
+  refundPackage(input:RefundPackageInput! ): String!
   cancalPackageProduct(input:CancelProductPackageInput! ): String!
-  payedPackage(packageId:ID!):String!
+  payedOrToDeliveryPackage(packageId:ID!,status:String!):String!
+  createPackageComments(packageId:ID!,comments:String!):String!
   # Category mutations
   createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): String!
@@ -514,6 +521,8 @@ input ProductInCheckoutInput {
   checkoutId: ID!
   productId: ID!
   productQuantity: Int!
+  price:Float!
+  discountedPrice:Float
 }
 # Define the AttributeInput input type
 input ProductAttributeInput {
@@ -539,12 +548,21 @@ input UpdateCategoryInput {
   smallImage:String
   bigImage:String
 }
-
-# Define the BackOrExchange input type
+# cancel package
 input CancelPackageInput {
   packageId: String!
-  cause: Cause!
-  description: String
+  cause: Cause
+  brokenProducts: [BrokenProduct!]
+}
+input RefundPackageInput {
+  packageId: String!
+  cause: Cause
+  brokenProducts: [BrokenProduct!]
+}
+
+input BrokenProduct {
+  productId: String!
+  quantity: Int!
 }
 # Define the cancel package product input type
 input CancelProductPackageInput {

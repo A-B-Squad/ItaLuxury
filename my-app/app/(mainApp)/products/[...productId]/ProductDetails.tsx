@@ -320,11 +320,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                       "absolute top-2 right-0 p-2  bg-green-500 text-xs font-400 text-white"
                     }
                   >
-                    {productDetails?.inventory > 0
+                    {productDetails?.inventory > 1
                       ? "EN STOCK"
-                      : "RUPTURE DE STOCK  "
-                        ? productDetails?.inventory == 1
-                        : "DERNIER ARTICLE EN STOCK"}
+                      : productDetails?.inventory === 1
+                        ? "DERNIER ARTICLE EN STOCK"
+                        : "RUPTURE DE STOCK"}
                   </span>
                 </div>
                 <div className="mt-6 flex lg:flex-col items-center justify-center gap-3 px-2 py-2 ">

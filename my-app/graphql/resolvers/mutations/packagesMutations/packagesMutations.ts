@@ -1,13 +1,14 @@
 import { updatePackage } from "./updatePackage";
 import { exchangePackage } from "./manageExchangedPackage";
-import { cancalPackage } from "./manageCancaledPackage";
+import { cancelPackage } from "./CancelPackage";
 import { cancalPackageProduct } from "./manageCancledProduct";
 import { exchangePackageProduct } from "./manageExchangePackageProduct";
-import { payedPackage } from "./payedPackage";
+import { payedOrToDeliveryPackage } from "./payedOrToDeliveryPackage";
+import { refundPackage } from "./RefundPackage";
 export const packageMutations = {
   updatePackage,
   exchangePackage,
   exchangePackageProduct,
-  cancalPackage,
-  cancalPackageProduct,payedPackage
+  cancelPackage,
+  cancalPackageProduct,payedOrToDeliveryPackage,refundPackage
 };
