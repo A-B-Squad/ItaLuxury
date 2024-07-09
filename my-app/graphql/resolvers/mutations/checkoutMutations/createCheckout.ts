@@ -46,7 +46,15 @@ export const createCheckout = async (
         userId,
       },
       include: {
-        Product: true,
+        Product: {
+          include: {
+            productDiscounts: {
+              include: {
+                Discount: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -54,11 +62,20 @@ export const createCheckout = async (
       return new Error("User's basket not found");
     }
 
-    // Extract product IDs and quantities from the user's basket
-    const products = userBasket.map((basket) => ({
-      productId: basket.productId,
-      productQuantity: basket.quantity,
-    }));
+    const products = userBasket.map((basket) => {
+      const product = basket.Product;
+      const productDiscounts = product?.productDiscounts;
+
+      return {
+        productId: basket.productId,
+        productQuantity: basket.quantity,
+        price: product?.price ?? 0, 
+        discountedPrice:
+          productDiscounts && productDiscounts.length > 0
+            ? productDiscounts[0].newPrice
+            : 0, 
+      };
+    });
 
     // Create the checkout with the provided data and product IDs from the basket
     const newCheckout = await prisma.checkout.create({
@@ -66,7 +83,7 @@ export const createCheckout = async (
         userId,
         userName,
         governorateId,
-        products: {
+        productInCheckout: {
           create: products,
         },
         phone,

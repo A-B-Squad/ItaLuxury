@@ -62,6 +62,21 @@ const Checkout = () => {
     },
   });
 
+  const calculateTotal = () => {
+    let subtotal = Number(total);
+    const shippingCost = subtotal >= 499 ? 0 : 8;
+
+    // Apply discount if available
+    if (discountPercentage > 0) {
+      subtotal -= (subtotal * discountPercentage) / 100;
+    }
+
+    // Add shipping cost
+    const finalTotal = subtotal + shippingCost;
+
+    return finalTotal.toFixed(3);
+  };
+
   // Handle form submission
   const onSubmit = (data: any) => {
     if (!decodedToken) return;
@@ -84,7 +99,7 @@ const Checkout = () => {
         input: {
           userId: decodedToken.userId,
           userName: data.fullname,
-          total: parseFloat(discountedTotal),
+          total:parseFloat (calculateTotal()),
           phone: Number(data.phone),
           governorateId: data.governorate,
           address: data.address,
@@ -126,14 +141,6 @@ const Checkout = () => {
         className: "bg-red-800 text-white",
       });
     }
-  };
-
-  // Calculate the total with discounts applied
-  const calculateTotal = () => {
-    if (discountPercentage) {
-      return (+total - (+total * discountPercentage) / 100).toFixed(3);
-    }
-    return Number(total).toFixed(3);
   };
 
   return (
@@ -237,7 +244,7 @@ const Checkout = () => {
                       <option key={goverment.id} value={goverment.id}>
                         {goverment.name.toUpperCase()}
                       </option>
-                    ),
+                    )
                   )}{" "}
                 </select>
 
@@ -317,13 +324,10 @@ const Checkout = () => {
                 <div className="mt-6 border-t border-b py-2">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-gray-900">
-                      Total du commande
+                      Sous-total
                     </p>
                     <p className="font-semibold text-gray-900">
-                      {Number(total) >= 499
-                        ? Number(total).toFixed(3)
-                        : (Number(total) - 8).toFixed(3)}{" "}
-                      TND
+                      {Number(total).toFixed(3)} TND
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
@@ -331,27 +335,30 @@ const Checkout = () => {
                       Expédition
                     </p>
                     <p className="font-semibold text-gray-900">
-                      {" "}
                       {Number(total) >= 499 ? "Gratuit" : "8.000 TND"}
                     </p>
                   </div>
                   {discountPercentage > 0 && (
-                    <p className="text-primaryColor font-normal ">
-                      <span className="text-sm font-medium text-gray-900">
-                        Code Promo:
-                      </span>{" "}
-                      Vous avez reçu une remise de {discountPercentage}%.
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-900">
+                        Remise
+                      </p>
+                      <p className="font-semibold text-primaryColor">
+                        -
+                        {((Number(total) * discountPercentage) / 100).toFixed(
+                          3
+                        )}{" "}
+                        TND ({discountPercentage}%)
+                      </p>
+                    </div>
                   )}
                 </div>
-
                 <div className="mt-6 flex items-center justify-between">
                   <p className="text-sm font-medium text-gray-900">Total</p>
                   <p className="text-2xl font-semibold text-gray-900">
                     {calculateTotal()} TND
                   </p>
                 </div>
-
                 <button
                   type="submit"
                   className="mt-4 mb-8 w-full rounded-md bg-primaryColor px-6 py-3 font-medium text-white"

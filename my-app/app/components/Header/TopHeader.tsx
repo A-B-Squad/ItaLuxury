@@ -97,7 +97,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
       <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden z-[100]">
         <ul className="flex items-center gap-5">
           <li
-            className="userMenu  group  "
+            className="userMenu w-max  group  "
             onMouseEnter={() => setShowMenuUserMenu(true)}
           >
             <div className="flex   items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">

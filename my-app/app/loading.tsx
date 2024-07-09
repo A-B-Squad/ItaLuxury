@@ -3,7 +3,7 @@ import "./globals.css";
 
 const Loading = () => {
   return (
-    <div className=" flex fixed items-center justify-center z-50 h-screen w-full bg-white ">
+    <div className=" flex fixed items-center z-[10000] justify-center h-screen w-full bg-white ">
       <div className="loader"></div>
     </div>
   );

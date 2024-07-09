@@ -75,6 +75,9 @@ export const BASKET_QUERY = gql`
         name
         price
         images
+        productDiscounts {
+          newPrice
+        }
         categories {
           id
           name
@@ -460,10 +463,10 @@ export const GET_PACKAGES_BY_USER_ID = gql`
   query PackageByUserId($userId: ID!) {
     packageByUserId(userId: $userId) {
       id
-
+      customId
       Checkout {
         total
-        products {
+        productInCheckout {
           productId
           product {
             name
@@ -476,16 +479,18 @@ export const GET_PACKAGES_BY_USER_ID = gql`
   }
 `;
 export const GET_PACKAGES_BY_ID = gql`
-  query PackageByUserId($packageId: ID!) {
+  query PackageById($packageId: ID!) {
     packageById(packageId: $packageId) {
-      id
+      id  
+      customId
       Checkout {
-        products {
+        productInCheckout {
           productId
           product {
             name
           }
         }
+        total
       }
       status
       createdAt

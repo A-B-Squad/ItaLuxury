@@ -1,4 +1,8 @@
 
+enum statusInput {
+  PAYED = "PAYED",
+  TRANSFER_TO_DELIVERY_COMPANY = "TRANSFER_TO_DELIVERY_COMPANY",
+}
 interface UpdatePackageInput {
   packageId: string;
   status: enum;
