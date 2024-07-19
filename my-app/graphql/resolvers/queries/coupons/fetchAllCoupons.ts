@@ -6,8 +6,7 @@ export const fetchAllCoupons = async (
   { prisma }: Context,
 ) => {
   try {
-    console.log(page);
-    console.log(pageSize);
+
     
     //  Calculate skip based on page and pageSize
     const skip = (page - 1) * pageSize;

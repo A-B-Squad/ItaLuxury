@@ -11,7 +11,7 @@ export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
                         package: true,
                         Governorate: true,
                         Coupons: true,
-                        products: true
+                        productInCheckout: true
                     }
                 }
             },

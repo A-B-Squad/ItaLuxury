@@ -69,11 +69,11 @@ export const createCheckout = async (
       return {
         productId: basket.productId,
         productQuantity: basket.quantity,
-        price: product?.price ?? 0, 
+        price: product?.price ?? 0,
         discountedPrice:
           productDiscounts && productDiscounts.length > 0
             ? productDiscounts[0].newPrice
-            : 0, 
+            : 0,
       };
     });
 

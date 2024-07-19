@@ -52,8 +52,6 @@ export const metadata: Metadata = {
 };
 
 async function fetchData() {
-
-
   const [categoriesData, brandsData, colorsData] = await Promise.all([
     fetchGraphQLData(CATEGORIES_QUERY),
     fetchGraphQLData(ALL_BRANDS),

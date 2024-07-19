@@ -21,7 +21,6 @@ export const createTopDeals = async (
                 }
             }
         });
-        console.log(createdTopDeal);
 
         return createdTopDeal;
     } catch (error: any) {

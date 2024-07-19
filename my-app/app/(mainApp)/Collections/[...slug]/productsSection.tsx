@@ -21,7 +21,7 @@ const ProductsSection = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(
-    Number(searchParams?.get("page")) || 1
+    Number(searchParams?.get("page")) || 1,
   );
 
   const pageSize = 12;
@@ -39,7 +39,7 @@ const ProductsSection = () => {
       choice: searchParams?.get("choice") || undefined,
       brandId: searchParams?.get("brand") || undefined,
     }),
-    [searchParams]
+    [searchParams],
   );
   const sortProducts = (products: any[], sortParam: string) => {
     return [...products].sort((a, b) => {
@@ -62,8 +62,6 @@ const ProductsSection = () => {
     const params = getSearchParams();
 
     try {
-      console.log(params);
-
       const { data } = await searchProducts({
         variables: {
           input: {
@@ -152,7 +150,6 @@ const ProductsSection = () => {
 
   return (
     <div className="flex flex-col justify-between items-center h-full pb-10">
-
       {productsData.length > 0 ? (
         renderProducts()
       ) : (

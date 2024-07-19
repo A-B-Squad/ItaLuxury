@@ -159,7 +159,6 @@ export const updateProduct = async (
         productDiscounts: true,
       },
     });
-console.log(inventory,"===================================");
 
     // Update attributes
     if (attributeInputs) {

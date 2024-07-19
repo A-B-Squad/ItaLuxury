@@ -7,7 +7,6 @@ export const createCoupons = async (
   { prisma }: Context
 ) => {
   const { code, discount } = input;
-  console.log(input);
   
   try {
     await prisma.coupons.create({

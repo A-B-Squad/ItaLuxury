@@ -74,7 +74,7 @@ const TrackingPackages: React.FC = () => {
     {
       variables: { packageId: searchInput },
       skip: !searchInput,
-    }
+    },
   );
 
   useEffect(() => {
@@ -147,8 +147,8 @@ const TrackingPackages: React.FC = () => {
           pkg.Checkout?.productInCheckout.some((product) =>
             product.product.name
               .toLowerCase()
-              .includes(searchInput.toLowerCase())
-          )
+              .includes(searchInput.toLowerCase()),
+          ),
       );
     }
     setFilteredPackages(filtered);
@@ -182,8 +182,6 @@ const TrackingPackages: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {filteredPackages.map((pkg) => {
-     
-
                   return (
                     <TableRow key={pkg.id} className="hover:bg-gray-50">
                       <TableCell>{pkg.customId}</TableCell>
@@ -195,7 +193,9 @@ const TrackingPackages: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        {moment(parseInt (pkg.createdAt)).locale("fr").format("lll")}
+                        {moment(parseInt(pkg.createdAt))
+                          .locale("fr")
+                          .format("lll")}
                       </TableCell>
                       <TableCell>
                         <ul className="list-disc pl-5">
@@ -204,14 +204,13 @@ const TrackingPackages: React.FC = () => {
                               <li key={index} className="text-sm">
                                 {product?.product?.name}
                               </li>
-                            )
+                            ),
                           ) || []}
                         </ul>
                       </TableCell>
                       <TableCell className="font-medium">
                         {pkg?.Checkout?.total?.toFixed(3) || "0.000"} DT
                       </TableCell>
-                    
                     </TableRow>
                   );
                 })}

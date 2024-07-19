@@ -139,6 +139,9 @@ type Checkout {
   createdAt: String!
   couponsId: String
   Coupons:Coupons
+  User:User
+  manualDiscount:Float
+
 }
 
 # Define the ProductInCheckout type
@@ -257,11 +260,16 @@ type Results {
   categories:[Category]
 }
 
-type SearchResult {
-  results: Results
+
+type SearchProductsResult {
+  results: SearchResults!
   totalCount: Int!
 }
 
+type SearchResults {
+  products: [Product!]!
+  categories: [Category!]!
+}
 type BestSales {
   id: String!
   Product: Product!
@@ -324,7 +332,8 @@ type Query {
   fetchBrands:[Brand!]
 
   # search products
-  searchProducts(input: ProductSearchInput!): SearchResult!
+  # searchProducts(input: ProductSearchInput!): SearchResult!
+  searchProducts(input: ProductSearchInput!): SearchProductsResult!
 
   # Fetch all colors
   colors(limit:Int):[Colors!]!
@@ -447,6 +456,8 @@ type Mutation {
   
   # Checkout mutations
   createCheckout(input: CreateCheckoutInput!): Checkout!
+  updateProductInCheckout(input: UpdateProductInCheckoutInput!): String!
+  updateCustomerCheckout(input: UpdateCustomerCheckoutInput!): String!
 
   # Package mutations
   updatePackage(input: UpdatePackageInput!): String!
@@ -456,7 +467,7 @@ type Mutation {
   refundPackage(input:RefundPackageInput! ): String!
   cancalPackageProduct(input:CancelProductPackageInput! ): String!
   payedOrToDeliveryPackage(packageId:ID!,status:String!):String!
-  createPackageComments(packageId:ID!,comments:String!):String!
+  createPackageComments(packageId:ID!,comment:[String!]!):String!
   # Category mutations
   createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): String!
@@ -515,6 +526,33 @@ input ProductInput {
   colorsId: ID
   brandId:ID
 }
+
+
+input UpdateProductInCheckoutInput {
+  checkoutId: ID!
+  total: Float!
+  manualDiscount:Float
+  couponsId: ID
+  productInCheckout: [ProductInCheckoutUpdateInput!]!
+}
+input UpdateCustomerCheckoutInput {
+  checkoutId: ID!
+  userName: String!
+  userId: String!
+  governorateId: String!
+  phone: [Int!]!
+  address: String!
+  
+}
+
+input ProductInCheckoutUpdateInput {
+  productId: String!
+  productQuantity: Int!
+  price: Float!
+  discountedPrice: Float!
+}
+
+
 # Define the input type for ProductInCheckout
 input ProductInCheckoutInput {
   id: ID!
@@ -664,14 +702,14 @@ input ProductInputQuantity {
 
 input ProductSearchInput {
   query: String
-  choice: String
-  brandId: String
   minPrice: Float
   maxPrice: Float
   categoryId: ID
   colorId: ID
-  page:Int
-  pageSize:Int
+  page: Int!
+  pageSize: Int!
+  choice: String
+  brandId: ID
 }
 
 input ContactUsInput {

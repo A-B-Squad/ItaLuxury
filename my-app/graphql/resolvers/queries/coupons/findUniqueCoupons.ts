@@ -2,7 +2,6 @@ import { Context } from "@/pages/api/graphql";
 
 export const findUniqueCoupons = async (_: any, { codeInput }: { codeInput: string }, { prisma }: Context) => {
     try {
-        console.log(codeInput);
         const uniqueCoupons = await prisma.coupons.findFirst({
             where: {
                 code: codeInput

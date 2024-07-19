@@ -29,7 +29,7 @@ const productDetailsDrawer = ({
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -52,7 +52,7 @@ const productDetailsDrawer = ({
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -101,17 +101,17 @@ const productDetailsDrawer = ({
             </div>
           </div>
           <div className="Quantity flex items-center  space-x-2">
-          <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
-                      Quantité: {" "}
-                    </h3>
+            <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
+              Quantité:{" "}
+            </h3>
 
             <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
-            <button
+              <button
                 type="button"
                 className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1
+                    actualQuantity > 1 ? actualQuantity - 1 : 1,
                   );
                 }}
               >
@@ -130,7 +130,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity
+                      : actualQuantity,
                   );
                 }}
               >

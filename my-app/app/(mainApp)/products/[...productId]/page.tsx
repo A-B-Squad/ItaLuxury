@@ -94,7 +94,7 @@ export async function generateMetadata({
       images: [productData?.images[0] || "../../../../public/images/logo.jpeg"],
     },
     keywords: [...keywords, productData?.name, productData?.reference].join(
-      ", "
+      ", ",
     ),
     alternates: {
       canonical: `${process.env.BASE_URL_DOMAIN}/product?productId=${searchParams.productId}`,

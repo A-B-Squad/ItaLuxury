@@ -1,12 +1,13 @@
 "use client";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
-
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import Image from "next/legacy/image";
+import React, { useEffect, useState, useCallback } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
+import { CiTrash } from "react-icons/ci";
 import { DELETE_BASKET_BY_ID_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
 import prepRoute from "@/app/Helpers/_prepRoute";
@@ -15,8 +16,7 @@ import {
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
-import Image from "next/legacy/image";
-import { CiTrash } from "react-icons/ci";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -29,123 +29,176 @@ interface Product {
   actualQuantity: number;
   basketId: string;
   categories: string[];
-  productDiscounts?: {
-    newPrice: number;
-  }[];
+  productDiscounts?: { newPrice: number }[];
 }
 
 const BasketDrawer = () => {
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
-
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const { products, removeProductFromBasket, setQuantityInBasket } =
-    useProductsInBasketStore((state) => ({
-      products: state.products,
-      removeProductFromBasket: state.removeProductFromBasket,
-      setQuantityInBasket: state.setQuantityInBasket,
-    }));
-  const { isUpdated } = useBasketStore((state) => ({
-    isUpdated: state.isUpdated,
-    toggleIsUpdated: state.toggleIsUpdated,
-  }));
+    useProductsInBasketStore();
+  const { isUpdated } = useBasketStore();
+
+  const [fetchProducts] = useLazyQuery(BASKET_QUERY);
+  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
+      setDecodedToken(jwt.decode(token) as DecodedToken);
     }
   }, []);
-  useEffect(() => {
-    if (decodedToken?.userId) {
-      fetchProducts({
-        variables: { userId: decodedToken?.userId },
-        fetchPolicy: "no-cache",
-        onCompleted: (data) => {
-          const fetchedProducts = data.basketByUserId.map((basket: any) => ({
-            ...basket.Product,
-            actualQuantity: basket.quantity,
-            basketId: basket.id,
-          }));
 
-          setProductsInBasket(fetchedProducts);
-          setQuantityInBasket(
-            fetchedProducts.reduce(
-              (acc: number, curr: any) => acc + curr.actualQuantity,
-              0
-            )
-          );
-          const total = fetchedProducts.reduce((acc: number, curr: Product) => {
-            const price = curr.productDiscounts?.length
-              ? curr.productDiscounts[0].newPrice
-              : curr.price;
-            return acc + price * curr.actualQuantity;
-          }, 0);
-          setTotalPrice(total);
-        },
-      });
-    } else {
-      setProductsInBasket(products);
-      setQuantityInBasket(
-        products.reduce(
-          (acc: number, curr: any) => acc + curr.actualQuantity,
-          0
-        )
-      );
-      const total = products.reduce((acc: number, curr: Product) => {
-        const price = curr.productDiscounts?.length
-          ? curr.productDiscounts[0].newPrice
-          : curr.price;
-        return acc + price * curr.actualQuantity;
-      }, 0);
-      setTotalPrice(total);
-    }
-  }, [isUpdated, isOpen]);
-
-  const [fetchProducts] = useLazyQuery(BASKET_QUERY);
-
-  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
-
-  const handleRemoveProduct = (basketId: string) => {
-    const updatedProducts = productsInBasket.filter(
-      (product) => product.basketId !== basketId
-    );
-    const updatedTotalPrice = updatedProducts.reduce((acc, curr) => {
+  const calculateTotalPrice = useCallback((products: Product[]) => {
+    return products.reduce((acc, curr) => {
       const price = curr.productDiscounts?.length
         ? curr.productDiscounts[0].newPrice
         : curr.price;
       return acc + price * curr.actualQuantity;
     }, 0);
+  }, []);
 
-    setTotalPrice(updatedTotalPrice);
-    setProductsInBasket(updatedProducts);
-    deleteBasketById({
-      variables: { basketId },
-      // update: (cache, { data }) => {
-      //   if (data?.deleteBasketById) {
-      //     const existingData: any = cache.readQuery({
-      //       query: BASKET_QUERY,
-      //       variables: { userId: decodedToken?.userId },
-      //     });
+  useEffect(() => {
+    const fetchData = async () => {
+      if (decodedToken?.userId) {
+        const { data } = await fetchProducts({
+          variables: { userId: decodedToken.userId },
+          fetchPolicy: "no-cache",
+        });
+        const fetchedProducts = data.basketByUserId.map((basket: any) => ({
+          ...basket.Product,
+          actualQuantity: basket.quantity,
+          basketId: basket.id,
+        }));
+        setProductsInBasket(fetchedProducts);
+        setQuantityInBasket(
+          fetchedProducts.reduce(
+            (acc: number, curr: any) => acc + curr.actualQuantity,
+            0,
+          ),
+        );
+        setTotalPrice(calculateTotalPrice(fetchedProducts));
+      } else {
+        setProductsInBasket(products);
+        setQuantityInBasket(
+          products.reduce(
+            (acc: number, curr: any) => acc + curr.actualQuantity,
+            0,
+          ),
+        );
+        setTotalPrice(calculateTotalPrice(products));
+      }
+    };
 
-      //     const updatedData = {
-      //       ...existingData,
-      //       basketByUserId: existingData.basketByUserId.filter(
-      //         (basket: any) => basket.id !== basketId
-      //       ),
-      //     };
+    if (isOpen) {
+      fetchData();
+    }
+  }, [
+    isUpdated,
+    isOpen,
+    decodedToken,
+    fetchProducts,
+    products,
+    setQuantityInBasket,
+    calculateTotalPrice,
+  ]);
 
-      //     cache.writeQuery({
-      //       query: BASKET_QUERY,
-      //       variables: { userId: decodedToken?.userId },
-      //       data: updatedData,
-      //     });
-      //   }
-      // },
-    });
-  };
+  const handleRemoveProduct = useCallback(
+    (productId: string, basketId?: string) => {
+      setProductsInBasket((prevProducts) => {
+        const updatedProducts = prevProducts.filter(
+          (product) => product.id !== productId,
+        );
+        setTotalPrice(calculateTotalPrice(updatedProducts));
+        return updatedProducts;
+      });
+
+      if (decodedToken && basketId) {
+        deleteBasketById({ variables: { basketId } });
+      } else {
+        removeProductFromBasket(productId);
+      }
+    },
+    [
+      decodedToken,
+      deleteBasketById,
+      removeProductFromBasket,
+      calculateTotalPrice,
+    ],
+  );
+
+  const renderProductList = () => (
+    <ul role="list" className="divide-y divide-gray-200">
+      {productsInBasket.map((product, index) => (
+        <li className="flex py-2" key={index}>
+          <div className="relative h-24 w-20 flex-shrink-0 rounded-md">
+            <Image
+              layout="fill"
+              objectFit="contain"
+              src={product.images[0]}
+              alt={product.name}
+              className="h-full w-full object-cover object-center"
+            />
+          </div>
+          <div className="ml-4 flex justify-center-center w-full flex-col">
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col gap-2 text-base font-medium w-full justify-between text-gray-900">
+                <Link
+                  className="hover:text-secondaryColor text-sm w-5/6 transition-colors"
+                  rel="preload"
+                  href={{
+                    pathname: `/products/tunisie/${prepRoute(product.name)}`,
+                    query: {
+                      productId: product.id,
+                      collection: [product.name],
+                    },
+                  }}
+                >
+                  {product.name}
+                </Link>
+                <p className="quantiy font-light text-base text-gray-500">
+                  QTY: {product.actualQuantity}
+                </p>
+                <p className="font-semibold tracking-wide">
+                  {(product.productDiscounts?.length
+                    ? product.productDiscounts[0].newPrice
+                    : product.price
+                  ).toFixed(3)}{" "}
+                  TND
+                </p>
+              </div>
+              <button
+                type="button"
+                className="font-medium text-primaryColor hover:text-amber-200"
+                onClick={() =>
+                  handleRemoveProduct(product.id, product.basketId)
+                }
+              >
+                <CiTrash size={25} />
+              </button>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderEmptyBasket = () => (
+    <div className="flex flex-col justify-center items-center h-screen">
+      <h1 className="text-xl font-semibold">Votre panier est vide</h1>
+      <MdOutlineRemoveShoppingCart color="grey" size={100} />
+      <Link
+        rel="preload"
+        href="/Collections/tunisie"
+        className="font-medium text-primaryColor hover:text-amber-200 mt-20"
+      >
+        Continuer vos achats
+        <span aria-hidden="true"> &rarr;</span>
+      </Link>
+    </div>
+  );
 
   return (
     <Drawer
@@ -153,29 +206,29 @@ const BasketDrawer = () => {
       open={isOpen}
       onClose={closeBasketDrawer}
       overlay={false}
-      className="p-4 fixed  h-[200vh]"
+      className="p-4 fixed h-[200vh]"
       size={400}
       placeholder={""}
-      onPointerEnterCapture={undefined}
-      onPointerLeaveCapture={undefined}
+      onPointerEnterCapture={""}
+      onPointerLeaveCapture={""}
     >
-      <div className="mb-6 flex items-center justify-between ">
+      <div className="mb-6 flex items-center justify-between">
         <Typography
-          placeholder={""}
           variant="h5"
           color="blue-gray"
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
+          placeholder={""}
+          onPointerEnterCapture={""}
+          onPointerLeaveCapture={""}
         >
           Panier
         </Typography>
         <IconButton
-          placeholder={""}
           variant="text"
           color="blue-gray"
           onClick={closeBasketDrawer}
-          onPointerEnterCapture={undefined}
-          onPointerLeaveCapture={undefined}
+          placeholder={""}
+          onPointerEnterCapture={""}
+          onPointerLeaveCapture={""}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -194,90 +247,14 @@ const BasketDrawer = () => {
         </IconButton>
       </div>
       {productsInBasket.length > 0 ? (
-        <div className="flex  flex-col justify-between items-center h-full">
+        <div className="flex flex-col justify-between items-center h-full">
           <div className="product-details h-full w-full overflow-hidden hover:overflow-y-auto">
-            <div className="flow-root">
-              <ul role="list" className=" divide-y divide-gray-200">
-                {productsInBasket?.map((product, index) => (
-                  <li className="flex py-2 " key={index}>
-                    <div className=" relative h-24 w-20 flex-shrink-0 rounded-md ">
-                      <Image
-                        layout="fill"
-                        objectFit="contain"
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="h-full w-full object-cover object-center"
-                      />
-                    </div>
-
-                    <div className="ml-4 flex justify-center-center w-full flex-col">
-                      <div className="flex items-start justify-between">
-                        <div className="flex flex-col gap-2  text-base font-medium w-full justify-between text-gray-900">
-                          <Link
-                            className="hover:text-secondaryColor text-sm w-5/6 transition-colors"
-                            rel="preload"
-                            href={{
-                              pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-                              query: {
-                                productId: product?.id,
-                                collection: [product?.name],
-                              },
-                            }}
-                          >
-                            {product.name}
-                          </Link>
-                          <p className="quantiy font-light text-base text-gray-500">
-                            QTY: {product?.actualQuantity}
-                          </p>
-                          <p className=" font-semibold tracking-wide">
-                            <p className=" font-semibold tracking-wide">
-                              {product.productDiscounts?.length
-                                ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
-                                  )
-                                : product.price.toFixed(3)}{" "}
-                              TND
-                            </p>
-                          </p>
-                        </div>
-                        <div className="trash flex">
-                          <button
-                            type="button"
-                            className="font-medium text-primaryColor hover:text-amber-200"
-                            onClick={() => {
-                              if (decodedToken) {
-                                handleRemoveProduct(product?.basketId);
-                              } else {
-                                removeProductFromBasket(product?.id);
-                                const updatedProducts = products.filter(
-                                  (pr: any) => pr.id !== product?.id
-                                );
-                                const updatedTotalPrice =
-                                  updatedProducts.reduce((acc, curr: any) => {
-                                    return (
-                                      acc + curr.price * curr.actualQuantity
-                                    );
-                                  }, 0);
-                                setProductsInBasket(updatedProducts);
-                                setTotalPrice(updatedTotalPrice);
-                              }
-                            }}
-                          >
-                            <CiTrash size={25} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <div className="flow-root">{renderProductList()}</div>
           </div>
-
-          <div className=" border-gray-200 px-4 py-6 sm:px-6">
+          <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
             <div className="flex justify-between text-base font-medium text-gray-900">
               <p>Total</p>
-              <p> {totalPrice.toFixed(3)} TND</p>
+              <p>{totalPrice.toFixed(3)} TND</p>
             </div>
             <p className="mt-0.5 text-sm text-gray-500">
               Frais de port et taxes calculés à la Vérification.
@@ -313,7 +290,7 @@ const BasketDrawer = () => {
               <p>ou</p>
               <Link
                 rel="preload"
-                href={"/Touts-Les-Produits"}
+                href="/Touts-Les-Produits"
                 className="font-medium text-primaryColor transition-all hover:text-secondaryColor"
               >
                 Continuer vos achats
@@ -323,19 +300,7 @@ const BasketDrawer = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col justify-center items-center h-screen">
-          <h1 className="text-xl font-semibold">Votre panier est vide</h1>
-          <MdOutlineRemoveShoppingCart color="grey" size={100} />
-          <Link
-            rel="preload"
-            href={"/Collections/tunisie"}
-            type="button"
-            className="font-medium text-primaryColor hover:text-amber-200 mt-20"
-          >
-            Continuer vos achats
-            <span aria-hidden="true"> &rarr;</span>
-          </Link>
-        </div>
+        renderEmptyBasket()
       )}
     </Drawer>
   );

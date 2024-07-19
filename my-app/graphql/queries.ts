@@ -315,6 +315,8 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           description
           inventory
           solde
+          images
+          createdAt
           categories {
             id
             name
@@ -341,8 +343,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
               percentage
             }
           }
-          images
-          createdAt
+       
         }
         categories {
           id

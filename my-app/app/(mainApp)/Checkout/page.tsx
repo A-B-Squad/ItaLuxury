@@ -29,7 +29,7 @@ export const metadata: Metadata = {
       },
     ],
   },
-  robots: "noindex, nofollow", 
+  robots: "noindex, nofollow",
 };
 
 const CheckoutPage = () => {

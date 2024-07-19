@@ -21,7 +21,7 @@ export const metadata: Metadata = {
       "Finalisez votre achat en ligne avec Maison Ng. Profitez des meilleures offres et promotions sur nos produits de qualité en Tunisie.",
     images: [
       {
-        url: "../../../public/images/logo.jpeg", 
+        url: "../../../public/images/logo.jpeg",
         width: 800,
         height: 600,
         alt: "Maison Ng",

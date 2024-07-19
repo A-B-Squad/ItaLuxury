@@ -50,7 +50,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    })
+    }),
   );
   const { addProductToBasket, products } = useProductsInBasketStore();
 
@@ -88,7 +88,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -118,7 +118,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
   const handleAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id
+      (p: any) => p.id === product.id,
     );
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);
@@ -130,7 +130,6 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       });
     }
   }, [product, productsInCompare, addProductToCompare, toast]);
-
 
   interface QuickActionButtonProps {
     icon: React.ReactNode;
@@ -155,7 +154,9 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   );
 
   return (
-    <div className={`product-box w-full h-full flex  ${view===1 ?" flex-row":"flex-col  justify-around"}  `}>
+    <div
+      className={`product-box w-full h-full flex  ${view === 1 ? " flex-row" : "flex-col  justify-around"}  `}
+    >
       {/* Quick action buttons */}
       <ul
         className={`plus_button ${view === 1 ? "top-5 hidden md:flex" : "flex top-14"} items-center lg:opacity-0 group-hover:opacity-100 absolute right-3 z-30 justify-between flex-col gap-3`}

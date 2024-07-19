@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import Image from "next/image";
-import "../../globals.css"
+import "../../globals.css";
 
 import { useToast } from "@/components/ui/use-toast";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
@@ -34,7 +34,7 @@ const Signin = () => {
       setErrorMessage(
         error.message === "Invalid email or password"
           ? "Email ou mot de passe invalide"
-          : "Une erreur s'est produite. Veuillez réessayer."
+          : "Une erreur s'est produite. Veuillez réessayer.",
       );
     },
   });

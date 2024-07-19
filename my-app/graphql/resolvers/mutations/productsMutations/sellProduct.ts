@@ -32,7 +32,6 @@ export const sellProduct = async (
       },
     });
 
-    console.log(updatedProduct);
 
     return updatedProduct;
   } catch (error) {

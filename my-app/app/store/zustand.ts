@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
   openCategoryDrawer: () => void;
