@@ -18,8 +18,7 @@ export const updateCustomerCheckout = async (
     const { checkoutId, userName, userId, governorateId, phone, address } =
       input;
 
-    console.log(input);
-
+    
     // Fetch the existing checkout
     const existingCheckout = await prisma.checkout.findUnique({
       where: { id: checkoutId },

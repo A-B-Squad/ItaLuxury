@@ -1,5 +1,7 @@
-import { basketByUserId } from "./basketByUserId"
+import { basketByUserId } from "./basketByUserId";
+import { fetchAllBasket } from "./fetchAllBasket";
 
 export const basketQueries = {
-    basketByUserId
-}
+  basketByUserId,
+  fetchAllBasket,
+};

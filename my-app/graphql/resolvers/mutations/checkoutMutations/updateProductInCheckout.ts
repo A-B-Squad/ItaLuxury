@@ -19,7 +19,6 @@ export const updateProductInCheckout = async (
 ) => {
   try {
     const { checkoutId, total, productInCheckout, manualDiscount } = input;
-console.log(manualDiscount,"####################");
 
     // Fetch the existing checkout
     const existingCheckout = await prisma.checkout.findUnique({

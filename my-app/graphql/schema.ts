@@ -1,30 +1,28 @@
 export const typeDefs = `#graphql 
-# Define the role enumeration
+# Enumerations
 enum Role {
   USER
   ADMIN
   MODERATOR
 }
 
-# Define the status enumeration
 enum Status {
   REFUNDED
   BACK
   EXCHANGE
   PROCESSING
   TRANSFER_TO_DELIVERY_COMPANY
-    PAYED
-    CANCELLED
+  PAYED
+  CANCELLED
 }
 
-# Define the cause enumeration
 enum Cause {
   BROKEN
   REFUND
   CANCEL
 }
 
-# Define the User type
+# User-related types
 type User {
   id: ID!
   fullName: String!
@@ -36,74 +34,76 @@ type User {
   favoriteProducts: [FavoriteProducts]!
 }
 
-# Define the AuthPayload type
 type AuthPayload {
   token: String!
   user: User!
 }
 
-# Define the Category type
+# Category-related types
 type Category {
   id: ID!
-  smallImage:String
-  bigImage:String
-  description:String
+  smallImage: String
+  bigImage: String
+  description: String
   name: String!
   parentId: ID
   parent: Category
   products: [Product!]!
   subcategories: [Category!]!
-
 }
+
 type MainCategory {
   id: ID!
   name: String!
   parentId: ID
-  bigImage:String
-  smallImage:String
+  bigImage: String
+  smallImage: String
   subcategories: [Category!]!
-
 }
 
-# Define the Product type
-  type Product {
-    id: ID!
-    name: String!
-    price: Float!
-    isVisible: Boolean!
-    reference: String!
-    description: String!
-    inventory: Int!
-    broken: Int!
-    solde: Int!
-    images: [String!]
-    createdAt: String!
-    categories: [Category!]!
-    productDiscounts: [ProductDiscount!]
-    baskets: [Basket!]
-    reviews: [Review!]
-    favoriteProducts: [FavoriteProducts!]
-    attributes: [ProductAttribute!]!
-    Colors: Colors
-    Brand:Brand
-  }
+# Product-related types
+type Product {
+  id: ID!
+  name: String!
+  price: Float!
+  isVisible: Boolean!
+  reference: String!
+  description: String!
+  inventory: Int!
+  broken: Int!
+  solde: Int!
+  images: [String!]
+  createdAt: String!
+  categories: [Category!]!
+  productDiscounts: [ProductDiscount!]
+  baskets: [Basket!]
+  reviews: [Review!]
+  favoriteProducts: [FavoriteProducts!]
+  attributes: [ProductAttribute!]!
+  Colors: Colors
+  Brand: Brand
+}
 
-  # Define the Colors type
-  type Colors {
-    id: ID!
-    color: String!
-    Hex: String!
-    product: Product!
-  }
+type Colors {
+  id: ID!
+  color: String!
+  Hex: String!
+  product: Product!
+}
 
+type Brand {
+  id: String!
+  name: String!
+  logo: String!
+  product: [Product!]
+}
 
-# Define the Discount type
+# Discount-related types
 type Discount {
   id: ID
   percentage: Int
 }
 
-# Define the ProductDiscounts type
 type ProductDiscount {
   id: ID
   Discount: Discount
@@ -115,7 +115,7 @@ type ProductDiscount {
   dateOfEnd: String
 }
 
-# Define the Basket type
+# Shopping-related types
 type Basket {
   id: ID!
   userId: ID!
@@ -126,11 +126,10 @@ type Basket {
   checkout: [Checkout!]!
 }
 
-# Define the Checkout type
 type Checkout {
   id: ID!
   userId: ID!
-  userName:String!
+  userName: String!
   governorateId: ID!
   productInCheckout: [ProductInCheckout]!
   phone: [Int!]!
@@ -138,53 +137,33 @@ type Checkout {
   total: Float!
   createdAt: String!
   couponsId: String
-  Coupons:Coupons
-  User:User
-  manualDiscount:Float
-
+  Coupons: Coupons
+  User: User
+  manualDiscount: Float
 }
 
-# Define the ProductInCheckout type
 type ProductInCheckout {
   id: ID!
   checkoutId: ID!
   productId: ID!
-  product:Product!
+  product: Product!
   productQuantity: Int!
-  price:Int!
-  discountedPrice:Int
+  price: Int!
+  discountedPrice: Int
 }
 
-
-
-# Define the type for a product in a basket
-type productInBasket {
-  productId: ID!
-  prductQuantity: Int!
-}
-
-# Define the Package type
 type Package {
   id: ID!
-  customId:String!
+  customId: String!
   checkoutId: ID!
   status: Status!
   createdAt: String!
   Checkout: Checkout!
-  couponsId:String
-  comments:[String!]
+  couponsId: String
+  comments: [String!]
 }
 
-# Define the BreakedProduct type
-type BreakedProduct {
-  id: ID!
-  cause: String!
-  createdAt: String!
-  productId: String!
-}
-
-
-# Define the Review type
+# Review and favorite-related types
 type Review {
   id: ID!
   rating: Float!
@@ -194,7 +173,6 @@ type Review {
   product: Product!
 }
 
-# Define the FavoriteProducts type
 type FavoriteProducts {
   id: ID!
   userId: ID!
@@ -203,7 +181,7 @@ type FavoriteProducts {
   Product: Product!
 }
 
-# Define the ProductAttribute type
+# Other types
 type ProductAttribute {
   id: ID!
   name: String!
@@ -212,7 +190,6 @@ type ProductAttribute {
   product: Product!
 }
 
-# Define the Advertisement type
 type Advertisement {
   id: ID!
   images: [String!]!
@@ -220,46 +197,34 @@ type Advertisement {
   link: String!
 }
 
-# Define the Governorate type
 type Governorate {
   id: ID!
   name: String!
 }
 
-# Define the CompanyInfo type
 type CompanyInfo {
   id: ID
   phone: [Int]
   deliveringPrice: Int
   logo: String
-  instagram:String
-  facebook:String
-  location:String
-  email:String
-
+  instagram: String
+  facebook: String
+  location: String
+  email: String
 }
-# Define the TopDeals type
+
 type TopDeals {
   id: ID!
   productId: ID!
   product: Product!
-  
 }
 
-
-# Define the Moderator type
 type Moderator {
   id: ID!
   fullName: String!
   email: String!
   number: String!
 }
-
-type Results {
-  products: [Product]
-  categories:[Category]
-}
-
 
 type SearchProductsResult {
   results: SearchResults!
@@ -270,234 +235,178 @@ type SearchResults {
   products: [Product!]!
   categories: [Category!]!
 }
+
 type BestSales {
   id: String!
   Product: Product!
-  Category:Category!
-}
-
-
-type Brand {
-  id: String!
-  name: String!
-  logo: String!
-  product:[Product!]
+  Category: Category!
 }
 
 type content_visibility {
   id: String!
-  section:String!
+  section: String!
   visibility_status: Boolean!
 }
 
 type ContactUs {
   id: String!
-  subject:String!
+  subject: String!
   email: String!
   message: String!
-  document:String
+  document: String
 }
-
 
 type Coupons {
   id: String
-  code:String
-  discount:Int
-  available:Boolean
-  checkout:[Checkout!]
+  code: String
+  discount: Int
+  available: Boolean
+  checkout: [Checkout!]
 }
 
-
-
-
-
-# Define the Query type
+# Query type
 type Query {
-  
-  #fetch Users
-  fetchAllUsers:[User]!
-  fetchUsersById(userId:ID!):User!
-  # Get content visibility
-  getSectionVisibility(section:String!):content_visibility!
-  
-  # Fetch Best Sales
-  getBestSales(limit:Int): [BestSales!]
-  #fetch Coupons
-  findUniqueCoupons(codeInput:String!):Coupons
-  fetchAllCoupons(page:Int,pageSize:Int):[Coupons!]
-  # Fetch all products
-  products(limit:Int): [Product!]
+  # User-related queries
+  fetchAllUsers: [User]!
+  fetchUsersById(userId: ID!): User!
 
-  #Fetch Brands 
-  fetchBrands:[Brand!]
+  # Content visibility query
+  getSectionVisibility(section: String!): content_visibility!
 
-  # search products
-  # searchProducts(input: ProductSearchInput!): SearchResult!
+  # Best sales query
+  getBestSales(limit: Int): [BestSales!]
+
+  # Coupon-related queries
+  findUniqueCoupons(codeInput: String!): Coupons
+  fetchAllCoupons(page: Int, pageSize: Int): [Coupons!]
+
+  # Product-related queries
+  products(limit: Int): [Product!]
+  fetchBrands: [Brand!]
   searchProducts(input: ProductSearchInput!): SearchProductsResult!
-
-  # Fetch all colors
-  colors(limit:Int):[Colors!]!
-  
-  # Fetch all products price less then 20TND
-  productsLessThen20(limit:Int): [Product!]
-  
-  # Fetch products by category name
-  productsByCategory(categoryName: String!,limit:Int): [Product!]
-
-  # Fetch a product by its ID
+  colors(limit: Int): [Colors!]!
+  productsLessThen20(limit: Int): [Product!]
+  productsByCategory(categoryName: String!, limit: Int): [Product!]
   productById(id: ID!): Product!
-
-  #Custom query to fetch images of products based on productId and colorId
   getProductImages(productId: String!, colorId: String!): [String!]!
 
-  # Fetch all categories
+  # Category-related queries
   categories: [Category!]!
-  # Fetch all main categories
   fetchMainCategories: [MainCategory!]!
-
-  # Fetch subcategories by parent category ID
   subcategoriesByParentId(parentId: ID!): [Category!]
-
-  # Fetch a category by its name
   categoryById(categoryId: String!): Category!
 
-  # Fetch the basket of a user by user ID
+  # Basket and discount queries
   basketByUserId(userId: ID!): [Basket!]!
-
-  # Fetch product discount information by product ID
+  fetchAllBasket: [Basket!]!
   productDiscount(productId: ID!): ProductDiscount!
+  DiscountsPercentage: [Discount!]
+  productsDiscounts(limit: Int): [Product!]
 
-  # Fetch all  discounts percentage
-  DiscountsPercentage:[Discount!]
-  # Fetch all product discounts
-  productsDiscounts(limit:Int): [Product!]
-
-  # Fetch product review information by product ID
+  # Review and favorite queries
   productReview(productId: ID!, userId: ID): [Review!]
-
-  
-  # Fetch favorite products of a user by user ID
   favoriteProducts(userId: ID!): [FavoriteProducts!]
 
-  # Fetch product colors by product ID
+  # Other queries
   productColors(productId: ID!): Colors!
-
-  # Fetch All All Deals
   allDeals: [TopDeals!]!
-
-  # Fetch All Governorate
   allGovernorate: [Governorate!]!
-
-  # Fetch Advertisement By Type 
   advertismentByPosition(position: String!): [Advertisement]!
-
-  # Fetch Package By ID
   packageById(packageId: ID!): Package!
-  # Fetch Package By User ID
   packageByUserId(userId: ID!): [Package]!
-
-  # Fetch All Package 
   getAllPackages: [Package!]
-
-  # Fetch Company Info 
   companyInfo: CompanyInfo!
-  # Fetch All ContactUs 
   allContactUs: [ContactUs!]
-# delete Auto ProductDiscounts
- deleteAutoProductDiscount:String!
 
+  # Automatic discount deletion
+  deleteAutoProductDiscount: String!
 }
 
-# Define the Mutation type
+# Mutation type
 type Mutation {
-  #advertisment 
-  createCarouselAdvertisement(input:[advertisementInput]):String
-  createBannerAdvertisement(input:[advertisementInput]):String
-  createSideAdvertisement(input:[advertisementInput]):String
-  createLeftNextToCarouselAds(input:[advertisementInput]):String
-  createBigAds(input:advertisementInput):String
-#Forgot Password
-  forgotPassword(email:String!):String!
-  resetPassword(password:String,id:String):String!
+  # Advertisement mutations
+  createCarouselAdvertisement(input: [advertisementInput]): String
+  createBannerAdvertisement(input: [advertisementInput]): String
+  createSideAdvertisement(input: [advertisementInput]): String
+  createLeftNextToCarouselAds(input: [advertisementInput]): String
+  createBigAds(input: advertisementInput): String
 
-# update Section Visibility
+  # Password-related mutations
+  forgotPassword(email: String!): String!
+  resetPassword(password: String, id: String): String!
+
+  # Section visibility mutation
   updateSectionVisibility(section: String!, visibility_status: Boolean!): content_visibility!
 
-  # User mutations
+  # User-related mutations
   signUp(input: SignUpInput!): AuthPayload!
   signIn(input: SignInInput!): AuthPayload!
-
-  # Fetch Refresh Token
   refreshToken(Token: String!): String!
-  
-  # Product mutations
+
+  # Product-related mutations
   createProduct(input: ProductInput!): String!
   updateProduct(productId: ID!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
-  addRating(productId:ID!,userId:ID!,rating:Int!):String!
-  addProductInventory(productId:ID!, inventory:Int!):String!
-  
-  # New mutation to undo product sale
+  addRating(productId: ID!, userId: ID!, rating: Int!): String!
+  addProductInventory(productId: ID!, inventory: Int!): String!
   undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
-  
-  # New mutation to handle product sale
   sellProduct(productId: ID!, quantitySold: Int!): Product
 
-  # Product Discount mutations
+  # Product discount mutation
   deleteProductDiscount(productId: ID!): String!
-  
-  # Basket mutations
+
+  # Basket-related mutations
   addToBasket(input: CreateToBasketInput!): Basket!
-  removeProductFromBasket(productId: ID!,basketId:String!): String!
+  removeProductFromBasket(productId: ID!, basketId: String!): String!
   deleteBasketById(basketId: ID!): String!
   increaseQuantity(basketId: ID!): Basket!
   decreaseQuantity(basketId: ID!): Basket!
   addMultipleToBasket(input: AddMultipleToBasketInput!): String!
-  
-  # Checkout mutations
+
+  # Checkout-related mutations
   createCheckout(input: CreateCheckoutInput!): Checkout!
+  createCheckoutFromAdmin(input: CreateCheckoutFromAdminInput!): String!
   updateProductInCheckout(input: UpdateProductInCheckoutInput!): String!
   updateCustomerCheckout(input: UpdateCustomerCheckoutInput!): String!
 
-  # Package mutations
+  # Package-related mutations
   updatePackage(input: UpdatePackageInput!): String!
   exchangePackage(input: ExchangePackageInput!): String!
   exchangePackageProduct(input: ExchangePackageProductInput!): String!
-  cancelPackage(input:CancelPackageInput! ): String!
-  refundPackage(input:RefundPackageInput! ): String!
-  cancalPackageProduct(input:CancelProductPackageInput! ): String!
-  payedOrToDeliveryPackage(packageId:ID!,status:String!):String!
-  createPackageComments(packageId:ID!,comment:[String!]!):String!
-  # Category mutations
+  cancelPackage(input: CancelPackageInput!): String!
+  refundPackage(input: RefundPackageInput!): String!
+  cancalPackageProduct(input: CancelProductPackageInput!): String!
+  payedOrToDeliveryPackage(packageId: ID!, status: String!): String!
+  createPackageComments(packageId: ID!, comment: [String!]!): String!
+
+  # Category-related mutations
   createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): String!
   deleteCategory(id: ID!): String!
 
-  # Mutation to add product to favorites
+  # Favorite product mutation
   addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
 
-  # Mutation to add Company Info
-  createOrUpdateCompanyInfo (input: CompanyInfoInput!): CompanyInfo!
+  # Company info mutation
+  createOrUpdateCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
 
-#create Top Deals mutations
+  # Top deals mutations
   createTopDeals(input: CreateTopDealsInput!): TopDeals!
-#delete Top Deals mutations
   deleteTopDeals(input: CreateTopDealsInput!): String!
 
-
-  # Admin mutation for creating a moderator
+  # Moderator creation mutation
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
-  # Contact Us 
-  createContactUs(input:ContactUsInput!):String!
 
-# delete coupons
-deleteCoupons(couponsId: ID!): String!
-  createCoupons(input:CreateCouponInput!):String!
+  # Contact us mutation
+  createContactUs(input: ContactUsInput!): String!
 
-
+  # Coupon-related mutations
+  deleteCoupons(couponsId: ID!): String!
+  createCoupons(input: CreateCouponInput!): String!
 }
 
-# Define the SignUpInput input type
+
+# Input types
 input SignUpInput {
   fullName: String!
   email: String!
@@ -505,13 +414,11 @@ input SignUpInput {
   number: String!
 }
 
-# Define the SignInInput input type
 input SignInInput {
   email: String!
   password: String!
 }
 
-# Define the CreateProductInput input type
 input ProductInput {
   name: String!
   price: Float!
@@ -524,17 +431,17 @@ input ProductInput {
   attributeInputs: [ProductAttributeInput!]
   discount: [CreateProductDiscountInput]
   colorsId: ID
-  brandId:ID
+  brandId: ID
 }
-
 
 input UpdateProductInCheckoutInput {
   checkoutId: ID!
   total: Float!
-  manualDiscount:Float
+  manualDiscount: Float
   couponsId: ID
   productInCheckout: [ProductInCheckoutUpdateInput!]!
 }
+
 input UpdateCustomerCheckoutInput {
   checkoutId: ID!
   userName: String!
@@ -542,7 +449,6 @@ input UpdateCustomerCheckoutInput {
   governorateId: String!
   phone: [Int!]!
   address: String!
-  
 }
 
 input ProductInCheckoutUpdateInput {
@@ -552,46 +458,42 @@ input ProductInCheckoutUpdateInput {
   discountedPrice: Float!
 }
 
-
-# Define the input type for ProductInCheckout
 input ProductInCheckoutInput {
   id: ID!
-  checkoutId: ID!
+  checkoutId: ID
   productId: ID!
   productQuantity: Int!
-  price:Float!
-  discountedPrice:Float
+  price: Float!
+  discountedPrice: Float
 }
-# Define the AttributeInput input type
+
 input ProductAttributeInput {
   name: String!
   value: String!
 }
 
-# Define the CreateCategoryInput input type
 input CreateCategoryInput {
   name: String!
   parentId: ID
-  bigImage:String
-  smallImage:String
-  description:String
-
+  bigImage: String
+  smallImage: String
+  description: String
 }
 
-# Define the UpdateCategoryInput input type
 input UpdateCategoryInput {
   name: String
-  parentId:ID
+  parentId: ID
   description: String
-  smallImage:String
-  bigImage:String
+  smallImage: String
+  bigImage: String
 }
-# cancel package
+
 input CancelPackageInput {
   packageId: String!
   cause: Cause
   brokenProducts: [BrokenProduct!]
 }
+
 input RefundPackageInput {
   packageId: String!
   cause: Cause
@@ -602,22 +504,20 @@ input BrokenProduct {
   productId: String!
   quantity: Int!
 }
-# Define the cancel package product input type
+
 input CancelProductPackageInput {
   packageId: ID!
   cause: Cause!
   description: String
-  productId:ID!
-  productQuantity:Int!
+  productId: ID!
+  productQuantity: Int!
 }
 
-# Define the AddProductToFavoriteInput input type
 input AddProductToFavoriteInput {
   userId: ID!
   productId: ID!
 }
 
-# Define the Create Product Discount input type
 input CreateProductDiscountInput {
   discountId: String!
   dateOfStart: String!
@@ -625,39 +525,51 @@ input CreateProductDiscountInput {
   newPrice: Float
 }
 
-# Define the Basket Input input type
 input CreateToBasketInput {
   userId: ID!
   productId: ID!
   quantity: Int!
 }
 
-# Define the CreateCheckoutInput input type
 input CreateCheckoutInput {
   userId: ID!
   governorateId: ID!
-  userName:String
+  userName: String
   products: [ProductInCheckoutInput!]
   phone: [Int!]
   address: String!
   total: Float!
-  couponsId:String
+  couponsId: String
 }
 
-# Define the CreatePackageInput input type
+input CreateCheckoutFromAdminInput {
+  userId: ID!
+  governorateId: ID!
+  userName: String
+  products: [ProductInCheckoutFromAdminInput!]
+  phone: [Int!]
+  address: String!
+  total: Float!
+  manualDiscount: Float
+
+}
+input ProductInCheckoutFromAdminInput {
+
+  productId: ID!
+  productQuantity: Int!
+  price: Float!
+  discountedPrice: Float
+}
+
 input UpdatePackageInput {
-  packageId:ID!
+  packageId: ID!
   status: Status!
 }
 
-# Define the CreateTopDealsInput input type
 input CreateTopDealsInput {
-  productId:ID!
+  productId: ID!
 }
 
-
-
-# Define the CompanyInfoInput input type
 input CompanyInfoInput {
   phone: [Int!]
   deliveringPrice: Int
@@ -665,10 +577,9 @@ input CompanyInfoInput {
   instagram: String
   facebook: String
   location: String
-  email:String
+  email: String
 }
 
-# Define the CreateModeratorInput input type
 input CreateModeratorInput {
   fullName: String!
   email: String!
@@ -676,18 +587,18 @@ input CreateModeratorInput {
   number: String!
 }
 
-
-input ExchangePackageProductInput{
+input ExchangePackageProductInput {
   packageId: String
   productId: String
-  cause:Cause
-  description:String
-  productQuantity:Int!
+  cause: Cause
+  description: String
+  productQuantity: Int!
 }
-input ExchangePackageInput{
+
+input ExchangePackageInput {
   packageId: String
-  cause:Cause
-  description:String
+  cause: Cause
+  description: String
 }
 
 input AddMultipleToBasketInput {
@@ -713,21 +624,20 @@ input ProductSearchInput {
 }
 
 input ContactUsInput {
-  subject:String!
+  subject: String!
   email: String!
   message: String!
-  document:String
-  }
+  document: String
+}
 
-input advertisementInput{
-  images:[String!]!
+input advertisementInput {
+  images: [String!]!
   position: String!
-  link:String!
-}
-# Coupons input
-input CreateCouponInput{
-  code:String!
-  discount:Int!
+  link: String!
 }
 
+input CreateCouponInput {
+  code: String!
+  discount: Int!
+}
 `;
