@@ -31,7 +31,9 @@ type User {
   number: String!
   baskets: [Basket]!
   reviews: [Review]!
+  checkout:[Checkout]
   favoriteProducts: [FavoriteProducts]!
+  ContactUs:[ContactUs]!
 }
 
 type AuthPayload {
@@ -131,8 +133,10 @@ type Checkout {
   userId: ID!
   userName: String!
   governorateId: ID!
+  Governorate: Governorate!
   productInCheckout: [ProductInCheckout]!
   phone: [Int!]!
+  package:[Package]
   address: String!
   total: Float!
   createdAt: String!
@@ -250,6 +254,7 @@ type content_visibility {
 
 type ContactUs {
   id: String!
+  userId:String
   subject: String!
   email: String!
   message: String!
@@ -624,6 +629,7 @@ input ProductSearchInput {
 }
 
 input ContactUsInput {
+  userId:String
   subject: String!
   email: String!
   message: String!

@@ -1,11 +1,15 @@
 "use client";
 import { CONTACT_US_MUTATION } from "@/graphql/mutations";
 import { useMutation } from "@apollo/client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CldUploadButton, CldUploadWidget } from "next-cloudinary";
 import { useToast } from "@/components/ui/use-toast";
-
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
+interface DecodedToken extends JwtPayload {
+  userId: string;
+}
 const ContactUsForm = () => {
   const { toast } = useToast();
 
@@ -16,6 +20,7 @@ const ContactUsForm = () => {
     formState: { errors },
   } = useForm();
   const [fileName, setFileName] = useState("");
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const [file, setFile] = useState(null);
   const [createContactUs] = useMutation(CONTACT_US_MUTATION);
@@ -23,6 +28,7 @@ const ContactUsForm = () => {
     createContactUs({
       variables: {
         input: {
+          userId: decodedToken?.userId,
           email: data.email,
           message: data.message,
           subject: data.subject,
@@ -41,7 +47,13 @@ const ContactUsForm = () => {
       },
     });
   };
-
+  useEffect(() => {
+    const token = Cookies.get("Token");
+    if (token) {
+      const decoded = jwt.decode(token) as DecodedToken;
+      setDecodedToken(decoded);
+    }
+  }, []);
   const handleFileInputChange = (event: any) => {
     const file = event.info;
     if (file) {
@@ -137,7 +149,7 @@ const ContactUsForm = () => {
                       className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-primaryColor shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
                       onClick={() => open()}
                     >
-                      choisir un fichier
+                      choisir un image
                     </button>
                   );
                 }}

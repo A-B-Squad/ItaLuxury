@@ -7,7 +7,7 @@ import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 const BasketDrawer = dynamic(() => import("../components/BasketDrawer"));
 const DrawerMobile = dynamic(
-  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),
+  () => import("../components/Header/CrategoryDrawer/DrawerMobile")
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -22,11 +22,11 @@ if (process.env.NODE_ENV !== "production") {
 const openSans = Open_Sans({
   subsets: ["cyrillic"],
 });
-if (!process.env.BASE_URL_DOMAIN) {
+if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
   throw new Error("BASE_URL_DOMAIN is not defined");
 }
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
   title:
     "Vente en ligne en Tunisie : Découvrez des offres exclusives sur notre plateforme",
   description:

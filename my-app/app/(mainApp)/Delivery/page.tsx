@@ -10,7 +10,10 @@ export const metadata: Metadata = {
   keywords: keywords,
 };
 const DeliveryPage = async () => {
-  if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+  if (
+    !process.env.NEXT_PUBLIC_API_URL ||
+    !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
+  ) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
   }
 

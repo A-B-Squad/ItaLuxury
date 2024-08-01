@@ -19,12 +19,15 @@ if (process.env.NODE_ENV === "development") {
 interface LayoutProps {
   children: ReactNode;
 }
-if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+if (
+  !process.env.NEXT_PUBLIC_API_URL ||
+  !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
+) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
   title: "Vente en ligne en Tunisie | Offres exclusives | MaisonNg",
   description:
     "Découvrez les meilleures offres et produits en ligne en Tunisie sur MaisonNg. Large gamme de produits de qualité avec promotions exceptionnelles. Livraison rapide et paiement sécurisé.",
