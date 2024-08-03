@@ -94,7 +94,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
         </Link>
       </div>
       <SearchBar />
-      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden z-[100]">
+      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden ">
         <ul className="flex items-center gap-5">
           <li
             className="userMenu w-max  group  "

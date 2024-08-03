@@ -44,7 +44,7 @@ interface ProductData {
 }
 type UseProductDetails = {
   isOpen: boolean;
-  productData: ProductData | null;
+  productData: ProductData | any;
   openProductDetails: (productData: ProductData) => void;
   closeProductDetails: () => void;
 };

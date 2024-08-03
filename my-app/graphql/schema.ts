@@ -68,6 +68,7 @@ type Product {
   id: ID!
   name: String!
   price: Float!
+  purchasePrice: Float!
   isVisible: Boolean!
   reference: String!
   description: String!
@@ -396,8 +397,8 @@ type Mutation {
   createOrUpdateCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
 
   # Top deals mutations
-  createTopDeals(input: CreateTopDealsInput!): TopDeals!
-  deleteTopDeals(input: CreateTopDealsInput!): String!
+  addProductToTopDeals(productId: String!): String!
+  deleteTopDeals(productId: String!): String!
 
   # Moderator creation mutation
   createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
@@ -427,6 +428,7 @@ input SignInInput {
 input ProductInput {
   name: String!
   price: Float!
+  purchasePrice: Float!
   isVisible: Boolean!
   reference: String!
   description: String!

@@ -50,7 +50,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -72,7 +72,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -101,8 +101,8 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
             new Set(
-              data.getBestSales.flatMap((item: any) => item.Category.name),
-            ),
+              data.getBestSales.flatMap((item: any) => item.Category.name)
+            )
           );
           setCategories(uniqueCategories);
         }
@@ -132,7 +132,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
             <tbody className="border-2 w-full p-5 shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
               {allProducts
                 .filter(
-                  (product: any) => product?.categories[0].name === category,
+                  (product: any) => product?.categories[0].name === category
                 )
                 .map((product: any) => (
                   <div
@@ -144,7 +144,10 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                       <div className="w-full flex gap-5  items-center">
                         <div className="relative h-28 w-28  ">
                           <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
-                            <div
+                            <button
+                              type="button"
+                              className={`${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"}  hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all`}
+                              disabled={product.inventory <= 0}
                               title="Ajouter au panier"
                               onClick={() => {
                                 AddToBasket(product);
@@ -155,10 +158,9 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                                   className: "bg-primaryColor text-white",
                                 });
                               }}
-                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
                             >
                               <FaBasketShopping size={18} />
-                            </div>
+                            </button>
                             <div
                               className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
                               title="aperçu rapide"
@@ -210,7 +212,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                             <div className="flex gap-2 tracking-wider items-center">
                               <span className="text-primaryColor font-bold text-lg ">
                                 {product.productDiscounts[0]?.newPrice.toFixed(
-                                  3,
+                                  3
                                 )}{" "}
                                 DT
                               </span>

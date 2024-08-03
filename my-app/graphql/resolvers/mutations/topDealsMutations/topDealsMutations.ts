@@ -1,5 +1,5 @@
-import { createTopDeals } from "./createTopDeals";
+import { addProductToTopDeals } from "./createTopDeals";
 import { deleteTopDeals } from "./deleteTopDeals";
 export const topDealsMutations = {
-    createTopDeals, deleteTopDeals
+    addProductToTopDeals, deleteTopDeals
 };

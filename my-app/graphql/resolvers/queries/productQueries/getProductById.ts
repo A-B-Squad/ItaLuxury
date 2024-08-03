@@ -6,7 +6,7 @@ export const productById = async (_: any, { id }: { id: string }, { prisma }: Co
         const product = await prisma.product.findUnique({
             where: {
                 id,
-                isVisible: true
+                // isVisible: true
             },
             include: {
                 categories: { include: { subcategories: { include: { subcategories: true } } } }, // Include categories related to products

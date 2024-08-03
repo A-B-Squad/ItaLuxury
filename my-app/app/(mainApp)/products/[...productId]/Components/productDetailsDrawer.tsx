@@ -29,7 +29,7 @@ const productDetailsDrawer = ({
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -52,7 +52,7 @@ const productDetailsDrawer = ({
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -111,7 +111,7 @@ const productDetailsDrawer = ({
                 className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1,
+                    actualQuantity > 1 ? actualQuantity - 1 : 1
                   );
                 }}
               >
@@ -130,7 +130,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity,
+                      : actualQuantity
                   );
                 }}
               >
@@ -138,8 +138,11 @@ const productDetailsDrawer = ({
               </button>
             </div>
           </div>
-          <div className="flex items-center w-60 transition-colors bg-primaryColor hover:bg-secondaryColor">
+          <div
+            className={`flex items-center w-60 transition-colors ${productDetails.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} bg-primaryColor hover:bg-secondaryColor`}
+          >
             <button
+              disabled={productDetails?.inventory <= 0}
               type="button"
               className=" text-white  py-3  w-full shadow-lg"
               onClick={() => {

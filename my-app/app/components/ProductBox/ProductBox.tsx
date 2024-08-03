@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useMutation } from "@apollo/client";
 import { BASKET_QUERY } from "@/graphql/queries";
 import { FaRegEye, FaBasketShopping } from "react-icons/fa6";
-import { SlBasket } from "react-icons/sl";
 import { IoGitCompare } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/legacy/image";
@@ -135,19 +134,21 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     icon: React.ReactNode;
     onClick: () => void;
     title: string;
+    disabled?: boolean;
   }
 
   const QuickActionButton: React.FC<QuickActionButtonProps> = ({
     icon,
     onClick,
     title,
+    disabled = false,
   }) => (
     <div
-      className="relative w-fit cursor-crosshair"
+      className={`relative w-fit cursor-crosshair ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
       title={title}
-      onClick={onClick}
+      onClick={!disabled ? onClick : undefined}
     >
-      <li className="bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor">
+      <li className={`bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ${disabled ? 'opacity-50' : ''}`}>
         {icon}
       </li>
     </div>
@@ -170,6 +171,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           icon={<FaBasketShopping color="white" />}
           onClick={handleAddToBasket}
           title="Ajouter au panier"
+          disabled={product.inventory <= 0}
         />
         <QuickActionButton
           icon={<IoGitCompare color="white" />}
@@ -207,9 +209,4 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   );
 });
 
-ProductBox.displayName = "ProductBox";
-
 export default ProductBox;
-
-// Helper components (QuickActionButton, ProductLabels, ProductImage, ProductName, FullViewDetails, CompactViewDetails)
-// should be implemented separately for better organization

@@ -271,7 +271,7 @@ const BasketDrawer = () => {
                           total: totalPrice.toFixed(3),
                         },
                       }
-                    : "/signup"
+                    : "/signin"
                 }
                 className="flex items-center justify-center transition-all rounded-md border border-transparent bg-primaryColor px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
               >
@@ -280,7 +280,7 @@ const BasketDrawer = () => {
               <Link
                 onClick={closeBasketDrawer}
                 rel="preload"
-                href={decodedToken ? "/Basket" : "/signup"}
+                href={decodedToken ? "/Basket" : "/signin"}
                 className="flex items-center transition-all justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
               >
                 Voir Panier

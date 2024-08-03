@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
+import { Button } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
@@ -32,7 +33,7 @@ const TopDeals = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   useEffect(() => {
@@ -72,7 +73,7 @@ const TopDeals = () => {
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id,
+          (p: any) => p.id === product.id
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -97,11 +98,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ],
+    ]
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare,
+    (state) => state.addProductToCompare
   );
 
   const addToCompare = useCallback(
@@ -113,7 +114,7 @@ const TopDeals = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [addProductToCompare, toast],
+    [addProductToCompare, toast]
   );
 
   const renderProducts = useMemo(() => {
@@ -173,8 +174,10 @@ const TopDeals = () => {
                   </li>
                 </div>
 
-                <div
-                  className="add-to-basket relative w-fit h-fit cursor-crosshair"
+                <button
+                  type="button"
+                  className={`add-to-basket relative w-fit h-fit ${products.product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} cursor-crosshair`}
+                  disabled={products?.product.inventory <= 0}
                   title="Ajouter au panier"
                   onClick={() => {
                     AddToBasket(products?.product);
@@ -189,7 +192,7 @@ const TopDeals = () => {
                   <li className="bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ">
                     <FaBasketShopping color="white" />
                   </li>
-                </div>
+                </button>
 
                 <div
                   className="Comparison relative w-fit cursor-crosshair"
@@ -250,14 +253,14 @@ const TopDeals = () => {
                     {products?.product?.name}
                   </h2>
                   <div className="prices flex gap-3 items-center lg:mt-3">
-                    <span className="text-primaryColor font-bold text-xl">
-                      {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3,
-                      )}
-                      TND
-                    </span>
                     <span className="line-through text-gray-700 font-semibold text-lg">
                       {products?.product?.price.toFixed(3)}TND
+                    </span>
+                    <span className="text-primaryColor font-bold text-xl">
+                      {products?.product?.productDiscounts[0]?.newPrice.toFixed(
+                        3
+                      )}
+                      TND
                     </span>
                   </div>
 

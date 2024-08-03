@@ -59,11 +59,12 @@ model Category {
 model Product {
   id                String              @id @default(uuid())
   name              String              @unique
-  price             Float
+  price             Float               @default(0)
+  purchasePrice     Float               @default(0)
   isVisible         Boolean             @default(true)
   reference         String
   description       String
-  inventory         Int
+  inventory         Int                 @default(0)
   solde             Int                 @default(0)
   broken            Int                 @default(0)
   images            String[]

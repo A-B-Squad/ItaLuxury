@@ -32,7 +32,7 @@ export const searchProducts = async (
 
   try {
     const whereCondition: Prisma.ProductWhereInput = {
-      isVisible: true,
+      // isVisible: true,
       ...(query && {
         OR: [
           { name: { contains: query, mode: "insensitive" } },

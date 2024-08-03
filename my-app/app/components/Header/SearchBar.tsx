@@ -4,17 +4,19 @@ import { SEARCH_PRODUCTS_QUERY } from "../../../graphql/queries";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
 import Image from "next/legacy/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import prepRoute from "../../Helpers/_prepRoute";
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const query = searchParams?.get("query");
 
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
 
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,
+    SEARCH_PRODUCTS_QUERY
   );
 
   const router = useRouter();
@@ -36,6 +38,21 @@ const SearchBar = () => {
   };
 
   useEffect(() => {
+    if (query) {
+      setSearchQuery(query);
+      searchProducts({
+        variables: {
+          input: {
+            query,
+            page: 1,
+            pageSize: 20,
+          },
+        },
+      });
+    }
+  }, [query, searchProducts]);
+
+  useEffect(() => {
     const handleMouseLeave = () => {
       if (!inputRef.current?.contains(document.activeElement) && !searching) {
         setSearchQuery("");
@@ -54,12 +71,13 @@ const SearchBar = () => {
       setCategories(data.searchProducts.results.categories);
     }
   }, [data]);
+
   return (
     <div
-      className="search-container relative w-full z-[100]"
+      className="search-container relative w-full"
       onClick={() => setSearching(true)}
     >
-      <div className="search-input-wrapper flex w-full items-center border mx-auto bg-white border-gray-300 pl-4  relative max-w-md h-11 rounded-full">
+      <div className="search-input-wrapper flex w-full items-center border mx-auto bg-white border-gray-300 pl-4 relative max-w-md h-11 rounded-full">
         <input
           ref={inputRef}
           className="h-full w-full outline-none"
@@ -83,20 +101,20 @@ const SearchBar = () => {
       {data && searching && (
         <div
           onMouseLeave={() => setSearching(false)}
-          className="search-results bg-white border-2 w-4/5 left-2/4 -translate-x-2/4 absolute top-12 overflow-y-auto  rounded-md shadow-lg"
+          className="search-results bg-white border-2 w-4/5 left-2/4 -translate-x-2/4 absolute top-12 overflow-y-auto z-[100] rounded-md shadow-lg"
         >
           <div className="p-4">
             {categories && (
               <ul className="border-b-black mb-5">
-                <h3 className="font-bold tracking-wider ">
+                <h3 className="font-bold tracking-wider">
                   Catégories ({categories.length})
                 </h3>
                 {categories.map((category: any) => (
-                  <Link href={`/Collections/tunisie?category=${category.id}`}>
-                    <li
-                      key={category.id}
-                      className="py-2  border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300  cursor-pointer"
-                    >
+                  <Link
+                    key={category.id}
+                    href={`/Collections/tunisie?category=${category.id}`}
+                  >
+                    <li className="py-2 border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300 cursor-pointer">
                       {category.name}
                     </li>
                   </Link>
@@ -113,7 +131,7 @@ const SearchBar = () => {
               {data.searchProducts.results.products.length})
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              {data.searchProducts.results.products.map((product: Product) => (
+              {data.searchProducts.results.products.map((product: any) => (
                 <Link
                   key={product.id}
                   href={{
@@ -143,12 +161,12 @@ const SearchBar = () => {
                       alt={product.name}
                     />
                   </div>
-                  <p className="text-base  font-light tracking-widest  text-center">
+                  <p className="text-base font-light tracking-widest text-center">
                     {product.name}
                   </p>
                   <p className="text-lg font-bold text-amber-500">
                     {product.productDiscounts.length > 0
-                      ? product.productDiscounts[0].newPrice.toFixed(3) + "TND"
+                      ? product.productDiscounts[0].newPrice.toFixed(3) + " TND"
                       : product.price.toFixed(3) + " TND"}
                   </p>
                   {product.productDiscounts.length > 0 && (

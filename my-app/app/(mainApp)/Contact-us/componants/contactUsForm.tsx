@@ -3,13 +3,15 @@ import { CONTACT_US_MUTATION } from "@/graphql/mutations";
 import { useMutation } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { CldUploadButton, CldUploadWidget } from "next-cloudinary";
+import { CldUploadWidget } from "next-cloudinary";
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
+
 const ContactUsForm = () => {
   const { toast } = useToast();
 
@@ -23,30 +25,42 @@ const ContactUsForm = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [createContactUs] = useMutation(CONTACT_US_MUTATION);
-  const onSubmit = (data: any) => {
-    createContactUs({
-      variables: {
-        input: {
-          userId: decodedToken?.userId,
-          email: data.email,
-          message: data.message,
-          subject: data.subject,
-          document: file,
+
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    try {
+      await createContactUs({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            email: data.email,
+            message: data.message,
+            subject: data.subject,
+            document: file,
+          },
         },
-      },
-      onCompleted: () => {
-        toast({
-          title: "Merci pour votre Message",
-          description: "Votre message a été envoyé avec succès!",
-          className: "bg-primaryColor text-white",
-        });
-        reset();
-        setFileName("");
-        setFile(null);
-      },
-    });
+      });
+      toast({
+        title: "Merci pour votre Message",
+        description: "Votre message a été envoyé avec succès!",
+        className: "bg-primaryColor text-white",
+      });
+      reset();
+      setFileName("");
+      setFile(null);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi du message.",
+        className: "bg-red-600 text-white",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -54,6 +68,7 @@ const ContactUsForm = () => {
       setDecodedToken(decoded);
     }
   }, []);
+
   const handleFileInputChange = (event: any) => {
     const file = event.info;
     if (file) {
@@ -181,9 +196,22 @@ const ContactUsForm = () => {
           <div className="float-end mt-10">
             <button
               type="submit"
-              className="py-2 px-4 bg-primaryColor text-white shadow-lg hover:bg-mediumBeige transition-colors uppercase"
+              disabled={isLoading}
+              className={`py-2 px-4 bg-primaryColor text-white shadow-lg hover:bg-mediumBeige transition-colors uppercase ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Envoyer
+              {isLoading ? (
+                <div className="flex items-center">
+                  <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Envoi en cours...
+                </div>
+              ) : (
+                'Envoyer'
+              )}
             </button>
           </div>
         </div>

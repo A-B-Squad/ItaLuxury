@@ -1,12 +1,11 @@
 import { Context } from "@/pages/api/graphql";
 
-export const createTopDeals = async (
+export const addProductToTopDeals = async ( 
     _: any,
-    { input }: { input: addTopDealProduct },
+    { productId }: { productId: string },
     { prisma }: Context
 ) => {
     try {
-        const { productId } = input;
         const createdTopDeal = await prisma.topDeals.create({
             data: {
                 productId
@@ -22,7 +21,7 @@ export const createTopDeals = async (
             }
         });
 
-        return createdTopDeal;
+        return "product Added to Top Deals";
     } catch (error: any) {
         console.error("Error creating TopDeals:", error);
         throw error; // Rethrow the error to be caught by the caller

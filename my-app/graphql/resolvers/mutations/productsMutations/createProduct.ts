@@ -4,13 +4,14 @@ export const createProduct = async (
   // Defining an async function called createProduct
   _: any,
   { input }: { input: ProductInput }, // Destructuring the second argument into input
-  { prisma }: Context 
+  { prisma }: Context
 ) => {
   try {
     const {
       name,
       price,
       isVisible,
+      purchasePrice,
       reference,
       description,
       inventory,
@@ -18,7 +19,8 @@ export const createProduct = async (
       categories,
       attributeInputs,
       colorsId,
-      discount, brandId
+      discount,
+      brandId,
     } = input;
 
     // Creating a new product using prisma
@@ -27,6 +29,7 @@ export const createProduct = async (
       data: {
         name,
         price,
+        purchasePrice,
         isVisible,
         reference,
         description,
@@ -42,8 +45,8 @@ export const createProduct = async (
       },
       include: {
         Colors: true,
-        Brand: true
-      }
+        Brand: true,
+      },
     });
 
     // // If discount is provided

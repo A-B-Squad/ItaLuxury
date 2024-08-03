@@ -24,6 +24,7 @@ interface Product {
 interface ProductInput {
   name: string;
   price: Float;
+  purchasePrice: Float;
   isVisible: boolean;
   reference: string;
   description: string;
@@ -53,9 +54,7 @@ interface AddProductToFavoriteInput {
   userId: string;
   productId: string;
 }
-interface addTopDealProduct {
-  productId: string;
-}
+
 interface Brand {
   id: string;
   name: string;
