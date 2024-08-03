@@ -23,7 +23,7 @@ const FavoriteList = () => {
     FAVORITE_PRODUCTS_QUERY,
     {
       fetchPolicy: "no-cache",
-    }
+    },
   );
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const FavoriteList = () => {
 
           if (data) {
             const fetchedProducts = data.favoriteProducts.map(
-              (fav: any) => fav.Product
+              (fav: any) => fav.Product,
             );
             setProductsData(fetchedProducts);
           }
@@ -79,11 +79,11 @@ const FavoriteList = () => {
             ))}
           </div>
           {productsData.length === 0 && (
-            <div className="h-screen flex justify-center item-start">
-              <div className="border shadow-md p-3 h w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center gap-3 justify-center ">
+            <div className="h-screen flex  justify-center item-start">
+              <div className="border shadow-md bg-white p-3 h w-4/5 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center gap-3 justify-center ">
                 <HiX size={25} className="text-red-400 " />
 
-                <p className="  font-normal  tracking-wider">
+                <p className="  font-normal   tracking-wider">
                   Aucun produit n'est présent dans la liste des favoris.
                 </p>
               </div>

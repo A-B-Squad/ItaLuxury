@@ -1,4 +1,4 @@
-import { PrismaClient} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { Context } from "@/pages/api/graphql";
 
 interface AttributeInput {
@@ -81,7 +81,6 @@ const updateAttributes = async (
   }
 };
 
-
 const updateDiscounts = async (
   prisma: PrismaClient,
   productId: string,
@@ -126,6 +125,7 @@ export const updateProduct = async (
     const {
       name,
       price,
+      purchasePrice,
       isVisible,
       reference,
       description,
@@ -143,6 +143,7 @@ export const updateProduct = async (
       data: {
         name,
         price,
+        purchasePrice,
         isVisible,
         reference,
         description,
@@ -159,7 +160,6 @@ export const updateProduct = async (
         productDiscounts: true,
       },
     });
-console.log(inventory,"===================================");
 
     // Update attributes
     if (attributeInputs) {

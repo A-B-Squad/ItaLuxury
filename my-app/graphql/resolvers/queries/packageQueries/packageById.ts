@@ -1,18 +1,13 @@
 import { Context } from "@/pages/api/graphql";
 
-
 export const packageById = async (
   _: any,
   { packageId }: { packageId: string },
   { prisma }: Context
 ) => {
   try {
-    
     const existingPackages = await prisma.package.findMany({
-      where: { OR: [
-        { customId: packageId },
-        { id: packageId },
-      ], },
+      where: { OR: [{ customId: packageId }, { id: packageId }] },
       include: {
         Checkout: {
           include: {
@@ -35,9 +30,8 @@ export const packageById = async (
         },
       },
     });
-    
-    console.log(existingPackages);
-    
+
+
     if (existingPackages.length === 0) {
       return null;
     }

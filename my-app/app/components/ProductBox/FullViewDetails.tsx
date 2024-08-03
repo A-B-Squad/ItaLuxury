@@ -46,8 +46,9 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
       </div>
     </div>
     <button
+      disabled={product.inventory <= 0}
       type="button"
-      className="flex items-center gap-2 self-center py-2 m-auto text-base w-fit justify-center bg-white px-2 text-md hover:text-white transition hover:bg-red-300"
+      className={`${product?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} flex items-center gap-2 self-center py-2 m-auto text-base w-fit justify-center bg-white px-2 text-md hover:text-white transition hover:bg-red-300`}
       onClick={onAddToBasket}
     >
       <SlBasket />

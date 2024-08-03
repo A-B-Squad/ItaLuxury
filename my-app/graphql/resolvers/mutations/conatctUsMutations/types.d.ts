@@ -3,5 +3,6 @@ interface ContactUsInput {
   email: string
   message: string
   document?:string
+  userId?:string
   
 }

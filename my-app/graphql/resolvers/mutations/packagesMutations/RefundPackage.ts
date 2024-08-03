@@ -12,7 +12,6 @@ export const refundPackage = async (
   { prisma }: Context
 ) => {
   const { packageId, cause, brokenProducts } = input;
-  console.log("aaaaaaaaaa",input);
   
   try {
     const findPackage = await prisma.package.findFirst({

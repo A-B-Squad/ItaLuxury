@@ -64,14 +64,14 @@ export async function generateMetadata({
 }: {
   searchParams: { productId: string };
 }): Promise<Metadata> {
-  if (!process.env.BASE_URL_DOMAIN) {
+  if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
     throw new Error("BASE_URL_DOMAIN is not defined");
   }
 
   const productData = await fetchProductData(searchParams.productId);
 
   return {
-    metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
     title: `${productData?.name} - MaisonNg`,
     description: productData?.description,
     openGraph: {
@@ -85,7 +85,7 @@ export async function generateMetadata({
           alt: productData?.name,
         },
       ],
-      url: `${process.env.BASE_URL_DOMAIN}/product?productId=${searchParams.productId}`,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/product?productId=${searchParams.productId}`,
     },
     twitter: {
       card: "summary_large_image",
@@ -94,10 +94,10 @@ export async function generateMetadata({
       images: [productData?.images[0] || "../../../../public/images/logo.jpeg"],
     },
     keywords: [...keywords, productData?.name, productData?.reference].join(
-      ", "
+      ", ",
     ),
     alternates: {
-      canonical: `${process.env.BASE_URL_DOMAIN}/product?productId=${searchParams.productId}`,
+      canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/product?productId=${searchParams.productId}`,
     },
   };
 }

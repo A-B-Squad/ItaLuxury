@@ -2,7 +2,7 @@ import { Context } from "@/pages/api/graphql";
 
 export const createPackageComments = async (
   _: any,
-  { packageId, comments }: { packageId: string; comments: string[] },
+  { packageId, comment }: { packageId: string; comment: string[] },
   { prisma }: Context
 ) => {
   try {
@@ -17,7 +17,7 @@ export const createPackageComments = async (
     await prisma.package.update({
       where: { id: packageId },
       data: {
-        comments: { set: comments }, 
+        comments: { set: comment }, 
       },
     });
 

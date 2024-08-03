@@ -125,7 +125,7 @@ const ProductInfo = () => {
     <>
       <div
         onClick={closeProductDetails}
-        className={`fixed cursor-none z-[14514]   ${isOpen ? "translate-y-0 opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`fixed cursor-none z-[14514]   ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
       >
         <IoCloseOutline
           size={40}
@@ -142,7 +142,7 @@ const ProductInfo = () => {
           onClick={closeProductDetails}
           className="absolute bg-white rounded-full p-2  hover:rotate-180 transition-all cursor-pointer -right-0 -top-0"
         />
-        <div className="details    flex flex-col justify-center items-center   lg:flex-row   ">
+        <div className="details    flex flex-col justify-center items-start   lg:flex-row   ">
           <div className="flex  relative lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
             <div className="shadow-xl relative  border-2  h-fit md:max-w-md flex items-center justify-center p-1 rounded-xl">
               <InnerImageZoom
@@ -155,7 +155,7 @@ const ProductInfo = () => {
               />
             </div>
             <div className="mt-6 flex justify-center gap-3">
-              {productData?.images.map((image: string, index: number) => (
+              {productData?.images?.map((image: string, index: number) => (
                 <div
                   key={index}
                   className={`shadow-md w-20 h-20 md:w-24 md:h-24 rounded-md p-[7px] ${
@@ -222,7 +222,7 @@ const ProductInfo = () => {
                 <h3 className="text-lg tracking-wider font-bold  capitalize text-primaryColor">
                   Quantité
                 </h3>
-                <div className="flex divide-x border w-max overflow-y-scrollounded-md">
+                {/* <div className="flex divide-x border w-max overflow-y-scrollounded-md">
                   <button
                     type="button"
                     className="bg-lightBeige hover:bg-secondaryColor transition-all  px-3 py-1 font-semibold cursor-pointer"
@@ -243,15 +243,39 @@ const ProductInfo = () => {
                   >
                     <FaPlus />
                   </button>
+                </div> */}
+                <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
+                  <button
+                    type="button"
+                    className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
+                    onClick={handleSubtractQuantity}
+                  >
+                    <RiSubtractFill />
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
+                  >
+                    {actualQuantity}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-primaryColor text-white px-3 py-1 font-semibold cursor-pointer`}
+                    onClick={handleAddQuantity}
+                  >
+                    <FaPlus />
+                  </button>
                 </div>
               </div>
               <div className="mt-3 ">
                 <h3 className="text-lg tracking-wider font-bold capitalize text-primaryColor">
                   Description
                 </h3>
-                <p className="text-sm  overflow-y-auto h-32 text-gray-600 mt-2">
-                  {productData?.description}
-                </p>
+
+                <p
+                  className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-2"
+                  dangerouslySetInnerHTML={{ __html: productData?.description }}
+                />
               </div>
               <div className="mt-4">
                 {productData?.Colors && (
@@ -289,8 +313,9 @@ const ProductInfo = () => {
                 )}
 
               <button
+                disabled={productData?.inventory <= 0}
                 type="button"
-                className="min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold rounded"
+                className={`${productData?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold rounded`}
                 onClick={() => {
                   AddToBasket(productData);
                 }}

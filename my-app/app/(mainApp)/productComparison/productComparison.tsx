@@ -27,7 +27,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    })
+    }),
   );
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
@@ -51,7 +51,7 @@ const ProductComparison = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast]
+    [removeProductFromCompare, toast],
   );
 
   const { addProductToBasket } = useProductsInBasketStore((state) => ({
@@ -78,7 +78,7 @@ const ProductComparison = () => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -171,7 +171,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
+                                    3,
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND
@@ -190,7 +190,8 @@ const ProductComparison = () => {
                           </p>
                         </div>
                         <button
-                          className="flex items-center transition-all justify-center rounded-md bg-primaryColor px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondaryColor focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300"
+                          disabled={product.inventory <= 0}
+                          className={`flex items-center transition-all ${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} justify-center rounded-md bg-primaryColor px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondaryColor focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300`}
                           onClick={() => {
                             AddToBasket(product);
 
@@ -230,7 +231,11 @@ const ProductComparison = () => {
                   Description
                 </th>
                 {products.map((product: any) => (
-                  <td className="px-6 py-4">{product?.description}</td>
+                  <td
+                    key={product.id}
+                    className="px-6 py-4"
+                    dangerouslySetInnerHTML={{ __html: product?.description }}
+                  />
                 ))}
               </tr>
             </tbody>

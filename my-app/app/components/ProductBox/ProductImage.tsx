@@ -56,7 +56,6 @@ const ProductImage: React.FC<ProductImageProps> = ({ product }) => (
           loading="eager"
           priority
           objectFit="contain"
-
           alt={`products-${product.name}`}
           layout="fill"
         />

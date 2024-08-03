@@ -15,7 +15,7 @@ export const fetchUsersById = async (_: any, { userId }: { userId: string }, { p
                             package: true,
                             Governorate: true,
                             Coupons: true,
-                            products: true
+                            productInCheckout:true
                         }
                     }
                 },

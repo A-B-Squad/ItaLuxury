@@ -21,7 +21,7 @@ function NotFound() {
   return (
     <>
       <Header />
-      <div className="flex flex-col items-center justify-center w-full  ">
+      <div className="flex flex-col items-center justify-center w-full bg-white  ">
         <Image
           alt="The guitarist in the concert."
           src={

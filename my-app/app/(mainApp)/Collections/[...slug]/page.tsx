@@ -8,7 +8,10 @@ export async function generateMetadata({
 }: {
   searchParams: { choice?: string };
 }): Promise<Metadata> {
-  if (!process.env.NEXT_PUBLIC_API_URL || !process.env.BASE_URL_DOMAIN) {
+  if (
+    !process.env.NEXT_PUBLIC_API_URL ||
+    !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
+  ) {
     throw new Error("NEXT_PUBLIC_API_URL or BASE_URL_DOMAIN is not defined");
   }
 
@@ -45,7 +48,7 @@ export async function generateMetadata({
   }
 
   return {
-    metadataBase: new URL(process.env.BASE_URL_DOMAIN),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
     title: pageTitle,
     description: pageDescription,
     openGraph: {
@@ -74,7 +77,7 @@ export async function generateMetadata({
       apple: "/images/apple-touch-icon.png",
     },
     alternates: {
-      canonical: `${process.env.BASE_URL_DOMAIN}/products${searchParams.choice ? `?choice=${searchParams.choice}` : ""}`,
+      canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/products${searchParams.choice ? `?choice=${searchParams.choice}` : ""}`,
     },
   };
 }

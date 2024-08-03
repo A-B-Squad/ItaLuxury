@@ -6,10 +6,12 @@ import ContactUsForm from "./componants/contactUsForm";
 
 export const metadata: Metadata = {
   title: "Contactez-Nous | MaisonNg - Votre boutique en ligne en Tunisie",
-  description: "Besoin d'aide ou d'informations ? Contactez l'équipe MaisonNg. Nous sommes là pour répondre à toutes vos questions sur nos produits et services.",
+  description:
+    "Besoin d'aide ou d'informations ? Contactez l'équipe MaisonNg. Nous sommes là pour répondre à toutes vos questions sur nos produits et services.",
   openGraph: {
     title: "Contactez-Nous | MaisonNg",
-    description: "Besoin d'aide ? Contactez l'équipe MaisonNg. Nous sommes là pour vous aider.",
+    description:
+      "Besoin d'aide ? Contactez l'équipe MaisonNg. Nous sommes là pour vous aider.",
     type: "website",
     url: "https://www.maisonng.com/Contact-us",
     images: [
@@ -24,7 +26,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Contactez-Nous | MaisonNg",
-    description: "Besoin d'aide ? Contactez l'équipe MaisonNg. Nous sommes là pour vous aider.",
+    description:
+      "Besoin d'aide ? Contactez l'équipe MaisonNg. Nous sommes là pour vous aider.",
     images: ["/images/contact-us-twitter.jpg"],
   },
   alternates: {

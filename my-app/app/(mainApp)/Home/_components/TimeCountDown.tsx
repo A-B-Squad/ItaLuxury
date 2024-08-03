@@ -31,25 +31,36 @@ const TimeCountDown = () => {
     return () => clearInterval(interval);
   }, [createdAt]);
 
+  const days = Math.floor(countdown / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+  );
+  const minutes = Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((countdown % (1000 * 60)) / 1000);
+
   return (
     <div className="grid grid-flow-col bg-primaryColor text-white text-center auto-cols-max">
       <div className="flex items-center gap-2 md:p-2 p-1 rounded-box">
         <span className="countdown font-mono text-base">
-          <span>{Math.floor(countdown / (1000 * 60 * 60))}</span>
+          <span>{days}</span>
         </span>
-        <span className="">Heures</span>
+        <span>Jours</span>
+      </div>
+      <div className="flex items-center gap-2 md:p-2 p-1 rounded-box">
+        <span className="countdown font-mono text-base">
+          <span>{hours}</span>
+        </span>
+        <span>Heures</span>
       </div>
       <div className="flex items-center gap-1 md:p-2 p-1">
         <span className="countdown font-mono text-base">
-          <span>
-            {Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60))}
-          </span>
+          <span>{minutes}</span>
         </span>
         <span>Minutes</span>
       </div>
       <div className="flex items-center gap-1 md:p-2 p-1">
         <span className="countdown font-mono text-base">
-          <span>{Math.floor((countdown % (1000 * 60)) / 1000)}</span>
+          <span>{seconds}</span>
         </span>
         <span>Secondes</span>
       </div>

@@ -144,7 +144,10 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                       <div className="w-full flex gap-5  items-center">
                         <div className="relative h-28 w-28  ">
                           <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
-                            <div
+                            <button
+                              type="button"
+                              className={`${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"}  hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all`}
+                              disabled={product.inventory <= 0}
                               title="Ajouter au panier"
                               onClick={() => {
                                 AddToBasket(product);
@@ -155,10 +158,9 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                                   className: "bg-primaryColor text-white",
                                 });
                               }}
-                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
                             >
                               <FaBasketShopping size={18} />
-                            </div>
+                            </button>
                             <div
                               className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
                               title="aperçu rapide"

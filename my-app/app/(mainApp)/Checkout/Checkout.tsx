@@ -88,18 +88,13 @@ const Checkout = () => {
       return;
     }
 
-    // Calculate the discounted total
-    const discountedTotal = discountPercentage
-      ? (+total - (+total * discountPercentage) / 100).toFixed(3)
-      : Number(total).toFixed(3);
-
     // Create the checkout mutation
     createCheckout({
       variables: {
         input: {
           userId: decodedToken.userId,
           userName: data.fullname,
-          total:parseFloat (calculateTotal()),
+          total: parseFloat(calculateTotal()),
           phone: Number(data.phone),
           governorateId: data.governorate,
           address: data.address,
@@ -107,7 +102,15 @@ const Checkout = () => {
         },
       },
       onCompleted: () => {
-        router.push("/");
+        // Clear the current history
+        window.history.pushState(null, "", "/");
+
+        // Redirect to home page
+        router.replace("/");
+        console.log(window.history);
+
+        // Disable back navigation
+        window.history.forward();
         toggleIsUpdated();
       },
     });
@@ -140,6 +143,16 @@ const Checkout = () => {
         description: "Code promo invalide ",
         className: "bg-red-800 text-white",
       });
+    }
+  };
+
+  const handleCouponToggle = () => {
+    setShowInputCoupon(!showInputCoupon);
+    if (showInputCoupon) {
+      // If we're hiding the input (i.e., clicking "Annuler")
+      setChangeCouponCode("");
+      setDiscountPercentage(0);
+      setCouponsId("");
     }
   };
 
@@ -244,7 +257,7 @@ const Checkout = () => {
                       <option key={goverment.id} value={goverment.id}>
                         {goverment.name.toUpperCase()}
                       </option>
-                    )
+                    ),
                   )}{" "}
                 </select>
 
@@ -271,9 +284,7 @@ const Checkout = () => {
                     <button
                       type="button"
                       className="text-blue-800 font-semibold text-sm"
-                      onClick={() => {
-                        setShowInputCoupon(!showInputCoupon);
-                      }}
+                      onClick={handleCouponToggle}
                     >
                       {showInputCoupon ? "Annuler" : "Afficher"}
                     </button>
@@ -286,8 +297,9 @@ const Checkout = () => {
                             type="text"
                             className="border-2 px-3 py-2 text-sm w-72 outline-none "
                             maxLength={30}
+                            value={changeCouponCode}
                             onChange={(e) => {
-                              if (changeCouponCode.length < 30) {
+                              if (e.target.value.length <= 30) {
                                 setChangeCouponCode(e.target.value);
                               }
                             }}
@@ -346,7 +358,7 @@ const Checkout = () => {
                       <p className="font-semibold text-primaryColor">
                         -
                         {((Number(total) * discountPercentage) / 100).toFixed(
-                          3
+                          3,
                         )}{" "}
                         TND ({discountPercentage}%)
                       </p>

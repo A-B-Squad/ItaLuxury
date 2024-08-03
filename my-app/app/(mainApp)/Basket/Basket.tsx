@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 
 import {
@@ -26,7 +26,6 @@ import { useToast } from "@/components/ui/use-toast";
 import prepRoute from "@/app/Helpers/_prepRoute";
 import { HiPlus } from "react-icons/hi2";
 import { RiSubtractLine } from "react-icons/ri";
-import Loading from "../Checkout/loading";
 import { useBasketStore } from "@/app/store/zustand";
 
 interface DecodedToken extends JwtPayload {
@@ -87,7 +86,8 @@ const Basket = () => {
   }, [products, calculateTotalPrice]);
 
   // Query to fetch basket data
-  const { loading } = useQuery(BASKET_QUERY, {
+
+  const { loading, error } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId.map((basket: any) => ({
@@ -98,7 +98,12 @@ const Basket = () => {
       setProducts(fetchedProducts);
     },
     onError: (error) => {
-      console.error(error);
+      console.error("Error fetching basket:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger le panier. Veuillez réessayer.",
+        className: "bg-red-500 text-white",
+      });
     },
   });
 
@@ -109,8 +114,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === increaseQuantity.id
             ? { ...product, quantity: increaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
       toggleIsUpdated();
     },
@@ -132,8 +137,8 @@ const Basket = () => {
         prevProducts.map((product) =>
           product.basketId === decreaseQuantity.id
             ? { ...product, quantity: decreaseQuantity.quantity }
-            : product
-        )
+            : product,
+        ),
       );
       toggleIsUpdated();
     },
@@ -146,7 +151,7 @@ const Basket = () => {
   const handleRemoveProduct = useCallback(
     (basketId: string) => {
       setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId)
+        prevProducts.filter((product) => product.basketId !== basketId),
       );
       deleteBasketById({ variables: { basketId } });
       toggleIsUpdated();
@@ -156,187 +161,180 @@ const Basket = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [deleteBasketById, toast, toggleIsUpdated]
+    [deleteBasketById, toast, toggleIsUpdated],
   );
   return (
     <div className="">
       <div className="grid lg:grid-cols-3 gap-5 h-max my-8 py-5">
         <div className="lg:col-span-2 p-10 bg-white overflow-x-auto shadow-xl">
-          <div className="flex border-b p-5">
-            <h2 className="text-2xl font-extrabold text-[#333] flex-1">
-              Panier
-            </h2>
-            <h3 className="text-xl font-extrabold text-[#333]">
-              {products.length} articles
+          <div className="flex justify-between items-center border-b p-6">
+            <h2 className="text-2xl font-bold text-gray-800">Panier</h2>
+            <h3 className="text-xl font-semibold text-gray-600">
+              {products.length} article{products.length > 1 ? "s" : ""}
             </h3>
           </div>
-          {loading ? (
-            <Loading />
-          ) : (
-            <Table>
-              <TableCaption>Bienvenue sur notre site.</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-base">Description</TableHead>
-                  <TableHead className="text-base">Quantité</TableHead>
-                  <TableHead className="text-base">Prix</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium  flex items-center gap-7">
-                      {" "}
-                      <Image
-                        width={150}
-                        height={150}
-                        alt={product.name}
-                        src={product.images[0]}
-                        objectFit="contain"
-                      />
-                      <div>
-                        <Link
-                          rel="preload"
-                          href={{
-                            pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-                            query: {
-                              productId: product?.id,
-                              collection: [
-                                product?.categories[0]?.name,
-                                product?.categories[0]?.id,
-                                product?.categories[0]?.subcategories[0]?.name,
-                                product?.categories[0]?.subcategories[0]?.id,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[0]?.name,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[0]?.id,
-                                product?.name,
-                              ],
-                            },
-                          }}
-                          className="text-md font-bold hover:text-primaryColor text-[#333]"
-                        >
-                          {product.name}
-                        </Link>
-                        <button
-                          type="button"
-                          className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
-                          onClick={() => {
-                            handleRemoveProduct(product.basketId);
-                            toast({
-                              title: "Notification de Panier",
-                              description: `Le produit "${product?.name}" a été retiré du panier.`,
-                              className: "bg-primaryColor text-white",
-                            });
-                          }}
-                        >
-                          <FaRegTrashAlt />
-                          Retirer
-                        </button>
-                      </div>
-                    </TableCell>
 
-                    <TableCell>
-                      <div className="flex divide-x border w-max">
-                        <button
-                          type="button"
-                          className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
-                          onClick={() => {
-                            decreaseQuantity({
-                              variables: { basketId: product.basketId },
-                            });
-                          }}
-                          disabled={product.quantity === 1}
-                        >
-                          <RiSubtractLine />
-                        </button>
-                        <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
-                          {product.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
-                          onClick={() => {
-                            increaseQuantity({
-                              variables: { basketId: product.basketId },
-                            });
-                          }}
-                        >
-                          <HiPlus />
-                        </button>
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="">
-                      {product?.productDiscounts?.length > 0 && (
-                        <h4 className="text-md w-max font-bold text-[#333]">
-                          {product.productDiscounts[0].newPrice.toFixed(3)} TND
-                        </h4>
-                      )}
-                      <h4
-                        className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0 ? " text-gray-700 line-through" : ""}`}
+          <Table>
+            <TableCaption>Bienvenue sur notre site.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-base">Description</TableHead>
+                <TableHead className="text-base">Quantité</TableHead>
+                <TableHead className="text-base">Prix</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell className="font-medium  flex items-center gap-7">
+                    {" "}
+                    <Image
+                      width={150}
+                      height={150}
+                      alt={product.name}
+                      src={product.images[0]}
+                      objectFit="contain"
+                    />
+                    <div>
+                      <Link
+                        rel="preload"
+                        href={{
+                          pathname: `/products/tunisie/${prepRoute(product?.name)}`,
+                          query: {
+                            productId: product?.id,
+                            collection: [
+                              product?.categories[0]?.name,
+                              product?.categories[0]?.id,
+                              product?.categories[0]?.subcategories[0]?.name,
+                              product?.categories[0]?.subcategories[0]?.id,
+                              product?.categories[0]?.subcategories[0]
+                                ?.subcategories[0]?.name,
+                              product?.categories[0]?.subcategories[0]
+                                ?.subcategories[0]?.id,
+                              product?.name,
+                            ],
+                          },
+                        }}
+                        className="text-md font-bold hover:text-primaryColor text-[#333]"
                       >
-                        {product.price.toFixed(3)} TND
-                      </h4>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </div>
+                        {product.name}
+                      </Link>
+                      <button
+                        type="button"
+                        className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
+                        onClick={() => {
+                          handleRemoveProduct(product.basketId);
+                          toast({
+                            title: "Notification de Panier",
+                            description: `Le produit "${product?.name}" a été retiré du panier.`,
+                            className: "bg-primaryColor text-white",
+                          });
+                        }}
+                      >
+                        <FaRegTrashAlt />
+                        Retirer
+                      </button>
+                    </div>
+                  </TableCell>
 
-        <div className="bg-white p-10 shadow-xl">
-          <h3 className="text-xl font-extrabold text-[#333] border-b pb-4">
+                  <TableCell>
+                    <div className="flex divide-x border w-max">
+                      <button
+                        type="button"
+                        className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          decreaseQuantity({
+                            variables: { basketId: product.basketId },
+                          });
+                        }}
+                        disabled={product.quantity === 1}
+                      >
+                        <RiSubtractLine />
+                      </button>
+                      <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
+                        {product.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
+                        onClick={() => {
+                          increaseQuantity({
+                            variables: { basketId: product.basketId },
+                          });
+                        }}
+                      >
+                        <HiPlus />
+                      </button>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="">
+                    {product?.productDiscounts?.length > 0 && (
+                      <h4 className="text-md w-max font-bold text-[#333]">
+                        {product.productDiscounts[0].newPrice.toFixed(3)} TND
+                      </h4>
+                    )}
+                    <h4
+                      className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0 ? " text-gray-700 line-through" : ""}`}
+                    >
+                      {product.price.toFixed(3)} TND
+                    </h4>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="bg-white shadow-xl rounded-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 border-b pb-4 mb-6">
             Récapitulatif de la commande
           </h3>
+          <ul className="space-y-4 mb-6">
+            <li className="flex justify-between text-gray-600">
+              <span>
+                {products.length} article{products.length > 1 ? "s" : ""}
+              </span>
+              <span className="font-semibold">
+                {Number(totalPrice).toFixed(3)} TND
+              </span>
+            </li>
+            <li className="flex justify-between text-gray-600">
+              <span>Livraison</span>
+              <span className="font-semibold">
+                {Number(totalPrice) >= 499 ? "Gratuit" : "8.000 TND"}
+              </span>
+            </li>
+            <li className="flex justify-between text-gray-800 font-bold">
+              <span>Total (TTC)</span>
+              <span>
+                {Number(totalPrice) >= 499
+                  ? Number(totalPrice).toFixed(3)
+                  : (Number(totalPrice) + 8).toFixed(3)}{" "}
+                TND
+              </span>
+            </li>
+          </ul>
 
-          {products.length === 0 ? (
-            <Loading />
+          {products.length > 0 ? (
+            <Link
+              href={{
+                pathname: "/Checkout",
+                query: {
+                  products: JSON.stringify(products),
+                  total: Number(totalPrice).toFixed(3),
+                },
+              }}
+              className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
+            >
+              Procéder au paiement
+            </Link>
           ) : (
-            <>
-              <ul className="text-[#333] divide-y mt-6">
-                <li className="flex flex-wrap gap-4 text-md py-4">
-                  {products.length > 1 ? (
-                    <span className="font-normal">
-                      {products.length} articles
-                    </span>
-                  ) : (
-                    <span className="font-normal">1 article</span>
-                  )}
-                  <span className="ml-auto font-sefmibold">
-                    {Number(totalPrice).toFixed(3)} TND
-                  </span>
-                </li>
-                <li className="flex flex-wrap gap-4 text-md py-4">
-                  Livraison{" "}
-                  <span className="ml-auto font-semibold">
-                    {Number(totalPrice) >= 499 ? "Gratuit" : "8.000 TND"}
-                  </span>
-                </li>
-                <li className="flex flex-wrap gap-4 text-md py-4 font-semibold">
-                  Total (TTC){" "}
-                  <span className="ml-auto">
-                    {Number(totalPrice) >= 499
-                      ? Number(totalPrice).toFixed(3)
-                      : (Number(totalPrice) + 8).toFixed(3)}{" "}
-                    TND
-                  </span>
-                </li>
-              </ul>
-              <Link
-                href={{
-                  pathname: "/Checkout",
-                  query: {
-                    products: JSON.stringify(products),
-                    total: Number(totalPrice).toFixed(3),
-                  },
-                }}
-                className=" relative top-5 text-md px-10 py-2 w-full transition-all bg-primaryColor hover:bg-amber-200 text-white  cursor-pointer"
-              >
-                Vérifier
-              </Link>
-            </>
+            <button
+              disabled
+              className="block w-full text-center py-3 px-4 bg-gray-400 text-white font-semibold rounded cursor-not-allowed"
+            >
+              Procéder au paiement
+            </button>
           )}
         </div>
       </div>

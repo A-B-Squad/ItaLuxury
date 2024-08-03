@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 // the list of all allowed origins
 const allowedOrigins = [
   "http://localhost:3001/",
-  `${process.env.BASE_URL_DOMAIN}/`,
+  `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/`,
 ];
 
 export function middleware(req: any) {

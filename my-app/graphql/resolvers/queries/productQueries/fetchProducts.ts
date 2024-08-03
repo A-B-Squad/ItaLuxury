@@ -9,7 +9,7 @@ export const products = async (_: any, { limit }: { limit?: number }, { prisma }
 
         const products = await prisma.product.findMany({
             where: {
-                isVisible: true
+                // isVisible: true
             },
             include: {
                 categories: { include: { subcategories: { include: { subcategories: true } } } },

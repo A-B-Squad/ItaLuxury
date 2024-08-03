@@ -6,7 +6,6 @@ export const deleteCoupons = async (
   { couponsId }: { couponsId: string },
   { prisma }: Context
 ) => {
-  console.log(couponsId);
   
   try {
     await prisma.coupons.delete({

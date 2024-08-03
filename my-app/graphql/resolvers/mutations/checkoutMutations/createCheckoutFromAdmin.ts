@@ -24,11 +24,13 @@ const generateCustomId = async (prisma: any) => {
   return customId;
 };
 
-export const createCheckout = async (
+export const createCheckoutFromAdmin = async (
   _: any,
-  { input }: { input: CreateCheckoutInput },
+  { input }: { input: CreateCheckoutFromAdminInput },
   { prisma }: Context
 ) => {
+  console.log(input);
+
   try {
     const {
       userId,
@@ -37,39 +39,18 @@ export const createCheckout = async (
       total,
       phone,
       userName,
-      couponsId,
+      products,
+      manualDiscount,
     } = input;
+    console.log(input);
 
-    // Retrieve user's basket to get product IDs
-    const userBasket = await prisma.basket.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        Product: {
-          include: {
-            productDiscounts: {
-              include: {
-                Discount: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!userBasket.length) {
-      return new Error("User's basket not found");
-    }
-
-    const products = userBasket.map((basket) => {
-      const product = basket.Product;
-      const productDiscounts = product?.productDiscounts;
+    const productInCheckout = products.map((product: any) => {
+      const productDiscounts = product.Product?.productDiscounts;
 
       return {
-        productId: basket.productId,
-        productQuantity: basket.quantity,
-        price: product?.price ?? 0,
+        productId: product.productId,
+        productQuantity: product.productQuantity,
+        price: product.price ?? 0,
         discountedPrice:
           productDiscounts && productDiscounts.length > 0
             ? productDiscounts[0].newPrice
@@ -77,39 +58,24 @@ export const createCheckout = async (
       };
     });
 
-    // Create the checkout with the provided data and product IDs from the basket
     const newCheckout = await prisma.checkout.create({
       data: {
         userId,
         userName,
         governorateId,
         productInCheckout: {
-          create: products,
+          create: productInCheckout,
         },
+        manualDiscount,
         phone,
         address,
         total,
-        couponsId: couponsId || null,
       },
     });
-    if (couponsId) {
-      await prisma.coupons.update({
-        where: {
-          id: couponsId,
-        },
-        data: {
-          available: false,
-        },
-      });
-    }
-    //delete basket with User id
-    await prisma.basket.deleteMany({
-      where: { userId: userId },
-    });
+
     const customId = await generateCustomId(prisma);
 
-    // Create a new package associated with the checkout ID
-    await prisma.package.create({
+    const newPackage = await prisma.package.create({
       data: {
         checkoutId: newCheckout.id,
         customId,
@@ -117,7 +83,7 @@ export const createCheckout = async (
       },
     });
 
-    return newCheckout;
+    return newPackage.id;
   } catch (error) {
     // Handle errors
     console.error("Error creating checkout:", error);

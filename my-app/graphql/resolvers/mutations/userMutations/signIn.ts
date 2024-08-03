@@ -9,8 +9,6 @@ export const signIn = async (
 ) => {
   const { email, password } = input;
 
-
-
   // Check if the user exists
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -23,22 +21,24 @@ export const signIn = async (
   // Check if the password is correct
   const validPassword = await bcrypt.compare(password, existingUser.password);
 
-
   if (!validPassword) {
     return new Error("Invalid password Or Email");
   }
 
-
-
   // Generate JWT token
   const token = jwt.sign({ userId: existingUser.id }, jwtSecret, {
-    expiresIn: "1h",
+    expiresIn: "30d",
   });
 
+  // Calculate expiration date (30 days from now)
+  const expirationDate = new Date();
+  expirationDate.setDate(expirationDate.getDate() + 30);
+
   // Set the cookie
-  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
-
-
+  res.setHeader(
+    "Set-Cookie",
+    `Token=${token}; Path=/; SameSite=Strict; Secure; HttpOnly; Expires=${expirationDate.toUTCString()}`
+  );
   return {
     user: existingUser,
     token,
@@ -60,8 +60,10 @@ export const refreshToken = async (
     });
 
     // Set the new access Token in the cookie
-    res.setHeader("Set-Cookie", `Token=${accessToken}; Path=/; SameSite=Strict; Secure`);
-
+    res.setHeader(
+      "Set-Cookie",
+      `Token=${accessToken}; Path=/; SameSite=Strict; Secure`
+    );
 
     // Return the new access Token
     return accessToken;
@@ -69,5 +71,4 @@ export const refreshToken = async (
     // Handle invalid or expired refresh tokens
     return new Error("Invalid or expired refresh Token");
   }
-
 };

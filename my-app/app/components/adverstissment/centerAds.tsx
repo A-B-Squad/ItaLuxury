@@ -4,7 +4,7 @@ import Image from "next/legacy/image";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import { IoIosClose } from "react-icons/io";
-import { ADVERTISSMENT_QUERY } from '@/graphql/queries';
+import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 
 const CenterAds = () => {
   const [showAds, setShowAds] = useState(false);

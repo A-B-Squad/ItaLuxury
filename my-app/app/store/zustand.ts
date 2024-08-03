@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
   openCategoryDrawer: () => void;
@@ -45,7 +44,7 @@ interface ProductData {
 }
 type UseProductDetails = {
   isOpen: boolean;
-  productData: ProductData | null;
+  productData: ProductData | any;
   openProductDetails: (productData: ProductData) => void;
   closeProductDetails: () => void;
 };

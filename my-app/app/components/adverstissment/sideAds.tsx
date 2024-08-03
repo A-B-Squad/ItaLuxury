@@ -6,7 +6,6 @@ import Image from "next/legacy/image";
 import { IoImageOutline } from "react-icons/io5";
 
 const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
-
   return (
     <div className="side_ads relative hidden   hover:opacity-85 transition-opacity md:flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
       {adsLoaded && (
