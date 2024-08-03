@@ -10,7 +10,8 @@ const TimeCountDown = () => {
   const { data: topDeals } = useQuery(TOP_DEALS);
   const [countdown, setCountdown] = useState<number>(0);
 
-  const createdAt = topDeals?.allDeals[0]?.product?.productDiscounts[0]?.dateOfEnd;
+  const createdAt =
+    topDeals?.allDeals[0]?.product?.productDiscounts[0]?.dateOfEnd;
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -31,7 +32,9 @@ const TimeCountDown = () => {
   }, [createdAt]);
 
   const days = Math.floor(countdown / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const hours = Math.floor(
+    (countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+  );
   const minutes = Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((countdown % (1000 * 60)) / 1000);
 

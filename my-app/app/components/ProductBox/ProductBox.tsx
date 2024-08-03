@@ -144,11 +144,13 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     disabled = false,
   }) => (
     <div
-      className={`relative w-fit cursor-crosshair ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+      className={`relative w-fit cursor-crosshair ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       title={title}
       onClick={!disabled ? onClick : undefined}
     >
-      <li className={`bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ${disabled ? 'opacity-50' : ''}`}>
+      <li
+        className={`bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ${disabled ? "opacity-50" : ""}`}
+      >
         {icon}
       </li>
     </div>

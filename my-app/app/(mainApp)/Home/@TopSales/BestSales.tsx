@@ -50,7 +50,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const AddToBasket = (product: any) => {
@@ -72,7 +72,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -101,8 +101,8 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
             new Set(
-              data.getBestSales.flatMap((item: any) => item.Category.name)
-            )
+              data.getBestSales.flatMap((item: any) => item.Category.name),
+            ),
           );
           setCategories(uniqueCategories);
         }
@@ -132,7 +132,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
             <tbody className="border-2 w-full p-5 shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
               {allProducts
                 .filter(
-                  (product: any) => product?.categories[0].name === category
+                  (product: any) => product?.categories[0].name === category,
                 )
                 .map((product: any) => (
                   <div
@@ -212,7 +212,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
                             <div className="flex gap-2 tracking-wider items-center">
                               <span className="text-primaryColor font-bold text-lg ">
                                 {product.productDiscounts[0]?.newPrice.toFixed(
-                                  3
+                                  3,
                                 )}{" "}
                                 DT
                               </span>

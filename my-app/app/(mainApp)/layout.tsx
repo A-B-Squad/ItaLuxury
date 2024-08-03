@@ -7,7 +7,7 @@ import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 const BasketDrawer = dynamic(() => import("../components/BasketDrawer"));
 const DrawerMobile = dynamic(
-  () => import("../components/Header/CrategoryDrawer/DrawerMobile")
+  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";

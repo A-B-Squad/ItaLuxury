@@ -9,7 +9,7 @@ const CompanyInfoBar = () => {
   const { data: CompanyInfoData } = useQuery(COMPANY_INFO_QUERY);
   const phone = CompanyInfoData?.companyInfo?.phone;
   console.log(phone);
-  
+
   const location = CompanyInfoData?.companyInfo?.location;
   const email = CompanyInfoData?.companyInfo?.email;
   return (
