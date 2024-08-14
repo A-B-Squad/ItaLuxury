@@ -1,5 +1,6 @@
+import { getAllSectionVisibility } from "./AllSectionVisibility";
 import { getSectionVisibility } from "./SectionVisibility";
 
 export const SectionQueries = {
-    getSectionVisibility
+    getSectionVisibility,getAllSectionVisibility
 };

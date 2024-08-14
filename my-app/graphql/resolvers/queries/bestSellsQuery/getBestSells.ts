@@ -1,6 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 
-export const getBestSales = async (
+export const getBestSells = async (
   _: any,
   { limit }: { limit: number },
   { prisma }: Context

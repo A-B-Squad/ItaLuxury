@@ -69,6 +69,7 @@ const ProductsSection = () => {
             minPrice: 1,
             page: currentPage,
             pageSize,
+            visibleProduct: true,
           },
         },
       });

@@ -135,15 +135,17 @@ export const updateProduct = async (
       attributeInputs,
       colorsId,
       discount,
+      brandId,
     } = input;
 
     // Update the product with the provided data
-    const productUpdated = await prisma.product.update({
+    await prisma.product.update({
       where: { id: productId },
       data: {
         name,
         price,
         purchasePrice,
+        brandId: brandId || null,
         isVisible,
         reference,
         description,
@@ -169,6 +171,15 @@ export const updateProduct = async (
     // Update discounts
     if (discount) {
       await updateDiscounts(prisma, productId, price, discount);
+    } else {
+      const existingDiscounts = await prisma.productDiscount.findFirst({
+        where: { productId, price },
+      });
+      if (existingDiscounts) {
+        await prisma.productDiscount.delete({
+          where: { productId, price },
+        });
+      }
     }
 
     return "Product updated successfully";

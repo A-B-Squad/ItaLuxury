@@ -326,7 +326,7 @@ const TopDeals = () => {
   ]);
 
   return (
-    <div className="md:grid grid-cols-2 gap-3 grid-flow-col bg-white border py-2 overflow-hidden block">
+    <div className="md:grid grid-cols-2 gap-3 grid-flow-col min-h-72 bg-white border py-2 overflow-hidden block">
       {renderProducts}
     </div>
   );

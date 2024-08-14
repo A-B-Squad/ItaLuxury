@@ -111,6 +111,7 @@ type ProductDiscount {
   id: ID
   Discount: Discount
   productId: ID
+  discountId: ID
   product: Product
   price: Float
   newPrice: Float
@@ -277,29 +278,30 @@ type Query {
   fetchUsersById(userId: ID!): User!
 
   # Content visibility query
-  getSectionVisibility(section: String!): content_visibility!
+  getSectionVisibility(section:String!): content_visibility!
+   getAllSectionVisibility: [content_visibility!]!
 
   # Best sales query
-  getBestSales(limit: Int): [BestSales!]
+  getBestSells(limit: Int): [BestSales!]
 
   # Coupon-related queries
   findUniqueCoupons(codeInput: String!): Coupons
-  fetchAllCoupons(page: Int, pageSize: Int): [Coupons!]
+  fetchAllCoupons(page: Int, pageSize: Int): [Coupons!]!
 
   # Product-related queries
-  products(limit: Int): [Product!]
+  fetchProducts(limit: Int,visibleProduct:Boolean): [Product!]
   fetchBrands: [Brand!]
   searchProducts(input: ProductSearchInput!): SearchProductsResult!
   colors(limit: Int): [Colors!]!
   productsLessThen20(limit: Int): [Product!]
-  productsByCategory(categoryName: String!, limit: Int): [Product!]
+  productsByCategory(categoryName: String!, limit: Int): [Product!]!
   productById(id: ID!): Product!
   getProductImages(productId: String!, colorId: String!): [String!]!
 
   # Category-related queries
   categories: [Category!]!
   fetchMainCategories: [MainCategory!]!
-  subcategoriesByParentId(parentId: ID!): [Category!]
+  subcategoriesByParentId(parentId: ID!): [Category!]!
   categoryById(categoryId: String!): Category!
 
   # Basket and discount queries
@@ -307,11 +309,11 @@ type Query {
   fetchAllBasket: [Basket!]!
   productDiscount(productId: ID!): ProductDiscount!
   DiscountsPercentage: [Discount!]
-  productsDiscounts(limit: Int): [Product!]
+  productsDiscounts(limit: Int): [Product!]!
 
   # Review and favorite queries
-  productReview(productId: ID!, userId: ID): [Review!]
-  favoriteProducts(userId: ID!): [FavoriteProducts!]
+  productReview(productId: ID!, userId: ID): [Review!]!
+  favoriteProducts(userId: ID!): [FavoriteProducts!]!
 
   # Other queries
   productColors(productId: ID!): Colors!
@@ -333,6 +335,7 @@ type Mutation {
   # Advertisement mutations
   createCarouselAdvertisement(input: [advertisementInput]): String
   createBannerAdvertisement(input: [advertisementInput]): String
+  createClientService(input: [advertisementInput]): String
   createSideAdvertisement(input: [advertisementInput]): String
   createLeftNextToCarouselAds(input: [advertisementInput]): String
   createBigAds(input: advertisementInput): String
@@ -342,8 +345,12 @@ type Mutation {
   resetPassword(password: String, id: String): String!
 
   # Section visibility mutation
-  updateSectionVisibility(section: String!, visibility_status: Boolean!): content_visibility!
-
+  updateSectionVisibility(section: String!,visibilityStatus: Boolean!): String!
+  
+  # Best Sells mutation
+  addBestSells(categoryId:String,productId:String!):String!
+  deleteProductBestSells(productId:String!):String!
+  
   # User-related mutations
   signUp(input: SignUpInput!): AuthPayload!
   signIn(input: SignInInput!): AuthPayload!
@@ -409,6 +416,12 @@ type Mutation {
   # Coupon-related mutations
   deleteCoupons(couponsId: ID!): String!
   createCoupons(input: CreateCouponInput!): String!
+  # Color  mutations
+  addColor(color:String! , Hex:String!):String!
+  deleteColor(Hex:String!):String!
+  # Brand Mutations
+  addBrand(name:String!,logo:String!):String!
+  deleteBrand(brandId:ID!):String!
 }
 
 
@@ -526,9 +539,9 @@ input AddProductToFavoriteInput {
 }
 
 input CreateProductDiscountInput {
-  discountId: String!
-  dateOfStart: String!
-  dateOfEnd: String!
+  discountId: String
+  dateOfStart: String
+  dateOfEnd: String
   newPrice: Float
 }
 
@@ -628,6 +641,7 @@ input ProductSearchInput {
   pageSize: Int!
   choice: String
   brandId: ID
+  visibleProduct:Boolean
 }
 
 input ContactUsInput {

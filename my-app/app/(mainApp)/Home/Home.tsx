@@ -16,7 +16,7 @@ import TimeCountDown from "./_components/TimeCountDown";
 import FullWidthAds from "@/app/components/adverstissment/FullWidth";
 import ProductTabs from "@/app/components/ProductCarousel/productTabs";
 import TopDeals from "./@TopDeals/TopDeals";
-const ClientServices = dynamic(() => import("./_components/ClientServices"));
+import ClientServices from "./_components/ClientServices";
 
 import { useQuery } from "@apollo/client";
 import MainCategoriesSlide from "./@mainCategoriesSlide/mainCategoriesSlide";
@@ -94,7 +94,10 @@ const Home = () => {
     },
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
-    variables: { section: "top sells" },
+    variables: { section: "topSells" },
+  });
+  const { data: TopDealsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
+    variables: { section: "topDeals" },
   });
   useQuery(DELETE_ALL_DISCOUNTS_QUERY);
 
@@ -147,23 +150,30 @@ const Home = () => {
               />
             </div>
           </div>
-          <FullWidthAds
-            FullAdsLoaded={loadingFullTopDealsAds}
-            FullImageAds={BannerBestDeals?.advertismentByPosition[0]?.images[0]}
-            LinkTo={"/"}
-          />
-          <div className="TopDeals">
-            <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
-              <TitleProduct title={"Meilleures Offres du Jour"} />
-              <div className="flex items-start flex-col md:flex-row md:pt-3">
-                <p className="md:p-2 font-bold">
-                  Hâtez-vous ! L'offre se termine dans :
-                </p>
-                <TimeCountDown />
+          {TopDealsSectionVisibility?.getSectionVisibility
+            ?.visibility_status && (
+            <>
+              <FullWidthAds
+                FullAdsLoaded={loadingFullTopDealsAds}
+                FullImageAds={
+                  BannerBestDeals?.advertismentByPosition[0]?.images[0]
+                }
+                LinkTo={"/"}
+              />
+              <div className="TopDeals">
+                <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
+                  <TitleProduct title={"Meilleures Offres du Jour"} />
+                  <div className="flex items-start flex-col md:flex-row md:pt-3">
+                    <p className="md:p-2 font-bold">
+                      Hâtez-vous ! L'offre se termine dans :
+                    </p>
+                    <TimeCountDown />
+                  </div>
+                </div>
+                <TopDeals />
               </div>
-            </div>
-            <TopDeals />
-          </div>
+            </>
+          )}
           <FullWidthAds
             FullAdsLoaded={loadingFull20ProductAds}
             FullImageAds={
@@ -228,14 +238,12 @@ const Home = () => {
             </div>
           </div>
           <ClientServices />
-          <div className="BestSeals">
-            <BestSales
-              TopSellsSectionVisibility={
-                TopSellsSectionVisibility?.getSectionVisibility
-                  ?.visibility_status
-              }
-            />
-          </div>
+          {TopSellsSectionVisibility?.getSectionVisibility
+            ?.visibility_status && (
+            <div className="BestSeals pb-24">
+              <BestSales />
+            </div>
+          )}
           <BrandsCarousel />
         </div>
       </div>

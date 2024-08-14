@@ -16,7 +16,7 @@ import { adminMutations } from "./resolvers/mutations/adminMutations/adminMutati
 import { topDealsMutations } from "./resolvers/mutations/topDealsMutations/topDealsMutations";
 import { dealsQueries } from "./resolvers/queries/topDealsQueries/dealsQueries";
 import { colorsQueries } from "./resolvers/queries/colorsQueries/colorsQueries";
-import { bestSalesQueries } from "./resolvers/queries/bestSalesQuery/bestSalesQueries";
+import { bestSalesQueries } from "./resolvers/queries/bestSellsQuery/bestSellsQueries";
 import { BrandQueries } from "./resolvers/queries/BrandQuery/brandQueries";
 import { SectionVisibilityMutations } from "./resolvers/mutations/sectionVisibilityMutations/SectionVisibilityMutations";
 import { SectionQueries } from "./resolvers/queries/sectionVisibilityQueries/SectionVisibilityQueries";
@@ -27,6 +27,9 @@ import { couponsQueries } from "./resolvers/queries/coupons/couponsQueries";
 import { advertismentMutations } from "./resolvers/mutations/advertisementMutations/advertismentMutations";
 import { discountsQueries } from "./resolvers/queries/discountsQueries/discountsQueries";
 import { couponsMutations } from "./resolvers/mutations/couponsMutations/couponsMutations";
+import { colorMutations } from "./resolvers/mutations/colorsMutations/colorsMutations";
+import { brandMutations } from "./resolvers/mutations/brandMutations/brandMutations";
+import { bestSellsMutations } from "./resolvers/mutations/bestSellsMutations/bestSellsMutations";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -59,6 +62,10 @@ export const resolvers = {
     ...topDealsMutations,
     ...SectionVisibilityMutations,
     ...contactUsMutations,
-    ...advertismentMutations,...couponsMutations
+    ...advertismentMutations,
+    ...couponsMutations,
+    ...colorMutations,
+    ...brandMutations,
+    ...bestSellsMutations,
   },
 };
