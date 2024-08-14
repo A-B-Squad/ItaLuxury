@@ -16,14 +16,14 @@ const SearchBar = () => {
   const [categories, setCategories] = useState([]);
 
   const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,{
-      variables:{
-        input:{
-
-          visibleProduct:true
-        }
-      }
-    }
+    SEARCH_PRODUCTS_QUERY,
+    {
+      variables: {
+        input: {
+          visibleProduct: true,
+        },
+      },
+    },
   );
 
   const router = useRouter();

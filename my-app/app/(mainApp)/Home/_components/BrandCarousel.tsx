@@ -26,8 +26,8 @@ export const BrandsCarousel = () => {
                 <>
                   {brand.logo && (
                     <img
-                    width={400}
-                    height={400}
+                      width={400}
+                      height={400}
                       src={brand.logo}
                       alt=""
                       className="object-contain w-24 h-24"

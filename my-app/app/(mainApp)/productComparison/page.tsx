@@ -41,9 +41,7 @@ export const metadata: Metadata = {
 };
 
 const ProductComparisonPage: React.FC = () => {
-  return (
-      <ProductComparison />
-  );
+  return <ProductComparison />;
 };
 
 export default ProductComparisonPage;

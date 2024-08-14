@@ -56,7 +56,7 @@ const BestSales = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   const AddToBasket = (product: any) => {
@@ -78,7 +78,7 @@ const BestSales = () => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -107,8 +107,8 @@ const BestSales = () => {
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
             new Set(
-              data.getBestSells.flatMap((item: any) => item.Category.name)
-            )
+              data.getBestSells.flatMap((item: any) => item.Category.name),
+            ),
           );
           setCategories(uniqueCategories);
         }
@@ -125,7 +125,7 @@ const BestSales = () => {
     setCurrentCategoryIndex((prevIndex) =>
       prevIndex + productsPerPage < allProducts.length
         ? prevIndex + productsPerPage
-        : prevIndex
+        : prevIndex,
     );
     setTimeout(() => setTransitioning(false), 500);
   };
@@ -133,7 +133,9 @@ const BestSales = () => {
   const handlePrevious = () => {
     setTransitioning(true);
     setCurrentCategoryIndex((prevIndex) =>
-      prevIndex - productsPerPage >= 0 ? prevIndex - productsPerPage : prevIndex
+      prevIndex - productsPerPage >= 0
+        ? prevIndex - productsPerPage
+        : prevIndex,
     );
     setTimeout(() => setTransitioning(false), 500);
   };
@@ -162,11 +164,11 @@ const BestSales = () => {
           >
             {allProducts
               .filter(
-                (product: any) => product?.categories[0].name === category
+                (product: any) => product?.categories[0].name === category,
               )
               .slice(
                 currentCategoryIndex,
-                currentCategoryIndex + productsPerPage
+                currentCategoryIndex + productsPerPage,
               )
               .map((product: any) => (
                 <div

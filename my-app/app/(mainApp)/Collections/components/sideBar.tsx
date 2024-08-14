@@ -46,7 +46,6 @@ interface FilterQueries {
 
 // Component
 const SideBar = ({ colors, brands, categories }: SideBarProps) => {
-  
   // Hooks
   const { toast } = useToast();
   const router = useRouter();
