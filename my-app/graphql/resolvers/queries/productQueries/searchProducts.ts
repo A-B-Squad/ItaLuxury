@@ -7,10 +7,11 @@ interface ProductSearchInput {
   maxPrice?: number;
   categoryId?: string;
   colorId?: string;
-  choice?: 'in-discount' | 'new-product';
+  choice?: "in-discount" | "new-product";
   brandId?: string;
   page: number;
   pageSize: number;
+  visibleProduct?: boolean;
 }
 
 export const searchProducts = async (
@@ -28,21 +29,30 @@ export const searchProducts = async (
     choice,
     brandId,
     pageSize,
+    visibleProduct,
   } = input;
+console.log(visibleProduct,"##############");
 
   try {
     const whereCondition: Prisma.ProductWhereInput = {
-      // isVisible: true,
+      ...(visibleProduct !== null && visibleProduct !== undefined && {
+        isVisible: visibleProduct,
+      }),
       ...(query && {
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { description: { contains: query, mode: "insensitive" } },
-          { categories: { some: { name: { contains: query, mode: "insensitive" } } } },
+          {
+            categories: {
+              some: { name: { contains: query, mode: "insensitive" } },
+            },
+          },
         ],
       }),
-      ...(minPrice !== undefined && maxPrice !== undefined && {
-        price: { gte: minPrice, lte: maxPrice },
-      }),
+      ...(minPrice !== undefined &&
+        maxPrice !== undefined && {
+          price: { gte: minPrice, lte: maxPrice },
+        }),
       ...(categoryId && { categories: { some: { id: categoryId } } }),
       ...(brandId && { Brand: { id: brandId } }),
       ...(colorId && { Colors: { id: colorId } }),

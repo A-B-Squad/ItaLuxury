@@ -76,11 +76,11 @@ model Product {
   favoriteProducts  FavoriteProducts[]
   attributes        ProductAttribute[]
   ProductInCheckout ProductInCheckout[]
-  Colors            Colors?             @relation(fields: [colorsId], references: [id])
+  Colors            Colors?             @relation(fields: [colorsId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   colorsId          String?
   TopDeals          TopDeals?
   BestSales         BestSales[]
-  Brand             Brand?              @relation(fields: [brandId], references: [id])
+  Brand             Brand?              @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   brandId           String?
   BreakedProduct    BreakedProduct[]
 }
@@ -96,7 +96,7 @@ model BestSales {
 model Colors {
   id      String    @id @default(uuid())
   color   String    @unique
-  Hex     String
+  Hex     String    @unique
   Product Product[]
 }
 

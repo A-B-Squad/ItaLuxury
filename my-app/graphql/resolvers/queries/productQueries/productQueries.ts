@@ -1,4 +1,4 @@
-import { products } from "./fetchProducts";
+import { fetchProducts } from "./fetchProducts";
 import { productsByCategory } from "./productsByCategory";
 import { productById } from "./getProductById";
 import { productDiscount } from "./productDiscount";
@@ -10,7 +10,7 @@ import { searchProducts } from "./searchProducts";
 import { deleteAutoProductDiscount } from "./deleteAutoProductDiscounts";
 
 export const productQueries = {
-    products,
+    fetchProducts,
     productsByCategory,
     productById,
     productDiscount,

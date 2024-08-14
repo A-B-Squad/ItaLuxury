@@ -343,7 +343,6 @@ export const SEARCH_PRODUCTS_QUERY = gql`
               percentage
             }
           }
-       
         }
         categories {
           id
@@ -356,10 +355,9 @@ export const SEARCH_PRODUCTS_QUERY = gql`
 `;
 
 export const FAVORITE_PRODUCTS_QUERY = gql`
-  query Product($userId: ID!) {
+  query FavoriteProducts($userId: ID!) {
     favoriteProducts(userId: $userId) {
       Product {
-        id
         name
         price
         isVisible
@@ -392,13 +390,14 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
 `;
 
 export const BEST_SALES_QUERY = gql`
-  query GetBestSales {
-    getBestSales {
+  query GetBestSells {
+    getBestSells {
       Product {
         id
         name
         images
         price
+        description
         productDiscounts {
           newPrice
           price
@@ -482,7 +481,7 @@ export const GET_PACKAGES_BY_USER_ID = gql`
 export const GET_PACKAGES_BY_ID = gql`
   query PackageById($packageId: ID!) {
     packageById(packageId: $packageId) {
-      id  
+      id
       customId
       Checkout {
         productInCheckout {
@@ -618,7 +617,7 @@ export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
   }
 `;
 export const COLORS_QUERY = `
-  query Colors {
+ query Colors {
     colors {
       id
       color

@@ -46,6 +46,7 @@ interface FilterQueries {
 
 // Component
 const SideBar = ({ colors, brands, categories }: SideBarProps) => {
+  
   // Hooks
   const { toast } = useToast();
   const router = useRouter();
@@ -288,7 +289,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
             min="1"
             max="3000"
             value={localPrice}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-full max-h-6 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             onChange={handlePriceChange}
             onMouseUp={handlePriceChangeEnd}
             onTouchEnd={handlePriceChangeEnd}
@@ -302,13 +303,13 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         </div>
         <div className="flex justify-between mt-10">
           <span className="text-gray-400">de :</span>
-          <div className="w-20 max-h-20 border flex justify-center border-gray-200 text-gray-400">
+          <div className="w-20 max-h-20 h-full border flex justify-center border-gray-200 text-gray-400">
             1
           </div>
           <span className="text-gray-400">à :</span>
           <input
             type="number"
-            className={`w-20 max-h-20 border text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${
+            className={`w-20  border max-h-6 text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${
               localPrice !== 500 ? "text-black" : "text-gray-400"
             }`}
             value={localPrice}

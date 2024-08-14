@@ -1,18 +1,16 @@
 import { Context } from "@/pages/api/graphql";
 
-export const getSectionVisibility = async (
+export const getAllSectionVisibility = async (
   _: any,
-  { section }: any,
+  __: any,
   { prisma }: Context
 ): Promise<any> => {
   try {
-    const sectionVisibility = await prisma.content_visibility.findFirst({
-      where: {section},
-    });
-    console.log(sectionVisibility);
+    const sectionVisibility = await prisma.content_visibility.findMany();
+console.log(sectionVisibility);
 
     if (!sectionVisibility) {
-      throw new Error(`Sections${section}  not found`);
+      throw new Error(`Sections  not found`);
     }
 
     return sectionVisibility;

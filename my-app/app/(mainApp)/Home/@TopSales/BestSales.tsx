@@ -18,12 +18,13 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import { useToast } from "@/components/ui/use-toast";
+import { MdArrowLeft, MdArrowRight } from "react-icons/md";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const BestSales = ({ TopSellsSectionVisibility }: any) => {
+const BestSales = () => {
   const [allProducts, setAllProducts] = useState<SellsData[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [getBestSales] = useLazyQuery(BEST_SALES_QUERY);
@@ -39,6 +40,10 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const productsPerPage = 3;
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -46,11 +51,12 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
       setDecodedToken(decoded);
     }
   }, []);
+
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -72,7 +78,7 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -96,13 +102,13 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
       try {
         const { data } = await getBestSales();
         if (data) {
-          setAllProducts(data.getBestSales.map((item: any) => item.Product));
+          setAllProducts(data.getBestSells.map((item: any) => item.Product));
 
           // Extract unique categories and get only the first subcategory
           const uniqueCategories = Array.from(
             new Set(
-              data.getBestSales.flatMap((item: any) => item.Category.name),
-            ),
+              data.getBestSells.flatMap((item: any) => item.Category.name)
+            )
           );
           setCategories(uniqueCategories);
         }
@@ -114,135 +120,155 @@ const BestSales = ({ TopSellsSectionVisibility }: any) => {
     fetchBestSales();
   }, []);
 
+  const handleNext = () => {
+    setTransitioning(true);
+    setCurrentCategoryIndex((prevIndex) =>
+      prevIndex + productsPerPage < allProducts.length
+        ? prevIndex + productsPerPage
+        : prevIndex
+    );
+    setTimeout(() => setTransitioning(false), 500);
+  };
+
+  const handlePrevious = () => {
+    setTransitioning(true);
+    setCurrentCategoryIndex((prevIndex) =>
+      prevIndex - productsPerPage >= 0 ? prevIndex - productsPerPage : prevIndex
+    );
+    setTimeout(() => setTransitioning(false), 500);
+  };
+
   return (
-    TopSellsSectionVisibility && (
-      <div className="flex flex-col w-full items-center md:flex-row gap-3">
-        {categories.map((category: string, index: number) => (
-          <table key={index} className="text-sm text-gray-500 bg-white w-full">
-            <thead>
-              <tr>
-                <th
-                  scope="col"
-                  className=" px-3 py-3 text-white tracking-wider uppercase bg-primaryColor"
+    <div className="w-full grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 min-h-96 max-h-96 gap-3">
+      {categories.map((category: string, index: number) => (
+        <div key={index} className="mb-8">
+          <div className="flex justify-between items-center bg-primaryColor font-semibold tracking-wider text-white p-3 uppercase">
+            <p>{category}</p>
+            <div className="flex items-center">
+              <MdArrowLeft
+                size={28}
+                className="cursor-pointer"
+                onClick={handlePrevious}
+              />
+              <MdArrowRight
+                size={28}
+                className="cursor-pointer"
+                onClick={handleNext}
+              />
+            </div>
+          </div>
+          <div
+            className={`flex flex-col divide-y-2 bg-white h-full gap-2 p-4 transition-transform duration-500 ${transitioning ? "transition-all" : ""}`}
+          >
+            {allProducts
+              .filter(
+                (product: any) => product?.categories[0].name === category
+              )
+              .slice(
+                currentCategoryIndex,
+                currentCategoryIndex + productsPerPage
+              )
+              .map((product: any) => (
+                <div
+                  key={product.id}
+                  className="w-full relative py-2 hover:opacity-90 transition-all group"
                 >
-                  {category}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="border-2 w-full p-5 shadow-md max-h-[500px] h-[500px] flex flex-col items-center  overflow-y-auto">
-              {allProducts
-                .filter(
-                  (product: any) => product?.categories[0].name === category,
-                )
-                .map((product: any) => (
-                  <div
-                    key={product.id}
-                    className="bg-white border-b-2 shadow-sm  w-full  relative   hover:opacity-90 transition-all group "
-                  >
-                    <td className=" flex font-medium  text-gray-900 w-full relative">
-                      {/* Render product details */}
-                      <div className="w-full flex gap-5  items-center">
-                        <div className="relative h-28 w-28  ">
-                          <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
-                            <button
-                              type="button"
-                              className={`${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"}  hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all`}
-                              disabled={product.inventory <= 0}
-                              title="Ajouter au panier"
-                              onClick={() => {
-                                AddToBasket(product);
-
-                                toast({
-                                  title: "Notification de Panier",
-                                  description: `Le produit "${product?.name}" a été ajouté au panier.`,
-                                  className: "bg-primaryColor text-white",
-                                });
-                              }}
-                            >
-                              <FaBasketShopping size={18} />
-                            </button>
-                            <div
-                              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
-                              title="aperçu rapide"
-                              onClick={() => openProductDetails(product)}
-                            >
-                              <FaRegEye size={18} />
-                            </div>
-                          </span>
-
-                          <Image
-                            className="  "
-                            src={product.images[0]}
-                            alt="product"
-                            layout="fill"
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                          <Link
-                            className="hover:text-primaryColor text-base font-semibold transition-all cursor-pointer tracking-wider  "
-                            title={product.name}
-                            href={{
-                              pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-                              query: {
-                                productId: product?.id,
-                                collection: [
-                                  product?.categories[0]?.name,
-                                  product?.categories[0]?.id,
-                                  product?.categories[0]?.subcategories[0]
-                                    ?.name,
-                                  product?.categories[0]?.subcategories[0]?.id,
-                                  product?.categories[0]?.subcategories[0]
-                                    ?.subcategories[0]?.name,
-                                  product?.categories[0]?.subcategories[0]
-                                    ?.subcategories[0]?.id,
-                                  product?.name,
-                                ],
-                              },
+                  <div className="flex font-medium text-gray-900 w-full relative">
+                    <div className="w-full flex gap-5 items-center">
+                      <div className="relative h-24 w-24">
+                        <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
+                          <button
+                            type="button"
+                            className={`${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all`}
+                            disabled={product.inventory <= 0}
+                            title="Ajouter au panier"
+                            onClick={() => {
+                              AddToBasket(product);
+                              toast({
+                                title: "Notification de Panier",
+                                description: `Le produit "${product?.name}" a été ajouté au panier.`,
+                                className: "bg-primaryColor text-white",
+                              });
                             }}
                           >
-                            <p className="text-left">{product.name}</p>
-                          </Link>
-
-                          {product.productDiscounts.length === 0 ? (
-                            <div className="flex gap-2 font-bold text-lg tracking-wider text-primaryColor    ">
-                              <span>{product?.price.toFixed(3)} DT</span>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2 tracking-wider items-center">
-                              <span className="text-primaryColor font-bold text-lg ">
-                                {product.productDiscounts[0]?.newPrice.toFixed(
-                                  3,
-                                )}{" "}
-                                DT
-                              </span>
-                              <span className=" line-through text-gray-700 text-base font-semibold">
-                                {product.productDiscounts[0]?.price.toFixed(3)}{" "}
-                                DT
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="relative right-4 top-4 hover:text-black transition-colors">
-                        <FavoriteProduct
-                          isFavorite={isFavorite}
-                          setIsFavorite={setIsFavorite}
-                          heartSize={20}
-                          heartColor={"gray"}
-                          productId={product?.id}
-                          userId={decodedToken?.userId}
-                          productName={product?.name}
+                            <FaBasketShopping size={18} />
+                          </button>
+                          <div
+                            className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
+                            title="aperçu rapide"
+                            onClick={() => openProductDetails(product)}
+                          >
+                            <FaRegEye size={18} />
+                          </div>
+                        </span>
+                        <Image
+                          src={product.images[0]}
+                          alt="product"
+                          layout="fill"
+                          objectFit="contain"
                         />
                       </div>
-                    </td>
+
+                      <div className="flex flex-col gap-2">
+                        <Link
+                          className="hover:text-primaryColor text-base font-semibold transition-all cursor-pointer tracking-wider"
+                          title={product.name}
+                          href={{
+                            pathname: `/products/tunisie/${prepRoute(product?.name)}`,
+                            query: {
+                              productId: product?.id,
+                              collection: [
+                                product?.categories[0]?.name,
+                                product?.categories[0]?.id,
+                                product?.categories[0]?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]?.id,
+                                product?.categories[0]?.subcategories[0]
+                                  ?.subcategories[0]?.name,
+                                product?.categories[0]?.subcategories[0]
+                                  ?.subcategories[0]?.id,
+                                product?.name,
+                              ],
+                            },
+                          }}
+                        >
+                          <p className="text-left">{product.name}</p>
+                        </Link>
+
+                        {product.productDiscounts.length === 0 ? (
+                          <div className="flex gap-2 font-bold text-lg tracking-wider text-primaryColor">
+                            <span>{product?.price.toFixed(3)} DT</span>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 tracking-wider items-center">
+                            <span className="text-primaryColor font-bold text-lg">
+                              {product.productDiscounts[0]?.newPrice.toFixed(3)}{" "}
+                              DT
+                            </span>
+                            <span className="line-through text-gray-700 text-base font-semibold">
+                              {product.productDiscounts[0]?.price.toFixed(3)} DT
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="relative right-4 top-4 hover:text-black transition-colors">
+                      <FavoriteProduct
+                        isFavorite={isFavorite}
+                        setIsFavorite={setIsFavorite}
+                        heartSize={20}
+                        heartColor={"gray"}
+                        productId={product?.id}
+                        userId={decodedToken?.userId}
+                        productName={product?.name}
+                      />
+                    </div>
                   </div>
-                ))}
-            </tbody>
-          </table>
-        ))}
-      </div>
-    )
+                </div>
+              ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
 

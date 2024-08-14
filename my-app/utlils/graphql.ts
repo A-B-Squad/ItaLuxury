@@ -7,6 +7,7 @@ export async function fetchGraphQLData(query: string, variables = {}) {
   
     const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
       method: "POST",
+      cache:"no-cache",
       headers: {
         "Content-Type": "application/json",
       },
