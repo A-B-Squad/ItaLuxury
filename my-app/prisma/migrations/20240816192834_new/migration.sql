@@ -2,14 +2,14 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('PENDING', 'BACK', 'EXCHANGE', 'TRANSFER_TO_DELIVERY_COMPANY', 'PROCESSING', 'PAYED');
+CREATE TYPE "Status" AS ENUM ('REFUNDED', 'BACK', 'CANCELLED', 'EXCHANGE', 'TRANSFER_TO_DELIVERY_COMPANY', 'PROCESSING', 'PAYED');
 
 -- CreateEnum
-CREATE TYPE "Cause" AS ENUM ('BROKEN', 'CANCEL', 'COLOR');
+CREATE TYPE "Cause" AS ENUM ('BROKEN', 'CANCEL', 'REFUND');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
+    "id" VARCHAR(6) NOT NULL,
     "fullName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -35,12 +35,14 @@ CREATE TABLE "Category" (
 CREATE TABLE "Product" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "purchasePrice" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "isVisible" BOOLEAN NOT NULL DEFAULT true,
     "reference" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "inventory" INTEGER NOT NULL,
+    "inventory" INTEGER NOT NULL DEFAULT 0,
     "solde" INTEGER NOT NULL DEFAULT 0,
+    "broken" INTEGER NOT NULL DEFAULT 0,
     "images" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "colorsId" TEXT,
@@ -112,6 +114,7 @@ CREATE TABLE "Checkout" (
     "userName" TEXT NOT NULL,
     "userId" TEXT,
     "governorateId" TEXT,
+    "manualDiscount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "phone" INTEGER[],
     "address" TEXT NOT NULL,
     "total" DOUBLE PRECISION NOT NULL,
@@ -127,6 +130,8 @@ CREATE TABLE "ProductInCheckout" (
     "checkoutId" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
     "productQuantity" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "discountedPrice" DOUBLE PRECISION NOT NULL DEFAULT 0,
 
     CONSTRAINT "ProductInCheckout_pkey" PRIMARY KEY ("id")
 );
@@ -138,19 +143,20 @@ CREATE TABLE "Package" (
     "checkoutId" TEXT NOT NULL,
     "status" "Status" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "comments" TEXT[],
 
     CONSTRAINT "Package_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "BackOrExchange" (
+CREATE TABLE "BreakedProduct" (
     "id" TEXT NOT NULL,
-    "cause" "Cause" NOT NULL,
+    "cause" TEXT NOT NULL DEFAULT 'BROKEN',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "description" TEXT,
+    "quantity" INTEGER NOT NULL DEFAULT 0,
     "productId" TEXT NOT NULL,
 
-    CONSTRAINT "BackOrExchange_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BreakedProduct_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -228,6 +234,7 @@ CREATE TABLE "Brand" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "logo" TEXT NOT NULL,
+    "categoryId" TEXT,
 
     CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
 );
@@ -240,6 +247,7 @@ CREATE TABLE "ContactUs" (
     "document" TEXT,
     "message" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT,
 
     CONSTRAINT "ContactUs_pkey" PRIMARY KEY ("id")
 );
@@ -273,6 +281,9 @@ CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");
 CREATE UNIQUE INDEX "Colors_color_key" ON "Colors"("color");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Colors_Hex_key" ON "Colors"("Hex");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "TopDeals_productId_key" ON "TopDeals"("productId");
 
 -- CreateIndex
@@ -291,10 +302,10 @@ CREATE INDEX "_CategoryToProduct_B_index" ON "_CategoryToProduct"("B");
 ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "Product_colorsId_fkey" FOREIGN KEY ("colorsId") REFERENCES "Colors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "BestSales" ADD CONSTRAINT "BestSales_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -336,7 +347,7 @@ ALTER TABLE "ProductInCheckout" ADD CONSTRAINT "ProductInCheckout_productId_fkey
 ALTER TABLE "Package" ADD CONSTRAINT "Package_checkoutId_fkey" FOREIGN KEY ("checkoutId") REFERENCES "Checkout"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BackOrExchange" ADD CONSTRAINT "BackOrExchange_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "BreakedProduct" ADD CONSTRAINT "BreakedProduct_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -352,6 +363,12 @@ ALTER TABLE "FavoriteProducts" ADD CONSTRAINT "FavoriteProducts_productId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "ProductAttribute" ADD CONSTRAINT "ProductAttribute_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Brand" ADD CONSTRAINT "Brand_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ContactUs" ADD CONSTRAINT "ContactUs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CategoryToProduct" ADD CONSTRAINT "_CategoryToProduct_A_fkey" FOREIGN KEY ("A") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;

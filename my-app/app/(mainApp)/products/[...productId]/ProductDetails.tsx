@@ -4,7 +4,13 @@ import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useEffect, useState } from "react";
-import { FaPlus, FaRegHeart, FaStar } from "react-icons/fa";
+import {
+  FaCheck,
+  FaCheckDouble,
+  FaPlus,
+  FaRegHeart,
+  FaStar,
+} from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
@@ -14,7 +20,6 @@ import {
   GET_USER_REVIEW_QUERY,
   TAKE_10_PRODUCTS_BY_CATEGORY,
 } from "../../../../graphql/queries";
-import { AiTwotoneAlert } from "react-icons/ai";
 
 import ProductTabs from "@/app/components/ProductCarousel/productTabs";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
@@ -38,6 +43,8 @@ import Image from "next/legacy/image";
 import moment from "moment-timezone";
 import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import { HiOutlineBellAlert } from "react-icons/hi2";
+import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { trackEvent } from "@/app/Helpers/_trackEvents";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -91,6 +98,56 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const [addRating] = useMutation(ADD_RATING_MUTATION);
 
+  useEffect(() => {
+    if (!productDetails) return;
+
+    const {
+      name,
+      id,
+      price,
+      productDiscounts,
+      categories,
+      Brand,
+      inventory,
+      description,
+      Colors,
+      attributes,
+    } = productDetails;
+
+    const discount = productDiscounts?.[0];
+    const categoryNames = categories
+      ?.map((category: { name: any }) => category.name)
+      .join(", ");
+    const brandName = Brand?.name || "Unknown Brand";
+    const colorName = Colors?.color || "No Color";
+    const finalPrice = discount?.newPrice ?? price;
+
+    trackEvent("ViewContent", {
+      content_name: name,
+      content_type: "product details",
+      content_ids: [id],
+      value: finalPrice,
+      currency: "TND",
+      content_category: categoryNames,
+      contents: [
+        {
+          id,
+          quantity: 1,
+          item_price: price,
+        },
+      ],
+      brand: brandName,
+      availability: inventory > 0 ? "in stock" : "out of stock",
+      condition: "new",
+      description,
+      color: colorName,
+      sizes: attributes
+        ?.filter((attr: { name: string }) =>
+          attr.name.toLowerCase().includes("size")
+        )
+        .map((attr: { value: any }) => attr.value),
+    });
+  }, [productDetails, trackEvent]);
   const handleMouseEnter = (title: any) => {
     setShowPopover(true);
     setPopoverTitle(title);
@@ -106,14 +163,14 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
 
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const AddToBasket = (product: any) => {
@@ -132,10 +189,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             variables: { userId: decodedToken?.userId },
           },
         ],
+        onCompleted: () => {
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit "${productDetails?.name}" a été ajouté au panier.`,
+            className: "bg-primaryColor text-white",
+          });
+          // Track Add to Cart
+          trackEvent("AddToCart", {
+            content_name: productDetails.name,
+            content_type: "product",
+            content_ids: [productDetails.id],
+            value:
+              productDetails.productDiscounts.length > 0
+                ? productDetails.productDiscounts[0].newPrice
+                : productDetails.price,
+            currency: "TND",
+          });
+        },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -146,8 +221,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               : product?.price,
           actualQuantity: 1,
         });
+        // Track Add to Cart
+        trackEvent("AddToCart", {
+          content_name: productDetails.name,
+          content_type: "product",
+          content_ids: [productDetails.id],
+          value:
+            productDetails.productDiscounts.length > 0
+              ? productDetails.productDiscounts[0].newPrice
+              : productDetails.price,
+          currency: "TND",
+        });
+        toast({
+          title: "Notification de Panier",
+          description: `Le produit "${productDetails?.name}" a été ajouté au panier.`,
+          className: "bg-primaryColor text-white",
+        });
       } else {
-        console.log("Product is already in the basket");
+        toast({
+          title: "Notification de Panier",
+          description: `Product is already in the basket`,
+          className: "bg-primaryColor text-white",
+        });
       }
     }
     toggleIsUpdated();
@@ -161,28 +256,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         setReviews(data.productReview.length);
         setOneStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 1,
-          ).length,
+            (review: { rating: number }) => review?.rating === 1
+          ).length
         );
         setTwoStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 2,
-          ).length,
+            (review: { rating: number }) => review?.rating === 2
+          ).length
         );
         setThreeStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 3,
-          ).length,
+            (review: { rating: number }) => review?.rating === 3
+          ).length
         );
         setFourStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 4,
-          ).length,
+            (review: { rating: number }) => review?.rating === 4
+          ).length
         );
         setFiveStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 5,
-          ).length,
+            (review: { rating: number }) => review?.rating === 5
+          ).length
         );
       },
     });
@@ -240,7 +335,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         const now = moment().tz(DEFAULT_TIMEZONE);
         const targetDate = moment.tz(
           parseInt(discount.dateOfEnd),
-          DEFAULT_TIMEZONE,
+          DEFAULT_TIMEZONE
         );
         targetDate.subtract(1, "hours");
 
@@ -257,7 +352,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {
@@ -349,7 +444,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               </div>
 
               <div className="product lg:col-span-6 col-span-12 p-3 w-full ">
-                <h2 className="product_name tracking-wider text-2xl w-fit font-semibold ">
+                <h2 className="product_name tracking-wider text-xl lg:text-2xl w-fit font-semibold ">
                   {productDetails?.name}
                 </h2>
 
@@ -390,11 +485,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                               jrs,{" "}
                               {Math.floor(
                                 (countdown % (1000 * 60 * 60 * 24)) /
-                                  (1000 * 60 * 60),
+                                  (1000 * 60 * 60)
                               )}{" "}
                               hrs,{" "}
                               {Math.floor(
-                                (countdown % (1000 * 60 * 60)) / (1000 * 60),
+                                (countdown % (1000 * 60 * 60)) / (1000 * 60)
                               )}{" "}
                               mins,{" "}
                               {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
@@ -410,20 +505,20 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
 
                 <div className="Infomation_Details ">
-                  <div className="Reference mt-3 flex items-center gap-1">
-                    <h3 className="text-base tracking-wider font-semibold  capitalize  ">
+                  <div className="Reference mt-1 flex items-center gap-1">
+                    <h3 className="text-sm tracking-wider font-semibold  capitalize  ">
                       Reference :
                     </h3>
                     <p className="text-gray-600">{productDetails?.reference}</p>
                   </div>
 
                   <div className="Description">
-                    <h3 className="text-lg tracking-wider font-bold capitalize  text-primaryColor mt-5">
+                    <h3 className="text-lg tracking-wider font-bold capitalize  text-primaryColor mt-3">
                       Description
                     </h3>
 
                     <div
-                      className="product-description"
+                      className="product-description text-sm tracking-wide font-extralight border-b-2 border-dashed "
                       dangerouslySetInnerHTML={{
                         __html: productDetails?.description,
                       }}
@@ -431,7 +526,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </div>
                 </div>
 
-                <div className={` user_interaction flex flex-col gap-2 mt-8`}>
+                <div className={` user_interaction flex flex-col gap-2 mt-4`}>
                   {actualQuantity === quantity && (
                     <div className="flex items-center text-sm gap-3 ">
                       <GoAlertFill color="red" size={20} />
@@ -450,7 +545,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     </div>
                   )}
                   <div className="Quantity flex items-center mt-3   space-x-2">
-                    <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
+                    <h3 className=" tracking-wider font-normal text-base  capitalize text-primaryColor">
                       Quantité:{" "}
                     </h3>
 
@@ -460,7 +555,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                         onClick={() => {
                           setActualQuantity(
-                            actualQuantity > 1 ? actualQuantity - 1 : 1,
+                            actualQuantity > 1 ? actualQuantity - 1 : 1
                           );
                         }}
                       >
@@ -481,7 +576,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                           setActualQuantity(
                             actualQuantity < productDetails?.inventory
                               ? actualQuantity + 1
-                              : actualQuantity,
+                              : actualQuantity
                           );
                         }}
                       >
@@ -496,11 +591,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                       className={`${quantity <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[250px] transition-colors  py-4  shadow-lg bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold `}
                       onClick={() => {
                         AddToBasket(productDetails);
-                        toast({
-                          title: "Notification de Panier",
-                          description: `Le produit "${productDetails?.name}" a été ajouté au panier.`,
-                          className: "bg-primaryColor text-white",
-                        });
                       }}
                     >
                       Ajouter au panier
@@ -542,15 +632,15 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         className=" text-primaryColor hover:text-black transition-colors text-xl font-bold rounded"
                         onClick={() => {
                           addToCompare(productDetails);
-
-                          toast({
-                            title: "Produit ajouté à la comparaison",
-                            description: `Le produit "${productDetails?.name}" a été ajouté à la comparaison.`,
-                            className: "bg-primaryColor text-white",
-                          });
                         }}
                       >
-                        <GoGitCompare className="font-bold" />
+                        {productsInCompare.some(
+                          (p: any) => p.id === productDetails.id
+                        ) ? (
+                          <IoCheckmarkDoneOutline size={25} />
+                        ) : (
+                          <GoGitCompare className="font-bold" />
+                        )}{" "}
                       </button>
                     </div>
                   </div>
@@ -667,7 +757,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             )}
           </div>
         )}
-        <div className="Carousel voir aussi px-10 mb-[15%] ">
+        <div className="Carousel voir aussi px-2 md:px-10 mb-[15%] ">
           <TitleProduct title={"Produits apparentés"} />
           <div>
             <ProductTabs

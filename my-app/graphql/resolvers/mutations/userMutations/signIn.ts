@@ -37,7 +37,7 @@ export const signIn = async (
   // Set the cookie
   res.setHeader(
     "Set-Cookie",
-    `Token=${token}; Path=/; SameSite=Strict; Secure; HttpOnly; Expires=${expirationDate.toUTCString()}`
+    `Token=${token}; Path=/; SameSite=Strict; Secure; Expires=${expirationDate.toUTCString()}`
   );
   return {
     user: existingUser,

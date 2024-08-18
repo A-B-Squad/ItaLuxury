@@ -1,11 +1,11 @@
 "use client";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import Image from "next/legacy/image";
-import React, { useEffect, useState, useCallback } from "react";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { CiTrash } from "react-icons/ci";
 import { DELETE_BASKET_BY_ID_MUTATION } from "@/graphql/mutations";
@@ -16,6 +16,7 @@ import {
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -33,106 +34,94 @@ interface Product {
 }
 
 const BasketDrawer = () => {
+  const { toast } = useToast();
+
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [productsInBasket, setProductsInBasket] = useState<Product[]>([]);
-  const [totalPrice, setTotalPrice] = useState<number>(0);
   const { products, removeProductFromBasket, setQuantityInBasket } =
     useProductsInBasketStore();
   const { isUpdated } = useBasketStore();
 
-  const [fetchProducts] = useLazyQuery(BASKET_QUERY);
+  const { data, error, refetch } = useQuery(BASKET_QUERY, {
+    variables: { userId: decodedToken?.userId },
+    skip: !decodedToken?.userId,
+    fetchPolicy: "cache-and-network",
+  });
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
-      setDecodedToken(jwt.decode(token) as DecodedToken);
+      try {
+        setDecodedToken(jwt.decode(token) as DecodedToken);
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+      }
     }
   }, []);
 
-  const calculateTotalPrice = useCallback((products: Product[]) => {
-    return products.reduce((acc, curr) => {
+  const productsInBasket = useMemo(() => {
+    if (decodedToken?.userId && data?.basketByUserId) {
+      return data.basketByUserId.map((basket: any) => ({
+        ...basket.Product,
+        actualQuantity: basket.quantity,
+        basketId: basket.id,
+      }));
+    }
+    return products;
+  }, [decodedToken, data, products]);
+
+  const totalPrice = useMemo(() => {
+    return productsInBasket.reduce((acc: number, curr: Product) => {
       const price = curr.productDiscounts?.length
         ? curr.productDiscounts[0].newPrice
         : curr.price;
       return acc + price * curr.actualQuantity;
     }, 0);
-  }, []);
+  }, [productsInBasket]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (decodedToken?.userId) {
-        const { data } = await fetchProducts({
-          variables: { userId: decodedToken.userId },
-          fetchPolicy: "no-cache",
-        });
-        const fetchedProducts = data.basketByUserId.map((basket: any) => ({
-          ...basket.Product,
-          actualQuantity: basket.quantity,
-          basketId: basket.id,
-        }));
-        setProductsInBasket(fetchedProducts);
-        setQuantityInBasket(
-          fetchedProducts.reduce(
-            (acc: number, curr: any) => acc + curr.actualQuantity,
-            0,
-          ),
-        );
-        setTotalPrice(calculateTotalPrice(fetchedProducts));
-      } else {
-        setProductsInBasket(products);
-        setQuantityInBasket(
-          products.reduce(
-            (acc: number, curr: any) => acc + curr.actualQuantity,
-            0,
-          ),
-        );
-        setTotalPrice(calculateTotalPrice(products));
-      }
-    };
-
     if (isOpen) {
-      fetchData();
+      if (decodedToken?.userId) {
+        refetch();
+      }
+      setQuantityInBasket(
+        productsInBasket.reduce(
+          (acc: any, curr: { actualQuantity: any }) =>
+            acc + curr.actualQuantity,
+          0
+        )
+      );
     }
   }, [
-    isUpdated,
     isOpen,
+    isUpdated,
     decodedToken,
-    fetchProducts,
-    products,
+    refetch,
+    productsInBasket,
     setQuantityInBasket,
-    calculateTotalPrice,
   ]);
 
   const handleRemoveProduct = useCallback(
-    (productId: string, basketId?: string) => {
-      setProductsInBasket((prevProducts) => {
-        const updatedProducts = prevProducts.filter(
-          (product) => product.id !== productId,
-        );
-        setTotalPrice(calculateTotalPrice(updatedProducts));
-        return updatedProducts;
-      });
-
+    async (productId: string, basketId?: string) => {
       if (decodedToken && basketId) {
-        deleteBasketById({ variables: { basketId } });
+        try {
+          await deleteBasketById({ variables: { basketId } });
+          refetch();
+        } catch (error) {
+          console.error("Failed to delete basket item:", error);
+        }
       } else {
         removeProductFromBasket(productId);
       }
     },
-    [
-      decodedToken,
-      deleteBasketById,
-      removeProductFromBasket,
-      calculateTotalPrice,
-    ],
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
 
   const renderProductList = () => (
     <ul role="list" className="divide-y divide-gray-200">
-      {productsInBasket.map((product, index) => (
-        <li className="flex py-2" key={index}>
+      {productsInBasket.map((product: Product, index: number) => (
+        <li className="flex py-2" key={product.id || index}>
           <div className="relative h-24 w-20 flex-shrink-0 rounded-md">
             <Image
               layout="fill"
@@ -147,7 +136,6 @@ const BasketDrawer = () => {
               <div className="flex flex-col gap-2 text-base font-medium w-full justify-between text-gray-900">
                 <Link
                   className="hover:text-secondaryColor text-sm w-5/6 transition-colors"
-                  rel="preload"
                   href={{
                     pathname: `/products/tunisie/${prepRoute(product.name)}`,
                     query: {
@@ -190,7 +178,6 @@ const BasketDrawer = () => {
       <h1 className="text-xl font-semibold">Votre panier est vide</h1>
       <MdOutlineRemoveShoppingCart color="grey" size={100} />
       <Link
-        rel="preload"
         href="/Collections/tunisie"
         className="font-medium text-primaryColor hover:text-amber-200 mt-20"
       >
@@ -200,13 +187,20 @@ const BasketDrawer = () => {
     </div>
   );
 
+  if (error)
+    return toast({
+      title: "Erreur",
+      description: "Impossible de charger le panier. Veuillez réessayer.",
+      className: "bg-red-500 text-white",
+    });
+
   return (
     <Drawer
       placement="right"
       open={isOpen}
       onClose={closeBasketDrawer}
       overlay={false}
-      className="p-4 fixed h-[200vh]"
+      className="p-4  h-[200vh]"
       size={400}
       placeholder={""}
       onPointerEnterCapture={""}
@@ -261,7 +255,6 @@ const BasketDrawer = () => {
             </p>
             <div className="mt-6">
               <Link
-                rel="preload"
                 href={
                   decodedToken
                     ? {
@@ -279,7 +272,6 @@ const BasketDrawer = () => {
               </Link>
               <Link
                 onClick={closeBasketDrawer}
-                rel="preload"
                 href={decodedToken ? "/Basket" : "/signin"}
                 className="flex items-center transition-all justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
               >
@@ -289,7 +281,6 @@ const BasketDrawer = () => {
             <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
               <p>ou</p>
               <Link
-                rel="preload"
                 href="/Touts-Les-Produits"
                 className="font-medium text-primaryColor transition-all hover:text-secondaryColor"
               >

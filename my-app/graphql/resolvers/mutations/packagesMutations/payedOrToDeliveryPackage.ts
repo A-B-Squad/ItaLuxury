@@ -18,7 +18,7 @@ export const payedOrToDeliveryPackage = async (
       where: { id: packageId },
       include: { Checkout: true },
     });
-    
+
     if (!existingPackage) {
       throw new Error("Package not found");
     }
@@ -43,9 +43,19 @@ export const payedOrToDeliveryPackage = async (
           data: {
             inventory: { decrement: product.productQuantity },
             solde: { increment: product.productQuantity },
+            
           },
         });
       }
+      await prisma.package.update({
+        where: { id: packageId },
+        data: { inTransitAt: new Date() },
+      });
+    } else {
+      await prisma.package.update({
+        where: { id: packageId },
+        data: { delivredAt: new Date() },
+      });
     }
 
     await prisma.package.update({

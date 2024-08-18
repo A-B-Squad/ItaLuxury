@@ -27,6 +27,7 @@ import ProductImage from "./ProductImage";
 import ProductName from "./ProductName";
 import FullViewDetails from "./FullViewDetails";
 import CompactViewDetails from "./CompactViewDetails";
+import { trackEvent } from "@/app/Helpers/_trackEvents";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -49,7 +50,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
   const { addProductToBasket, products } = useProductsInBasketStore();
 
@@ -62,6 +63,30 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   }, []);
 
   const handleAddToBasket = useCallback(() => {
+    // Check if the product quantity in basket exceeds the available inventory
+    const existingProduct = products.find((p: any) => p.id === product.id);
+    const newQuantity = existingProduct
+      ? existingProduct.quantityInBasket + 1
+      : 1;
+
+    if (product.inventory <= 0) {
+      toast({
+        title: "Produit non disponible",
+        description: `Le produit "${product?.name}" est actuellement en rupture de stock.`,
+        className: "bg-red-500 text-white",
+      });
+      return;
+    }
+
+    if (newQuantity > product.inventory) {
+      toast({
+        title: "Quantité non disponible",
+        description: `Il ne reste que ${product.inventory} ${product.inventory > 1 ? "unités" : "unité"} de "${product?.name}" en stock.`,
+        className: "bg-red-500 text-white",
+      });
+      return;
+    }
+
     if (decodedToken) {
       addToBasket({
         variables: {
@@ -83,13 +108,21 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
             description: `Le produit "${product?.name}" a été ajouté au panier.`,
             className: "bg-primaryColor text-white",
           });
+          // Track Add to Cart
+          trackEvent("AddToCart", {
+            content_name: product.name,
+            content_type: "product",
+            content_ids: [product.id],
+            value:
+              product.productDiscounts.length > 0
+                ? product.productDiscounts[0].newPrice
+                : product.price,
+            currency: "TND",
+          });
         },
       });
     } else {
-      const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
-      );
-      if (!isProductAlreadyInBasket) {
+      if (!products.some((p: any) => p.id === product.id)) {
         addProductToBasket({
           ...product,
           price:
@@ -98,10 +131,32 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
               : product?.price,
           actualQuantity: 1,
         });
+        trackEvent("AddToCart", {
+          content_name: product.name,
+          content_type: "product",
+          content_ids: [product.id],
+          value:
+            product.productDiscounts.length > 0
+              ? product.productDiscounts[0].newPrice
+              : product.price,
+          currency: "TND",
+        });
+        toast({
+          title: "Notification de Panier",
+          description: `Le produit "${product?.name}" a été ajouté au panier.`,
+          className: "bg-primaryColor text-white",
+        });
       } else {
-        console.log("Product is already in the basket");
+        toast({
+          title: "Notification de Panier",
+          description: `Product is already in the basket`,
+          className: "bg-primaryColor text-white",
+        });
+      
+
       }
     }
+
     toggleIsUpdated();
     openBasketDrawer();
   }, [
@@ -113,11 +168,12 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     toggleIsUpdated,
     openBasketDrawer,
     toast,
+    trackEvent,
   ]);
 
   const handleAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);

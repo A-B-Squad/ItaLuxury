@@ -29,7 +29,7 @@ const FavoriteProduct = ({
         userId: userId,
       },
       skip: !userId,
-    },
+    }
   );
 
   const { toast } = useToast();
@@ -38,7 +38,7 @@ const FavoriteProduct = ({
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
       if (
         favoriteData.favoriteProducts.some(
-          (fav: any) => fav.productId === productId,
+          (fav: any) => fav.productId === productId
         )
       ) {
         setIsFavorite(true);
@@ -71,6 +71,7 @@ const FavoriteProduct = ({
         },
       },
       onCompleted: () => {
+        
         refetchFavorite();
         setIsFavorite(!isFavorite);
         toast({
@@ -83,7 +84,11 @@ const FavoriteProduct = ({
   };
 
   return (
-    <div onClick={handleToggleFavorite} className="cursor-pointer">
+    <div
+      onClick={handleToggleFavorite}
+      className="cursor-pointer"
+      key={productId}
+    >
       {isFavorite ? (
         <FaHeart size={heartSize || ""} color="red" />
       ) : (

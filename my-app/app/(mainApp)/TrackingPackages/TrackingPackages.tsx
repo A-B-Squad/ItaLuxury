@@ -22,13 +22,18 @@ import "moment/locale/fr";
 
 interface Product {
   product: any;
-  name: ReactNode;
+  name: string;
   productId: string;
 }
 
+interface ProductInCheckout {
+  product: Product;
+  productQuantity: number;
+}
+
 interface Checkout {
-  [x: string]: any;
-  productInCheckout: Product[];
+  total: number;
+  productInCheckout: ProductInCheckout[];
 }
 
 interface Package {
@@ -44,7 +49,6 @@ interface DecodedToken extends JwtPayload {
 }
 
 type Status =
-  | "EN ATTENTE"
   | "RETOUR"
   | "ÉCHANGE"
   | "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON"
@@ -58,6 +62,7 @@ const TrackingPackages: React.FC = () => {
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [openPackageId, setOpenPackageId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -74,7 +79,7 @@ const TrackingPackages: React.FC = () => {
     {
       variables: { packageId: searchInput },
       skip: !searchInput,
-    },
+    }
   );
 
   useEffect(() => {
@@ -123,7 +128,6 @@ const TrackingPackages: React.FC = () => {
   }, []);
 
   const statusColors: Record<Status, string> = {
-    "EN ATTENTE": "bg-yellow-400",
     RETOUR: "bg-blue-400",
     ÉCHANGE: "bg-purple-400",
     "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON": "bg-green-400",
@@ -138,8 +142,6 @@ const TrackingPackages: React.FC = () => {
 
   useEffect(() => {
     let filtered = packages;
-    console.log(filtered, "filtered packages");
-
     if (searchInput) {
       filtered = filtered.filter(
         (pkg) =>
@@ -147,12 +149,19 @@ const TrackingPackages: React.FC = () => {
           pkg.Checkout?.productInCheckout.some((product) =>
             product.product.name
               .toLowerCase()
-              .includes(searchInput.toLowerCase()),
-          ),
+              .includes(searchInput.toLowerCase())
+          )
       );
     }
     setFilteredPackages(filtered);
   }, [packages, searchInput]);
+
+  const isOpen = (packageId: string) => openPackageId === packageId;
+
+  const handleRowClick = (packageId: string) => {
+    setOpenPackageId((prev) => (prev === packageId ? null : packageId));
+  };
+
   return (
     <div className="tracking-packages h-full pb-10 bg-gray-100">
       <div className="search-package border-b py-6 px-3 w-full flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 bg-white shadow">
@@ -176,18 +185,24 @@ const TrackingPackages: React.FC = () => {
                   <TableHead className="text-white">ID</TableHead>
                   <TableHead className="text-white">Statut</TableHead>
                   <TableHead className="text-white">Créé le</TableHead>
-                  <TableHead className="text-white">Produits</TableHead>
                   <TableHead className="text-white">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPackages.map((pkg) => {
-                  return (
-                    <TableRow key={pkg.id} className="hover:bg-gray-50">
+                {filteredPackages.map((pkg) => (
+                  <React.Fragment key={pkg.id}>
+                    <TableRow
+                      className={`hover:bg-gray-50 ${
+                        isOpen(pkg.id) ? "bg-gray-100" : ""
+                      } cursor-pointer`}
+                      onClick={() => handleRowClick(pkg.id)}
+                    >
                       <TableCell>{pkg.customId}</TableCell>
                       <TableCell>
                         <span
-                          className={`${getStatusColor(translateStatus(pkg.status) as Status)} py-2 rounded-full px-4 text-center text-white text-sm font-medium`}
+                          className={`${getStatusColor(
+                            translateStatus(pkg.status) as Status
+                          )} py-2 rounded-full px-4 text-center text-white text-sm font-medium`}
                         >
                           {translateStatus(pkg.status)}
                         </span>
@@ -197,23 +212,86 @@ const TrackingPackages: React.FC = () => {
                           .locale("fr")
                           .format("lll")}
                       </TableCell>
-                      <TableCell>
-                        <ul className="list-disc pl-5">
-                          {pkg.Checkout?.productInCheckout?.map(
-                            (product, index) => (
-                              <li key={index} className="text-sm">
-                                {product?.product?.name}
-                              </li>
-                            ),
-                          ) || []}
-                        </ul>
-                      </TableCell>
                       <TableCell className="font-medium">
                         {pkg?.Checkout?.total?.toFixed(3) || "0.000"} DT
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                    {isOpen(pkg.id) && (
+                      <TableRow className="bg-gray-50">
+                        <TableCell colSpan={4} className="p-6">
+                          <div className="bg-white rounded-lg shadow-sm p-6">
+                            <h4 className="font-semibold text-gray-800 mb-4 text-lg">
+                              Détails du colis
+                            </h4>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <h5 className="font-medium text-gray-700 mb-2">
+                                  Produits
+                                </h5>
+                                <ul className="space-y-2">
+                                  {pkg.Checkout?.productInCheckout?.map(
+                                    (product, index) => (
+                                      <li
+                                        key={index}
+                                        className="flex justify-between items-center bg-gray-50 p-3 rounded"
+                                      >
+                                        <span className="text-sm font-medium">
+                                          {product?.product?.name}
+                                        </span>
+                                        <span className="text-sm text-gray-600">
+                                          Quantité: {product?.productQuantity}
+                                        </span>
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+
+                              <div>
+                                <h5 className="font-medium text-gray-700 mb-2">
+                                  Statut du colis
+                                </h5>
+                                <div className="bg-gray-50 p-4 rounded">
+                                  <p className="text-sm mb-2">
+                                    <span className="font-medium">
+                                      Statut actuel:
+                                    </span>
+                                    <span
+                                      className={`${getStatusColor(translateStatus(pkg.status) as Status)} ml-2 py-1 px-2 rounded text-white text-xs`}
+                                    >
+                                      {translateStatus(pkg.status)}
+                                    </span>
+                                  </p>
+                                  <p className="text-sm">
+                                    <span className="font-medium">
+                                      Dernière mise à jour:
+                                    </span>
+                                    <span className="ml-2">
+                                      {moment(parseInt(pkg.createdAt))
+                                        .locale("fr")
+                                        .format("lll")}
+                                    </span>
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mt-6">
+                              <h5 className="font-medium text-gray-700 mb-2">
+                                Informations supplémentaires
+                              </h5>
+                              <p className="text-sm text-gray-600">
+                                Autres détails spécifiques que vous souhaitez
+                                montrer ici.
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                ))}
               </TableBody>
             </Table>
           </div>
@@ -223,7 +301,7 @@ const TrackingPackages: React.FC = () => {
               <p className="font-normal tracking-wider text-gray-600">
                 {!searchInput && packages.length === 0
                   ? "Bienvenue sur notre plateforme! Vous n'avez pas encore passé de commandes. Explorez nos produits et trouvez ce que vous aimez."
-                  : "Nous n'avons trouvé aucun colis correspondant à vos critères. Veuillez vérifier votre saisie ou modifier vos filtres."}
+                  : "Nous n'avons trouvé aucun colis correspondant à vos critères de recherche. Veuillez réessayer."}
               </p>
             </div>
           </div>

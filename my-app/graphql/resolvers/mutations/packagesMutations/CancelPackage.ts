@@ -70,7 +70,10 @@ export const cancelPackage = async (
 
     await prisma.package.update({
       where: { id: packageId },
-      data: { status: "CANCELLED" },
+      data: {
+        status: "CANCELLED",
+        returnedAt: new Date(),
+      },
     });
 
     return "Package cancelled successfully";

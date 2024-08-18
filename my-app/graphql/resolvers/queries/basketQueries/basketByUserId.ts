@@ -17,7 +17,8 @@ export const basketByUserId = async (
           include: {
             productDiscounts: true,
             categories: {
-              include: { subcategories: true }
+              include: { subcategories: { include: { subcategories: true } } },
+
             }
           }
         },

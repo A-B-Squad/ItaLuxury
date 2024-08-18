@@ -41,7 +41,7 @@ const ProductImage: React.FC<ProductImageProps> = ({ product }) => (
           />
           <Image
             src={product.images[1]}
-            className="absolute group-hover:opacity-100 opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
+            className="absolute group-hover:opacity-100 group-hover:scale-125  duration-1000   opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
             loading="eager"
             priority
             objectFit="contain"

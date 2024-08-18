@@ -7,15 +7,18 @@ import React, { useEffect, useState } from "react";
 import { CiPhone, CiUser } from "react-icons/ci";
 import { useForm } from "react-hook-form";
 import { CREATE_CHECKOUT_MUTATION } from "../../../graphql/mutations";
+
 import Image from "next/legacy/image";
 import {
   FIND_UNIQUE_COUPONS,
+  BASKET_QUERY,
   GET_GOVERMENT_INFO,
 } from "../../../graphql/queries";
 import { useSearchParams } from "next/navigation";
 import Loading from "./loading";
 import { useToast } from "@/components/ui/use-toast";
 import { useBasketStore } from "@/app/store/zustand";
+import { trackEvent } from "@/app/Helpers/_trackEvents";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -31,6 +34,10 @@ const Checkout = () => {
     formState: { errors },
   } = useForm();
   const searchParams = useSearchParams();
+  const { toggleIsUpdated } = useBasketStore((state) => ({
+    isUpdated: state.isUpdated,
+    toggleIsUpdated: state.toggleIsUpdated,
+  }));
   const router = useRouter();
   const total = searchParams?.get("total") || "0";
   const products = JSON.parse(searchParams?.get("products") || "[]");
@@ -38,7 +45,6 @@ const Checkout = () => {
   const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const [couponsId, setCouponsId] = useState<String>("");
   const { toast } = useToast();
-  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const [changeCouponCode, setChangeCouponCode] = useState<string>("");
 
   const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
@@ -53,7 +59,7 @@ const Checkout = () => {
   }, []);
 
   // Mutation to create a new checkout
-  const [createCheckout] = useMutation(CREATE_CHECKOUT_MUTATION);
+  const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
 
   // Query to get the government information
   useQuery(GET_GOVERMENT_INFO, {
@@ -101,17 +107,29 @@ const Checkout = () => {
           couponsId: couponsId,
         },
       },
-      onCompleted: () => {
-        // Clear the current history
-        window.history.pushState(null, "", "/");
+      refetchQueries: [
+        {
+          query: BASKET_QUERY,
+          variables: { userId: decodedToken?.userId },
+        },
+      ],
+      onCompleted: (data) => {
+        // toggleIsUpdated();
+        const customId = data.createCheckout;
+        // Track the end of checkout event
+        trackEvent("Checkout", {
+          userId: decodedToken.userId,
+          total: parseFloat(calculateTotal()),
+          products,
+          customId,
+        });
 
+        window.history.pushState(null, "", "/Checkout/EndCheckout");
         // Redirect to home page
-        router.replace("/");
-        console.log(window.history);
+        router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
 
         // Disable back navigation
         window.history.forward();
-        toggleIsUpdated();
       },
     });
   };
@@ -163,42 +181,63 @@ const Checkout = () => {
       ) : (
         <div className="flex justify-center items-center w-full my-10">
           <div className=" container grid sm:px-10  w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32 ">
-            <div className="p-8 bg-white h-fit ">
-              <p className="text-xl font-medium">
-                Récapitulatif de la commande
-              </p>
-              <p className="text-gray-400">Vérifiez vos articles.</p>
-              <div className="mt-8 space-y-3 divide-y-2 shadow-sm rounded-lg border  px-2 py-4 sm:px-6">
-                {products.map((product: any) => (
-                  <div
-                    className="flex flex-col rounded-lg bg-white sm:flex-row"
-                    key={product.id}
-                  >
-                    <Image
-                      className="m-2 h-24 w-28 rounded-md border  object-center"
-                      width={112}
-                      height={96}
-                      objectFit="contain"
-                      src={product.images[0]}
-                      alt={product.name}
-                    />
-                    <div className="flex w-full flex-col px-4 py-4">
-                      <span className="font-semibold">{product.name}</span>
-                      <p className="mt-auto text-lg font-bold">
-                        {product.productDiscounts?.length
-                          ? product.productDiscounts[0].newPrice.toFixed(3)
-                          : product.price.toFixed(3)}{" "}
-                        TND
-                      </p>
+            <div className="flex flex-col gap-1">
+              <div className="p-8 bg-white h-fit overflow-hidden ">
+                <p className="text-xl font-medium">
+                  Récapitulatif de la commande
+                </p>
+                <p className="text-gray-400">Vérifiez vos articles.</p>
+                <div className="mt-8 space-y-3 divide-y-2 shadow-sm  h-full max-h-[500px] overflow-y-auto  px-2 py-4 sm:px-6">
+                  {products.map((product: any) => (
+                    <div
+                      className="flex flex-col shadow py-2 bg-white sm:flex-row"
+                      key={product.id}
+                    >
+                      <Image
+                        className="m-2 h-24 w-28 rounded-md border  object-center"
+                        width={112}
+                        height={96}
+                        objectFit="contain"
+                        src={product.images[0]}
+                        alt={product.name}
+                      />
+                      <div className="flex w-full flex-col px-4 py-4">
+                        <span className="font-semibold">{product.name}</span>
+                        <p className="mt-auto text-lg font-bold">
+                          {product.productDiscounts?.length
+                            ? product.productDiscounts[0].newPrice.toFixed(3)
+                            : product.price.toFixed(3)}{" "}
+                          TND
+                        </p>
 
-                      <p className="mt-auto text-lg font-md text-gray-400">
-                        Quantité: {product.quantity || product.actualQuantity}
-                      </p>
+                        <p className="mt-auto text-lg font-md text-gray-400">
+                          Quantité: {product.quantity || product.actualQuantity}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center mt-8 bg-white p-4 rounded-lg shadow-sm">
+                <div className="flex items-center gap-2">
+                  <Image
+                    width={50}
+                    height={50}
+                    objectFit="contain"
+                    src="https://app.jax-delivery.com/assets/img/logo.png"
+                    alt="JAX Delivery Logo"
+                  />
+                  <p className="text-lg font-semibold text-gray-900">
+                    JAX Delivery
+                  </p>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Paiement comptant à la livraison (Cash on delivery)
+                </p>
               </div>
             </div>
+
             <div className="px-4 pt-8 bg-white border ">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <label
@@ -257,7 +296,7 @@ const Checkout = () => {
                       <option key={goverment.id} value={goverment.id}>
                         {goverment.name.toUpperCase()}
                       </option>
-                    ),
+                    )
                   )}{" "}
                 </select>
 
@@ -358,7 +397,7 @@ const Checkout = () => {
                       <p className="font-semibold text-primaryColor">
                         -
                         {((Number(total) * discountPercentage) / 100).toFixed(
-                          3,
+                          3
                         )}{" "}
                         TND ({discountPercentage}%)
                       </p>
@@ -373,9 +412,36 @@ const Checkout = () => {
                 </div>
                 <button
                   type="submit"
-                  className="mt-4 mb-8 w-full rounded-md bg-primaryColor px-6 py-3 font-medium text-white"
+                  className={`mt-4 mb-8 w-full rounded-md bg-primaryColor px-6 py-3 font-medium text-white ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  disabled={loading}
                 >
-                  Passer la commande
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin h-5 w-5 mr-3 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Chargement...
+                    </div>
+                  ) : (
+                    "Passer la commande"
+                  )}
                 </button>
               </form>
             </div>

@@ -7,7 +7,6 @@ interface ProductLabelsProps {
 }
 
 const ProductLabels: React.FC<ProductLabelsProps> = ({ product }) => {
-  console.log(product);
   const { view } = useAllProductViewStore();
 
   return (

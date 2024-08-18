@@ -27,6 +27,8 @@ const Signup = () => {
       if (error.message === "Email address is already in use") {
         setErrorMessage("L'adresse e-mail est déjà utilisée");
       } else {
+        console.log(error);
+        
         setErrorMessage("Une erreur s'est produite. Veuillez réessayer.");
       }
     },

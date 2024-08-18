@@ -77,7 +77,7 @@ type Product {
   solde: Int!
   images: [String!]
   createdAt: String!
-  categories: [Category!]!
+  categories: [MainCategory!]!
   productDiscounts: [ProductDiscount!]
   baskets: [Basket!]
   reviews: [Review!]
@@ -95,9 +95,11 @@ type Colors {
 }
 
 type Brand {
-  id: String!
+  id: ID!
   name: String!
   logo: String!
+  categoryId: ID
+  Category:Category
   product: [Product!]
 }
 
@@ -154,8 +156,8 @@ type ProductInCheckout {
   productId: ID!
   product: Product!
   productQuantity: Int!
-  price: Int!
-  discountedPrice: Int
+  price: Float!
+  discountedPrice: Float!
 }
 
 type Package {
@@ -167,6 +169,9 @@ type Package {
   Checkout: Checkout!
   couponsId: String
   comments: [String!]
+  delivredAt:String
+  inTransitAt:String
+  returnedAt:String
 }
 
 # Review and favorite-related types
@@ -299,7 +304,7 @@ type Query {
   getProductImages(productId: String!, colorId: String!): [String!]!
 
   # Category-related queries
-  categories: [Category!]!
+  categories: [MainCategory!]!
   fetchMainCategories: [MainCategory!]!
   subcategoriesByParentId(parentId: ID!): [Category!]!
   categoryById(categoryId: String!): Category!
@@ -377,7 +382,7 @@ type Mutation {
   addMultipleToBasket(input: AddMultipleToBasketInput!): String!
 
   # Checkout-related mutations
-  createCheckout(input: CreateCheckoutInput!): Checkout!
+  createCheckout(input: CreateCheckoutInput!): String!
   createCheckoutFromAdmin(input: CreateCheckoutFromAdminInput!): String!
   updateProductInCheckout(input: UpdateProductInCheckoutInput!): String!
   updateCustomerCheckout(input: UpdateCustomerCheckoutInput!): String!
@@ -420,7 +425,7 @@ type Mutation {
   addColor(color:String! , Hex:String!):String!
   deleteColor(Hex:String!):String!
   # Brand Mutations
-  addBrand(name:String!,logo:String!):String!
+  addBrand(name:String!,logo:String!,categoryId:String):String!
   deleteBrand(brandId:ID!):String!
 }
 

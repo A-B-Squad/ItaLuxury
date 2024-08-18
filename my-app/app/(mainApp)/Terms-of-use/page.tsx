@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
 
-const PrivacyPolicy = dynamic(() => import("./Terms-of-use"));
+const PrivacyPolicy = dynamic(() => import("./Terms-of-use"),{ssr:false});
 
 export const metadata: Metadata = {
   title: "Conditions d'Utilisation",

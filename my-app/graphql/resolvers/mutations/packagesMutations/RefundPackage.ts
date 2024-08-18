@@ -12,7 +12,7 @@ export const refundPackage = async (
   { prisma }: Context
 ) => {
   const { packageId, cause, brokenProducts } = input;
-  
+
   try {
     const findPackage = await prisma.package.findFirst({
       where: { id: packageId },
@@ -43,7 +43,7 @@ export const refundPackage = async (
           solde: { decrement: refundQuantity },
         };
 
-        if (cause==="BROKEN") {
+        if (cause === "BROKEN") {
           updateData.broken = { increment: brokenQuantity };
           updateData.inventory = { increment: refundQuantity - brokenQuantity };
         } else {
@@ -69,7 +69,11 @@ export const refundPackage = async (
 
     await prisma.package.update({
       where: { id: packageId },
-      data: { status: "REFUNDED" },
+      data: {
+        status: "REFUNDED",
+
+        returnedAt: new Date(),
+      },
     });
 
     return "Package refunded successfully";
