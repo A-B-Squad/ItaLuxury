@@ -27,8 +27,8 @@ export const createContactUs = async (
       port: 587,
       secure: false,
       auth: {
-        user: "bilelbourgou@gmail.com",
-        pass: "gzgw fkol tpyq alhg",
+        user: process.env.NEXT_PUBLIC_NODEMAILER_EMAIL,
+        pass: process.env.NEXT_PUBLIC_NODEMAILER_PASS,
       },
     });
 

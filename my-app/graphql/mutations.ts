@@ -38,6 +38,11 @@ export const ADD_TO_BASKET_MUTATION = gql`
     }
   }
 `;
+export const ADD_MULTIPLE_TO_BASKET_MUTATION = gql`
+mutation Mutation($input: AddMultipleToBasketInput!) {
+  addMultipleToBasket(input: $input)
+}
+`;
 
 export const ADD_TO_FAVORITE_MUTATION = gql`
   mutation AddProductToFavorite($input: AddProductToFavoriteInput!) {
@@ -81,18 +86,9 @@ export const DECREASE_QUANTITY_MUTATION = gql`
   }
 `;
 export const CREATE_CHECKOUT_MUTATION = gql`
-  mutation CreateCheckout($input: CreateCheckoutInput!) {
-    createCheckout(input: $input) {
-      id
-      userId
-      governorateId
-      phone
-      address
-      total
-      createdAt
-      couponsId
-    }
-  }
+ mutation CreateCheckout($input: CreateCheckoutInput!) {
+  createCheckout(input: $input)
+}
 `;
 
 export const FORGOT_PASSWORD_MUTATION = gql`

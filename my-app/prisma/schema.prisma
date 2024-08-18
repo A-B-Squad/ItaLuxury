@@ -30,7 +30,7 @@ enum Cause {
 }
 
 model User {
-  id               String             @id @default(uuid())
+  id               String             @id @default(uuid()) @db.VarChar(6)
   fullName         String
   email            String             @unique
   password         String
@@ -54,6 +54,7 @@ model Category {
   smallImage    String?
   description   String?
   BestSales     BestSales[]
+  brands        Brand[]
 }
 
 model Product {
@@ -169,6 +170,9 @@ model Package {
   checkoutId String
   status     Status
   createdAt  DateTime @default(now())
+  delivredAt DateTime? 
+  inTransitAt DateTime? 
+  returnedAt DateTime? 
   comments   String[]
 }
 
@@ -237,10 +241,12 @@ model content_visibility {
 }
 
 model Brand {
-  id      String    @id @default(uuid())
-  name    String
-  logo    String
-  product Product[]
+  id         String    @id @default(uuid())
+  name       String
+  logo       String
+  product    Product[]
+  Category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
 }
 
 model ContactUs {
@@ -261,3 +267,8 @@ model Coupons {
   available Boolean    @default(true)
   checkout  Checkout[]
 }
+
+
+// model AppIntegration{
+
+// }

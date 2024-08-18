@@ -11,24 +11,36 @@ const CenterAds = () => {
   const { data: centerAds } = useQuery(ADVERTISSMENT_QUERY, {
     variables: { position: "BigAds" },
   });
+
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setShowAds(true);
-    }, 40000);
+    }, 10000);
+
+    return () => clearTimeout(timer);
   }, []);
+
+  const handleClose = () => {
+    setShowAds(false);
+  };
+
   return (
     <div
-      className={`${showAds ? "opacity-100 z-50 block" : "opacity-0 translate-y-6 hidden"} transition-all`}
+      className={`fixed inset-0 flex items-center justify-center transition-all duration-500 ${
+        showAds ? "opacity-100 z-50" : "opacity-0 translate-y-6 pointer-events-none"
+      }`}
     >
-      <div className="bg-lightBlack absolute z-[100] left-0 top-0 w-full h-full"></div>
+      <div className="bg-lightBlack absolute z-[100] left-0 top-0 w-full h-full opacity-80"></div>
       <div
-        className={` bg-white shadow-2xl flex items-center justify-center text-center w-[350px] h-[250px] md:w-[700px] md:h-[450px] fixed rounded-md  z-[110]  top-2/4 left-2/4 -translate-y-2/4  -translate-x-2/4 transition-all`}
+        className={`bg-white shadow-2xl flex items-center justify-center text-center w-[350px] h-[250px] md:w-[700px] md:h-[450px] fixed rounded-md z-[110] transition-transform transform ${
+          showAds ? "scale-100" : "scale-90"
+        }`}
       >
         <IoIosClose
           size={50}
           color="black"
           className="right-0 rounded-full w-8 h-8 z-50 absolute top-0 cursor-pointer"
-          onClick={() => setShowAds(false)}
+          onClick={handleClose}
         />
         {centerAds?.advertismentByPosition.length === 0 ? (
           <>

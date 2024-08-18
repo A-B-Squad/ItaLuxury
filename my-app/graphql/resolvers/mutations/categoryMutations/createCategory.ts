@@ -6,12 +6,7 @@ export const createCategory = async (
   { prisma }: Context
 ) => {
   try {
-    const { name, parentId,
-      bigImage,
-      smallImage,
-      description
-
-    } = input;
+    const { name, parentId, bigImage, smallImage, description } = input;
     // Create the new category
     const newCategory = await prisma.category.create({
       data: {
@@ -38,9 +33,22 @@ export const createCategory = async (
     }
     return "new Category created";
   } catch (error) {
-    console.log(error, "============================");
+    if (error instanceof Error) {
+      // Log the full error for debugging
+      console.error("Error creating category:", error);
 
-    console.error("Error creating category:", error);
-    return new Error("Failed to create category");
+      // Handle specific Prisma error codes
+      if ((error as any).code === "P2002") {
+        throw new Error(
+          "A category with this name already exists. Please choose a different name."
+        );
+      }
+
+      // Handle generic errors
+      throw new Error(`An error occurred: ${error.message}`);
+    } else {
+      // Handle unexpected error types
+      throw new Error("An unknown error occurred");
+    }
   }
 };

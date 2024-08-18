@@ -95,32 +95,56 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
     })),
 });
 
-const productsInBasketStore = <ProductsInBasketStore>(set: any) => ({
+// Define the Product type
+interface Product {
+  [x: string]: number;
+  id: string;
+  name: string;
+  price: number;
+  // Add other product properties as needed
+}
+
+// Define the ProductsInBasketStore type
+interface ProductsInBasketStore {
+  products: Product[];
+  quantityInBasket: number;
+  setQuantityInBasket: (quantity: number) => void;
+  addProductToBasket: (product: Product) => void;
+  removeProductFromBasket: (productId: string) => void;
+  clearBasket: () => void;
+}
+
+// Define the set type
+type SetState = (update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>) => void;
+
+// Define the store creation function
+const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
   products: [],
   quantityInBasket: 0,
   setQuantityInBasket: (quantity: number) => {
-    set((state: any) => ({
+    set((state) => ({
       quantityInBasket: quantity,
     }));
   },
-  addProductToBasket: (product: any) => {
-    set((state: any) => ({
+  addProductToBasket: (product: Product) => {
+    set((state) => ({
       products: [...state.products, product],
     }));
   },
   removeProductFromBasket: (productId: string) => {
-    set((state: any) => ({
+    set((state) => ({
       products: state.products.filter(
-        (product: any) => product.id !== productId,
+        (product) => product.id !== productId,
       ),
     }));
   },
   clearBasket: () => {
-    set((state: any) => ({
+    set((state) => ({
       products: [],
     }));
   },
 });
+
 
 export const useProductsInBasketStore = create(
   persist(productsInBasketStore, {
@@ -146,6 +170,7 @@ export const useSidebarStore = create<SidebarStore>((set) => ({
   toggleOpenSidebar: () =>
     set((state) => ({ isOpenSideBard: !state.isOpenSideBard })),
 }));
+
 interface AllProductViewStore {
   view: number;
   changeProductView: (gridNumber: number) => void;

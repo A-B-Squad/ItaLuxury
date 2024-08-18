@@ -468,6 +468,8 @@ export const GET_PACKAGES_BY_USER_ID = gql`
         total
         productInCheckout {
           productId
+          productQuantity
+
           product {
             name
           }
@@ -504,6 +506,12 @@ export const ALL_BRANDS = `
       id
       name
       logo
+      Category{
+      id 
+      name
+              parentId
+      }
+      categoryId
       product {
         id
       }
@@ -527,8 +535,8 @@ export const CONTENT_VISIBILITY = gql`
   }
 `;
 export const TAKE_6_PRODUCTS = gql`
-  query Products($limit: Int!) {
-    products(limit: $limit) {
+  query FetchProducts($limit: Int) {
+    fetchProducts(limit: $limit) {
       id
       name
       price

@@ -21,7 +21,7 @@ const ProductsSection = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(
-    Number(searchParams?.get("page")) || 1,
+    Number(searchParams?.get("page")) || 1
   );
 
   const pageSize = 12;
@@ -39,8 +39,9 @@ const ProductsSection = () => {
       choice: searchParams?.get("choice") || undefined,
       brandId: searchParams?.get("brand") || undefined,
     }),
-    [searchParams],
+    [searchParams]
   );
+
   const sortProducts = (products: any[], sortParam: string) => {
     return [...products].sort((a, b) => {
       switch (sortParam) {
@@ -57,6 +58,7 @@ const ProductsSection = () => {
       }
     });
   };
+
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     const params = getSearchParams();

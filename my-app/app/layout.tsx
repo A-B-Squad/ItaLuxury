@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
+import Script from "next/script";
+import AnalyticsIntegration from "./components/AnalyticsIntegration";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -32,6 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
+      <AnalyticsIntegration/>
       </head>
       <body className={openSans.className}>
         <ApolloWrapper>{children}</ApolloWrapper>

@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import keywords from "@/public/keywords";
 import dynamic from "next/dynamic";
 
-const Checkout = dynamic(() => import("./Checkout"));
+const Checkout = dynamic(() => import("./Checkout"),{ssr:false});
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||

@@ -112,6 +112,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         delete updatedQueries["en_promo"];
         updatedQueries["choice"] = [value];
       }
+      
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
@@ -182,6 +183,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         ...selectedFilterQueries,
         category: [categoryId],
       };
+      
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,

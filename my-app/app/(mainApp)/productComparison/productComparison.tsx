@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY } from "../../../graphql/queries";
 import prepRoute from "@/app/Helpers/_prepRoute";
+import { trackEvent } from "../../Helpers/_trackEvents";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -27,7 +28,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    }),
+    })
   );
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
@@ -51,7 +52,7 @@ const ProductComparison = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast],
+    [removeProductFromCompare, toast]
   );
 
   const { addProductToBasket } = useProductsInBasketStore((state) => ({
@@ -75,10 +76,29 @@ const ProductComparison = () => {
             variables: { userId: decodedToken?.userId },
           },
         ],
+
+        onCompleted: () => {
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit "${product?.name}" a été ajouté au panier.`,
+            className: "bg-primaryColor text-white",
+          });
+          // Track Add to Cart
+          trackEvent("AddToCart", {
+            content_name: product.name,
+            content_type: "product",
+            content_ids: [product.id],
+            value:
+              product.productDiscounts.length > 0
+                ? product.productDiscounts[0].newPrice
+                : product.price,
+            currency: "TND",
+          });
+        },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -89,13 +109,36 @@ const ProductComparison = () => {
               : product?.price,
           actualQuantity: 1,
         });
+
+        toast({
+          title: "Notification de Panier",
+          description: `Le produit "${product?.name}" a été ajouté au panier.`,
+          className: "bg-primaryColor text-white",
+        });
+        // Track Add to Cart
+        trackEvent("AddToCart", {
+          content_name: product.name,
+          content_type: "product",
+          content_ids: [product.id],
+          value:
+            product.productDiscounts.length > 0
+              ? product.productDiscounts[0].newPrice
+              : product.price,
+          currency: "TND",
+        });
       } else {
-        console.log("Product is already in the basket");
+        toast({
+          title: "Notification de Panier",
+          description: `Product is already in the basket`,
+          className: "bg-primaryColor text-white",
+        });
       }
     }
     toggleIsUpdated();
     openBasketDrawer();
   };
+  console.log(products, "######################");
+
   return (
     <>
       {products.length > 0 ? (
@@ -116,17 +159,24 @@ const ProductComparison = () => {
                           pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                           query: {
                             productId: product?.id,
-                            collection: [
-                              product?.categories[0]?.name,
-                              product?.categories[0]?.id,
-                              product?.categories[0]?.subcategories[0]?.name,
-                              product?.categories[0]?.subcategories[0]?.id,
-                              product?.categories[0]?.subcategories[0]
-                                ?.subcategories[0]?.name,
-                              product?.categories[0]?.subcategories[0]
-                                ?.subcategories[0]?.id,
-                              product?.name,
-                            ],
+                            // collection: [
+                            //   // Get the name of the first category, if available
+                            //   product?.categories[0]?.name,
+                            //   // Get the ID of the first category, if available
+                            //   product?.categories[0]?.id,
+                            //   // Get the name of the first subcategory of the first category, if available
+                            //   product?.categories[0]?.subcategories[0]?.name,
+                            //   // Get the ID of the first subcategory of the first category, if available
+                            //   product?.categories[0]?.subcategories[0]?.id,
+                            //   // Get the name of the first subcategory of the first subcategory, if available
+                            //   product?.categories[0]?.subcategories[0]
+                            //     ?.subcategories[0]?.name,
+                            //   // Get the ID of the first subcategory of the first subcategory, if available
+                            //   product?.categories[0]?.subcategories[0]
+                            //     ?.subcategories[0]?.id,
+                            //   // Get the product name, if available
+                            //   product?.name,
+                            // ],
                           },
                         }}
                       >
@@ -143,17 +193,24 @@ const ProductComparison = () => {
                             pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                             query: {
                               productId: product?.id,
-                              collection: [
-                                product?.categories[0]?.name,
-                                product?.categories[0]?.id,
-                                product?.categories[0]?.subcategories[0]?.name,
-                                product?.categories[0]?.subcategories[0]?.id,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[0]?.name,
-                                product?.categories[0]?.subcategories[0]
-                                  ?.subcategories[0]?.id,
-                                product?.name,
-                              ],
+                              // collection: [
+                              //   // Get the name of the first category, if available
+                              //   product?.categories[0]?.name,
+                              //   // Get the ID of the first category, if available
+                              //   product?.categories[0]?.id,
+                              //   // Get the name of the first subcategory of the first category, if available
+                              //   product?.categories[0]?.subcategories[0]?.name,
+                              //   // Get the ID of the first subcategory of the first category, if available
+                              //   product?.categories[0]?.subcategories[0]?.id,
+                              //   // Get the name of the first subcategory of the first subcategory, if available
+                              //   product?.categories[0]?.subcategories[0]
+                              //     ?.subcategories[0]?.name,
+                              //   // Get the ID of the first subcategory of the first subcategory, if available
+                              //   product?.categories[0]?.subcategories[0]
+                              //     ?.subcategories[0]?.id,
+                              //   // Get the product name, if available
+                              //   product?.name,
+                              // ],
                             },
                           }}
                         >
@@ -171,7 +228,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3,
+                                    3
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND

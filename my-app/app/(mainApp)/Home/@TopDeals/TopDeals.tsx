@@ -1,5 +1,6 @@
 "use client";
 import prepRoute from "@/app/Helpers/_prepRoute";
+import { trackEvent } from "@/app/Helpers/_trackEvents";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import {
   useBasketStore,
@@ -12,7 +13,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
-import { Button } from "@material-tailwind/react";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
@@ -33,7 +33,7 @@ const TopDeals = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   useEffect(() => {
@@ -70,10 +70,28 @@ const TopDeals = () => {
           refetchQueries: [
             { query: BASKET_QUERY, variables: { userId: decodedToken.userId } },
           ],
+          onCompleted: () => {
+            toast({
+              title: "Notification de Panier",
+              description: `Le produit "${product?.name}" a été ajouté au panier.`,
+              className: "bg-primaryColor text-white",
+            });
+            // Track Add to Cart
+            trackEvent("AddToCart", {
+              content_name: product.name,
+              content_type: "product",
+              content_ids: [product.id],
+              value:
+                product.productDiscounts.length > 0
+                  ? product.productDiscounts[0].newPrice
+                  : product.price,
+              currency: "TND",
+            });
+          },
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id,
+          (p: any) => p.id === product.id
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -84,8 +102,28 @@ const TopDeals = () => {
                 : product.price,
             actualQuantity: 1,
           });
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit "${product?.name}" a été ajouté au panier.`,
+            className: "bg-primaryColor text-white",
+          });
+          // Track Add to Cart
+          trackEvent("AddToCart", {
+            content_name: product.name,
+            content_type: "product",
+            content_ids: [product.id],
+            value:
+              product.productDiscounts.length > 0
+                ? product.productDiscounts[0].newPrice
+                : product.price,
+            currency: "TND",
+          });
         } else {
-          console.log("Product is already in the basket");
+          toast({
+            title: "Notification de Panier",
+            description: `Product is already in the basket`,
+            className: "bg-primaryColor text-white",
+          });
         }
       }
       toggleIsUpdated();
@@ -98,11 +136,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ],
+    ]
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare,
+    (state) => state.addProductToCompare
   );
 
   const addToCompare = useCallback(
@@ -114,7 +152,7 @@ const TopDeals = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [addProductToCompare, toast],
+    [addProductToCompare, toast]
   );
 
   const renderProducts = useMemo(() => {
@@ -258,7 +296,7 @@ const TopDeals = () => {
                     </span>
                     <span className="text-primaryColor font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3,
+                        3
                       )}
                       TND
                     </span>

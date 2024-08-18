@@ -9,6 +9,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "app.jax-delivery.com",
+        pathname: "**",
+        
+      },
+      {
+        protocol: "https",
         hostname: "res.cloudinary.com",
         pathname: "**",
       },

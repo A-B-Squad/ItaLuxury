@@ -2,7 +2,11 @@ import { Context } from "@/pages/api/graphql";
 
 export const addBrand = async (
   _: any,
-  { name, logo }: { name: string; logo: string },
+  {
+    name,
+    logo,
+    categoryId,
+  }: { name: string; logo: string; categoryId: string },
   { prisma }: Context
 ) => {
   try {
@@ -10,6 +14,7 @@ export const addBrand = async (
       data: {
         name,
         logo,
+        categoryId,
       },
     });
     return "Brand added successfully";

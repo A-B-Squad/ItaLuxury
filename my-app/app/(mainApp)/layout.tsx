@@ -5,9 +5,9 @@ import dynamic from "next/dynamic";
 import React from "react";
 import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
-const BasketDrawer = dynamic(() => import("../components/BasketDrawer"));
+const BasketDrawer = dynamic(() => import("../components/BasketDrawer"),{ssr:false});
 const DrawerMobile = dynamic(
-  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),
+  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),{ssr:false}
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";

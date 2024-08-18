@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import { FiHeart, FiUser } from "react-icons/fi";
 import { RiShoppingCartLine } from "react-icons/ri";
@@ -16,26 +16,28 @@ import { IoGitCompare } from "react-icons/io5";
 import Image from "next/legacy/image";
 import { GoPackageDependents } from "react-icons/go";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
 import { useOutsideClick } from "@/app/Helpers/_outsideClick";
+import { BASKET_QUERY } from "@/graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 const TopHeader = ({ logo }: { logo: string }) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [showLogout, setShowMenuUserMenu] = useState<Boolean>(false);
+  const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const { openBasketDrawer } = useDrawerBasketStore();
-  const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket,
-  );
   const { productsInCompare } = useComparedProductsStore((state) => ({
     productsInCompare: state.products,
   }));
+
+  const { quantityInBasket } = useProductsInBasketStore();
+
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
   });
+
   const {
     register,
     handleSubmit,
@@ -46,7 +48,6 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
     onCompleted: () => {
       window.location.reload();
-
       toast({
         title: "Connexion",
         description: "Bienvenue",
@@ -64,6 +65,33 @@ const TopHeader = ({ logo }: { logo: string }) => {
     },
   });
 
+  const { data: basketData, refetch: refetchBasket } = useQuery(BASKET_QUERY, {
+    variables: { userId: decodedToken?.userId },
+    skip: !decodedToken?.userId,
+    fetchPolicy: "network-only",
+  });
+
+  const updateBasketQuantity = useCallback(() => {
+    if (basketData?.basketByUserId) {
+      const totalQuantity = basketData.basketByUserId.reduce(
+        (acc: number, item: any) => acc + item.quantity,
+        0
+      );
+      useProductsInBasketStore.setState({
+        products: basketData.basketByUserId.map((item: any) => ({
+          ...item.product,
+          quantity: item.quantity,
+        })),
+        quantityInBasket: totalQuantity,
+      });
+    } else {
+      useProductsInBasketStore.setState({
+        products: [],
+        quantityInBasket: 0,
+      });
+    }
+  }, [basketData]);
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -71,6 +99,16 @@ const TopHeader = ({ logo }: { logo: string }) => {
       setDecodedToken(decoded);
     }
   }, []);
+
+  useEffect(() => {
+    if (decodedToken?.userId) {
+      refetchBasket();
+    }
+  }, [decodedToken, refetchBasket]);
+
+  useEffect(() => {
+    updateBasketQuantity();
+  }, [basketData, updateBasketQuantity]);
 
   const onSubmit = (data: any) => {
     SignIn({ variables: { input: data } });

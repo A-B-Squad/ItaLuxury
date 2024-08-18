@@ -9,7 +9,7 @@ export const fetchAllBasket = async (_: any, __: any, { prisma }: Context) => {
           include: {
             productDiscounts: true,
             categories: {
-              include: { subcategories: true },
+              include: { subcategories: { include: { subcategories: true } } },
             },
           },
         },

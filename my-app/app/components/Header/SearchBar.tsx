@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import prepRoute from "../../Helpers/_prepRoute";
+import { trackEvent } from "@/app/Helpers/_trackEvents";
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,16 +16,13 @@ const SearchBar = () => {
   const [searching, setSearching] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  const [searchProducts, { loading, data, error }] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,
-    {
-      variables: {
-        input: {
-          visibleProduct: true,
-        },
+  const [searchProducts, { data }] = useLazyQuery(SEARCH_PRODUCTS_QUERY, {
+    variables: {
+      input: {
+        visibleProduct: true,
       },
     },
-  );
+  });
 
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,25 +37,19 @@ const SearchBar = () => {
           query: inputValue,
           page: 1,
           pageSize: 20,
+          visibleProduct: true,
         },
       },
     });
+    trackEvent("Search", {
+      search_term: inputValue,
+      search_category: categories
+        .map((category: any) => category.name)
+        .join(", "),
+      number_of_results: data?.searchProducts?.results?.products.length || 0,
+    });
+    console.log();
   };
-
-  useEffect(() => {
-    if (query) {
-      setSearchQuery(query);
-      searchProducts({
-        variables: {
-          input: {
-            query,
-            page: 1,
-            pageSize: 20,
-          },
-        },
-      });
-    }
-  }, [query, searchProducts]);
 
   useEffect(() => {
     const handleMouseLeave = () => {
@@ -120,6 +112,12 @@ const SearchBar = () => {
                   <Link
                     key={category.id}
                     href={`/Collections/tunisie?category=${category.id}`}
+                    onClick={() =>
+                      trackEvent("SelectCategory", {
+                        category_name: category.name,
+                        category_id: category.id,
+                      })
+                    }
                   >
                     <li className="py-2 border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300 cursor-pointer">
                       {category.name}
@@ -158,6 +156,18 @@ const SearchBar = () => {
                       ],
                     },
                   }}
+                  onClick={() =>
+                    trackEvent("SelectSearchedProduct", {
+                      product_name: product.name,
+                      product_id: product.id,
+                      product_price:
+                        product.productDiscounts.length > 0
+                          ? product.productDiscounts[0].newPrice
+                          : product.price,
+                      product_category: product.categories[0]?.name,
+                      currency: "TND",
+                    })
+                  }
                   className="product-item flex flex-col items-center p-2 border rounded-md hover:shadow-md transition-shadow"
                 >
                   <div className="relative w-24 h-24 mb-2">
