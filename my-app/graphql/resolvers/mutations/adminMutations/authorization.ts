@@ -1,16 +1,14 @@
 import { Context } from "@/pages/api/graphql";
 
-
 export const Authorization = async (
     _: any,
-    { userId }: { userId: string },
-    prisma: any
+    { adminId }: { adminId: string },
+    { prisma }: any
 ) => {
     try {
-        // Fetch the user's role based on userId
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { role: true } // Select only the role field
+        // Fetch the user's role based on adminId
+        const user = await prisma.admin.findUnique({
+            where: { id: adminId },
         });
 
         // Check if the user exists
@@ -21,7 +19,12 @@ export const Authorization = async (
         // Check if the user is an admin
         const isAdmin = user.role === "ADMIN";
 
-        return isAdmin;
+        if (!isAdmin) {
+            // If not an admin, return a custom message or error
+            return new Error("You do not have permission to access this resource.");
+        }
+
+        return true; // Return true if the user is an admin
     } catch (error) {
         // Handle errors
         console.error("Error in Authorization function:", error);

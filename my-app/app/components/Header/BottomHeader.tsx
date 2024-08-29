@@ -110,14 +110,23 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
-              <Link rel="preload" href={`/Collections/tunisie?page=1`}>
-                Touts Les Produits
+              <Link rel="preload" href={{pathname:`/Collections/tunisie?page=1`,
+                query:{
+                  section:"Boutique"
+                }
+              }}>
+                Boutique
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
-                href={`/Collections/tunisie?choice=in-discount&page=1`}
+                href={{pathname:`/Collections/tunisie?choice=in-discount&page=1`,
+
+                  query:{
+                    section:"Promotions"
+                  }
+                }}
               >
                 Promotions
               </Link>
@@ -192,6 +201,8 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
             </li>
           </ul>
         </div>
+
+        
       </div>
     </div>
   );

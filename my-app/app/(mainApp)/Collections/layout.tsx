@@ -8,9 +8,10 @@ import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
 import { fetchGraphQLData } from "@/utlils/graphql";
 import { ALL_BRANDS, COLORS_QUERY, CATEGORIES_QUERY } from "@/graphql/queries";
 import keywords from "@/public/keywords";
+import { useAllProductViewStore } from "@/app/store/zustand";
+import Breadcumb from "@/app/components/Breadcumb";
 
 const SideBar = dynamic(() => import("./components/sideBar"), { ssr: false });
-
 if (process.env.NODE_ENV === "development") {
   loadDevMessages();
   loadErrorMessages();
@@ -73,12 +74,13 @@ export default async function Layout({ children }: LayoutProps) {
 
   return (
     <div className="relative flex w-full flex-col z-50">
-      <header>
-        <TopBar />
-      </header>
-      <div className="w-full flex">
+      <div className="Breadcumb">
+        <Breadcumb />
+      </div>
+
+      <div className=" container  gap-3 px-4 flex flex-row  relative w-full h-full ">
         <SideBar categories={categories} brands={brands} colors={colors} />
-        <main style={{ width: "inherit" }} className="relative">
+        <main style={{ width: "inherit" }} className="relative ">
           <ProductInfo />
           {children}
         </main>

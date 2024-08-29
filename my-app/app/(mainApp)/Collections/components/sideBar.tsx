@@ -83,7 +83,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
             : [value];
         } else {
           updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value,
+            (query) => query !== value
           );
           if (updatedQueries[name].length === 0) {
             delete updatedQueries[name];
@@ -96,10 +96,10 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}&page=1`,
         {
           scroll: true,
-        },
+        }
       );
     },
-    [selectedFilterQueries, router],
+    [selectedFilterQueries, router]
   );
 
   const handleChoiceFilterOptions = useCallback(
@@ -112,17 +112,17 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         delete updatedQueries["en_promo"];
         updatedQueries["choice"] = [value];
       }
-      
+
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
         {
           scroll: true,
-        },
+        }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const handleColorSelection = useCallback(
@@ -133,17 +133,17 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
         {
           scroll: true,
-        },
+        }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const debouncedUpdateUrl = useRef(
     debounce((price: number) => {
       router.push(`/Collections/tunisie?price=${price}`, { scroll: false });
-    }, 300),
+    }, 300)
   ).current;
 
   useEffect(() => {
@@ -159,7 +159,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
       const newPrice = Number(e.target.value);
       setLocalPrice(newPrice);
     },
-    [],
+    []
   );
 
   const handlePriceChangeEnd = useCallback(() => {
@@ -183,27 +183,27 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         ...selectedFilterQueries,
         category: [categoryId],
       };
-      
+
       setSelectedFilterQueries(updatedQueries);
       router.push(
         `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
         {
           scroll: false,
-        },
+        }
       );
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase()),
+          selectedFilterQueries[name].includes(option.toLowerCase())
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
 
   // Render helpers
@@ -257,7 +257,13 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
             } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
           >
             <Link
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
+              href={{
+                pathname: `/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`,
+
+                query: {
+                  collection: [category.name, category.id],
+                },
+              }}
               className="w-full h-full"
               onClick={() => handleCategoryClick(category.id)}
             >
@@ -328,7 +334,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   const renderColorFilters = () => (
     <div className="border-b pl-5 border-gray-200 py-6">
       <h3 className="font-normal tracking-widest text-sm mb-6">COULEURS</h3>
-      <div className="overflow-y-scroll max-h-60">
+      <div className="overflow-y-auto max-h-60">
         <div className="flex items-center flex-wrap px-3 w-full gap-3">
           {colors?.map((color) => (
             <div key={color.id} className="flex items-center">
@@ -366,7 +372,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   const renderBrandFilters = () => (
     <div className="border-b pl-5 border-gray-200 py-6">
       <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
-      <div className="overflow-y-scroll max-h-60" id="filter-section-1">
+      <div className="overflow-y-auto max-h-60" id="filter-section-1">
         <div className="space-y-4">
           {brands?.map((brand) => (
             <div key={brand.id} className="flex items-center">
@@ -405,11 +411,13 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   return (
     <section
       aria-labelledby="products-heading"
-      className={`w-96 overflow-y-auto z-30 top-0 h-full  transition-all bg-white shadow-md  ${
-        isOpenSideBard ? "sticky" : "hidden md:block"
-      }`}
+      className={`  overflow-y-auto z-30 h-re     
+         w-96 relative  h-auto
+        transition-all bg-white shadow-md  ${
+          isOpenSideBard ? "relative" : "hidden md:block"
+        }`}
     >
-      <form className="relative pt-5 shadow-lg">
+      <form className="relative pt-5 ">
         <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
           FILTRER
         </h3>

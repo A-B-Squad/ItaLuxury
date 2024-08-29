@@ -11,7 +11,7 @@ import {
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -43,6 +43,15 @@ const TopDeals = () => {
       setDecodedToken(decoded);
     }
   }, []);
+
+
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId
+    },
+    skip: !decodedToken?.userId
+
+  })
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -78,6 +87,9 @@ const TopDeals = () => {
             });
             // Track Add to Cart
             trackEvent("AddToCart", {
+              em: userData?.fetchUsersById.email.toLowerCase(),
+              fn: userData?.fetchUsersById.fullName,
+              ph: userData?.fetchUsersById.number[0], country: "tn",
               content_name: product.name,
               content_type: "product",
               content_ids: [product.id],
@@ -109,6 +121,9 @@ const TopDeals = () => {
           });
           // Track Add to Cart
           trackEvent("AddToCart", {
+            em: userData?.fetchUsersById.email.toLowerCase(),
+            fn: userData?.fetchUsersById.fullName,
+            ph: userData?.fetchUsersById.number[0], country: "tn",
             content_name: product.name,
             content_type: "product",
             content_ids: [product.id],

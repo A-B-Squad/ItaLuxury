@@ -482,11 +482,11 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
                                             "
                                             align="center"
                                           >
+                                            
                                             <img
                                               align="center"
                                               border="0"
-                                              src="images/image-5.png"
-                                              alt="Image"
+src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg"                                              alt="Image"
                                               title="Image"
                                               style="
                                                 outline: none;

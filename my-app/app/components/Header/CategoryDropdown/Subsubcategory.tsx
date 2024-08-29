@@ -10,16 +10,38 @@ interface Subcategory {
 
 interface SubsubcategoryProps {
   subsubcategories: Subcategory[];
+  parentSubCategoryName: string;
+  parentCategoryId: string;
+  parentCategoryName: string;
+  parentSubCategoryId: string;
 }
 
 const Subsubcategory: React.FC<SubsubcategoryProps> = ({
   subsubcategories,
+  parentSubCategoryName,
+  parentCategoryName,
+  parentCategoryId,
+  parentSubCategoryId,
 }) => {
   return (
     <>
       {subsubcategories?.map((subsubcategory, subIndex) => (
         <Link
-          href={`/Collections/tunisie/${prepRoute(subsubcategory.name)}/?category=${subsubcategory.id}`}
+          href={{
+            pathname: `/Collections/tunisie/${prepRoute(subsubcategory.name)}/?category=${subsubcategory.id}`,
+
+            query: {
+              collection: [
+                parentCategoryName,
+
+                parentCategoryId,
+                parentSubCategoryName,
+                parentSubCategoryId,
+                subsubcategory.name,
+                subsubcategory.id,
+              ],
+            },
+          }}
           className="py-1 group text-sm cursor-pointer transition-all relative  left-[-20px] flex hover:font-bold  "
           key={subIndex}
         >

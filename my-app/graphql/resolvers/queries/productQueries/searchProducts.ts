@@ -6,11 +6,12 @@ interface ProductSearchInput {
   minPrice?: number;
   maxPrice?: number;
   categoryId?: string;
+
   colorId?: string;
   choice?: "in-discount" | "new-product";
   brandId?: string;
   page: number;
-  pageSize: number;
+  pageSize?: number;
   visibleProduct?: boolean;
 }
 
@@ -31,16 +32,17 @@ export const searchProducts = async (
     pageSize,
     visibleProduct,
   } = input;
-console.log(visibleProduct,"##############");
 
   try {
     const whereCondition: Prisma.ProductWhereInput = {
-      ...(visibleProduct !== null && visibleProduct !== undefined && {
-        isVisible: visibleProduct,
-      }),
+      ...(visibleProduct !== null &&
+        visibleProduct !== undefined && {
+          isVisible: visibleProduct,
+        }),
       ...(query && {
         OR: [
           { name: { contains: query, mode: "insensitive" } },
+          { reference: { contains: query, mode: "insensitive" } },
           { description: { contains: query, mode: "insensitive" } },
           {
             categories: {
@@ -62,12 +64,25 @@ console.log(visibleProduct,"##############");
       }),
     };
 
-    const skip = (page - 1) * pageSize;
+    const skip = (page - 1) * (pageSize || 0);
+
+    const threeWeekPeriod = Math.floor(
+      Date.now() / (3 * 7 * 24 * 60 * 60 * 1000)
+    );
+
+    // Define an array of ordering options
+    const orderOptions: Prisma.ProductOrderByWithRelationInput[] = [
+      { createdAt: Prisma.SortOrder.desc },
+      { price: Prisma.SortOrder.asc },
+      { name: Prisma.SortOrder.asc },
+    ];
+    // Select the current ordering based on the 3-week period
+    const currentOrdering = orderOptions[threeWeekPeriod % orderOptions.length];
 
     const [products, totalCount, categories] = await Promise.all([
       prisma.product.findMany({
         where: whereCondition,
-        take: pageSize,
+        take: pageSize || undefined,
         skip,
         include: {
           categories: {
@@ -81,11 +96,12 @@ console.log(visibleProduct,"##############");
           Colors: true,
           Brand: true,
         },
+        orderBy: currentOrdering,
       }),
       prisma.product.count({ where: whereCondition }),
       prisma.category.findMany({
         where: { name: { contains: query || "", mode: "insensitive" } },
-        take: 5,
+        take: 8,
       }),
     ]);
 

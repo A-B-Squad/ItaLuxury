@@ -10,10 +10,12 @@ import "../../globals.css";
 import { useToast } from "@/components/ui/use-toast";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useForm } from "react-hook-form";
-import { FaEnvelope, FaLock, FaGoogle, FaFacebook } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+
 const Signin = () => {
   const { toast } = useToast();
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const {
     register,
@@ -43,11 +45,15 @@ const Signin = () => {
     SignIn({ variables: { input: data } });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
-          className="mx-auto  "
+          className="mx-auto"
           src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1715518497/hoyr6n9tf2n68kiklveg.jpg"
           alt="MaisonNg"
           width={200}
@@ -117,16 +123,29 @@ const Signin = () => {
                 </div>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="********"
                   autoComplete="current-password"
-                  className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
+                  className={`block w-full pl-10 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
                     errors.password ? "border-red-300" : ""
                   }`}
                   {...register("password", {
                     required: "Le mot de passe est requis",
                   })}
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <FaEye className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </div>
               {errors.password && (
                 <p className="mt-2 text-sm text-red-600">
@@ -145,41 +164,6 @@ const Signin = () => {
               </button>
             </div>
           </form>
-          {/* //Google
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Ou continuer avec
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <div>
-                <Link
-                  href="#"
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <FaGoogle className="h-5 w-5" />
-                  <span className="sr-only">Sign in with Google</span>
-                </Link>
-              </div>
-
-              <div>
-                <Link
-                  href="#"
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <FaFacebook className="h-5 w-5" />
-                  <span className="sr-only">Sign in with Facebook</span>
-                </Link>
-              </div>
-            </div>
-          </div> */}
 
           <div className="mt-6 flex flex-col space-y-2 text-center text-sm">
             <p className="text-gray-600">

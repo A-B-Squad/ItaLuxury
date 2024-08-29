@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useMutation } from "@apollo/client";
-import { BASKET_QUERY } from "@/graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { FaRegEye, FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
 import Link from "next/link";
@@ -39,7 +39,7 @@ interface ProductBoxProps {
 
 const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   const { toast } = useToast();
-  const { view } = useAllProductViewStore();
+  const { view, changeProductView } = useAllProductViewStore();
   const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
@@ -54,6 +54,22 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   );
   const { addProductToBasket, products } = useProductsInBasketStore();
 
+
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId
+    },
+    skip: !decodedToken?.userId
+
+  })
+
+
+  useEffect(() => {
+    if (window.location.pathname !== "/Collections/tunisie"
+    ) {
+      changeProductView(3)
+    }
+  }, [window.location])
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -110,6 +126,9 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           });
           // Track Add to Cart
           trackEvent("AddToCart", {
+            em: userData?.fetchUsersById.email.toLowerCase(),
+            fn: userData?.fetchUsersById.fullName,
+            ph: userData?.fetchUsersById.number[0], country: "tn",
             content_name: product.name,
             content_type: "product",
             content_ids: [product.id],
@@ -132,6 +151,9 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           actualQuantity: 1,
         });
         trackEvent("AddToCart", {
+          em: userData?.fetchUsersById.email.toLowerCase(),
+          fn: userData?.fetchUsersById.fullName,
+          ph: userData?.fetchUsersById.number[0], country: "tn",
           content_name: product.name,
           content_type: "product",
           content_ids: [product.id],
@@ -152,7 +174,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           description: `Product is already in the basket`,
           className: "bg-primaryColor text-white",
         });
-      
+
 
       }
     }
@@ -252,7 +274,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       <ProductImage product={product} />
 
       {/* Product details */}
-      <div className={`${view !== 1 ? "border-t" : ""} mt-4 px-2 pb-5 w-full`}>
+      <div className={`${view !== 1 ? "border-t" : ""} mt-4 px-2  w-full`}>
         <ProductName product={product} />
         {view !== 1 ? (
           <FullViewDetails

@@ -4,6 +4,7 @@ import { useQuery, useLazyQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import {
+  COMPANY_INFO_QUERY,
   GET_PACKAGES_BY_ID,
   GET_PACKAGES_BY_USER_ID,
 } from "../../../graphql/queries";
@@ -34,6 +35,7 @@ interface ProductInCheckout {
 interface Checkout {
   total: number;
   productInCheckout: ProductInCheckout[];
+  freeDelivery: boolean;
 }
 
 interface Package {
@@ -63,6 +65,7 @@ const TrackingPackages: React.FC = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [openPackageId, setOpenPackageId] = useState<string | null>(null);
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -73,6 +76,12 @@ const TrackingPackages: React.FC = () => {
   }, []);
 
   const [userPackages] = useLazyQuery(GET_PACKAGES_BY_USER_ID);
+
+  useQuery(COMPANY_INFO_QUERY, {
+    onCompleted: (companyData) => {
+      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
+    },
+  });
 
   const { loading: loadingPackageById, data: packageById } = useQuery(
     GET_PACKAGES_BY_ID,
@@ -261,6 +270,16 @@ const TrackingPackages: React.FC = () => {
                                       className={`${getStatusColor(translateStatus(pkg.status) as Status)} ml-2 py-1 px-2 rounded text-white text-xs`}
                                     >
                                       {translateStatus(pkg.status)}
+                                    </span>
+                                  </p>
+                                  <p className="text-sm">
+                                    <span className="font-medium">
+                                      Frais De Livraison
+                                    </span>
+                                    <span className="ml-2">
+                                      {pkg.Checkout.freeDelivery
+                                        ? 0.0
+                                        : deliveryPrice.toFixed(3) + " " + "DT"}
                                     </span>
                                   </p>
                                   <p className="text-sm">

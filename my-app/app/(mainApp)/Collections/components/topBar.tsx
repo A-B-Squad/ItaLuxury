@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
 import { HiViewGrid } from "react-icons/hi";
-import Breadcumb from "@/app/components/Breadcumb";
 import {
   Select,
   SelectContent,
@@ -20,10 +19,8 @@ import {
 } from "../../../store/zustand";
 import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
 import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
-interface FilterQueries {
-  [key: string]: string[];
-}
-const TopBar = () => {
+
+const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
   const { toggleOpenSidebar } = useSidebarStore();
   const { changeProductView, view } = useAllProductViewStore();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<any>({});
@@ -47,56 +44,16 @@ const TopBar = () => {
         })}`,
         {
           scroll: true,
-        },
+        }
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
 
   return (
-    <div className=" container flex z-10 top-0 py-5  lg:relative relative w-full border-t px-5 items-center white bg-white shadow-md  justify-between border-b border-gray-200 ">
-      <div className="ml-4">
-        <Breadcumb />
-      </div>
-
-      <div className="flex items-center">
-        <Select
-          onValueChange={(value) => {
-            handleSortChange(value);
-          }}
-        >
-          <SelectTrigger className="w-36 md:w-[180px] outline-none mr-3">
-            <SelectValue placeholder="Trier par :" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectGroup>
-              <SelectItem
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-                value="name.asc"
-              >
-                NOM A à Z
-              </SelectItem>
-              <SelectItem
-                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
-                value="name.desc"
-              >
-                NOM Z à A
-              </SelectItem>
-              <SelectItem
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-                value="price.asc"
-              >
-                Prix; (Croissant)
-              </SelectItem>
-              <SelectItem
-                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
-                value="price.desc"
-              >
-                Prix, (Décroissant)
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+    <div className=" container flex z-10  mb-4 py-3 relative w-full border-t px-5 items-center white bg-white   justify-between border-b border-gray-200 ">
+      <div className="flex items-center w-full justify-around">
+        <p>{numberOfProduct} produits</p>
 
         <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
           <button
@@ -139,6 +96,44 @@ const TopBar = () => {
             />
           </button>
         </div>
+
+        <Select
+          onValueChange={(value) => {
+            handleSortChange(value);
+          }}
+        >
+          <SelectTrigger className="w-36 md:w-[180px] outline-none mr-3">
+            <SelectValue placeholder="Trier par :" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectGroup>
+              <SelectItem
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                value="name.asc"
+              >
+                NOM A à Z
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
+                value="name.desc"
+              >
+                NOM Z à A
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                value="price.asc"
+              >
+                Prix; (Croissant)
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer border-b hover:opacity-80 transition-opacity"
+                value="price.desc"
+              >
+                Prix, (Décroissant)
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
         <button
           type="button"

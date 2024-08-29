@@ -13,6 +13,8 @@ import {
   FIND_UNIQUE_COUPONS,
   BASKET_QUERY,
   GET_GOVERMENT_INFO,
+  FETCH_USER_BY_ID,
+  COMPANY_INFO_QUERY,
 } from "../../../graphql/queries";
 import { useSearchParams } from "next/navigation";
 import Loading from "./loading";
@@ -33,6 +35,7 @@ const Checkout = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const { toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
@@ -44,11 +47,15 @@ const Checkout = () => {
   const [showInputCoupon, setShowInputCoupon] = useState<Boolean>(false);
   const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const [couponsId, setCouponsId] = useState<String>("");
-  const { toast } = useToast();
   const [changeCouponCode, setChangeCouponCode] = useState<string>("");
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
 
   const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
-
+  useQuery(COMPANY_INFO_QUERY, {
+    onCompleted: (companyData) => {
+      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
+    },
+  });
   // Decode the JWT token on component mount
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -61,6 +68,12 @@ const Checkout = () => {
   // Mutation to create a new checkout
   const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
 
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
   // Query to get the government information
   useQuery(GET_GOVERMENT_INFO, {
     onCompleted: (data) => {
@@ -70,7 +83,7 @@ const Checkout = () => {
 
   const calculateTotal = () => {
     let subtotal = Number(total);
-    const shippingCost = subtotal >= 499 ? 0 : 8;
+    const shippingCost = subtotal >= 499 ? 0 : deliveryPrice;
 
     // Apply discount if available
     if (discountPercentage > 0) {
@@ -89,10 +102,11 @@ const Checkout = () => {
 
     // Validate phone number
     const phoneRegex = /^[0-9]*$/;
-    if (!phoneRegex.test(data.phone)) {
+    if (!phoneRegex.test(data.phone_1)) {
       console.error("Invalid phone number");
       return;
     }
+
 
     // Create the checkout mutation
     createCheckout({
@@ -101,10 +115,11 @@ const Checkout = () => {
           userId: decodedToken.userId,
           userName: data.fullname,
           total: parseFloat(calculateTotal()),
-          phone: Number(data.phone),
+          phone: [Number(data.phone_1), Number(data.phone_2)],
           governorateId: data.governorate,
           address: data.address,
           couponsId: couponsId,
+          freeDelivery: Number(total) >= 499 ? true : false,
         },
       },
       refetchQueries: [
@@ -117,8 +132,13 @@ const Checkout = () => {
         // toggleIsUpdated();
         const customId = data.createCheckout;
         // Track the end of checkout event
-        trackEvent("Checkout", {
-          userId: decodedToken.userId,
+        trackEvent("Purchase", {
+          em: userData?.fetchUsersById.email.toLowerCase(),
+          fn: userData?.fetchUsersById.fullName,
+          ph: userData?.fetchUsersById.number[0],
+          country: "tn",
+          ct: data.governorate,
+          external_id: decodedToken.userId,
           total: parseFloat(calculateTotal()),
           products,
           customId,
@@ -261,13 +281,33 @@ const Checkout = () => {
                   htmlFor="phone"
                   className="mt-4 mb-2 block text-sm font-medium"
                 >
-                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
+                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1
                 </label>
                 <input
                   type="text"
-                  id="phone"
-                  {...register("phone", {
+                  id="phone_1"
+                  {...register("phone_1", {
                     required: true,
+                    pattern: /^[0-9]{8}$/,
+                  })}
+                  className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="+216 12 345 678"
+                />
+                {errors.phone && (
+                  <p className="text-red-500">
+                    Le numéro de téléphone doit comporter 8 chiffres
+                  </p>
+                )}
+                <label
+                  htmlFor="phone"
+                  className="mt-4 mb-2 block text-sm font-medium"
+                >
+                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2 (optional)
+                </label>
+                <input
+                  type="text"
+                  id="phone_2"
+                  {...register("phone_2", {
                     pattern: /^[0-9]{8}$/,
                   })}
                   className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
@@ -386,7 +426,9 @@ const Checkout = () => {
                       Expédition
                     </p>
                     <p className="font-semibold text-gray-900">
-                      {Number(total) >= 499 ? "Gratuit" : "8.000 TND"}
+                      {Number(total) >= 499
+                        ? "Gratuit"
+                        : `${deliveryPrice.toFixed(3)} TND`}
                     </p>
                   </div>
                   {discountPercentage > 0 && (

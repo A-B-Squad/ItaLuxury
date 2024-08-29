@@ -47,6 +47,15 @@ export const GET_PRODUCT_IMAGES_QUERY = gql`
     getProductImages(productId: $productId, colorId: $colorId)
   }
 `;
+export const FETCH_USER_BY_ID = gql`
+query FetchUsersById($userId: ID!) {
+  fetchUsersById(userId: $userId) {
+    email
+    number
+     fullName
+  }
+}
+`;
 export const GET_REVIEW_QUERY = gql`
   query ProductReview($productId: ID!) {
     productReview(productId: $productId) {
@@ -140,7 +149,7 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS_PRICE_20 = gql`
+export const TAKE_10_PRODUCTS_PRICE_20 = gql`
   query ProductsLessThen20($limit: Int!) {
     productsLessThen20(limit: $limit) {
       id
@@ -320,6 +329,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           categories {
             id
             name
+            description
             subcategories {
               id
               name
@@ -466,10 +476,10 @@ export const GET_PACKAGES_BY_USER_ID = gql`
       customId
       Checkout {
         total
+        freeDelivery
         productInCheckout {
           productId
           productQuantity
-
           product {
             name
           }
@@ -534,9 +544,9 @@ export const CONTENT_VISIBILITY = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS = gql`
-  query FetchProducts($limit: Int) {
-    fetchProducts(limit: $limit) {
+export const TAKE_10_PRODUCTS = gql`
+query AllNewProducts($limit: Int, $visibleProduct: Boolean) {
+  allNewProducts(limit: $limit, visibleProduct: $visibleProduct) {
       id
       name
       price
@@ -579,7 +589,7 @@ export const TAKE_6_PRODUCTS = gql`
     }
   }
 `;
-export const TAKE_6_PRODUCTS_IN_DISCOUNT = gql`
+export const TAKE_10_PRODUCTS_IN_DISCOUNT = gql`
   query ProductsDiscounts($limit: Int) {
     productsDiscounts(limit: $limit) {
       id

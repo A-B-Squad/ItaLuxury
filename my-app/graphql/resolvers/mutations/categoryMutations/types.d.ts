@@ -22,6 +22,7 @@ interface CreateCheckoutInput {
   productIds: any;
   total: number;
   couponsId: string | null;
+  freeDelivery: boolean;
 }
 interface CreateCheckoutFromAdminInput {
   userId: string;
@@ -31,5 +32,6 @@ interface CreateCheckoutFromAdminInput {
   address: string;
   total: number;
   products: [];
-  manualDiscount:number
+  manualDiscount: number;
+  freeDelivery: boolean;
 }

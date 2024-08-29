@@ -7,7 +7,7 @@ const generateCustomId = async (prisma: any) => {
   const suffix = currentYear.toString();
 
   let isUnique = false;
-  let customId = '';
+  let customId = "";
   let attempts = 0;
 
   while (!isUnique && attempts < 100) {
@@ -26,7 +26,7 @@ const generateCustomId = async (prisma: any) => {
     const formattedCount = newCount.toString().padStart(5, "0");
 
     // Create the custom ID
-    customId = `${prefix}${formattedCount}/${suffix}`;
+    customId = `${prefix}${formattedCount}${suffix}`;
 
     // Check if this customId already exists
     const existingPackage = await prisma.package.findUnique({
@@ -46,10 +46,12 @@ const generateCustomId = async (prisma: any) => {
 
   return customId;
 };
+
 async function sendCheckoutEmail(
   checkout: any,
   products: any[],
-  customId: string
+  customId: string,
+  deliveryPrice: any
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -76,7 +78,9 @@ async function sendCheckoutEmail(
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = totalAfterDiscount < 499 ? 8.0 : 0.0;
+
+  // Update the delivery cost calculation to use the dynamic delivery price
+  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
   const totalToPay = checkout.total;
 
   const mailOptions = {
@@ -213,7 +217,7 @@ async function sendCheckoutEmail(
                   }) => `
                 <tr>
                   <td>${item.product.reference}</td>
-                  <td>${item.product.name}</td>
+                  <td >${item.product.name}</td>
                   <td>${item.price.toFixed(3)} TND</td>
                   <td>${item.productQuantity}</td>
                   <td>${(item.discountedPrice ? item.discountedPrice : item.price * item.productQuantity).toFixed(3)} TND</td>
@@ -266,6 +270,7 @@ async function sendCheckoutEmail(
                 <p>${checkout.address}</p>
                 <p>Tunisie</p>
                 <p>${checkout.phone[0]}</p>
+                <p>${checkout.phone[1] && checkout.phone[1]}</p>
               </div>
               <div class="address-box">
                 <div class="address-header">
@@ -306,6 +311,7 @@ export const createCheckout = async (
       phone,
       userName,
       couponsId,
+      freeDelivery,
     } = input;
 
     // Retrieve user's basket to get product IDs
@@ -351,6 +357,7 @@ export const createCheckout = async (
         userId,
         userName,
         governorateId,
+        freeDelivery,
         productInCheckout: {
           create: products,
         },
@@ -383,6 +390,9 @@ export const createCheckout = async (
       where: { userId: userId },
     });
     const customId = await generateCustomId(prisma);
+    const companyInfo = await prisma.companyInfo.findFirst();
+
+    const deliveryPrice = companyInfo?.deliveringPrice;
 
     // Create a new package associated with the checkout ID
     await prisma.package.create({
@@ -411,19 +421,15 @@ export const createCheckout = async (
       await sendCheckoutEmail(
         completeCheckout,
         completeCheckout.productInCheckout,
-        customId
+        customId,
+        deliveryPrice
       );
     }
-    console.log(completeCheckout);
 
     return customId;
   } catch (error) {
     // Handle errors
-    console.error(
-      "Error creating checkout:",
-      error,
-      "#########################"
-    );
+    console.error("Error creating checkout:", error);
     return error;
   }
 };

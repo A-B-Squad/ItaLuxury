@@ -61,7 +61,7 @@ export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
     closeCategoryDrawer: () => set({ isOpen: false }),
-  }),
+  })
 );
 
 export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
@@ -81,7 +81,7 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
     const currentProducts = get().products;
     // Check if the product already exists in the products array
     const isProductInStore = currentProducts.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
     if (!isProductInStore) {
       set((state: any) => ({ products: [...state.products, product] }));
@@ -90,7 +90,7 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
   removeProductFromCompare: (productId: any) =>
     set((state: any) => ({
       products: state.products.filter(
-        (product: any) => product.id !== productId,
+        (product: any) => product.id !== productId
       ),
     })),
 });
@@ -98,10 +98,8 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
 // Define the Product type
 interface Product {
   [x: string]: number;
-  id: string;
-  name: string;
+
   price: number;
-  // Add other product properties as needed
 }
 
 // Define the ProductsInBasketStore type
@@ -115,7 +113,9 @@ interface ProductsInBasketStore {
 }
 
 // Define the set type
-type SetState = (update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>) => void;
+type SetState = (
+  update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>
+) => void;
 
 // Define the store creation function
 const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
@@ -134,7 +134,7 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
   removeProductFromBasket: (productId: string) => {
     set((state) => ({
       products: state.products.filter(
-        (product) => product.id !== productId,
+        (product: any) => product.id !== productId
       ),
     }));
   },
@@ -145,19 +145,18 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
   },
 });
 
-
 export const useProductsInBasketStore = create(
   persist(productsInBasketStore, {
     name: "productsInBasket",
     storage: createJSONStorage(() => sessionStorage),
-  }),
+  })
 );
 
 export const useComparedProductsStore = create(
   persist(comparedProductsStore, {
     name: "comparedProducts",
     storage: createJSONStorage(() => sessionStorage),
-  }),
+  })
 );
 
 type SidebarStore = {

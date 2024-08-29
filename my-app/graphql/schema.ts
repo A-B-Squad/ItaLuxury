@@ -58,6 +58,7 @@ type MainCategory {
   id: ID!
   name: String!
   parentId: ID
+  description:String!
   bigImage: String
   smallImage: String
   subcategories: [Category!]!
@@ -85,7 +86,10 @@ type Product {
   attributes: [ProductAttribute!]!
   Colors: Colors
   Brand: Brand
+
 }
+
+
 
 type Colors {
   id: ID!
@@ -148,6 +152,7 @@ type Checkout {
   Coupons: Coupons
   User: User
   manualDiscount: Float
+  freeDelivery:Boolean
 }
 
 type ProductInCheckout {
@@ -228,13 +233,14 @@ type TopDeals {
   id: ID!
   productId: ID!
   product: Product!
-}
+} 
 
 type Moderator {
   id: ID!
   fullName: String!
-  email: String!
-  number: String!
+  email:String
+  phone:String
+  password:String
 }
 
 type SearchProductsResult {
@@ -294,7 +300,7 @@ type Query {
   fetchAllCoupons(page: Int, pageSize: Int): [Coupons!]!
 
   # Product-related queries
-  fetchProducts(limit: Int,visibleProduct:Boolean): [Product!]
+  allNewProducts(limit: Int,visibleProduct:Boolean): [Product!]
   fetchBrands: [Brand!]
   searchProducts(input: ProductSearchInput!): SearchProductsResult!
   colors(limit: Int): [Colors!]!
@@ -384,7 +390,7 @@ type Mutation {
   # Checkout-related mutations
   createCheckout(input: CreateCheckoutInput!): String!
   createCheckoutFromAdmin(input: CreateCheckoutFromAdminInput!): String!
-  updateProductInCheckout(input: UpdateProductInCheckoutInput!): String!
+  updateCheckout(input: UpdateCheckoutInput!): String!
   updateCustomerCheckout(input: UpdateCustomerCheckoutInput!): String!
 
   # Package-related mutations
@@ -413,7 +419,8 @@ type Mutation {
   deleteTopDeals(productId: String!): String!
 
   # Moderator creation mutation
-  createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
+  adminSignIn( input: AdminSignInInput! ): String!
+  createModerator(adminId: ID!, input: CreateModeratorInput!): String!
 
   # Contact us mutation
   createContactUs(input: ContactUsInput!): String!
@@ -457,14 +464,16 @@ input ProductInput {
   discount: [CreateProductDiscountInput]
   colorsId: ID
   brandId: ID
+
 }
 
-input UpdateProductInCheckoutInput {
+input UpdateCheckoutInput {
   checkoutId: ID!
   total: Float!
   manualDiscount: Float
   couponsId: ID
   productInCheckout: [ProductInCheckoutUpdateInput!]!
+  freeDelivery:Boolean
 }
 
 input UpdateCustomerCheckoutInput {
@@ -565,6 +574,7 @@ input CreateCheckoutInput {
   address: String!
   total: Float!
   couponsId: String
+  freeDelivery:Boolean!
 }
 
 input CreateCheckoutFromAdminInput {
@@ -576,6 +586,7 @@ input CreateCheckoutFromAdminInput {
   address: String!
   total: Float!
   manualDiscount: Float
+  freeDelivery:Boolean
 
 }
 input ProductInCheckoutFromAdminInput {
@@ -607,9 +618,12 @@ input CompanyInfoInput {
 
 input CreateModeratorInput {
   fullName: String!
-  email: String!
   password: String!
-  number: String!
+}
+input AdminSignInInput {
+  fullName: String!
+  password: String!
+  role:Role
 }
 
 input ExchangePackageProductInput {
@@ -643,7 +657,7 @@ input ProductSearchInput {
   categoryId: ID
   colorId: ID
   page: Int!
-  pageSize: Int!
+  pageSize: Int
   choice: String
   brandId: ID
   visibleProduct:Boolean

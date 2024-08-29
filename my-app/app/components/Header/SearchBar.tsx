@@ -42,13 +42,16 @@ const SearchBar = () => {
       },
     });
     trackEvent("Search", {
-      search_term: inputValue,
-      search_category: categories
+      search_string: inputValue,
+      contentIds: categories
+        .map((category: any) => category.id)
+      ,
+      content_category: categories
         .map((category: any) => category.name)
         .join(", "),
+        Currency:"TND",
       number_of_results: data?.searchProducts?.results?.products.length || 0,
     });
-    console.log();
   };
 
   useEffect(() => {
@@ -178,7 +181,7 @@ const SearchBar = () => {
                       alt={product.name}
                     />
                   </div>
-                  <p className="text-base font-light tracking-widest text-center">
+                  <p className="text-base font-light tracking-widest text-center line-clamp-1">
                     {product.name}
                   </p>
                   <p className="text-lg font-bold text-amber-500">

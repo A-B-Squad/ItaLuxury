@@ -37,7 +37,7 @@ export function middleware(req: any) {
 
   if (token && (url === "/signin" || url === "/signup")) {
     return NextResponse.redirect(new URL("/", req.url));
-  }
+  } 
 
   return res;
 }

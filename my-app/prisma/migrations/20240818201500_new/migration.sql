@@ -9,7 +9,7 @@ CREATE TYPE "Cause" AS ENUM ('BROKEN', 'CANCEL', 'REFUND');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" VARCHAR(6) NOT NULL,
+    "id" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -17,6 +17,18 @@ CREATE TABLE "User" (
     "number" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Admin" (
+    "id" TEXT NOT NULL,
+    "fullName" TEXT NOT NULL,
+    "email" TEXT,
+    "password" TEXT NOT NULL,
+    "role" "Role" NOT NULL,
+    "number" TEXT,
+
+    CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -143,6 +155,9 @@ CREATE TABLE "Package" (
     "checkoutId" TEXT NOT NULL,
     "status" "Status" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "delivredAt" TIMESTAMP(3),
+    "inTransitAt" TIMESTAMP(3),
+    "returnedAt" TIMESTAMP(3),
     "comments" TEXT[],
 
     CONSTRAINT "Package_pkey" PRIMARY KEY ("id")
@@ -270,6 +285,9 @@ CREATE TABLE "_CategoryToProduct" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");

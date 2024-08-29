@@ -150,7 +150,6 @@ const ProductInfo = () => {
                 zoomSrc={bigImage || ""}
                 src={bigImage || ""}
                 zoomType="hover"
-                hideHint
                 zoomScale={1.5}
               />
             </div>
@@ -273,7 +272,7 @@ const ProductInfo = () => {
                 </h3>
 
                 <p
-                  className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-2"
+                  className="w-full text-xs md:text-sm pt-2 tracking-wider "
                   dangerouslySetInnerHTML={{ __html: productData?.description }}
                 />
               </div>

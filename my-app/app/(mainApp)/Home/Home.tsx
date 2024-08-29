@@ -9,9 +9,9 @@ import {
   ADVERTISSMENT_QUERY,
   CONTENT_VISIBILITY,
   DELETE_ALL_DISCOUNTS_QUERY,
-  TAKE_6_PRODUCTS,
-  TAKE_6_PRODUCTS_IN_DISCOUNT,
-  TAKE_6_PRODUCTS_PRICE_20,
+  TAKE_10_PRODUCTS,
+  TAKE_10_PRODUCTS_IN_DISCOUNT,
+  TAKE_10_PRODUCTS_PRICE_20,
 } from "../../../graphql/queries";
 import { BrandsCarousel } from "./Components/BrandCarousel";
 import Loading from "./Loader";
@@ -103,36 +103,37 @@ const Home = () => {
     { variables: { position: "BannerBestDeals" } }
   );
   const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
-    TAKE_6_PRODUCTS_PRICE_20,
-    { variables: { limit: 6 } }
+    TAKE_10_PRODUCTS_PRICE_20,
+    { variables: { limit: 10 } }
   );
-  const { data: Products_inDiscount_6, loading: loadingProducts_inDiscount_6 } =
-    useQuery(TAKE_6_PRODUCTS_IN_DISCOUNT, { variables: { limit: 10 } });
-  const { data: NewProducts_6, loading: loadingNewProducts_6 } = useQuery(
-    TAKE_6_PRODUCTS,
-    { variables: { limit: 6 } }
+  const { data: Products_inDiscount_10, loading: loadingProducts_inDiscount_10 } =
+    useQuery(TAKE_10_PRODUCTS_IN_DISCOUNT, { variables: { limit: 10 } });
+  const { data: NewProducts_10, loading: loadingNewProducts_10 } = useQuery(
+    TAKE_10_PRODUCTS,
+    { variables: { limit: 10, visibleProduct: true } }
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
-    variables: { section: "topSells" },
+    variables: { section: "TOP SELL" },
   });
   const { data: TopDealsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
-    variables: { section: "topDeals" },
+    variables: { section: "TOP DEAL" },
   });
 
   useQuery(DELETE_ALL_DISCOUNTS_QUERY);
 
   const newProducts = useMemo(
-    () => NewProducts_6?.fetchProducts,
-    [NewProducts_6]
+    () => NewProducts_10?.allNewProducts,
+    [NewProducts_10]
   );
-  const productsDiscounts = useMemo(
-    () => Products_inDiscount_6?.productsDiscounts,
-    [Products_inDiscount_6]
+  const discountedProducts = useMemo(
+    () => Products_inDiscount_10?.productsDiscounts,
+    [Products_inDiscount_10]
   );
   const productsLessThan20 = useMemo(
     () => Products_less_20?.productsLessThen20,
     [Products_less_20]
   );
+console.log(newProducts,"##############");
 
   return (
     <>
@@ -165,9 +166,9 @@ const Home = () => {
               <ProductTabs
                 title={"Nouveaux Produits"}
                 data={newProducts}
-                loadingNewProduct={loadingNewProducts_6}
+                loadingProduct={loadingNewProducts_10}
                 carouselWidthClass={
-                  NewProducts_6?.fetchProducts.length < 5
+                  NewProducts_10?.allNewProducts < 5
                     ? "basis-full md:basis-1/2"
                     : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 xxl:basis-1/5"
                 }
@@ -176,28 +177,28 @@ const Home = () => {
           </div>
           {TopDealsSectionVisibility?.getSectionVisibility
             ?.visibility_status && (
-            <>
-              <FullWidthAds
-                FullAdsLoaded={loadingFullTopDealsAds}
-                FullImageAds={
-                  BannerBestDeals?.advertismentByPosition[0]?.images[0]
-                }
-                LinkTo={"/"}
-              />
-              <div className="TopDeals">
-                <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
-                  <TitleProduct title={"Meilleures Offres du Jour"} />
-                  <div className="flex items-start flex-col md:flex-row md:pt-3">
-                    <p className="md:p-2 font-bold">
-                      Hâtez-vous ! L'offre se termine dans :
-                    </p>
-                    <TimeCountDown />
+              <>
+                <FullWidthAds
+                  FullAdsLoaded={loadingFullTopDealsAds}
+                  FullImageAds={
+                    BannerBestDeals?.advertismentByPosition[0]?.images[0]
+                  }
+                  LinkTo={"/"}
+                />
+                <div className="TopDeals">
+                  <div className="flex justify-between flex-col md:flex-row gap-2 items-start">
+                    <TitleProduct title={"Meilleures Offres du Jour"} />
+                    <div className="flex items-start flex-col md:flex-row md:pt-3">
+                      <p className="md:p-2 font-bold">
+                        Hâtez-vous ! L'offre se termine dans :
+                      </p>
+                      <TimeCountDown />
+                    </div>
                   </div>
+                  <TopDeals />
                 </div>
-                <TopDeals />
-              </div>
-            </>
-          )}
+              </>
+            )}
           <FullWidthAds
             FullAdsLoaded={loadingFull20ProductAds}
             FullImageAds={
@@ -217,9 +218,9 @@ const Home = () => {
             </div>
             <ProductTabs
               data={productsLessThan20}
-              loadingNewProduct={loadingProducts_less_20}
+              loadingProduct={loadingProducts_less_20}
               carouselWidthClass={
-                Products_less_20?.productsLessThen20.length < 5
+                productsLessThan20?.length < 5
                   ? "basis-full w-full lg:basis-1/2"
                   : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 xxl:basis-1/5"
               }
@@ -242,10 +243,10 @@ const Home = () => {
             </div>
             <div className="flex gap-3">
               <ProductTabs
-                data={productsDiscounts}
-                loadingNewProduct={loadingProducts_inDiscount_6}
+                data={discountedProducts}
+                loadingProduct={loadingProducts_inDiscount_10}
                 carouselWidthClass={
-                  Products_inDiscount_6?.productsDiscounts.length < 5
+                  discountedProducts?.length < 5
                     ? "basis-full md:basis-1/2"
                     : "basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 xxl:basis-1/5"
                 }
@@ -261,10 +262,10 @@ const Home = () => {
           <ClientServices />
           {TopSellsSectionVisibility?.getSectionVisibility
             ?.visibility_status && (
-            <div className="BestSeals pb-24">
-              <BestSales />
-            </div>
-          )}
+              <div className="BestSeals pb-24">
+                <BestSales />
+              </div>
+            )}
           <BrandsCarousel />
         </div>
       </div>

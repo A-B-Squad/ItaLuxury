@@ -1,5 +1,5 @@
 "use client";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useCallback, useEffect, useState } from "react";
@@ -15,7 +15,7 @@ import {
 } from "@/app/store/zustand";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
-import { BASKET_QUERY } from "../../../graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "../../../graphql/queries";
 import prepRoute from "@/app/Helpers/_prepRoute";
 import { trackEvent } from "../../Helpers/_trackEvents";
 interface DecodedToken extends JwtPayload {
@@ -34,7 +34,13 @@ const ProductComparison = () => {
   const { toast } = useToast();
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId
+    },
+    skip: !decodedToken?.userId
 
+  })
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -85,6 +91,9 @@ const ProductComparison = () => {
           });
           // Track Add to Cart
           trackEvent("AddToCart", {
+            em: userData?.fetchUsersById.email.toLowerCase(),
+            fn: userData?.fetchUsersById.fullName,
+            ph: userData?.fetchUsersById.number[0], country: "tn",
             content_name: product.name,
             content_type: "product",
             content_ids: [product.id],
@@ -117,6 +126,9 @@ const ProductComparison = () => {
         });
         // Track Add to Cart
         trackEvent("AddToCart", {
+          em: userData?.fetchUsersById.email.toLowerCase(),
+          fn: userData?.fetchUsersById.fullName,
+          ph: userData?.fetchUsersById.number[0], country: "tn",
           content_name: product.name,
           content_type: "product",
           content_ids: [product.id],
@@ -137,7 +149,6 @@ const ProductComparison = () => {
     toggleIsUpdated();
     openBasketDrawer();
   };
-  console.log(products, "######################");
 
   return (
     <>
@@ -151,7 +162,7 @@ const ProductComparison = () => {
               <tr>
                 {products.map((product: any) => (
                   <th scope="col" className="px-2 py-1">
-                    <div className="relative m-2 flex w-[40rem] max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
+                    <div className="relative m-2 flex w-[40rem] max-w-xs flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
                       <Link
                         className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
                         rel="preload"
@@ -214,7 +225,7 @@ const ProductComparison = () => {
                             },
                           }}
                         >
-                          <h5 className="text-lg text-center tracking-tight text-slate-900">
+                          <h5 className="text-base text-black line-clamp-2 text-center tracking-tight text-slate-900">
                             {product.name}
                           </h5>
                         </Link>
@@ -225,11 +236,11 @@ const ProductComparison = () => {
                                 {product.price.toFixed(3)} TND
                               </p>
                             )}
-                            <p className="text-2xl font-bold text-slate-900">
+                            <p className="text-2xl font-bold text-red-500 text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
-                                  )
+                                  3
+                                )
                                 : product.price.toFixed(3)}{" "}
                               TND
                             </p>

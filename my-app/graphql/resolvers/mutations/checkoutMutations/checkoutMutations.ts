@@ -1,10 +1,11 @@
 import { createCheckout } from "./createCheckout";
 import { createCheckoutFromAdmin } from "./createCheckoutFromAdmin";
 import { updateCustomerCheckout } from "./updateCustomerCheckout";
-import { updateProductInCheckout } from "./updateProductInCheckout";
+import { updateCheckout } from "./updateCheckout";
 
 export const checkoutMutations = {
   createCheckout,
-  updateProductInCheckout,
-  updateCustomerCheckout,createCheckoutFromAdmin
+  updateCheckout,
+  updateCustomerCheckout,
+  createCheckoutFromAdmin,
 };

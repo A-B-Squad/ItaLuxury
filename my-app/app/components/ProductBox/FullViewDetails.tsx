@@ -34,12 +34,12 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
         )}
       </div>
       <div
-        className="Color relative w-fit cursor-crosshair"
+        className="Color relative w-fit rounded-full cursor-crosshair"
         title={product.Colors?.color}
       >
         {product.Colors && (
           <div
-            className="colors_available items-center mt-1 w-5 h-5 border-black border-2 rounded-sm shadow-gray-400 shadow-sm"
+            className="colors_available items-center mt-1 rounded-md w-6 h-6 border-black border-1   shadow-gray-400 shadow-md"
             style={{ backgroundColor: product.Colors.Hex }}
           />
         )}

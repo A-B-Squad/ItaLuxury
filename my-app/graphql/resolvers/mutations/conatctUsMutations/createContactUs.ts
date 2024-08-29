@@ -34,10 +34,10 @@ export const createContactUs = async (
 
     // Define the email content
     const mailOptions = {
-        from: "bilelbourgou@gmail.com",
-        to: email,
-        subject: "Merci pour votre message",
-        html: `
+      from: "bilelbourgou@gmail.com",
+      to: email,
+      subject: "Merci pour votre message",
+      html: `
           <!DOCTYPE html>
           <html lang="fr">
           <head>
@@ -62,9 +62,10 @@ export const createContactUs = async (
                   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                       <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
-                        <a href="https://www.maisonng.com" target="_blank">
-                          <img alt="Logo" src="https://www.maisonng.com/logo.png" width="100" height="100" style="display: block; width: 100px; max-width: 100px; min-width: 100px; font-family: 'Lato', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">
-                        </a>
+                        <a href="https://www.maisonng.com" target="_blank">                       
+            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo"  width="100" height="100" style="display: block; width: 100px; max-width: 100px; min-width: 100px; font-family: 'Lato', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0"/>
+                       
+                          </a>
                       </td>
                     </tr>
                   </table>
@@ -133,7 +134,7 @@ export const createContactUs = async (
           </body>
           </html>
         `,
-      };
+    };
 
     // Send the email
     await transporter.sendMail(mailOptions);

@@ -9,7 +9,7 @@ interface ProductImageProps {
 
 const ProductImage: React.FC<ProductImageProps> = ({ product }) => (
   <Link
-    className="relative  flex mx-auto w-40 h-52 md:w-56 overflow-hidden"
+    className="relative  w-full flex mx-auto  justify-center h-52 md:w-56 overflow-hidden"
     rel="preload"
     href={{
       pathname: `/products/tunisie/${prepRoute(product.name)}`,

@@ -10,6 +10,7 @@ import { useAllProductViewStore } from "@/app/store/zustand";
 import Loading from "../loading";
 import Pagination from "../components/Paginations";
 import ProductBox from "../../../components/ProductBox/ProductBox";
+import TopBar from "../components/topBar";
 
 const ProductsSection = () => {
   const searchParams = useSearchParams();
@@ -23,6 +24,8 @@ const ProductsSection = () => {
   const [currentPage, setCurrentPage] = useState(
     Number(searchParams?.get("page")) || 1
   );
+
+  const [categoryDiscription, setCategoryDiscription] = useState("");
 
   const pageSize = 12;
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -85,6 +88,10 @@ const ProductsSection = () => {
       }
       setProductsData(fetchedProducts);
       setTotalCount(data?.searchProducts?.totalCount || 0);
+
+      setCategoryDiscription(
+        fetchedProducts[0]?.categories[0]?.description || ""
+      );
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -112,7 +119,7 @@ const ProductsSection = () => {
   };
 
   const renderProducts = () => (
-    <div className={`grid w-full py-5 px-10 gap-4 ${getGridClasses()}`}>
+    <div className={`grid w-full   gap-4 ${getGridClasses()}`}>
       {productsData.map((product) => (
         <div
           key={product.id}
@@ -149,12 +156,20 @@ const ProductsSection = () => {
     }
   };
 
-  if (loading) return <Loading />;
 
   return (
-    <div className="flex flex-col justify-between items-center h-full pb-10">
+    <div className="flex flex-col justify-betwen items-center h-full pb-10">
       {productsData.length > 0 ? (
-        renderProducts()
+        <>
+          {searchParams?.get("category") && categoryDiscription != "" && (
+            <p className="bg-white tracking-wider text-sm md:text-[15px] leading-7 px-2 md:px-7 text-gray-800    mb-5 py-2">
+              {categoryDiscription}
+            </p>
+          )}
+          <TopBar numberOfProduct={productsData.length} />
+
+          {renderProducts()}
+        </>
       ) : (
         <div className="border bg-white shadow-md p-3 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center">
           <p className="font-light tracking-wider">

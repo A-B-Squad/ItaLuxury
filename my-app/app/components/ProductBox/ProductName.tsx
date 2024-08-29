@@ -29,7 +29,10 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => (
       <p className="category font-normal -tracking-tighter text-xs capitalize">
         {product.categories[2]?.name}
       </p>
-      {product.name}
+      <p className="line-clamp-2 ">
+        {product.name}
+
+      </p>
     </div>
   </Link>
 );

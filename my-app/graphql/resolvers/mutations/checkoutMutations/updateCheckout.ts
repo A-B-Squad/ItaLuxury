@@ -5,6 +5,7 @@ interface UpdateCheckoutInput {
   checkoutId: string;
   total?: number;
   manualDiscount: GLfloat;
+  freeDelivery: boolean;
   productInCheckout?: Array<{
     productId: string;
     productQuantity: number;
@@ -16,7 +17,8 @@ interface UpdateCheckoutInput {
 async function sendCheckoutEmail(
   checkout: any,
   products: any[],
-  customId: string
+  customId: string,
+  deliveryPrice: any
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -43,7 +45,7 @@ async function sendCheckoutEmail(
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = totalAfterDiscount < 499 ? 8.0 : 0.0;
+  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
   const totalToPay = checkout.total;
 
   const mailOptions = {
@@ -260,13 +262,19 @@ async function sendCheckoutEmail(
   await transporter.sendMail(mailOptions);
 }
 
-export const updateProductInCheckout = async (
+export const updateCheckout = async (
   _: any,
   { input }: { input: UpdateCheckoutInput },
   { prisma }: Context
 ) => {
   try {
-    const { checkoutId, total, productInCheckout, manualDiscount } = input;
+    const {
+      checkoutId,
+      total,
+      productInCheckout,
+      manualDiscount,
+      freeDelivery,
+    } = input;
 
     // Fetch the existing checkout
     const existingCheckout = await prisma.checkout.findUnique({
@@ -284,7 +292,9 @@ export const updateProductInCheckout = async (
     if (total !== undefined) updateData.total = total;
     if (manualDiscount !== undefined)
       updateData.manualDiscount = manualDiscount;
-
+    if (freeDelivery !== undefined) updateData.freeDelivery = freeDelivery;
+    const companyInfo = await prisma.companyInfo.findFirst();
+    const deliveryPrice = companyInfo?.deliveringPrice;
     // Handle product updates
     if (productInCheckout) {
       // Delete existing productInCheckout entries
@@ -324,7 +334,8 @@ export const updateProductInCheckout = async (
       await sendCheckoutEmail(
         updatedCheckout,
         updatedCheckout.productInCheckout,
-        updatedCheckout.package[0]?.customId
+        updatedCheckout.package[0]?.customId,
+        deliveryPrice
       );
     }
 

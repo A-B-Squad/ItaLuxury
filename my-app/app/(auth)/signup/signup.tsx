@@ -7,10 +7,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SIGNUP_MUTATION } from "@/graphql/mutations";
-import { FaUser, FaEnvelope, FaPhone, FaLock } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Signup = () => {
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const {
     register,
@@ -28,7 +30,6 @@ const Signup = () => {
         setErrorMessage("L'adresse e-mail est déjà utilisée");
       } else {
         console.log(error);
-        
         setErrorMessage("Une erreur s'est produite. Veuillez réessayer.");
       }
     },
@@ -45,6 +46,14 @@ const Signup = () => {
         },
       },
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -181,9 +190,9 @@ const Signup = () => {
                 </div>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="********"
-                  className={`block w-full pl-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
+                  className={`block w-full pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
                   {...register("password", {
                     required: "Le mot de passe est requis",
                     minLength: {
@@ -193,6 +202,19 @@ const Signup = () => {
                     },
                   })}
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <FaEye className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </div>
               {errors.password && (
                 <p className="mt-2 text-sm text-red-600">
@@ -217,9 +239,9 @@ const Signup = () => {
                 </div>
                 <input
                   id="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="********"
-                  className={`block w-full pl-10 sm:text-sm border-gray-300 py-2 outline-none rounded-md ${errors.confirmPassword ? "border-red-300" : ""}`}
+                  className={`block w-full pl-10 pr-10 sm:text-sm border-gray-300 py-2 outline-none rounded-md ${errors.confirmPassword ? "border-red-300" : ""}`}
                   {...register("confirmPassword", {
                     required: "Veuillez confirmer votre mot de passe",
                     validate: (val: string) => {
@@ -229,6 +251,19 @@ const Signup = () => {
                     },
                   })}
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    onClick={toggleConfirmPasswordVisibility}
+                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                  >
+                    {showConfirmPassword ? (
+                      <FaEyeSlash className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <FaEye className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </div>
               {errors.confirmPassword && (
                 <p className="mt-2 text-sm text-red-600">

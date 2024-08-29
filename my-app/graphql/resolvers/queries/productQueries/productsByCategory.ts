@@ -22,7 +22,9 @@ export const productsByCategory = async (
     const products = await prisma.product.findMany({
       where: whereCondition,
       include: {
-        categories: { include: { subcategories: { include: { subcategories: true } } } },
+        categories: {
+          include: { subcategories: { include: { subcategories: true } } },
+        },
         productDiscounts: true,
         baskets: true,
         reviews: true,

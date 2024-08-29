@@ -18,37 +18,37 @@ async function fetchProductData(productId: string) {
     },
     body: JSON.stringify({
       query: `
-      query ProductById($productByIdId: ID!) {
-        productById(id: $productByIdId) {
-          id
-          name
-          price
-          isVisible
-          reference
-          description
-          inventory
-          solde
-          images
-          createdAt
-          productDiscounts {
-            id
-            price
-            newPrice
-            dateOfEnd
-            dateOfStart
-          }
-          Colors {
-            id
-            color
-            Hex
-          }
-          attributes {
+        query ProductById($productByIdId: ID!) {
+          productById(id: $productByIdId) {
             id
             name
-            value
+            price
+            isVisible
+            reference
+            description
+            inventory
+            solde
+            images
+            createdAt
+            productDiscounts {
+              id
+              price
+              newPrice
+              dateOfEnd
+              dateOfStart
+            }
+            Colors {
+              id
+              color
+              Hex
+            }
+            attributes {
+              id
+              name
+              value
+            }
           }
         }
-      }
     `,
       variables: {
         productByIdId: productId,

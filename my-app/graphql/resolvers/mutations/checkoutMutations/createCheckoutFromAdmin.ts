@@ -21,13 +21,14 @@ const generateCustomId = async (prisma: any) => {
   const formattedCount = newCount.toString().padStart(5, "0");
 
   // Créez l'identifiant customisé
-  const customId = `${prefix}${formattedCount}/${suffix}`;
+  const customId = `${prefix}${formattedCount}${suffix}`;
   return customId;
 };
 async function sendCheckoutEmail(
   checkout: any,
   products: any[],
-  customId: string
+  customId: string,
+  deliveryPrice: any
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -54,7 +55,7 @@ async function sendCheckoutEmail(
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = totalAfterDiscount < 499 ? 8.0 : 0.0;
+  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
   const totalToPay = checkout.total;
 
   const mailOptions = {
@@ -285,6 +286,7 @@ export const createCheckoutFromAdmin = async (
       userName,
       products,
       manualDiscount,
+      freeDelivery,
     } = input;
 
     const productInCheckout = products.map((product: any) => {
@@ -306,6 +308,7 @@ export const createCheckoutFromAdmin = async (
         userId,
         userName,
         governorateId,
+        freeDelivery,
         productInCheckout: {
           create: productInCheckout,
         },
@@ -317,7 +320,9 @@ export const createCheckoutFromAdmin = async (
     });
 
     const customId = await generateCustomId(prisma);
+    const companyInfo = await prisma.companyInfo.findFirst();
 
+    const deliveryPrice = companyInfo?.deliveringPrice;
     const newPackage = await prisma.package.create({
       data: {
         checkoutId: newCheckout.id,
@@ -343,7 +348,8 @@ export const createCheckoutFromAdmin = async (
       await sendCheckoutEmail(
         completeCheckout,
         completeCheckout.productInCheckout,
-        customId
+        customId,
+        deliveryPrice
       );
     }
 

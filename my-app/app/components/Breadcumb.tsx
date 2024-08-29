@@ -7,15 +7,18 @@ import { useSearchParams } from "next/navigation";
 const Breadcumb = ({ pageName, pageLink }: any) => {
   const params = useSearchParams();
   const position = params?.getAll("collection") ?? [];
+  const categorys = params?.getAll("collection") ?? [];
+  const section = params?.get("section") ?? "";
 
   return (
-    <div className="flex gap-2 justify-center      justify-self-center w-full flex-wrap items-center  md:text-sm text-base  mb-3 tracking-[2px]   ">
+    <div className="flex gap-2 justify-center   py-5  justify-self-center w-full flex-wrap items-center  md:text-sm text-base   tracking-[2px]   ">
       <div className="hover:text-primaryColor  transition-all  flex items-center gap-1">
         <IoHome />
         <Link rel="preload" href={"/"}>
           Accueil
         </Link>
       </div>
+
       {pageName && (
         <>
           <span className="text-gray-500">/</span>
@@ -26,6 +29,18 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
           </div>
         </>
       )}
+
+      {section && (
+        <>
+          <span className="text-gray-500">/</span>
+          <div className=" text-primaryColor  transition-all flex items-center gap-2">
+            <p>
+              {section}
+            </p>
+          </div>
+        </>
+      )}
+
       {position[0] && (
         <>
           <span className="text-gray-500">/</span>
@@ -39,6 +54,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
           </div>
         </>
       )}
+
       {position[2] && (
         <>
           <span className="text-gray-500">/</span>
@@ -52,6 +68,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
           </div>
         </>
       )}
+      
       {position[4] && (
         <>
           <span className="text-gray-500">/</span>

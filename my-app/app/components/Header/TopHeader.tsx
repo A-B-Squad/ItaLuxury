@@ -25,6 +25,7 @@ interface DecodedToken extends JwtPayload {
   userId: string;
 }
 const TopHeader = ({ logo }: { logo: string }) => {
+
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const { openBasketDrawer } = useDrawerBasketStore();

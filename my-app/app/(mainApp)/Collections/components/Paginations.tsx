@@ -64,7 +64,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <nav className="flex justify-start">
+    <nav className="flex justify-start mt-2">
       <ul className="inline-flex -space-x-px">
         <li>
           <button

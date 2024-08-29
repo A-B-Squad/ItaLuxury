@@ -1,7 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 
-
-export const fetchProducts = async (
+export const allNewProducts = async (
   _: any,
   { limit, visibleProduct }: { visibleProduct: boolean; limit?: number },
   { prisma }: Context
@@ -11,7 +10,8 @@ export const fetchProducts = async (
 
     const products = await prisma.product.findMany({
       where: {
-        isVisible: visibleProduct||true,
+        isVisible: visibleProduct || true,
+       
       },
       include: {
         categories: {
@@ -27,9 +27,17 @@ export const fetchProducts = async (
         favoriteProducts: true,
         attributes: true,
         Colors: true,
+        SameProducts: {
+          include: {
+            Product: true
+          },
+        },
         Brand: true,
       },
       take: takeValue,
+      orderBy: {
+        createdAt: 'desc', 
+      },
     });
 
     return products;

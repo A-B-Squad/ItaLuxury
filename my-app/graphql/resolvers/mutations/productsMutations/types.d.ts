@@ -23,8 +23,8 @@ interface Product {
 
 interface ProductInput {
   name: string;
-  price: Float;
-  purchasePrice: Float;
+  price: number;
+  purchasePrice: number;
   isVisible: boolean;
   reference: string;
   description: string;
@@ -32,9 +32,10 @@ interface ProductInput {
   images: string[];
   categories: string[];
   attributeInputs: ProductAttributeInput[];
-  colorsId?: string | undefined;
+  colorsId?: string;
   discount?: ProductDiscountInput[];
-  brandId?: string | undefined
+  brandId?: string;
+  sameProductId?: string;
 }
 
 interface ProductAttributeInput {
