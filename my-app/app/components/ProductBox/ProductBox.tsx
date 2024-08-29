@@ -50,26 +50,22 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    })
+    }),
   );
   const { addProductToBasket, products } = useProductsInBasketStore();
 
-
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
-      userId: decodedToken?.userId
+      userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId
-
-  })
-
+    skip: !decodedToken?.userId,
+  });
 
   useEffect(() => {
-    if (window.location.pathname !== "/Collections/tunisie"
-    ) {
-      changeProductView(3)
+    if (window.location.pathname !== "/Collections/tunisie") {
+      changeProductView(3);
     }
-  }, [window.location])
+  }, [window.location]);
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -128,7 +124,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           trackEvent("AddToCart", {
             em: userData?.fetchUsersById.email.toLowerCase(),
             fn: userData?.fetchUsersById.fullName,
-            ph: userData?.fetchUsersById.number[0], country: "tn",
+            ph: userData?.fetchUsersById.number[0],
+            country: "tn",
             content_name: product.name,
             content_type: "product",
             content_ids: [product.id],
@@ -153,7 +150,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         trackEvent("AddToCart", {
           em: userData?.fetchUsersById.email.toLowerCase(),
           fn: userData?.fetchUsersById.fullName,
-          ph: userData?.fetchUsersById.number[0], country: "tn",
+          ph: userData?.fetchUsersById.number[0],
+          country: "tn",
           content_name: product.name,
           content_type: "product",
           content_ids: [product.id],
@@ -174,8 +172,6 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           description: `Product is already in the basket`,
           className: "bg-primaryColor text-white",
         });
-
-
       }
     }
 
@@ -195,7 +191,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
   const handleAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id
+      (p: any) => p.id === product.id,
     );
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);

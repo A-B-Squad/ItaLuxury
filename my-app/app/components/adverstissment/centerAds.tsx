@@ -27,7 +27,9 @@ const CenterAds = () => {
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center transition-all duration-500 ${
-        showAds ? "opacity-100 z-50" : "opacity-0 translate-y-6 pointer-events-none"
+        showAds
+          ? "opacity-100 z-50"
+          : "opacity-0 translate-y-6 pointer-events-none"
       }`}
     >
       <div className="bg-lightBlack absolute z-[100] left-0 top-0 w-full h-full opacity-80"></div>

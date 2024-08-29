@@ -89,8 +89,8 @@ const BasketDrawer = () => {
         productsInBasket.reduce(
           (acc: any, curr: { actualQuantity: any }) =>
             acc + curr.actualQuantity,
-          0
-        )
+          0,
+        ),
       );
     }
   }, [
@@ -115,7 +115,7 @@ const BasketDrawer = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
   );
 
   const renderProductList = () => (

@@ -48,7 +48,7 @@ interface Product {
 const Basket = () => {
   // Toast for notifications
   const { toast } = useToast();
-  const [deliveryPrice, setDeliveryPrice] = useState<number>(0)
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
 
   // State to store decoded token
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -73,13 +73,11 @@ const Basket = () => {
     }, 0);
   }, [products]);
 
-
   useQuery(COMPANY_INFO_QUERY, {
-    onCompleted: ((companyData) => {
-      setDeliveryPrice(companyData.companyInfo.deliveringPrice)
-    })
-  })
-
+    onCompleted: (companyData) => {
+      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
+    },
+  });
 
   // Effect to decode the JWT token from cookies and set the decoded token state
   useEffect(() => {
@@ -310,7 +308,9 @@ const Basket = () => {
             <li className="flex justify-between text-gray-600">
               <span>Livraison</span>
               <span className="font-semibold">
-                {Number(totalPrice) >= 499 ? "Gratuit" : `${(deliveryPrice).toFixed(3)} TND`}
+                {Number(totalPrice) >= 499
+                  ? "Gratuit"
+                  : `${deliveryPrice.toFixed(3)} TND`}
               </span>
             </li>
             <li className="flex justify-between text-gray-800 font-bold">

@@ -44,10 +44,10 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
         })}`,
         {
           scroll: true,
-        }
+        },
       );
     },
-    [selectedFilterQueries]
+    [selectedFilterQueries],
   );
 
   return (

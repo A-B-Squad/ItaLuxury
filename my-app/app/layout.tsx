@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="../public/images/favicon.ico" sizes="any" />
-      <AnalyticsIntegration/>
+        <AnalyticsIntegration />
       </head>
       <body className={openSans.className}>
         <ApolloWrapper>{children}</ApolloWrapper>

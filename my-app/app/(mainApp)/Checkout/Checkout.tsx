@@ -107,7 +107,6 @@ const Checkout = () => {
       return;
     }
 
-
     // Create the checkout mutation
     createCheckout({
       variables: {
@@ -302,7 +301,8 @@ const Checkout = () => {
                   htmlFor="phone"
                   className="mt-4 mb-2 block text-sm font-medium"
                 >
-                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2 (optional)
+                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2
+                  (optional)
                 </label>
                 <input
                   type="text"
@@ -336,7 +336,7 @@ const Checkout = () => {
                       <option key={goverment.id} value={goverment.id}>
                         {goverment.name.toUpperCase()}
                       </option>
-                    )
+                    ),
                   )}{" "}
                 </select>
 
@@ -439,7 +439,7 @@ const Checkout = () => {
                       <p className="font-semibold text-primaryColor">
                         -
                         {((Number(total) * discountPercentage) / 100).toFixed(
-                          3
+                          3,
                         )}{" "}
                         TND ({discountPercentage}%)
                       </p>

@@ -34,9 +34,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
         <>
           <span className="text-gray-500">/</span>
           <div className=" text-primaryColor  transition-all flex items-center gap-2">
-            <p>
-              {section}
-            </p>
+            <p>{section}</p>
           </div>
         </>
       )}
@@ -68,7 +66,7 @@ const Breadcumb = ({ pageName, pageLink }: any) => {
           </div>
         </>
       )}
-      
+
       {position[4] && (
         <>
           <span className="text-gray-500">/</span>

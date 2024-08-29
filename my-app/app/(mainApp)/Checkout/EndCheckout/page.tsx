@@ -18,7 +18,8 @@ const CheckoutConfirmationPage = ({ searchParams }: any) => {
         </p>
         <p className="text-gray-700 mb-4">
           Nous avons envoyé un email avec les détails de votre facture à{" "}
-          <span className="font-semibold">{email}</span>. Veuillez vérifier votre boîte de réception pour plus d'informations.
+          <span className="font-semibold">{email}</span>. Veuillez vérifier
+          votre boîte de réception pour plus d'informations.
         </p>
         <p className="text-gray-700 mb-4">
           Nous vous contacterons sous peu pour confirmer votre commande.

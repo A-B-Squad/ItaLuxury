@@ -13,11 +13,9 @@ const ProductTabs = ({ data, loadingProduct, carouselWidthClass }: any) => {
     return <NoProductYet />;
   }
 
-  
-
   return (
     <div className="products-tab w-full  relative  rounded-md shadow-sm grid">
-      { (data.length > 0) && (
+      {data.length > 0 && (
         <div className=" overflow-hidden w-full h-fit bg-white ">
           <Carousel
             className={`carousel w-full h-4/5 grid    items-center transition-all duration-500 ease-in-out   `}

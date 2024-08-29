@@ -33,7 +33,7 @@ const TopDeals = () => {
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -44,14 +44,12 @@ const TopDeals = () => {
     }
   }, []);
 
-
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
-      userId: decodedToken?.userId
+      userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId
-
-  })
+    skip: !decodedToken?.userId,
+  });
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -89,7 +87,8 @@ const TopDeals = () => {
             trackEvent("AddToCart", {
               em: userData?.fetchUsersById.email.toLowerCase(),
               fn: userData?.fetchUsersById.fullName,
-              ph: userData?.fetchUsersById.number[0], country: "tn",
+              ph: userData?.fetchUsersById.number[0],
+              country: "tn",
               content_name: product.name,
               content_type: "product",
               content_ids: [product.id],
@@ -103,7 +102,7 @@ const TopDeals = () => {
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id
+          (p: any) => p.id === product.id,
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -123,7 +122,8 @@ const TopDeals = () => {
           trackEvent("AddToCart", {
             em: userData?.fetchUsersById.email.toLowerCase(),
             fn: userData?.fetchUsersById.fullName,
-            ph: userData?.fetchUsersById.number[0], country: "tn",
+            ph: userData?.fetchUsersById.number[0],
+            country: "tn",
             content_name: product.name,
             content_type: "product",
             content_ids: [product.id],
@@ -151,11 +151,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ]
+    ],
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   const addToCompare = useCallback(
@@ -167,7 +167,7 @@ const TopDeals = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [addProductToCompare, toast]
+    [addProductToCompare, toast],
   );
 
   const renderProducts = useMemo(() => {
@@ -311,7 +311,7 @@ const TopDeals = () => {
                     </span>
                     <span className="text-primaryColor font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3
+                        3,
                       )}
                       TND
                     </span>

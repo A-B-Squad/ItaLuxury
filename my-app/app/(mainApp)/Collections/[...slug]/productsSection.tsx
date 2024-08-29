@@ -22,7 +22,7 @@ const ProductsSection = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(
-    Number(searchParams?.get("page")) || 1
+    Number(searchParams?.get("page")) || 1,
   );
 
   const [categoryDiscription, setCategoryDiscription] = useState("");
@@ -42,7 +42,7 @@ const ProductsSection = () => {
       choice: searchParams?.get("choice") || undefined,
       brandId: searchParams?.get("brand") || undefined,
     }),
-    [searchParams]
+    [searchParams],
   );
 
   const sortProducts = (products: any[], sortParam: string) => {
@@ -90,7 +90,7 @@ const ProductsSection = () => {
       setTotalCount(data?.searchProducts?.totalCount || 0);
 
       setCategoryDiscription(
-        fetchedProducts[0]?.categories[0]?.description || ""
+        fetchedProducts[0]?.categories[0]?.description || "",
       );
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -155,7 +155,6 @@ const ProductsSection = () => {
         return "";
     }
   };
-
 
   return (
     <div className="flex flex-col justify-betwen items-center h-full pb-10">

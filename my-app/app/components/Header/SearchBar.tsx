@@ -43,13 +43,11 @@ const SearchBar = () => {
     });
     trackEvent("Search", {
       search_string: inputValue,
-      contentIds: categories
-        .map((category: any) => category.id)
-      ,
+      contentIds: categories.map((category: any) => category.id),
       content_category: categories
         .map((category: any) => category.name)
         .join(", "),
-        Currency:"TND",
+      Currency: "TND",
       number_of_results: data?.searchProducts?.results?.products.length || 0,
     });
   };

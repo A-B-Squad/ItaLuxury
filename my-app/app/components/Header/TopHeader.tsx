@@ -25,7 +25,6 @@ interface DecodedToken extends JwtPayload {
   userId: string;
 }
 const TopHeader = ({ logo }: { logo: string }) => {
-
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const { openBasketDrawer } = useDrawerBasketStore();
@@ -76,7 +75,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
     if (basketData?.basketByUserId) {
       const totalQuantity = basketData.basketByUserId.reduce(
         (acc: number, item: any) => acc + item.quantity,
-        0
+        0,
       );
       useProductsInBasketStore.setState({
         products: basketData.basketByUserId.map((item: any) => ({
