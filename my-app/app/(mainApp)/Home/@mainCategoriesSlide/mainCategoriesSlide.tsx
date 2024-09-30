@@ -27,10 +27,10 @@ const MainCategoriesSlide = () => {
             <>
               <CarouselItem
                 key={index}
-                className={`carousel-item overflow-hidden    group hover:rounded-sm   h-[180px] transition-all relative  basis-1/2 md:basis-1/3 lg:basis-1/6 flex  flex-col justify-evenly  items-center    `}
+                className={`carousel-item overflow-hidden     group hover:rounded-sm   h-[180px] transition-all relative  basis-1/2 md:basis-1/3 lg:basis-1/6 flex  flex-col justify-evenly  items-center    `}
               >
                 <Link
-                  href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
+                  href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
                   className=" group flex flex-col aspect-square items-center gap-4 hover: transition-all p-2 "
                 >
                   <span
@@ -44,7 +44,7 @@ const MainCategoriesSlide = () => {
                       height={100}
                       alt={category.name}
                       objectFit="contain"
-                      className="h-24 w-24 object-cover"
+                      className="h-24 w-24 grayscale hover:grayscale-0 transition-all object-cover"
                     />
                   )}
                   <span
@@ -61,8 +61,8 @@ const MainCategoriesSlide = () => {
           ),
         )}
       </CarouselContent>
-      <CarouselPrevious className="px-2 left-5 transition-all bg-primaryColor text-white " />
-      <CarouselNext className="px-2 transition-all right-5 bg-primaryColor text-white " />
+      <CarouselPrevious className="px-2 left-5 absolute transition-all bg-primaryColor text-white " />
+      <CarouselNext className="px-2 transition-all absolute right-5 bg-primaryColor text-white " />
     </Carousel>
   );
 };

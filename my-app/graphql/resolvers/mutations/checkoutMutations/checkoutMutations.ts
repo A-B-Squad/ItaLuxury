@@ -7,5 +7,5 @@ export const checkoutMutations = {
   createCheckout,
   updateCheckout,
   updateCustomerCheckout,
-  createCheckoutFromAdmin,
+  createCheckoutFromAdmin
 };

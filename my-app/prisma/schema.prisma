@@ -13,6 +13,11 @@ enum Role {
   MODERATOR
 }
 
+enum PaymentMethod {
+  CREDIT_CARD
+  CASH_ON_DELIVERY
+}
+
 enum Status {
   REFUNDED
   BACK
@@ -20,7 +25,9 @@ enum Status {
   EXCHANGE
   TRANSFER_TO_DELIVERY_COMPANY
   PROCESSING
-  PAYED
+  PAYMENT_REFUSED
+  PAYED_AND_DELIVERED
+  PAYED_NOT_DELIVERED
 }
 
 enum Cause {
@@ -152,7 +159,7 @@ model Checkout {
   governorateId     String?
   productInCheckout ProductInCheckout[]
   manualDiscount    Float               @default(0)
-  phone             Int[]
+  phone             String[]
   address           String
   package           Package[]
   total             Float
@@ -160,6 +167,19 @@ model Checkout {
   Coupons           Coupons?            @relation(fields: [couponsId], references: [id])
   couponsId         String?
   freeDelivery      Boolean             @default(false)
+  isGuest           Boolean             @default(false)
+  guestEmail        String?
+  deliveryComment   String?
+  paymentMethod     PaymentMethod
+}
+
+model ApiCredentials {
+  id                 String   @id @default(uuid())
+  api_id             String
+  access_token       String
+  createdAt          DateTime @default(now())
+  integrationFor     String
+  domainVerification String?
 }
 
 model ProductInCheckout {
@@ -234,8 +254,8 @@ model Governorate {
 }
 
 model CompanyInfo {
-  id              String @id @default(uuid())
-  phone           Int[]
+  id              String   @id @default(uuid())
+  phone           String[]
   deliveringPrice Int
   logo            String
   instagram       String

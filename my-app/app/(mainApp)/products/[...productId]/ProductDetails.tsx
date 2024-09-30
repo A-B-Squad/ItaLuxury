@@ -45,7 +45,9 @@ import moment from "moment-timezone";
 import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import { HiOutlineBellAlert } from "react-icons/hi2";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import { trackEvent } from "@/app/Helpers/_trackEvents";
+import triggerEvents from "@/utlils/trackEvents";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -79,13 +81,16 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
 
-  const { loading: loadingNewProduct, data: Products_10_by_category } =
+  const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
       variables: {
         limit: 10,
         categoryName:
-          productDetails?.categories?.[0]?.subcategories?.[0]
-            ?.subcategories?.[1]?.name || "",
+          productDetails.categories[0]?.subcategories[0]?.subcategories[0]
+            ?.name ||
+          productDetails.categories[0]?.subcategories[0]?.name ||
+          productDetails.categories[0]?.name ||
+          "",
       },
     });
 
@@ -130,36 +135,42 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     const colorName = Colors?.color || "No Color";
     const finalPrice = discount?.newPrice ?? price;
 
-    trackEvent("ViewContent", {
-      em: userData?.fetchUsersById.email.toLowerCase(),
-      fn: userData?.fetchUsersById.fullName,
-      ph: userData?.fetchUsersById.number[0],
-      country: "tn",
-      content_name: name,
-      content_type: "product details",
-      content_ids: [id],
-      value: finalPrice,
-      currency: "TND",
-      content_category: categoryNames,
-      contents: [
-        {
-          id,
-          quantity: 1,
-          item_price: price,
-        },
-      ],
-      brand: brandName,
-      availability: inventory > 0 ? "in stock" : "out of stock",
-      condition: "new",
-      description,
-      color: colorName,
-      sizes: attributes
-        ?.filter((attr: { name: string }) =>
-          attr.name.toLowerCase().includes("size"),
-        )
-        .map((attr: { value: any }) => attr.value),
+    triggerEvents("ViewContent", {
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number.join("")],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.id,
+      },
+      custom_data: {
+        content_name: name,
+        content_type: "product details",
+        content_ids: [id],
+        value: finalPrice,
+        currency: "TND",
+        content_category: categoryNames,
+        contents: [
+          {
+            id,
+            quantity: 1,
+            item_price: price,
+            brand: brandName,
+            availability: inventory > 0 ? "in stock" : "out of stock",
+            condition: "new",
+            description,
+            color: colorName,
+            sizes: attributes
+              ?.filter((attr: { name: string }) =>
+                attr.name.toLowerCase().includes("size")
+              )
+              .map((attr: { value: any }) => attr.value),
+          },
+        ],
+      },
     });
-  }, [productDetails, trackEvent]);
+    pushToDataLayer("ViewContent");
+  }, [productDetails]);
   const handleMouseEnter = (title: any) => {
     setShowPopover(true);
     setPopoverTitle(title);
@@ -175,15 +186,15 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
 
-  const { addProductToBasket, products } = useProductsInBasketStore(
-    (state) => ({
+  const { addProductToBasket, products, increaseProductInQtBasket } =
+    useProductsInBasketStore((state) => ({
+      increaseProductInQtBasket: state.increaseProductInQtBasket,
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
-  );
+    }));
 
   // Query the basket first
   const { data: basketData } = useQuery(BASKET_QUERY, {
@@ -194,7 +205,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       try {
         // Find if the product is already in the basket
         const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
+          (item: any) => item.Product.id === product.id
         );
 
         const currentBasketQuantity = existingBasketItem
@@ -234,20 +245,26 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               className: "bg-primaryColor text-white",
             });
             // Track Add to Cart
-            trackEvent("AddToCart", {
-              em: userData?.fetchUsersById.email.toLowerCase(),
-              fn: userData?.fetchUsersById.fullName,
-              ph: userData?.fetchUsersById.number[0],
-              country: "tn",
-              content_name: productDetails.name,
-              content_type: "product",
-              content_ids: [productDetails.id],
-              value:
-                productDetails.productDiscounts.length > 0
-                  ? productDetails.productDiscounts[0].newPrice
-                  : productDetails.price,
-              currency: "TND",
+            triggerEvents("AddToCart", {
+              user_data: {
+                em: [userData?.fetchUsersById.email.toLowerCase()],
+                fn: [userData?.fetchUsersById.fullName],
+                ph: [userData?.fetchUsersById?.number.join("")],
+                country: ["tn"],
+                external_id: userData?.fetchUsersById.id,
+              },
+              custom_data: {
+                content_name: productDetails.name,
+                content_type: "product",
+                content_ids: [productDetails.id],
+                value:
+                  productDetails.productDiscounts.length > 0
+                    ? productDetails.productDiscounts[0].newPrice
+                    : productDetails.price,
+                currency: "TND",
+              },
             });
+            pushToDataLayer("AddToCart");
           },
         });
       } catch (error) {
@@ -261,7 +278,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         if (actualQuantity > product.inventory) {
@@ -285,12 +302,19 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
           className: "bg-green-600 text-white",
         });
-        // Track Add to Cart
-        trackEvent("AddToCart", {
-          em: userData?.fetchUsersById.email.toLowerCase(),
-          fn: userData?.fetchUsersById.fullName,
-          ph: userData?.fetchUsersById.number[0],
-          country: "tn",
+      } else {
+        increaseProductInQtBasket(product.id);
+      }
+      // Track Add to Cart
+      triggerEvents("AddToCart", {
+        user_data: {
+          em: [userData?.fetchUsersById.email.toLowerCase()],
+          fn: [userData?.fetchUsersById.fullName],
+          ph: [userData?.fetchUsersById?.number.join("")],
+          country: ["tn"],
+          external_id: userData?.fetchUsersById.id,
+        },
+        custom_data: {
           content_name: productDetails.name,
           content_type: "product",
           content_ids: [productDetails.id],
@@ -299,14 +323,9 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               ? productDetails.productDiscounts[0].newPrice
               : productDetails.price,
           currency: "TND",
-        });
-      } else {
-        toast({
-          title: "Produit déjà dans le panier",
-          description: `"${productDetails?.name}" est déjà dans votre panier. Vous pouvez modifier la quantité dans le panier.`,
-          className: "bg-blue-600 text-white",
-        });
-      }
+        },
+      });
+      pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
     openBasketDrawer();
@@ -319,28 +338,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         setReviews(data.productReview.length);
         setOneStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 1,
-          ).length,
+            (review: { rating: number }) => review?.rating === 1
+          ).length
         );
         setTwoStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 2,
-          ).length,
+            (review: { rating: number }) => review?.rating === 2
+          ).length
         );
         setThreeStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 3,
-          ).length,
+            (review: { rating: number }) => review?.rating === 3
+          ).length
         );
         setFourStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 4,
-          ).length,
+            (review: { rating: number }) => review?.rating === 4
+          ).length
         );
         setFiveStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 5,
-          ).length,
+            (review: { rating: number }) => review?.rating === 5
+          ).length
         );
       },
     });
@@ -398,7 +417,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         const now = moment().tz(DEFAULT_TIMEZONE);
         const targetDate = moment.tz(
           parseInt(discount.dateOfEnd),
-          DEFAULT_TIMEZONE,
+          DEFAULT_TIMEZONE
         );
         targetDate.subtract(1, "hours");
 
@@ -415,7 +434,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {
@@ -465,7 +484,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             <Breadcumb />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm  ">
-              <div className=" flex lg:flex-row flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
+              <div className="sticky top-0 lg:top-5  z-50 flex lg:flex-row flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
                 <div className="relative shadow-sm overflow-hidden    flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
                   <InnerImageZoom
                     className=" h-fit flex items-center justify-center rounded "
@@ -476,7 +495,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   />
                   <span
                     className={
-                      "absolute top-2 right-0 p-2  bg-green-500 text-xs font-400 text-white"
+                      "absolute top-2 right-0 p-2  bg-primaryColor text-xs font-400 text-white"
                     }
                   >
                     {productDetails?.inventory > 1
@@ -507,7 +526,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
               </div>
 
-              <div className="product lg:col-span-6 col-span-12 p-3 w-full ">
+              <div className="product  lg:col-span-6 col-span-12 p-3 w-full ">
                 <h2 className="product_name tracking-wider text-xl lg:text-2xl w-fit font-semibold ">
                   {productDetails?.name}
                 </h2>
@@ -549,11 +568,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                               jrs,{" "}
                               {Math.floor(
                                 (countdown % (1000 * 60 * 60 * 24)) /
-                                  (1000 * 60 * 60),
+                                  (1000 * 60 * 60)
                               )}{" "}
                               hrs,{" "}
                               {Math.floor(
-                                (countdown % (1000 * 60 * 60)) / (1000 * 60),
+                                (countdown % (1000 * 60 * 60)) / (1000 * 60)
                               )}{" "}
                               mins,{" "}
                               {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
@@ -619,7 +638,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                         onClick={() => {
                           setActualQuantity(
-                            actualQuantity > 1 ? actualQuantity - 1 : 1,
+                            actualQuantity > 1 ? actualQuantity - 1 : 1
                           );
                         }}
                       >
@@ -640,7 +659,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                           setActualQuantity(
                             actualQuantity < productDetails?.inventory
                               ? actualQuantity + 1
-                              : actualQuantity,
+                              : actualQuantity
                           );
                         }}
                       >
@@ -699,7 +718,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         }}
                       >
                         {productsInCompare.some(
-                          (p: any) => p.id === productDetails.id,
+                          (p: any) => p.id === productDetails.id
                         ) ? (
                           <IoCheckmarkDoneOutline size={25} />
                         ) : (
@@ -763,7 +782,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </h4>
                 </div>
 
-                <div className="Rating mt-8 w-4/5">
+                <div className="Rating mt-8 lg:w-4/5 w-full">
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-primaryColor">
                       Note globale ({reviews})
@@ -826,12 +845,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           <div>
             <ProductTabs
               data={Products_10_by_category?.productsByCategory}
-              loadingNewProduct={loadingNewProduct}
-              carouselWidthClass={
-                Products_10_by_category?.productsByCategory?.length < 5
-                  ? " basis-full   md:basis-1/2  "
-                  : " basis-full  md:basis-1/2 lg:basis-1/3 xl:basis-1/4   xxl:basis-1/5"
-              }
+              loadingProduct={loadingProductByCategiry}
             />
           </div>
         </div>

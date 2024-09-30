@@ -20,11 +20,19 @@ export const signUp = async (
   const { fullName, email, password, number } = input;
 
   // Check if the email is already in use
-  const existingUser = await prisma.user.findUnique({
+  const existingUserByEmail = await prisma.user.findUnique({
     where: { email },
   });
-  if (existingUser) {
+  if (existingUserByEmail) {
     return new Error("Email address is already in use");
+  }
+
+  // Check if the number is already in use
+  const existingUserByNumber = await prisma.user.findFirst({
+    where: { number },
+  });
+  if (existingUserByNumber) {
+    return new Error("Phone number is already in use");
   }
 
   // Hash password
@@ -37,7 +45,7 @@ export const signUp = async (
   while (!isUnique) {
     professionalId = generateProfessionalId(6);
     const existingProfessionalId = await prisma.user.findUnique({
-      where: { id:professionalId },
+      where: { id: professionalId },
     });
     if (!existingProfessionalId) {
       isUnique = true;
@@ -47,7 +55,7 @@ export const signUp = async (
   // Create new user
   const newUser = await prisma.user.create({
     data: {
-      id:professionalId,
+      id: professionalId,
       fullName,
       email,
       password: hashedPassword,

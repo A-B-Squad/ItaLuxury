@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useLazyQuery, useMutation } from "@apollo/client";
-import { BASKET_QUERY } from "@/graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import Image from "next/legacy/image";
 import Link from "next/link";
 import prepRoute from "@/app/Helpers/_prepRoute";
@@ -19,6 +19,9 @@ import { useToast } from "@/components/ui/use-toast";
 
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import triggerEvents from "@/utlils/trackEvents";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+
 const ProductBox = ({ product }: any) => {
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
@@ -33,7 +36,12 @@ const ProductBox = ({ product }: any) => {
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -42,14 +50,14 @@ const ProductBox = ({ product }: any) => {
     }
   }, []);
 
-  const { addProductToBasket, products } = useProductsInBasketStore(
-    (state) => ({
+  const { addProductToBasket, products, increaseProductInQtBasket } =
+    useProductsInBasketStore((state) => ({
+      increaseProductInQtBasket: state.increaseProductInQtBasket,
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
-  );
+    }));
 
-  const AddToBasket = (product: any) => {
+  const AddToBasket = async (product: any) => {
     if (decodedToken) {
       addToBasket({
         variables: {
@@ -65,10 +73,38 @@ const ProductBox = ({ product }: any) => {
             variables: { userId: decodedToken?.userId },
           },
         ],
+        onCompleted: () => {
+          // Track Add to Cart
+          triggerEvents("AddToCart", {
+            user_data: {
+              em: [userData?.fetchUsersById.email.toLowerCase()],
+              fn: [userData?.fetchUsersById.fullName],
+              ph: [userData?.fetchUsersById?.number.join("")],
+              country: ["tn"],
+              external_id: userData?.fetchUsersById.email.id,
+            },
+            custom_data: {
+              content_name: product.name,
+              content_type: "product",
+              content_ids: [product.id],
+              contents: {
+                id: product.id,
+                quantity: product.actualQuantity || product.quantity,
+              },
+              value:
+                product.productDiscounts.length > 0
+                  ? product.productDiscounts[0].newPrice
+                  : product.price,
+              currency: "TND",
+            },
+          });
+          pushToDataLayer("AddToCart")
+
+        },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -80,11 +116,37 @@ const ProductBox = ({ product }: any) => {
           actualQuantity: 1,
         });
       } else {
-        console.log("Product is already in the basket");
+        increaseProductInQtBasket(product.id);
       }
+
+      // Track Add to Cart
+      triggerEvents("AddToCart", {
+        user_data: {
+          em: [userData?.fetchUsersById.email.toLowerCase()],
+          fn: [userData?.fetchUsersById.fullName],
+          ph: [userData?.fetchUsersById?.number.join("")],
+          country: ["tn"],
+          external_id: userData?.fetchUsersById.email.id,
+        },
+        custom_data: {
+          content_name: product.name,
+          content_type: "product",
+          content_ids: [product.id],
+          contents: {
+            id: product.id,
+            quantity: product.actualQuantity || product.quantity,
+          },
+          value:
+            product.productDiscounts.length > 0
+              ? product.productDiscounts[0].newPrice
+              : product.price,
+          currency: "TND",
+        },
+      });
+      pushToDataLayer("AddToCart")
+
     }
     toggleIsUpdated();
-    openBasketDrawer();
   };
 
   return (
@@ -128,23 +190,7 @@ const ProductBox = ({ product }: any) => {
           <Link
             className="hover:text-primaryColor text-base font-light transition-all  cursor-pointer tracking-wider"
             title={product.name}
-            href={{
-              pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-              query: {
-                productId: product?.id,
-                collection: [
-                  product?.categories[0]?.name,
-                  product?.categories[0]?.id,
-                  product?.categories[0]?.subcategories[0]?.name,
-                  product?.categories[0]?.subcategories[0]?.id,
-                  product?.categories[0]?.subcategories[0]?.subcategories[0]
-                    ?.name,
-                  product?.categories[0]?.subcategories[0]?.subcategories[0]
-                    ?.id,
-                  product?.name,
-                ],
-              },
-            }}
+            href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
           >
             <p className="text-left">{product.name}</p>
           </Link>

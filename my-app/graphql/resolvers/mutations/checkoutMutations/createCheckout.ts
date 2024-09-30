@@ -1,5 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
+import { CreateCheckoutInput } from "../categoryMutations/types";
 
 const generateCustomId = async (prisma: any) => {
   const currentYear = new Date().getFullYear();
@@ -49,7 +50,6 @@ const generateCustomId = async (prisma: any) => {
 
 async function sendCheckoutEmail(
   checkout: any,
-  products: any[],
   customId: string,
   deliveryPrice: any
 ) {
@@ -80,12 +80,16 @@ async function sendCheckoutEmail(
   const totalAfterDiscount = totalProducts - discountAmount;
 
   // Update the delivery cost calculation to use the dynamic delivery price
-  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
+  const deliveryCost = checkout.freeDelivery ? 0.0 : deliveryPrice;
   const totalToPay = checkout.total;
+  // Determine the recipient email address
+  const recipientEmail = checkout.isGuest
+    ? checkout.guestEmail
+    : checkout.User.email;
 
   const mailOptions = {
-    from: '"MaisonNg" <no-reply@maisonng.com>',
-    to: checkout.User.email,
+    from: '"ita-luxury" <no-reply@ita-luxury.com>',
+    to: recipientEmail,
     subject: "Confirmation de votre commande",
     html: `
       <!DOCTYPE html>
@@ -190,9 +194,9 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo" />
+            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo" />
           </div>
-          <h1>MaisonNg</h1>
+          <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
           <p>Merci pour votre commande. Voici les détails :</p>
           
@@ -276,18 +280,18 @@ async function sendCheckoutEmail(
                 <div class="address-header">
                   <span>Adresse de facturation</span>
                 </div>
-                <p>${checkout.userName}</p>
-                <p>${checkout.address}</p>
+                <p>${checkout.User?.fullName || checkout.userName}</p>
+                <p>${checkout.User?.fullName || checkout.address}</p>
                 <p>Tunisie</p>
-                <p>${checkout.phone[0]}</p>
+                <p>${checkout.User?.phone || checkout.phone[0]}</p>
               </div>
             </div>
           </div>
   
-          <p>Merci d'avoir choisi MaisonNg !</p>
+          <p>Merci d'avoir choisi ita-luxury !</p>
   
           <div class="footer">
-            &copy; ${new Date().getFullYear()} MaisonNg. Tous droits réservés.
+            &copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.
           </div>
         </div>
       </body>
@@ -297,6 +301,7 @@ async function sendCheckoutEmail(
 
   await transporter.sendMail(mailOptions);
 }
+
 export const createCheckout = async (
   _: any,
   { input }: { input: CreateCheckoutInput },
@@ -312,86 +317,97 @@ export const createCheckout = async (
       userName,
       couponsId,
       freeDelivery,
+      isGuest,
+      guestEmail,
+      deliveryComment,
+      paymentMethod,
+      products,
     } = input;
 
-    // Retrieve user's basket to get product IDs
-    const userBasket = await prisma.basket.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        Product: {
-          include: {
-            productDiscounts: {
-              include: {
-                Discount: true,
+    let productsInCheckout;
+
+    if (isGuest) {
+      // For guest users, use the products passed in the input
+      productsInCheckout = products?.map((product) => ({
+        productId: product.productId,
+        productQuantity: product.productQuantity,
+        price: product.price,
+        discountedPrice: product.discountedPrice || 0,
+      }));
+    } else {
+      // For registered users, retrieve products from the basket
+      const userBasket = await prisma.basket.findMany({
+        where: { userId },
+        include: {
+          Product: {
+            include: {
+              productDiscounts: {
+                include: {
+                  Discount: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    if (!userBasket.length) {
-      return new Error("User's basket not found");
+      if (!userBasket.length) {
+        throw new Error("User's basket not found");
+      }
+
+      productsInCheckout = userBasket.map((basket) => {
+        const product = basket.Product;
+        const productDiscounts = product?.productDiscounts;
+
+        return {
+          productId: basket.productId,
+          productQuantity: basket.quantity,
+          price: product?.price ?? 0,
+          discountedPrice:
+            productDiscounts && productDiscounts.length > 0
+              ? productDiscounts[0].newPrice
+              : 0,
+        };
+      });
     }
 
-    const products = userBasket.map((basket) => {
-      const product = basket.Product;
-      const productDiscounts = product?.productDiscounts;
-
-      return {
-        productId: basket.productId,
-        productQuantity: basket.quantity,
-        price: product?.price ?? 0,
-        discountedPrice:
-          productDiscounts && productDiscounts.length > 0
-            ? productDiscounts[0].newPrice
-            : 0,
-      };
-    });
-
-    // Create the checkout with the provided data and product IDs from the basket
+    // Create the checkout with the provided data and products
     const newCheckout = await prisma.checkout.create({
       data: {
-        userId,
+        userId: isGuest ? null : userId,
         userName,
         governorateId,
         freeDelivery,
+        isGuest,
         productInCheckout: {
-          create: products,
+          create: productsInCheckout,
         },
         phone,
         address,
         total,
         couponsId: couponsId || null,
-      },
-      include: {
-        productInCheckout: {
-          include: {
-            product: true,
-          },
-        },
-        User: true,
+        guestEmail: guestEmail,
+        deliveryComment,
+        paymentMethod,
       },
     });
+
     if (couponsId) {
       await prisma.coupons.update({
-        where: {
-          id: couponsId,
-        },
-        data: {
-          available: false,
-        },
+        where: { id: couponsId },
+        data: { available: false },
       });
     }
-    //delete basket with User id
-    await prisma.basket.deleteMany({
-      where: { userId: userId },
-    });
+
+    // Delete basket only for registered users
+    if (!isGuest) {
+      await prisma.basket.deleteMany({
+        where: { userId: userId },
+      });
+    }
+
     const customId = await generateCustomId(prisma);
     const companyInfo = await prisma.companyInfo.findFirst();
-
     const deliveryPrice = companyInfo?.deliveringPrice;
 
     // Create a new package associated with the checkout ID
@@ -402,6 +418,7 @@ export const createCheckout = async (
         status: "PROCESSING",
       },
     });
+
     const completeCheckout = await prisma.checkout.findUnique({
       where: { id: newCheckout.id },
       include: {
@@ -413,23 +430,20 @@ export const createCheckout = async (
             product: true,
           },
         },
-        User: true,
+        User: true
       },
     });
 
     if (completeCheckout) {
-      await sendCheckoutEmail(
-        completeCheckout,
-        completeCheckout.productInCheckout,
-        customId,
-        deliveryPrice
-      );
+      await sendCheckoutEmail(completeCheckout, customId, deliveryPrice);
     }
 
-    return customId;
+    return {
+      customId: customId,
+      orderId: completeCheckout?.id,
+    };
   } catch (error) {
-    // Handle errors
     console.error("Error creating checkout:", error);
-    return error;
+    throw error;
   }
 };

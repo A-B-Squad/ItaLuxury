@@ -3,6 +3,7 @@ import { packageById } from "./packageById";
 import { packageByUserId } from "./packageByUserId";
 
 export const packageQueries = {
-    getAllPackages,
-    packageById, packageByUserId
-}
+  getAllPackages,
+  packageById,
+  packageByUserId,
+};

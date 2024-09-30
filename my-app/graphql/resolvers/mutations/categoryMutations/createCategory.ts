@@ -1,4 +1,5 @@
 import { Context } from "@/pages/api/graphql";
+import { CreateCategoryInput } from "./types";
 
 export const createCategory = async (
   _: any,

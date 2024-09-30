@@ -12,15 +12,7 @@ export const productById = async (
         isVisible: true,
       },
       include: {
-        SameProducts: {
-          include: {
-            Product: {
-              include:{
-                Colors:true
-              }
-            },
-          },
-        },
+  
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         }, // Include categories related to products

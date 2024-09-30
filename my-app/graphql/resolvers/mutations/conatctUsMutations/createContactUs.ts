@@ -62,8 +62,8 @@ export const createContactUs = async (
                   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                       <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
-                        <a href="https://www.maisonng.com" target="_blank">                       
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo"  width="100" height="100" style="display: block; width: 100px; max-width: 100px; min-width: 100px; font-family: 'Lato', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0"/>
+                        <a href="https://www.ita-luxury.com" target="_blank">                       
+            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo"  width="100" height="100" style="display: block; width: 100px; max-width: 100px; min-width: 100px; font-family: 'Lato', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0"/>
                        
                           </a>
                       </td>
@@ -96,12 +96,12 @@ export const createContactUs = async (
                     </tr>
                     <tr>
                       <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                        <p style="margin: 0;">Cordialement,<br>L'équipe de MaisonNg</p>
+                        <p style="margin: 0;">Cordialement,<br>L'équipe de ita-luxury</p>
                       </td>
                     </tr>
                     <tr>
                       <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                        <p style="margin: 0;"><a href="https://www.maisonng.com" target="_blank" style="color: #0056b3;">www.maisonng.com</a></p>
+                        <p style="margin: 0;"><a href="https://www.ita-luxury.com" target="_blank" style="color: #0056b3;">www.ita-luxury.com</a></p>
                       </td>
                     </tr>
                   </table>
@@ -113,7 +113,7 @@ export const createContactUs = async (
                     <tr>
                       <td bgcolor="#FFECD1" align="center" style="padding: 30px 30px 30px 30px; border-radius: 4px 4px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
                         <h2 style="font-size: 20px; font-weight: 400; color: #111111; margin: 0;">Besoin d'aide ?</h2>
-                        <p style="margin: 0;"><a href="https://www.maisonng.com/contact" target="_blank" style="color: #0056b3;">Nous sommes là pour vous</a></p>
+                        <p style="margin: 0;"><a href="https://www.ita-luxury.com/contact" target="_blank" style="color: #0056b3;">Nous sommes là pour vous</a></p>
                       </td>
                     </tr>
                   </table>

@@ -1,7 +1,11 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
-import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
+import {
+  BsFillGrid3X2GapFill,
+  BsFillGrid3X3GapFill,
+  BsGrid3X3Gap,
+} from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
 import { HiViewGrid } from "react-icons/hi";
 import {
@@ -19,6 +23,7 @@ import {
 } from "../../../store/zustand";
 import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
 import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
+import { CiGrid2H, CiGrid41 } from "react-icons/ci";
 
 const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
   const { toggleOpenSidebar } = useSidebarStore();
@@ -51,9 +56,11 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
   );
 
   return (
-    <div className=" container flex z-10  mb-4 py-3 relative w-full border-t px-5 items-center white bg-white   justify-between border-b border-gray-200 ">
+    <div className=" container flex   mb-4 py-3 z-50 sticky md:top-[90px] top-[75px]       w-full border-t px-5 items-center white bg-[#fffffff2]   justify-between border-b border-gray-200 ">
       <div className="flex items-center w-full justify-around">
-        <p>{numberOfProduct} produits</p>
+        <p className="text-xs md:text-base tracking-wide">
+          {numberOfProduct} produits
+        </p>
 
         <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
           <button
@@ -64,10 +71,7 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
             }}
           >
             <span className="sr-only">View grid</span>
-            <BsFillGrid3X2GapFill
-              size={20}
-              color={view === 1 ? "black" : "currentColor"}
-            />
+            <CiGrid2H size={20} color={view === 1 ? "black" : "currentColor"} />
           </button>
           <button
             type="button"
@@ -77,10 +81,7 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
             }}
           >
             <span className="sr-only">View grid</span>
-            <HiViewGrid
-              size={20}
-              color={view === 2 ? "black" : "currentColor"}
-            />
+            <CiGrid41 size={20} color={view === 2 ? "black" : "currentColor"} />
           </button>
           <button
             type="button"
@@ -90,7 +91,7 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
             className="text-gray-400 hover:text-gray-500"
           >
             <span className="sr-only">View grid</span>
-            <BsFillGrid3X3GapFill
+            <BsGrid3X3Gap
               size={20}
               color={view === 3 ? "black" : "currentColor"}
             />
@@ -102,7 +103,7 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
             handleSortChange(value);
           }}
         >
-          <SelectTrigger className="w-36 md:w-[180px] outline-none mr-3">
+          <SelectTrigger className="w-24 md:w-[180px] outline-none mr-3">
             <SelectValue placeholder="Trier par :" />
           </SelectTrigger>
           <SelectContent className="bg-white">

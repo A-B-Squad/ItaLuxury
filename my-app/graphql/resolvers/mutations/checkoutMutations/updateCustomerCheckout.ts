@@ -5,7 +5,7 @@ interface updateCustomerCheckoutInput {
   userName: string;
   userId: string;
   governorateId: string;
-  phone: number[];
+  phone: string[];
   address: string;
   freeDelivery: boolean;
 }

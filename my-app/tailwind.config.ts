@@ -27,7 +27,7 @@ const config: Config = {
         lightBeige: "#F0EDD4",
         secondaryColor: "#e0e0dc",
         primaryColor: "#c7ae91",
-        lightBlack: "#00000030",
+        lightBlack: "#22222280",
         TopBanner: '#53366e',
       }
     },

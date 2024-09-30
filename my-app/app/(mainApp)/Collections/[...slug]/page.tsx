@@ -6,7 +6,13 @@ import { Metadata } from "next";
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { choice?: string };
+  searchParams: {
+    choice?: string;
+    category?: string;
+    color?: string;
+    price?: string;
+    brand?: string;
+  };
 }): Promise<Metadata> {
   if (
     !process.env.NEXT_PUBLIC_API_URL ||
@@ -24,7 +30,7 @@ export async function generateMetadata({
       query: `
       query CompanyInfo {
         companyInfo {
-          logo 
+          logo
         }
       }
     `,
@@ -33,19 +39,55 @@ export async function generateMetadata({
 
   const companyInfo = data?.companyInfo;
 
-  let pageTitle = "Tous Les Produits - MaisonNg";
+  let pageTitle = "Tous Les Produits - ita-luxury";
   let pageDescription =
-    "Découvrez tous les produits disponibles chez MaisonNg. Profitez des meilleures offres sur une large gamme de produits.";
+    "Découvrez tous les produits disponibles chez ita-luxury. Profitez des meilleures offres sur une large gamme de produits.";
+
+  // Dynamic title generation based on search parameters
+  const titleParts = [];
 
   if (searchParams.choice === "new-product") {
-    pageTitle = "Nouveaux Produits - MaisonNg";
+    titleParts.push("Nouveaux Produits");
     pageDescription =
-      "Découvrez nos dernières nouveautés chez MaisonNg. Des produits innovants et tendance vous attendent.";
-  } else if (searchParams.choice === "promotions") {
-    pageTitle = "Produits en Promotion - MaisonNg";
+      "Découvrez nos dernières nouveautés chez ita-luxury. Des produits innovants et tendance vous attendent.";
+  } else if (searchParams.choice === "in-discount") {
+    titleParts.push("Produits en Promotion");
     pageDescription =
-      "Profitez de nos meilleures promotions chez MaisonNg. Des offres exceptionnelles sur une sélection de produits.";
+      "Profitez de nos meilleures promotions chez ita-luxury. Des offres exceptionnelles sur une sélection de produits.";
   }
+
+  if (searchParams.category) {
+    titleParts.push(`Catégorie: ${searchParams.category}`);
+  }
+
+  if (searchParams.color) {
+    titleParts.push(`Couleur: ${searchParams.color}`);
+  }
+
+  if (searchParams.brand) {
+    titleParts.push(`Marque: ${searchParams.brand}`);
+  }
+
+  if (searchParams.price) {
+    titleParts.push(`Prix Max: ${searchParams.price} TD`);
+  }
+
+  if (titleParts.length > 0) {
+    pageTitle = `${titleParts.join(" | ")} - ita-luxury`;
+  }
+
+  // Construct the query string for the canonical URL
+  const queryParams = new URLSearchParams();
+  if (searchParams.choice) queryParams.set("choice", searchParams.choice);
+  if (searchParams.category) queryParams.set("category", searchParams.category);
+  if (searchParams.color) queryParams.set("color", searchParams.color);
+  if (searchParams.price) queryParams.set("price", searchParams.price);
+  if (searchParams.brand) queryParams.set("brand", searchParams.brand);
+
+  const queryString = queryParams.toString();
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/products${
+    queryString ? `?${queryString}` : ""
+  }`;
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
@@ -60,10 +102,10 @@ export async function generateMetadata({
           url: companyInfo?.logo || "/default-og-image.jpg",
           width: 1200,
           height: 630,
-          alt: "MaisonNg",
+          alt: "ita-luxury",
         },
       ],
-      siteName: "MaisonNg",
+      siteName: "ita-luxury",
     },
     twitter: {
       card: "summary_large_image",
@@ -71,13 +113,13 @@ export async function generateMetadata({
       description: pageDescription,
       images: [companyInfo?.logo || "/default-twitter-image.jpg"],
     },
-    keywords: keywords.join(", "),
+    keywords: keywords,
     icons: {
-      icon: "/images/favicon.ico",
+      icon: "../../../../public/favicon.ico",
       apple: "/images/apple-touch-icon.png",
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/products${searchParams.choice ? `?choice=${searchParams.choice}` : ""}`,
+      canonical: canonicalUrl,
     },
   };
 }

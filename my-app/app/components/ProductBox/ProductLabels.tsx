@@ -19,7 +19,7 @@ const ProductLabels: React.FC<ProductLabelsProps> = ({ product }) => {
         </span>
       )}
       {calcDateForNewProduct(product?.createdAt) && product.inventory !== 0 && (
-        <span className="bg-green-500 w-fit justify-start shadow-md p-1">
+        <span className="bg-primaryColor w-fit justify-start shadow-md p-1">
           Nouveau
         </span>
       )}

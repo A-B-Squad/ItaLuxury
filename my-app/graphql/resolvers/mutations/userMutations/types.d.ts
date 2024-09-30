@@ -17,7 +17,7 @@ interface SignInAdminInput {
 }
 
 interface SignInInput {
-  fullName: string;
+  emailOrPhone:string
   password: string;
   role: Role;
 }

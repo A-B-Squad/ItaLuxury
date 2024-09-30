@@ -4,93 +4,57 @@ import { IoHome } from "react-icons/io5";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-const Breadcumb = ({ pageName, pageLink }: any) => {
+const Breadcrumb = ({ pageName, pageLink }: any) => {
   const params = useSearchParams();
-  const position = params?.getAll("collection") ?? [];
-  const categorys = params?.getAll("collection") ?? [];
+  const categoryParams = params?.get("categories") ?? "";
+  const categories = categoryParams.split(",").filter(Boolean);
   const section = params?.get("section") ?? "";
 
+  const breadcrumbItems = [
+    { name: "Accueil", link: "/" },
+    ...(pageName ? [{ name: pageName, link: `/${pageLink}` }] : []),
+    ...(section
+      ? [
+          {
+            name: section,
+            link: `/Collections/tunisie/?section=${encodeURIComponent(section)}`,
+          },
+        ]
+      : []),
+    ...categories.map((category, index) => ({
+      name: category,
+      link:
+        index === categories.length - 1
+          ? null
+          : `/Collections/tunisie/?category=${encodeURIComponent(category)}&categories=${encodeURIComponent(categories.slice(0, index + 1).join(","))}`,
+    })),
+  ];
+
   return (
-    <div className="flex gap-2 justify-center   py-5  justify-self-center w-full flex-wrap items-center  md:text-sm text-base   tracking-[2px]   ">
-      <div className="hover:text-primaryColor  transition-all  flex items-center gap-1">
-        <IoHome />
-        <Link rel="preload" href={"/"}>
-          Accueil
-        </Link>
-      </div>
-
-      {pageName && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className=" text-primaryColor  transition-all flex items-center gap-2">
-            <Link rel="preload" href={`/${pageLink}`}>
-              {pageName}
-            </Link>
+    <div className="flex gap-2 justify-center py-5 justify-self-center w-full flex-wrap items-center md:text-sm text-base tracking-[2px]">
+      {breadcrumbItems.map((item, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && <span className="text-gray-500">/</span>}
+          <div
+            className={`transition-all flex items-center gap-2 ${
+              index === breadcrumbItems.length - 1
+                ? "text-primaryColor"
+                : "hover:text-primaryColor"
+            }`}
+          >
+            {item.link ? (
+              <Link rel="preload" href={item.link}>
+                {index === 0 && <IoHome className="inline mr-1" />}
+                {item.name}
+              </Link>
+            ) : (
+              <span className="cursor-default">{item.name}</span>
+            )}
           </div>
-        </>
-      )}
-
-      {section && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className=" text-primaryColor  transition-all flex items-center gap-2">
-            <p>{section}</p>
-          </div>
-        </>
-      )}
-
-      {position[0] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
-            <Link
-              rel="preload"
-              href={`/Collections/tunisie?category=${position[1]}`}
-            >
-              {position[0]}
-            </Link>
-          </div>
-        </>
-      )}
-
-      {position[2] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
-            <Link
-              rel="preload"
-              href={`/Collections/tunisie?category=${position[3]}`}
-            >
-              {position[2]}
-            </Link>
-          </div>
-        </>
-      )}
-
-      {position[4] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
-            <Link
-              rel="preload"
-              href={`/Collections/tunisie?category=${position[5]}`}
-            >
-              {position[4]}
-            </Link>
-          </div>
-        </>
-      )}
-
-      {position[6] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="text-primaryColor transition-all flex items-center gap-2">
-            <p>{position[6]} </p>
-          </div>
-        </>
-      )}
+        </React.Fragment>
+      ))}
     </div>
   );
 };
 
-export default Breadcumb;
+export default Breadcrumb;

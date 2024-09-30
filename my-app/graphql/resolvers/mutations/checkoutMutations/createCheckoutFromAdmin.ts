@@ -1,5 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
+import { CreateCheckoutFromAdminInput } from "../categoryMutations/types";
 
 const generateCustomId = async (prisma: any) => {
   const currentYear = new Date().getFullYear();
@@ -55,11 +56,11 @@ async function sendCheckoutEmail(
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
+  const deliveryCost = checkout.freeDelivery ? 0.0 : deliveryPrice;
   const totalToPay = checkout.total;
 
   const mailOptions = {
-    from: '"MaisonNg" <no-reply@maisonng.com>',
+    from: '"ita-luxury" <no-reply@ita-luxury.com>',
     to: checkout.User.email,
     subject: "Confirmation de votre commande",
     html: `
@@ -165,9 +166,9 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo" />
+            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo" />
           </div>
-          <h1>MaisonNg</h1>
+          <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
           <p>Merci pour votre commande. Voici les détails :</p>
           
@@ -258,10 +259,10 @@ async function sendCheckoutEmail(
             </div>
           </div>
   
-          <p>Merci d'avoir choisi MaisonNg !</p>
+          <p>Merci d'avoir choisi ita-luxury !</p>
   
           <div class="footer">
-            &copy; ${new Date().getFullYear()} MaisonNg. Tous droits réservés.
+            &copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.
           </div>
         </div>
       </body>
@@ -286,6 +287,7 @@ export const createCheckoutFromAdmin = async (
       userName,
       products,
       manualDiscount,
+      paymentMethod,
       freeDelivery,
     } = input;
 
@@ -316,6 +318,7 @@ export const createCheckoutFromAdmin = async (
         phone,
         address,
         total,
+        paymentMethod:"CASH_ON_DELIVERY",
       },
     });
 

@@ -27,11 +27,7 @@ export const allNewProducts = async (
         favoriteProducts: true,
         attributes: true,
         Colors: true,
-        SameProducts: {
-          include: {
-            Product: true
-          },
-        },
+      
         Brand: true,
       },
       take: takeValue,

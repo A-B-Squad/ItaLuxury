@@ -5,11 +5,11 @@ interface ProductSearchInput {
   query?: string;
   minPrice?: number;
   maxPrice?: number;
-  categoryId?: string;
+  categoryName?: string;
 
-  colorId?: string;
+  colorName?: string;
   choice?: "in-discount" | "new-product";
-  brandId?: string;
+  brandName?: string;
   page: number;
   pageSize?: number;
   visibleProduct?: boolean;
@@ -24,11 +24,11 @@ export const searchProducts = async (
     query,
     minPrice,
     maxPrice,
-    categoryId,
-    colorId,
+    categoryName,
+    colorName,
     page,
     choice,
-    brandId,
+    brandName,
     pageSize,
     visibleProduct,
   } = input;
@@ -55,9 +55,9 @@ export const searchProducts = async (
         maxPrice !== undefined && {
           price: { gte: minPrice, lte: maxPrice },
         }),
-      ...(categoryId && { categories: { some: { id: categoryId } } }),
-      ...(brandId && { Brand: { id: brandId } }),
-      ...(colorId && { Colors: { id: colorId } }),
+      ...(categoryName && { categories: { some: { name: categoryName } } }),
+      ...(brandName && { Brand: { name: brandName } }),
+      ...(colorName && { Colors: { color: colorName } }),
       ...(choice === "in-discount" && { productDiscounts: { some: {} } }),
       ...(choice === "new-product" && {
         createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
@@ -99,11 +99,14 @@ export const searchProducts = async (
         orderBy: currentOrdering,
       }),
       prisma.product.count({ where: whereCondition }),
+
       prisma.category.findMany({
-        where: { name: { contains: query || "", mode: "insensitive" } },
-        take: 8,
+        where: { name: { contains: query , mode: "insensitive" } },
+        take: pageSize,
       }),
     ]);
+
+    
 
     return {
       results: { products, categories },

@@ -59,7 +59,7 @@ const BestSales = () => {
   };
 
   return (
-    <div className="w-full grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 min-h-96 max-h-96 gap-3">
+    <div className="w-full container grid grid-cols-1 grid-rows-3 gap-4  md:grid-cols-2 md:grid-rows-2 lg:grid-rows-1 lg:grid-cols-3 min-h-96 md:max-h-96  ">
       {categories.map((category: string, index: number) => (
         <div key={index} className="mb-8">
           <div className="flex justify-between items-center bg-primaryColor font-semibold tracking-wider text-white p-3 uppercase">

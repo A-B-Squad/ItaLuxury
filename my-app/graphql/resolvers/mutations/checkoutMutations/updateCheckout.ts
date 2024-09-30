@@ -1,5 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
+import { PaymentMethod } from '@prisma/client';
 
 interface UpdateCheckoutInput {
   checkoutId: string;
@@ -45,11 +46,11 @@ async function sendCheckoutEmail(
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
+  const deliveryCost = checkout.freeDelivery ? 0.0 : deliveryPrice;
   const totalToPay = checkout.total;
 
   const mailOptions = {
-    from: '"MaisonNg" <no-reply@maisonng.com>',
+    from: '"ita-luxury" <no-reply@ita-luxury.com>',
     to: checkout.User.email,
     subject: "Mise à jour de votre commande",
     html: `
@@ -155,9 +156,9 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo" />
+            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo" />
           </div>
-          <h1>MaisonNg</h1>
+          <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
         <p>Votre commande a été mise à jour. Voici les nouveaux détails :</p>
           
@@ -248,10 +249,10 @@ async function sendCheckoutEmail(
             </div>
           </div>
   
-          <p>Merci d'avoir choisi MaisonNg !</p>
+          <p>Merci d'avoir choisi ita-luxury !</p>
   
           <div class="footer">
-            &copy; ${new Date().getFullYear()} MaisonNg. Tous droits réservés.
+            &copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.
           </div>
         </div>
       </body>

@@ -1,5 +1,5 @@
 interface CompanyInfoInput{
-    phone:number[]
+    phone:string[]
     deliveringPrice:number
     logo:string
     instagram:string

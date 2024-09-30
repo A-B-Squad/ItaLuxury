@@ -7,9 +7,7 @@ import { COMPANY_INFO_QUERY } from "@/graphql/queries";
 
 const CompanyInfoBar = () => {
   const { data: CompanyInfoData } = useQuery(COMPANY_INFO_QUERY);
-  const phone = CompanyInfoData?.companyInfo?.phone;
-  console.log(phone);
-
+  const phoneNumber = CompanyInfoData?.companyInfo;
   const location = CompanyInfoData?.companyInfo?.location;
   const email = CompanyInfoData?.companyInfo?.email;
   return (
@@ -25,7 +23,10 @@ const CompanyInfoBar = () => {
         <div className="phone flex flex-col justify-center items-center p-4">
           <CiPhone className="text-gray-600" size={35} />
           <h3 className="font-semibold  text-gray-900">Appelez-nous :</h3>
-          <p className=" text-gray-600">(+216) {phone}</p>
+
+          <p className=" text-gray-600" >
+            (+216) {phoneNumber?.phone[0]} / (+216) {phoneNumber?.phone[1]}
+          </p>
         </div>
         <div className="email flex flex-col justify-center items-center p-4">
           <AiOutlineMail className="text-gray-600" size={35} />

@@ -64,13 +64,13 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <nav className="flex justify-start mt-2">
-      <ul className="inline-flex -space-x-px">
+    <nav className="flex justify-end  self-end mt-5">
+      <ul className="inline-flex -space-x-px gap-1">
         <li>
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg 
+            className={`px-2 py-1 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg 
               ${
                 currentPage !== 1
                   ? "hover:bg-gray-100 hover:text-gray-700"
@@ -84,7 +84,7 @@ const Pagination: React.FC<PaginationProps> = ({
           <li key={index}>
             <button
               onClick={() => handlePageClick(number)}
-              className={`px-3 py-2 leading-tight border border-gray-300 
+              className={`px-2 py-1 leading-tight border border-gray-300 
                 ${
                   currentPage === number
                     ? "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700"
@@ -99,7 +99,7 @@ const Pagination: React.FC<PaginationProps> = ({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg 
+            className={`px-2 py-1 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg 
               ${
                 currentPage !== totalPages
                   ? "hover:bg-gray-100 hover:text-gray-700"

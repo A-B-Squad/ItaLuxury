@@ -29,13 +29,7 @@ const Category: React.FC<CategoryProps> = ({
         {data?.categories?.map((category: Category, index: number) => (
           <div data-parentcategory={category.name} key={index}>
             <Link
-              href={{
-                pathname: `/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`,
-
-                query: {
-                  collection: [category.name, category.id],
-                },
-              }}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${[category.name]}`}
               onMouseEnter={() => setActiveCategory(category.name)}
               className={`  group h-fit  py-2 px-3 w-full cursor-pointer hover:bg-gray-100  justify-between flex items-center gap-1  hover:font-semibold font-light transition-all ${
                 category.name === activeCategory
@@ -65,7 +59,6 @@ const Category: React.FC<CategoryProps> = ({
             .map((filteredCategory: Category, index: number) => (
               <Subcategory
                 key={index}
-                parentCategoryId={filteredCategory.id}
                 parentCategoryName={activeCategory}
                 subcategories={filteredCategory.subcategories}
               />

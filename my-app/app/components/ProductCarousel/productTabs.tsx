@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Carousel,
   CarouselContent,
@@ -5,37 +6,58 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import React from "react";
 import NoProductYet from "./NoProductYet";
 import ProductBox from "../ProductBox/ProductBox";
-const ProductTabs = ({ data, loadingProduct, carouselWidthClass }: any) => {
-  if (!data || data.length === 0 || loadingProduct) {
+
+// Define the shape of a product
+interface Product {
+  id: string;
+}
+
+// Define the props for the ProductTabs component
+interface ProductTabsProps {
+  data: Product[];
+  loadingProduct: boolean;
+}
+
+const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
+  if (!data || (data && data.length == 0) || loadingProduct) {
     return <NoProductYet />;
   }
 
+  // Create pairs of products for 2 rows
+  const productPairs: Product[][] = [];
+  for (let i = 0; i < data.length; i += 2) {
+    productPairs.push(data.slice(i, i + 2));
+  }
+
   return (
-    <div className="products-tab w-full  relative  rounded-md shadow-sm grid">
+    <div className="products-tab   w-full        rounded-md shadow-sm">
       {data.length > 0 && (
-        <div className=" overflow-hidden w-full h-fit bg-white ">
-          <Carousel
-            className={`carousel w-full h-4/5 grid    items-center transition-all duration-500 ease-in-out   `}
-          >
-            <CarouselContent className=" carousel_content h-full gap-1 px-3  w-full ">
-              {data.map((product: any, index: any) => (
-                <>
-                  <CarouselItem
-                    key={index}
-                    className={`carousel-item  group hover:rounded-sm  bg-white h-[400px] transition-all relative pb-2  flex  flex-col justify-between  items-center border shadow-xl   ${carouselWidthClass}`}
-                  >
-                    <ProductBox product={product} />
-                  </CarouselItem>
-                </>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="px-2 left-5 transition-all bg-primaryColor text-white " />
-            <CarouselNext className="px-2 transition-all right-5 bg-primaryColor text-white " />
-          </Carousel>
-        </div>
+        <Carousel className="productCarousel w-full ">
+          <div className="flex items-center justify-end -top-12 right-4 md:right-10 absolute gap-2 z-10">
+            <CarouselPrevious className="px-2 shadow-lg border hover:opacity-85 transition-opacity bg-primaryColor text-white" />
+            <CarouselNext className="px-2 shadow-lg border bg-primaryColor text-white hover:opacity-85 transition-opacity" />
+          </div>
+
+          <CarouselContent className="productCarouselContent lg:pl-10">
+            {productPairs.map((pair, index) => (
+              <CarouselItem
+                key={index}
+                className="pl-4 md:pl-6 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 "
+              >
+                <div className="flex flex-col gap-4 h-full">
+                  {pair.map((product, productIndex) => (
+                    <ProductBox
+                      key={`${product.id}-${productIndex}`}
+                      product={product}
+                    />
+                  ))}
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       )}
     </div>
   );

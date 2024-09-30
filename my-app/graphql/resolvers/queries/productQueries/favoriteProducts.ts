@@ -19,11 +19,7 @@ export const favoriteProducts = async (
             },
             Brand: true,
             productDiscounts: true,
-            SameProducts: {
-              include: {
-                Product: true,
-              },
-            },
+        
           },
         },
       },

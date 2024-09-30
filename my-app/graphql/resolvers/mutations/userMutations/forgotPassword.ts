@@ -17,7 +17,7 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
     const resetPasswordUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ResetPassword/${id}`;
 
     await transporter.sendMail({
-      from: '"MaisonNg" <no-reply@maisonng.com>',
+      from: '"ita-luxury" <no-reply@ita-luxury.com>',
       to: email,
       subject: "Reset your password",
       html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -376,7 +376,7 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
                                           word-wrap: break-word;
                                         "
                                       >
-                                        <p style="line-height: 140%">MaisonNg</p>
+                                        <p style="line-height: 140%">ita-luxury</p>
                                       </div>
                                     </td>
                                   </tr>
@@ -486,7 +486,7 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
                                             <img
                                               align="center"
                                               border="0"
-src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg"                                              alt="Image"
+src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png"                                              alt="Image"
                                               title="Image"
                                               style="
                                                 outline: none;
@@ -667,7 +667,7 @@ src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/What
                                               line-height: 25.2px;
                                               color: #666666;
                                             "
-                                            >Nous vous avons envoyé cet email en réponse à votre demande de réinitialisation de mot de passe sur MaisonNg.</span
+                                            >Nous vous avons envoyé cet email en réponse à votre demande de réinitialisation de mot de passe sur ita-luxury.</span
                                           >
                                         </p>
                                         <p style="font-size: 14px; line-height: 140%">

@@ -1,5 +1,5 @@
 "use client";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
@@ -18,8 +18,11 @@ import {
 } from "@/app/store/zustand";
 import { GoAlertFill } from "react-icons/go";
 import { SlBasket } from "react-icons/sl";
-import { BASKET_QUERY } from "@/graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useToast } from "@/components/ui/use-toast";
+import triggerEvents from "@/utlils/trackEvents";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -50,62 +53,158 @@ const ProductInfo = () => {
     setActualQuantity((prevQuantity) =>
       productData && prevQuantity < productData.inventory
         ? prevQuantity + 1
-        : prevQuantity,
+        : prevQuantity
     );
   }, [productData]);
 
   const handleSubtractQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1,
+      prevQuantity > 1 ? prevQuantity - 1 : 1
     );
   }, []);
-  const { addProductToBasket, products } = useProductsInBasketStore(
-    (state) => ({
+  const { addProductToBasket, products, increaseProductInQtBasket } =
+    useProductsInBasketStore((state) => ({
+      increaseProductInQtBasket: state.increaseProductInQtBasket,
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
-  );
-
-  const AddToBasket = (product: any) => {
+    }));
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+  const { data: basketData } = useQuery(BASKET_QUERY, {
+    variables: { userId: decodedToken?.userId },
+  });
+  const AddToBasket = async (product: any) => {
     if (decodedToken) {
-      addToBasket({
-        variables: {
-          input: {
-            userId: decodedToken?.userId,
-            quantity: actualQuantity,
-            productId: product.id,
-          },
-        },
-        refetchQueries: [
-          {
-            query: BASKET_QUERY,
-            variables: { userId: decodedToken?.userId },
-          },
-        ],
-        onCompleted: () => {
+      try {
+        // Find if the product is already in the basket
+        const existingBasketItem = basketData.basketByUserId.find(
+          (item: any) => item.Product.id === product.id
+        );
+
+        const currentBasketQuantity = existingBasketItem
+          ? existingBasketItem.quantity
+          : 0;
+        const totalQuantity = currentBasketQuantity + actualQuantity;
+
+        // Check if the total quantity exceeds the inventory
+        if (totalQuantity > product.inventory) {
           toast({
-            title: "Notification de Panier",
-            description: `Le produit "${product?.name}" a été ajouté au panier.`,
-            className: "bg-primaryColor text-white",
+            title: "Quantité non disponible",
+            description: `Désolé, nous n'avons que ${product.inventory} unités en stock. Votre panier contient déjà ${currentBasketQuantity} unités.`,
+            className: "bg-red-600 text-white",
           });
-        },
-      });
+          return;
+        }
+
+        // If everything is okay, proceed with adding to basket
+        await addToBasket({
+          variables: {
+            input: {
+              userId: decodedToken?.userId,
+              quantity: actualQuantity,
+              productId: product.id,
+            },
+          },
+          refetchQueries: [
+            {
+              query: BASKET_QUERY,
+              variables: { userId: decodedToken?.userId },
+            },
+          ],
+          onCompleted: () => {
+            toast({
+              title: "Produit ajouté au panier",
+              description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${product?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+              className: "bg-primaryColor text-white",
+            });
+            // Track Add to Cart
+            triggerEvents("AddToCart",  {
+              user_data: {
+                em: [userData?.fetchUsersById.email.toLowerCase()],
+                fn: [userData?.fetchUsersById.fullName],
+                ph: [userData?.fetchUsersById?.number.join("")],
+                country: ["tn"],
+                external_id: userData?.fetchUsersById.id,
+              },
+              content_name: product.name,
+              content_type: "product",
+              content_ids: [product.id],
+              value:
+                product.productDiscounts.length > 0
+                  ? product.productDiscounts[0].newPrice
+                  : product.price,
+              currency: "TND",
+            });
+            pushToDataLayer("AddToCart");
+          },
+        });
+      } catch (error) {
+        console.error("Error adding to basket:", error);
+        toast({
+          title: "Erreur",
+          description:
+            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+          className: "bg-red-600 text-white",
+        });
+      }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
+        if (actualQuantity > product.inventory) {
+          toast({
+            title: "Quantité non disponible",
+            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+            className: "bg-red-600 text-white",
+          });
+          return;
+        }
         addProductToBasket({
           ...product,
           price:
             product.productDiscounts.length > 0
               ? product?.productDiscounts[0]?.newPrice
               : product?.price,
-          actualQuantity: 1,
+          actualQuantity: actualQuantity,
+        });
+        toast({
+          title: "Produit ajouté au panier",
+          description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${product?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+          className: "bg-green-600 text-white",
         });
       } else {
-        console.log("Product is already in the basket");
+        increaseProductInQtBasket(product.id);
+
+        toast({
+          title: "Produit déjà dans le panier",
+          description: `"${product?.name}" est déjà dans votre panier. Vous pouvez modifier la quantité dans le panier.`,
+          className: "bg-blue-600 text-white",
+        });
       }
+      // Track Add to Cart
+      triggerEvents("AddToCart",  {
+        user_data: {
+          em: [userData?.fetchUsersById.email.toLowerCase()],
+          fn: [userData?.fetchUsersById.fullName],
+          ph: [userData?.fetchUsersById?.number.join("")],
+          country: ["tn"],
+          external_id: userData?.fetchUsersById.id,
+        },
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        value:
+          product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : product.price,
+        currency: "TND",
+      });
+      pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
   };
@@ -125,7 +224,7 @@ const ProductInfo = () => {
     <>
       <div
         onClick={closeProductDetails}
-        className={`fixed cursor-none z-[14514]   ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`fixed cursor-none z-[14514]    ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
       >
         <IoCloseOutline
           size={40}
@@ -135,7 +234,7 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed overflow-y-auto overflow-x-hidden h-4/5 z-[11111600] border  ${isOpen ? "-translate-y-[45%] opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white md:w-4/5 w-11/12 shadow-xl p-8 place-content-center rounded-md  `}
+        className={`fixed overflow-y-auto pb-20 overflow-x-hidden h-5/6 z-[11111600] border  ${isOpen ? "-translate-y-[46%] opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white  w-11/12 p-8 place-content-center  `}
       >
         <IoCloseOutline
           size={40}
@@ -143,8 +242,8 @@ const ProductInfo = () => {
           className="absolute bg-white rounded-full p-2  hover:rotate-180 transition-all cursor-pointer -right-0 -top-0"
         />
         <div className="details    flex flex-col justify-center items-start   lg:flex-row   ">
-          <div className="flex  relative lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
-            <div className="shadow-xl relative  border-2  h-fit md:max-w-md flex items-center justify-center p-1 rounded-xl">
+          <div className="flex  relative md:w-2/4   justify-center items-center flex-col gap-2 text-center">
+            <div className=" relative  border-2  h-fit md:max-w-md flex items-center justify-center p-1 ">
               <InnerImageZoom
                 className="relative  rounded object-cover"
                 zoomSrc={bigImage || ""}

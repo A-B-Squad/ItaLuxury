@@ -11,8 +11,9 @@ export const categoryById = async (
         id: categoryId,
       },
       include: {
-        products: true, // Include products related to the category
-        subcategories: true, // Include subcategories related to the category
+        products: true, 
+        subcategories: true, 
+        
       },
     });
 

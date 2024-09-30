@@ -1,16 +1,12 @@
 import { Context } from "@/pages/api/graphql";
 
-interface PayedOrToDeliveryPackageInput {
-  packageId: string;
-  status: "PAYED" | "TRANSFER_TO_DELIVERY_COMPANY";
-}
 
 export const payedOrToDeliveryPackage = async (
   _: any,
   {
     packageId,
     status,
-  }: { packageId: string; status: "PAYED" | "TRANSFER_TO_DELIVERY_COMPANY" },
+  }: { packageId: string; status: "PAYED_AND_DELIVERED" | "TRANSFER_TO_DELIVERY_COMPANY" },
   { prisma }: Context
 ): Promise<string> => {
   try {
@@ -18,6 +14,7 @@ export const payedOrToDeliveryPackage = async (
       where: { id: packageId },
       include: { Checkout: true },
     });
+    
 
     if (!existingPackage) {
       throw new Error("Package not found");
@@ -27,10 +24,7 @@ export const payedOrToDeliveryPackage = async (
       throw new Error("Checkout not found for this package");
     }
 
-    if (!existingPackage.Checkout.userId) {
-      throw new Error("User ID not found in checkout");
-    }
-
+  
     if (status === "TRANSFER_TO_DELIVERY_COMPANY") {
       // Fetch the products associated with the checkout
       const checkoutProducts = await prisma.productInCheckout.findMany({

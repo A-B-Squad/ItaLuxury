@@ -1,4 +1,4 @@
-import { trackEvent } from "@/app/Helpers/_trackEvents";
+import triggerEvents from "@/utlils/trackEvents";
 import {
   useBasketStore,
   useDrawerBasketStore,
@@ -8,10 +8,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -20,7 +22,6 @@ const productDetailsDrawer = ({
   isBottom,
   productDetails,
   addToBasket,
-  productId,
   discount,
   actualQuantity,
   setActualQuantity,
@@ -34,7 +35,7 @@ const productDetailsDrawer = ({
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
@@ -52,7 +53,7 @@ const productDetailsDrawer = ({
       try {
         // Find if the product is already in the basket
         const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
+          (item: any) => item.Product.id === product.id
         );
 
         const currentBasketQuantity = existingBasketItem
@@ -92,20 +93,28 @@ const productDetailsDrawer = ({
               className: "bg-primaryColor text-white",
             });
             // Track Add to Cart
-            trackEvent("AddToCart", {
-              em: userData?.fetchUsersById.email.toLowerCase(),
-              fn: userData?.fetchUsersById.fullName,
-              ph: userData?.fetchUsersById.number[0],
-              country: "tn",
-              content_name: productDetails.name,
-              content_type: "product",
-              content_ids: [productDetails.id],
-              value:
-                productDetails.productDiscounts.length > 0
-                  ? productDetails.productDiscounts[0].newPrice
-                  : productDetails.price,
-              currency: "TND",
+
+            triggerEvents("AddToCart",  {
+              user_data: {
+                em: [userData?.fetchUsersById.email.toLowerCase()],
+                fn: [userData?.fetchUsersById.fullName],
+                ph: [userData?.fetchUsersById?.number.join("")],
+                country: ["tn"],
+                external_id: userData?.fetchUsersById.id,
+              },
+              custom_data: {
+                content_name: productDetails.name,
+                content_type: "product",
+                content_ids: [productDetails.id],
+                contents: productDetails,
+                value:
+                  productDetails.productDiscounts.length > 0
+                    ? productDetails.productDiscounts[0].newPrice
+                    : productDetails.price,
+                currency: "TND",
+              },
             });
+            pushToDataLayer("AddToCart");
           },
         });
       } catch (error) {
@@ -119,7 +128,7 @@ const productDetailsDrawer = ({
       }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         if (actualQuantity > product.inventory) {
@@ -143,21 +152,6 @@ const productDetailsDrawer = ({
           description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
           className: "bg-green-600 text-white",
         });
-        // Track Add to Cart
-        trackEvent("AddToCart", {
-          em: userData?.fetchUsersById.email.toLowerCase(),
-          fn: userData?.fetchUsersById.fullName,
-          ph: userData?.fetchUsersById.number[0],
-          country: "tn",
-          content_name: productDetails.name,
-          content_type: "product",
-          content_ids: [productDetails.id],
-          value:
-            productDetails.productDiscounts.length > 0
-              ? productDetails.productDiscounts[0].newPrice
-              : productDetails.price,
-          currency: "TND",
-        });
       } else {
         toast({
           title: "Produit déjà dans le panier",
@@ -165,6 +159,29 @@ const productDetailsDrawer = ({
           className: "bg-blue-600 text-white",
         });
       }
+      // Track Add to Cart
+      triggerEvents("AddToCart",  {
+        user_data: {
+          em: [userData?.fetchUsersById.email.toLowerCase()],
+          fn: [userData?.fetchUsersById.fullName],
+          ph: [userData?.fetchUsersById?.number.join("")],
+          country: ["tn"],
+          external_id: userData?.fetchUsersById.id,
+        },
+        custom_data: {
+          content_name: productDetails.name,
+          content_type: "product",
+          content_ids: [productDetails.id],
+          contents: productDetails,
+          value:
+            productDetails.productDiscounts.length > 0
+              ? productDetails.productDiscounts[0].newPrice
+              : productDetails.price,
+          currency: "TND",
+        },
+      });
+    pushToDataLayer("AddToCart")
+
     }
     toggleIsUpdated();
     openBasketDrawer();
@@ -210,7 +227,7 @@ const productDetailsDrawer = ({
                 className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1,
+                    actualQuantity > 1 ? actualQuantity - 1 : 1
                   );
                 }}
               >
@@ -229,7 +246,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity,
+                      : actualQuantity
                   );
                 }}
               >

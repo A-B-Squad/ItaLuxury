@@ -2,13 +2,19 @@ import { Context } from "@/pages/api/graphql";
 
 export const allDeals = async (_: any, __: any, { prisma }: Context) => {
   try {
-    const products = await prisma.topDeals.findMany({
+    const products = await prisma.topDeals.findMany(
+      
+
+      
+      {
       include: {
         product: {
+        
           include: {
             productDiscounts: {
               include: { Discount: true },
             },
+            
             Colors: true,
             attributes: true,
             categories: {
@@ -28,22 +34,26 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
 
     for (let index = 0; index < products.length; index++) {
       const product = products[index];
+      console.log(product);
+      
       if (product.product && product.product.productDiscounts.length > 0) {
         hasDiscount = true;
         break; // No need to check further once we found a discount
       }
     }
-
+    
+    console.log(hasDiscount,"#########################");
     // If no products have discounts, update the visibility status
     if (!hasDiscount) {
       // First, find the ID of the "topDeals" section
       const section = await prisma.content_visibility.findFirst({
         where: {
-          section: "topDeals",
+          section: "TOP DEAL",
         },
       });
-
+      
       if (section) {
+        console.log(section,"ahhahahahahahahahhah");
         // Update the visibility status using the found ID
         await prisma.content_visibility.update({
           where: {

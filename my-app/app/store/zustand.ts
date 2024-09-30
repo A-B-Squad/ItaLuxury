@@ -22,25 +22,25 @@ interface ProductData {
   id: string;
   name: string;
   price: number;
-  reference: string;
-  description: string;
-  createdAt: Date;
-  inventory: number;
   images: string[];
+  quantity: number;
+  basketId: string;
+  productDiscounts: {
+    newPrice: number;
+  }[];
   categories: {
     name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
   }[];
-  Colors: {
-    color: string;
-    Hex: string;
-  };
-  productDiscounts: {
-    price: number;
-    newPrice: number;
-    Discount: {
-      percentage: number;
-    };
-  }[];
+  [key: string]: any;
 }
 type UseProductDetails = {
   isOpen: boolean;
@@ -95,20 +95,15 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
     })),
 });
 
-// Define the Product type
-interface Product {
-  [x: string]: number;
-
-  price: number;
-}
-
 // Define the ProductsInBasketStore type
 interface ProductsInBasketStore {
-  products: Product[];
+  products: ProductData[];
   quantityInBasket: number;
   setQuantityInBasket: (quantity: number) => void;
-  addProductToBasket: (product: Product) => void;
+  addProductToBasket: (product: ProductData) => void;
   removeProductFromBasket: (productId: string) => void;
+  increaseProductInQtBasket: (productId: string) => void;
+  decreaseProductInQtBasket: (productId: string) => void;
   clearBasket: () => void;
 }
 
@@ -126,27 +121,74 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
       quantityInBasket: quantity,
     }));
   },
-  addProductToBasket: (product: Product) => {
+  addProductToBasket: (product: ProductData) => {
     set((state) => ({
       products: [...state.products, product],
+      quantityInBasket: state.products.length + 1,
     }));
+  },
+  increaseProductInQtBasket: (productId: string) => {
+    set((state) => {
+      const updatedProducts = state.products.map((product) =>
+        product.id === productId
+          ? { ...product, actualQuantity: (product.actualQuantity || 0) + 1 }
+          : product,
+      );
+
+      const updatedQuantityInBasket = updatedProducts.reduce(
+        (sum, product) => sum + (product.actualQuantity || 0),
+        0,
+      );
+
+      return {
+        products: updatedProducts,
+        quantityInBasket: updatedQuantityInBasket,
+      };
+    });
+  },
+
+  decreaseProductInQtBasket: (productId: string) => {
+    set((state) => {
+      const updatedProducts = state.products
+        .map((product) =>
+          product.id === productId && product.actualQuantity > 0
+            ? { ...product, actualQuantity: product.actualQuantity - 1 }
+            : product,
+        )
+        .filter((product) => product.actualQuantity > 0);
+
+      const updatedQuantityInBasket = updatedProducts.reduce(
+        (sum, product) => sum + product.actualQuantity,
+        0,
+      );
+
+      return {
+        products: updatedProducts,
+        quantityInBasket: updatedQuantityInBasket,
+      };
+    });
   },
   removeProductFromBasket: (productId: string) => {
-    set((state) => ({
-      products: state.products.filter(
-        (product: any) => product.id !== productId,
-      ),
-    }));
+    set((state) => {
+      const updatedProducts = state.products.filter(
+        (product) => product.id !== productId,
+      );
+      return {
+        products: updatedProducts,
+        quantityInBasket: updatedProducts.length,
+      };
+    });
   },
   clearBasket: () => {
-    set((state) => ({
+    set(() => ({
       products: [],
+      quantityInBasket: 0,
     }));
   },
 });
 
 export const useProductsInBasketStore = create(
-  persist(productsInBasketStore, {
+  persist<ProductsInBasketStore>(productsInBasketStore, {
     name: "productsInBasket",
     storage: createJSONStorage(() => sessionStorage),
   }),

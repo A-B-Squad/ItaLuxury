@@ -11,21 +11,21 @@ if (
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Liste des favoris - MaisonNg",
-  description: "Consultez votre liste de favoris sur MaisonNg.",
+  title: "Liste des favoris - ita-luxury",
+  description: "Consultez votre liste de favoris sur ita-luxury.",
   keywords: keywords,
 
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/favorites`,
     type: "website",
-    title: "Liste des favoris - MaisonNg",
-    description: "Consultez votre liste de favoris sur MaisonNg.",
+    title: "Liste des favoris - ita-luxury",
+    description: "Consultez votre liste de favoris sur ita-luxury.",
     images: [
       {
-        url: "../../public/images/logo.jpeg",
+        url: "../../../public/LOGO.png",
         width: 800,
         height: 600,
-        alt: "Maison Ng",
+        alt: "ita-luxury",
       },
     ],
   },

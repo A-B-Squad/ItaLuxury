@@ -23,20 +23,20 @@ const LeftAdsCarousel = ({
   return (
     <>
       {(images.length === 0 || loadingRightAdsCarousel) && (
-        <div className="left-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
+        <div className="left-ads flex xl:flex-col xl:max-w-[455px] w-full items-center justify-center  gap-5 md:gap-12">
+          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
+          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         </div>
       )}
 
       {images.length > 0 && (
-        <div className="left-ads flex lg:flex-col  gap-5 md:gap-12">
+        <div className="left-ads flex xl:flex-col max-w-[455px]  w-full h-full  gap-5 md:gap-12">
           <Link
-            className="relative group w-[12rem] rounded-md border bg-white overflow-hidden md:w-[15rem] hover:opacity-90 transition-all xl:w-[20rem]"
+            className="relative group  rounded-md border bg-white overflow-hidden w-[455px] max-w-full h-[230px] hover:opacity-90 transition-all "
             href={AdsNextToCarousel[0]?.link}
           >
             <span
@@ -56,7 +56,7 @@ const LeftAdsCarousel = ({
             />
           </Link>
           <Link
-            className="relative group w-[12rem] rounded-md bg-white border md:w-[15rem] overflow-hidden  xl:w-[20rem]"
+            className="relative group  rounded-md bg-white border w-[455px] h-[230px] overflow-hidden  "
             href={AdsNextToCarousel[1]?.link}
           >
             <span

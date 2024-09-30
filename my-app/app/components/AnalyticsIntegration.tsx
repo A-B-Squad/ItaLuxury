@@ -1,9 +1,80 @@
+"use client";
 // components/AnalyticsIntegration.tsx
+import { useEffect, useState } from "react";
 import Script from "next/script";
+import Head from "next/head";
+
+if (
+  !process.env.NEXT_PUBLIC_API_URL ||
+  !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
+) {
+  throw new Error("NEXT_PUBLIC_API_URL or BASE_URL_DOMAIN is not defined");
+}
+
+interface ApiCredentials {
+  access_token: string;
+  api_id: string;
+  domainVerification: string;
+}
 
 const AnalyticsIntegration = () => {
+  const [fbPixelId, setFbPixelId] = useState<string | null>(null);
+  const [fbDomainVerification, setFbDomainVerification] = useState<
+    string | null
+  >(null);
+  
+
+  useEffect(() => {
+    const fetchApiCredentials = async () => {
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+        console.error("API URL is not defined");
+        return;
+      }
+
+      try {
+        const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+    query getApiCredentials($integrationFor: String) {
+  getApiCredentials(integrationFor: $integrationFor) {
+    api_id
+    domainVerification
+  }
+}
+
+            `,
+            variables: { integrationFor: "FACEBOOK" },
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.data && result.data.getApiCredentials) {
+          const fbCredentials = result.data.getApiCredentials as ApiCredentials;
+          setFbDomainVerification(fbCredentials.domainVerification);
+          
+          setFbPixelId(fbCredentials.api_id);
+          console.log(fbCredentials);
+        }
+      } catch (error) {
+        console.error("Error fetching API credentials:", error);
+      }
+    };
+
+    fetchApiCredentials();
+  }, []);
   return (
     <>
+      {fbDomainVerification && (
+        <meta
+          name="facebook-domain-verification"
+          content={fbDomainVerification}
+        />
+      )}
       {/* Google Tag Manager */}
       <Script
         id="gtm"
@@ -20,32 +91,36 @@ const AnalyticsIntegration = () => {
       />
 
       {/* Meta Pixel */}
-      <Script
-        id="fb-pixel"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '864203108451960');
-            fbq('track', 'PageView');
-          `,
-        }}
-      />
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src="https://www.facebook.com/tr?id=864203108451960&ev=PageView&noscript=1"
-        />
-      </noscript>
+      {fbPixelId && (
+        <>
+          <Script
+            id="fb-pixel"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${fbPixelId}');
+                fbq('track', 'PageView');
+              `,
+            }}
+          />
+          <noscript>
+            <img
+              height="1"
+              width="1"
+              style={{ display: "none" }}
+              src={`https://www.facebook.com/tr?id=${fbPixelId}&ev=PageView&noscript=1`}
+            />
+          </noscript>
+        </>
+      )}
 
       {/* Google Analytics */}
       <Script
@@ -53,11 +128,12 @@ const AnalyticsIntegration = () => {
         src="https://www.googletagmanager.com/gtag/js?id=G-2C9K3VF02Y"
       ></Script>
       <Script>
-        {` window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2C9K3VF02Y')`}
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-2C9K3VF02Y');
+        `}
       </Script>
     </>
   );

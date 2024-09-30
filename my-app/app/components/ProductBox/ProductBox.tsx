@@ -3,16 +3,13 @@ import { useMutation, useQuery } from "@apollo/client";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { FaRegEye, FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
-import Link from "next/link";
-import Image from "next/legacy/image";
+
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import FavoriteProduct from "../ProductCarousel/FavoriteProduct";
-import calcDateForNewProduct from "../../Helpers/_calcDateForNewProduct";
-import prepRoute from "@/app/Helpers/_prepRoute";
+
 import {
   useAllProductViewStore,
   useBasketStore,
@@ -27,7 +24,8 @@ import ProductImage from "./ProductImage";
 import ProductName from "./ProductName";
 import FullViewDetails from "./FullViewDetails";
 import CompactViewDetails from "./CompactViewDetails";
-import { trackEvent } from "@/app/Helpers/_trackEvents";
+import triggenrEvents from "@/utlils/trackEvents";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -50,9 +48,10 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
-  const { addProductToBasket, products } = useProductsInBasketStore();
+  const { addProductToBasket, products, increaseProductInQtBasket } =
+    useProductsInBasketStore();
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
@@ -74,7 +73,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     }
   }, []);
 
-  const handleAddToBasket = useCallback(() => {
+  const handleAddToBasket = useCallback(async () => {
     // Check if the product quantity in basket exceeds the available inventory
     const existingProduct = products.find((p: any) => p.id === product.id);
     const newQuantity = existingProduct
@@ -121,20 +120,26 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
             className: "bg-primaryColor text-white",
           });
           // Track Add to Cart
-          trackEvent("AddToCart", {
-            em: userData?.fetchUsersById.email.toLowerCase(),
-            fn: userData?.fetchUsersById.fullName,
-            ph: userData?.fetchUsersById.number[0],
-            country: "tn",
-            content_name: product.name,
-            content_type: "product",
-            content_ids: [product.id],
-            value:
-              product.productDiscounts.length > 0
-                ? product.productDiscounts[0].newPrice
-                : product.price,
-            currency: "TND",
+          triggenrEvents("AddToCart", {
+            user_data: {
+              em: [userData?.fetchUsersById.email.toLowerCase()],
+              fn: [userData?.fetchUsersById.fullName],
+              ph: [userData?.fetchUsersById?.number.join("")],
+              country: ["tn"],
+              external_id: userData?.fetchUsersById.id,
+            },
+            custom_data: {
+              content_name: product.name,
+              content_type: "product",
+              currency: "TND",
+              content_ids: [product.id],
+              value:
+                product.productDiscounts.length > 0
+                  ? product.productDiscounts[0].newPrice
+                  : product.price,
+            },
           });
+          pushToDataLayer("AddToCart")
         },
       });
     } else {
@@ -147,36 +152,49 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
               : product?.price,
           actualQuantity: 1,
         });
-        trackEvent("AddToCart", {
-          em: userData?.fetchUsersById.email.toLowerCase(),
-          fn: userData?.fetchUsersById.fullName,
-          ph: userData?.fetchUsersById.number[0],
-          country: "tn",
-          content_name: product.name,
-          content_type: "product",
-          content_ids: [product.id],
-          value:
-            product.productDiscounts.length > 0
-              ? product.productDiscounts[0].newPrice
-              : product.price,
-          currency: "TND",
-        });
+
         toast({
           title: "Notification de Panier",
           description: `Le produit "${product?.name}" a été ajouté au panier.`,
           className: "bg-primaryColor text-white",
         });
       } else {
+        increaseProductInQtBasket(product.id);
+
         toast({
           title: "Notification de Panier",
           description: `Product is already in the basket`,
           className: "bg-primaryColor text-white",
         });
       }
+      // Track Add to Cart
+      triggenrEvents("AddToCart", {
+        user_data: {
+          em: [userData?.fetchUsersById.email.toLowerCase()],
+          fn: [userData?.fetchUsersById.fullName],
+          ph: [userData?.fetchUsersById?.number.join("")],
+          country: ["tn"],
+          external_id: userData?.fetchUsersById.id,
+        },
+
+        custom_data: {
+          content_name: product.name,
+          content_type: "product",
+          currency: "TND",
+          content_ids: [product.id],
+          contents: product,
+          value:
+            product.productDiscounts.length > 0
+              ? product.productDiscounts[0].newPrice
+              : product.price,
+        },
+      });
+      pushToDataLayer("AddToCart")
+
     }
 
     toggleIsUpdated();
-    openBasketDrawer();
+  
   }, [
     decodedToken,
     product,
@@ -186,12 +204,12 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     toggleIsUpdated,
     openBasketDrawer,
     toast,
-    trackEvent,
+    triggenrEvents,
   ]);
 
   const handleAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);
@@ -232,11 +250,11 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
   return (
     <div
-      className={`product-box w-full h-full flex  ${view === 1 ? " flex-row" : "flex-col  justify-around"}  `}
+      className={`product-box w-full relative group  flex items-center h-[365px]  bg-white  ${view === 1 ? " flex-row" : "flex-col  justify-around"}  `}
     >
       {/* Quick action buttons */}
       <ul
-        className={`plus_button ${view === 1 ? "top-5 hidden md:flex" : "flex top-14"} items-center lg:opacity-0 group-hover:opacity-100 absolute right-3 z-30 justify-between flex-col gap-3`}
+        className={`plus_button h-fit absolute ${view === 1 ? " top-[85px] lg:top-24 right-5   flex lg:flex-col" : "flex  bottom-36  lg:bottom-full lg:left-[85%] lg:flex-col lg:top-12"} items-center lg:opacity-0 lg:group-hover:opacity-100   z-30 justify-between gap-2  md:gap-3`}
       >
         <QuickActionButton
           icon={<FaRegEye color="white" />}

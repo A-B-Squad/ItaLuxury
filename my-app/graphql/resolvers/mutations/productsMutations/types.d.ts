@@ -35,7 +35,6 @@ interface ProductInput {
   colorsId?: string;
   discount?: ProductDiscountInput[];
   brandId?: string;
-  sameProductId?: string;
 }
 
 interface ProductAttributeInput {

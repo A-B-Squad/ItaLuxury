@@ -25,11 +25,7 @@ export const productsLessThen20 = async (
           },
         },
         baskets: true,
-        SameProducts: {
-          include: {
-            Product: true,
-          },
-        },
+
         reviews: true,
         favoriteProducts: true,
         attributes: true,

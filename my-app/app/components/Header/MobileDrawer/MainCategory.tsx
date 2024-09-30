@@ -31,8 +31,8 @@ const Category: React.FC<CategoryProps> = ({
           activeCategory !== "" ? "-translate-x-full" : ""
         }`}
       >
-        <h1 className="to-blue-300 text-lg font-bold text-center uppercase pr-7 py-2 ">
-          Choisir une catégorie
+        <h1 className="to-blue-300 text-lg list-outside  font-medium  uppercase px-7 pt-4  ">
+          Choisir une catégorie :
         </h1>
 
         {data?.categories?.map((category: Category, index: number) => (
@@ -47,7 +47,7 @@ const Category: React.FC<CategoryProps> = ({
           >
             <Link
               className="capitalize"
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${[category.name]}`}
             >
               {category.name}
             </Link>
@@ -71,6 +71,7 @@ const Category: React.FC<CategoryProps> = ({
             <Subcategory
               key={index}
               subcategories={filteredCategory.subcategories}
+              parentCategoryName={activeCategory}
               backToMainCategory={setActiveCategory}
             />
           ))}

@@ -9,7 +9,7 @@ import Image from "next/legacy/image";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { CiTrash } from "react-icons/ci";
 import { DELETE_BASKET_BY_ID_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY } from "@/graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import prepRoute from "@/app/Helpers/_prepRoute";
 import {
   useBasketStore,
@@ -17,6 +17,8 @@ import {
   useProductsInBasketStore,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
+import triggerEvents from "@/utlils/trackEvents";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -33,13 +35,17 @@ interface Product {
   productDiscounts?: { newPrice: number }[];
 }
 
-const BasketDrawer = () => {
+const BasketDrawer: React.FC = () => {
   const { toast } = useToast();
 
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const { products, removeProductFromBasket, setQuantityInBasket } =
-    useProductsInBasketStore();
+  const {
+    products,
+    quantityInBasket,
+    removeProductFromBasket,
+    setQuantityInBasket,
+  } = useProductsInBasketStore();
   const { isUpdated } = useBasketStore();
 
   const { data, error, refetch } = useQuery(BASKET_QUERY, {
@@ -47,7 +53,17 @@ const BasketDrawer = () => {
     skip: !decodedToken?.userId,
     fetchPolicy: "cache-and-network",
   });
+
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
+
+
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -89,8 +105,8 @@ const BasketDrawer = () => {
         productsInBasket.reduce(
           (acc: any, curr: { actualQuantity: any }) =>
             acc + curr.actualQuantity,
-          0,
-        ),
+          0
+        )
       );
     }
   }, [
@@ -104,7 +120,7 @@ const BasketDrawer = () => {
 
   const handleRemoveProduct = useCallback(
     async (productId: string, basketId?: string) => {
-      if (decodedToken && basketId) {
+      if (decodedToken?.userId && basketId) {
         try {
           await deleteBasketById({ variables: { basketId } });
           refetch();
@@ -115,7 +131,7 @@ const BasketDrawer = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
 
   const renderProductList = () => (
@@ -126,7 +142,7 @@ const BasketDrawer = () => {
             <Image
               layout="fill"
               objectFit="contain"
-              src={product.images[0]}
+              src={product?.images[0]}
               alt={product.name}
               className="h-full w-full object-cover object-center"
             />
@@ -136,13 +152,9 @@ const BasketDrawer = () => {
               <div className="flex flex-col gap-2 text-base font-medium w-full justify-between text-gray-900">
                 <Link
                   className="hover:text-secondaryColor text-sm w-5/6 transition-colors"
-                  href={{
-                    pathname: `/products/tunisie/${prepRoute(product.name)}`,
-                    query: {
-                      productId: product.id,
-                      collection: [product.name],
-                    },
-                  }}
+                  href={`/products/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
+                    product.name,
+                  ]}`}
                 >
                   {product.name}
                 </Link>
@@ -187,12 +199,14 @@ const BasketDrawer = () => {
     </div>
   );
 
-  if (error)
-    return toast({
+  if (error) {
+    toast({
       title: "Erreur",
       description: "Impossible de charger le panier. Veuillez réessayer.",
       className: "bg-red-500 text-white",
     });
+    return;
+  }
 
   return (
     <Drawer
@@ -255,25 +269,50 @@ const BasketDrawer = () => {
             </p>
             <div className="mt-6">
               <Link
-                href={
-                  decodedToken
-                    ? {
-                        pathname: "/Checkout",
-                        query: {
-                          products: JSON.stringify(productsInBasket),
-                          total: totalPrice.toFixed(3),
-                        },
-                      }
-                    : "/signin"
-                }
-                className="flex items-center justify-center transition-all rounded-md border border-transparent bg-primaryColor px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
+                onClick={() => {
+                  // Track Add to Cart
+                  triggerEvents("InitiateCheckout", {
+                    user_data: {
+                      em: [userData?.fetchUsersById.email.toLowerCase()],
+                      fn: [userData?.fetchUsersById.fullName],
+                      ph: [userData?.fetchUsersById?.number.join("")],
+                      country: ["tn"],
+                      external_id: userData?.fetchUsersById.id,
+                    },
+                    custom_data: {
+                      content_name: "Initiate Checkout",
+                      content_type: "product",
+                      currency: "TND",
+                      value: totalPrice,
+                      contents: products.map((product) => ({
+                        id: product.id,
+                        quantity: product.actualQuantity || product.quantity,
+                      })),
+                      num_items: products.reduce(
+                        (sum, product) =>
+                          sum +
+                          (product?.actualQuantity || product?.quantity || 0),
+                        0
+                      ),
+                    },
+                  });
+                  pushToDataLayer("Initiate Checkout");
+                }}
+                href={{
+                  pathname: "/Checkout",
+                  query: {
+                    products: JSON.stringify(productsInBasket),
+                    total: totalPrice.toFixed(3),
+                  },
+                }}
+                className="flex items-center justify-center transition-all  border border-transparent bg-primaryColor px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
               >
                 Vérifier
               </Link>
               <Link
                 onClick={closeBasketDrawer}
-                href={decodedToken ? "/Basket" : "/signin"}
-                className="flex items-center transition-all justify-center rounded-md border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
+                href={"/Basket"}
+                className="flex items-center transition-all justify-center  border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
               >
                 Voir Panier
               </Link>

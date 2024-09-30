@@ -1,3 +1,4 @@
+// Import necessary dependencies and components
 "use client";
 import { CONTACT_US_MUTATION } from "@/graphql/mutations";
 import { useMutation } from "@apollo/client";
@@ -8,29 +9,39 @@ import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
+// Define interfaces for type safety
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
 
-const ContactUsForm = () => {
-  const { toast } = useToast();
+interface FormData {
+  email: string;
+  message: string;
+  subject: string;
+  text: string;
+}
 
+// Main ContactUsForm component
+const ContactUsForm: React.FC = () => {
+  // Step 1: Set up hooks and state
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
-  const [fileName, setFileName] = useState("");
+  } = useForm<FormData>();
+  const [fileName, setFileName] = useState<string>("");
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-
-  const [file, setFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [file, setFile] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [createContactUs] = useMutation(CONTACT_US_MUTATION);
 
-  const onSubmit = async (data: any) => {
+  // Step 2: Define form submission handler
+  const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
+      // Send mutation to create contact us entry
       await createContactUs({
         variables: {
           input: {
@@ -42,6 +53,7 @@ const ContactUsForm = () => {
           },
         },
       });
+      // Show success toast and reset form
       toast({
         title: "Merci pour votre Message",
         description: "Votre message a été envoyé avec succès!",
@@ -51,6 +63,7 @@ const ContactUsForm = () => {
       setFileName("");
       setFile(null);
     } catch (error) {
+      // Show error toast if submission fails
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'envoi du message.",
@@ -61,6 +74,7 @@ const ContactUsForm = () => {
     }
   };
 
+  // Step 3: Decode JWT token on component mount
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -69,6 +83,7 @@ const ContactUsForm = () => {
     }
   }, []);
 
+  // Step 4: Handle file upload
   const handleFileInputChange = (event: any) => {
     const file = event.info;
     if (file) {
@@ -79,6 +94,7 @@ const ContactUsForm = () => {
     }
   };
 
+  // Step 5: Render form
   return (
     <div className="w-full border bg-white shadow-lg rounded-lg">
       <h1 className="py-4 px-2 border-b text-xl capitalize bg-gray-50">
@@ -88,7 +104,9 @@ const ContactUsForm = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="p-5 flex items-start md:justify-evenly justify-center flex-col lg:flex-row"
       >
+        {/* Left column: Subject, Email, and File upload */}
         <div className="flex flex-col gap-4">
+          {/* Subject dropdown */}
           <div>
             <label className="block mb-2 font-light" htmlFor="subject">
               Sujet
@@ -109,12 +127,12 @@ const ContactUsForm = () => {
             </div>
             {errors.subject && (
               <p className="text-red-500 text-sm mt-1">
-                {typeof errors.subject.message === "string" &&
-                  errors.subject.message}
+                {errors.subject.message}
               </p>
             )}
           </div>
 
+          {/* Email input */}
           <div>
             <label htmlFor="email" className="block mb-2 font-light">
               Adresse e-mail
@@ -128,12 +146,12 @@ const ContactUsForm = () => {
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">
-                {typeof errors.email.message === "string" &&
-                  errors.email.message}
+                {errors.email.message}
               </p>
             )}
           </div>
 
+          {/* File upload */}
           <div>
             <label htmlFor="text" className="block mb-2 font-light">
               Document joint (Optionnel)
@@ -151,28 +169,29 @@ const ContactUsForm = () => {
               </div>
 
               <CldUploadWidget
-                uploadPreset="MaisonNg"
+                uploadPreset="ita-luxury"
                 onSuccess={(result, { widget }) => {
                   handleFileInputChange(result);
                   widget.close();
                 }}
               >
-                {({ open }) => {
-                  return (
-                    <button
-                      type="button"
-                      className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-primaryColor shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
-                      onClick={() => open()}
-                    >
-                      choisir un image
-                    </button>
-                  );
-                }}
+                {({ open }) => (
+                  <button
+                    type="button"
+                    className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-primaryColor shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
+                    onClick={() => open()}
+                  >
+                    choisir un image
+                  </button>
+                )}
               </CldUploadWidget>
             </div>
           </div>
         </div>
+
+        {/* Right column: Message and Submit button */}
         <div>
+          {/* Message textarea */}
           <div>
             <label htmlFor="message" className="block mb-2 font-light">
               Message
@@ -187,12 +206,12 @@ const ContactUsForm = () => {
             />
             {errors.message && (
               <p className="text-red-500 text-sm mt-1">
-                {typeof errors.message.message === "string" &&
-                  errors.message.message}
+                {errors.message.message}
               </p>
             )}
           </div>
 
+          {/* Submit button */}
           <div className="float-end mt-10">
             <button
               type="submit"

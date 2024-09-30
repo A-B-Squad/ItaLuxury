@@ -1,7 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 import { PrismaClient, Basket } from '@prisma/client';
 
-const prisma = new PrismaClient();
 
 interface ProductInputQuantity {
   productId: string;
