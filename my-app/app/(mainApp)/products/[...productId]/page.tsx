@@ -18,37 +18,52 @@ async function fetchProductData(productId: string) {
     },
     body: JSON.stringify({
       query: `
-      query ProductById($productByIdId: ID!) {
-        productById(id: $productByIdId) {
-          id
-          name
-          price
-          isVisible
-          reference
-          description
-          inventory
-          solde
-          images
-          createdAt
-          productDiscounts {
-            id
-            price
-            newPrice
-            dateOfEnd
-            dateOfStart
-          }
-          Colors {
-            id
-            color
-            Hex
-          }
-          attributes {
+        query ProductById($productByIdId: ID!) {
+          productById(id: $productByIdId) {
             id
             name
-            value
+            price
+            isVisible
+            reference
+            description
+            inventory
+            solde
+            images
+            createdAt
+            productDiscounts {
+              id
+              price
+              newPrice
+              dateOfEnd
+              dateOfStart
+            }
+            Colors {
+              id
+              color
+              Hex
+            }
+                categories {
+        id
+        name
+        description
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
           }
         }
       }
+            attributes {
+              id
+              name
+              value
+            }
+          }
+        }
     `,
       variables: {
         productByIdId: productId,
@@ -72,14 +87,14 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-    title: `${productData?.name} - MaisonNg`,
+    title: `${productData?.name} - ita-luxury`,
     description: productData?.description,
     openGraph: {
-      title: `${productData?.name} - MaisonNg`,
+      title: `${productData?.name} - ita-luxury`,
       description: productData?.description,
       images: [
         {
-          url: productData?.images[0] || "../../../../public/images/logo.jpeg",
+          url: productData?.images[0] || "../../../public/LOGO.png",
           width: 800,
           height: 600,
           alt: productData?.name,
@@ -89,9 +104,9 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${productData?.name} - MaisonNg`,
+      title: `${productData?.name} - ita-luxury`,
       description: productData?.description,
-      images: [productData?.images[0] || "../../../../public/images/logo.jpeg"],
+      images: [productData?.images[0] || "../../../../public/LOGO.png"],
     },
     keywords: [...keywords, productData?.name, productData?.reference].join(
       ", ",

@@ -1,29 +1,39 @@
-interface SignUpInput {
-    fullName: string;
-    email: string;
-    password: string;
-    number: string;
-  }
-  
-  interface SignInInput {
-    email: string;
-    password: string;
-  }
-  
-  interface User {
-    id: string;
-    fullName: string;
-    email: string;
-  }
-  
-  interface AuthPayload {
-    token: string;
-    user: User;
-  }
+enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
+  MODERATOR = "MODERATOR",
+}
 
-  interface CreateModeratorInput {
-    fullName: string
-    email: string
-    password: string
-    number: string
-  }
+interface SignUpInput {
+  fullName: string;
+  email: string;
+  password: string;
+  number: string;
+}
+interface SignInAdminInput {
+  fullName: string;
+  password: string;
+  role:Role
+}
+
+interface SignInInput {
+  emailOrPhone:string
+  password: string;
+  role: Role;
+}
+
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+}
+
+interface AuthPayload {
+  token: string;
+  user: User;
+}
+
+interface CreateModeratorInput {
+  fullName: string;
+  password: string;
+}

@@ -75,7 +75,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
     if (basketData?.basketByUserId) {
       const totalQuantity = basketData.basketByUserId.reduce(
         (acc: number, item: any) => acc + item.quantity,
-        0
+        0,
       );
       useProductsInBasketStore.setState({
         products: basketData.basketByUserId.map((item: any) => ({
@@ -115,16 +115,16 @@ const TopHeader = ({ logo }: { logo: string }) => {
   };
   return (
     <div
-      className="container flex  md:flex-row flex-col gap-3 justify-between items-center border-b-2 "
+      className="container flex  md:flex-row flex-col gap-3 justify-between items-center  md:border-b-2 "
       onMouseEnter={() => setShowMenuUserMenu(false)}
     >
-      <div className="logo relative w-48 h-24 content-center  ">
+      <div className="logo relative w-40 h-20 md:w-48 md:h-24 content-center  ">
         <Link href={"/"}>
           <Image
             src={logo}
             width={192}
             height={96}
-            alt="Maison Ng"
+            alt="ita-luxury"
             priority
             layout="responsive"
             objectFit="contain"
@@ -132,7 +132,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
         </Link>
       </div>
       <SearchBar />
-      <div className="list md:flex items-center gap-5 relative cursor-pointer text-md hidden ">
+      <div className="list md:flex items-center gap-5 relative cursor-pointer  text-md hidden ">
         <ul className="flex items-center gap-5">
           <li
             className="userMenu w-max  group  "
@@ -151,15 +151,29 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   className="flex flex-col w-full "
                   onSubmit={handleSubmit(onSubmit)}
                 >
-                  <label htmlFor="email" className="text-xs font-medium mb-1">
-                    Email
+                  <label
+                    htmlFor="emailOrPhone"
+                    className="text-xs font-medium mb-1"
+                  >
+                    Adresse e-mail ou numéro de téléphone
                   </label>
                   <input
-                    id="email"
+                    id="emailOrPhone"
                     type="text"
                     className="block border outline-gray-400 border-gray-300 py-2.5  text-xs w-full p-1 rounded mb-4"
-                    title="Email"
-                    {...register("email", { required: "Email is required" })}
+                    title="emailOrPhone"
+                    {...register("emailOrPhone", {
+                      required: "L'email ou le numéro de téléphone est requis",
+                      validate: (value) => {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        const phoneRegex = /^[0-9]{8}$/;
+                        return (
+                          emailRegex.test(value) ||
+                          phoneRegex.test(value) ||
+                          "Format invalide"
+                        );
+                      },
+                    })}
                   />
 
                   <label
@@ -275,6 +289,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             <p>Panier</p>
             <div className="relative inline-flex">
               <RiShoppingCartLine className="text-xl" />
+
               {quantityInBasket > 0 && (
                 <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                   {quantityInBasket}

@@ -7,14 +7,14 @@ import { IoImageOutline } from "react-icons/io5";
 
 const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
   return (
-    <div className="side_ads relative hidden   hover:opacity-85 transition-opacity md:flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
+    <div className="side_ads relative z-50   hover:opacity-85 transition-opacity  flex h-[374px] w-[235px] min-h-[390px] min-w-[230px] overflow-hidden">
       {adsLoaded && (
         <div className="grid  h-[374px] w-[320px] animate-pulse place-items-center rounded-lg bg-secondaryColor">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}
 
-      {!image && !adsLoaded && (
+      {!image && (
         <div className="relative flex items-center flex-col justify-center h-[390px] w-[240px]   rounded-lg bg-secondaryColor">
           <p>{adsPositon}</p>
           <p> 240px x 390px </p>
@@ -30,7 +30,7 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
             className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[100px] shadow-xl   group-hover:block z-50 absolute  left-0 w-[2000px] h-6 transition-all duration-500"
             style={{ animation: "slide-diagonal 1.2s forwards" }}
           ></span>
-          <Image src={image} layout="fill" alt="MaisonNg" objectFit="contain" />
+          <Image src={image} layout="fill" alt="ita-luxury" />
         </Link>
       )}
     </div>

@@ -5,6 +5,7 @@ import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import { IoIosClose } from "react-icons/io";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
+import { RiCloseLine } from "react-icons/ri";
 
 const CenterAds = () => {
   const [showAds, setShowAds] = useState(false);
@@ -27,7 +28,9 @@ const CenterAds = () => {
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center transition-all duration-500 ${
-        showAds ? "opacity-100 z-50" : "opacity-0 translate-y-6 pointer-events-none"
+        showAds
+          ? "opacity-100 z-50"
+          : "opacity-0 translate-y-6 pointer-events-none"
       }`}
     >
       <div className="bg-lightBlack absolute z-[100] left-0 top-0 w-full h-full opacity-80"></div>
@@ -36,10 +39,10 @@ const CenterAds = () => {
           showAds ? "scale-100" : "scale-90"
         }`}
       >
-        <IoIosClose
-          size={50}
-          color="black"
-          className="right-0 rounded-full w-8 h-8 z-50 absolute top-0 cursor-pointer"
+        <RiCloseLine
+          size={60}
+          color="#e5e7eb"
+          className="right-2/4 -bottom-12 translate-x-2/4  rounded-full w-9  h-9 border-[#e5e7eb] z-50 absolute border-4 font-bold cursor-pointer"
           onClick={handleClose}
         />
         {centerAds?.advertismentByPosition.length === 0 ? (

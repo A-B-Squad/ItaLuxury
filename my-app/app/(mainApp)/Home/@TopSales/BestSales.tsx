@@ -1,25 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
-import {  BEST_SALES_QUERY } from "@/graphql/queries";
-
+import { BEST_SALES_QUERY } from "@/graphql/queries";
 
 import { MdArrowLeft, MdArrowRight } from "react-icons/md";
 import ProductBox from "./Components/ProductBox";
-
 
 const BestSales = () => {
   const [allProducts, setAllProducts] = useState<SellsData[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [getBestSales] = useLazyQuery(BEST_SALES_QUERY);
 
-
-
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const productsPerPage = 3;
-
-
 
   useEffect(() => {
     const fetchBestSales = async () => {
@@ -65,7 +59,7 @@ const BestSales = () => {
   };
 
   return (
-    <div className="w-full grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 min-h-96 max-h-96 gap-3">
+    <div className="w-full container grid grid-cols-1 grid-rows-3 gap-4  md:grid-cols-2 md:grid-rows-2 lg:grid-rows-1 lg:grid-cols-3 min-h-96 md:max-h-96  ">
       {categories.map((category: string, index: number) => (
         <div key={index} className="mb-8">
           <div className="flex justify-between items-center bg-primaryColor font-semibold tracking-wider text-white p-3 uppercase">
@@ -99,7 +93,7 @@ const BestSales = () => {
                   key={product.id}
                   className="w-full relative py-1 hover:opacity-90 transition-all group"
                 >
-            <ProductBox product={product}/>
+                  <ProductBox product={product} />
                 </div>
               ))}
           </div>

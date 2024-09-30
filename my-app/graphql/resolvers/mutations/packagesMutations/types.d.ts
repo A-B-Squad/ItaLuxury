@@ -1,6 +1,6 @@
 
 enum statusInput {
-  PAYED = "PAYED",
+  PAYED_AND_DELIVERED = "PAYED_AND_DELIVERED",
   TRANSFER_TO_DELIVERY_COMPANY = "TRANSFER_TO_DELIVERY_COMPANY",
 }
 interface UpdatePackageInput {

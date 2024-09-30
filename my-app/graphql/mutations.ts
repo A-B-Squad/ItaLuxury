@@ -5,6 +5,7 @@ export const SIGNIN_MUTATION = gql`
     signIn(input: $input) {
       token
       user {
+        id
         fullName
         email
       }
@@ -12,9 +13,9 @@ export const SIGNIN_MUTATION = gql`
   }
 `;
 export const CONTACT_US_MUTATION = gql`
-mutation CreateContactUs($input: ContactUsInput!) {
-  createContactUs(input: $input)
-}
+  mutation CreateContactUs($input: ContactUsInput!) {
+    createContactUs(input: $input)
+  }
 `;
 export const SIGNUP_MUTATION = gql`
   mutation SignUp($input: SignUpInput!) {
@@ -39,9 +40,9 @@ export const ADD_TO_BASKET_MUTATION = gql`
   }
 `;
 export const ADD_MULTIPLE_TO_BASKET_MUTATION = gql`
-mutation Mutation($input: AddMultipleToBasketInput!) {
-  addMultipleToBasket(input: $input)
-}
+  mutation Mutation($input: AddMultipleToBasketInput!) {
+    addMultipleToBasket(input: $input)
+  }
 `;
 
 export const ADD_TO_FAVORITE_MUTATION = gql`
@@ -85,10 +86,23 @@ export const DECREASE_QUANTITY_MUTATION = gql`
     }
   }
 `;
+
+export const UPDATE_STATUS_PAYMENT_ONLINE_MUTATION = gql`
+  mutation UpdateStatusPayOnlinePackage($packageId: ID!, $paymentStatus: Status) {
+    updateStatusPayOnlinePackage(
+      packageId: $packageId
+      paymentStatus: $paymentStatus
+    )
+  }
+`;
+
 export const CREATE_CHECKOUT_MUTATION = gql`
- mutation CreateCheckout($input: CreateCheckoutInput!) {
-  createCheckout(input: $input)
-}
+  mutation CreateCheckout($input: CreateCheckoutInput!) {
+    createCheckout(input: $input) {
+      customId
+      orderId
+    }
+  }
 `;
 
 export const FORGOT_PASSWORD_MUTATION = gql`

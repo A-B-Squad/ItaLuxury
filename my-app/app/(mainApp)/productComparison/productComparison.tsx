@@ -1,5 +1,5 @@
 "use client";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useCallback, useEffect, useState } from "react";
@@ -15,9 +15,11 @@ import {
 } from "@/app/store/zustand";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
-import { BASKET_QUERY } from "../../../graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "../../../graphql/queries";
 import prepRoute from "@/app/Helpers/_prepRoute";
-import { trackEvent } from "../../Helpers/_trackEvents";
+import triggerEvents from "../../../utlils/trackEvents";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -28,13 +30,19 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    })
+    }),
   );
+
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -52,15 +60,17 @@ const ProductComparison = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast]
+    [removeProductFromCompare, toast],
   );
 
-  const { addProductToBasket } = useProductsInBasketStore((state) => ({
-    addProductToBasket: state.addProductToBasket,
-    products: state.products,
-  }));
+  const { addProductToBasket, increaseProductInQtBasket } =
+    useProductsInBasketStore((state) => ({
+      increaseProductInQtBasket: state.increaseProductInQtBasket,
+      addProductToBasket: state.addProductToBasket,
+      products: state.products,
+    }));
 
-  const AddToBasket = (product: any) => {
+  const AddToBasket = async (product: any) => {
     if (decodedToken) {
       addToBasket({
         variables: {
@@ -84,21 +94,36 @@ const ProductComparison = () => {
             className: "bg-primaryColor text-white",
           });
           // Track Add to Cart
-          trackEvent("AddToCart", {
-            content_name: product.name,
-            content_type: "product",
-            content_ids: [product.id],
-            value:
-              product.productDiscounts.length > 0
-                ? product.productDiscounts[0].newPrice
-                : product.price,
-            currency: "TND",
+
+          triggerEvents("AddToCart", {
+            user_data: {
+              em: [userData?.fetchUsersById.email.toLowerCase()],
+              fn: [userData?.fetchUsersById.fullName],
+              ph: [userData?.fetchUsersById?.number.join("")],
+              country: ["tn"],
+              external_id: userData?.fetchUsersById.email.id,
+            },
+            custom_data: {
+              content_name: product.name,
+              content_type: "product",
+              content_ids: [product.id],
+              contents: {
+                id: product.id,
+                quantity: product.actualQuantity || product.quantity,
+              },
+              value:
+                product.productDiscounts.length > 0
+                  ? product.productDiscounts[0].newPrice
+                  : product.price,
+              currency: "TND",
+            },
           });
+          pushToDataLayer("AddToCart");
         },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -115,29 +140,45 @@ const ProductComparison = () => {
           description: `Le produit "${product?.name}" a été ajouté au panier.`,
           className: "bg-primaryColor text-white",
         });
-        // Track Add to Cart
-        trackEvent("AddToCart", {
-          content_name: product.name,
-          content_type: "product",
-          content_ids: [product.id],
-          value:
-            product.productDiscounts.length > 0
-              ? product.productDiscounts[0].newPrice
-              : product.price,
-          currency: "TND",
-        });
       } else {
+        increaseProductInQtBasket(product.id);
+
         toast({
           title: "Notification de Panier",
           description: `Product is already in the basket`,
           className: "bg-primaryColor text-white",
         });
+
+        // Track Add to Cart
+        triggerEvents("AddToCart", {
+          user_data: {
+            em: [userData?.fetchUsersById.email.toLowerCase()],
+            fn: [userData?.fetchUsersById.fullName],
+            ph: [userData?.fetchUsersById?.number.join("")],
+            country: ["tn"],
+            external_id: userData?.fetchUsersById.email.id,
+          },
+          custom_data: {
+            content_name: product.name,
+            content_type: "product",
+            content_ids: [product.id],
+            contents: {
+              id: product.id,
+              quantity: product.actualQuantity || product.quantity,
+            },
+            value:
+              product.productDiscounts.length > 0
+                ? product.productDiscounts[0].newPrice
+                : product.price,
+            currency: "TND",
+          },
+        });
+        pushToDataLayer("AddToCart");
       }
     }
     toggleIsUpdated();
     openBasketDrawer();
   };
-  console.log(products, "######################");
 
   return (
     <>
@@ -151,34 +192,11 @@ const ProductComparison = () => {
               <tr>
                 {products.map((product: any) => (
                   <th scope="col" className="px-2 py-1">
-                    <div className="relative m-2 flex w-[40rem] max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
+                    <div className="relative m-2 flex w-[40rem] max-w-xs flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
                       <Link
                         className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
                         rel="preload"
-                        href={{
-                          pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-                          query: {
-                            productId: product?.id,
-                            // collection: [
-                            //   // Get the name of the first category, if available
-                            //   product?.categories[0]?.name,
-                            //   // Get the ID of the first category, if available
-                            //   product?.categories[0]?.id,
-                            //   // Get the name of the first subcategory of the first category, if available
-                            //   product?.categories[0]?.subcategories[0]?.name,
-                            //   // Get the ID of the first subcategory of the first category, if available
-                            //   product?.categories[0]?.subcategories[0]?.id,
-                            //   // Get the name of the first subcategory of the first subcategory, if available
-                            //   product?.categories[0]?.subcategories[0]
-                            //     ?.subcategories[0]?.name,
-                            //   // Get the ID of the first subcategory of the first subcategory, if available
-                            //   product?.categories[0]?.subcategories[0]
-                            //     ?.subcategories[0]?.id,
-                            //   // Get the product name, if available
-                            //   product?.name,
-                            // ],
-                          },
-                        }}
+                        href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
                       >
                         <img
                           className="object-cover"
@@ -193,7 +211,7 @@ const ProductComparison = () => {
                             pathname: `/products/tunisie/${prepRoute(product?.name)}`,
                             query: {
                               productId: product?.id,
-                              // collection: [
+                              //categories:[
                               //   // Get the name of the first category, if available
                               //   product?.categories[0]?.name,
                               //   // Get the ID of the first category, if available
@@ -214,7 +232,7 @@ const ProductComparison = () => {
                             },
                           }}
                         >
-                          <h5 className="text-lg text-center tracking-tight text-slate-900">
+                          <h5 className="text-base text-black line-clamp-2 text-center tracking-tight text-slate-900">
                             {product.name}
                           </h5>
                         </Link>
@@ -225,10 +243,10 @@ const ProductComparison = () => {
                                 {product.price.toFixed(3)} TND
                               </p>
                             )}
-                            <p className="text-2xl font-bold text-slate-900">
+                            <p className="text-2xl font-bold text-red-500 text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
+                                    3,
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND
@@ -299,8 +317,8 @@ const ProductComparison = () => {
           </table>
         </div>
       ) : (
-        <div className="h-screen flex justify-center item-center mt-5">
-          <div className="border shadow-md   w-4/5 text-center md:mt-36 h-24 md:h-32  flex items-center gap-3 justify-center ">
+        <div className="h-screen flex justify-center  item-center mt-5">
+          <div className="border shadow-md bg-white  w-4/5 text-center md:mt-36 h-24 md:h-32  flex items-center gap-3 justify-center ">
             <HiX size={25} className="text-red-400 " />
 
             <p className="  font-normal  tracking-wider">

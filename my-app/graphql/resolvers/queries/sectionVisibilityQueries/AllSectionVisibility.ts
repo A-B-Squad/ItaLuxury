@@ -7,7 +7,6 @@ export const getAllSectionVisibility = async (
 ): Promise<any> => {
   try {
     const sectionVisibility = await prisma.content_visibility.findMany();
-console.log(sectionVisibility);
 
     if (!sectionVisibility) {
       throw new Error(`Sections  not found`);

@@ -25,7 +25,7 @@ export const refundPackage = async (
       },
     });
 
-    if (!findPackage || findPackage.status !== "PAYED") {
+    if (!findPackage || findPackage.status !== "PAYED_AND_DELIVERED") {
       throw new Error("Package not found or not in a refundable state");
     }
 

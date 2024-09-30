@@ -7,19 +7,33 @@ export const signIn = async (
   { input }: { input: SignInInput },
   { prisma, jwtSecret, res }: Context
 ) => {
-  const { email, password } = input;
+  const { emailOrPhone, password } = input;
+
+  // Check if the input is an email or a phone number
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone);
+  const isPhone = /^[0-9]{8}$/.test(emailOrPhone);
+
+  if (!isEmail && !isPhone) {
+    return new Error("Invalid email or phone number format");
+  }
 
   // Check if the user exists
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: isEmail ? emailOrPhone : undefined },
+        { number: isPhone ? emailOrPhone : undefined },
+      ],
+    },
   });
-
+  
   if (!existingUser) {
     return new Error("Invalid email or password");
   }
-
+  
   // Check if the password is correct
   const validPassword = await bcrypt.compare(password, existingUser.password);
+  console.log(validPassword);
 
   if (!validPassword) {
     return new Error("Invalid password Or Email");

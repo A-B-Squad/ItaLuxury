@@ -30,10 +30,12 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
+    "**/*.js",
     "**/*.tsx",
     ".next/types/**/*.ts",
     "lib/apollo-wrapper.tsx",
-    "app/(mainApp)/Home/@mainCategoriesSlide/mainCategoriesSlide.tsx"
+    "app/(mainApp)/Home/@mainCategoriesSlide/mainCategoriesSlide.tsx",
+    "app/fireBase/firebase.ts",
   ],
   "exclude": ["node_modules"]
 }

@@ -11,7 +11,7 @@ export const BrandsCarousel = () => {
 
   return (
     <>
-      <div className="h-40 flex items-center mt-10 w-full overflow-hidden z-20 bg-[#ffffffcc] shadow-md">
+      <div className="h-40 flex items-center mt-10 relative w-full overflow-hidden z-20 bg-[#ffffffcc] shadow-md">
         <Marquee
           gradient
           gradientColor="hsl(var(--widget))"

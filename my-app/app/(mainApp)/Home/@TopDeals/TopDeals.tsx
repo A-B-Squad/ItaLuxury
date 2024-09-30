@@ -1,6 +1,6 @@
 "use client";
 import prepRoute from "@/app/Helpers/_prepRoute";
-import { trackEvent } from "@/app/Helpers/_trackEvents";
+import triggerEvents from "@/utlils/trackEvents";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import {
   useBasketStore,
@@ -11,9 +11,10 @@ import {
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID, TOP_DEALS } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
 import Link from "next/link";
@@ -21,6 +22,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -29,12 +31,12 @@ const TopDeals = () => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const { addProductToBasket, products } = useProductsInBasketStore(
-    (state) => ({
+  const { addProductToBasket, products, increaseProductInQtBasket } =
+    useProductsInBasketStore((state) => ({
+      increaseProductInQtBasket: state.increaseProductInQtBasket,
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
-  );
+    }));
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -43,6 +45,13 @@ const TopDeals = () => {
       setDecodedToken(decoded);
     }
   }, []);
+
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -57,7 +66,7 @@ const TopDeals = () => {
   const { openProductDetails } = useProductDetails();
 
   const AddToBasket = useCallback(
-    (product: any) => {
+    async (product: any) => {
       if (decodedToken) {
         addToBasket({
           variables: {
@@ -70,28 +79,43 @@ const TopDeals = () => {
           refetchQueries: [
             { query: BASKET_QUERY, variables: { userId: decodedToken.userId } },
           ],
-          onCompleted: () => {
+          onCompleted: async () => {
             toast({
               title: "Notification de Panier",
               description: `Le produit "${product?.name}" a été ajouté au panier.`,
               className: "bg-primaryColor text-white",
             });
+
             // Track Add to Cart
-            trackEvent("AddToCart", {
-              content_name: product.name,
-              content_type: "product",
-              content_ids: [product.id],
-              value:
-                product.productDiscounts.length > 0
-                  ? product.productDiscounts[0].newPrice
-                  : product.price,
-              currency: "TND",
+            triggerEvents("AddToCart", {
+              user_data: {
+                em: [userData?.fetchUsersById.email.toLowerCase()],
+                fn: [userData?.fetchUsersById.fullName],
+                ph: [userData?.fetchUsersById?.number.join("")],
+                country: ["tn"],
+                external_id: decodedToken?.userId,
+              },
+              custom_data: {
+                content_name: product.name,
+                content_type: "product",
+                content_ids: [product.id],
+                contents: {
+                  id: product.id,
+                  quantity: product.actualQuantity || product.quantity,
+                },
+                value:
+                  product.productDiscounts.length > 0
+                    ? product.productDiscounts[0].newPrice
+                    : product.price,
+                currency: "TND",
+              },
             });
+            pushToDataLayer("AddToCart");
           },
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id
+          (p: any) => p.id === product.id,
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -107,24 +131,39 @@ const TopDeals = () => {
             description: `Le produit "${product?.name}" a été ajouté au panier.`,
             className: "bg-primaryColor text-white",
           });
-          // Track Add to Cart
-          trackEvent("AddToCart", {
+        } else {
+          increaseProductInQtBasket(product.id);
+          toast({
+            title: "Notification de Panier",
+            description: `Le produit est déjà dans le panier`,
+            className: "bg-primaryColor text-white",
+          });
+        }
+
+        // Track Add to Cart
+        triggerEvents("AddToCart", {
+          user_data: {
+            em: [userData?.fetchUsersById.email.toLowerCase()],
+            fn: [userData?.fetchUsersById.fullName],
+            ph: [userData?.fetchUsersById?.number.join("")],
+            country: ["tn"],
+          },
+          custom_data: {
             content_name: product.name,
             content_type: "product",
             content_ids: [product.id],
+            contents: {
+              id: product.id,
+              quantity: product.actualQuantity || product.quantity,
+            },
             value:
               product.productDiscounts.length > 0
                 ? product.productDiscounts[0].newPrice
                 : product.price,
             currency: "TND",
-          });
-        } else {
-          toast({
-            title: "Notification de Panier",
-            description: `Product is already in the basket`,
-            className: "bg-primaryColor text-white",
-          });
-        }
+          },
+        });
+        pushToDataLayer("AddToCart");
       }
       toggleIsUpdated();
       openBasketDrawer();
@@ -136,11 +175,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ]
+    ],
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   const addToCompare = useCallback(
@@ -152,38 +191,22 @@ const TopDeals = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [addProductToCompare, toast]
+    [addProductToCompare, toast],
   );
 
   const renderProducts = useMemo(() => {
     if (!topDeals?.allDeals) return null;
     return (
       <>
-        {topDeals?.allDeals.map((products: any, index: number) => {
+        {topDeals?.allDeals.map((products: any) => {
           return (
             <div
               key={products?.product?.id}
-              className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-lg p-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5 shadow-sm relative"
+              className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-sm px-2 h-4/5 md:h-full  lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row  place-self-center  items-center gap-5  relative"
             >
               <Link
                 rel="preload"
-                href={{
-                  pathname: `products/tunisie/${prepRoute(products?.product?.name)}`,
-                  query: {
-                    productId: products?.product?.id,
-                    collection: [
-                      products?.product?.categories[0]?.name,
-                      products?.product?.categories[0]?.id,
-                      products?.product?.categories[0]?.subcategories[0]?.name,
-                      products?.product?.categories[0]?.subcategories[0]?.id,
-                      products?.product?.categories[0]?.subcategories[0]
-                        ?.subcategories[0]?.name,
-                      products?.product?.categories[0]?.subcategories[0]
-                        ?.subcategories[0]?.id,
-                      products?.product?.name,
-                    ],
-                  },
-                }}
+                href={`/Collections/tunisie/${prepRoute(products?.product?.name)}/?productId=${products?.product?.id}&categories=${[products?.product?.categories[0]?.name, products?.product?.categories[0]?.subcategories[0]?.name, products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, products?.product?.name]}`}
                 className="h-56 lg:h-full  w-full"
               >
                 <span className="absolute left-5 top-5 z-20 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">
@@ -191,7 +214,7 @@ const TopDeals = () => {
                   %
                 </span>
 
-                <div className="relative lg:col-span-1 row-span-1 lg:row-span-1 h-56 lg:h-full  w-full">
+                <div className="relative lg:col-span-1 row-span-1 lg:row-span-1 h-52 lg:h-full  w-full">
                   <Image
                     layout="fill"
                     objectFit="contain"
@@ -268,24 +291,7 @@ const TopDeals = () => {
               </ul>
               <div className="lg:col-span-2 row-span-1 lg:row-span-1  place-self-stretch lg:mt-3 flex flex-col justify-around ">
                 <Link
-                  href={{
-                    pathname: `products/tunisie/${prepRoute(products?.product?.name)}`,
-                    query: {
-                      productId: products?.product?.id,
-                      collection: [
-                        products?.product?.categories[0]?.name,
-                        products?.product?.categories[0]?.id,
-                        products?.product?.categories[0]?.subcategories[0]
-                          ?.name,
-                        products?.product?.categories[0]?.subcategories[0]?.id,
-                        products?.product?.categories[0]?.subcategories[0]
-                          ?.subcategories[0]?.name,
-                        products?.product?.categories[0]?.subcategories[0]
-                          ?.subcategories[0]?.id,
-                        products?.product?.name,
-                      ],
-                    },
-                  }}
+                  href={`/Collections/tunisie/${prepRoute(products?.product?.name)}/?productId=${products?.product?.id}&categories=${[products?.product?.categories[0]?.name, products?.product?.categories[0]?.subcategories[0]?.name, products?.product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, products?.product?.name]}`}
                 >
                   <h2 className="tracking-wider hover:text-secondaryColor transition-colors">
                     {products?.product?.name}
@@ -296,7 +302,7 @@ const TopDeals = () => {
                     </span>
                     <span className="text-primaryColor font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3
+                        3,
                       )}
                       TND
                     </span>
@@ -335,10 +341,9 @@ const TopDeals = () => {
 
                 <button
                   type="button"
-                  className=" rounded-lg bg-primaryColor w-full py-2 text-white lg:mt-3 hover:bg-secondaryColor transition-colors"
+                  className="  bg-primaryColor w-3/5 self-center py-2 text-white lg:mt-3 hover:bg-secondaryColor transition-colors"
                   onClick={() => {
                     AddToBasket(products?.product);
-
                     toast({
                       title: "Notification de Panier",
                       description: `Le produit "${products?.product?.name}" a été ajouté au panier.`,

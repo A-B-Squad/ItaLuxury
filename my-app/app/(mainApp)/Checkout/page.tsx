@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import keywords from "@/public/keywords";
 import dynamic from "next/dynamic";
 
-const Checkout = dynamic(() => import("./Checkout"),{ssr:false});
+const Checkout = dynamic(() => import("./Checkout"), { ssr: false });
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -14,21 +14,21 @@ if (
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Paiement Sécurisé - MaisonNg | Finaliser votre commande",
+  title: "Paiement Sécurisé - ita-luxury | Finaliser votre commande",
   description:
-    "Procédez au paiement sécurisé de votre commande sur MaisonNg. Options de paiement variées et processus de commande simple pour votre achat en ligne en Tunisie.",
-  keywords: keywords.join(", "),
+    "Procédez au paiement sécurisé de votre commande sur ita-luxury. Options de paiement variées et processus de commande simple pour votre achat en ligne en Tunisie.",
+  keywords: keywords,
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/checkout`,
     type: "website",
-    title: "Paiement - MaisonNg",
-    description: "Procédez au paiement de votre commande sur MaisonNg.",
+    title: "Paiement - ita-luxury",
+    description: "Procédez au paiement de votre commande sur ita-luxury.",
     images: [
       {
-        url: "../../../public/images/logo.jpeg",
+        url: "../../../public/LOGO.png",
         width: 800,
         height: 600,
-        alt: "Maison Ng",
+        alt: "ita-luxury",
       },
     ],
   },

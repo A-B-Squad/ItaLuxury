@@ -6,56 +6,139 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { SIGNUP_MUTATION } from "@/graphql/mutations";
-import { FaUser, FaEnvelope, FaPhone, FaLock } from "react-icons/fa";
+import {
+  ADD_MULTIPLE_TO_BASKET_MUTATION,
+  SIGNUP_MUTATION,
+} from "@/graphql/mutations";
+import "../../globals.css";
 
-const Signup = () => {
-  const [errorMessage, setErrorMessage] = useState("");
+import {
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaFacebook,
+  FaGoogle,
+} from "react-icons/fa";
+import { useProductsInBasketStore } from "@/app/store/zustand";
+import { signInWithPopup } from "firebase/auth";
+import {
+  googleProvider,
+  facebookProvider,
+  auth,
+} from "@/app/fireBase/firebase";
+
+interface SignupFormData {
+  fullName: string;
+  email: string;
+  number: string;
+  password: string;
+}
+
+const Signup: React.FC = () => {
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const [socialSignupData, setSocialSignupData] = useState<any>(null);
+  const [showPhoneInput, setShowPhoneInput] = useState<boolean>(false);
+  const [emailExists, setEmailExists] = useState<boolean>(false);
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-  } = useForm();
+    setValue,
+    reset,
+  } = useForm<SignupFormData>();
+  const { products } = useProductsInBasketStore();
+  const [addMultiProductToBasket] = useMutation(
+    ADD_MULTIPLE_TO_BASKET_MUTATION,
+  );
 
   const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const productsFormat = products.map((product) => ({
+        productId: product.id,
+        quantity: product.actualQuantity,
+      }));
+
+      addMultiProductToBasket({
+        variables: {
+          input: {
+            userId: data.signUp.user.id,
+            products: productsFormat,
+          },
+        },
+      });
       router.replace("/");
     },
     onError: (error) => {
       if (error.message === "Email address is already in use") {
         setErrorMessage("L'adresse e-mail est déjà utilisée");
+        setEmailExists(true);
       } else {
         console.log(error);
-        
         setErrorMessage("Une erreur s'est produite. Veuillez réessayer.");
       }
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: SignupFormData) => {
+    const signupData = socialSignupData
+      ? { ...socialSignupData, number: data.number }
+      : data;
+
     signUp({
       variables: {
-        input: {
-          fullName: data.fullName,
-          email: data.email,
-          number: data.number,
-          password: data.password,
-        },
+        input: signupData,
+      },
+      onError: (err) => {
+        setErrorMessage(`Échec de la connexion ${err.message}.`);
       },
     });
+  };
+
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
+  const handleSocialLogin = async (provider: any) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      setSocialSignupData({
+        fullName: user.displayName,
+        email: user.email,
+        password: user.uid,
+      });
+
+      setValue("fullName", user.displayName || "");
+      setValue("email", user.email || "");
+      setShowPhoneInput(true);
+    } catch (error) {
+      setErrorMessage(
+        `Échec de la connexion avec ${provider === googleProvider ? "Google" : "Facebook"}.`,
+      );
+    }
+  };
+
+  const handleReturnToLogin = () => {
+    setShowPhoneInput(false);
+    setEmailExists(false);
+    setSocialSignupData(null);
+    reset();
   };
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
-          className="mx-auto h-12 w-auto"
-          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1715518497/hoyr6n9tf2n68kiklveg.jpg"
-          alt="MaisonNg"
-          width={48}
-          height={48}
+          className="mx-auto"
+          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png"
+          alt="ita-luxury"
+          width={200}
+          height={200}
         />
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Créez votre compte
@@ -72,181 +155,218 @@ const Signup = () => {
               <span className="block sm:inline">{errorMessage}</span>
             </div>
           )}
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Nom complet
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <input
-                  id="fullName"
-                  type="text"
-                  className={`block w-full pl-10 sm:text-sm py-2 border-gray-300 outline-none rounded-md ${errors.fullName ? "border-red-300" : ""}`}
-                  placeholder="nom"
-                  {...register("fullName", {
-                    required: "Le nom complet est requis",
-                  })}
-                />
-              </div>
-              {errors.fullName && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.fullName.message as string}
-                </p>
-              )}
-            </div>
 
+          {emailExists ? (
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Adresse e-mail
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaEnvelope
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  className={`block w-full pl-10 sm:text-sm border-gray-300 py-2 outline-none rounded-md ${errors.email ? "border-red-300" : ""}`}
-                  placeholder="vous@exemple.com"
-                  {...register("email", { required: "L'email est requis" })}
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.email.message as string}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="number"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Numéro de téléphone
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaPhone
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <input
-                  id="number"
-                  type="tel"
-                  className={`block w-full pl-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.number ? "border-red-300" : ""}`}
-                  placeholder="+216 12 345 678"
-                  {...register("number", {
-                    required: "Le numéro de téléphone est requis",
-                  })}
-                />
-              </div>
-              {errors.number && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.number.message as string}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Mot de passe
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="********"
-                  className={`block w-full pl-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
-                  {...register("password", {
-                    required: "Le mot de passe est requis",
-                    minLength: {
-                      value: 8,
-                      message:
-                        "Le mot de passe doit comporter au moins 8 caractères",
-                    },
-                  })}
-                />
-              </div>
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.password.message as string}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Confirmer le mot de passe
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="********"
-                  className={`block w-full pl-10 sm:text-sm border-gray-300 py-2 outline-none rounded-md ${errors.confirmPassword ? "border-red-300" : ""}`}
-                  {...register("confirmPassword", {
-                    required: "Veuillez confirmer votre mot de passe",
-                    validate: (val: string) => {
-                      if (watch("password") != val) {
-                        return "Les mots de passe ne correspondent pas";
-                      }
-                    },
-                  })}
-                />
-              </div>
-              {errors.confirmPassword && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.confirmPassword.message as string}
-                </p>
-              )}
-            </div>
-
-            <div>
+              <p className="text-center mb-4">
+                Cette adresse e-mail est déjà utilisée.
+              </p>
               <button
-                type="submit"
-                disabled={loading}
+                onClick={handleReturnToLogin}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                {loading ? "Création en cours..." : "Créer un compte"}
+                Retour pour se connecter avec une autre adresse e-mail
               </button>
             </div>
-          </form>
+          ) : (
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              {!showPhoneInput && (
+                <>
+                  <div>
+                    <label
+                      htmlFor="fullName"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Nom complet
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaUser
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <input
+                        id="fullName"
+                        type="text"
+                        className={`block w-full pl-10 sm:text-sm py-2 border-gray-300 outline-none rounded-md ${errors.fullName ? "border-red-300" : ""}`}
+                        placeholder="Nom complet"
+                        {...register("fullName", {
+                          required: "Le nom complet est requis",
+                        })}
+                      />
+                    </div>
+                    {errors.fullName && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.fullName.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Adresse e-mail
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaEnvelope
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <input
+                        id="email"
+                        type="email"
+                        autoComplete="email"
+                        className={`block w-full pl-10 sm:text-sm border-gray-300 py-2 outline-none rounded-md ${errors.email ? "border-red-300" : ""}`}
+                        placeholder="vous@exemple.com"
+                        {...register("email", {
+                          required: "L'email est requis",
+                        })}
+                      />
+                    </div>
+                    {errors.email && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Mot de passe
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="********"
+                        autoComplete="password"
+                        className={`block w-full appearance-none pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
+                        {...register("password", {
+                          required: "Le mot de passe est requis",
+                          minLength: {
+                            value: 8,
+                            message:
+                              "Le mot de passe doit comporter au moins 8 caractères",
+                          },
+                        })}
+                      />
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                        >
+                          {showPassword ? (
+                            <FaEyeSlash
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <FaEye className="h-5 w-5" aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    {errors.password && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label
+                  htmlFor="number"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Numéro de téléphone
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm">
+                  <div className="flex items-center">
+                    <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
+                      +216
+                    </span>
+                    <input
+                      id="number"
+                      type="tel"
+                      className={`block w-full pl-3 sm:text-sm border-gray-300 outline-none py-2 rounded-r-md ${errors.number ? "border-red-300" : ""}`}
+                      placeholder="Numéro de téléphone"
+                      {...register("number", {
+                        required: "Le numéro de téléphone est requis",
+                        pattern: {
+                          value: /^[0-9]{8}$/,
+                          message:
+                            "Le numéro de téléphone doit comporter 8 chiffres",
+                        },
+                      })}
+                    />
+                  </div>
+                </div>
+                {errors.number && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.number.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {loading ? "Création en cours..." : "Créer un compte"}
+                </button>
+              </div>
+            </form>
+          )}
+          {!showPhoneInput && !emailExists && (
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Ou continuer avec
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => handleSocialLogin(facebookProvider)}
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <FaFacebook className="h-5 w-5 text-blue-600" />
+                  <span className="ml-2">Facebook</span>
+                </button>
+                <button
+                  onClick={() => handleSocialLogin(googleProvider)}
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <FaGoogle className="h-5 w-5 text-red-600" />
+                  <span className="ml-2">Google</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="mt-6">
             <p className="mt-2 text-center text-sm text-gray-600">

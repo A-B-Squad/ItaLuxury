@@ -9,30 +9,18 @@ interface ProductImageProps {
 
 const ProductImage: React.FC<ProductImageProps> = ({ product }) => (
   <Link
-    className="relative  flex mx-auto w-40 h-52 md:w-56 overflow-hidden"
+    className="relative  w-full flex mx-auto items-center  justify-center h-52 md:w-56 overflow-hidden"
     rel="preload"
-    href={{
-      pathname: `/products/tunisie/${prepRoute(product.name)}`,
-      query: {
-        productId: product.id,
-        collection: [
-          product.categories[0]?.name,
-          product.categories[0]?.id,
-          product.categories[0]?.subcategories[0]?.name,
-          product.categories[0]?.subcategories[0]?.id,
-          product.categories[0]?.subcategories[0]?.subcategories[0]?.name,
-          product.categories[0]?.subcategories[0]?.subcategories[0]?.id,
-          product.name,
-        ],
-      },
-    }}
+    href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
   >
-    <div className="images  top-0 relative group  h-60 w-60 md:h-full md:w-full">
+    <div className="images  top-0 relative group  h-48 w-48 md:h-full md:w-full">
       {product.images.length > 1 ? (
         <>
           <Image
             src={product.images[0]}
-            className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all top-0 right-0 h-full w-full object-cover"
+            className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all 
+            
+            "
             loading="eager"
             priority
             objectFit="contain"
@@ -41,7 +29,7 @@ const ProductImage: React.FC<ProductImageProps> = ({ product }) => (
           />
           <Image
             src={product.images[1]}
-            className="absolute group-hover:opacity-100 group-hover:scale-125  duration-1000   opacity-0 transition-all top-0 right-0 h-full w-full object-cover"
+            className="absolute group-hover:opacity-100 group-hover:scale-125  duration-1000   opacity-0 transition-all "
             loading="eager"
             priority
             objectFit="contain"

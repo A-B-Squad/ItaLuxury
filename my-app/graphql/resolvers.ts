@@ -30,6 +30,8 @@ import { couponsMutations } from "./resolvers/mutations/couponsMutations/coupons
 import { colorMutations } from "./resolvers/mutations/colorsMutations/colorsMutations";
 import { brandMutations } from "./resolvers/mutations/brandMutations/brandMutations";
 import { bestSellsMutations } from "./resolvers/mutations/bestSellsMutations/bestSellsMutations";
+import { apiCredentialsMutations } from "./resolvers/mutations/apiCredentialsMutations/apiCredentialsMutations";
+import { apiCredentialsQueries } from "./resolvers/queries/apiCredentialsQueries/apiCredentialsQueries";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -48,6 +50,7 @@ export const resolvers = {
     ...usersQueries,
     ...couponsQueries,
     ...discountsQueries,
+    ...apiCredentialsQueries,
   },
 
   Mutation: {
@@ -67,5 +70,6 @@ export const resolvers = {
     ...colorMutations,
     ...brandMutations,
     ...bestSellsMutations,
+    ...apiCredentialsMutations,
   },
 };

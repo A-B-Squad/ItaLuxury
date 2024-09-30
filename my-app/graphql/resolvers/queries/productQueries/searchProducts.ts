@@ -5,12 +5,13 @@ interface ProductSearchInput {
   query?: string;
   minPrice?: number;
   maxPrice?: number;
-  categoryId?: string;
-  colorId?: string;
+  categoryName?: string;
+
+  colorName?: string;
   choice?: "in-discount" | "new-product";
-  brandId?: string;
+  brandName?: string;
   page: number;
-  pageSize: number;
+  pageSize?: number;
   visibleProduct?: boolean;
 }
 
@@ -23,24 +24,25 @@ export const searchProducts = async (
     query,
     minPrice,
     maxPrice,
-    categoryId,
-    colorId,
+    categoryName,
+    colorName,
     page,
     choice,
-    brandId,
+    brandName,
     pageSize,
     visibleProduct,
   } = input;
-console.log(visibleProduct,"##############");
 
   try {
     const whereCondition: Prisma.ProductWhereInput = {
-      ...(visibleProduct !== null && visibleProduct !== undefined && {
-        isVisible: visibleProduct,
-      }),
+      ...(visibleProduct !== null &&
+        visibleProduct !== undefined && {
+          isVisible: visibleProduct,
+        }),
       ...(query && {
         OR: [
           { name: { contains: query, mode: "insensitive" } },
+          { reference: { contains: query, mode: "insensitive" } },
           { description: { contains: query, mode: "insensitive" } },
           {
             categories: {
@@ -53,21 +55,34 @@ console.log(visibleProduct,"##############");
         maxPrice !== undefined && {
           price: { gte: minPrice, lte: maxPrice },
         }),
-      ...(categoryId && { categories: { some: { id: categoryId } } }),
-      ...(brandId && { Brand: { id: brandId } }),
-      ...(colorId && { Colors: { id: colorId } }),
+      ...(categoryName && { categories: { some: { name: categoryName } } }),
+      ...(brandName && { Brand: { name: brandName } }),
+      ...(colorName && { Colors: { color: colorName } }),
       ...(choice === "in-discount" && { productDiscounts: { some: {} } }),
       ...(choice === "new-product" && {
         createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
       }),
     };
 
-    const skip = (page - 1) * pageSize;
+    const skip = (page - 1) * (pageSize || 0);
+
+    const threeWeekPeriod = Math.floor(
+      Date.now() / (3 * 7 * 24 * 60 * 60 * 1000)
+    );
+
+    // Define an array of ordering options
+    const orderOptions: Prisma.ProductOrderByWithRelationInput[] = [
+      { createdAt: Prisma.SortOrder.desc },
+      { price: Prisma.SortOrder.asc },
+      { name: Prisma.SortOrder.asc },
+    ];
+    // Select the current ordering based on the 3-week period
+    const currentOrdering = orderOptions[threeWeekPeriod % orderOptions.length];
 
     const [products, totalCount, categories] = await Promise.all([
       prisma.product.findMany({
         where: whereCondition,
-        take: pageSize,
+        take: pageSize || undefined,
         skip,
         include: {
           categories: {
@@ -81,13 +96,17 @@ console.log(visibleProduct,"##############");
           Colors: true,
           Brand: true,
         },
+        orderBy: currentOrdering,
       }),
       prisma.product.count({ where: whereCondition }),
+
       prisma.category.findMany({
-        where: { name: { contains: query || "", mode: "insensitive" } },
-        take: 5,
+        where: { name: { contains: query , mode: "insensitive" } },
+        take: pageSize,
       }),
     ]);
+
+    
 
     return {
       results: { products, categories },

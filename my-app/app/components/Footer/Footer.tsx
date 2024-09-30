@@ -70,11 +70,11 @@ const Footer = () => {
           src={companyInfo?.logo}
           width={250}
           height={250}
-          alt="Maison Ng"
+          alt="ita-luxury"
           objectFit="contain"
         />
         <p className="my-5 w-11/12 md:w-3/4 font-light text-base leading-7 tracking-wider">
-          Maison Ng s'engage à simplifier et à embellir votre quotidien. Notre
+          ita-luxury s'engage à simplifier et à embellir votre quotidien. Notre
           site propose une sélection raffinée d'articles de cuisine, d'arts de
           la table, d'accessoires de salle de bain et de bagagerie, tous
           reconnus pour leur design épuré et élégant. Découvrez un concept
@@ -89,14 +89,14 @@ const Footer = () => {
               <IoLocationSharp size={20} />
               <p>{companyInfo?.location}</p>
             </div>
-            <div className="flex gap-5 tracking-wider items-center text-gray-700">
-              <MdEmail size={18} />
-              <p>{companyInfo?.email}</p>
-            </div>
             <div className="flex gap-1 items-center tracking-wider text-gray-700">
               <MdLocalPhone size={18} />
               <p>(+216) {companyInfo?.phone[0]}</p>
               <p>/ (+216) {companyInfo?.phone[1]}</p>
+            </div>
+            <div className="flex gap-5 tracking-wider items-center text-gray-700">
+              <MdEmail size={18} />
+              <p>{companyInfo?.email}</p>
             </div>
           </div>
         </div>
@@ -206,16 +206,16 @@ const Footer = () => {
                   <IoLocationSharp size={20} />
                   <p>{companyInfo?.location}</p>
                 </div>
-                <div className="flex gap-4 tracking-wider items-center text-gray-700">
-                  <MdEmail size={18} />
-                  <p>{companyInfo?.email}</p>
-                </div>
                 <div className="flex gap-4 items-center tracking-wider text-gray-700">
                   <MdLocalPhone size={18} />
                   <div>
                     <p>(+216) {companyInfo?.phone[0]}</p>
                     <p>/ (+216) {companyInfo?.phone[1]}</p>
                   </div>
+                </div>
+                <div className="flex gap-4 tracking-wider items-center text-gray-700">
+                  <MdEmail size={18} />
+                  <p>{companyInfo?.email}</p>
                 </div>
               </div>
             </AccordionContent>
@@ -307,7 +307,7 @@ const Footer = () => {
         />
       </div>
       <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors ">
-        © 2024 MaisonNg.Tn By Maison Ng Team
+        © 2024 ita-luxury.Tn By ita-luxury Team
       </div>
     </div>
   );

@@ -6,31 +6,26 @@ interface ProductNameProps {
   product: Product;
 }
 
-const ProductName: React.FC<ProductNameProps> = ({ product }) => (
-  <Link
-    rel="preload"
-    href={{
-      pathname: `/products/tunisie/${prepRoute(product.name)}`,
-      query: {
-        productId: product.id,
-        collection: [
-          product.categories[0]?.name,
-          product.categories[0]?.id,
-          product.categories[0]?.subcategories[0]?.name,
-          product.categories[0]?.subcategories[0]?.id,
-          product.categories[0]?.subcategories[0]?.subcategories[0]?.name,
-          product.categories[0]?.subcategories[0]?.subcategories[0]?.id,
-          product.name,
-        ],
-      },
-    }}
-  >
-    <div className="product-name pt-1 tracking-wider hover:text-primaryColor transition-colors text-sm font-semibold line-clamp-2">
-      <p className="category font-normal -tracking-tighter text-xs capitalize">
-        {product.categories[2]?.name}
-      </p>
-      {product.name}
-    </div>
-  </Link>
-);
+const ProductName: React.FC<ProductNameProps> = ({ product }) => {
+  // console.log(product.categories, "agmedddd");
+
+  return (
+    <Link
+      rel="preload"
+      href={`/Collections/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
+        product.categories[0]?.name,
+        product.categories[0]?.subcategories[0]?.name,
+        product.categories[0]?.subcategories[0]?.subcategories[0]?.name,
+        product.name,
+      ]}`}
+    >
+      <div className="product-name pt-1 tracking-wider  hover:text-primaryColor transition-colors text-sm font-semibold line-clamp-2">
+        <p className="category font-normal -tracking-tighter text-xs capitalize">
+          {product.categories[2]?.name}
+        </p>
+        <p className="line-clamp-2 ">{product.name}</p>
+      </div>
+    </Link>
+  );
+};
 export default ProductName;

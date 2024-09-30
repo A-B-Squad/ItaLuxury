@@ -1,10 +1,13 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
-import { BsFillGrid3X2GapFill, BsFillGrid3X3GapFill } from "react-icons/bs";
+import {
+  BsFillGrid3X2GapFill,
+  BsFillGrid3X3GapFill,
+  BsGrid3X3Gap,
+} from "react-icons/bs";
 import { FaFilter } from "react-icons/fa";
 import { HiViewGrid } from "react-icons/hi";
-import Breadcumb from "@/app/components/Breadcumb";
 import {
   Select,
   SelectContent,
@@ -20,10 +23,9 @@ import {
 } from "../../../store/zustand";
 import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
 import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
-interface FilterQueries {
-  [key: string]: string[];
-}
-const TopBar = () => {
+import { CiGrid2H, CiGrid41 } from "react-icons/ci";
+
+const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
   const { toggleOpenSidebar } = useSidebarStore();
   const { changeProductView, view } = useAllProductViewStore();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<any>({});
@@ -54,18 +56,54 @@ const TopBar = () => {
   );
 
   return (
-    <div className=" container flex z-10 top-0 py-5  lg:relative relative w-full border-t px-5 items-center white bg-white shadow-md  justify-between border-b border-gray-200 ">
-      <div className="ml-4">
-        <Breadcumb />
-      </div>
+    <div className=" container flex   mb-4 py-3 z-50 sticky md:top-[90px] top-[75px]       w-full border-t px-5 items-center white bg-[#fffffff2]   justify-between border-b border-gray-200 ">
+      <div className="flex items-center w-full justify-around">
+        <p className="text-xs md:text-base tracking-wide">
+          {numberOfProduct} produits
+        </p>
 
-      <div className="flex items-center">
+        <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
+          <button
+            type="button"
+            className="text-gray-400 hover:text-gray-500"
+            onClick={() => {
+              changeProductView(1);
+            }}
+          >
+            <span className="sr-only">View grid</span>
+            <CiGrid2H size={20} color={view === 1 ? "black" : "currentColor"} />
+          </button>
+          <button
+            type="button"
+            className="border-l hidden md:block border-r px-2 text-gray-400 hover:text-gray-500"
+            onClick={() => {
+              changeProductView(2);
+            }}
+          >
+            <span className="sr-only">View grid</span>
+            <CiGrid41 size={20} color={view === 2 ? "black" : "currentColor"} />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              changeProductView(3);
+            }}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <span className="sr-only">View grid</span>
+            <BsGrid3X3Gap
+              size={20}
+              color={view === 3 ? "black" : "currentColor"}
+            />
+          </button>
+        </div>
+
         <Select
           onValueChange={(value) => {
             handleSortChange(value);
           }}
         >
-          <SelectTrigger className="w-36 md:w-[180px] outline-none mr-3">
+          <SelectTrigger className="w-24 md:w-[180px] outline-none mr-3">
             <SelectValue placeholder="Trier par :" />
           </SelectTrigger>
           <SelectContent className="bg-white">
@@ -97,48 +135,6 @@ const TopBar = () => {
             </SelectGroup>
           </SelectContent>
         </Select>
-
-        <div className="flex items-center gap-3 sm:ml-7 md:ml-3">
-          <button
-            type="button"
-            className="text-gray-400 hover:text-gray-500"
-            onClick={() => {
-              changeProductView(1);
-            }}
-          >
-            <span className="sr-only">View grid</span>
-            <BsFillGrid3X2GapFill
-              size={20}
-              color={view === 1 ? "black" : "currentColor"}
-            />
-          </button>
-          <button
-            type="button"
-            className="border-l hidden md:block border-r px-2 text-gray-400 hover:text-gray-500"
-            onClick={() => {
-              changeProductView(2);
-            }}
-          >
-            <span className="sr-only">View grid</span>
-            <HiViewGrid
-              size={20}
-              color={view === 2 ? "black" : "currentColor"}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              changeProductView(3);
-            }}
-            className="text-gray-400 hover:text-gray-500"
-          >
-            <span className="sr-only">View grid</span>
-            <BsFillGrid3X3GapFill
-              size={20}
-              color={view === 3 ? "black" : "currentColor"}
-            />
-          </button>
-        </div>
 
         <button
           type="button"

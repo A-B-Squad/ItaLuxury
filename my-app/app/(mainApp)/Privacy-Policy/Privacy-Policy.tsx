@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
       variables: { position: "clinetContactSideAds" },
     });
   return (
-    <div className="container flex gap-14  px-10 bg-white border ">
+    <div className="container flex gap-14  lg:flex-row items-center lg:items-start justify-center flex-col-reverse py-2 px-10 bg-white border ">
       <div className="clinetContactSideAds h-fit  sticky top-24">
         <SideAds
           adsLoaded={loadingclinetContactSideAds}
@@ -24,7 +24,9 @@ export default function PrivacyPolicy() {
       </div>
       <div className="flex flex-col">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold">Politique de Confidentialité</h1>
+          <h1 className="text-3xl font-bold list-item">
+            Politique de Confidentialité
+          </h1>
         </header>
         <main>
           <section className="mb-8">

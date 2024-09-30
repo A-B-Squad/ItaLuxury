@@ -4,6 +4,7 @@ import { useQuery, useLazyQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import {
+  COMPANY_INFO_QUERY,
   GET_PACKAGES_BY_ID,
   GET_PACKAGES_BY_USER_ID,
 } from "../../../graphql/queries";
@@ -34,6 +35,7 @@ interface ProductInCheckout {
 interface Checkout {
   total: number;
   productInCheckout: ProductInCheckout[];
+  freeDelivery: boolean;
 }
 
 interface Package {
@@ -53,8 +55,9 @@ type Status =
   | "ÉCHANGE"
   | "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON"
   | "EN TRAITEMENT"
-  | "PAYÉ"
-  | "ANNULÉ";
+  | "ANNULÉ"
+  | "PAYÉ ET LIVRÉ"
+  | "PAYÉ MAIS NON LIVRÉ";
 
 const TrackingPackages: React.FC = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -63,6 +66,7 @@ const TrackingPackages: React.FC = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [openPackageId, setOpenPackageId] = useState<string | null>(null);
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -74,12 +78,18 @@ const TrackingPackages: React.FC = () => {
 
   const [userPackages] = useLazyQuery(GET_PACKAGES_BY_USER_ID);
 
+  useQuery(COMPANY_INFO_QUERY, {
+    onCompleted: (companyData) => {
+      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
+    },
+  });
+
   const { loading: loadingPackageById, data: packageById } = useQuery(
     GET_PACKAGES_BY_ID,
     {
       variables: { packageId: searchInput },
       skip: !searchInput,
-    }
+    },
   );
 
   useEffect(() => {
@@ -121,8 +131,9 @@ const TrackingPackages: React.FC = () => {
       EXCHANGE: "ÉCHANGE",
       TRANSFER_TO_DELIVERY_COMPANY: "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON",
       PROCESSING: "EN TRAITEMENT",
-      PAYED: "PAYÉ",
       CANCELLED: "ANNULÉ",
+      PAYED_AND_DELIVERED: "PAYÉ ET LIVRÉ",
+      PAYED_NOT_DELIVERED: "PAYÉ MAIS NON LIVRÉ",
     };
     return statusTranslations[status] || status;
   }, []);
@@ -132,8 +143,9 @@ const TrackingPackages: React.FC = () => {
     ÉCHANGE: "bg-purple-400",
     "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON": "bg-green-400",
     "EN TRAITEMENT": "bg-orange-400",
-    PAYÉ: "bg-green-400",
     ANNULÉ: "bg-gray-400",
+    "PAYÉ MAIS NON LIVRÉ": "bg-green-300",
+    "PAYÉ ET LIVRÉ": "bg-green-500",
   };
 
   const getStatusColor = (status: Status) => {
@@ -149,8 +161,8 @@ const TrackingPackages: React.FC = () => {
           pkg.Checkout?.productInCheckout.some((product) =>
             product.product.name
               .toLowerCase()
-              .includes(searchInput.toLowerCase())
-          )
+              .includes(searchInput.toLowerCase()),
+          ),
       );
     }
     setFilteredPackages(filtered);
@@ -164,16 +176,16 @@ const TrackingPackages: React.FC = () => {
 
   return (
     <div className="tracking-packages h-full pb-10 bg-gray-100">
-      <div className="search-package border-b py-6 px-3 w-full flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 bg-white shadow">
+      <div className="search-package border-b py-6 px-3  w-full flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 bg-white shadow">
         <input
           type="text"
           placeholder="Recherchez votre colis ou produit"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          className="search-input outline-none p-3 border-primaryColor w-full md:w-96 px-5 border rounded-lg"
+          className="search-input outline-none p-3 border-primaryColor  w-96 px-5 border rounded-lg"
         />
       </div>
-      <div className="package-list py-6 px-3 h-full">
+      <div className="package-list  py-6 px-3 h-full">
         {loadingPackageById ? (
           <Loading />
         ) : filteredPackages.length > 0 ? (
@@ -192,27 +204,29 @@ const TrackingPackages: React.FC = () => {
                 {filteredPackages.map((pkg) => (
                   <React.Fragment key={pkg.id}>
                     <TableRow
-                      className={`hover:bg-gray-50 ${
+                      className={`hover:bg-gray-50 overflow-x-auto ${
                         isOpen(pkg.id) ? "bg-gray-100" : ""
                       } cursor-pointer`}
                       onClick={() => handleRowClick(pkg.id)}
                     >
-                      <TableCell>{pkg.customId}</TableCell>
+                      <TableCell className="text-xs lg:text-sm ">
+                        {pkg.customId}
+                      </TableCell>
                       <TableCell>
                         <span
                           className={`${getStatusColor(
-                            translateStatus(pkg.status) as Status
-                          )} py-2 rounded-full px-4 text-center text-white text-sm font-medium`}
+                            translateStatus(pkg.status) as Status,
+                          )} py-2 rounded-full px-2 lg:px-4 text-center text-white text-xs lg:text-sm font-medium`}
                         >
                           {translateStatus(pkg.status)}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs lg:text-sm ">
                         {moment(parseInt(pkg.createdAt))
                           .locale("fr")
                           .format("lll")}
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-xs lg:text-sm ">
                         {pkg?.Checkout?.total?.toFixed(3) || "0.000"} DT
                       </TableCell>
                     </TableRow>
@@ -243,7 +257,7 @@ const TrackingPackages: React.FC = () => {
                                           Quantité: {product?.productQuantity}
                                         </span>
                                       </li>
-                                    )
+                                    ),
                                   )}
                                 </ul>
                               </div>
@@ -261,6 +275,16 @@ const TrackingPackages: React.FC = () => {
                                       className={`${getStatusColor(translateStatus(pkg.status) as Status)} ml-2 py-1 px-2 rounded text-white text-xs`}
                                     >
                                       {translateStatus(pkg.status)}
+                                    </span>
+                                  </p>
+                                  <p className="text-sm">
+                                    <span className="font-medium">
+                                      Frais De Livraison
+                                    </span>
+                                    <span className="ml-2">
+                                      {pkg.Checkout.freeDelivery
+                                        ? 0.0
+                                        : deliveryPrice.toFixed(3) + " " + "DT"}
                                     </span>
                                   </p>
                                   <p className="text-sm">

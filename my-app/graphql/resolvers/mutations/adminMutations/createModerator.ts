@@ -1,35 +1,47 @@
-import { Authorization } from "../userMutations/authorization";
 import { Context } from "@/pages/api/graphql";
+import bcrypt from "bcryptjs";
+import { Authorization } from './authorization';
 
 export const createModerator = async (
   _: any,
-  { input, userId }: { userId: string, input: CreateModeratorInput },
+  { input, adminId }: { adminId: string; input: CreateModeratorInput },
   { prisma }: Context
 ) => {
   try {
-    // Check if the user invoking the mutation is authorized
-    const isAuthorized = await Authorization(_, { userId }, prisma);
+    const { fullName, password } = input;
 
-    if (!isAuthorized) {
-      return new Error('User is not authorized to create a moderator');
+    // Check if the email is already in use
+    const existingAdmin = await prisma.user.findFirst({
+      where: { fullName },
+    });
+
+    console.log(existingAdmin);
+
+    // Check if the user invoking the mutation is authorized
+
+    const authorizationResult = await Authorization(_, { adminId }, prisma);
+    if (existingAdmin) {
+      return new Error("Email address is already in use");
     }
 
-    const { fullName, email, password, number } = input;
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create the moderator in the database
-    const moderator = await prisma.user.create({
+    await prisma.admin.create({
       data: {
         fullName,
-        email,
-        password,
-        number,
-        role: 'MODERATOR',
+        password: hashedPassword,
+        role: "MODERATOR",
       },
     });
 
-    return moderator;
+    return "Moderator created";
   } catch (error) {
     // Handle errors
+    console.log(error);
+    
     console.error("Error creating moderator:", error);
-    return error
+    return new Error("An error occurred while creating the moderator");
   }
 };

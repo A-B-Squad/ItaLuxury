@@ -1,5 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
+import { CreateCheckoutFromAdminInput } from "../categoryMutations/types";
 
 const generateCustomId = async (prisma: any) => {
   const currentYear = new Date().getFullYear();
@@ -21,13 +22,14 @@ const generateCustomId = async (prisma: any) => {
   const formattedCount = newCount.toString().padStart(5, "0");
 
   // Créez l'identifiant customisé
-  const customId = `${prefix}${formattedCount}/${suffix}`;
+  const customId = `${prefix}${formattedCount}${suffix}`;
   return customId;
 };
 async function sendCheckoutEmail(
   checkout: any,
   products: any[],
-  customId: string
+  customId: string,
+  deliveryPrice: any
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -54,11 +56,11 @@ async function sendCheckoutEmail(
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = totalAfterDiscount < 499 ? 8.0 : 0.0;
+  const deliveryCost = checkout.freeDelivery ? 0.0 : deliveryPrice;
   const totalToPay = checkout.total;
 
   const mailOptions = {
-    from: '"MaisonNg" <no-reply@maisonng.com>',
+    from: '"ita-luxury" <no-reply@ita-luxury.com>',
     to: checkout.User.email,
     subject: "Confirmation de votre commande",
     html: `
@@ -164,9 +166,9 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo" />
+            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo" />
           </div>
-          <h1>MaisonNg</h1>
+          <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
           <p>Merci pour votre commande. Voici les détails :</p>
           
@@ -257,10 +259,10 @@ async function sendCheckoutEmail(
             </div>
           </div>
   
-          <p>Merci d'avoir choisi MaisonNg !</p>
+          <p>Merci d'avoir choisi ita-luxury !</p>
   
           <div class="footer">
-            &copy; ${new Date().getFullYear()} MaisonNg. Tous droits réservés.
+            &copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.
           </div>
         </div>
       </body>
@@ -285,6 +287,8 @@ export const createCheckoutFromAdmin = async (
       userName,
       products,
       manualDiscount,
+      paymentMethod,
+      freeDelivery,
     } = input;
 
     const productInCheckout = products.map((product: any) => {
@@ -306,6 +310,7 @@ export const createCheckoutFromAdmin = async (
         userId,
         userName,
         governorateId,
+        freeDelivery,
         productInCheckout: {
           create: productInCheckout,
         },
@@ -313,11 +318,14 @@ export const createCheckoutFromAdmin = async (
         phone,
         address,
         total,
+        paymentMethod:"CASH_ON_DELIVERY",
       },
     });
 
     const customId = await generateCustomId(prisma);
+    const companyInfo = await prisma.companyInfo.findFirst();
 
+    const deliveryPrice = companyInfo?.deliveringPrice;
     const newPackage = await prisma.package.create({
       data: {
         checkoutId: newCheckout.id,
@@ -343,7 +351,8 @@ export const createCheckoutFromAdmin = async (
       await sendCheckoutEmail(
         completeCheckout,
         completeCheckout.productInCheckout,
-        customId
+        customId,
+        deliveryPrice
       );
     }
 

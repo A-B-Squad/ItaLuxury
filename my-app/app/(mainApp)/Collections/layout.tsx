@@ -2,15 +2,13 @@ import React, { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Metadata } from "next";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
-
-import TopBar from "./components/topBar";
 import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
 import { fetchGraphQLData } from "@/utlils/graphql";
 import { ALL_BRANDS, COLORS_QUERY, CATEGORIES_QUERY } from "@/graphql/queries";
 import keywords from "@/public/keywords";
+import Breadcumb from "@/app/components/Breadcumb";
 
 const SideBar = dynamic(() => import("./components/sideBar"), { ssr: false });
-
 if (process.env.NODE_ENV === "development") {
   loadDevMessages();
   loadErrorMessages();
@@ -28,23 +26,23 @@ if (
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Vente en ligne en Tunisie | Offres exclusives | MaisonNg",
+  title: "Vente en ligne en Tunisie | Offres exclusives | ita-luxury",
   description:
-    "Découvrez les meilleures offres et produits en ligne en Tunisie sur MaisonNg. Large gamme de produits de qualité avec promotions exceptionnelles. Livraison rapide et paiement sécurisé.",
-  keywords: keywords.join(", "),
+    "Découvrez les meilleures offres et produits en ligne en Tunisie sur ita-luxury. Large gamme de produits de qualité avec promotions exceptionnelles. Livraison rapide et paiement sécurisé.",
+  keywords: keywords,
   openGraph: {
-    title: "Vente en ligne en Tunisie | Offres exclusives | MaisonNg",
+    title: "Vente en ligne en Tunisie | Offres exclusives | ita-luxury",
     description:
-      "Découvrez les meilleures offres et produits en ligne en Tunisie sur MaisonNg. Commandez maintenant !",
+      "Découvrez les meilleures offres et produits en ligne en Tunisie sur ita-luxury. Commandez maintenant !",
     type: "website",
     locale: "fr_TN",
-    siteName: "MaisonNg",
+    siteName: "ita-luxury",
     images: [
       {
-        url: "../../../public/images/logo.jpeg",
+        url: "../../../public/LOGO.png",
         width: 1200,
         height: 630,
-        alt: "MaisonNg - Vente en ligne en Tunisie",
+        alt: "ita-luxury - Vente en ligne en Tunisie",
       },
     ],
   },
@@ -73,12 +71,13 @@ export default async function Layout({ children }: LayoutProps) {
 
   return (
     <div className="relative flex w-full flex-col z-50">
-      <header>
-        <TopBar />
-      </header>
-      <div className="w-full flex">
+      <div className="Breadcumb">
+        <Breadcumb />
+      </div>
+
+      <div className=" container  gap-3 px-4 flex md:flex-row items-center md:items-start flex-col-reverse  relative w-full h-full ">
         <SideBar categories={categories} brands={brands} colors={colors} />
-        <main style={{ width: "inherit" }} className="relative">
+        <main style={{ width: "inherit" }} className="relative ">
           <ProductInfo />
           {children}
         </main>

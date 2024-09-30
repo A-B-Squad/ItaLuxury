@@ -1,16 +1,19 @@
-import { trackEvent } from "@/app/Helpers/_trackEvents";
+import triggerEvents from "@/utlils/trackEvents";
 import {
   useBasketStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
-import { BASKET_QUERY } from "@/graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
+import { useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -19,96 +22,165 @@ const productDetailsDrawer = ({
   isBottom,
   productDetails,
   addToBasket,
-  productId,
   discount,
   actualQuantity,
   setActualQuantity,
 }: any) => {
   const { toast } = useToast();
-
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openBasketDrawer } = useDrawerBasketStore();
+  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const { addProductToBasket, products } = useProductsInBasketStore(
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    })
+    }),
   );
 
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const AddToBasket = (product: any) => {
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+  // Query the basket first
+  const { data: basketData } = useQuery(BASKET_QUERY, {
+    variables: { userId: decodedToken?.userId },
+  });
+  const AddToBasket = async (product: any) => {
     if (decodedToken) {
-      addToBasket({
-        variables: {
-          input: {
-            userId: decodedToken?.userId,
-            quantity: actualQuantity,
-            productId: product.id,
-          },
-        },
-        refetchQueries: [
-          {
-            query: BASKET_QUERY,
-            variables: { userId: decodedToken?.userId },
-          },
-        ],
-        onCompleted: () => {
+      try {
+        // Find if the product is already in the basket
+        const existingBasketItem = basketData.basketByUserId.find(
+          (item: any) => item.Product.id === product.id,
+        );
+
+        const currentBasketQuantity = existingBasketItem
+          ? existingBasketItem.quantity
+          : 0;
+        const totalQuantity = currentBasketQuantity + actualQuantity;
+
+        // Check if the total quantity exceeds the inventory
+        if (totalQuantity > product.inventory) {
           toast({
-            title: "Notification de Panier",
-            description: `Le produit "${product?.name}" a été ajouté au panier.`,
-            className: "bg-primaryColor text-white",
+            title: "Quantité non disponible",
+            description: `Désolé, nous n'avons que ${product.inventory} unités en stock. Votre panier contient déjà ${currentBasketQuantity} unités.`,
+            className: "bg-red-600 text-white",
           });
-          // Track Add to Cart
-          trackEvent("AddToCart", {
-            content_name: product.name,
-            content_type: "product",
-            content_ids: [product.id],
-            value:
-              product.productDiscounts.length > 0
-                ? product.productDiscounts[0].newPrice
-                : product.price,
-            currency: "TND",
-          });
-        },
-      });
+          return;
+        }
+
+        // If everything is okay, proceed with adding to basket
+        await addToBasket({
+          variables: {
+            input: {
+              userId: decodedToken?.userId,
+              quantity: actualQuantity,
+              productId: product.id,
+            },
+          },
+          refetchQueries: [
+            {
+              query: BASKET_QUERY,
+              variables: { userId: decodedToken?.userId },
+            },
+          ],
+          onCompleted: () => {
+            toast({
+              title: "Produit ajouté au panier",
+              description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+              className: "bg-primaryColor text-white",
+            });
+            // Track Add to Cart
+
+            triggerEvents("AddToCart", {
+              user_data: {
+                em: [userData?.fetchUsersById.email.toLowerCase()],
+                fn: [userData?.fetchUsersById.fullName],
+                ph: [userData?.fetchUsersById?.number.join("")],
+                country: ["tn"],
+                external_id: userData?.fetchUsersById.id,
+              },
+              custom_data: {
+                content_name: productDetails.name,
+                content_type: "product",
+                content_ids: [productDetails.id],
+                contents: productDetails,
+                value:
+                  productDetails.productDiscounts.length > 0
+                    ? productDetails.productDiscounts[0].newPrice
+                    : productDetails.price,
+                currency: "TND",
+              },
+            });
+            pushToDataLayer("AddToCart");
+          },
+        });
+      } catch (error) {
+        console.error("Error adding to basket:", error);
+        toast({
+          title: "Erreur",
+          description:
+            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+          className: "bg-red-600 text-white",
+        });
+      }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
+        if (actualQuantity > product.inventory) {
+          toast({
+            title: "Quantité non disponible",
+            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+            className: "bg-red-600 text-white",
+          });
+          return;
+        }
         addProductToBasket({
           ...product,
           price:
             product.productDiscounts.length > 0
               ? product?.productDiscounts[0]?.newPrice
               : product?.price,
-          actualQuantity: 1,
-        });
-
-        // Track Add to Cart
-        trackEvent("AddToCart", {
-          content_name: product.name,
-          content_type: "product",
-          content_ids: [product.id],
-          value:
-            product.productDiscounts.length > 0
-              ? product.productDiscounts[0].newPrice
-              : product.price,
-          currency: "TND",
+          actualQuantity: actualQuantity,
         });
         toast({
-          title: "Notification de Panier",
-          description: `Le produit "${product?.name}" a été ajouté au panier.`,
-          className: "bg-primaryColor text-white",
+          title: "Produit ajouté au panier",
+          description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+          className: "bg-green-600 text-white",
         });
       } else {
         toast({
-          title: "Notification de Panier",
-          description: `Product is already in the basket`,
-          className: "bg-primaryColor text-white",
+          title: "Produit déjà dans le panier",
+          description: `"${productDetails?.name}" est déjà dans votre panier. Vous pouvez modifier la quantité dans le panier.`,
+          className: "bg-blue-600 text-white",
         });
       }
+      // Track Add to Cart
+      triggerEvents("AddToCart", {
+        user_data: {
+          em: [userData?.fetchUsersById.email.toLowerCase()],
+          fn: [userData?.fetchUsersById.fullName],
+          ph: [userData?.fetchUsersById?.number.join("")],
+          country: ["tn"],
+          external_id: userData?.fetchUsersById.id,
+        },
+        custom_data: {
+          content_name: productDetails.name,
+          content_type: "product",
+          content_ids: [productDetails.id],
+          contents: productDetails,
+          value:
+            productDetails.productDiscounts.length > 0
+              ? productDetails.productDiscounts[0].newPrice
+              : productDetails.price,
+          currency: "TND",
+        },
+      });
+      pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
     openBasketDrawer();
@@ -154,7 +226,7 @@ const productDetailsDrawer = ({
                 className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1
+                    actualQuantity > 1 ? actualQuantity - 1 : 1,
                   );
                 }}
               >
@@ -173,7 +245,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity
+                      : actualQuantity,
                   );
                 }}
               >

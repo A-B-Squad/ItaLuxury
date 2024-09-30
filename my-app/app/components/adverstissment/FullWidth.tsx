@@ -28,12 +28,12 @@ const FullWidthAds = ({
 
       {FullImageAds && !FullAdsLoaded && (
         <Link href={LinkTo}>
-          <div className=" md:my-8  w-full relative h-[85px] md:h-[200px]   ">
+          <div className=" md:my-8  w-full mt-8 relative h-[85px] md:h-[200px]   ">
             <Image
               className=" h-[85px] md:h-[200px]"
               src={FullImageAds}
               layout="fill"
-              objectFit="contain"
+              objectFit="cover"
               loading="eager"
               alt="adsFullWidth"
             />

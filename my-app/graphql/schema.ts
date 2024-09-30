@@ -12,8 +12,14 @@ enum Status {
   EXCHANGE
   PROCESSING
   TRANSFER_TO_DELIVERY_COMPANY
-  PAYED
+  PAYED_AND_DELIVERED
+  PAYED_NOT_DELIVERED
+  PAYMENT_REFUSED
   CANCELLED
+}
+enum PaymentMethod {
+  CREDIT_CARD
+  CASH_ON_DELIVERY
 }
 
 enum Cause {
@@ -58,6 +64,7 @@ type MainCategory {
   id: ID!
   name: String!
   parentId: ID
+  description:String!
   bigImage: String
   smallImage: String
   subcategories: [Category!]!
@@ -85,7 +92,10 @@ type Product {
   attributes: [ProductAttribute!]!
   Colors: Colors
   Brand: Brand
+
 }
+
+
 
 type Colors {
   id: ID!
@@ -134,12 +144,12 @@ type Basket {
 
 type Checkout {
   id: ID!
-  userId: ID!
+  userId: ID
   userName: String!
   governorateId: ID!
   Governorate: Governorate!
   productInCheckout: [ProductInCheckout]!
-  phone: [Int!]!
+  phone: [String!]!
   package:[Package]
   address: String!
   total: Float!
@@ -148,17 +158,35 @@ type Checkout {
   Coupons: Coupons
   User: User
   manualDiscount: Float
-}
+  freeDelivery:Boolean
+  isGuest:Boolean
+  guestEmail:String
+  deliveryComment:String
+  paymentMethod:PaymentMethod
 
+}
+type CreateCheckoutOutput {
+  customId:String!
+  orderId:String!
+}
 type ProductInCheckout {
   id: ID!
-  checkoutId: ID!
+  checkoutId: ID
   productId: ID!
-  product: Product!
+  product: Product
   productQuantity: Int!
   price: Float!
   discountedPrice: Float!
 }
+type ApiCredentials {
+  id: ID!
+  api_id: String!
+  access_token: String!
+  createdAt: String!
+  integrationFor:String!
+  domainVerification:String
+}
+
 
 type Package {
   id: ID!
@@ -215,7 +243,7 @@ type Governorate {
 
 type CompanyInfo {
   id: ID
-  phone: [Int]
+  phone: [String]
   deliveringPrice: Int
   logo: String
   instagram: String
@@ -228,13 +256,14 @@ type TopDeals {
   id: ID!
   productId: ID!
   product: Product!
-}
+} 
 
 type Moderator {
   id: ID!
   fullName: String!
-  email: String!
-  number: String!
+  email:String
+  phone:String
+  password:String
 }
 
 type SearchProductsResult {
@@ -294,7 +323,7 @@ type Query {
   fetchAllCoupons(page: Int, pageSize: Int): [Coupons!]!
 
   # Product-related queries
-  fetchProducts(limit: Int,visibleProduct:Boolean): [Product!]
+  allNewProducts(limit: Int,visibleProduct:Boolean): [Product!]
   fetchBrands: [Brand!]
   searchProducts(input: ProductSearchInput!): SearchProductsResult!
   colors(limit: Int): [Colors!]!
@@ -320,6 +349,11 @@ type Query {
   productReview(productId: ID!, userId: ID): [Review!]!
   favoriteProducts(userId: ID!): [FavoriteProducts!]!
 
+
+  # api Credentials Query
+  getApiCredentials(integrationFor:String): ApiCredentials!
+
+
   # Other queries
   productColors(productId: ID!): Colors!
   allDeals: [TopDeals!]!
@@ -330,6 +364,7 @@ type Query {
   getAllPackages: [Package!]
   companyInfo: CompanyInfo!
   allContactUs: [ContactUs!]
+
 
   # Automatic discount deletion
   deleteAutoProductDiscount: String!
@@ -382,21 +417,20 @@ type Mutation {
   addMultipleToBasket(input: AddMultipleToBasketInput!): String!
 
   # Checkout-related mutations
-  createCheckout(input: CreateCheckoutInput!): String!
+  createCheckout(input: CreateCheckoutInput!): CreateCheckoutOutput!
   createCheckoutFromAdmin(input: CreateCheckoutFromAdminInput!): String!
-  updateProductInCheckout(input: UpdateProductInCheckoutInput!): String!
+  updateCheckout(input: UpdateCheckoutInput!): String!
   updateCustomerCheckout(input: UpdateCustomerCheckoutInput!): String!
 
   # Package-related mutations
   updatePackage(input: UpdatePackageInput!): String!
-  exchangePackage(input: ExchangePackageInput!): String!
-  exchangePackageProduct(input: ExchangePackageProductInput!): String!
+
   cancelPackage(input: CancelPackageInput!): String!
   refundPackage(input: RefundPackageInput!): String!
   cancalPackageProduct(input: CancelProductPackageInput!): String!
   payedOrToDeliveryPackage(packageId: ID!, status: String!): String!
   createPackageComments(packageId: ID!, comment: [String!]!): String!
-
+  updateStatusPayOnlinePackage(packageId:ID!, paymentStatus:Status):String!
   # Category-related mutations
   createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): String!
@@ -413,8 +447,12 @@ type Mutation {
   deleteTopDeals(productId: String!): String!
 
   # Moderator creation mutation
-  createModerator(userId: ID!, input: CreateModeratorInput!): Moderator!
-
+  adminSignIn( input: AdminSignInInput! ): String!
+  createModerator(adminId: ID!, input: CreateModeratorInput!): String!
+  
+  # Api Credentials  mutation
+  addApiCredentials(input: CreateApiCredentialsInput!): String!
+  deleteApiCredentials(id: ID!): String
   # Contact us mutation
   createContactUs(input: ContactUsInput!): String!
 
@@ -439,7 +477,7 @@ input SignUpInput {
 }
 
 input SignInInput {
-  email: String!
+  emailOrPhone: String!
   password: String!
 }
 
@@ -457,22 +495,24 @@ input ProductInput {
   discount: [CreateProductDiscountInput]
   colorsId: ID
   brandId: ID
+
 }
 
-input UpdateProductInCheckoutInput {
+input UpdateCheckoutInput {
   checkoutId: ID!
   total: Float!
   manualDiscount: Float
   couponsId: ID
   productInCheckout: [ProductInCheckoutUpdateInput!]!
+  freeDelivery:Boolean
 }
 
 input UpdateCustomerCheckoutInput {
   checkoutId: ID!
   userName: String!
-  userId: String!
+  userId: String
   governorateId: String!
-  phone: [Int!]!
+  phone: [String!]!
   address: String!
 }
 
@@ -484,8 +524,6 @@ input ProductInCheckoutUpdateInput {
 }
 
 input ProductInCheckoutInput {
-  id: ID!
-  checkoutId: ID
   productId: ID!
   productQuantity: Int!
   price: Float!
@@ -543,6 +581,15 @@ input AddProductToFavoriteInput {
   productId: ID!
 }
 
+input CreateApiCredentialsInput {
+  api_id: String!
+  access_token: String!
+  integrationFor:String!
+  domainVerification:String
+
+}
+
+
 input CreateProductDiscountInput {
   discountId: String
   dateOfStart: String
@@ -557,14 +604,19 @@ input CreateToBasketInput {
 }
 
 input CreateCheckoutInput {
-  userId: ID!
+  userId: ID
   governorateId: ID!
   userName: String
   products: [ProductInCheckoutInput!]
-  phone: [Int!]
+  phone: [String!]
   address: String!
   total: Float!
   couponsId: String
+  freeDelivery:Boolean!
+  isGuest:Boolean
+  guestEmail:String!
+  deliveryComment:String
+  paymentMethod:PaymentMethod!
 }
 
 input CreateCheckoutFromAdminInput {
@@ -572,14 +624,14 @@ input CreateCheckoutFromAdminInput {
   governorateId: ID!
   userName: String
   products: [ProductInCheckoutFromAdminInput!]
-  phone: [Int!]
+  phone: [String!]
   address: String!
   total: Float!
   manualDiscount: Float
+  freeDelivery:Boolean
 
 }
 input ProductInCheckoutFromAdminInput {
-
   productId: ID!
   productQuantity: Int!
   price: Float!
@@ -596,7 +648,7 @@ input CreateTopDealsInput {
 }
 
 input CompanyInfoInput {
-  phone: [Int!]
+  phone: [String!]
   deliveringPrice: Int
   logo: String
   instagram: String
@@ -607,9 +659,12 @@ input CompanyInfoInput {
 
 input CreateModeratorInput {
   fullName: String!
-  email: String!
   password: String!
-  number: String!
+}
+input AdminSignInInput {
+  fullName: String!
+  password: String!
+  role:Role
 }
 
 input ExchangePackageProductInput {
@@ -640,12 +695,12 @@ input ProductSearchInput {
   query: String
   minPrice: Float
   maxPrice: Float
-  categoryId: ID
-  colorId: ID
+  categoryName: String
+  colorName: String
   page: Int!
-  pageSize: Int!
+  pageSize: Int
   choice: String
-  brandId: ID
+  brandName: String
   visibleProduct:Boolean
 }
 

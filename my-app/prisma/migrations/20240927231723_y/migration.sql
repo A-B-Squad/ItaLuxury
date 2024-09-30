@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "Status" ADD VALUE 'PAYMENT_REFUSED';

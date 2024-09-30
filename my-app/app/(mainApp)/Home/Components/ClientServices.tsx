@@ -40,7 +40,7 @@ const ClientServices = () => {
   );
 
   return (
-    <div className="service_client grid gap-10 py-10 grid-cols-1 rounded-md md:grid-cols-2 lg:grid-cols-3 place-content-center  place-items-center">
+    <div className="service_client grid gap-10 py-10 grid-cols-1 rounded-sm md:grid-cols-2 xl:grid-cols-3 place-content-center  place-items-center">
       <>
         {client1?.length <= 0 && !loadingClientService1 && (
           <div className="flex items-center justify-center w-full h-52 rounded-lg bg-secondaryColor">
@@ -55,7 +55,7 @@ const ClientServices = () => {
         )}
 
         {client3?.length <= 0 && !loadingClientService3 && (
-          <div className="flex items-center justify-center w-full h-52 col-span-2 md:col-span-1 rounded-lg bg-secondaryColor">
+          <div className="flex items-center justify-center w-full h-52 col-span-2 lg:col-span-1  rounded-lg bg-secondaryColor">
             <p>384px x 218px</p>
           </div>
         )}
@@ -74,7 +74,6 @@ const ClientServices = () => {
               width={384}
               height={218}
               property="true"
-              objectFit="contain"
               className=" cursor-pointer hover:opacity-50 transition-all"
             />
           </Link>
@@ -93,7 +92,6 @@ const ClientServices = () => {
               width={384}
               height={218}
               property="true"
-              objectFit="contain"
               className=" cursor-pointer hover:opacity-50 transition-all"
             />
           </Link>
@@ -112,7 +110,6 @@ const ClientServices = () => {
               width={384}
               height={218}
               property="true"
-              objectFit="contain"
               className=" cursor-pointer hover:opacity-50 transition-all"
             />
           </Link>

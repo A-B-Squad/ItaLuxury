@@ -2,7 +2,7 @@ import Breadcumb from "@/app/components/Breadcumb";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
-const PrivacyPolicy = dynamic(() => import("./Privacy-Policy"),{ssr:false});
+const PrivacyPolicy = dynamic(() => import("./Privacy-Policy"), { ssr: false });
 
 export const metadata: Metadata = {
   title: "Politique de Confidentialité",

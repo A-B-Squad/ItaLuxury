@@ -9,7 +9,6 @@ export const getSectionVisibility = async (
     const sectionVisibility = await prisma.content_visibility.findFirst({
       where: {section},
     });
-    console.log(sectionVisibility);
 
     if (!sectionVisibility) {
       throw new Error(`Sections${section}  not found`);

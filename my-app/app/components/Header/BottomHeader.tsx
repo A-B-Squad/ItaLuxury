@@ -15,6 +15,8 @@ import { GoPackageDependents } from "react-icons/go";
 import { IoIosLogOut } from "react-icons/io";
 import { IoGitCompare } from "react-icons/io5";
 import { GrContact } from "react-icons/gr";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -30,6 +32,9 @@ function debounce<T extends (...args: any[]) => void>(
 }
 
 const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
+  const { toast } = useToast();
+  const router = useRouter();
+
   const { openCategoryDrawer } = useDrawerMobileStore();
   const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
@@ -69,14 +74,20 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   }, [handleScroll]);
 
   const handleLogout = () => {
+    toast({
+      title: "Déconnexion réussie",
+      description: "À bientôt sur ita-luxury",
+      className: "bg-primaryColor text-white",
+    });
     Cookies.remove("Token");
     window.sessionStorage.removeItem("productsInBasket");
     window.sessionStorage.removeItem("comparedProducts");
+    router.push("/");
     window.location.reload();
   };
   return (
     <div
-      className={`bg-white transition-all duration-300 ${isFixed ? "fixed top-0 w-full z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative"}`}
+      className={` transition-all duration-300 ${isFixed ? "fixed top-0 w-full bg-[#fffffff2] z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative sm:mt-4 mt-0 bg-white"}`}
       onMouseEnter={() => setShowDropdown(false)}
     >
       <div
@@ -85,7 +96,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
       >
         <button
           type="button"
-          className="p-1 md:hidden block  rounded-md border-2"
+          className="p-1 xl:hidden block  rounded-sm"
           onClick={openCategoryDrawer}
         >
           <HiMiniBars3CenterLeft className=" text-2xl cursor-pointer " />
@@ -93,7 +104,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
         <button
           type="button"
-          className="p-1 md:flex gap-3  hidden rounded-md "
+          className="p-1 xl:flex gap-3  hidden rounded-md "
           onMouseEnter={() => setShowDropdown(true)}
         >
           <HiMiniBars3CenterLeft className=" text-2xl cursor-pointer " />
@@ -110,14 +121,29 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
-              <Link rel="preload" href={`/Collections/tunisie?page=1`}>
-                Touts Les Produits
+              <Link
+                rel="preload"
+                href={{
+                  pathname: `/Collections/tunisie`,
+                  query: {
+                    page: "1",
+                    section: "Boutique",
+                  },
+                }}
+              >
+                Boutique
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
-                href={`/Collections/tunisie?choice=in-discount&page=1`}
+                href={{
+                  pathname: `/Collections/tunisie/?choice=in-discount&page=1`,
+
+                  query: {
+                    section: "Promotions",
+                  },
+                }}
               >
                 Promotions
               </Link>
@@ -126,6 +152,20 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               <Link rel="preload" href={`/Contact-us`}>
                 Contact
               </Link>
+            </li>
+            <li
+              onClick={openBasketDrawer}
+              title="Votre Panier"
+              className={`${isFixed ? "visible" : "invisible"} whishlist   gap-2 cursor-pointer hover:text-primaryColor transition-all`}
+            >
+              <div className="relative inline-flex">
+                <RiShoppingCartLine className="text-xl" />
+                {quantityInBasket > 0 && (
+                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
+                    {quantityInBasket}
+                  </span>
+                )}
+              </div>
             </li>
           </ul>
         </div>

@@ -5,8 +5,9 @@ interface updateCustomerCheckoutInput {
   userName: string;
   userId: string;
   governorateId: string;
-  phone: number[];
+  phone: string[];
   address: string;
+  freeDelivery: boolean;
 }
 
 export const updateCustomerCheckout = async (
@@ -15,15 +16,19 @@ export const updateCustomerCheckout = async (
   { prisma }: Context
 ) => {
   try {
-    const { checkoutId, userName, userId, governorateId, phone, address } =
-      input;
+    const {
+      checkoutId,
+      userName,
+      userId,
+      governorateId,
+      phone,
+      address,
+    } = input;
 
-    
     // Fetch the existing checkout
     const existingCheckout = await prisma.checkout.findUnique({
       where: { id: checkoutId },
     });
-console.log(existingCheckout);
 
     if (!existingCheckout) {
       throw new Error("Checkout not found");

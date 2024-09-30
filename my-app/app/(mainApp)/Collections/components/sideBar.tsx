@@ -1,4 +1,5 @@
 "use client";
+
 import React, {
   useCallback,
   useEffect,
@@ -14,7 +15,7 @@ import { useSidebarStore } from "@/app/store/zustand";
 import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
 import { debounce } from "lodash";
 import prepRoute from "@/app/Helpers/_prepRoute";
-import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
+import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 
 // Types
 interface SideBarProps {
@@ -45,20 +46,22 @@ interface FilterQueries {
 }
 
 // Component
-const SideBar = ({ colors, brands, categories }: SideBarProps) => {
+const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   // Hooks
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isOpenSideBard, toggleOpenSidebar } = useSidebarStore();
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   // State
   const [selectedFilterQueries, setSelectedFilterQueries] =
     useState<FilterQueries>({});
-  const [localPrice, setLocalPrice] = useState(500);
+  const [localPrice, setLocalPrice] = useState<number>(500);
 
   // Effects
   useEffect(() => {
+    // Initialize filters and price from URL parameters
     const paramsObj = convertStringToQueriesObject(searchParams);
     setSelectedFilterQueries(paramsObj);
     const priceFromParams = searchParams?.get("price");
@@ -67,8 +70,39 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Helper function to build query string
+  // This function handles different formatting for color, choice, and brand vs other filters
+  const buildQueryString = (queries: FilterQueries): string => {
+    const queryParts: string[] = [];
+    for (const [key, values] of Object.entries(queries)) {
+      if (values.length > 0) {
+        if (key === "color" || key === "choice" || key === "brand") {
+          // For color, choice, and brand, use separate key-value pairs
+          queryParts.push(
+            ...values.map((value) => `${key}=${encodeURIComponent(value)}`),
+          );
+        } else {
+          // For other filters, join values with commas
+          queryParts.push(`${key}=${values.map(encodeURIComponent).join(",")}`);
+        }
+      }
+    }
+    return queryParts.join("&");
+  };
+
   // Callbacks
-  const handleSelectFilterOptions = useCallback(
+  const handleSelectBrandFilterOptions = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value, checked } = e.target;
       const updatedQueries = { ...selectedFilterQueries };
@@ -92,12 +126,9 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
       }
 
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}&page=1`,
-        {
-          scroll: true,
-        },
-      );
+      router.push(`/Collections/tunisie?${buildQueryString(updatedQueries)}`, {
+        scroll: true,
+      });
     },
     [selectedFilterQueries, router],
   );
@@ -105,54 +136,42 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   const handleChoiceFilterOptions = useCallback(
     (value: string) => {
       const updatedQueries = { ...selectedFilterQueries };
-      if (value === "in-discount") {
-        delete updatedQueries["new_product"];
-        updatedQueries["choice"] = [value];
-      } else if (value === "new-product") {
-        delete updatedQueries["en_promo"];
-        updatedQueries["choice"] = [value];
-      }
-      
+
+      // Update the 'choice' parameter
+      updatedQueries["choice"] = [value];
+
+      // Remove unnecessary parameters
+      delete updatedQueries["page"];
+      delete updatedQueries["section"];
+
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        {
-          scroll: true,
-        },
-      );
+
+      const queryString = buildQueryString(updatedQueries);
+      const newUrl = `/Collections/tunisie?${queryString}`;
+
+      router.push(newUrl, { scroll: true });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar, buildQueryString],
   );
-
   const handleColorSelection = useCallback(
-    (colorId: string) => {
-      const updatedQueries = { ...selectedFilterQueries, color: [colorId] };
+    (colorName: string) => {
+      const updatedQueries = { ...selectedFilterQueries, color: [colorName] };
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        {
-          scroll: true,
-        },
-      );
+      router.push(`/Collections/tunisie?${buildQueryString(updatedQueries)}`, {
+        scroll: true,
+      });
       toggleOpenSidebar();
     },
     [selectedFilterQueries, router, toggleOpenSidebar],
   );
 
+  // Debounced price update
   const debouncedUpdateUrl = useRef(
     debounce((price: number) => {
       router.push(`/Collections/tunisie?price=${price}`, { scroll: false });
     }, 300),
   ).current;
-
-  useEffect(() => {
-    // Initialize localPrice from URL on component mount
-    const priceFromParams = searchParams?.get("price");
-    if (priceFromParams) {
-      setLocalPrice(+priceFromParams);
-    }
-  }, []);
 
   const handlePriceChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,7 +187,9 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
 
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
-    router.replace("/Collections/tunisie?page=1", { scroll: true });
+    router.replace("/Collections/tunisie?page=1&section=Boutique", {
+      scroll: true,
+    });
     toggleOpenSidebar();
     toast({
       title: "Filtres réinitialisés",
@@ -183,14 +204,11 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         ...selectedFilterQueries,
         category: [categoryId],
       };
-      
+
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        {
-          scroll: false,
-        },
-      );
+      router.push(`/Collections/tunisie?${buildQueryString(updatedQueries)}`, {
+        scroll: false,
+      });
       toggleOpenSidebar();
     },
     [selectedFilterQueries, router, toggleOpenSidebar],
@@ -257,7 +275,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
             } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
           >
             <Link
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
               className="w-full h-full"
               onClick={() => handleCategoryClick(category.id)}
             >
@@ -328,7 +346,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   const renderColorFilters = () => (
     <div className="border-b pl-5 border-gray-200 py-6">
       <h3 className="font-normal tracking-widest text-sm mb-6">COULEURS</h3>
-      <div className="overflow-y-scroll max-h-60">
+      <div className="overflow-y-auto max-h-60">
         <div className="flex items-center flex-wrap px-3 w-full gap-3">
           {colors?.map((color) => (
             <div key={color.id} className="flex items-center">
@@ -354,7 +372,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
                 }}
                 title={color.color}
                 className="color-checkbox cursor-pointer shadow-md shadow-white"
-                onChange={() => handleColorSelection(color.id)}
+                onChange={() => handleColorSelection(color.color)}
               />
             </div>
           ))}
@@ -366,7 +384,7 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   const renderBrandFilters = () => (
     <div className="border-b pl-5 border-gray-200 py-6">
       <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
-      <div className="overflow-y-scroll max-h-60" id="filter-section-1">
+      <div className="overflow-y-auto max-h-60" id="filter-section-1">
         <div className="space-y-4">
           {brands?.map((brand) => (
             <div key={brand.id} className="flex items-center">
@@ -374,14 +392,14 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
                 id={`filtre-brand-${brand.id}`}
                 name="brand"
                 type="radio"
-                value={brand.id}
-                checked={isChecked("brand", brand.id)}
+                value={brand.name}
+                checked={isChecked("brand", brand.name)}
                 className={`h-3 w-3 appearance-none outline-none ${
-                  isChecked("brand", brand.id)
+                  isChecked("brand", brand.name)
                     ? "bg-secondaryColor"
                     : "bg-white"
                 } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
-                onChange={handleSelectFilterOptions}
+                onChange={handleSelectBrandFilterOptions}
               />
               <div className="flex items-center justify-between w-full">
                 <label
@@ -402,40 +420,104 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
   );
 
   // Main render
+  const renderDrawerContent = () => (
+    <>
+      {renderChoiceFilters()}
+      {renderCategories()}
+      {renderPriceFilter()}
+      {renderColorFilters()}
+      {renderBrandFilters()}
+    </>
+  );
+
   return (
-    <section
-      aria-labelledby="products-heading"
-      className={`w-96 overflow-y-auto z-30 top-0 h-full  transition-all bg-white shadow-md  ${
-        isOpenSideBard ? "sticky" : "hidden md:block"
-      }`}
-    >
-      <form className="relative pt-5 shadow-lg">
-        <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
-          FILTRER
-        </h3>
-
-        {Object.keys(selectedFilterQueries).length > 0 && (
-          <div
-            onClick={handleClearFilters}
-            className="flex items-center justify-center transition-all hover:text-red-700 cursor-pointer"
-          >
-            <button
-              type="button"
-              className="flex border rounded-md gap-2 items-center py-1 shadow px-2"
+    <>
+      {isMobile ? (
+        <Drawer
+          placeholder={""}
+          onPointerEnterCapture={""}
+          onPointerLeaveCapture={""}
+          open={isOpenSideBard}
+          onClose={toggleOpenSidebar}
+          size={380}
+          className="p-4 flex flex-col h-full"
+        >
+          <div className="mb-6 flex items-center justify-between">
+            <Typography
+              placeholder={""}
+              onPointerEnterCapture={""}
+              onPointerLeaveCapture={""}
+              variant="h5"
+              color="blue-gray"
             >
-              <IoIosClose size={25} />
-              Effacer Filters
-            </button>
+              FILTRER
+            </Typography>
+            <IconButton
+              placeholder={""}
+              onPointerEnterCapture={""}
+              onPointerLeaveCapture={""}
+              variant="text"
+              color="blue-gray"
+              onClick={toggleOpenSidebar}
+            >
+              <IoIosClose size={24} />
+            </IconButton>
           </div>
-        )}
+          <div className="flex-grow overflow-y-auto">
+            <form className="relative">
+              <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
+                FILTRER
+              </h3>
 
-        {renderChoiceFilters()}
-        {renderCategories()}
-        {renderPriceFilter()}
-        {renderColorFilters()}
-        {renderBrandFilters()}
-      </form>
-    </section>
+              {Object.keys(selectedFilterQueries).length > 0 && (
+                <div
+                  onClick={handleClearFilters}
+                  className="flex items-center justify-center transition-all overflow-y-auto hover:text-red-700 cursor-pointer mb-4"
+                >
+                  <button
+                    type="button"
+                    className="flex border rounded-md gap-2 items-center py-1 shadow px-2"
+                  >
+                    <IoIosClose size={25} />
+                    Effacer Filters
+                  </button>
+                </div>
+              )}
+
+              {renderDrawerContent()}
+            </form>
+          </div>
+        </Drawer>
+      ) : (
+        <section
+          aria-labelledby="products-heading"
+          className={`overflow-y-auto z-50 w-96 h-fit py-5 transition-all bg-white shadow-md sticky top-0 `}
+        >
+          <form className="relative pt-5">
+            <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
+              FILTRER
+            </h3>
+
+            {Object.keys(selectedFilterQueries).length > 0 && (
+              <div
+                onClick={handleClearFilters}
+                className="flex items-center justify-center transition-all hover:text-red-700 cursor-pointer"
+              >
+                <button
+                  type="button"
+                  className="flex border rounded-md gap-2 items-center py-1 shadow px-2"
+                >
+                  <IoIosClose size={25} />
+                  Effacer Filters
+                </button>
+              </div>
+            )}
+
+            {renderDrawerContent()}
+          </form>
+        </section>
+      )}
+    </>
   );
 };
 

@@ -12,6 +12,7 @@ export const cancelPackage = async (
   { prisma }: Context
 ) => {
   const { packageId, cause, brokenProducts } = input;
+  
   try {
     const findPackage = await prisma.package.findFirst({
       where: { id: packageId },
@@ -23,11 +24,11 @@ export const cancelPackage = async (
         },
       },
     });
-
+    
     if (
       !findPackage ||
       (findPackage.status !== "PROCESSING" &&
-        findPackage.status !== "TRANSFER_TO_DELIVERY_COMPANY")
+        findPackage.status !== "TRANSFER_TO_DELIVERY_COMPANY"&&findPackage.status !== "PAYED_NOT_DELIVERED")
     ) {
       throw new Error("Package not found or not in a cancellable state");
     }

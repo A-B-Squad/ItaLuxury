@@ -5,13 +5,14 @@ import dynamic from "next/dynamic";
 import React from "react";
 import "../../app/globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
-const BasketDrawer = dynamic(() => import("../components/BasketDrawer"),{ssr:false});
 const DrawerMobile = dynamic(
-  () => import("../components/Header/CrategoryDrawer/DrawerMobile"),{ssr:false}
+  () => import("../components/Header/MobileDrawer/DrawerMobile"),
+  { ssr: false },
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import keywords from "@/public/keywords";
+import BasketDrawer from "../components/BasketDrawer";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
         url: "../favicon.ico",
         width: 800,
         height: 600,
-        alt: "Maison Ng",
+        alt: "ita-luxury",
       },
     ],
   },
@@ -56,7 +57,7 @@ export default async function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={`${openSans.className} relative`}>
+    <div className={` relative`}>
       <DrawerMobile />
       <BasketDrawer />
       <Header />
