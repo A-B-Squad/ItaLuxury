@@ -22,7 +22,7 @@ interface DecodedToken extends JwtPayload {
 }
 function debounce<T extends (...args: any[]) => void>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -40,7 +40,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [LengthComparer, setLengthComparer] = useState<number>(0);
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket
+    (state) => state.quantityInBasket,
   );
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -159,9 +159,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               className={`${isFixed ? "visible" : "invisible"} whishlist   gap-2 cursor-pointer hover:text-primaryColor transition-all`}
             >
               <div className="relative inline-flex">
-                <RiShoppingCartLine
-                  className="text-xl"
-                />
+                <RiShoppingCartLine className="text-xl" />
                 {quantityInBasket > 0 && (
                   <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                     {quantityInBasket}

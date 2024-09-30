@@ -53,7 +53,7 @@ const SearchBar = () => {
         },
       },
       onCompleted: () => {
-        triggerEvents("SelectSearchedCategory",  {
+        triggerEvents("SelectSearchedCategory", {
           user_data: {
             em: [userData?.fetchUsersById.email.toLowerCase()],
             fn: [userData?.fetchUsersById.fullName],
@@ -67,18 +67,18 @@ const SearchBar = () => {
             search_string: inputValue,
             contentIds: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.id
+                (category: any) => category.id,
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name
+                (product: any) => product.name,
               ),
             ],
             contents: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.name
+                (category: any) => category.name,
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name
+                (product: any) => product.name,
               ),
             ].join(", "),
             Currency: "TND",
@@ -148,7 +148,7 @@ const SearchBar = () => {
                     key={category.id}
                     href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
                     onClick={() => {
-                      triggerEvents("SelectSearchedCategory",  {
+                      triggerEvents("SelectSearchedCategory", {
                         user_data: {
                           em: [userData?.fetchUsersById.email.toLowerCase()],
                           fn: [userData?.fetchUsersById.fullName],
@@ -186,7 +186,7 @@ const SearchBar = () => {
                   key={product.id}
                   href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
                   onClick={() => {
-                    triggerEvents("SelectSearchedProduct",  {
+                    triggerEvents("SelectSearchedProduct", {
                       user_data: {
                         em: [userData?.fetchUsersById.email.toLowerCase()],
                         fn: [userData?.fetchUsersById.fullName],

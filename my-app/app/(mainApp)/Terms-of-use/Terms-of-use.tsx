@@ -25,7 +25,9 @@ export default function TermsOfUse() {
 
       <div className="flex flex-col">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold list-item">Conditions d'Utilisation</h1>
+          <h1 className="text-3xl font-bold list-item">
+            Conditions d'Utilisation
+          </h1>
         </header>
         <main>
           <section className="mb-8">

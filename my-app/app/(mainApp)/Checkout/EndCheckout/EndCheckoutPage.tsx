@@ -17,7 +17,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
   const { packageId, email, status } = searchParams;
   const router = useRouter();
   const [updatePaymentStatus] = useMutation(
-    UPDATE_STATUS_PAYMENT_ONLINE_MUTATION
+    UPDATE_STATUS_PAYMENT_ONLINE_MUTATION,
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -36,9 +36,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
           console.log("Payment status updated successfully");
         } catch (err) {
           console.error("Error updating payment status:", err);
-          setError(
-           "Failed to update payment status. Please contact support."
-          );
+          setError("Failed to update payment status. Please contact support.");
         }
       }
     };

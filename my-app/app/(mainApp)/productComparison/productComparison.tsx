@@ -30,7 +30,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    })
+    }),
   );
 
   const { openBasketDrawer } = useDrawerBasketStore();
@@ -60,7 +60,7 @@ const ProductComparison = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast]
+    [removeProductFromCompare, toast],
   );
 
   const { addProductToBasket, increaseProductInQtBasket } =
@@ -95,7 +95,7 @@ const ProductComparison = () => {
           });
           // Track Add to Cart
 
-          triggerEvents("AddToCart",  {
+          triggerEvents("AddToCart", {
             user_data: {
               em: [userData?.fetchUsersById.email.toLowerCase()],
               fn: [userData?.fetchUsersById.fullName],
@@ -118,13 +118,12 @@ const ProductComparison = () => {
               currency: "TND",
             },
           });
-          pushToDataLayer("AddToCart")
-
+          pushToDataLayer("AddToCart");
         },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -151,7 +150,7 @@ const ProductComparison = () => {
         });
 
         // Track Add to Cart
-        triggerEvents("AddToCart",  {
+        triggerEvents("AddToCart", {
           user_data: {
             em: [userData?.fetchUsersById.email.toLowerCase()],
             fn: [userData?.fetchUsersById.fullName],
@@ -174,8 +173,7 @@ const ProductComparison = () => {
             currency: "TND",
           },
         });
-        pushToDataLayer("AddToCart")
-
+        pushToDataLayer("AddToCart");
       }
     }
     toggleIsUpdated();
@@ -248,7 +246,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-red-500 text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
+                                    3,
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND

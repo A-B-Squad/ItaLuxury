@@ -28,11 +28,10 @@ export async function POST(req: NextRequest) {
   const receiverWalletId = process.env.NEXT_PUBLIC_KONNECT_WALLET_ID;
   const apiUrl = process.env.NEXT_PUBLIC_TEST_API;
 
-  
   if (!apiKey || !receiverWalletId || !apiUrl) {
     return NextResponse.json(
       { message: "Server configuration error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -74,7 +73,7 @@ export async function POST(req: NextRequest) {
           message: "Error initializing payment",
           error: errorData,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest) {
         message: "Error initializing payment",
         error: error,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

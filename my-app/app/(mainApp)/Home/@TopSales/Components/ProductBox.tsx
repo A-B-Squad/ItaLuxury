@@ -98,13 +98,12 @@ const ProductBox = ({ product }: any) => {
               currency: "TND",
             },
           });
-          pushToDataLayer("AddToCart")
-
+          pushToDataLayer("AddToCart");
         },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
+        (p: any) => p.id === product?.id,
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -143,8 +142,7 @@ const ProductBox = ({ product }: any) => {
           currency: "TND",
         },
       });
-      pushToDataLayer("AddToCart")
-
+      pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
   };

@@ -87,7 +87,7 @@ const TopDeals = () => {
             });
 
             // Track Add to Cart
-            triggerEvents("AddToCart",  {
+            triggerEvents("AddToCart", {
               user_data: {
                 em: [userData?.fetchUsersById.email.toLowerCase()],
                 fn: [userData?.fetchUsersById.fullName],
@@ -110,13 +110,12 @@ const TopDeals = () => {
                 currency: "TND",
               },
             });
-          pushToDataLayer("AddToCart")
-
+            pushToDataLayer("AddToCart");
           },
         });
       } else {
         const isProductAlreadyInBasket = products.some(
-          (p: any) => p.id === product.id
+          (p: any) => p.id === product.id,
         );
         if (!isProductAlreadyInBasket) {
           addProductToBasket({
@@ -142,7 +141,7 @@ const TopDeals = () => {
         }
 
         // Track Add to Cart
-        triggerEvents("AddToCart",  {
+        triggerEvents("AddToCart", {
           user_data: {
             em: [userData?.fetchUsersById.email.toLowerCase()],
             fn: [userData?.fetchUsersById.fullName],
@@ -164,8 +163,7 @@ const TopDeals = () => {
             currency: "TND",
           },
         });
-        pushToDataLayer("AddToCart")
-
+        pushToDataLayer("AddToCart");
       }
       toggleIsUpdated();
       openBasketDrawer();
@@ -177,11 +175,11 @@ const TopDeals = () => {
       addToBasket,
       toggleIsUpdated,
       openBasketDrawer,
-    ]
+    ],
   );
 
   const addProductToCompare = useComparedProductsStore(
-    (state) => state.addProductToCompare
+    (state) => state.addProductToCompare,
   );
 
   const addToCompare = useCallback(
@@ -193,7 +191,7 @@ const TopDeals = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [addProductToCompare, toast]
+    [addProductToCompare, toast],
   );
 
   const renderProducts = useMemo(() => {
@@ -304,7 +302,7 @@ const TopDeals = () => {
                     </span>
                     <span className="text-primaryColor font-bold text-xl">
                       {products?.product?.productDiscounts[0]?.newPrice.toFixed(
-                        3
+                        3,
                       )}
                       TND
                     </span>

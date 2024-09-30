@@ -75,7 +75,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
     if (basketData?.basketByUserId) {
       const totalQuantity = basketData.basketByUserId.reduce(
         (acc: number, item: any) => acc + item.quantity,
-        0
+        0,
       );
       useProductsInBasketStore.setState({
         products: basketData.basketByUserId.map((item: any) => ({
@@ -288,9 +288,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
           >
             <p>Panier</p>
             <div className="relative inline-flex">
-              <RiShoppingCartLine
-                className="text-xl"
-              />
+              <RiShoppingCartLine className="text-xl" />
 
               {quantityInBasket > 0 && (
                 <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">

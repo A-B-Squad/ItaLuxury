@@ -24,7 +24,7 @@ const CompanyInfoBar = () => {
           <CiPhone className="text-gray-600" size={35} />
           <h3 className="font-semibold  text-gray-900">Appelez-nous :</h3>
 
-          <p className=" text-gray-600" >
+          <p className=" text-gray-600">
             (+216) {phoneNumber?.phone[0]} / (+216) {phoneNumber?.phone[1]}
           </p>
         </div>

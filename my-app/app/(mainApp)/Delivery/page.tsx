@@ -14,7 +14,7 @@ const page = () => {
   return (
     <div className="flex flex-col  items-center  justify-center  h-max mb-16 py-10 px-2 relative ">
       <Breadcumb pageName={"Expéditions et retours"} pageLink={"Delivery"} />
-      <DeliveryPage/>
+      <DeliveryPage />
     </div>
   );
 };

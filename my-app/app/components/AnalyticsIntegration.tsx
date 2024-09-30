@@ -22,7 +22,6 @@ const AnalyticsIntegration = () => {
   const [fbDomainVerification, setFbDomainVerification] = useState<
     string | null
   >(null);
-  
 
   useEffect(() => {
     const fetchApiCredentials = async () => {
@@ -56,7 +55,7 @@ const AnalyticsIntegration = () => {
         if (result.data && result.data.getApiCredentials) {
           const fbCredentials = result.data.getApiCredentials as ApiCredentials;
           setFbDomainVerification(fbCredentials.domainVerification);
-          
+
           setFbPixelId(fbCredentials.api_id);
           console.log(fbCredentials);
         }

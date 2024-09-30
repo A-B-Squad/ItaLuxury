@@ -63,8 +63,6 @@ const BasketDrawer: React.FC = () => {
 
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
-
-
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -105,8 +103,8 @@ const BasketDrawer: React.FC = () => {
         productsInBasket.reduce(
           (acc: any, curr: { actualQuantity: any }) =>
             acc + curr.actualQuantity,
-          0
-        )
+          0,
+        ),
       );
     }
   }, [
@@ -131,7 +129,7 @@ const BasketDrawer: React.FC = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
   );
 
   const renderProductList = () => (
@@ -292,7 +290,7 @@ const BasketDrawer: React.FC = () => {
                         (sum, product) =>
                           sum +
                           (product?.actualQuantity || product?.quantity || 0),
-                        0
+                        0,
                       ),
                     },
                   });

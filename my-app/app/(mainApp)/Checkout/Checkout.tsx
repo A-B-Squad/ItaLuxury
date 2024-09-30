@@ -67,7 +67,6 @@ const Checkout: React.FC = () => {
   >("CASH_ON_DELIVERY");
   const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
 
-
   const { clearBasket } = useProductsInBasketStore();
   const {
     register,
@@ -148,7 +147,6 @@ const Checkout: React.FC = () => {
 
   // Step 7: Define event handlers
   const onSubmit = async (data: any) => {
-
     if (data.email == "" || userData?.fetchUsersById?.email == "") {
       console.error("User email is missing");
       toast({
@@ -227,7 +225,7 @@ const Checkout: React.FC = () => {
               num_items: products.reduce(
                 (sum, product) =>
                   sum + (product?.actualQuantity || product?.quantity || 0),
-                0
+                0,
               ),
             },
           });
@@ -238,11 +236,9 @@ const Checkout: React.FC = () => {
         }
 
         if (paymentMethod === "CREDIT_CARD") {
-          
           await handleOnlinePayment(customId, userName, userPhone, userEmail);
-        }else{
+        } else {
           router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
-
         }
       },
       onError: (error) => {
@@ -260,7 +256,7 @@ const Checkout: React.FC = () => {
     orderId: string,
     userName: string,
     userPhone: string,
-    userEmail: string
+    userEmail: string,
   ) => {
     if (paymentMethod === "CREDIT_CARD") {
       setPaymentLoading(true);
@@ -295,7 +291,7 @@ const Checkout: React.FC = () => {
           const errorData = await response.json();
           console.error("Payment initialization error:", errorData);
           throw new Error(
-            `Payment initialization failed: ${JSON.stringify(errorData)}`
+            `Payment initialization failed: ${JSON.stringify(errorData)}`,
           );
         }
 
@@ -314,7 +310,6 @@ const Checkout: React.FC = () => {
           variant: "destructive",
         });
         setPaymentLoading(false);
-
       }
     }
   };
@@ -352,14 +347,16 @@ const Checkout: React.FC = () => {
             calculateTotal={calculateTotal}
           />
 
-{paymentLoading && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-5 rounded-lg flex flex-col items-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
-          <p className="mt-2 text-gray-700">Redirection vers la page de paiement...</p>
-        </div>
-      </div>
-    )}
+          {paymentLoading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+                <p className="mt-2 text-gray-700">
+                  Redirection vers la page de paiement...
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Checkout Form Section */}
           <div>
@@ -632,7 +629,7 @@ const Checkout: React.FC = () => {
                                         peer-checked:border-primaryColor peer-checked:bg-primaryColor"
                               ></div>
                             </label>
-                          )
+                          ),
                         )}
                       </div>
                       {paymentMethod && (

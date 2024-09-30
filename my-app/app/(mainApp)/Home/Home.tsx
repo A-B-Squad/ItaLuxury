@@ -18,26 +18,26 @@ import Loading from "./Loader";
 
 const AdsCarousel = dynamic(
   () => import("@/app/components/adverstissment/carousel"),
-  { ssr: false, loading: () => <Loading /> }
+  { ssr: false, loading: () => <Loading /> },
 );
 const RightAdsCarousel = dynamic(
   () => import("../../components/adverstissment/RightAdsCarousel"),
-  { ssr: false }
+  { ssr: false },
 );
 const SideAds = dynamic(
   () => import("@/app/components/adverstissment/sideAds"),
-  { ssr: false }
+  { ssr: false },
 );
 const TitleProduct = dynamic(
   () => import("@/app/components/ProductCarousel/titleProduct"),
-  { ssr: false }
+  { ssr: false },
 );
 const BestSales = dynamic(() => import("./@TopSales/BestSales"), {
   ssr: false,
 });
 const ProductInfo = dynamic(
   () => import("@/app/components/ProductInfo/ProductInfo"),
-  { ssr: false }
+  { ssr: false },
 );
 const Services = dynamic(() => import("./Components/services"), {
   ssr: false,
@@ -47,11 +47,11 @@ const TimeCountDown = dynamic(() => import("./Components/TimeCountDown"), {
 });
 const FullWidthAds = dynamic(
   () => import("@/app/components/adverstissment/FullWidth"),
-  { ssr: false }
+  { ssr: false },
 );
 const ProductTabs = dynamic(
   () => import("@/app/components/ProductCarousel/productTabs"),
-  { ssr: false }
+  { ssr: false },
 );
 const TopDeals = dynamic(() => import("./@TopDeals/TopDeals"), { ssr: false });
 const ClientServices = dynamic(() => import("./Components/ClientServices"), {
@@ -59,33 +59,33 @@ const ClientServices = dynamic(() => import("./Components/ClientServices"), {
 });
 const MainCategoriesSlide = dynamic(
   () => import("./@mainCategoriesSlide/mainCategoriesSlide"),
-  { ssr: false }
+  { ssr: false },
 );
 const LeftAdsCarousel = dynamic(
   () => import("../../components/adverstissment/LeftAdsCarousel"),
-  { ssr: false }
+  { ssr: false },
 );
 const CenterAds = dynamic(
   () => import("@/app/components/adverstissment/centerAds"),
-  { ssr: false }
+  { ssr: false },
 );
 
 const Home = () => {
   const { data: leftAds, loading: loadingLeftAds } = useQuery(
     ADVERTISSMENT_QUERY,
-    { variables: { position: "SideNewProduct" } }
+    { variables: { position: "SideNewProduct" } },
   );
   const { data: rightAds, loading: loadingRightAds } = useQuery(
     ADVERTISSMENT_QUERY,
-    { variables: { position: "SidePromotion" } }
+    { variables: { position: "SidePromotion" } },
   );
   const { data: BannerPromotion, loading: loadingFullPromotionAds } = useQuery(
     ADVERTISSMENT_QUERY,
-    { variables: { position: "BannerPromotion" } }
+    { variables: { position: "BannerPromotion" } },
   );
   const { data: leftCarouselAds, loading: loadingLeftCarouselAds } = useQuery(
     ADVERTISSMENT_QUERY,
-    { variables: { position: "leftCarouselAds" } }
+    { variables: { position: "leftCarouselAds" } },
   );
   const { data: AdsNextToCarousel, loading: loadingAdsNextToCarousel } =
     useQuery(ADVERTISSMENT_QUERY, {
@@ -94,17 +94,17 @@ const Home = () => {
 
   const { data: BannerLessThen20, loading: loadingFull20ProductAds } = useQuery(
     ADVERTISSMENT_QUERY,
-    { variables: { position: "BannerLessThen20" } }
+    { variables: { position: "BannerLessThen20" } },
   );
   const { data: centerCarouselAds, loading: loadingCenterCarouselAds } =
     useQuery(ADVERTISSMENT_QUERY, { variables: { position: "slider" } });
   const { data: BannerBestDeals, loading: loadingFullTopDealsAds } = useQuery(
     ADVERTISSMENT_QUERY,
-    { variables: { position: "BannerBestDeals" } }
+    { variables: { position: "BannerBestDeals" } },
   );
   const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
     TAKE_16_PRODUCTS_PRICE_20,
-    { variables: { limit: 16 }, fetchPolicy: "network-only" }
+    { variables: { limit: 16 }, fetchPolicy: "network-only" },
   );
 
   const {
@@ -120,7 +120,7 @@ const Home = () => {
     {
       variables: { limit: 16, visibleProduct: true },
       fetchPolicy: "network-only",
-    }
+    },
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
     variables: { section: "TOP SELL" },
@@ -133,15 +133,15 @@ const Home = () => {
 
   const newProducts = useMemo(
     () => NewProducts_16?.allNewProducts,
-    [NewProducts_16]
+    [NewProducts_16],
   );
   const discountedProducts = useMemo(
     () => Products_inDiscount_16?.productsDiscounts,
-    [Products_inDiscount_16]
+    [Products_inDiscount_16],
   );
   const productsLessThan20 = useMemo(
     () => Products_less_20?.productsLessThen20,
-    [Products_less_20]
+    [Products_less_20],
   );
 
   return (
@@ -160,7 +160,7 @@ const Home = () => {
             />
           </section>
           <Services />
-     
+
           <div className="view lg:px-20">
             <ProductInfo />
             {TopDealsSectionVisibility?.getSectionVisibility

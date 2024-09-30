@@ -158,7 +158,7 @@ const Basket: React.FC = () => {
         if (product.id === productId) {
           const newQuantity = Math.max(
             1,
-            (product.actualQuantity ?? product.quantity) + change
+            (product.actualQuantity ?? product.quantity) + change,
           );
           return { ...product, actualQuantity: newQuantity };
         }
@@ -170,11 +170,11 @@ const Basket: React.FC = () => {
         updatedProducts.reduce(
           (total, product) =>
             total + (product.actualQuantity ?? product.quantity),
-          0
-        )
+          0,
+        ),
       );
     },
-    [storedProducts, setQuantityInBasket]
+    [storedProducts, setQuantityInBasket],
   );
 
   // Mutations
@@ -191,8 +191,8 @@ const Basket: React.FC = () => {
               prevProducts.map((product) =>
                 product.basketId === increaseQuantity.id
                   ? { ...product, quantity: increaseQuantity.quantity }
-                  : product
-              )
+                  : product,
+              ),
             );
             toggleIsUpdated();
           },
@@ -210,7 +210,7 @@ const Basket: React.FC = () => {
         increaseProductInQtBasket(productId);
       }
     },
-    [decodedToken, increaseQuantity, handleQuantityChange]
+    [decodedToken, increaseQuantity, handleQuantityChange],
   );
 
   const handleDecreaseQuantity = useCallback(
@@ -223,8 +223,8 @@ const Basket: React.FC = () => {
               prevProducts.map((product) =>
                 product.basketId === decreaseQuantity.id
                   ? { ...product, quantity: decreaseQuantity.quantity }
-                  : product
-              )
+                  : product,
+              ),
             );
             toggleIsUpdated();
           },
@@ -233,7 +233,7 @@ const Basket: React.FC = () => {
         decreaseProductInQtBasket(productId);
       }
     },
-    [decodedToken, decreaseQuantity, handleQuantityChange]
+    [decodedToken, decreaseQuantity, handleQuantityChange],
   );
 
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
@@ -244,7 +244,7 @@ const Basket: React.FC = () => {
       if (decodedToken?.userId && basketId) {
         try {
           setProducts((prevProducts) =>
-            prevProducts.filter((product) => product.basketId !== basketId)
+            prevProducts.filter((product) => product.basketId !== basketId),
           );
           await deleteBasketById({
             variables: { basketId },
@@ -258,7 +258,7 @@ const Basket: React.FC = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
   );
 
   // Render component
@@ -287,19 +287,17 @@ const Basket: React.FC = () => {
               {products.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium w-full flex items-center md:gap-7">
-                  <div className="w-40 h-40 relative">
-
-                    <Image
-               
-                      alt={product.name}
-                      src={
-                        product?.images[0] ||
-                        "https://res.cloudinary.com/dc1cdbirz/image/upload/v1718970701/b23xankqdny3n1bgrvjz.png"
-                      }
-                      layout="fill"
-                      objectFit="contain"
+                    <div className="w-40 h-40 relative">
+                      <Image
+                        alt={product.name}
+                        src={
+                          product?.images[0] ||
+                          "https://res.cloudinary.com/dc1cdbirz/image/upload/v1718970701/b23xankqdny3n1bgrvjz.png"
+                        }
+                        layout="fill"
+                        objectFit="contain"
                       />
-                      </div>
+                    </div>
                     <div>
                       <Link
                         rel="preload"
@@ -436,7 +434,7 @@ const Basket: React.FC = () => {
                       (sum, product) =>
                         sum +
                         (product?.actualQuantity || product?.quantity || 0),
-                      0
+                      0,
                     ),
                   },
                 });

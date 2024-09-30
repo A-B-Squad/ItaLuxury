@@ -89,7 +89,7 @@ const TrackingPackages: React.FC = () => {
     {
       variables: { packageId: searchInput },
       skip: !searchInput,
-    }
+    },
   );
 
   useEffect(() => {
@@ -161,8 +161,8 @@ const TrackingPackages: React.FC = () => {
           pkg.Checkout?.productInCheckout.some((product) =>
             product.product.name
               .toLowerCase()
-              .includes(searchInput.toLowerCase())
-          )
+              .includes(searchInput.toLowerCase()),
+          ),
       );
     }
     setFilteredPackages(filtered);
@@ -215,7 +215,7 @@ const TrackingPackages: React.FC = () => {
                       <TableCell>
                         <span
                           className={`${getStatusColor(
-                            translateStatus(pkg.status) as Status
+                            translateStatus(pkg.status) as Status,
                           )} py-2 rounded-full px-2 lg:px-4 text-center text-white text-xs lg:text-sm font-medium`}
                         >
                           {translateStatus(pkg.status)}
@@ -257,7 +257,7 @@ const TrackingPackages: React.FC = () => {
                                           Quantité: {product?.productQuantity}
                                         </span>
                                       </li>
-                                    )
+                                    ),
                                   )}
                                 </ul>
                               </div>
