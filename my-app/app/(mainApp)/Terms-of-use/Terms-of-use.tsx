@@ -13,7 +13,7 @@ export default function TermsOfUse() {
       variables: { position: "clinetContactSideAds" },
     });
   return (
-    <div className="container flex gap-14  lg:flex-row items-center lg:items-start justify-center flex-col-reverse py-2 px-10 bg-white border ">
+    <div className="container flex gap-14  lg:flex-row items-center lg:items-start justify-center flex-col-reverse py-12 px-10 bg-white border ">
       <div className="clinetContactSideAds h-fit  sticky top-24">
         <SideAds
           adsLoaded={loadingclinetContactSideAds}

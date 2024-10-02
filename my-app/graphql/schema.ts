@@ -428,16 +428,16 @@ type Mutation {
   cancelPackage(input: CancelPackageInput!): String!
   refundPackage(input: RefundPackageInput!): String!
   cancalPackageProduct(input: CancelProductPackageInput!): String!
-  payedOrToDeliveryPackage(packageId: ID!, status: String!): String!
+  payedOrToDeliveryPackage(packageId: ID! , paymentMethod:PaymentMethod!, status: String!): String!
   createPackageComments(packageId: ID!, comment: [String!]!): String!
-  updateStatusPayOnlinePackage(packageId:ID!, paymentStatus:Status):String!
+  updateStatusPayOnlinePackage(packageId:ID!,paymentStatus:Status):String!
   # Category-related mutations
   createCategory(input: CreateCategoryInput!): String!
   updateCategory(id: ID!, input: UpdateCategoryInput!): String!
   deleteCategory(id: ID!): String!
 
   # Favorite product mutation
-  addProductToFavorite(input: AddProductToFavoriteInput!): FavoriteProducts
+  addDeleteProductToFavorite(input: AddDeleteProductToFavoriteInput!): FavoriteProducts
 
   # Company info mutation
   createOrUpdateCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
@@ -576,7 +576,7 @@ input CancelProductPackageInput {
   productQuantity: Int!
 }
 
-input AddProductToFavoriteInput {
+input AddDeleteProductToFavoriteInput {
   userId: ID!
   productId: ID!
 }

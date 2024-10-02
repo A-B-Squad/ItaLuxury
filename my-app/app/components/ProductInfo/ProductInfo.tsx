@@ -53,13 +53,13 @@ const ProductInfo = () => {
     setActualQuantity((prevQuantity) =>
       productData && prevQuantity < productData.inventory
         ? prevQuantity + 1
-        : prevQuantity,
+        : prevQuantity
     );
   }, [productData]);
 
   const handleSubtractQuantity = useCallback(() => {
     setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1,
+      prevQuantity > 1 ? prevQuantity - 1 : 1
     );
   }, []);
   const { addProductToBasket, products, increaseProductInQtBasket } =
@@ -82,7 +82,7 @@ const ProductInfo = () => {
       try {
         // Find if the product is already in the basket
         const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
+          (item: any) => item.Product.id === product.id
         );
 
         const currentBasketQuantity = existingBasketItem
@@ -126,7 +126,7 @@ const ProductInfo = () => {
               user_data: {
                 em: [userData?.fetchUsersById.email.toLowerCase()],
                 fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number.join("")],
+                ph: [userData?.fetchUsersById?.number],
                 country: ["tn"],
                 external_id: userData?.fetchUsersById.id,
               },
@@ -153,7 +153,7 @@ const ProductInfo = () => {
       }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         if (actualQuantity > product.inventory) {
@@ -191,7 +191,7 @@ const ProductInfo = () => {
         user_data: {
           em: [userData?.fetchUsersById.email.toLowerCase()],
           fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number.join("")],
+          ph: [userData?.fetchUsersById?.number],
           country: ["tn"],
           external_id: userData?.fetchUsersById.id,
         },

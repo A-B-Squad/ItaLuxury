@@ -1,4 +1,4 @@
-import { Context } from "@apollo/client";
+import { Context } from "@/pages/api/graphql";
 import { Status } from "@prisma/client";
 
 interface UpdateStatusPayOnlinePackageInput {
@@ -12,6 +12,22 @@ export const updateStatusPayOnlinePackage = async (
   { prisma }: Context
 ) => {
   try {
+  
+
+    const existingPackage = await prisma.package.findUnique({
+      where: { customId: packageId },
+      include: { Checkout: true },
+    });
+    
+    if (!existingPackage) {
+
+      throw new Error("Package not found");
+    }
+
+    if (!existingPackage.Checkout) {
+      throw new Error("Checkout not found for this package");
+    }
+
     const updatedPackage = await prisma.package.update({
       where: { customId: packageId },
       data: {
@@ -22,17 +38,11 @@ export const updateStatusPayOnlinePackage = async (
       },
     });
 
-    const existingPackage = await prisma.package.findUnique({
-      where: { id: packageId },
-      include: { Checkout: true },
-    });
-
     if (paymentStatus === "PAYED_NOT_DELIVERED") {
       // Fetch the products associated with the checkout
       const checkoutProducts = await prisma.productInCheckout.findMany({
         where: { checkoutId: existingPackage.Checkout.id },
       });
-console.log(checkoutProducts);
 
       for (const product of checkoutProducts) {
         await prisma.product.update({
@@ -43,7 +53,6 @@ console.log(checkoutProducts);
           },
         });
       }
- 
     }
     return `Package status updated to ${updatedPackage.status}`;
   } catch (error) {

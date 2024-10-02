@@ -87,6 +87,17 @@ export const DECREASE_QUANTITY_MUTATION = gql`
   }
 `;
 
+export const ADD_DELETE_PRODUCT_FAVORITE_MUTATION = gql`
+  mutation AddDeleteProductToFavorite(
+    $input: AddDeleteProductToFavoriteInput!
+  ) {
+    addDeleteProductToFavorite(input: $input) {
+      id
+      userId
+      productId
+    }
+  }
+`;
 export const UPDATE_STATUS_PAYMENT_ONLINE_MUTATION = gql`
   mutation UpdateStatusPayOnlinePackage($packageId: ID!, $paymentStatus: Status) {
     updateStatusPayOnlinePackage(

@@ -17,32 +17,43 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
   const { packageId, email, status } = searchParams;
   const router = useRouter();
   const [updatePaymentStatus] = useMutation(
-    UPDATE_STATUS_PAYMENT_ONLINE_MUTATION,
+    UPDATE_STATUS_PAYMENT_ONLINE_MUTATION
   );
   const [error, setError] = useState<string | null>(null);
+  const [mutationSent, setMutationSent] = useState(false);
 
   const isPayed = status?.toUpperCase() === "PAYED_NOT_DELIVERED";
 
   useEffect(() => {
     const sendMutation = async () => {
-      if (status) {
-        try {
-          await updatePaymentStatus({
-            variables: {
-              packageId: packageId,
-              paymentStatus: status.toUpperCase(),
-            },
-          });
-          console.log("Payment status updated successfully");
-        } catch (err) {
-          console.error("Error updating payment status:", err);
-          setError("Failed to update payment status. Please contact support.");
+      if (status && !mutationSent) {
+        const localStorageKey = `mutation_sent_${packageId}`;
+        const isMutationSent = localStorage.getItem(localStorageKey);
+
+        if (!isMutationSent) {
+          try {
+            await updatePaymentStatus({
+              variables: {
+                packageId: packageId,
+                paymentStatus: status.toUpperCase(),
+              },
+            });
+            console.log("Payment status updated successfully");
+            localStorage.setItem(localStorageKey, "true");
+            setMutationSent(true);
+          } catch (err) {
+            console.error("Error updating payment status:", err);
+            setError("Failed to update payment status. Please contact support.");
+          }
+        } else {
+          console.log("Mutation already sent for this package");
+          setMutationSent(true);
         }
       }
     };
 
     sendMutation();
-  }, [status, packageId, updatePaymentStatus]);
+  }, [status, packageId, updatePaymentStatus, mutationSent]);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center ">

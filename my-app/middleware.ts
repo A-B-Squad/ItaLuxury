@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ALLOWED_ORIGINS = [
-  "https://localhost:3001",
+  process.env.NEXT_ALLOW_REQUEST_API_URL,
   process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
-  "https://api.preprod.konnect.network", 
+  "http://api.preprod.konnect.network", 
 ].filter(Boolean);
-
 const AUTH_ROUTES = ["/signin", "/signup"];
 const TOKEN_COOKIE_NAME = "Token";
 
@@ -37,4 +36,4 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: ["/api/:path*", "/signin", "/signup"],
-};
+};  

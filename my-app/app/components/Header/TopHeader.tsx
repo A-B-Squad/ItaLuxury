@@ -75,7 +75,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
     if (basketData?.basketByUserId) {
       const totalQuantity = basketData.basketByUserId.reduce(
         (acc: number, item: any) => acc + item.quantity,
-        0,
+        0
       );
       useProductsInBasketStore.setState({
         products: basketData.basketByUserId.map((item: any) => ({
@@ -230,7 +230,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                       Cookies.remove("Token");
                       window.sessionStorage.removeItem("productsInBasket");
                       window.sessionStorage.removeItem("comparedProducts");
-                      window.location.reload();
+                      window.location.replace("/");
                     }
                   }}
                   className="w-full text-sm py-2 border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
