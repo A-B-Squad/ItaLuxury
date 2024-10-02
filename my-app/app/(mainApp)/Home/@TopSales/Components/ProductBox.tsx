@@ -79,7 +79,7 @@ const ProductBox = ({ product }: any) => {
             user_data: {
               em: [userData?.fetchUsersById.email.toLowerCase()],
               fn: [userData?.fetchUsersById.fullName],
-              ph: [userData?.fetchUsersById?.number.join("")],
+              ph: [userData?.fetchUsersById?.number],
               country: ["tn"],
               external_id: userData?.fetchUsersById.email.id,
             },
@@ -103,7 +103,7 @@ const ProductBox = ({ product }: any) => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -123,7 +123,7 @@ const ProductBox = ({ product }: any) => {
         user_data: {
           em: [userData?.fetchUsersById.email.toLowerCase()],
           fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number.join("")],
+          ph: [userData?.fetchUsersById?.number],
           country: ["tn"],
           external_id: userData?.fetchUsersById.email.id,
         },

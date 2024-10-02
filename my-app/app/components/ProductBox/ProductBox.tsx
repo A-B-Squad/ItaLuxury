@@ -48,7 +48,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
   const { addProductToBasket, products, increaseProductInQtBasket } =
     useProductsInBasketStore();
@@ -124,7 +124,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
             user_data: {
               em: [userData?.fetchUsersById.email.toLowerCase()],
               fn: [userData?.fetchUsersById.fullName],
-              ph: [userData?.fetchUsersById?.number.join("")],
+              ph: [userData?.fetchUsersById?.number],
               country: ["tn"],
               external_id: userData?.fetchUsersById.id,
             },
@@ -172,7 +172,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         user_data: {
           em: [userData?.fetchUsersById.email.toLowerCase()],
           fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number.join("")],
+          ph: [userData?.fetchUsersById?.number],
           country: ["tn"],
           external_id: userData?.fetchUsersById.id,
         },
@@ -207,7 +207,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
   const handleAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);

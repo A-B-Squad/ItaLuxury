@@ -6,6 +6,7 @@ export const getAllPackages = async (_: any, __: any, { prisma }: Context) => {
       include: {
         Checkout: {
           include: {
+            Governorate:true,
             productInCheckout: {
               include: {
                 product: {

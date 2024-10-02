@@ -1,7 +1,7 @@
 import { deleteProduct } from "./deleteProduct";
 import { updateProduct } from "./updateProduct";
 import { createProduct } from "./createProduct";
-import { addProductToFavorite } from "./addProductToFavorite";
+import { addDeleteProductToFavorite } from "./addDeleteProductToFavorite";
 import { sellProduct } from "./sellProduct";
 import { undoSellProduct } from "./undoSellProduct";
 import { deleteProductDiscount } from "./deleteProductDiscount";
@@ -12,7 +12,7 @@ export const productsMutations = {
   createProduct,
   updateProduct,
   deleteProduct,
-  addProductToFavorite,
+  addDeleteProductToFavorite,
   deleteProductDiscount, 
   undoSellProduct, 
   sellProduct,

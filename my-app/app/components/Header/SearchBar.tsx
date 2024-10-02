@@ -57,7 +57,7 @@ const SearchBar = () => {
           user_data: {
             em: [userData?.fetchUsersById.email.toLowerCase()],
             fn: [userData?.fetchUsersById.fullName],
-            ph: [userData?.fetchUsersById?.number.join("")],
+            ph: [userData?.fetchUsersById?.number],
             country: ["tn"],
             external_id: userData?.fetchUsersById.id,
           },
@@ -67,18 +67,18 @@ const SearchBar = () => {
             search_string: inputValue,
             contentIds: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.id,
+                (category: any) => category.id
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name,
+                (product: any) => product.name
               ),
             ],
             contents: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.name,
+                (category: any) => category.name
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name,
+                (product: any) => product.name
               ),
             ].join(", "),
             Currency: "TND",
@@ -152,7 +152,7 @@ const SearchBar = () => {
                         user_data: {
                           em: [userData?.fetchUsersById.email.toLowerCase()],
                           fn: [userData?.fetchUsersById.fullName],
-                          ph: [userData?.fetchUsersById?.number.join("")],
+                          ph: [userData?.fetchUsersById?.number],
                           country: ["tn"],
                           external_id: userData?.fetchUsersById.id,
                         },
@@ -190,7 +190,7 @@ const SearchBar = () => {
                       user_data: {
                         em: [userData?.fetchUsersById.email.toLowerCase()],
                         fn: [userData?.fetchUsersById.fullName],
-                        ph: [userData?.fetchUsersById?.number.join("")],
+                        ph: [userData?.fetchUsersById?.number],
                         country: ["tn"],
                         external_id: userData?.fetchUsersById.id,
                       },

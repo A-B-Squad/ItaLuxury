@@ -1,8 +1,8 @@
 import { Context } from "@/pages/api/graphql";
 
-export const addProductToFavorite = async (
+export const addDeleteProductToFavorite = async (
   _: any,
-  { input }: { input: AddProductToFavoriteInput },
+  { input }: { input: AddDeleteProductToFavorite },
   { prisma }: Context
 ) => {
   try {
@@ -36,7 +36,6 @@ export const addProductToFavorite = async (
       });
       return favoriteProduct;
     }
-    // Add the product to the user's favorite products
 
   } catch (error: any) {
     console.error("Error adding product to favorite:", error);

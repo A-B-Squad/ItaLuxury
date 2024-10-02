@@ -379,6 +379,7 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
   query FavoriteProducts($userId: ID!) {
     favoriteProducts(userId: $userId) {
       Product {
+        id
         name
         price
         isVisible

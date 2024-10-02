@@ -1,12 +1,17 @@
 import { Context } from "@/pages/api/graphql";
-
+import { PaymentMethod } from "@prisma/client";
 
 export const payedOrToDeliveryPackage = async (
   _: any,
   {
     packageId,
     status,
-  }: { packageId: string; status: "PAYED_AND_DELIVERED" | "TRANSFER_TO_DELIVERY_COMPANY" },
+    paymentMethod,
+  }: {
+    packageId: string;
+    paymentMethod: PaymentMethod;
+    status: "PAYED_AND_DELIVERED" | "TRANSFER_TO_DELIVERY_COMPANY";
+  },
   { prisma }: Context
 ): Promise<string> => {
   try {
@@ -14,7 +19,6 @@ export const payedOrToDeliveryPackage = async (
       where: { id: packageId },
       include: { Checkout: true },
     });
-    
 
     if (!existingPackage) {
       throw new Error("Package not found");
@@ -24,8 +28,10 @@ export const payedOrToDeliveryPackage = async (
       throw new Error("Checkout not found for this package");
     }
 
-  
-    if (status === "TRANSFER_TO_DELIVERY_COMPANY") {
+    if (
+      status === "TRANSFER_TO_DELIVERY_COMPANY" &&
+      paymentMethod !== "CREDIT_CARD"
+    ) {
       // Fetch the products associated with the checkout
       const checkoutProducts = await prisma.productInCheckout.findMany({
         where: { checkoutId: existingPackage.Checkout.id },
@@ -37,10 +43,14 @@ export const payedOrToDeliveryPackage = async (
           data: {
             inventory: { decrement: product.productQuantity },
             solde: { increment: product.productQuantity },
-            
           },
         });
       }
+      await prisma.package.update({
+        where: { id: packageId },
+        data: { inTransitAt: new Date() },
+      });
+    } else if (paymentMethod === "CREDIT_CARD") {
       await prisma.package.update({
         where: { id: packageId },
         data: { inTransitAt: new Date() },

@@ -46,50 +46,51 @@ const Signin = () => {
   const { products } = useProductsInBasketStore();
 
   const [addMultiProductToBasket] = useMutation(
-    ADD_MULTIPLE_TO_BASKET_MUTATION,
+    ADD_MULTIPLE_TO_BASKET_MUTATION
   );
 
   // Step 4: Set up the signin mutation
-  const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
-    onCompleted: (data) => {
-      // Show success toast and redirect to home page
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur ita-luxury",
-        className: "bg-primaryColor text-white",
-      });
-
-      const productsFormat = products.map((product) => {
-        return {
-          productId: product.id,
-          quantity: product.actualQuantity,
-        };
-      });
-
-      addMultiProductToBasket({
-        variables: {
-          input: {
-            userId: data.signIn.user.id,
-            products: productsFormat,
-          },
-        },
-      });
-
-      router.replace("/");
-    },
-    onError: (error) => {
-      // Handle and display error messages
-      setErrorMessage(
-        error.message === "Invalid email or password"
-          ? "Email ou mot de passe invalide"
-          : "Une erreur s'est produite. Veuillez réessayer.",
-      );
-    },
-  });
+  const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION);
 
   // Step 5: Define form submission handler
   const onSubmit = (data: any) => {
-    SignIn({ variables: { input: data } });
+    SignIn({
+      variables: { input: data },
+
+      onCompleted: (data) => {
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur ita-luxury",
+          className: "bg-primaryColor text-white",
+        });
+
+        const productsFormat = products.map((product) => {
+          return {
+            productId: product.id,
+            quantity: product.actualQuantity,
+          };
+        });
+
+        addMultiProductToBasket({
+          variables: {
+            input: {
+              userId: data.signIn.user.id,
+              products: productsFormat,
+            },
+          },
+        });
+
+        router.replace("/");
+      },
+      onError: (error) => {
+        // Handle and display error messages
+        setErrorMessage(
+          error.message === "Invalid email or password"
+            ? "Email ou mot de passe invalide"
+            : "Une erreur s'est produite. Veuillez réessayer."
+        );
+      },
+    });
   };
 
   const handleGoogleLogin = async () => {
@@ -100,16 +101,44 @@ const Signin = () => {
       // Proceed with your existing sign-in logic
       SignIn({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
-        onCompleted: () => {
+        onCompleted: (data) => {
+          // Show success toast and redirect to home page
           toast({
             title: "Connexion réussie",
             description: "Bienvenue sur ita-luxury",
             className: "bg-primaryColor text-white",
           });
+
+          const productsFormat = products.map((product) => {
+            return {
+              productId: product.id,
+              quantity: product.actualQuantity,
+            };
+          });
+
+          addMultiProductToBasket({
+            variables: {
+              input: {
+                userId: data.signIn.user.id,
+                products: productsFormat,
+              },
+            },
+          });
+
           router.replace("/");
+        },
+        onError: (error) => {
+          // Handle and display error messages
+          setErrorMessage(
+            error.message === "Invalid email or password"
+              ? "Email ou mot de passe invalide"
+              : "Une erreur s'est produite. Veuillez réessayer."
+          );
         },
       });
     } catch (error) {
+      console.log(error);
+
       setErrorMessage("Échec de la connexion avec Google.");
     }
   };
@@ -118,17 +147,46 @@ const Signin = () => {
     try {
       const result = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
+console.log(user,"######################");
 
       // Proceed with your existing sign-in logic
       SignIn({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
-        onCompleted: () => {
+        onCompleted: (data) => {
+          // Show success toast and redirect to home page
           toast({
             title: "Connexion réussie",
             description: "Bienvenue sur ita-luxury",
             className: "bg-primaryColor text-white",
           });
+
+          const productsFormat = products.map((product) => {
+            return {
+              productId: product.id,
+              quantity: product.actualQuantity,
+            };
+          });
+
+          addMultiProductToBasket({
+            variables: {
+              input: {
+                userId: data.signIn.user.id,
+                products: productsFormat,
+              },
+            },
+          });
+
           router.replace("/");
+        },
+        onError: (error) => {
+          // Handle and display error messages
+          console.log(error);
+          
+          setErrorMessage(
+            error.message === "Invalid email or password"
+              ? "Email ou mot de passe invalide"
+              : "Une erreur s'est produite. Veuillez réessayer."
+          );
         },
       });
     } catch (error) {
@@ -307,7 +365,7 @@ const Signin = () => {
             </p>
             <p className="text-gray-600">
               <Link
-                href="/forgotPassword"
+                href="/ForgotPassword"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
                 Mot de passe oublié ?

@@ -103,8 +103,8 @@ const BasketDrawer: React.FC = () => {
         productsInBasket.reduce(
           (acc: any, curr: { actualQuantity: any }) =>
             acc + curr.actualQuantity,
-          0,
-        ),
+          0
+        )
       );
     }
   }, [
@@ -129,7 +129,7 @@ const BasketDrawer: React.FC = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
 
   const renderProductList = () => (
@@ -273,7 +273,7 @@ const BasketDrawer: React.FC = () => {
                     user_data: {
                       em: [userData?.fetchUsersById.email.toLowerCase()],
                       fn: [userData?.fetchUsersById.fullName],
-                      ph: [userData?.fetchUsersById?.number.join("")],
+                      ph: [userData?.fetchUsersById?.number],
                       country: ["tn"],
                       external_id: userData?.fetchUsersById.id,
                     },
@@ -290,7 +290,7 @@ const BasketDrawer: React.FC = () => {
                         (sum, product) =>
                           sum +
                           (product?.actualQuantity || product?.quantity || 0),
-                        0,
+                        0
                       ),
                     },
                   });

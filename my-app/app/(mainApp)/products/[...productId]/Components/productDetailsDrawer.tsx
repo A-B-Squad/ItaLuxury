@@ -35,7 +35,7 @@ const productDetailsDrawer = ({
     (state) => ({
       addProductToBasket: state.addProductToBasket,
       products: state.products,
-    }),
+    })
   );
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
@@ -53,7 +53,7 @@ const productDetailsDrawer = ({
       try {
         // Find if the product is already in the basket
         const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
+          (item: any) => item.Product.id === product.id
         );
 
         const currentBasketQuantity = existingBasketItem
@@ -98,7 +98,7 @@ const productDetailsDrawer = ({
               user_data: {
                 em: [userData?.fetchUsersById.email.toLowerCase()],
                 fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number.join("")],
+                ph: [userData?.fetchUsersById?.number],
                 country: ["tn"],
                 external_id: userData?.fetchUsersById.id,
               },
@@ -128,7 +128,7 @@ const productDetailsDrawer = ({
       }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         if (actualQuantity > product.inventory) {
@@ -164,7 +164,7 @@ const productDetailsDrawer = ({
         user_data: {
           em: [userData?.fetchUsersById.email.toLowerCase()],
           fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number.join("")],
+          ph: [userData?.fetchUsersById?.number],
           country: ["tn"],
           external_id: userData?.fetchUsersById.id,
         },
@@ -226,7 +226,7 @@ const productDetailsDrawer = ({
                 className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                 onClick={() => {
                   setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1,
+                    actualQuantity > 1 ? actualQuantity - 1 : 1
                   );
                 }}
               >
@@ -245,7 +245,7 @@ const productDetailsDrawer = ({
                   setActualQuantity(
                     actualQuantity < productDetails.inventory
                       ? actualQuantity + 1
-                      : actualQuantity,
+                      : actualQuantity
                   );
                 }}
               >

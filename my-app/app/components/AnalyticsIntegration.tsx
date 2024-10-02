@@ -1,8 +1,7 @@
 "use client";
-// components/AnalyticsIntegration.tsx
 import { useEffect, useState } from "react";
 import Script from "next/script";
-import Head from "next/head";
+import React from "react";
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -57,7 +56,6 @@ const AnalyticsIntegration = () => {
           setFbDomainVerification(fbCredentials.domainVerification);
 
           setFbPixelId(fbCredentials.api_id);
-          console.log(fbCredentials);
         }
       } catch (error) {
         console.error("Error fetching API credentials:", error);

@@ -50,7 +50,7 @@ interface ProductDiscountInput {
   newPrice: Float;
 }
 
-interface AddProductToFavoriteInput {
+interface AddDeleteProductToFavorite{
   userId: string;
   productId: string;
 }

@@ -27,7 +27,7 @@ import { GoAlertFill, GoGitCompare } from "react-icons/go";
 import {
   ADD_RATING_MUTATION,
   ADD_TO_BASKET_MUTATION,
-  ADD_TO_FAVORITE_MUTATION,
+  ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
 } from "../../../../graphql/mutations";
 import Breadcumb from "../../../components/Breadcumb";
 import PopHover from "../../../components/PopHover";
@@ -79,7 +79,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
   const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-  const [addToFavorite] = useMutation(ADD_TO_FAVORITE_MUTATION);
+  const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
 
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
@@ -139,7 +139,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       user_data: {
         em: [userData?.fetchUsersById.email.toLowerCase()],
         fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number.join("")],
+        ph: [userData?.fetchUsersById?.number],
         country: ["tn"],
         external_id: userData?.fetchUsersById.id,
       },
@@ -162,7 +162,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             color: colorName,
             sizes: attributes
               ?.filter((attr: { name: string }) =>
-                attr.name.toLowerCase().includes("size"),
+                attr.name.toLowerCase().includes("size")
               )
               .map((attr: { value: any }) => attr.value),
           },
@@ -186,7 +186,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    }),
+    })
   );
 
   const { addProductToBasket, products, increaseProductInQtBasket } =
@@ -205,7 +205,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       try {
         // Find if the product is already in the basket
         const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
+          (item: any) => item.Product.id === product.id
         );
 
         const currentBasketQuantity = existingBasketItem
@@ -249,7 +249,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               user_data: {
                 em: [userData?.fetchUsersById.email.toLowerCase()],
                 fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number.join("")],
+                ph: [userData?.fetchUsersById?.number],
                 country: ["tn"],
                 external_id: userData?.fetchUsersById.id,
               },
@@ -278,7 +278,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       }
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         if (actualQuantity > product.inventory) {
@@ -310,7 +310,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         user_data: {
           em: [userData?.fetchUsersById.email.toLowerCase()],
           fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number.join("")],
+          ph: [userData?.fetchUsersById?.number],
           country: ["tn"],
           external_id: userData?.fetchUsersById.id,
         },
@@ -338,28 +338,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         setReviews(data.productReview.length);
         setOneStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 1,
-          ).length,
+            (review: { rating: number }) => review?.rating === 1
+          ).length
         );
         setTwoStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 2,
-          ).length,
+            (review: { rating: number }) => review?.rating === 2
+          ).length
         );
         setThreeStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 3,
-          ).length,
+            (review: { rating: number }) => review?.rating === 3
+          ).length
         );
         setFourStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 4,
-          ).length,
+            (review: { rating: number }) => review?.rating === 4
+          ).length
         );
         setFiveStar(
           data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 5,
-          ).length,
+            (review: { rating: number }) => review?.rating === 5
+          ).length
         );
       },
     });
@@ -417,7 +417,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         const now = moment().tz(DEFAULT_TIMEZONE);
         const targetDate = moment.tz(
           parseInt(discount.dateOfEnd),
-          DEFAULT_TIMEZONE,
+          DEFAULT_TIMEZONE
         );
         targetDate.subtract(1, "hours");
 
@@ -434,7 +434,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const addToCompare = (product: any) => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
 
     if (!isProductAlreadyInCompare) {
@@ -568,11 +568,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                               jrs,{" "}
                               {Math.floor(
                                 (countdown % (1000 * 60 * 60 * 24)) /
-                                  (1000 * 60 * 60),
+                                  (1000 * 60 * 60)
                               )}{" "}
                               hrs,{" "}
                               {Math.floor(
-                                (countdown % (1000 * 60 * 60)) / (1000 * 60),
+                                (countdown % (1000 * 60 * 60)) / (1000 * 60)
                               )}{" "}
                               mins,{" "}
                               {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
@@ -638,7 +638,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
                         onClick={() => {
                           setActualQuantity(
-                            actualQuantity > 1 ? actualQuantity - 1 : 1,
+                            actualQuantity > 1 ? actualQuantity - 1 : 1
                           );
                         }}
                       >
@@ -659,7 +659,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                           setActualQuantity(
                             actualQuantity < productDetails?.inventory
                               ? actualQuantity + 1
-                              : actualQuantity,
+                              : actualQuantity
                           );
                         }}
                       >
@@ -718,7 +718,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         }}
                       >
                         {productsInCompare.some(
-                          (p: any) => p.id === productDetails.id,
+                          (p: any) => p.id === productDetails.id
                         ) ? (
                           <IoCheckmarkDoneOutline size={25} />
                         ) : (

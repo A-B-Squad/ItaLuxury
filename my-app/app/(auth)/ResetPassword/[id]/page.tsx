@@ -1,45 +1,50 @@
 "use client";
 
+import { useRouter, useParams } from "next/navigation";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
-import { FORGOT_PASSWORD_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
+import { RESET_PASSWORD_MUTATION } from "@/graphql/mutations";
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [email, setEmail] = useState("");
-  const [ForgotPassword, { loading }] = useMutation(FORGOT_PASSWORD_MUTATION);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetPassword, { loading }] = useMutation(RESET_PASSWORD_MUTATION);
   const router = useRouter();
+  const params = useParams();
   const { toast } = useToast();
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    ForgotPassword({
-      variables: {
-        email,
-      },
-      onCompleted: (data) => {
-        toast({
-          title: "E-mail envoyé",
-          description: "E-mail envoyé avec succeés",
-          className: "bg-primaryColor text-white",
-        });
-      },
-      onError: (error) => {
-        setIsError(true);
-        setErrorMessage("E-mail n'existe pas !");
-        console.log(error);
-      },
-    });
+  const handleSubmit = () => {
+    if (password !== confirmPassword) {
+      setIsError(true);
+      setErrorMessage(
+        "Le mot de passe et la confirmation du mot de passe doivent être identiques !",
+      );
+    } else {
+      resetPassword({
+        variables: {
+          password,
+          resetPasswordId: params?.id,
+        },
+        onCompleted: () => {
+          router.replace("/signin");
+        },
+        onError: (error) => {
+          console.error(error);
+        },
+      });
+    }
   };
 
   return (
-    <div className="bg-lightBeige min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <div className="container max-w-sm mx-auto flex-1 flex flex-col items-center justify-center px-2">
         <div className="bg-white px-6 py-8 rounded shadow-md text-black w-full">
-          <h1 className="mb-8 text-3xl text-center">Mot de passe oublié</h1>
+          <h1 className="mb-8 text-3xl text-center">
+            Réinitialiser mot de passe
+          </h1>
           {isError && (
             <div
               id="alert-border-2"
@@ -60,17 +65,25 @@ const ForgotPassword = () => {
           )}
 
           <input
-            type="email"
-            className="block border border-grey-light w-full p-3 rounded mb-4"
-            name="email"
-            placeholder="Tapez votre e-mail"
+            type="password"
             onChange={(e) => {
-              setEmail(e.target.value);
+              setPassword(e.target.value);
             }}
+            className="block border outline-none border-grey-light w-full p-3 rounded mb-4"
+            name="password"
+            placeholder="Tapez votre mot de passe"
+          />
+          <input
+            type="password"
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+            }}
+            className="block border border-grey-light outline-none w-full p-3 rounded mb-4"
+            name="confirm-password"
+            placeholder="Confirmer votre mot de passe"
           />
 
           <button
-            type="submit"
             onClick={handleSubmit}
             disabled={loading}
             className="w-full text-center py-3 rounded bg-secondaryColor text-white hover:bg-primaryColor focus:outline-none my-1 transition-all"
@@ -83,4 +96,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;
