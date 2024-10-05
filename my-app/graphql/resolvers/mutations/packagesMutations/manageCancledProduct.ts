@@ -5,7 +5,7 @@ export const cancalPackageProduct = async (
   { input }: { input: CancalPackageProductInput },
   { prisma }: Context
 ) => {
-  const { packageId, cause, description, productId, productQuantity } = input;
+  const { packageId, cause, productId, productQuantity } = input;
   try {
     const findPackage = await prisma.package.findFirst({
       where: { id: packageId },
@@ -36,13 +36,7 @@ export const cancalPackageProduct = async (
           },
         });
       }
-      await prisma.backOrExchange.create({
-        data: {
-          productId: productId,
-          cause: cause,
-          description: description,
-        },
-      });
+  
 
       return "Package Cancled successfully";
     }

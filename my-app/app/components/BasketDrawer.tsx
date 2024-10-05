@@ -103,8 +103,8 @@ const BasketDrawer: React.FC = () => {
         productsInBasket.reduce(
           (acc: any, curr: { actualQuantity: any }) =>
             acc + curr.actualQuantity,
-          0
-        )
+          0,
+        ),
       );
     }
   }, [
@@ -129,7 +129,7 @@ const BasketDrawer: React.FC = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
   );
 
   const renderProductList = () => (
@@ -140,7 +140,12 @@ const BasketDrawer: React.FC = () => {
             <Image
               layout="fill"
               objectFit="contain"
-              src={product?.images[0]}
+              src={
+                (product.images &&
+                  product.images.length > 0 &&
+                  product.images[0]) ||
+                "https://res.cloudinary.com/dc1cdbirz/image/upload/v1718970701/b23xankqdny3n1bgrvjz.png"
+              }
               alt={product.name}
               className="h-full w-full object-cover object-center"
             />
@@ -163,7 +168,7 @@ const BasketDrawer: React.FC = () => {
                   {(product.productDiscounts?.length
                     ? product.productDiscounts[0].newPrice
                     : product.price
-                  ).toFixed(3)}{" "}
+                  )?.toFixed(3)}{" "}
                   TND
                 </p>
               </div>
@@ -290,7 +295,7 @@ const BasketDrawer: React.FC = () => {
                         (sum, product) =>
                           sum +
                           (product?.actualQuantity || product?.quantity || 0),
-                        0
+                        0,
                       ),
                     },
                   });

@@ -282,35 +282,45 @@ const Checkout: React.FC = () => {
             email: userEmail,
             orderId: `${orderId}`,
             webhook: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/api/webhook/payment?packageId=${orderId}&status=PAYED_NOT_DELIVERED`,
-            silentWebhook:true,
+            silentWebhook: true,
             successUrl: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Checkout/EndCheckout?packageId=${orderId}&status=PAYED_NOT_DELIVERED`,
             failUrl: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Checkout/EndCheckout?packageId=${orderId}&status=PAYMENT_REFUSED`,
             theme: "light",
           }),
         });
 
+        // Check if the response is not OK (status code 200-299)
         if (!response.ok) {
           const errorData = await response.json();
           console.error("Payment initialization error:", errorData);
-          throw new Error(
-            `Payment initialization failed: ${JSON.stringify(errorData)}`,
-          );
+          toast({
+            title: "Error",
+            description: `Payment initialization failed: ${errorData.message || "Unknown error"}`,
+            variant: "destructive",
+          });
+          setPaymentLoading(false);
+          return;
         }
 
         const data = await response.json();
 
+        // Redirect to the payment URL if provided
         if (data.payUrl) {
           window.location.href = data.payUrl;
         } else {
           throw new Error("No payment URL received");
         }
       } catch (error) {
+        // Catch both errors from fetch and thrown errors
         console.error("Payment initialization failed:", error);
         toast({
           title: "Error",
           description: `Unable to process CREDIT_CARD payment: ${error}`,
           variant: "destructive",
         });
+        setPaymentLoading(false);
+      } finally {
+        // Ensure loading state is turned off in any case
         setPaymentLoading(false);
       }
     }

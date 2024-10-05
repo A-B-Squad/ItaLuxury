@@ -21,11 +21,11 @@ const FavoriteList = () => {
     FAVORITE_PRODUCTS_QUERY,
     {
       fetchPolicy: "no-cache",
-    }
+    },
   );
 
   const [removeFromFavorites] = useMutation(
-    ADD_DELETE_PRODUCT_FAVORITE_MUTATION
+    ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
   );
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const FavoriteList = () => {
 
       if (data) {
         const fetchedProducts = data.favoriteProducts.map(
-          (fav: any) => fav.Product
+          (fav: any) => fav.Product,
         );
         setProductsData(fetchedProducts);
       }
@@ -82,6 +82,19 @@ const FavoriteList = () => {
       console.error("Error removing product from favorites:", error);
     }
   };
+
+  if (!decodedToken?.userId) {
+    return (
+      <div className="flex  justify-center py-10 ">
+        <div className="border shadow-md p-6 w-full h-fit md:w-4/5 bg-white text-center rounded-lg">
+          <p className="font-normal tracking-wider text-gray-600">
+            Vous n'êtes pas connecté ou une erreur s'est produite. Veuillez vous
+            connecter pour accéder à votre liste de favoris.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

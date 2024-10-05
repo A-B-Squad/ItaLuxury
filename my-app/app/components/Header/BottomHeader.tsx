@@ -189,46 +189,17 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                 </Link>
               </li>
             )}
-            <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-              <Link
-                rel="preload"
-                href={`${decodedToken?.userId ? " /FavoriteList" : "/signin"}`}
-              >
-                <FiHeart />
-              </Link>
-            </li>
-            {decodedToken?.userId && (
-              <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-                <Link rel="preload" href={`/TrackingPackages`}>
-                  <GoPackageDependents />
-                </Link>
-              </li>
-            )}
-            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-              <Link rel="preload" href={"/productComparison"}>
-                <IoGitCompare />
-                {LengthComparer > 0 && (
-                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
-                    {LengthComparer}
-                  </span>
-                )}
-              </Link>
-            </li>
+
             <li
               onClick={openBasketDrawer}
               className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
             >
               <RiShoppingCartLine />
-              {quantityInBasket > 0 && (
+              {quantityInBasket >= 0 && (
                 <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                   {quantityInBasket}
                 </span>
               )}
-            </li>
-            <li className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-              <Link rel="preload" href={"/Contact-us"}>
-                <GrContact />
-              </Link>
             </li>
           </ul>
         </div>

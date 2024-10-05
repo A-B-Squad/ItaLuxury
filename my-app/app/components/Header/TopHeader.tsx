@@ -75,7 +75,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
     if (basketData?.basketByUserId) {
       const totalQuantity = basketData.basketByUserId.reduce(
         (acc: number, item: any) => acc + item.quantity,
-        0
+        0,
       );
       useProductsInBasketStore.setState({
         products: basketData.basketByUserId.map((item: any) => ({

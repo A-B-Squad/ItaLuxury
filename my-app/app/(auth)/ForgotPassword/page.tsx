@@ -15,7 +15,7 @@ const ForgotPassword = () => {
   const { toast } = useToast();
 
   const handleSubmit = (e: any) => {
-    setErrorMessage("")
+    setErrorMessage("");
     e.preventDefault();
     ForgotPassword({
       variables: {

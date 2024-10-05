@@ -6,22 +6,7 @@ export const addApiCredentials = async (
   { prisma }: Context
 ) => {
   try {
-    // Check if credentials already exist based on `api_id` and other fields
-    const existingCredentials = await prisma.apiCredentials.findFirst({
-      where: {
-        api_id: input.api_id,
-        access_token: input.access_token,
-        integrationFor: input.integrationFor,
-        domainVerification: input.domainVerification,
-      },
-    });
-
-    if (existingCredentials) {
-      // If an exact match exists, return a message that nothing was updated
-      return "No changes detected, credentials are already up-to-date";
-    }
-
-    // Check if a record with the same `api_id` exists but different values
+    // Check if a record with the same `api_id` exists
     const existingByApiId = await prisma.apiCredentials.findFirst({
       where: {
         api_id: input.api_id,
@@ -29,19 +14,24 @@ export const addApiCredentials = async (
     });
 
     if (existingByApiId) {
-      // Update only the changed values
-      await prisma.apiCredentials.updateMany({
-        where: {
-          api_id: input.api_id,
-        },
-        data: {
-          access_token: input.access_token,
-          integrationFor: input.integrationFor,
-          domainVerification: input.domainVerification,
-        },
-      });
+      // Prepare update data, only including fields that are provided in the input
+      const updateData: Partial<AddToApiCredentialsInput> = {};
+      if (input.access_token !== undefined) updateData.access_token = input.access_token;
+      if (input.integrationFor !== undefined) updateData.integrationFor = input.integrationFor;
+      if (input.domainVerification !== undefined) updateData.domainVerification = input.domainVerification;
 
-      return "Credentials updated with new values";
+      // If there are fields to update
+      if (Object.keys(updateData).length > 0) {
+        await prisma.apiCredentials.update({
+          where: {
+            id: existingByApiId.id, // Assuming there's an 'id' field
+          },
+          data: updateData,
+        });
+        return "Credentials updated with new values";
+      } else {
+        return "No changes detected, credentials are already up-to-date";
+      }
     }
 
     // Create new credentials if none exist
