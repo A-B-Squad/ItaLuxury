@@ -17,13 +17,13 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
   const { packageId, email, status } = searchParams;
   const router = useRouter();
   const [updatePaymentStatus] = useMutation(
-    UPDATE_STATUS_PAYMENT_ONLINE_MUTATION
+    UPDATE_STATUS_PAYMENT_ONLINE_MUTATION,
   );
   const [error, setError] = useState<string | null>(null);
   const [mutationSent, setMutationSent] = useState(false);
 
-  const isPayed = status?.toUpperCase() === "PAYED_NOT_DELIVERED"||status === undefined;
-  
+  const isPayed =
+    status?.toUpperCase() === "PAYED_NOT_DELIVERED" || status === undefined;
 
   useEffect(() => {
     const sendMutation = async () => {
@@ -44,7 +44,9 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
             setMutationSent(true);
           } catch (err) {
             console.error("Error updating payment status:", err);
-            setError("Failed to update payment status. Please contact support.");
+            setError(
+              "Failed to update payment status. Please contact support.",
+            );
           }
         } else {
           console.log("Mutation already sent for this package");

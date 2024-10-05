@@ -174,8 +174,6 @@ const TrackingPackages: React.FC = () => {
     setOpenPackageId((prev) => (prev === packageId ? null : packageId));
   };
 
-
-
   if (!decodedToken?.userId) {
     return (
       <div className="flex  justify-center py-10 ">
@@ -188,7 +186,6 @@ const TrackingPackages: React.FC = () => {
       </div>
     );
   }
-
 
   return (
     <div className="tracking-packages h-full pb-10 bg-gray-100">

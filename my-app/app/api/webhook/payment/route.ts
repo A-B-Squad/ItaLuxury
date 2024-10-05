@@ -12,11 +12,10 @@ export async function GET(req: NextRequest) {
     if (!packageId || !status || !GRAPHQL_ENDPOINT) {
       return NextResponse.json(
         { error: "Missing packageId or status" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    
     // Map the status if necessary (in this case, it's already in the correct format)
     const paymentStatus = status;
 
@@ -52,12 +51,12 @@ export async function GET(req: NextRequest) {
       console.error("GraphQL errors:", result.errors);
       return NextResponse.json(
         { error: "Failed to update payment status" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     console.log(
-      `Payment status updated successfully for order ${packageId}: ${paymentStatus}`
+      `Payment status updated successfully for order ${packageId}: ${paymentStatus}`,
     );
 
     return NextResponse.json(
@@ -67,13 +66,13 @@ export async function GET(req: NextRequest) {
         packageId: packageId,
         status: status,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error processing webhook:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -48,7 +48,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     (state) => ({
       addProductToCompare: state.addProductToCompare,
       productsInCompare: state.products,
-    })
+    }),
   );
   const { addProductToBasket, products, increaseProductInQtBasket } =
     useProductsInBasketStore();
@@ -207,7 +207,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
   const handleAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
-      (p: any) => p.id === product.id
+      (p: any) => p.id === product.id,
     );
     if (!isProductAlreadyInCompare) {
       addProductToCompare(product);

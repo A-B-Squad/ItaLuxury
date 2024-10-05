@@ -22,7 +22,7 @@ interface DecodedToken extends JwtPayload {
 }
 function debounce<T extends (...args: any[]) => void>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -40,7 +40,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [LengthComparer, setLengthComparer] = useState<number>(0);
   const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket
+    (state) => state.quantityInBasket,
   );
   useEffect(() => {
     const token = Cookies.get("Token");

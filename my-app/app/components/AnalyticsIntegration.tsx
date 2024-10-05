@@ -1,9 +1,12 @@
-"use client"
+"use client";
 import Script from "next/script";
 import React, { useEffect, useState } from "react";
 
 const AnalyticsIntegration = () => {
-  const [fbData, setFbData] = useState({ domainVerification: null, api_id: null });
+  const [fbData, setFbData] = useState({
+    domainVerification: null,
+    api_id: null,
+  });
 
   useEffect(() => {
     const fetchFacebookData = async () => {

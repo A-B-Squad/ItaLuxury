@@ -67,18 +67,18 @@ const SearchBar = () => {
             search_string: inputValue,
             contentIds: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.id
+                (category: any) => category.id,
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name
+                (product: any) => product.name,
               ),
             ],
             contents: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.name
+                (category: any) => category.name,
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name
+                (product: any) => product.name,
               ),
             ].join(", "),
             Currency: "TND",

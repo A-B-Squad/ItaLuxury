@@ -21,11 +21,11 @@ const FavoriteList = () => {
     FAVORITE_PRODUCTS_QUERY,
     {
       fetchPolicy: "no-cache",
-    }
+    },
   );
 
   const [removeFromFavorites] = useMutation(
-    ADD_DELETE_PRODUCT_FAVORITE_MUTATION
+    ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
   );
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const FavoriteList = () => {
 
       if (data) {
         const fetchedProducts = data.favoriteProducts.map(
-          (fav: any) => fav.Product
+          (fav: any) => fav.Product,
         );
         setProductsData(fetchedProducts);
       }

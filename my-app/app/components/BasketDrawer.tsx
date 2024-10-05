@@ -103,8 +103,8 @@ const BasketDrawer: React.FC = () => {
         productsInBasket.reduce(
           (acc: any, curr: { actualQuantity: any }) =>
             acc + curr.actualQuantity,
-          0
-        )
+          0,
+        ),
       );
     }
   }, [
@@ -129,7 +129,7 @@ const BasketDrawer: React.FC = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
   );
 
   const renderProductList = () => (
@@ -140,8 +140,6 @@ const BasketDrawer: React.FC = () => {
             <Image
               layout="fill"
               objectFit="contain"
-
-
               src={
                 (product.images &&
                   product.images.length > 0 &&
@@ -297,7 +295,7 @@ const BasketDrawer: React.FC = () => {
                         (sum, product) =>
                           sum +
                           (product?.actualQuantity || product?.quantity || 0),
-                        0
+                        0,
                       ),
                     },
                   });

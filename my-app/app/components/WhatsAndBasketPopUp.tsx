@@ -38,4 +38,4 @@ const WhatsAndBasketPopUp = () => {
   );
 };
 
-export default WhatsAndBasketPopUp
+export default WhatsAndBasketPopUp;

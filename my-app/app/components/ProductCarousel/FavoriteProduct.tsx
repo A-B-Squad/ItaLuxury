@@ -1,7 +1,7 @@
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_DELETE_PRODUCT_FAVORITE_MUTATION } from "@/graphql/mutations";
 import { GET_FAVORITE_STATUS } from "@/graphql/queries";
-import {  useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
@@ -29,7 +29,7 @@ const FavoriteProduct = ({
         userId: userId,
       },
       skip: !userId,
-    }
+    },
   );
 
   const { toast } = useToast();
@@ -38,7 +38,7 @@ const FavoriteProduct = ({
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
       if (
         favoriteData.favoriteProducts.some(
-          (fav: any) => fav.productId === productId
+          (fav: any) => fav.productId === productId,
         )
       ) {
         setIsFavorite(true);

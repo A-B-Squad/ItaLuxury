@@ -225,7 +225,7 @@ const Checkout: React.FC = () => {
               num_items: products.reduce(
                 (sum, product) =>
                   sum + (product?.actualQuantity || product?.quantity || 0),
-                0
+                0,
               ),
             },
           });
@@ -256,7 +256,7 @@ const Checkout: React.FC = () => {
     orderId: string,
     userName: string,
     userPhone: string,
-    userEmail: string
+    userEmail: string,
   ) => {
     if (paymentMethod === "CREDIT_CARD") {
       setPaymentLoading(true);
@@ -641,7 +641,7 @@ const Checkout: React.FC = () => {
                                         peer-checked:border-primaryColor peer-checked:bg-primaryColor"
                               ></div>
                             </label>
-                          )
+                          ),
                         )}
                       </div>
                       {paymentMethod && (

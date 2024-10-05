@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   if (!GRAPHQL_ENDPOINT) {
     return NextResponse.json(
       { error: "API URL is not defined" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     console.error("Error fetching API credentials:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -51,7 +51,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
   const { products } = useProductsInBasketStore();
 
   const [addMultiProductToBasket] = useMutation(
-    ADD_MULTIPLE_TO_BASKET_MUTATION
+    ADD_MULTIPLE_TO_BASKET_MUTATION,
   );
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -175,13 +175,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
         onError: (error) => {
           console.log(error);
           setErrorMessage(
-            `Error logging in with ${provider === googleProvider ? "Google" : "Facebook"}`
+            `Error logging in with ${provider === googleProvider ? "Google" : "Facebook"}`,
           );
         },
       });
     } catch (error) {
       setErrorMessage(
-        `Failed to login with ${provider === googleProvider ? "Google" : "Facebook"}.`
+        `Failed to login with ${provider === googleProvider ? "Google" : "Facebook"}.`,
       );
     }
   };
