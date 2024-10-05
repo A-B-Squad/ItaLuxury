@@ -1,5 +1,9 @@
 import { useToast } from "@/components/ui/use-toast";
-import { SIGNIN_MUTATION, SIGNUP_MUTATION } from "@/graphql/mutations";
+import {
+  ADD_MULTIPLE_TO_BASKET_MUTATION,
+  SIGNIN_MUTATION,
+  SIGNUP_MUTATION,
+} from "@/graphql/mutations";
 import { useMutation } from "@apollo/client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,7 +22,8 @@ import {
   googleProvider,
   facebookProvider,
   auth,
-} from "@/app/fireBase/firebase";
+} from "@/lib/fireBase/firebase";
+import { useProductsInBasketStore } from "@/app/store/zustand";
 
 interface AuthFormProps {
   setCurrentStep: (step: number) => void;
@@ -43,7 +48,11 @@ const AuthForm: React.FC<AuthFormProps> = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const { products } = useProductsInBasketStore();
 
+  const [addMultiProductToBasket] = useMutation(
+    ADD_MULTIPLE_TO_BASKET_MUTATION
+  );
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -87,6 +96,21 @@ const AuthForm: React.FC<AuthFormProps> = ({
           },
           onCompleted: (data) => {
             if (data.signUp?.token) {
+              const productsFormat = products.map((product) => {
+                return {
+                  productId: product.id,
+                  quantity: product.actualQuantity,
+                };
+              });
+
+              addMultiProductToBasket({
+                variables: {
+                  input: {
+                    userId: data.signIn.user.id,
+                    products: productsFormat,
+                  },
+                },
+              });
               setIsLoggedIn(true);
               setShowLoginForm(false);
               setCurrentStep(2);
@@ -122,14 +146,29 @@ const AuthForm: React.FC<AuthFormProps> = ({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
         onCompleted: (data) => {
           if (data.signIn?.token) {
+            const productsFormat = products.map((product) => {
+              return {
+                productId: product.id,
+                quantity: product.actualQuantity,
+              };
+            });
+
+            addMultiProductToBasket({
+              variables: {
+                input: {
+                  userId: data.signIn.user.id,
+                  products: productsFormat,
+                },
+              },
+            });
             setIsLoggedIn(true);
             setShowLoginForm(false);
-            setCurrentStep(2);
             toast({
               title: "Login Successful",
               description: `You have been logged in successfully with ${provider === googleProvider ? "Google" : "Facebook"}.`,
               className: "bg-green-600 text-white",
             });
+            setCurrentStep(2);
           }
           window.location.reload();
         },

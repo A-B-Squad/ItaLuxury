@@ -22,7 +22,8 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
   const [error, setError] = useState<string | null>(null);
   const [mutationSent, setMutationSent] = useState(false);
 
-  const isPayed = status?.toUpperCase() === "PAYED_NOT_DELIVERED";
+  const isPayed = status?.toUpperCase() === "PAYED_NOT_DELIVERED"||status === undefined;
+  
 
   useEffect(() => {
     const sendMutation = async () => {

@@ -34,7 +34,7 @@ export const createContactUs = async (
 
     // Define the email content
     const mailOptions = {
-      from: "bilelbourgou@gmail.com",
+      from: process.env.NEXT_PUBLIC_NODEMAILER_EMAIL,
       to: email,
       subject: "Merci pour votre message",
       html: `

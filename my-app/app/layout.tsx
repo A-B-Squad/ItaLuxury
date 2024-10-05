@@ -2,22 +2,17 @@ import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import "./globals.css";
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import AnalyticsIntegration from "./components/AnalyticsIntegration";
-import Script from "next/script";
-import PhonePopUpBasket from "./components/PhonePopUpBasket";
+import WhatsAndBasketPopUp from "./components/WhatsAndBasketPopUp";
+import TabBar from "./components/TabBar";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
   loadDevMessages();
   loadErrorMessages();
 }
-
-const openSans = Open_Sans({
-  subsets: ["cyrillic"],
-});
 
 export const metadata: Metadata = {
   title:
@@ -39,7 +34,8 @@ export default function RootLayout({
       <body>
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
-        <PhonePopUpBasket />
+        <WhatsAndBasketPopUp />
+        <TabBar />
       </body>
     </html>
   );

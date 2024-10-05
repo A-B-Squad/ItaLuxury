@@ -65,7 +65,7 @@ const AdsCarousel: React.FC<AdsCarouselProps> = ({
               src={image}
               alt={`image ${index + 1}`}
               layout="fill"
-              // objectFit="cover"
+              objectFit="contain"
               priority={index === 0}
               className="transition-all"
             />

@@ -1,75 +1,34 @@
-"use client";
-import { useEffect, useState } from "react";
+"use client"
 import Script from "next/script";
-import React from "react";
-
-if (
-  !process.env.NEXT_PUBLIC_API_URL ||
-  !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
-) {
-  throw new Error("NEXT_PUBLIC_API_URL or BASE_URL_DOMAIN is not defined");
-}
-
-interface ApiCredentials {
-  access_token: string;
-  api_id: string;
-  domainVerification: string;
-}
+import React, { useEffect, useState } from "react";
 
 const AnalyticsIntegration = () => {
-  const [fbPixelId, setFbPixelId] = useState<string | null>(null);
-  const [fbDomainVerification, setFbDomainVerification] = useState<
-    string | null
-  >(null);
+  const [fbData, setFbData] = useState({ domainVerification: null, api_id: null });
 
   useEffect(() => {
-    const fetchApiCredentials = async () => {
-      if (!process.env.NEXT_PUBLIC_API_URL) {
-        console.error("API URL is not defined");
-        return;
-      }
-
+    const fetchFacebookData = async () => {
       try {
-        const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
-          method: "POST",
+        const response = await fetch("/api/facebookApi", {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            query: `
-    query getApiCredentials($integrationFor: String) {
-  getApiCredentials(integrationFor: $integrationFor) {
-    api_id
-    domainVerification
-  }
-}
-
-            `,
-            variables: { integrationFor: "FACEBOOK" },
-          }),
         });
-
-        const result = await response.json();
-
-        if (result.data && result.data.getApiCredentials) {
-          const fbCredentials = result.data.getApiCredentials as ApiCredentials;
-          setFbDomainVerification(fbCredentials.domainVerification);
-
-          setFbPixelId(fbCredentials.api_id);
-        }
+        const data = await response.json();
+        setFbData(data);
       } catch (error) {
-        console.error("Error fetching API credentials:", error);
+        console.error("Error fetching Facebook data:", error);
       }
     };
 
-    fetchApiCredentials();
+    fetchFacebookData();
   }, []);
+
   return (
     <>
-      {fbDomainVerification && (
+      {fbData.domainVerification && (
         <meta
           name="facebook-domain-verification"
-          content={fbDomainVerification}
+          content={fbData.domainVerification}
         />
       )}
       {/* Google Tag Manager */}
@@ -88,7 +47,7 @@ const AnalyticsIntegration = () => {
       />
 
       {/* Meta Pixel */}
-      {fbPixelId && (
+      {/* {fbData.api_id && (
         <>
           <Script
             id="fb-pixel"
@@ -103,7 +62,7 @@ const AnalyticsIntegration = () => {
                 t.src=v;s=b.getElementsByTagName(e)[0];
                 s.parentNode.insertBefore(t,s)}(window, document,'script',
                 'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${fbPixelId}');
+                fbq('init', '${fbData.api_id}');
                 fbq('track', 'PageView');
               `,
             }}
@@ -113,11 +72,11 @@ const AnalyticsIntegration = () => {
               height="1"
               width="1"
               style={{ display: "none" }}
-              src={`https://www.facebook.com/tr?id=${fbPixelId}&ev=PageView&noscript=1`}
+              src={`https://www.facebook.com/tr?id=${fbData.api_id}&ev=PageView&noscript=1`}
             />
           </noscript>
         </>
-      )}
+      )} */}
 
       {/* Google Analytics */}
       <Script

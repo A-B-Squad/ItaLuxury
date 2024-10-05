@@ -174,6 +174,22 @@ const TrackingPackages: React.FC = () => {
     setOpenPackageId((prev) => (prev === packageId ? null : packageId));
   };
 
+
+
+  if (!decodedToken?.userId) {
+    return (
+      <div className="flex  justify-center py-10 ">
+        <div className="border shadow-md p-6 w-full h-fit md:w-4/5 bg-white text-center rounded-lg">
+          <p className="font-normal tracking-wider text-gray-600">
+            Vous n'êtes pas connecté ou une erreur s'est produite. Veuillez vous
+            connecter pour voir vos colis.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="tracking-packages h-full pb-10 bg-gray-100">
       <div className="search-package border-b py-6 px-3  w-full flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 bg-white shadow">

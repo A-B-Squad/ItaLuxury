@@ -83,6 +83,19 @@ const FavoriteList = () => {
     }
   };
 
+  if (!decodedToken?.userId) {
+    return (
+      <div className="flex  justify-center py-10 ">
+        <div className="border shadow-md p-6 w-full h-fit md:w-4/5 bg-white text-center rounded-lg">
+          <p className="font-normal tracking-wider text-gray-600">
+            Vous n'êtes pas connecté ou une erreur s'est produite. Veuillez vous
+            connecter pour accéder à votre liste de favoris.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       {loading ? (

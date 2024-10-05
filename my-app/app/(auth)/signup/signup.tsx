@@ -28,7 +28,7 @@ import {
   googleProvider,
   facebookProvider,
   auth,
-} from "@/app/fireBase/firebase";
+} from "@/lib/fireBase/firebase";
 
 interface SignupFormData {
   fullName: string;
@@ -131,7 +131,7 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="bg-gray-100 min-h-screen flex pb-24 flex-col justify-center pt-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           className="mx-auto"

@@ -16,7 +16,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log(url,"######################################################");
     
     // Map the status if necessary (in this case, it's already in the correct format)
     const paymentStatus = status;

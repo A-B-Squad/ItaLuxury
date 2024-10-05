@@ -5,11 +5,11 @@ import { FaWhatsapp } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
 import { useProductsInBasketStore } from "../store/zustand";
 
-const PhonePopUpBasket = () => {
+const WhatsAndBasketPopUp = () => {
   const { quantityInBasket } = useProductsInBasketStore();
 
   return (
-    <div className=" flex flex-col fixed bottom-10 z-[111111] gap-2 right-4">
+    <div className=" flex flex-col fixed bottom-20  md:bottom-10 z-[111111] gap-2 right-4">
       <Link
         href={"/Basket"}
         className={`rounded-full  relative    flex items-center before:rounded-full justify-center p-2 w-12 md:w-14 h-12 md:h-14   border  border-white bg-primaryColor shadow-xl z-[111111111] shadow-primaryColor`}
@@ -38,4 +38,4 @@ const PhonePopUpBasket = () => {
   );
 };
 
-export default PhonePopUpBasket;
+export default WhatsAndBasketPopUp

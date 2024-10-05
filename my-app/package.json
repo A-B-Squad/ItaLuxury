@@ -6,7 +6,7 @@
     "dockerBuild": "docker-compose up --build ",
     "dockerUp": "docker-compose up ",
     "dockerWatch": "docker-compose watch ",
-    "dev": "next dev",
+    "dev": "next dev --experimental-https ",
     "build": "next build",
     "lint": "next lint"
   },

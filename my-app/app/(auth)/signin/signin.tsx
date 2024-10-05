@@ -29,7 +29,7 @@ import {
   googleProvider,
   facebookProvider,
   auth,
-} from "@/app/fireBase/firebase";
+} from "@/lib/fireBase/firebase";
 
 // Step 2: Define the Signin component
 const Signin = () => {
@@ -147,8 +147,6 @@ const Signin = () => {
     try {
       const result = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
-console.log(user,"######################");
-
       // Proceed with your existing sign-in logic
       SignIn({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
@@ -181,7 +179,7 @@ console.log(user,"######################");
         onError: (error) => {
           // Handle and display error messages
           console.log(error);
-          
+
           setErrorMessage(
             error.message === "Invalid email or password"
               ? "Email ou mot de passe invalide"
@@ -201,7 +199,7 @@ console.log(user,"######################");
 
   // Step 7: Render the component
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="bg-gray-100 pb-24 min-h-screen flex flex-col justify-center pt-12 sm:px-6 lg:px-8">
       {/* Step 7.1: Render logo and title */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
