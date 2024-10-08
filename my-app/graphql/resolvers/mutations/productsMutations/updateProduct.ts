@@ -29,7 +29,7 @@ const updateAttributes = async (
 
   attributeInputs?.forEach((attribute) => {
     const existingAttribute = existingAttributes.find(
-      (attr) => attr.name.trim() === attribute.name.trim()
+      (attr: { name: string; }) => attr.name.trim() === attribute.name.trim()
     );
     if (existingAttribute) {
       attributesToUpdate.push({
@@ -45,7 +45,7 @@ const updateAttributes = async (
   });
 
   // Identify attributes to delete
-  existingAttributes.forEach((existingAttribute) => {
+  existingAttributes.forEach((existingAttribute: { name: string; id: string; }) => {
     const isStillPresent = attributeInputs.find(
       (attr) => attr.name.trim() === existingAttribute.name.trim()
     );

@@ -355,7 +355,7 @@ export const createCheckout = async (
         throw new Error("User's basket not found");
       }
 
-      productsInCheckout = userBasket.map((basket) => {
+      productsInCheckout = userBasket.map((basket: { Product: any; productId: any; quantity: any; }) => {
         const product = basket.Product;
         const productDiscounts = product?.productDiscounts;
 

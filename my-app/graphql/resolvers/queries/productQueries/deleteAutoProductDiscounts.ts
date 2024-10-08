@@ -26,8 +26,8 @@ export const deleteAutoProductDiscount = async (
 
     for (const product of products) {
       const expiredDiscountIds = product.productDiscounts
-        .filter((discount) => isDateBeforeOrEqual(new Date(discount.dateOfEnd)))
-        .map((expiredDiscount) => expiredDiscount.id);
+        .filter((discount: { dateOfEnd: string | number | Date; }) => isDateBeforeOrEqual(new Date(discount.dateOfEnd)))
+        .map((expiredDiscount: { id: string; }) => expiredDiscount.id);
 
       if (expiredDiscountIds.length > 0) {
         await prisma.productDiscount.deleteMany({
@@ -40,7 +40,7 @@ export const deleteAutoProductDiscount = async (
       }
 
       const validProductDiscounts = product.productDiscounts.filter(
-        (discount) => {
+        (discount: { dateOfEnd: string | number | Date; }) => {
           return !isDateBeforeOrEqual(new Date(discount.dateOfEnd));
         }
       );
@@ -49,7 +49,7 @@ export const deleteAutoProductDiscount = async (
         where: { id: product.id },
         data: {
           productDiscounts: {
-            set: validProductDiscounts.map((validDiscount) => ({
+            set: validProductDiscounts.map((validDiscount: { id: string; }) => ({
               id: validDiscount.id,
             })),
           },

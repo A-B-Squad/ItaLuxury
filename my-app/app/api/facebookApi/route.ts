@@ -11,8 +11,10 @@ export async function GET(request: Request) {
   }
 
   try {
+    console.log(GRAPHQL_ENDPOINT);
+    
     const response = await fetch(GRAPHQL_ENDPOINT, {
-      method: "POST",
+      method:"POST",
       headers: {
         "Content-Type": "application/json",
       },

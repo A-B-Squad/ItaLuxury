@@ -1,5 +1,11 @@
 import { Context } from "@/pages/api/graphql";
-import { Prisma } from "@prisma/client";
+type ProductDiscountOrderByWithRelationInput = {
+  product?: {
+    createdAt?: "asc" | "desc";
+    price?: "asc" | "desc";
+    name?: "asc" | "desc";
+  };
+};
 
 export const productsDiscounts = async (
   _: any,
@@ -11,10 +17,10 @@ export const productsDiscounts = async (
     const oneMinutePeriod = Math.floor(Date.now() / (60 * 1000));
 
     // Define an array of ordering options
-    const orderOptions:Prisma.ProductDiscountOrderByWithRelationInput[] = [
-      { product: { createdAt: Prisma.SortOrder.desc } },
-      { product: { price: Prisma.SortOrder.asc } },
-      { product: { name: Prisma.SortOrder.asc } },
+    const orderOptions: ProductDiscountOrderByWithRelationInput[] = [
+      { product: { createdAt: "desc" } },
+      { product: { price: "asc" } },
+      { product: { name: "asc" } },
     ];
     // Select the current ordering based on the one-minute period
     const currentOrdering = orderOptions[oneMinutePeriod % orderOptions.length];
@@ -50,7 +56,7 @@ export const productsDiscounts = async (
     });
 
     const formattedProducts = allProductDiscounts.map(
-      ({ product, Discount }) => ({
+      ({ product, Discount }: any) => ({
         id: product?.id,
         name: product?.name,
         price: product?.price,
