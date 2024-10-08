@@ -1,12 +1,10 @@
 import { Context } from "@/pages/api/graphql";
-import { Prisma } from "@prisma/client";
 
 interface ProductSearchInput {
   query?: string;
   minPrice?: number;
   maxPrice?: number;
   categoryName?: string;
-
   colorName?: string;
   choice?: "in-discount" | "new-product";
   brandName?: string;
@@ -14,6 +12,14 @@ interface ProductSearchInput {
   pageSize?: number;
   visibleProduct?: boolean;
 }
+
+type ProductOrderByWithRelationInput = {
+  createdAt?: "asc" | "desc";
+  price?: "asc" | "desc";
+  name?: "asc" | "desc";
+};
+
+type SortOrder = "asc" | "desc";
 
 export const searchProducts = async (
   _: any,
@@ -34,7 +40,7 @@ export const searchProducts = async (
   } = input;
 
   try {
-    const whereCondition: Prisma.ProductWhereInput = {
+    const whereCondition: Record<string, any> = {
       ...(visibleProduct !== null &&
         visibleProduct !== undefined && {
           isVisible: visibleProduct,
@@ -71,10 +77,10 @@ export const searchProducts = async (
     );
 
     // Define an array of ordering options
-    const orderOptions: Prisma.ProductOrderByWithRelationInput[] = [
-      { createdAt: Prisma.SortOrder.desc },
-      { price: Prisma.SortOrder.asc },
-      { name: Prisma.SortOrder.asc },
+    const orderOptions: ProductOrderByWithRelationInput[] = [
+      { createdAt: "desc" as SortOrder },
+      { price: "asc" as SortOrder },
+      { name: "asc" as SortOrder },
     ];
     // Select the current ordering based on the 3-week period
     const currentOrdering = orderOptions[threeWeekPeriod % orderOptions.length];
@@ -99,14 +105,11 @@ export const searchProducts = async (
         orderBy: currentOrdering,
       }),
       prisma.product.count({ where: whereCondition }),
-
       prisma.category.findMany({
-        where: { name: { contains: query , mode: "insensitive" } },
+        where: { name: { contains: query, mode: "insensitive" } },
         take: pageSize,
       }),
     ]);
-
-    
 
     return {
       results: { products, categories },

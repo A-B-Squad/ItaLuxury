@@ -17,6 +17,8 @@ const AnalyticsIntegration = () => {
           },
         });
         const data = await response.json();
+        console.log(data);
+        
         setFbData(data);
       } catch (error) {
         console.error("Error fetching Facebook data:", error);

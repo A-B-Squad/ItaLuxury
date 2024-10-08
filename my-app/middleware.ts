@@ -4,14 +4,15 @@ import type { NextRequest } from "next/server";
 const ALLOWED_ORIGINS = [
   process.env.NEXT_ALLOW_REQUEST_API_URL,
   process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
-  "http://api.preprod.konnect.network", 
+  "http://api.preprod.konnect.network",
+  "https://graph.facebook.com",
 ].filter(Boolean);
 const AUTH_ROUTES = ["/signin", "/signup"];
 const TOKEN_COOKIE_NAME = "Token";
 
 export function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  
+
   // CORS handling
   const origin = req.headers.get("origin");
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
@@ -20,8 +21,10 @@ export function middleware(req: NextRequest) {
 
   res.headers.set("Access-Control-Allow-Credentials", "true");
   res.headers.set("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT");
-  res.headers.set("Access-Control-Allow-Headers", 
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version");
+  res.headers.set(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
 
   // Auth redirection
   const url = req.nextUrl.pathname;
@@ -36,4 +39,4 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: ["/api/:path*", "/signin", "/signup"],
-};  
+};

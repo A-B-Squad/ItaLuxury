@@ -28,9 +28,8 @@ interface CreateCheckoutInput {
   freeDelivery: boolean;
   isGuest: boolean;
   deliveryComment?: string;
-  products?:any[]
-  paymentMethod:PaymentMethod
-
+  products?: any[];
+  paymentMethod: PaymentMethod;
 }
 interface CreateCheckoutFromAdminInput {
   userId: string;
@@ -42,7 +41,7 @@ interface CreateCheckoutFromAdminInput {
   products: [];
   manualDiscount: number;
   freeDelivery: boolean;
-  paymentMethod:PaymentMethod
+  paymentMethod: PaymentMethod;
 }
 
 interface CreateCategoryInput {
