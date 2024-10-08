@@ -104,7 +104,7 @@ const Home = () => {
   );
   const { data: Products_less_20, loading: loadingProducts_less_20 } = useQuery(
     TAKE_16_PRODUCTS_PRICE_20,
-    { variables: { limit: 16 }, fetchPolicy: "network-only" },
+    { variables: { limit: 16 }, fetchPolicy: "cache-and-network" },
   );
 
   const {
@@ -112,14 +112,14 @@ const Home = () => {
     loading: loadingProducts_inDiscount_16,
   } = useQuery(TAKE_16_PRODUCTS_IN_DISCOUNT, {
     variables: { limit: 16 },
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
   });
 
   const { data: NewProducts_16, loading: loadingNewProducts_16 } = useQuery(
     TAKE_16_PRODUCTS,
     {
       variables: { limit: 16, visibleProduct: true },
-      fetchPolicy: "network-only",
+      fetchPolicy: "cache-and-network",
     },
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {

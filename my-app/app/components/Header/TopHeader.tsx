@@ -159,6 +159,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   </label>
                   <input
                     id="emailOrPhone"
+                  autoComplete="email"
+
                     type="text"
                     className="block border outline-gray-400 border-gray-300 py-2.5  text-xs w-full p-1 rounded mb-4"
                     title="emailOrPhone"
@@ -185,6 +187,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   <input
                     id="password"
                     type="password"
+                    autoComplete="current-password"
                     title="Mot de passe"
                     className="block border border-gray-300 py-2.5 outline-gray-400   text-xs w-full p-1 rounded mb-4"
                     {...register("password", {
@@ -290,7 +293,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             <div className="relative inline-flex">
               <RiShoppingCartLine className="text-xl" />
 
-              {quantityInBasket > 0 && (
+              {quantityInBasket >= 0 && (
                 <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                   {quantityInBasket}
                 </span>

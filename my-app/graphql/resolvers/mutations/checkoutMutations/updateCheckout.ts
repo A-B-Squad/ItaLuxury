@@ -1,6 +1,5 @@
 import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
-import { PaymentMethod } from '@prisma/client';
 
 interface UpdateCheckoutInput {
   checkoutId: string;

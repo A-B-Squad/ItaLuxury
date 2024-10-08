@@ -304,9 +304,9 @@ const Basket: React.FC = () => {
                     <div>
                       <Link
                         href={`/products/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
-                          product.categories[0]?.name,
-                          product.categories[0]?.subcategories[0]?.name,
-                          product.categories[0]?.subcategories[0]
+                          product?.categories[0]?.name,
+                          product?.categories[0]?.subcategories[0]?.name,
+                          product?.categories[0]?.subcategories[0]
                             ?.subcategories[0]?.name,
                           product.name,
                         ]}`}

@@ -224,7 +224,7 @@ const ProductInfo = () => {
     <>
       <div
         onClick={closeProductDetails}
-        className={`fixed cursor-none z-[14514]    ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`productDetails  fixed cursor-none z-[14514]    ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
       >
         <IoCloseOutline
           size={40}
@@ -234,7 +234,7 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed overflow-y-auto pb-20 overflow-x-hidden h-5/6 z-[11111600] border  ${isOpen ? "-translate-y-[46%] opacity-100 z-50" : "translate-y-96 opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white  w-11/12 p-8 place-content-center  `}
+        className={`fixed overflow-y-auto pb-20 overflow-x-hidden h-5/6 z-[11111600] border  ${isOpen ? "-translate-y-[46%] opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white  w-11/12 p-8 place-content-center  `}
       >
         <IoCloseOutline
           size={40}

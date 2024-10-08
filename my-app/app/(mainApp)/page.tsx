@@ -1,4 +1,3 @@
-import React from "react";
 import { Metadata } from "next";
 import Home from "./Home/Home";
 import keywords from "@/public/keywords";
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com",
     images: [
       {
-        url: "../../public/favicon.ico",
+        url: "/favicon.ico",
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne",
@@ -36,8 +35,6 @@ export const metadata: Metadata = {
   },
 };
 
-const HomePage: React.FC = () => {
+export default function HomePage() {
   return <Home />;
-};
-
-export default HomePage;
+}

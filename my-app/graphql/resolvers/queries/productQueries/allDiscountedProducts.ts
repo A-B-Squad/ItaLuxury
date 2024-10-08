@@ -11,7 +11,7 @@ export const productsDiscounts = async (
     const oneMinutePeriod = Math.floor(Date.now() / (60 * 1000));
 
     // Define an array of ordering options
-    const orderOptions: Prisma.ProductDiscountOrderByWithRelationInput[] = [
+    const orderOptions:Prisma.ProductDiscountOrderByWithRelationInput[] = [
       { product: { createdAt: Prisma.SortOrder.desc } },
       { product: { price: Prisma.SortOrder.asc } },
       { product: { name: Prisma.SortOrder.asc } },
