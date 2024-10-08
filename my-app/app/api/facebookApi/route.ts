@@ -6,27 +6,28 @@ export async function GET(request: Request) {
   if (!GRAPHQL_ENDPOINT) {
     return NextResponse.json(
       { error: "API URL is not defined" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
   try {
     console.log(GRAPHQL_ENDPOINT);
-    
+
     const response = await fetch(GRAPHQL_ENDPOINT, {
-      method:"POST",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: `
-          query getApiCredentials($integrationFor: String) {
-            getApiCredentials(integrationFor: $integrationFor) {
-              api_id
-              access_token
-              domainVerification
-            }
-          }
+        query getApiCredentials($integrationFor: String) {
+  getApiCredentials(integrationFor: $integrationFor) {
+    api_id
+    access_token
+    domainVerification
+  }
+}
+
         `,
         variables: { integrationFor: "FACEBOOK" },
       }),
@@ -43,7 +44,7 @@ export async function GET(request: Request) {
     console.error("Error fetching API credentials:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

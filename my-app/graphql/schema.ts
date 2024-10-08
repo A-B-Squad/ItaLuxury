@@ -613,7 +613,7 @@ input CreateCheckoutInput {
   total: Float!
   couponsId: String
   freeDelivery:Boolean!
-  isGuest:Boolean
+  isGuest:Boolean!
   guestEmail:String!
   deliveryComment:String
   paymentMethod:PaymentMethod!
