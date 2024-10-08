@@ -94,6 +94,11 @@ const AnalyticsIntegration = () => {
           gtag('config', 'G-2C9K3VF02Y');
         `}
       </Script>
+
+      <Script>
+
+        
+      </Script>
     </>
   );
 };

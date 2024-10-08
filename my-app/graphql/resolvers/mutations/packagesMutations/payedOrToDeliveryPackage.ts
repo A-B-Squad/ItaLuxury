@@ -1,5 +1,5 @@
 import { Context } from "@/pages/api/graphql";
-import { PaymentMethod } from "@prisma/client";
+type PaymentMethod = "CREDIT_CARD" | "CASH_ON_DELIVERY";
 
 export const payedOrToDeliveryPackage = async (
   _: any,

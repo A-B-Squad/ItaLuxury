@@ -484,7 +484,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             <Breadcumb />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm  ">
-              <div className="sticky top-0 lg:top-5  z-50 flex lg:flex-row flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
+              <div className="md:sticky top-0 lg:top-5  z-50 flex lg:flex-row flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
                 <div className="relative shadow-sm overflow-hidden    flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
                   <InnerImageZoom
                     className=" h-fit flex items-center justify-center rounded "

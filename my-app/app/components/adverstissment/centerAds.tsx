@@ -29,7 +29,7 @@ const CenterAds = () => {
     <div
       className={`fixed inset-0 flex rounded-md items-center justify-center transition-all duration-500 ${
         showAds
-          ? "opacity-100 z-50"
+          ? "opacity-100 z-[1000]"
           : "opacity-0 translate-y-6 pointer-events-none"
       }`}
     >

@@ -2,24 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const url = new URL(req.url);
-    const paymentRef = url.searchParams.get("payment_ref");
-    const packageId = url.searchParams.get("packageId");
-    const status = url.searchParams.get("status");
+    const searchParams = request.nextUrl.searchParams;
+    const packageId = searchParams.get("packageId");
+    const status = searchParams.get("status");
 
     if (!packageId || !status || !GRAPHQL_ENDPOINT) {
       return NextResponse.json(
         { error: "Missing packageId or status" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    // Map the status if necessary (in this case, it's already in the correct format)
-    const paymentStatus = status;
-
-    // Construct the GraphQL mutation
+    // Your existing GraphQL mutation logic here
     const mutation = `
       mutation UpdateStatusPayOnlinePackage($packageId: ID!, $paymentStatus: Status) {
         updateStatusPayOnlinePackage(
@@ -29,7 +25,6 @@ export async function GET(req: NextRequest) {
       }
     `;
 
-    // Send the GraphQL mutation
     const response = await fetch(GRAPHQL_ENDPOINT, {
       method: "POST",
       headers: {
@@ -40,7 +35,7 @@ export async function GET(req: NextRequest) {
         query: mutation,
         variables: {
           packageId: packageId,
-          paymentStatus: paymentStatus,
+          paymentStatus: status,
         },
       }),
     });
@@ -51,28 +46,25 @@ export async function GET(req: NextRequest) {
       console.error("GraphQL errors:", result.errors);
       return NextResponse.json(
         { error: "Failed to update payment status" },
-        { status: 500 },
+        { status: 500 }
       );
     }
-
-    console.log(
-      `Payment status updated successfully for order ${packageId}: ${paymentStatus}`,
-    );
 
     return NextResponse.json(
       {
         message: "Payment status updated successfully",
-        paymentRef: paymentRef,
         packageId: packageId,
         status: status,
       },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error processing webhook:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
+
+export const dynamic = 'force-dynamic';

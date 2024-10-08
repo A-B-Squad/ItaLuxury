@@ -1,5 +1,15 @@
 import { Context } from "@/pages/api/graphql";
-import { Status } from "@prisma/client";
+
+type Status =
+  | "PAYED_AND_DELIVERED"
+  | "TRANSFER_TO_DELIVERY_COMPANY"
+  | "REFUNDED"
+  | "BACK"
+  | "CANCELLED"
+  | "EXCHANGE"
+  | "PROCESSING"
+  | "PAYMENT_REFUSED"
+  | "PAYED_NOT_DELIVERED";
 
 interface UpdateStatusPayOnlinePackageInput {
   packageId: string;
@@ -12,15 +22,12 @@ export const updateStatusPayOnlinePackage = async (
   { prisma }: Context
 ) => {
   try {
-  
-
     const existingPackage = await prisma.package.findUnique({
       where: { customId: packageId },
       include: { Checkout: true },
     });
-    
-    if (!existingPackage) {
 
+    if (!existingPackage) {
       throw new Error("Package not found");
     }
 

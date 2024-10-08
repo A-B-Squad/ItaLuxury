@@ -1,5 +1,4 @@
 import { Context } from "@/pages/api/graphql";
-import { PrismaClient, Basket } from '@prisma/client';
 
 
 interface ProductInputQuantity {
@@ -12,6 +11,12 @@ interface AddMultipleToBasketInput {
   products: ProductInputQuantity[];
 }
 
+type Basket = {
+  id: string;
+  userId: string | null;
+  quantity: number;
+  productId: string;
+}
 export const addMultipleToBasket = async (
   _: any,
   { input }: { input: AddMultipleToBasketInput },

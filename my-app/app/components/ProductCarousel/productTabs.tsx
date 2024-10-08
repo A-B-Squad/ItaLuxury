@@ -32,7 +32,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   }
 
   return (
-    <div className="products-tab   w-full        rounded-md shadow-sm">
+    <div className="products-tab  w-full rounded-md shadow-sm">
       {data.length > 0 && (
         <Carousel className="productCarousel w-full ">
           <div className="flex items-center justify-end -top-12 right-4 md:right-10 absolute gap-2 z-10">
