@@ -6,9 +6,11 @@
     "dockerBuild": "docker-compose up --build ",
     "dockerUp": "docker-compose up ",
     "dockerWatch": "docker-compose watch ",
-    "dev": "next dev --experimental-https ",
+    "dev": "next dev  ",
+    "start": "next start  ",
     "build": "next build",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sitemap":"next-sitemap"
   },
   "dependencies": {
     "@apollo/client": "^3.9.4",
@@ -37,6 +39,7 @@
     "moment-timezone": "^0.5.45",
     "next": "^14.2.5",
     "next-cloudinary": "^6.6.2",
+    "next-sitemap": "^4.2.3",
     "nodemailer": "^6.9.13",
     "radix-ui": "^1.0.1",
     "react": "^18",

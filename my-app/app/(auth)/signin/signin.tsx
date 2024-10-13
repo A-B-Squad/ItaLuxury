@@ -46,7 +46,7 @@ const Signin = () => {
   const { products } = useProductsInBasketStore();
 
   const [addMultiProductToBasket] = useMutation(
-    ADD_MULTIPLE_TO_BASKET_MUTATION,
+    ADD_MULTIPLE_TO_BASKET_MUTATION
   );
 
   // Step 4: Set up the signin mutation
@@ -87,7 +87,7 @@ const Signin = () => {
         setErrorMessage(
           error.message === "Invalid email or password"
             ? "Email ou mot de passe invalide"
-            : "Une erreur s'est produite. Veuillez réessayer.",
+            : "Une erreur s'est produite. Veuillez réessayer."
         );
       },
     });
@@ -132,7 +132,7 @@ const Signin = () => {
           setErrorMessage(
             error.message === "Invalid email or password"
               ? "Email ou mot de passe invalide"
-              : "Une erreur s'est produite. Veuillez réessayer.",
+              : "Une erreur s'est produite. Veuillez réessayer."
           );
         },
       });
@@ -183,7 +183,7 @@ const Signin = () => {
           setErrorMessage(
             error.message === "Invalid email or password"
               ? "Email ou mot de passe invalide"
-              : "Une erreur s'est produite. Veuillez réessayer.",
+              : "Une erreur s'est produite. Veuillez réessayer."
           );
         },
       });
@@ -209,9 +209,9 @@ const Signin = () => {
           width={200}
           height={200}
         />
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Connectez-vous à votre compte
-        </h2>
+        </h1>
       </div>
 
       {/* Step 7.2: Render form container */}

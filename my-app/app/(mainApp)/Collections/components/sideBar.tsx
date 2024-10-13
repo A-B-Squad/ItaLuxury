@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo,
   useRef,
 } from "react";
 import Link from "next/link";
@@ -463,7 +462,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               <IoIosClose size={24} />
             </IconButton>
           </div>
-          <div className="flex-grow overflow-y-auto">
+          <div className=" pb-16  flex-grow overflow-y-auto ">
             <form className="relative">
               <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
                 FILTRER

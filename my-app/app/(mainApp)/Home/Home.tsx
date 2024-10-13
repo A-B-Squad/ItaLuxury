@@ -147,7 +147,7 @@ const Home = () => {
   return (
     <>
       <CenterAds />
-      <div className="Home py-10 flex min-h-screen flex-col items-center px-8">
+      <div className="Home py-10 flex min-h-screen flex-col items-center md:px-8 px-3">
         <div className="container overflow-hidden">
           <section className="TOP-IMG flex justify-center xl:flex-row flex-col-reverse  gap-4 items-center">
             <LeftAdsCarousel

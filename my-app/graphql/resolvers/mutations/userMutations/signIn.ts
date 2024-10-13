@@ -51,7 +51,7 @@ export const signIn = async (
   // Set the cookie
   res.setHeader(
     "Set-Cookie",
-    `Token=${token}; Path=/; SameSite=Strict; Secure; Expires=${expirationDate.toUTCString()}`
+    `Token=${token}; Path=/; Domain=ita-luxury.com;SameSite=Strict; Secure; Expires=${expirationDate.toUTCString()}`
   );
   return {
     user: existingUser,

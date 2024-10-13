@@ -54,7 +54,7 @@ const Signup: React.FC = () => {
   } = useForm<SignupFormData>();
   const { products } = useProductsInBasketStore();
   const [addMultiProductToBasket] = useMutation(
-    ADD_MULTIPLE_TO_BASKET_MUTATION,
+    ADD_MULTIPLE_TO_BASKET_MUTATION
   );
 
   const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
@@ -118,7 +118,7 @@ const Signup: React.FC = () => {
       setShowPhoneInput(true);
     } catch (error) {
       setErrorMessage(
-        `Échec de la connexion avec ${provider === googleProvider ? "Google" : "Facebook"}.`,
+        `Échec de la connexion avec ${provider === googleProvider ? "Google" : "Facebook"}.`
       );
     }
   };
@@ -140,9 +140,9 @@ const Signup: React.FC = () => {
           width={200}
           height={200}
         />
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Créez votre compte
-        </h2>
+        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Créer un compte
+        </h1>{" "}
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

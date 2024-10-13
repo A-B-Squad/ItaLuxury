@@ -58,7 +58,6 @@ function DrawerMobile() {
     Cookies.remove("Token");
     window.sessionStorage.removeItem("productsInBasket");
     window.sessionStorage.removeItem("comparedProducts");
-    router.push("/");
     window.location.reload();
   };
 

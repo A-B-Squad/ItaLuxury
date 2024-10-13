@@ -42,7 +42,6 @@ const BasketDrawer: React.FC = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const {
     products,
-    quantityInBasket,
     removeProductFromBasket,
     setQuantityInBasket,
   } = useProductsInBasketStore();
@@ -300,6 +299,7 @@ const BasketDrawer: React.FC = () => {
                     },
                   });
                   pushToDataLayer("Initiate Checkout");
+                  closeBasketDrawer()
                 }}
                 href={{
                   pathname: "/Checkout",

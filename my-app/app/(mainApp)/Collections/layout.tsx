@@ -2,12 +2,15 @@ import React, { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Metadata } from "next";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
-import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
 import { fetchGraphQLData } from "@/utlils/graphql";
 import { ALL_BRANDS, COLORS_QUERY, CATEGORIES_QUERY } from "@/graphql/queries";
 import keywords from "@/public/keywords";
 import Breadcumb from "@/app/components/Breadcumb";
 
+const ProductInfo = dynamic(
+  () => import("@/app/components/ProductInfo/ProductInfo"),
+  { ssr: false }
+);
 const SideBar = dynamic(() => import("./components/sideBar"), { ssr: false });
 if (process.env.NODE_ENV === "development") {
   loadDevMessages();
@@ -29,7 +32,7 @@ export const metadata: Metadata = {
   title: "Vente en ligne en Tunisie | Offres exclusives | ita-luxury",
   description:
     "Découvrez les meilleures offres et produits en ligne en Tunisie sur ita-luxury. Large gamme de produits de qualité avec promotions exceptionnelles. Livraison rapide et paiement sécurisé.",
-  keywords: keywords,
+  keywords: keywords.join(","),
   openGraph: {
     title: "Vente en ligne en Tunisie | Offres exclusives | ita-luxury",
     description:
@@ -39,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "ita-luxury",
     images: [
       {
-        url: "../../../public/LOGO.png",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Vente en ligne en Tunisie",
@@ -48,7 +51,7 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "/products",
+    canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Collections/tunisie?page=1&section=Boutique`,
   },
 };
 

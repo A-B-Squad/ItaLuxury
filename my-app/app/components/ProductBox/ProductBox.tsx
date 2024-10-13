@@ -225,6 +225,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     onClick: () => void;
     title: string;
     disabled?: boolean;
+    isAddToCart?: boolean;
+
   }
 
   const QuickActionButton: React.FC<QuickActionButtonProps> = ({
@@ -232,19 +234,25 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     onClick,
     title,
     disabled = false,
+    isAddToCart = false,
   }) => (
     <div
-      className={`relative w-fit cursor-crosshair ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+      className={`relative w-fit cursor-crosshair ${
+        disabled ? "cursor-not-allowed" : "cursor-pointer"
+      } ${isAddToCart ? "hidden md:block" : ""}`}
       title={title}
       onClick={!disabled ? onClick : undefined}
     >
       <li
-        className={`bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ${disabled ? "opacity-50" : ""}`}
+        className={`bg-primaryColor rounded-full delay-100 lg:translate-x-20 group-hover:translate-x-0 transition-all p-2 shadow-md hover:bg-secondaryColor ${
+          disabled ? "opacity-50" : ""
+        }`}
       >
         {icon}
       </li>
     </div>
   );
+
 
   return (
     <div
@@ -264,6 +272,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           onClick={handleAddToBasket}
           title="Ajouter au panier"
           disabled={product.inventory <= 0}
+          isAddToCart={true}
         />
         <QuickActionButton
           icon={<IoGitCompare color="white" />}

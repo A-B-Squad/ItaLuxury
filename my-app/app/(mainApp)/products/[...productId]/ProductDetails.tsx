@@ -667,7 +667,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                       </button>
                     </div>
                   </div>
-                  <div className="addToBasket flex items-center mt-4  gap-4  ">
+                  <div className="addToBasket flex items-center mt-4  gap-2 md:gap-4  ">
                     <button
                       disabled={quantity <= 0}
                       type="button"
@@ -783,11 +783,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
 
                 <div className="Rating mt-8 lg:w-4/5 w-full">
-                  <div className="mt-8">
+                  <div >
                     <h3 className="text-lg font-bold text-primaryColor">
-                      Note globale ({reviews})
-                    </h3>
-                    <div className="space-y-4 mt-6 w-[340px] md:w-full">
+                      Note globale ({reviews})               </h3>
+                    <div className="space-y-4 mt-6  md:w-full">
                       {[
                         { rating: 5, value: fiveStar },
                         { rating: 4, value: fourStar },

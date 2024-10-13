@@ -82,7 +82,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
     Cookies.remove("Token");
     window.sessionStorage.removeItem("productsInBasket");
     window.sessionStorage.removeItem("comparedProducts");
-    router.push("/");
+    router.push("www.ita-luxury.com");
     window.location.reload();
   };
   return (

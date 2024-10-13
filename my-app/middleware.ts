@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+      'http://localhost:3001',
+      'https://www.ita-luxury.com',
+      'https://admin.ita-luxury.com',
   process.env.NEXT_ALLOW_REQUEST_API_URL,
   process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
   "http://api.preprod.konnect.network",
   "https://graph.facebook.com",
-].filter(Boolean);
+].filter((origin): origin is string => Boolean(origin));
+
 const AUTH_ROUTES = ["/signin", "/signup"];
 const TOKEN_COOKIE_NAME = "Token";
 
@@ -31,7 +36,13 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get(TOKEN_COOKIE_NAME)?.value;
 
   if (token && AUTH_ROUTES.includes(url)) {
-    return NextResponse.redirect(new URL("/", req.url));
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN;
+    if (baseUrl) {
+      return NextResponse.redirect(new URL(baseUrl, req.url));
+    } else {
+      console.error("NEXT_PUBLIC_BASE_URL_DOMAIN is not defined");
+      return res;
+    }
   }
 
   return res;

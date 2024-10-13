@@ -1,6 +1,5 @@
 import { Context } from "@/pages/api/graphql";
 import bcrypt from "bcryptjs";
-import { Authorization } from './authorization';
 
 export const createModerator = async (
   _: any,
@@ -19,7 +18,6 @@ export const createModerator = async (
 
     // Check if the user invoking the mutation is authorized
 
-    const authorizationResult = await Authorization(_, { adminId }, prisma);
     if (existingAdmin) {
       return new Error("Email address is already in use");
     }

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: "Inscription - ita-luxury",
   description:
     "Inscrivez-vous à ita-luxury pour créer un compte et commencer à faire des achats en ligne.",
-  keywords: keywords,
+  keywords: keywords.join(","),
 
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/signup`,
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
       "Inscrivez-vous à ita-luxury pour créer un compte et commencer à faire des achats en ligne.",
     images: [
       {
-        url: "../../../public/LOGO.png",
-        width: 800,
-        height: 600,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
         alt: "ita-luxury",
       },
     ],

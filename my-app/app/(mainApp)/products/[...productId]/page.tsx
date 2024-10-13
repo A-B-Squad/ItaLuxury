@@ -94,9 +94,11 @@ export async function generateMetadata({
       description: productData?.description,
       images: [
         {
-          url: productData?.images[0] || "../../../public/LOGO.png",
-          width: 800,
-          height: 600,
+          url:
+            productData?.images[0] ||
+            `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+          width: 1200,
+          height: 630,
           alt: productData?.name,
         },
       ],
@@ -106,10 +108,13 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${productData?.name} - ita-luxury`,
       description: productData?.description,
-      images: [productData?.images[0] || "../../../../public/LOGO.png"],
+      images: [
+        productData?.images[0] ||
+          `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+      ],
     },
     keywords: [...keywords, productData?.name, productData?.reference].join(
-      ", ",
+      ", "
     ),
     alternates: {
       canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/product?productId=${searchParams.productId}`,

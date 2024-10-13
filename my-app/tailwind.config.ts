@@ -2,19 +2,17 @@ import type { Config } from "tailwindcss";
 import withMT from "@material-tailwind/react/utils/withMT";
 const config: Config = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./**/@material-tailwind/**/*.{html,js,ts,jsx,tsx,mdx}"
-
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/@material-tailwind/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/@material-tailwind/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-
     container: {
-      center:true,
+      center: true,
       screens: {
-        sm: '1700px',
-      
+        sm: "1700px",
       },
     },
     extend: {
@@ -28,8 +26,8 @@ const config: Config = {
         secondaryColor: "#e0e0dc",
         primaryColor: "#c7ae91",
         lightBlack: "#22222280",
-        TopBanner: '#53366e',
-      }
+        TopBanner: "#53366e",
+      },
     },
   },
   plugins: [],

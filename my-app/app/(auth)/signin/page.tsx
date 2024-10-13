@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Connexion - ita-luxury",
   description:
     "Connectez-vous à votre compte ita-luxury pour accéder à votre profil et effectuer des achats en ligne.",
-  keywords: keywords,
+  keywords: keywords.join(","),
 
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/signin`,
@@ -23,9 +23,9 @@ export const metadata: Metadata = {
       "Connectez-vous à votre compte ita-luxury pour accéder à votre profil et effectuer des achats en ligne.",
     images: [
       {
-        url: "../../../public/LOGO.png",
-        width: 800,
-        height: 600,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
         alt: "ita-luxury",
       },
     ],

@@ -36,11 +36,11 @@ export const createBannerAdvertisement = async (
     });
 
     // 2. Compare input data with existing data
-    const newDataIds: AdvertisementData[] = filteredInput.map((item) => ({
+    const newDataIds: AdvertisementData[] = filteredInput.map((item:any) => ({
       link: item.link,
       position: item.position,
     }));
-    const existingDataIds: AdvertisementData[] = existingData.map((item) => ({
+    const existingDataIds: AdvertisementData[] = existingData.map((item:any) => ({
       link: item.link,
       position: item.position,
     }));

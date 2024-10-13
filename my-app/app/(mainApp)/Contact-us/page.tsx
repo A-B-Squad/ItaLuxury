@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com/Contact-us",
     images: [
       {
-        url: "../../../public/LOGO.png",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "Contactez ita-luxury",

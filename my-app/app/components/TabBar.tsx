@@ -32,7 +32,7 @@ const TabBar = () => {
 
   return (
     <div className="fixed bottom-2 md:hidden left-2 right-2 z-50 ">
-      <div className="bg-gray-100 rounded-full shadow-lg  overflow-hidden">
+      <div className="bg-[#fffffff2] rounded-full shadow-lg  overflow-hidden">
         <div
           className={`flex justify-around items-center py-2 transition-all duration-300 ${isExpanded ? "opacity-0" : "opacity-100"}`}
         >
