@@ -18,16 +18,23 @@ type BasketStore = {
   toggleIsUpdated: () => void;
 };
 
-interface ProductData {
+interface ProductDetailsData {
   id: string;
   name: string;
   price: number;
+  isVisible: boolean;
   images: string[];
-  quantity: number;
-  basketId: string;
+  reference: string;
+  description: string;
+  inventory: number;
   productDiscounts: {
     newPrice: number;
   }[];
+  Colors: {
+    color: string;
+    Hex: string;
+  };
+  brand: Brand;
   categories: {
     name: string;
     id: string;
@@ -44,8 +51,8 @@ interface ProductData {
 }
 type UseProductDetails = {
   isOpen: boolean;
-  productData: ProductData | any;
-  openProductDetails: (productData: ProductData) => void;
+  productData: ProductDetailsData | any;
+  openProductDetails: (productData: ProductDetailsData) => void;
   closeProductDetails: () => void;
 };
 
@@ -61,7 +68,7 @@ export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
     closeCategoryDrawer: () => set({ isOpen: false }),
-  }),
+  })
 );
 
 export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
@@ -81,7 +88,7 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
     const currentProducts = get().products;
     // Check if the product already exists in the products array
     const isProductInStore = currentProducts.some(
-      (p: any) => p.id === product.id,
+      (p: any) => p.id === product.id
     );
     if (!isProductInStore) {
       set((state: any) => ({ products: [...state.products, product] }));
@@ -90,11 +97,44 @@ const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
   removeProductFromCompare: (productId: any) =>
     set((state: any) => ({
       products: state.products.filter(
-        (product: any) => product.id !== productId,
+        (product: any) => product.id !== productId
       ),
     })),
 });
 
+interface ProductData {
+  id: string;
+  name: string;
+  price: number;
+  isVisible: boolean;
+  images: string[];
+  reference: string;
+  description: string;
+  inventory: number;
+  quantity: number;
+  basketId: string;
+  productDiscounts: {
+    newPrice: number;
+  }[];
+  Colors: {
+    color: string;
+    Hex: string;
+  };
+  brand: Brand;
+  categories: {
+    name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
+  }[];
+  [key: string]: any;
+}
 // Define the ProductsInBasketStore type
 interface ProductsInBasketStore {
   products: ProductData[];
@@ -102,14 +142,14 @@ interface ProductsInBasketStore {
   setQuantityInBasket: (quantity: number) => void;
   addProductToBasket: (product: ProductData) => void;
   removeProductFromBasket: (productId: string) => void;
-  increaseProductInQtBasket: (productId: string) => void;
+  increaseProductInQtBasket: (productId: string,quantity:number) => void;
   decreaseProductInQtBasket: (productId: string) => void;
   clearBasket: () => void;
 }
 
 // Define the set type
 type SetState = (
-  update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>,
+  update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>
 ) => void;
 
 // Define the store creation function
@@ -127,17 +167,17 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
       quantityInBasket: state.products.length + 1,
     }));
   },
-  increaseProductInQtBasket: (productId: string) => {
+  increaseProductInQtBasket: (productId: string,quantity:number) => {
     set((state) => {
       const updatedProducts = state.products.map((product) =>
         product.id === productId
-          ? { ...product, actualQuantity: (product.actualQuantity || 0) + 1 }
-          : product,
+          ? { ...product, actualQuantity: (product.actualQuantity || 0) + quantity }
+          : product
       );
 
       const updatedQuantityInBasket = updatedProducts.reduce(
         (sum, product) => sum + (product.actualQuantity || 0),
-        0,
+        0
       );
 
       return {
@@ -153,13 +193,13 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
         .map((product) =>
           product.id === productId && product.actualQuantity > 0
             ? { ...product, actualQuantity: product.actualQuantity - 1 }
-            : product,
+            : product
         )
         .filter((product) => product.actualQuantity > 0);
 
       const updatedQuantityInBasket = updatedProducts.reduce(
         (sum, product) => sum + product.actualQuantity,
-        0,
+        0
       );
 
       return {
@@ -171,7 +211,7 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
   removeProductFromBasket: (productId: string) => {
     set((state) => {
       const updatedProducts = state.products.filter(
-        (product) => product.id !== productId,
+        (product) => product.id !== productId
       );
       return {
         products: updatedProducts,
@@ -191,14 +231,14 @@ export const useProductsInBasketStore = create(
   persist<ProductsInBasketStore>(productsInBasketStore, {
     name: "productsInBasket",
     storage: createJSONStorage(() => sessionStorage),
-  }),
+  })
 );
 
 export const useComparedProductsStore = create(
   persist(comparedProductsStore, {
     name: "comparedProducts",
     storage: createJSONStorage(() => sessionStorage),
-  }),
+  })
 );
 
 type SidebarStore = {

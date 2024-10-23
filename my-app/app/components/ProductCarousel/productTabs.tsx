@@ -44,9 +44,9 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
             {productPairs.map((pair, index) => (
               <CarouselItem
                 key={index}
-                className="pl-4 md:pl-6 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 "
+                className="pl-4 lg:pl-4 basis-1/2 lg:basis-1/3 2xl:basis-1/4 "
               >
-                <div className="flex flex-col gap-4 h-full">
+                <div className="flex flex-col gap-3 h-full">
                   {pair.map((product, productIndex) => (
                     <ProductBox
                       key={`${product.id}-${productIndex}`}

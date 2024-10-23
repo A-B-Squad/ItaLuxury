@@ -158,7 +158,7 @@ const Basket: React.FC = () => {
         if (product.id === productId) {
           const newQuantity = Math.max(
             1,
-            (product.actualQuantity ?? product.quantity) + change,
+            (product.actualQuantity ?? product.quantity) + change
           );
           return { ...product, actualQuantity: newQuantity };
         }
@@ -170,11 +170,11 @@ const Basket: React.FC = () => {
         updatedProducts.reduce(
           (total, product) =>
             total + (product.actualQuantity ?? product.quantity),
-          0,
-        ),
+          0
+        )
       );
     },
-    [storedProducts, setQuantityInBasket],
+    [storedProducts, setQuantityInBasket]
   );
 
   // Mutations
@@ -191,8 +191,8 @@ const Basket: React.FC = () => {
               prevProducts.map((product) =>
                 product.basketId === increaseQuantity.id
                   ? { ...product, quantity: increaseQuantity.quantity }
-                  : product,
-              ),
+                  : product
+              )
             );
             toggleIsUpdated();
           },
@@ -207,10 +207,10 @@ const Basket: React.FC = () => {
           },
         });
       } else {
-        increaseProductInQtBasket(productId);
+        increaseProductInQtBasket(productId,1);
       }
     },
-    [decodedToken, increaseQuantity, handleQuantityChange],
+    [decodedToken, increaseQuantity, handleQuantityChange]
   );
 
   const handleDecreaseQuantity = useCallback(
@@ -223,8 +223,8 @@ const Basket: React.FC = () => {
               prevProducts.map((product) =>
                 product.basketId === decreaseQuantity.id
                   ? { ...product, quantity: decreaseQuantity.quantity }
-                  : product,
-              ),
+                  : product
+              )
             );
             toggleIsUpdated();
           },
@@ -233,7 +233,7 @@ const Basket: React.FC = () => {
         decreaseProductInQtBasket(productId);
       }
     },
-    [decodedToken, decreaseQuantity, handleQuantityChange],
+    [decodedToken, decreaseQuantity, handleQuantityChange]
   );
 
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
@@ -244,7 +244,7 @@ const Basket: React.FC = () => {
       if (decodedToken?.userId && basketId) {
         try {
           setProducts((prevProducts) =>
-            prevProducts.filter((product) => product.basketId !== basketId),
+            prevProducts.filter((product) => product.basketId !== basketId)
           );
           await deleteBasketById({
             variables: { basketId },
@@ -258,7 +258,7 @@ const Basket: React.FC = () => {
         removeProductFromBasket(productId);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
 
   // Render component
@@ -283,6 +283,7 @@ const Basket: React.FC = () => {
                 <TableHead className="text-base">Prix</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
@@ -304,12 +305,12 @@ const Basket: React.FC = () => {
                     <div>
                       <Link
                         href={`/products/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
-                          product?.categories[0]?.name,
-                          product?.categories[0]?.subcategories[0]?.name,
-                          product?.categories[0]?.subcategories[0]
-                            ?.subcategories[0]?.name,
+                          product.categories?.[0]?.name,
+                          product.categories?.[0]?.subcategories?.[0]?.name,
+                          product.categories?.[0]?.subcategories?.[0]
+                            ?.subcategories?.[0]?.name,
                           product.name,
-                        ]}`}
+                        ].filter(Boolean)}`}
                         className="text-md font-bold hover:text-primaryColor text-[#333]"
                       >
                         {product.name}
@@ -326,7 +327,6 @@ const Basket: React.FC = () => {
                       </button>
                     </div>
                   </TableCell>
-
                   <TableCell>
                     <div className="flex divide-x border w-max">
                       <button
@@ -347,6 +347,8 @@ const Basket: React.FC = () => {
                       <button
                         type="button"
                         className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
+                      disabled={product.actualQuantity === product?.inventory}
+                       
                         onClick={() =>
                           handleIncreaseQuantity(product.id, product.basketId)
                         }
@@ -355,21 +357,19 @@ const Basket: React.FC = () => {
                       </button>
                     </div>
                   </TableCell>
-
-                  <TableCell>
-                    {product?.productDiscounts?.length > 0 && (
+                  <TableCell className="w-[30%]">
+                    {product?.productDiscounts?.length > 0 && product.productDiscounts[0]?.newPrice && (
                       <h4 className="text-md w-max font-bold text-[#333]">
-                        {product.productDiscounts[0].newPrice.toFixed(3)} TND
+                        {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
                       </h4>
                     )}
                     <h4
-                      className={`text-base w-full font-semibold text-[#333] ${
-                        product?.productDiscounts?.length > 0
-                          ? " text-gray-700 line-through"
-                          : ""
-                      }`}
+                      className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0
+                        ? "text-gray-700 line-through"
+                        : ""
+                        }`}
                     >
-                      {product.price.toFixed(3)} TND
+                      {product.price ? Number(product.price).toFixed(3) : "0.00"} TND
                     </h4>
                   </TableCell>
                 </TableRow>
@@ -389,7 +389,7 @@ const Basket: React.FC = () => {
                 {products.length} article{products.length > 1 ? "s" : ""}
               </span>
               <span className="font-semibold">
-                {Number(totalPrice).toFixed(3)} TND
+                {totalPrice ? Number(totalPrice).toFixed(3) : "0.000"} TND
               </span>
             </li>
             <li className="flex justify-between text-gray-600">
@@ -436,7 +436,7 @@ const Basket: React.FC = () => {
                       (sum, product) =>
                         sum +
                         (product?.actualQuantity || product?.quantity || 0),
-                      0,
+                      0
                     ),
                   },
                 });

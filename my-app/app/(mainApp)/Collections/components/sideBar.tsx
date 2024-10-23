@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo,
   useRef,
 } from "react";
 import Link from "next/link";
@@ -135,17 +134,26 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
 
   const handleChoiceFilterOptions = useCallback(
     (value: string) => {
-      const updatedQueries = { ...selectedFilterQueries };
+      const updatedQueries: { [key: string]: string[] } = { ...selectedFilterQueries };
 
-      // Update the 'choice' parameter
+      // Update the 'choice' parameter as an array
       updatedQueries["choice"] = [value];
+
+      // Set the appropriate section based on the value, ensuring it's always an array
+      if (value === "new-product") {
+        updatedQueries["section"] = ["Nouveaux Produits"];
+      } else if (value === "in-discount") {
+        updatedQueries["section"] = ["Promotions"];
+      } else {
+        delete updatedQueries["section"];
+      }
 
       // Remove unnecessary parameters
       delete updatedQueries["page"];
-      delete updatedQueries["section"];
 
       setSelectedFilterQueries(updatedQueries);
 
+      // Build the query string
       const queryString = buildQueryString(updatedQueries);
       const newUrl = `/Collections/tunisie?${queryString}`;
 
@@ -218,7 +226,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase()),
+        selectedFilterQueries[name].includes(option.toLowerCase()),
       );
     },
     [selectedFilterQueries],
@@ -235,25 +243,27 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         ].map((choice) => (
           <div key={choice.id} className="flex items-center group">
             <input
+              style={{
+                WebkitAppearance: "none",
+                appearance: "none",
+              }}
               id={`filtre-choix-${choice.id}`}
               name="choice"
               type="radio"
               value={choice.id}
               checked={isChecked("choice", choice.id)}
-              className={`h-3 w-3 appearance-none outline-none ${
-                isChecked("choice", choice.id)
-                  ? "bg-secondaryColor"
-                  : "bg-white"
-              } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
+              className={`h-3 w-3  outline-none ${isChecked("choice", choice.id)
+                ? "bg-secondaryColor"
+                : "bg-white"
+                } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
               onChange={() => handleChoiceFilterOptions(choice.id)}
             />
             <label
               htmlFor={`filtre-choix-${choice.id}`}
-              className={`ml-3 text-sm tracking-widest cursor-pointer ${
-                isChecked("choice", choice.id)
-                  ? "text-black font-semibold"
-                  : "text-gray-600"
-              } group-hover:text-black group-hover:font-semibold transition-all`}
+              className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", choice.id)
+                ? "text-black font-semibold"
+                : "text-gray-600"
+                } group-hover:text-black group-hover:font-semibold transition-all`}
             >
               {choice.label}
             </label>
@@ -270,9 +280,8 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         {categories?.map((category) => (
           <li
             key={category.id}
-            className={`${
-              searchParams?.get("category") === category?.id ? "font-bold" : ""
-            } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
+            className={`${searchParams?.get("category") === category?.id ? "font-bold" : ""
+              } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
           >
             <Link
               href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
@@ -282,11 +291,10 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               {category.name}
             </Link>
             <span
-              className={`${
-                searchParams?.get("category") === category?.id
-                  ? "bg-primaryColor"
-                  : "bg-secondaryColor"
-              } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
+              className={`${searchParams?.get("category") === category?.id
+                ? "bg-primaryColor"
+                : "bg-secondaryColor"
+                } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
             ></span>
           </li>
         ))}
@@ -303,12 +311,16 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
             Prix range
           </label>
           <input
+            style={{
+              WebkitAppearance: "none",
+              appearance: "none",
+            }}
             id="price-range-input"
             type="range"
             min="1"
             max="3000"
             value={localPrice}
-            className="w-full h-full max-h-6 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-full max-h-6 bg-gray-200 rounded-lg  cursor-pointer"
             onChange={handlePriceChange}
             onMouseUp={handlePriceChangeEnd}
             onTouchEnd={handlePriceChangeEnd}
@@ -328,9 +340,8 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
           <span className="text-gray-400">à :</span>
           <input
             type="number"
-            className={`w-20  border max-h-6 text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${
-              localPrice !== 500 ? "text-black" : "text-gray-400"
-            }`}
+            className={`w-20  border max-h-6 text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${localPrice !== 500 ? "text-black" : "text-gray-400"
+              }`}
             value={localPrice}
             onChange={handlePriceChange}
             onBlur={handlePriceChangeEnd}
@@ -389,16 +400,19 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
           {brands?.map((brand) => (
             <div key={brand.id} className="flex items-center">
               <input
+                style={{
+                  WebkitAppearance: "none",
+                  appearance: "none",
+                }}
                 id={`filtre-brand-${brand.id}`}
                 name="brand"
                 type="radio"
                 value={brand.name}
                 checked={isChecked("brand", brand.name)}
-                className={`h-3 w-3 appearance-none outline-none ${
-                  isChecked("brand", brand.name)
-                    ? "bg-secondaryColor"
-                    : "bg-white"
-                } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
+                className={`h-3 w-3  outline-none ${isChecked("brand", brand.name)
+                  ? "bg-secondaryColor"
+                  : "bg-white"
+                  } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
                 onChange={handleSelectBrandFilterOptions}
               />
               <div className="flex items-center justify-between w-full">
@@ -439,7 +453,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
           onPointerLeaveCapture={""}
           open={isOpenSideBard}
           onClose={toggleOpenSidebar}
-          size={380}
+          size={300}
           className="p-4 flex flex-col h-full"
         >
           <div className="mb-6 flex items-center justify-between">
@@ -463,7 +477,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               <IoIosClose size={24} />
             </IconButton>
           </div>
-          <div className="flex-grow overflow-y-auto">
+          <div className=" pb-16  flex-grow overflow-y-auto ">
             <form className="relative">
               <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
                 FILTRER
@@ -491,7 +505,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       ) : (
         <section
           aria-labelledby="products-heading"
-          className={`overflow-y-auto z-50 w-96 h-fit py-5 transition-all bg-white shadow-md sticky top-0 `}
+          className={`overflow-y-auto z-50 w-80 h-fit py-5 transition-all bg-white shadow-md sticky top-0 `}
         >
           <form className="relative pt-5">
             <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">

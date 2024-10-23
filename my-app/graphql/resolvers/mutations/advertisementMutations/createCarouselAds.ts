@@ -22,8 +22,8 @@ export const createCarouselAdvertisement = async (
     const existingData = await prisma.advertisement.findMany({ where: { position: "slider" } });
 
     // 2. Compare input data with existing data
-    const newDataIds: AdvertisementData[] = input.map((item) => ({ link: item.link, position: item.position }));
-    const existingDataIds: AdvertisementData[] = existingData.map((item) => ({ link: item.link, position: item.position }));
+    const newDataIds: AdvertisementData[] = input.map((item:any) => ({ link: item.link, position: item.position }));
+    const existingDataIds: AdvertisementData[] = existingData.map((item:any) => ({ link: item.link, position: item.position }));
 
     // 3. Update existing data with input data
     for (const item of input) {

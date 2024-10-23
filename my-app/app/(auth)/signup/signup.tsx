@@ -54,7 +54,7 @@ const Signup: React.FC = () => {
   } = useForm<SignupFormData>();
   const { products } = useProductsInBasketStore();
   const [addMultiProductToBasket] = useMutation(
-    ADD_MULTIPLE_TO_BASKET_MUTATION,
+    ADD_MULTIPLE_TO_BASKET_MUTATION
   );
 
   const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
@@ -118,7 +118,7 @@ const Signup: React.FC = () => {
       setShowPhoneInput(true);
     } catch (error) {
       setErrorMessage(
-        `Échec de la connexion avec ${provider === googleProvider ? "Google" : "Facebook"}.`,
+        `Échec de la connexion avec ${provider === googleProvider ? "Google" : "Facebook"}.`
       );
     }
   };
@@ -135,14 +135,14 @@ const Signup: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           className="mx-auto"
-          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png"
+          src="/LOGO.png"
           alt="ita-luxury"
           width={200}
           height={200}
         />
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Créez votre compte
-        </h2>
+        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Créer un compte
+        </h1>{" "}
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -250,11 +250,15 @@ const Signup: React.FC = () => {
                         />
                       </div>
                       <input
+                        style={{
+                          WebkitAppearance: "none",
+                          appearance: "none",
+                        }}
                         id="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="********"
-                        autoComplete="password"
-                        className={`block w-full appearance-none pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
+                        autoComplete="current-password"
+                        className={`block w-full pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
                         {...register("password", {
                           required: "Le mot de passe est requis",
                           minLength: {

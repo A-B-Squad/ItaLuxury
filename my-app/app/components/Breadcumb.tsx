@@ -15,11 +15,11 @@ const Breadcrumb = ({ pageName, pageLink }: any) => {
     ...(pageName ? [{ name: pageName, link: `/${pageLink}` }] : []),
     ...(section
       ? [
-          {
-            name: section,
-            link: `/Collections/tunisie/?section=${encodeURIComponent(section)}`,
-          },
-        ]
+        {
+          name: section,
+          link: `/Collections/tunisie/?section=${encodeURIComponent(section)}`,
+        },
+      ]
       : []),
     ...categories.map((category, index) => ({
       name: category,
@@ -31,16 +31,15 @@ const Breadcrumb = ({ pageName, pageLink }: any) => {
   ];
 
   return (
-    <div className="flex gap-2 justify-center py-5 justify-self-center w-full flex-wrap items-center md:text-sm text-base tracking-[2px]">
+    <div className="flex gap-2 lg:justify-center justify-start py-5 justify-self-center w-full flex-wrap items-center text-sm md:text-sm  tracking-[2px]">
       {breadcrumbItems.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && <span className="text-gray-500">/</span>}
           <div
-            className={`transition-all flex items-center gap-2 ${
-              index === breadcrumbItems.length - 1
+            className={`transition-all flex items-center gap-2 ${index === breadcrumbItems.length - 1
                 ? "text-primaryColor"
                 : "hover:text-primaryColor"
-            }`}
+              }`}
           >
             {item.link ? (
               <Link rel="preload" href={item.link}>

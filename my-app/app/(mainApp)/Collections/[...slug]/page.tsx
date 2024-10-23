@@ -85,9 +85,10 @@ export async function generateMetadata({
   if (searchParams.brand) queryParams.set("brand", searchParams.brand);
 
   const queryString = queryParams.toString();
-  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/products${
-    queryString ? `?${queryString}` : ""
-  }`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Collections${queryString
+      ? `/tunisie?page=1&section=Boutique?${queryString}`
+      : "/tunisie?page=1&section=Boutique"
+    }`;
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
@@ -99,7 +100,7 @@ export async function generateMetadata({
       description: pageDescription,
       images: [
         {
-          url: companyInfo?.logo || "/default-og-image.jpg",
+          url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
           width: 1200,
           height: 630,
           alt: "ita-luxury",
@@ -111,12 +112,19 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: pageTitle,
       description: pageDescription,
-      images: [companyInfo?.logo || "/default-twitter-image.jpg"],
+      images: [
+        {
+          url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+          width: 1200,
+          height: 630,
+          alt: "ita-luxury",
+        },
+      ],
     },
-    keywords: keywords,
+    keywords: keywords.join(","),
     icons: {
-      icon: "../../../../public/favicon.ico",
-      apple: "/images/apple-touch-icon.png",
+      icon: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/favicon.ico`,
+      apple: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/favicon.ico`,
     },
     alternates: {
       canonical: canonicalUrl,

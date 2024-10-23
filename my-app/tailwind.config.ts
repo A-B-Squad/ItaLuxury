@@ -2,19 +2,17 @@ import type { Config } from "tailwindcss";
 import withMT from "@material-tailwind/react/utils/withMT";
 const config: Config = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./**/@material-tailwind/**/*.{html,js,ts,jsx,tsx,mdx}"
-
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/@material-tailwind/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/@material-tailwind/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-
     container: {
-      center:true,
+      center: true,
       screens: {
-        sm: '1700px',
-      
+        sm: "1700px",
       },
     },
     extend: {
@@ -24,12 +22,15 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
+        primaryColor: "#212E53",
         lightBeige: "#F0EDD4",
-        secondaryColor: "#e0e0dc",
-        primaryColor: "#c7ae91",
+        secondaryColor: "#EBACA2",
         lightBlack: "#22222280",
-        TopBanner: '#53366e',
-      }
+        TopBanner: "#53366e",
+        blueColor: "#4A919E",
+        pinkColor: "#CE6A6B",
+        lightBlue: "#BED3C3"
+      },
     },
   },
   plugins: [],

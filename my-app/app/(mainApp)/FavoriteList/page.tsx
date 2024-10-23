@@ -13,18 +13,18 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
   title: "Liste des favoris - ita-luxury",
   description: "Consultez votre liste de favoris sur ita-luxury.",
-  keywords: keywords,
+  keywords: keywords.join(","),
 
   openGraph: {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/favorites`,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/FavoriteList`,
     type: "website",
     title: "Liste des favoris - ita-luxury",
     description: "Consultez votre liste de favoris sur ita-luxury.",
     images: [
       {
-        url: "../../../public/LOGO.png",
-        width: 800,
-        height: 600,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
         alt: "ita-luxury",
       },
     ],

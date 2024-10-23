@@ -20,7 +20,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
 import { useOutsideClick } from "@/app/Helpers/_outsideClick";
-import { BASKET_QUERY } from "@/graphql/queries";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -40,8 +40,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
 
   const {
     register,
-    handleSubmit,
-    formState: { errors },
+    handleSubmit
   } = useForm();
   const { toast } = useToast();
 
@@ -65,6 +64,13 @@ const TopHeader = ({ logo }: { logo: string }) => {
     },
   });
 
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+  
   const { data: basketData, refetch: refetchBasket } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
@@ -116,9 +122,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
   return (
     <div
       className="container flex  md:flex-row flex-col gap-3 justify-between items-center  md:border-b-2 "
-      onMouseEnter={() => setShowMenuUserMenu(false)}
     >
-      <div className="logo relative w-40 h-20 md:w-48 md:h-24 content-center  ">
+      <div className="logo relative w-40 h-20 md:w-48 md:h-20 content-center  ">
         <Link href={"/"}>
           <Image
             src={logo}
@@ -136,12 +141,23 @@ const TopHeader = ({ logo }: { logo: string }) => {
         <ul className="flex items-center gap-5">
           <li
             className="userMenu w-max  group  "
-            onMouseEnter={() => setShowMenuUserMenu(true)}
           >
-            <div className="flex   items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-              Votre Compte
+            <div
+              onClick={() => setShowMenuUserMenu((prev) => !prev)}
+              className="flex   items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               <FiUser />
+
+              {decodedToken?.userId ?
+                <p>
+                  {userData?.fetchUsersById.fullName}
+                </p>
+                :
+                <p>
+                  Votre Compte
+                </p>
+              }
             </div>
+
             <div
               ref={clickOutside}
               className={` absolute w-72 h-96 border-2  px-2 py-2  z-[60]  flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
@@ -159,7 +175,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   </label>
                   <input
                     id="emailOrPhone"
-                  autoComplete="email"
+                    autoComplete="email"
 
                     type="text"
                     className="block border outline-gray-400 border-gray-300 py-2.5  text-xs w-full p-1 rounded mb-4"
@@ -229,12 +245,11 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <Link
                   rel="preload"
                   onClick={() => {
-                    if (decodedToken?.userId) {
-                      Cookies.remove("Token");
-                      window.sessionStorage.removeItem("productsInBasket");
+                    Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
+                    window.sessionStorage.removeItem("productsInBasket");
                       window.sessionStorage.removeItem("comparedProducts");
                       window.location.replace("/");
-                    }
+                    
                   }}
                   className="w-full text-sm py-2 border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
                   href={"/"}

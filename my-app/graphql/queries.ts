@@ -1,12 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const USER_QUERIES = gql`
-  query FetchUsersById($userId: ID!) {
-    fetchUsersById(userId: $userId) {
-      fullName
-    }
-  }
-`;
+
 export const PRODUCT_BY_ID_QUERY = gql`
   query ProductById($productByIdId: ID!) {
     productById(id: $productByIdId) {
@@ -53,6 +47,9 @@ export const FETCH_USER_BY_ID = gql`
       email
       number
       fullName
+      baskets {
+        id
+      }
     }
   }
 `;

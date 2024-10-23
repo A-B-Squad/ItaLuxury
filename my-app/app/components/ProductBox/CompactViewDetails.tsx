@@ -19,7 +19,7 @@ const CompactViewDetails: React.FC<CompactViewDetailsProps> = ({ product }) => (
           className={`${
             product.productDiscounts.length > 0
               ? "line-through text-base md:text-lg font-semibold text-gray-700"
-              : "text-primaryColor text-base md:text-lg py-1"
+              : "text-primaryColor text-base md:text-md py-1"
           } font-semibold`}
         >
           {product.price.toFixed(3)} TND
@@ -37,7 +37,7 @@ const CompactViewDetails: React.FC<CompactViewDetailsProps> = ({ product }) => (
         )}
       </div>
       <p
-        className="w-full text-xs md:text-sm pt-2 tracking-wider line-clamp-2"
+        className="w-full text-xs md:text-sm pt-2 line-clamp-3  tracking-wider "
         dangerouslySetInnerHTML={{ __html: product.description }}
       />
     </div>

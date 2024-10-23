@@ -46,7 +46,7 @@ const Signin = () => {
   const { products } = useProductsInBasketStore();
 
   const [addMultiProductToBasket] = useMutation(
-    ADD_MULTIPLE_TO_BASKET_MUTATION,
+    ADD_MULTIPLE_TO_BASKET_MUTATION
   );
 
   // Step 4: Set up the signin mutation
@@ -87,7 +87,7 @@ const Signin = () => {
         setErrorMessage(
           error.message === "Invalid email or password"
             ? "Email ou mot de passe invalide"
-            : "Une erreur s'est produite. Veuillez réessayer.",
+            : "Une erreur s'est produite. Veuillez réessayer."
         );
       },
     });
@@ -132,7 +132,7 @@ const Signin = () => {
           setErrorMessage(
             error.message === "Invalid email or password"
               ? "Email ou mot de passe invalide"
-              : "Une erreur s'est produite. Veuillez réessayer.",
+              : "Une erreur s'est produite. Veuillez réessayer."
           );
         },
       });
@@ -183,7 +183,7 @@ const Signin = () => {
           setErrorMessage(
             error.message === "Invalid email or password"
               ? "Email ou mot de passe invalide"
-              : "Une erreur s'est produite. Veuillez réessayer.",
+              : "Une erreur s'est produite. Veuillez réessayer."
           );
         },
       });
@@ -204,14 +204,14 @@ const Signin = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           className="mx-auto"
-          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png"
+          src="/LOGO.png"
           alt="ita-luxury"
           width={200}
           height={200}
         />
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Connectez-vous à votre compte
-        </h2>
+        </h1>
       </div>
 
       {/* Step 7.2: Render form container */}
@@ -288,11 +288,15 @@ const Signin = () => {
                   />
                 </div>
                 <input
+                  style={{
+                    WebkitAppearance: "none",
+                    appearance: "none",
+                  }}
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="********"
                   autoComplete="current-password"
-                  className={`block w-full pl-10 pr-10 sm:text-sm appearance-none outline-none py-2 border-gray-300 rounded-md ${
+                  className={`block w-full pl-10 pr-10 sm:text-sm  outline-none py-2 border-gray-300 rounded-md ${
                     errors.password ? "border-red-300" : ""
                   }`}
                   {...register("password", {

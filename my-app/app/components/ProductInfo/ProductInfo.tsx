@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
@@ -22,6 +22,7 @@ import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import SmallImageCarouselProductInfo from "./SmallImageCarouselProductInfo";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -30,11 +31,31 @@ interface DecodedToken extends JwtPayload {
 const ProductInfo = () => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const { isOpen, productData, closeProductDetails } = useProductDetails();
-  const [bigImage, setBigImage] = useState<string>("");
+  const [bigImage, setBigImage] = useState<any>("");
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [actualQuantity, setActualQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number>(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { toast } = useToast();
+
+
+  const { data: basketData } = useQuery(BASKET_QUERY, {
+    variables: { userId: decodedToken?.userId },
+    skip: !decodedToken?.userId,
+  });
+
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+
+  const {
+    products: storedProducts,
+    addProductToBasket,
+    increaseProductInQtBasket
+  } = useProductsInBasketStore();
+
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -44,68 +65,77 @@ const ProductInfo = () => {
     }
   }, []);
 
-  const { toggleIsUpdated } = useBasketStore((state) => ({
-    isUpdated: state.isUpdated,
-    toggleIsUpdated: state.toggleIsUpdated,
-  }));
+  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-  const handleAddQuantity = useCallback(() => {
-    setActualQuantity((prevQuantity) =>
-      productData && prevQuantity < productData.inventory
-        ? prevQuantity + 1
-        : prevQuantity,
-    );
-  }, [productData]);
 
-  const handleSubtractQuantity = useCallback(() => {
-    setActualQuantity((prevQuantity) =>
-      prevQuantity > 1 ? prevQuantity - 1 : 1,
-    );
-  }, []);
-  const { addProductToBasket, products, increaseProductInQtBasket } =
-    useProductsInBasketStore((state) => ({
-      increaseProductInQtBasket: state.increaseProductInQtBasket,
-      addProductToBasket: state.addProductToBasket,
-      products: state.products,
-    }));
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !decodedToken?.userId,
-  });
-  const { data: basketData } = useQuery(BASKET_QUERY, {
-    variables: { userId: decodedToken?.userId },
-  });
-  const AddToBasket = async (product: any) => {
+  const productsInBasket = useMemo(() => {
+    if (decodedToken?.userId && basketData?.basketByUserId) {
+      return basketData.basketByUserId.find(
+        (item: any) => item.Product.id === productData?.id
+      );
+    }
+    return storedProducts.find((product: any) => product.id === productData?.id);
+  }, [decodedToken, basketData, storedProducts]);
+
+
+  const handleIncreaseQuantity = useCallback(() => {
+    if (quantity < productData?.inventory) {
+      setQuantity(prev => prev + 1);
+    }
+  }, [quantity, productData?.inventory]);
+
+  const handleDecreaseQuantity = useCallback(() => {
+    if (quantity > 1) {
+      setQuantity(prev => prev - 1);
+    }
+  }, [quantity]);
+
+
+
+
+
+
+  const AddToBasket = async (product: any, quantity: number = 1) => {
+    const price = product.productDiscounts.length > 0
+      ? product.productDiscounts[0].newPrice
+      : product.price;
+    const addToCartData = {
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.id,
+      },
+      custom_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        value: price * quantity,
+        currency: "TND",
+      },
+    };
+
     if (decodedToken) {
       try {
-        // Find if the product is already in the basket
-        const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
-        );
-
-        const currentBasketQuantity = existingBasketItem
-          ? existingBasketItem.quantity
+        const currentBasketQuantity = productsInBasket
+          ? productsInBasket.quantity
           : 0;
-        const totalQuantity = currentBasketQuantity + actualQuantity;
 
-        // Check if the total quantity exceeds the inventory
-        if (totalQuantity > product.inventory) {
+        if (currentBasketQuantity + quantity > product.inventory) {
           toast({
             title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock. Votre panier contient déjà ${currentBasketQuantity} unités.`,
+            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
             className: "bg-red-600 text-white",
           });
           return;
         }
 
-        // If everything is okay, proceed with adding to basket
         await addToBasket({
           variables: {
             input: {
               userId: decodedToken?.userId,
-              quantity: actualQuantity,
+              quantity,
               productId: product.id,
             },
           },
@@ -118,27 +148,10 @@ const ProductInfo = () => {
           onCompleted: () => {
             toast({
               title: "Produit ajouté au panier",
-              description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${product?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+              description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
               className: "bg-primaryColor text-white",
             });
-            // Track Add to Cart
-            triggerEvents("AddToCart", {
-              user_data: {
-                em: [userData?.fetchUsersById.email.toLowerCase()],
-                fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number],
-                country: ["tn"],
-                external_id: userData?.fetchUsersById.id,
-              },
-              content_name: product.name,
-              content_type: "product",
-              content_ids: [product.id],
-              value:
-                product.productDiscounts.length > 0
-                  ? product.productDiscounts[0].newPrice
-                  : product.price,
-              currency: "TND",
-            });
+            triggerEvents("AddToCart", addToCartData);
             pushToDataLayer("AddToCart");
           },
         });
@@ -146,64 +159,39 @@ const ProductInfo = () => {
         console.error("Error adding to basket:", error);
         toast({
           title: "Erreur",
-          description:
-            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+          description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
           className: "bg-red-600 text-white",
         });
       }
     } else {
-      const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
-      );
-      if (!isProductAlreadyInBasket) {
-        if (actualQuantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-            className: "bg-red-600 text-white",
-          });
-          return;
-        }
+      const isProductAlreadyInBasket = storedProducts.some((p: any) => p.id === product?.id);
+      const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+
+      if (filteredProduct && filteredProduct.actualQuantity + quantity > product.inventory) {
+        toast({
+          title: "Quantité non disponible",
+          description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+          className: "bg-red-600 text-white",
+        });
+        return;
+      }
+
+      if (isProductAlreadyInBasket) {
+        increaseProductInQtBasket(product.id, quantity);
+      } else {
         addProductToBasket({
           ...product,
-          price:
-            product.productDiscounts.length > 0
-              ? product?.productDiscounts[0]?.newPrice
-              : product?.price,
-          actualQuantity: actualQuantity,
-        });
-        toast({
-          title: "Produit ajouté au panier",
-          description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${product?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-          className: "bg-green-600 text-white",
-        });
-      } else {
-        increaseProductInQtBasket(product.id);
-
-        toast({
-          title: "Produit déjà dans le panier",
-          description: `"${product?.name}" est déjà dans votre panier. Vous pouvez modifier la quantité dans le panier.`,
-          className: "bg-blue-600 text-white",
+          price,
+          actualQuantity: quantity,
         });
       }
-      // Track Add to Cart
-      triggerEvents("AddToCart", {
-        user_data: {
-          em: [userData?.fetchUsersById.email.toLowerCase()],
-          fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number],
-          country: ["tn"],
-          external_id: userData?.fetchUsersById.id,
-        },
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        value:
-          product.productDiscounts.length > 0
-            ? product.productDiscounts[0].newPrice
-            : product.price,
-        currency: "TND",
+
+      toast({
+        title: "Produit ajouté au panier",
+        description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+        className: "bg-green-600 text-white",
       });
+      triggerEvents("AddToCart", addToCartData);
       pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
@@ -220,11 +208,13 @@ const ProductInfo = () => {
       window.removeEventListener("mousemove", moveCursor);
     };
   }, [productData]);
+
+
   return (
     <>
       <div
         onClick={closeProductDetails}
-        className={`productDetails  fixed cursor-none z-[14514]    ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`productData  fixed cursor-none z-[14514]    ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
       >
         <IoCloseOutline
           size={40}
@@ -242,7 +232,7 @@ const ProductInfo = () => {
           className="absolute bg-white rounded-full p-2  hover:rotate-180 transition-all cursor-pointer -right-0 -top-0"
         />
         <div className="details    flex flex-col justify-center items-start   lg:flex-row   ">
-          <div className="flex  relative md:w-2/4   justify-center items-center flex-col gap-2 text-center">
+          <div className="flex  relative max-w-full lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
             <div className=" relative  border-2  h-fit md:max-w-md flex items-center justify-center p-1 ">
               <InnerImageZoom
                 className="relative  rounded object-cover"
@@ -250,30 +240,17 @@ const ProductInfo = () => {
                 src={bigImage || ""}
                 zoomType="hover"
                 zoomScale={1.5}
+                hideHint={true}
+
               />
             </div>
-            <div className="mt-6 flex justify-center gap-3">
-              {productData?.images?.map((image: string, index: number) => (
-                <div
-                  key={index}
-                  className={`shadow-md w-20 h-20 md:w-24 md:h-24 rounded-md p-[7px] ${
-                    image === bigImage ? "border-2 border-secondaryColor" : ""
-                  }`}
-                >
-                  <Image
-                    src={image || ""}
-                    alt={`Product Image ${index + 1}`}
-                    layout="responsive"
-                    height={30}
-                    width={30}
-                    className="w-8 h-8 cursor-pointer"
-                    onMouseEnter={() => {
-                      setBigImage(image);
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
+
+            <SmallImageCarouselProductInfo
+              images={productData?.images}
+              bigImage={bigImage}
+              setBigImage={setBigImage}
+            />
+
           </div>
 
           <div className="productData lg:w-2/4 w-full ">
@@ -287,7 +264,7 @@ const ProductInfo = () => {
                   : productData?.price.toFixed(3)}{" "}
                 <span className="text-2xl">TND</span>
                 {!productData?.productDiscounts[0] && (
-                  <span className="text-sm text-gray-400 ml-2 font-medium">
+                  <span className="text-sm text-lightBlack ml-2 font-medium">
                     TTC
                   </span>
                 )}
@@ -307,7 +284,7 @@ const ProductInfo = () => {
                       TND
                     </span>
                   </p>
-                  <span className="text-sm">TTC</span>
+                  <span className="text-sm text-lightBlack">TTC</span>
                 </div>
               )}
             </div>
@@ -320,46 +297,27 @@ const ProductInfo = () => {
                 <h3 className="text-lg tracking-wider font-bold  capitalize text-primaryColor">
                   Quantité
                 </h3>
-                {/* <div className="flex divide-x border w-max overflow-y-scrollounded-md">
+
+                <div className="flex items-center gap-2 divide-x-0 overflow-hidden">
                   <button
                     type="button"
-                    className="bg-lightBeige hover:bg-secondaryColor transition-all  px-3 py-1 font-semibold cursor-pointer"
-                    onClick={handleSubtractQuantity}
+                    className="bg-secondaryColor opacity-80 hover:opacity-75 transition-opacity text-white w-fit h-fit p-2 text-sm font-semibold cursor-pointer"
+                    disabled={quantity == 1}
+                    onClick={handleDecreaseQuantity}
                   >
                     <RiSubtractFill />
                   </button>
                   <button
                     type="button"
-                    className="bg-transparent px-3 py-1 font-semibold text-[#333] text-md"
+                    className="bg-transparent px-4 py-2 h-full border shadow-md font-semibold text-[#333] text-md"
                   >
-                    {actualQuantity}
+                    {quantity}
                   </button>
                   <button
                     type="button"
-                    className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-primaryColor text-white px-3 py-1 font-semibold cursor-pointer`}
-                    onClick={handleAddQuantity}
-                  >
-                    <FaPlus />
-                  </button>
-                </div> */}
-                <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
-                  <button
-                    type="button"
-                    className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
-                    onClick={handleSubtractQuantity}
-                  >
-                    <RiSubtractFill />
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
-                  >
-                    {actualQuantity}
-                  </button>
-                  <button
-                    type="button"
-                    className={`${actualQuantity === productData?.inventory && "opacity-45"} bg-primaryColor text-white px-3 py-1 font-semibold cursor-pointer`}
-                    onClick={handleAddQuantity}
+                    className={`${quantity === productData?.inventory ? "opacity-45" : ""} w-fit transition-opacity h-fit bg-secondaryColor text-white p-2 text-sm hover:opacity-75 font-semibold cursor-pointer`}
+                    disabled={quantity === productData?.inventory}
+                    onClick={handleIncreaseQuantity}
                   >
                     <FaPlus />
                   </button>
@@ -389,7 +347,7 @@ const ProductInfo = () => {
                 className={`text-lg font-semibold flex gap-3 items-center ${productData?.inventory !== undefined && productData.inventory > 0 ? "text-green-600" : "text-red-600"}`}
               >
                 {productData?.inventory !== undefined &&
-                productData.inventory <= 0 ? (
+                  productData?.inventory <= 0 ? (
                   <>
                     <IoMdCloseCircleOutline />
                     En Rupture
@@ -399,23 +357,22 @@ const ProductInfo = () => {
                 )}
               </p>
 
-              {productData?.inventory !== undefined &&
-                productData?.inventory > 0 &&
-                actualQuantity === productData.inventory && (
-                  <div className="flex items-center gap-3">
-                    <GoAlertFill color="yellow" size={20} />
-                    <p className="text-red-600 font-semibold tracking-wider">
-                      La quantité maximale de produits est de {actualQuantity}.
-                    </p>
-                  </div>
-                )}
+              {quantity === productData?.inventory && (
+                <div className="flex items-center text-sm gap-3 ">
+                  <GoAlertFill color="red" size={20} />
+                  <p className="text-red-600 font-semibold tracking-wider">
+                    La quantité maximale de produits est de {quantity}
+                    .
+                  </p>
+                </div>
+              )}
 
               <button
                 disabled={productData?.inventory <= 0}
                 type="button"
-                className={`${productData?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold rounded`}
+                className={`${productData?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-secondaryColor text-white text-sm font-bold rounded`}
                 onClick={() => {
-                  AddToBasket(productData);
+                  AddToBasket(productData, 1);
                 }}
               >
                 <SlBasket />

@@ -1,13 +1,12 @@
 import React from "react";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
 import dynamic from "next/dynamic";
-import "../../app/globals.css";
+import "../globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 const DrawerMobile = dynamic(
   () => import("../components/Header/MobileDrawer/DrawerMobile"),
-  { ssr: false },
+  { ssr: false }
 );
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -20,9 +19,6 @@ if (process.env.NODE_ENV !== "production") {
   loadErrorMessages();
 }
 
-const openSans = Open_Sans({
-  subsets: ["cyrillic"],
-});
 if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
   throw new Error("BASE_URL_DOMAIN is not defined");
 }
@@ -32,7 +28,7 @@ export const metadata: Metadata = {
     "Vente en ligne en Tunisie : Découvrez des offres exclusives sur notre plateforme",
   description:
     "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits. Commandez dès maintenant !",
-  keywords: keywords,
+  keywords: keywords.join(","),
 
   openGraph: {
     type: "website",
@@ -42,9 +38,9 @@ export const metadata: Metadata = {
       "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits. Commandez dès maintenant !",
     images: [
       {
-        url: "../favicon.ico",
-        width: 800,
-        height: 600,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
         alt: "ita-luxury",
       },
     ],

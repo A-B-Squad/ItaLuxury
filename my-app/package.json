@@ -6,9 +6,11 @@
     "dockerBuild": "docker-compose up --build ",
     "dockerUp": "docker-compose up ",
     "dockerWatch": "docker-compose watch ",
-    "dev": "next dev --experimental-https ",
+    "dev": "next dev -p 4000 ",
+    "start": "next start  ",
     "build": "next build",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sitemap": "next-sitemap"
   },
   "dependencies": {
     "@apollo/client": "^3.9.4",
@@ -21,6 +23,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
+    "@react-hook/media-query": "^1.1.1",
     "@types/lodash": "^4.17.5",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
@@ -37,6 +40,7 @@
     "moment-timezone": "^0.5.45",
     "next": "^14.2.5",
     "next-cloudinary": "^6.6.2",
+    "next-sitemap": "^4.2.3",
     "nodemailer": "^6.9.13",
     "radix-ui": "^1.0.1",
     "react": "^18",

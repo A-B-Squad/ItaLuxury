@@ -10,6 +10,7 @@ export const fetchUsersById = async (_: any, { userId }: { userId: string }, { p
                 }
                 ,
                 include: {
+                    baskets:true,
                     checkout: {
                         include: {
                             package: true,

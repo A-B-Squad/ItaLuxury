@@ -6,9 +6,29 @@ import React from "react";
 import DeliveryPage from "./DeliveryPage";
 
 export const metadata: Metadata = {
-  title: "Livraison",
-  description: "ita-luxury.tn",
-  keywords: keywords,
+  title:
+    "Livraison et retours - ITA Luxury | Livraison rapide et fiable en Tunisie",
+  description:
+    "Découvrez nos options de livraison rapide et fiable pour tous vos achats sur ita-luxury.com.",
+  keywords: keywords.join(","),
+
+  openGraph: {
+    title:
+      "Livraison et retours - ITA Luxury | Livraison rapide et fiable en Tunisie",
+    description:
+      "Découvrez nos options de livraison rapide et fiable pour tous vos achats sur ita-luxury.com.",
+
+    type: "website",
+    url: "https://www.ita-luxury.com/Delivery",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Contactez ita-luxury",
+      },
+    ],
+  },
 };
 const page = () => {
   return (

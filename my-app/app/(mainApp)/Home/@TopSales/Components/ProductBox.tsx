@@ -115,7 +115,7 @@ const ProductBox = ({ product }: any) => {
           actualQuantity: 1,
         });
       } else {
-        increaseProductInQtBasket(product.id);
+        increaseProductInQtBasket(product.id,1);
       }
 
       // Track Add to Cart

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "ita-luxury - Votre boutique en ligne de confiance en Tunisie",
   description:
     "Découvrez ita-luxury, la meilleure plateforme de vente en ligne en Tunisie. Profitez d'une large gamme de produits de qualité, des offres exclusives et une livraison rapide.",
-  keywords: keywords,
+  keywords: keywords.join(","),
   openGraph: {
     title: "ita-luxury - Votre boutique en ligne en Tunisie",
     description:
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com",
     images: [
       {
-        url: "/favicon.ico",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne",
@@ -28,7 +28,14 @@ export const metadata: Metadata = {
     title: "ita-luxury - Votre boutique en ligne en Tunisie",
     description:
       "Découvrez notre sélection de produits de qualité et nos offres exclusives. Livraison rapide partout en Tunisie.",
-    images: ["/images/home-twitter.jpg"],
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "ita-luxury - Boutique en ligne",
+      },
+    ],
   },
   alternates: {
     canonical: "https://www.ita-luxury.com",

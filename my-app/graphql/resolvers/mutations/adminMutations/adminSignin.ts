@@ -9,6 +9,7 @@ export const adminSignIn = async (
   { prisma, jwtSecret, res }: Context
 ): Promise<string> => {
   const { fullName, password, role } = input;
+  console.log("tokennnnnnnnnnnnnnn","#######################################################################################");
 
   try {
     // Check if the user exists
@@ -29,12 +30,11 @@ export const adminSignIn = async (
 
     // Generate JWT token with 5 hour expiration
     const token = jwt.sign({ userId: existingAdmin.id,role:existingAdmin.role }, jwtSecret, {
-      expiresIn: "5h",
+      expiresIn: "30d",
     });
 
-    // Calculate expiration date (5 hours from now)
-    const expirationDate = new Date(Date.now() + 5 * 60 * 60 * 1000);
-
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
     // Set the cookie with a domain that covers both the admin and user projects
     res.setHeader(
       "Set-Cookie",

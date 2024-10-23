@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Paiement Sécurisé - ita-luxury | Finaliser votre commande",
   description:
     "Procédez au paiement sécurisé de votre commande sur ita-luxury. Options de paiement variées et processus de commande simple pour votre achat en ligne en Tunisie.",
-  keywords: keywords,
+  keywords: keywords.join(","),
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/checkout`,
     type: "website",
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     description: "Procédez au paiement de votre commande sur ita-luxury.",
     images: [
       {
-        url: "../../../public/LOGO.png",
-        width: 800,
-        height: 600,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
         alt: "ita-luxury",
       },
     ],

@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@apollo/client";
 import { CATEGORY_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
 import jwt from "jsonwebtoken";
+import prepRoute from "@/app/Helpers/_prepRoute";
 
 interface DecodedToken extends jwt.JwtPayload {
   userId: string;
@@ -107,7 +108,8 @@ const Footer = () => {
               (category: { name: string; id: string }, subIndex: number) => (
                 <li key={subIndex}>
                   <Link
-                    href={`/Collections/tunisie/?category=${category?.id}`}
+                    href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
+
                     className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                   >
                     {category?.name}
@@ -156,14 +158,14 @@ const Footer = () => {
               Mes Commandes
             </Link>
             <Link
-              href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
+              href={"/FavoriteList" }
               className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
             >
               Ma Liste D'envies
             </Link>
 
             <Link
-              href={""}
+              href={"/Basket"}
               className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
             >
               Mes listes de souhaits
@@ -188,11 +190,11 @@ const Footer = () => {
               S'ABONNER
             </button>
           </form>
-          <p className="mt-2 text-sm">
+          <span className="mt-2 text-sm">
             Vous pouvez vous désinscrire à tout moment. Vous trouverez pour cela
             nos informations de contact dans les conditions d'utilisation du
             site.
-          </p>
+          </span>
         </div>
       </div>
       {/* Mobile accordion */}
@@ -227,8 +229,8 @@ const Footer = () => {
                 {categories.map((category: { name: string; id: string }) => (
                   <li key={category?.id} className="py-2">
                     <Link
-                      href={`/Collections/tunisie/?category=${category?.id}`}
-                      className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 "
+                    href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
+                    className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 "
                     >
                       {category?.name}
                     </Link>
@@ -248,13 +250,13 @@ const Footer = () => {
                   Livraison
                 </Link>
                 <Link
-                  href={""}
+                  href={"/Privacy-Policy"}
                   className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                 >
                   Politique de Confidentialité
                 </Link>
                 <Link
-                  href={""}
+                  href={"/Terms-of-use"}
                   className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                 >
                   Conditions d'utilisation
@@ -286,7 +288,7 @@ const Footer = () => {
                 </Link>
 
                 <Link
-                  href={""}
+                  href={"/Basket"}
                   className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                 >
                   Mes listes de souhaits
@@ -307,7 +309,7 @@ const Footer = () => {
         />
       </div>
       <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors ">
-        © 2024 ita-luxury.Tn By ita-luxury Team
+        © 2024 ita-luxury.com By ita-luxury Team
       </div>
     </div>
   );

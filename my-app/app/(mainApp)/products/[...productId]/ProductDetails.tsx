@@ -3,10 +3,9 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  FaCheck,
-  FaCheckDouble,
+
   FaPlus,
   FaRegHeart,
   FaStar,
@@ -28,6 +27,8 @@ import {
   ADD_RATING_MUTATION,
   ADD_TO_BASKET_MUTATION,
   ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
+  INCREASE_QUANTITY_MUTATION,
+  DECREASE_QUANTITY_MUTATION,
 } from "../../../../graphql/mutations";
 import Breadcumb from "../../../components/Breadcumb";
 import PopHover from "../../../components/PopHover";
@@ -40,13 +41,13 @@ import {
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "../../../store/zustand";
-import Image from "next/legacy/image";
 import moment from "moment-timezone";
 import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
 import { HiOutlineBellAlert } from "react-icons/hi2";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import triggerEvents from "@/utlils/trackEvents";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import SmallImageCarousel from "./Components/SmallImageCarousel";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -68,18 +69,21 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   const [threeStar, setThreeStar] = useState<number>(0);
   const [fourStar, setFourStar] = useState<number>(0);
   const [fiveStar, setFiveStar] = useState<number>(0);
-  const [actualQuantity, setActualQuantity] = useState<number>(1);
-  const [quantity, setQuantity] = useState<number>(0);
   const [attributes, setAttributes] = useState<any>(null);
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState("");
   const [isBottom, setIsBottom] = useState<Boolean>(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [quantity, setQuantity] = useState<number>(1);
+
   const { openBasketDrawer } = useDrawerBasketStore();
+
+
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
   const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
+  const [addRating] = useMutation(ADD_RATING_MUTATION);
 
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
@@ -94,15 +98,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       },
     });
 
-  useEffect(() => {
-    setBigImage(productDetails.images[0]);
-    setSmallImages(productDetails.images);
-    setDiscount(productDetails.productDiscounts[0]);
-    setAttributes(productDetails.attributes);
-    setQuantity(productDetails.inventory);
-  }, []);
+  // Query the basket first
 
-  const [addRating] = useMutation(ADD_RATING_MUTATION);
+  const { data: basketData } = useQuery(BASKET_QUERY, {
+    variables: { userId: decodedToken?.userId },
+    skip: !decodedToken?.userId,
+
+  });
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
@@ -111,9 +113,21 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     skip: !decodedToken?.userId,
   });
 
+  const {
+    products: storedProducts,
+    addProductToBasket,
+    increaseProductInQtBasket
+  } = useProductsInBasketStore();
+
+  useEffect(() => {
+    setBigImage(productDetails.images[0]);
+    setSmallImages(productDetails.images);
+    setDiscount(productDetails.productDiscounts[0]);
+    setAttributes(productDetails.attributes);
+  }, []);
+
   useEffect(() => {
     if (!productDetails) return;
-
     const {
       name,
       id,
@@ -171,6 +185,19 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     });
     pushToDataLayer("ViewContent");
   }, [productDetails]);
+
+  const productsInBasket = useMemo(() => {
+    if (decodedToken?.userId && basketData?.basketByUserId) {
+      return basketData.basketByUserId.find(
+        (item: any) => item.Product.id === productId
+      );
+    }
+    return storedProducts.find((product: any) => product.id === productId);
+  }, [decodedToken, basketData, storedProducts, productId]);
+
+
+
+
   const handleMouseEnter = (title: any) => {
     setShowPopover(true);
     setPopoverTitle(title);
@@ -180,6 +207,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     setShowPopover(false);
     setPopoverTitle("");
   };
+
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
   const { addProductToCompare, productsInCompare } = useComparedProductsStore(
@@ -189,35 +217,40 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     }),
   );
 
-  const { addProductToBasket, products, increaseProductInQtBasket } =
-    useProductsInBasketStore((state) => ({
-      increaseProductInQtBasket: state.increaseProductInQtBasket,
-      addProductToBasket: state.addProductToBasket,
-      products: state.products,
-    }));
 
-  // Query the basket first
-  const { data: basketData } = useQuery(BASKET_QUERY, {
-    variables: { userId: decodedToken?.userId },
-  });
   const AddToBasket = async (product: any) => {
+    const price = product.productDiscounts.length > 0
+      ? product.productDiscounts[0].newPrice
+      : product.price;
+    const addToCartData = {
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.id,
+      },
+      custom_data: {
+        content_name: productDetails.name,
+        content_type: "product",
+        content_ids: [productDetails.id],
+        value: price,
+        currency: "TND",
+      },
+
+    };
+
+
     if (decodedToken) {
       try {
-        // Find if the product is already in the basket
-        const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
-        );
-
-        const currentBasketQuantity = existingBasketItem
-          ? existingBasketItem.quantity
+        const currentBasketQuantity = productsInBasket
+          ? productsInBasket.quantity
           : 0;
-        const totalQuantity = currentBasketQuantity + actualQuantity;
 
-        // Check if the total quantity exceeds the inventory
-        if (totalQuantity > product.inventory) {
+        if (currentBasketQuantity + quantity > product.inventory) {
           toast({
             title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock. Votre panier contient déjà ${currentBasketQuantity} unités.`,
+            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
             className: "bg-red-600 text-white",
           });
           return;
@@ -228,7 +261,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           variables: {
             input: {
               userId: decodedToken?.userId,
-              quantity: actualQuantity,
+              quantity: quantity,
               productId: product.id,
             },
           },
@@ -241,29 +274,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           onCompleted: () => {
             toast({
               title: "Produit ajouté au panier",
-              description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+              description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
               className: "bg-primaryColor text-white",
             });
             // Track Add to Cart
-            triggerEvents("AddToCart", {
-              user_data: {
-                em: [userData?.fetchUsersById.email.toLowerCase()],
-                fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number],
-                country: ["tn"],
-                external_id: userData?.fetchUsersById.id,
-              },
-              custom_data: {
-                content_name: productDetails.name,
-                content_type: "product",
-                content_ids: [productDetails.id],
-                value:
-                  productDetails.productDiscounts.length > 0
-                    ? productDetails.productDiscounts[0].newPrice
-                    : productDetails.price,
-                currency: "TND",
-              },
-            });
+            triggerEvents("AddToCart", addToCartData);
             pushToDataLayer("AddToCart");
           },
         });
@@ -276,60 +291,56 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           className: "bg-red-600 text-white",
         });
       }
+
     } else {
-      const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
-      );
-      if (!isProductAlreadyInBasket) {
-        if (actualQuantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-            className: "bg-red-600 text-white",
-          });
-          return;
-        }
+      const isProductAlreadyInBasket = storedProducts.some((p: any) => p.id === product?.id);
+      const filteredProduct = storedProducts.filter((p: any) => p.id === product?.id)[0];
+
+      if (filteredProduct && filteredProduct.actualQuantity == product.inventory) {
+        toast({
+          title: "Quantité non disponible",
+          description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+          className: "bg-red-600 text-white",
+        });
+        return;
+      }
+
+      if (isProductAlreadyInBasket) {
+        increaseProductInQtBasket(product.id, quantity);
+      } else {
         addProductToBasket({
           ...product,
-          price:
-            product.productDiscounts.length > 0
-              ? product?.productDiscounts[0]?.newPrice
-              : product?.price,
-          actualQuantity: actualQuantity,
+          price,
+          actualQuantity: quantity,
         });
-        toast({
-          title: "Produit ajouté au panier",
-          description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-          className: "bg-green-600 text-white",
-        });
-      } else {
-        increaseProductInQtBasket(product.id);
       }
-      // Track Add to Cart
-      triggerEvents("AddToCart", {
-        user_data: {
-          em: [userData?.fetchUsersById.email.toLowerCase()],
-          fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number],
-          country: ["tn"],
-          external_id: userData?.fetchUsersById.id,
-        },
-        custom_data: {
-          content_name: productDetails.name,
-          content_type: "product",
-          content_ids: [productDetails.id],
-          value:
-            productDetails.productDiscounts.length > 0
-              ? productDetails.productDiscounts[0].newPrice
-              : productDetails.price,
-          currency: "TND",
-        },
+
+      toast({
+        title: "Produit ajouté au panier",
+        description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+        className: "bg-green-600 text-white",
       });
+      triggerEvents("AddToCart", addToCartData);
       pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
     openBasketDrawer();
   };
+
+
+
+
+  const handleIncreaseQuantity = useCallback(() => {
+    if (quantity < productDetails.inventory) {
+      setQuantity(prev => prev + 1);
+    }
+  }, [quantity, productDetails.inventory]);
+
+  const handleDecreaseQuantity = useCallback(() => {
+    if (quantity > 1) {
+      setQuantity(prev => prev - 1);
+    }
+  }, [quantity]);
 
   useEffect(() => {
     getReviews({
@@ -370,6 +381,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       },
     });
   }, [rating]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const currentIndex = smallImages?.indexOf(bigImage);
@@ -447,6 +459,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       });
     }
   };
+
   const handleToggleFavorite = () => {
     if (!decodedToken?.userId) {
       toast({
@@ -483,20 +496,21 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           <div>
             <Breadcumb />
 
-            <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm  ">
-              <div className="md:sticky top-0 lg:top-5  z-50 flex lg:flex-row flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
-                <div className="relative shadow-sm overflow-hidden    flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
+            <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm gap-2 ">
+              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 flex lg:flex-row-reverse flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
+                <div className="relative shadow-sm overflow-hidden   flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
                   <InnerImageZoom
                     className=" h-fit flex items-center justify-center rounded "
                     zoomSrc={bigImage || ""}
                     src={bigImage || ""}
                     zoomType="hover"
                     zoomScale={1.5}
+                    hideHint={true}
+
                   />
                   <span
-                    className={
-                      "absolute top-2 right-0 p-2  bg-primaryColor text-xs font-400 text-white"
-                    }
+                    className={`absolute top-2 right-2 p-2 ${productDetails?.inventory > 1 ? "bg-blueColor" : productDetails?.inventory === 1 ? "bg-gray-400 " : "bg-gray-400"} bg-blue text-xs font-400 text-white`}
+
                   >
                     {productDetails?.inventory > 1
                       ? "EN STOCK"
@@ -505,25 +519,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         : "RUPTURE DE STOCK"}
                   </span>
                 </div>
-                <div className="mt-6 flex lg:flex-col items-center lg:self-start justify-center gap-3 px-2 py-2 ">
-                  {smallImages?.map((image: string, index: number) => (
-                    <div
-                      key={index}
-                      className={`${image === bigImage ? "border-secondaryColor" : ""} cursor-pointer border-b-2  h-fit   flex p-1`}
-                    >
-                      <Image
-                        width={90}
-                        height={90}
-                        objectFit="contain"
-                        src={image}
-                        alt="Product2"
-                        onMouseEnter={() => {
-                          setBigImage(image);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
+                <SmallImageCarousel
+                  images={smallImages}
+                  bigImage={bigImage}
+                  setBigImage={setBigImage}
+                />
               </div>
 
               <div className="product  lg:col-span-6 col-span-12 p-3 w-full ">
@@ -531,25 +531,36 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   {productDetails?.name}
                 </h2>
 
-                <div className="discount flex    flex-col  gap-1 mt-4">
-                  <p className="text-primaryColor tracking-wide text-3xl font-bold">
+                <div className="prices discount flex    flex-col  gap-3  mt-2">
+                  <div className=" text-primaryColor flex items-center gap-3 tracking-wide text-2xl font-bold">
+
+
                     {discount
-                      ? discount.newPrice.toFixed(3)
-                      : productDetails?.price.toFixed(3)}{" "}
-                    <span className="text-2xl ">TND</span>
+                      ? <p className="text-gray-400 line-through 	text-lg" >{productDetails?.price.toFixed(3)} TND</p>
+                      : <p className=" font-bold">
+                        {productDetails?.price.toFixed(3)} TND
+                      </p>
+                    }
+
+                    {discount
+                      ? <p className="text-red-500  font-bold"> {discount.newPrice.toFixed(3)} TND</p>
+                      : ""
+                    }
+
+
+
                     {!discount && (
                       <span className="text-sm text-gray-400 ml-2 font-medium">
                         TTC
                       </span>
-                    )}
-                  </p>
+                    )
+                    }
+                  </div>
 
                   {discount && countdown && (
                     <>
                       <div className="text-gray-400 tracking-wide flex items-center text-xl gap-2">
-                        <p className="line-through text-gray-700 font-semibold">
-                          {discount.price.toFixed(3)} TND
-                        </p>{" "}
+
                         <p className="text-sm bg-blue-800 text-white p-1">
                           Économisez
                           <span className="font-bold ml-1 ">
@@ -568,7 +579,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                               jrs,{" "}
                               {Math.floor(
                                 (countdown % (1000 * 60 * 60 * 24)) /
-                                  (1000 * 60 * 60),
+                                (1000 * 60 * 60),
                               )}{" "}
                               hrs,{" "}
                               {Math.floor(
@@ -601,7 +612,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     </h3>
 
                     <div
-                      className="product-description text-sm tracking-wide font-extralight border-b-2 border-dashed "
+                      className="product-description text-sm tracking-wide font-extralight border-b-2 border-dashed pb-6"
                       dangerouslySetInnerHTML={{
                         __html: productDetails?.description,
                       }}
@@ -610,16 +621,16 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
 
                 <div className={` user_interaction flex flex-col gap-2 mt-4`}>
-                  {actualQuantity === quantity && (
+                  {quantity === productDetails?.inventory && (
                     <div className="flex items-center text-sm gap-3 ">
                       <GoAlertFill color="red" size={20} />
                       <p className="text-red-600 font-semibold tracking-wider">
-                        La quantité maximale de produits est de {actualQuantity}
+                        La quantité maximale de produits est de {quantity}
                         .
                       </p>
                     </div>
                   )}
-                  {quantity == 1 && (
+                  {productDetails?.inventory == 1 && (
                     <div className="flex text-sm items-center gap-3">
                       <HiOutlineBellAlert color="orange" size={20} />
                       <p className="text-red-600 font-semibold tracking-wider">
@@ -632,49 +643,39 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                       Quantité:{" "}
                     </h3>
 
-                    <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
+                    <div className="flex items-center gap-2 divide-x-0 overflow-hidden">
                       <button
                         type="button"
-                        className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
-                        onClick={() => {
-                          setActualQuantity(
-                            actualQuantity > 1 ? actualQuantity - 1 : 1,
-                          );
-                        }}
+                        className="bg-secondaryColor opacity-80 hover:opacity-75 transition-opacity text-white w-fit h-fit p-2 text-sm font-semibold cursor-pointer"
+                        disabled={quantity == 1}
+                        onClick={handleDecreaseQuantity}
                       >
                         <RiSubtractFill />
                       </button>
-
                       <button
                         type="button"
-                        className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
+                        className="bg-transparent px-4 py-2 h-full border shadow-md font-semibold text-[#333] text-md"
                       >
-                        {actualQuantity}
+                        {quantity}
                       </button>
                       <button
                         type="button"
-                        className={`${actualQuantity === quantity && "opacity-45"} w-fit h-fit  bg-primaryColor text-white p-2 text-sm  font-semibold cursor-pointer`}
-                        disabled={actualQuantity === productDetails?.inventory}
-                        onClick={() => {
-                          setActualQuantity(
-                            actualQuantity < productDetails?.inventory
-                              ? actualQuantity + 1
-                              : actualQuantity,
-                          );
-                        }}
+                        className={`${quantity === productDetails.inventory ? "opacity-45" : ""} w-fit transition-opacity h-fit bg-secondaryColor text-white p-2 text-sm hover:opacity-75 font-semibold cursor-pointer`}
+                        disabled={quantity === productDetails.inventory}
+                        onClick={handleIncreaseQuantity}
                       >
                         <FaPlus />
                       </button>
                     </div>
                   </div>
-                  <div className="addToBasket flex items-center mt-4  gap-4  ">
+                  <div className="addToBasket flex items-center mt-4  gap-2 md:gap-4  ">
                     <button
-                      disabled={quantity <= 0}
                       type="button"
-                      className={`${quantity <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[250px] transition-colors  py-4  shadow-lg bg-primaryColor hover:bg-secondaryColor text-white text-sm font-bold `}
+                      className={`$c{productDetails?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[250px] transition-colors  py-4  shadow-lg bg-secondaryColor hover:bg-secondaryColor text-white text-sm font-bold `}
                       onClick={() => {
                         AddToBasket(productDetails);
                       }}
+
                     >
                       Ajouter au panier
                     </button>
@@ -783,11 +784,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 </div>
 
                 <div className="Rating mt-8 lg:w-4/5 w-full">
-                  <div className="mt-8">
+                  <div >
                     <h3 className="text-lg font-bold text-primaryColor">
-                      Note globale ({reviews})
-                    </h3>
-                    <div className="space-y-4 mt-6 w-[340px] md:w-full">
+                      Note globale ({reviews})               </h3>
+                    <div className="space-y-4 mt-6  md:w-full">
                       {[
                         { rating: 5, value: fiveStar },
                         { rating: 4, value: fourStar },
@@ -853,10 +853,12 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           isBottom={isBottom}
           productId={productId}
           productDetails={productDetails}
-          addToBasket={addToBasket}
+          addToBasket={AddToBasket}
           discount={discount}
-          actualQuantity={actualQuantity}
-          setActualQuantity={setActualQuantity}
+          quantity={quantity}
+          handleIncreaseQuantity={handleIncreaseQuantity}
+          handleDecreaseQuantity={handleDecreaseQuantity}
+          userData={userData}
         />
       </div>
     </div>

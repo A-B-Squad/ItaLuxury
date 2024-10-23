@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com/productComparison",
     images: [
       {
-        url: "/images/product-comparison-og.jpg",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "Comparaison de Produits ita-luxury",
@@ -33,7 +33,14 @@ export const metadata: Metadata = {
     title: "Comparaison de Produits | ita-luxury",
     description:
       "Comparez facilement les produits sur ita-luxury. Trouvez le meilleur choix pour vous.",
-    images: ["/images/product-comparison-twitter.jpg"],
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Comparaison de Produits ita-luxury",
+      },
+    ],
   },
   alternates: {
     canonical: "https://www.ita-luxury.com/productComparison",

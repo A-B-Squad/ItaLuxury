@@ -263,11 +263,15 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     />
                   </div>
                   <input
+                    style={{
+                      WebkitAppearance: "none",
+                      appearance: "none",
+                    }}
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="********"
                     autoComplete="current-password"
-                    className={`block w-full pl-10 appearance-none	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
+                    className={`block w-full pl-10 	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
                       errors.password ? "border-red-300" : ""
                     }`}
                     {...register("password", {
@@ -406,11 +410,15 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     />
                   </div>
                   <input
+                    style={{
+                      WebkitAppearance: "none",
+                      appearance: "none",
+                    }}
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="********"
                     autoComplete="current-password"
-                    className={`block w-full pl-10 appearance-none	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
+                    className={`block w-full pl-10 	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
                       errors.password ? "border-red-300" : ""
                     }`}
                     {...register("password", {

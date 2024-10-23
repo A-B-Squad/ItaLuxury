@@ -34,44 +34,42 @@ const LeftAdsCarousel = ({
       )}
 
       {images.length > 0 && (
-        <div className="left-ads flex xl:flex-col max-w-[455px]  w-full h-full  gap-5 md:gap-12">
+        <div className="left-ads flex xl:flex-col xl:max-w-[455px]  w-full h-full  gap-5 md:gap-12">
           <Link
-            className="relative group  rounded-md border bg-white overflow-hidden w-[455px] max-w-full h-[230px] hover:opacity-90 transition-all "
+            className="relative group  rounded-sm border bg-white overflow-hidden w-[455px] max-h-[230px] h-full max-w-full hover:opacity-90 transition-all "
             href={AdsNextToCarousel[0]?.link}
           >
             <span
-              className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[70px] shadow-2xl   group-hover:block z-50 absolute bg-red-600 left-0 w-96 h-6 transition-all duration-500"
-              style={{ animation: "slide-diagonal 1.2s forwards" }}
+              className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[70px] shadow-2xl   group-hover:block z-50 absolute bg-red-600 left-0 w-80 h-6 transition-all duration-500"
+              style={{ animation: "slide-diagonal 1s forwards" }}
             ></span>
             <Image
               layout="responsive"
               width={360}
               height={208}
-              objectFit="contain"
               src={images[0]}
               loading="eager"
               property="true"
               alt="left-ads 0"
-              className="rounded-xl  transition-all"
+              className="  transition-all"
             />
           </Link>
           <Link
-            className="relative group  rounded-md bg-white border w-[455px] h-[230px] overflow-hidden  "
+            className="relative group  rounded-sm bg-white border w-[455px] max-h-[230px] h-full overflow-hidden  "
             href={AdsNextToCarousel[1]?.link}
           >
             <span
-              className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[70px] shadow-2xl   group-hover:block z-50 absolute bg-red-600 left-0 w-96 h-6 transition-all duration-500"
-              style={{ animation: "slide-diagonal 1.2s forwards" }}
+              className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[70px] shadow-2xl   group-hover:block z-50 absolute bg-red-600 left-0 w-80 h-6 transition-all duration-500"
+              style={{ animation: "slide-diagonal 1s forwards" }}
             ></span>
             <Image
               layout="responsive"
               width={360}
               height={208}
               src={images[1]}
-              objectFit="contain"
               loading="eager"
               alt="left-ads 2"
-              className="rounded-xl hover:opacity-50 transition-all"
+              className=" hover:opacity-50 transition-all"
             />
           </Link>
         </div>

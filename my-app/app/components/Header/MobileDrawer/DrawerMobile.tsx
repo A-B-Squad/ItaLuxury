@@ -9,11 +9,10 @@ import { FiUser, FiHeart } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
 import { GoPackageDependents } from "react-icons/go";
 import { IoGitCompare, IoHomeOutline } from "react-icons/io5";
-import { RiShoppingCartLine } from "react-icons/ri";
 import { GrContact } from "react-icons/gr";
 import { useDrawerMobileStore } from "../../../store/zustand";
 import Category from "./MainCategory";
-import { CATEGORY_QUERY } from "../../../../graphql/queries";
+import { CATEGORY_QUERY, FETCH_USER_BY_ID } from "../../../../graphql/queries";
 import Cookies from "js-cookie";
 import { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
@@ -47,21 +46,45 @@ function DrawerMobile() {
       setDecodedToken(decoded);
     }
   }, []);
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+  const handleLogout = async () => {
+    try {
+      // Supprimer le token
+      Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
 
-  const handleLogout = () => {
-    toast({
-      title: "Déconnexion réussie",
-      description:
-        "Vous avez été déconnecté avec succès. À bientôt sur ita-luxury.",
-      className: "bg-primaryColor text-white",
-    });
-    Cookies.remove("Token");
-    window.sessionStorage.removeItem("productsInBasket");
-    window.sessionStorage.removeItem("comparedProducts");
-    router.push("/");
-    window.location.reload();
+
+      // Nettoyer le sessionStorage
+      window.sessionStorage.removeItem("productsInBasket");
+      window.sessionStorage.removeItem("comparedProducts");
+
+      // Rediriger vers la page d'accueil
+      await router.push("https://www.ita-luxury.com");
+
+      // Afficher le toast de confirmation
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt sur ita-luxury",
+        className: "bg-primaryColor text-white",
+      });
+
+      // Recharger la page après un court délai
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: "Erreur de déconnexion",
+        description: "Veuillez réessayer plus tard",
+        variant: "destructive",
+      });
+    }
   };
-
   if (loading) {
     return <Loading />;
   }
@@ -85,11 +108,13 @@ function DrawerMobile() {
         <div className="px-2 py-3 flex items-center justify-center text-white bg-primaryColor">
           <Link
             href={`${decodedToken?.userId ? "/Collections/tunisie" : "/signin"}`}
-            className="font-bold text-xl flex items-center gap-2"
+            className="font-bold text-lg flex items-center gap-2"
+            onClick={closeCategoryDrawer}
           >
+
             <FaUser />
             {decodedToken?.userId
-              ? "Bonjour, utilisateur!"
+              ? <p>Bienvenue {userData?.fetchUsersById.fullName}</p>
               : "Bonjour, identifiez-vous pour continuer"}
           </Link>
           <IconButton
@@ -119,7 +144,7 @@ function DrawerMobile() {
         </div>
 
         {/* New navigation items */}
-        <div className="list items-center gap-5 cursor-pointer text-lg flex flex-col mt-4 px-7">
+        <div className="list items-center gap-5 cursor-pointer text-base flex flex-col mt-4 px-7">
           <ul className="flex flex-col gap-5 w-full">
             {!decodedToken?.userId && (
               <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
@@ -127,6 +152,8 @@ function DrawerMobile() {
                   rel="preload"
                   href={`/signin`}
                   className="flex items-center gap-2 w-full"
+                  onClick={closeCategoryDrawer}
+
                 >
                   <FiUser />
                   <span>Se connecter à votre compte</span>
@@ -136,17 +163,21 @@ function DrawerMobile() {
             {decodedToken?.userId && (
               <li
                 onClick={handleLogout}
-                className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+                className="logout flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+
               >
                 <IoIosLogOut />
                 <span>Déconnexion de votre compte</span>
+
               </li>
             )}
-            <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
+            <li className="home flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
                 href={`/`}
                 className="flex items-center gap-2 w-full"
+                onClick={closeCategoryDrawer}
+
               >
                 <IoHomeOutline />
                 <span>Page d'accueil</span>
@@ -157,6 +188,8 @@ function DrawerMobile() {
                 rel="preload"
                 href={`${decodedToken?.userId ? "/FavoriteList" : "/signin"}`}
                 className="flex items-center gap-2 w-full"
+                onClick={closeCategoryDrawer}
+
               >
                 <FiHeart />
                 <span>Mes produits favoris</span>
@@ -168,6 +201,8 @@ function DrawerMobile() {
                   rel="preload"
                   href={`/TrackingPackages`}
                   className="flex items-center gap-2 w-full"
+                  onClick={closeCategoryDrawer}
+
                 >
                   <GoPackageDependents />
                   <span>Suivre mes commandes</span>
@@ -179,6 +214,8 @@ function DrawerMobile() {
                 rel="preload"
                 href={"/productComparison"}
                 className="flex items-center gap-2 w-full"
+                onClick={closeCategoryDrawer}
+
               >
                 <IoGitCompare />
                 <span>Comparer les produits</span>
@@ -190,6 +227,8 @@ function DrawerMobile() {
                 rel="preload"
                 href={"/Contact-us"}
                 className="flex items-center gap-2 w-full"
+                onClick={closeCategoryDrawer}
+
               >
                 <GrContact />
                 <span>Nous contacter</span>
@@ -217,13 +256,15 @@ function DrawerMobile() {
         >
           <Link
             href={{
-              pathname: "/Collections/tunisie",
+              pathname: "/Collections/tunisie?page=1&section=Boutique",
               query: {
                 page: "1",
                 section: "Boutique",
               },
             }}
             className="capitalize font-bold w-full"
+            onClick={closeCategoryDrawer}
+
           >
             Voir tous les produits
           </Link>
