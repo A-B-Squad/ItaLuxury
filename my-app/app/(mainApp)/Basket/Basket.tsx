@@ -207,7 +207,7 @@ const Basket: React.FC = () => {
           },
         });
       } else {
-        increaseProductInQtBasket(productId);
+        increaseProductInQtBasket(productId,1);
       }
     },
     [decodedToken, increaseQuantity, handleQuantityChange]
@@ -347,6 +347,8 @@ const Basket: React.FC = () => {
                       <button
                         type="button"
                         className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
+                      disabled={product.actualQuantity === product?.inventory}
+                       
                         onClick={() =>
                           handleIncreaseQuantity(product.id, product.basketId)
                         }
@@ -355,22 +357,21 @@ const Basket: React.FC = () => {
                       </button>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {product?.productDiscounts?.length > 0 && (
+                  <TableCell className="w-[30%]">
+                    {product?.productDiscounts?.length > 0 && product.productDiscounts[0]?.newPrice && (
                       <h4 className="text-md w-max font-bold text-[#333]">
-                        {product.productDiscounts[0].newPrice.toFixed(3)} TND
+                        {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
                       </h4>
                     )}
                     <h4
-                      className={`text-base w-full font-semibold text-[#333] ${
-                        product?.productDiscounts?.length > 0
-                          ? " text-gray-700 line-through"
-                          : ""
-                      }`}
+                      className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0
+                        ? "text-gray-700 line-through"
+                        : ""
+                        }`}
                     >
-                      {product.price.toFixed(3)} TND
+                      {product.price ? Number(product.price).toFixed(3) : "0.00"} TND
                     </h4>
-                  </TableCell>{" "}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -388,7 +389,7 @@ const Basket: React.FC = () => {
                 {products.length} article{products.length > 1 ? "s" : ""}
               </span>
               <span className="font-semibold">
-                {Number(totalPrice).toFixed(3)} TND
+                {totalPrice ? Number(totalPrice).toFixed(3) : "0.000"} TND
               </span>
             </li>
             <li className="flex justify-between text-gray-600">

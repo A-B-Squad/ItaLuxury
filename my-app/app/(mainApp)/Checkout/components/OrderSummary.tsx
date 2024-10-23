@@ -13,6 +13,12 @@ interface OrderSummaryProps {
   deliveryPrice: number;
   calculateTotal: () => string;
   setCouponsId: (id: string) => void;
+  handlePreviousStep: any
+  isLoggedIn: any
+  handleNextStep: any
+  currentStep: number
+  isValid: boolean
+
 }
 interface Product {
   id: string;
@@ -32,6 +38,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   calculateTotal,
   total,
   setCouponsId,
+  handlePreviousStep, isLoggedIn, handleNextStep, currentStep, isValid
 }) => {
   const { toast } = useToast();
   const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
@@ -110,47 +117,50 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
       </div>
       <div className="summury bg-white border p-8">
         {/* Coupon Section */}
-        <div className="Coupons mt-6">
-          <div className="flex items-center justify-between mb-2">
-            <label htmlFor="coupon" className="block text-sm font-semibold">
-              Code promo
-            </label>
-            <button
-              type="button"
-              className="text-secondaryColor hover:text-blue-800 text-sm font-medium"
-              onClick={handleCouponToggle}
-            >
-              {showInputCoupon ? "Annuler" : "Ajouter"}
-            </button>
-          </div>
-          {showInputCoupon && (
-            <div className="bg-gray-100 p-4 rounded-md">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  className="flex-grow border-2 px-3 py-2 text-sm rounded-md outline-none"
-                  maxLength={10}
-                  value={changeCouponCode}
-                  onChange={(e) => setChangeCouponCode(e.target.value)}
-                  placeholder="Saisissez un code de promo"
-                />
-                <button
-                  type="button"
-                  className="bg-primaryColor hover:bg-secondaryColor text-white font-medium rounded-md px-4 py-2 text-sm transition-colors duration-100"
-                  onClick={handleCouponsVerification}
-                >
-                  Appliquer
-                </button>
-              </div>
-              <p className="text-sm mt-2 text-gray-600">
-                {changeCouponCode.length}/10 caractères
-              </p>
+        {currentStep == 2 && (
+          <div className="Coupons my-6">
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="coupon" className="block text-sm font-semibold">
+                Code promo
+              </label>
+              <button
+                type="button"
+                className="text-secondaryColor hover:text-blue-800 text-sm font-medium"
+                onClick={handleCouponToggle}
+              >
+                {showInputCoupon ? "Annuler" : "Ajouter"}
+              </button>
             </div>
-          )}
-        </div>
+            {showInputCoupon && (
+              <div className="bg-gray-100 p-4 rounded-md">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    className="flex-grow border-2 px-3 py-2 text-sm rounded-md outline-none"
+                    maxLength={10}
+                    value={changeCouponCode}
+                    onChange={(e) => setChangeCouponCode(e.target.value)}
+                    placeholder="Saisissez un code de promo"
+                  />
+                  <button
+                    type="button"
+                    className="bg-primaryColor hover:bg-secondaryColor text-white font-medium rounded-md px-4 py-2 text-sm transition-colors duration-100"
+                    onClick={handleCouponsVerification}
+                  >
+                    Appliquer
+                  </button>
+                </div>
+                <p className="text-sm mt-2 text-gray-600">
+                  {changeCouponCode.length}/10 caractères
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
 
         {/* Terms and Conditions */}
-        <p className="mt-8 text-sm text-gray-600">
+        <p className=" text-sm text-gray-600">
           En passant à la caisse, vous acceptez nos{" "}
           <Link
             href="/Terms-of-use"
@@ -201,6 +211,32 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           </p>
         </div>
       </div>
+      {
+        currentStep == 2 && (
+          <div className="NextStep flex items-center justify-evenly mt-2">
+            <button
+              type="button"
+              onClick={handlePreviousStep}
+              disabled={isLoggedIn}
+              className={`px-4 py-2 bg-gray-200 text-gray-800 rounded-md transition-all duration-300 ${isLoggedIn
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
+                }`}
+            >
+              Précédent
+            </button>
+            <button
+              type="button"
+              onClick={handleNextStep}
+              className={`px-4 py-2 bg-primaryColor text-white rounded-md hover:opacity-80 transition-all duration-300 ${!isValid ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+            >
+              Suivant
+            </button>
+          </div>
+
+        )
+      }
     </div>
   );
 };

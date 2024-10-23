@@ -194,7 +194,7 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo" />
+            <img src="https://www.ita-luxury.com/_next/image?url=https%3A%2F%2Fwww.ita-luxury.com%2F_next%2Fimage%3Furl%3Dhttp%253A%252F%252Fres.cloudinary.com%252Fdc1cdbirz%252Fimage%252Fupload%252Fv1727269305%252Fita-luxury%252FLOGO_hhpyix.png%26w%3D1920%26q%3D75&w=1200&q=75" alt="ita-luxury Logo" class="logo" />
           </div>
           <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
@@ -327,7 +327,6 @@ export const createCheckout = async (
     let productsInCheckout;
 
     if (isGuest) {
-      // For guest users, use the products passed in the input
       productsInCheckout = products?.map((product) => ({
         productId: product.productId,
         productQuantity: product.productQuantity,
@@ -335,7 +334,6 @@ export const createCheckout = async (
         discountedPrice: product.discountedPrice || 0,
       }));
     } else {
-      // For registered users, retrieve products from the basket
       const userBasket = await prisma.basket.findMany({
         where: { userId },
         include: {
@@ -355,23 +353,18 @@ export const createCheckout = async (
         throw new Error("User's basket not found");
       }
 
-      productsInCheckout = userBasket.map((basket: { Product: any; productId: any; quantity: any; }) => {
-        const product = basket.Product;
-        const productDiscounts = product?.productDiscounts;
-
-        return {
-          productId: basket.productId,
-          productQuantity: basket.quantity,
-          price: product?.price ?? 0,
-          discountedPrice:
-            productDiscounts && productDiscounts.length > 0
-              ? productDiscounts[0].newPrice
-              : 0,
-        };
-      });
+      productsInCheckout = userBasket.map((basket) => ({
+        productId: basket.productId,
+        productQuantity: basket.quantity,
+        price: basket.Product?.price ?? 0,
+        discountedPrice:
+          basket.Product?.productDiscounts &&
+          basket.Product.productDiscounts.length > 0
+            ? basket.Product.productDiscounts[0].newPrice
+            : 0,
+      }));
     }
 
-    // Create the checkout with the provided data and products
     const newCheckout = await prisma.checkout.create({
       data: {
         userId: isGuest ? null : userId,
@@ -386,7 +379,7 @@ export const createCheckout = async (
         address,
         total,
         couponsId: couponsId || null,
-        guestEmail: guestEmail,
+        guestEmail: guestEmail || null,
         deliveryComment,
         paymentMethod,
       },
@@ -399,7 +392,6 @@ export const createCheckout = async (
       });
     }
 
-    // Delete basket only for registered users
     if (!isGuest) {
       await prisma.basket.deleteMany({
         where: { userId: userId },
@@ -410,7 +402,6 @@ export const createCheckout = async (
     const companyInfo = await prisma.companyInfo.findFirst();
     const deliveryPrice = companyInfo?.deliveringPrice;
 
-    // Create a new package associated with the checkout ID
     await prisma.package.create({
       data: {
         checkoutId: newCheckout.id,
@@ -430,12 +421,18 @@ export const createCheckout = async (
             product: true,
           },
         },
-        User: true
+        User: true,
       },
     });
 
     if (completeCheckout) {
-      await sendCheckoutEmail(completeCheckout, customId, deliveryPrice);
+      const emailToUse = isGuest ? guestEmail : completeCheckout.User?.email;
+
+      if (emailToUse) {
+        await sendCheckoutEmail(completeCheckout, customId, deliveryPrice);
+      } else {
+        console.log("No valid email address found. Skipping email send.");
+      }
     }
 
     return {

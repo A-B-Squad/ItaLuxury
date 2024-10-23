@@ -73,17 +73,37 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
     };
   }, [handleScroll]);
 
-  const handleLogout = () => {
-    toast({
-      title: "Déconnexion réussie",
-      description: "À bientôt sur ita-luxury",
-      className: "bg-primaryColor text-white",
-    });
-    Cookies.remove("Token");
-    window.sessionStorage.removeItem("productsInBasket");
-    window.sessionStorage.removeItem("comparedProducts");
-    router.push("www.ita-luxury.com");
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      // Supprimer le token
+      Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
+
+      // Nettoyer le sessionStorage
+      window.sessionStorage.removeItem("productsInBasket");
+      window.sessionStorage.removeItem("comparedProducts");
+
+      // Rediriger vers la page d'accueil
+      await router.push("https://www.ita-luxury.com");
+
+      // Afficher le toast de confirmation
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt sur ita-luxury",
+        className: "bg-primaryColor text-white",
+      });
+
+      // Recharger la page après un court délai
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: "Erreur de déconnexion",
+        description: "Veuillez réessayer plus tard",
+        variant: "destructive",
+      });
+    }
   };
   return (
     <div
@@ -138,10 +158,10 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               <Link
                 rel="preload"
                 href={{
-                  pathname: `/Collections/tunisie/?choice=in-discount&page=1`,
-
+                  pathname: `/Collections/tunisie`, 
                   query: {
-                    section: "Promotions",
+                    choice: "in-discount", 
+                    section: "Promotions",  
                   },
                 }}
               >

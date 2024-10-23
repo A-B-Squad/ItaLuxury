@@ -19,7 +19,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
     <div className="flex flex-col sm:flex-row justify-between items-center mb-8 max-w-3xl mx-auto px-4 sm:px-0">
       {steps.map((step, index) => (
         <React.Fragment key={step.id}>
-          <div className="flex items-center sm:flex-col sm:items-center mb-4 sm:mb-0 w-full sm:w-auto">
+          <div className="flex items-center sm:flex-col sm:items-center mb-4 md:px-2 sm:mb-0 w-full sm:w-auto">
             <div
               className={`w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full ${
                 step.id <= currentStep

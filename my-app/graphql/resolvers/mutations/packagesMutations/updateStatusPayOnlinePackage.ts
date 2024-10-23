@@ -1,13 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 
 type Status =
-  | "PAYED_AND_DELIVERED"
-  | "TRANSFER_TO_DELIVERY_COMPANY"
-  | "REFUNDED"
-  | "BACK"
-  | "CANCELLED"
-  | "EXCHANGE"
-  | "PROCESSING"
   | "PAYMENT_REFUSED"
   | "PAYED_NOT_DELIVERED";
 

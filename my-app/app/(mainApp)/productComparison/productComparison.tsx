@@ -30,7 +30,7 @@ const ProductComparison = () => {
     (state) => ({
       products: state.products,
       removeProductFromCompare: state.removeProductFromCompare,
-    }),
+    })
   );
 
   const { openBasketDrawer } = useDrawerBasketStore();
@@ -60,7 +60,7 @@ const ProductComparison = () => {
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast],
+    [removeProductFromCompare, toast]
   );
 
   const { addProductToBasket, increaseProductInQtBasket } =
@@ -123,7 +123,7 @@ const ProductComparison = () => {
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -141,7 +141,7 @@ const ProductComparison = () => {
           className: "bg-primaryColor text-white",
         });
       } else {
-        increaseProductInQtBasket(product.id);
+        increaseProductInQtBasket(product.id,1);
 
         toast({
           title: "Notification de Panier",
@@ -232,9 +232,9 @@ const ProductComparison = () => {
                             },
                           }}
                         >
-                          <h5 className="text-base text-black line-clamp-2 text-center tracking-tight text-slate-900">
+                          <p className="text-base text-black  text-center tracking-tight text-slate-900">
                             {product.name}
-                          </h5>
+                          </p>
                         </Link>
                         <div className="mt-2 mb-5 flex items-center justify-between">
                           <div className="prices flex flex-col">
@@ -246,7 +246,7 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-red-500 text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3,
+                                    3
                                   )
                                 : product.price.toFixed(3)}{" "}
                               TND
@@ -266,7 +266,7 @@ const ProductComparison = () => {
                         </div>
                         <button
                           disabled={product.inventory <= 0}
-                          className={`flex items-center transition-all ${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} justify-center rounded-md bg-primaryColor px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondaryColor focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300`}
+                          className={`flex items-center transition-all ${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} justify-center rounded-md bg-secondaryColor px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-secondaryColor focus:outline-none gap-2 focus:ring-4 focus:ring-blue-300`}
                           onClick={() => {
                             AddToBasket(product);
 

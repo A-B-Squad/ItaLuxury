@@ -14,7 +14,7 @@ import {
   TAKE_16_PRODUCTS_PRICE_20,
 } from "../../../graphql/queries";
 import { BrandsCarousel } from "./Components/BrandCarousel";
-import Loading from "./Loader";
+import Loading from "./loading";
 
 const AdsCarousel = dynamic(
   () => import("@/app/components/adverstissment/carousel"),
@@ -161,32 +161,32 @@ const Home = () => {
           </section>
           <Services />
 
-          <div className="view lg:px-20">
+          <div className="view lg:px-10">
             <ProductInfo />
             {TopDealsSectionVisibility?.getSectionVisibility
               ?.visibility_status && (
-              <>
-                <FullWidthAds
-                  FullAdsLoaded={loadingFullTopDealsAds}
-                  FullImageAds={
-                    BannerBestDeals?.advertismentByPosition[0]?.images[0]
-                  }
-                  LinkTo={"/"}
-                />
-                <div className="TopDeals">
-                  <div className="flex justify-between flex-col md:flex-row mb-5 gap-2 items-start">
-                    <TitleProduct title={"Meilleures Offres du Jour"} />
-                    <div className="flex items-start flex-col md:flex-row md:pt-3">
-                      <p className="md:p-2 font-bold">
-                        Hâtez-vous ! L'offre se termine dans :
-                      </p>
-                      <TimeCountDown />
+                <>
+                  <FullWidthAds
+                    FullAdsLoaded={loadingFullTopDealsAds}
+                    FullImageAds={
+                      BannerBestDeals?.advertismentByPosition[0]?.images[0]
+                    }
+                    LinkTo={"/"}
+                  />
+                  <div className="TopDeals">
+                    <div className="flex justify-between flex-col md:flex-row mb-5 gap-2 items-start">
+                      <TitleProduct title={"Meilleures Offres du Jour"} />
+                      <div className="flex items-start flex-col md:flex-row md:pt-3">
+                        <p className="md:p-2 font-bold">
+                          Hâtez-vous ! L'offre se termine dans :
+                        </p>
+                        <TimeCountDown />
+                      </div>
                     </div>
+                    <TopDeals />
                   </div>
-                  <TopDeals />
-                </div>
-              </>
-            )}
+                </>
+              )}
             <MainCategoriesSlide />
 
             <div className="new-product-parent-tabs relative   flex flex-col">
@@ -199,8 +199,8 @@ const Home = () => {
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className="Carousel_new_product relative  items-center gap-5 grid grid-cols-12 ">
-                <div className="ads  flex-col gap-3  hidden xl:flex xl:col-span-2">
+              <div className="Carousel_new_product relative  items-center gap-5 place-content-between grid grid-cols-12 ">
+                <div className="ads  flex-col gap-3  w-fit hidden  xl:flex xl:col-span-2">
                   <SideAds
                     adsLoaded={loadingLeftAds}
                     image={leftAds?.advertismentByPosition[0]?.images[0]}
@@ -270,7 +270,7 @@ const Home = () => {
                     loadingProduct={loadingProducts_inDiscount_16}
                   />
                 </div>
-                <div className="ads   hidden xl:block xl:col-span-2">
+                <div className="ads w-fit  hidden xl:block xl:col-span-2">
                   <SideAds
                     adsLoaded={loadingRightAds}
                     image={rightAds?.advertismentByPosition[0]?.images[0]}
@@ -285,13 +285,13 @@ const Home = () => {
           <ClientServices />
           {TopSellsSectionVisibility?.getSectionVisibility
             ?.visibility_status && (
-            <div className="BestSeals pb-10">
-              <div className="Heading pb-8 flex items-center mb-5 justify-between">
-                <TitleProduct title={"Meilleures Ventes"} />
+              <div className="BestSeals pb-10">
+                <div className="Heading pb-8 flex items-center mb-5 justify-between">
+                  <TitleProduct title={"Meilleures Ventes"} />
+                </div>
+                <BestSales />
               </div>
-              <BestSales />
-            </div>
-          )}
+            )}
 
           <BrandsCarousel />
         </div>

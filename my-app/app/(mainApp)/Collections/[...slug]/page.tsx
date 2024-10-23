@@ -85,11 +85,10 @@ export async function generateMetadata({
   if (searchParams.brand) queryParams.set("brand", searchParams.brand);
 
   const queryString = queryParams.toString();
-  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Collections${
-    queryString
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Collections${queryString
       ? `/tunisie?page=1&section=Boutique?${queryString}`
       : "/tunisie?page=1&section=Boutique"
-  }`;
+    }`;
 
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),

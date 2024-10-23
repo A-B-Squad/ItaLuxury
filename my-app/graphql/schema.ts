@@ -614,7 +614,7 @@ input CreateCheckoutInput {
   couponsId: String
   freeDelivery:Boolean!
   isGuest:Boolean!
-  guestEmail:String!
+  guestEmail:String
   deliveryComment:String
   paymentMethod:PaymentMethod!
 }

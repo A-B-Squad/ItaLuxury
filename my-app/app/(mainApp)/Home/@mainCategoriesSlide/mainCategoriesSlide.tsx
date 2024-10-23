@@ -19,7 +19,7 @@ const MainCategoriesSlide = () => {
 
   return (
     <Carousel
-      className={`carousel w-full  grid   items-center transition-all duration-500 my-5 bg-white border rounded-sm   `}
+      className={`carousel w-full  grid px-2   items-center transition-all rounded-lg duration-500 my-5 bg-white border    `}
     >
       <CarouselContent className=" carousel_content h-full divide-x-2 bg-white  w-full ">
         {mainCategories?.fetchMainCategories?.map(

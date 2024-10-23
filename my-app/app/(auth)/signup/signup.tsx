@@ -135,7 +135,7 @@ const Signup: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           className="mx-auto"
-          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png"
+          src="/LOGO.png"
           alt="ita-luxury"
           width={200}
           height={200}
@@ -250,11 +250,15 @@ const Signup: React.FC = () => {
                         />
                       </div>
                       <input
+                        style={{
+                          WebkitAppearance: "none",
+                          appearance: "none",
+                        }}
                         id="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="********"
-                        autoComplete="password"
-                        className={`block w-full appearance-none pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
+                        autoComplete="current-password"
+                        className={`block w-full pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
                         {...register("password", {
                           required: "Le mot de passe est requis",
                           minLength: {

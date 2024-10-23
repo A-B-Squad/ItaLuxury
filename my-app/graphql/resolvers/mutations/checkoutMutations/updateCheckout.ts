@@ -155,7 +155,7 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png" alt="ita-luxury Logo" class="logo" />
+            <img src="https://www.ita-luxury.com/_next/image?url=https%3A%2F%2Fwww.ita-luxury.com%2F_next%2Fimage%3Furl%3Dhttp%253A%252F%252Fres.cloudinary.com%252Fdc1cdbirz%252Fimage%252Fupload%252Fv1727269305%252Fita-luxury%252FLOGO_hhpyix.png%26w%3D1920%26q%3D75&w=1200&q=75" alt="ita-luxury Logo" class="logo" />
           </div>
           <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
@@ -293,8 +293,10 @@ export const updateCheckout = async (
     if (manualDiscount !== undefined)
       updateData.manualDiscount = manualDiscount;
     if (freeDelivery !== undefined) updateData.freeDelivery = freeDelivery;
+
     const companyInfo = await prisma.companyInfo.findFirst();
     const deliveryPrice = companyInfo?.deliveringPrice;
+
     // Handle product updates
     if (productInCheckout) {
       // Delete existing productInCheckout entries
@@ -331,15 +333,25 @@ export const updateCheckout = async (
     });
 
     if (updatedCheckout) {
-      await sendCheckoutEmail(
-        updatedCheckout,
-        updatedCheckout.productInCheckout,
-        updatedCheckout.package[0]?.customId,
-        deliveryPrice
-      );
+      const emailToUse = updatedCheckout.isGuest
+        ? updatedCheckout.guestEmail
+        : updatedCheckout.User?.email;
+
+      if (emailToUse) {
+        await sendCheckoutEmail(
+          updatedCheckout,
+          updatedCheckout.productInCheckout,
+          updatedCheckout.package[0]?.customId,
+          deliveryPrice
+        );
+      } else {
+        console.log(
+          "No valid email address found. Skipping email send for updated checkout."
+        );
+      }
     }
 
-    return "updated Checkout";
+    return "Updated Checkout";
   } catch (error) {
     console.error("Error updating checkout:", error);
     throw error;

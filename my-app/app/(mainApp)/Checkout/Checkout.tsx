@@ -147,15 +147,10 @@ const Checkout: React.FC = () => {
 
   // Step 7: Define event handlers
   const onSubmit = async (data: any) => {
-    if (data.email == "" || userData?.fetchUsersById?.email == "") {
-      console.error("User email is missing");
-      toast({
-        title: "Error",
-        description: "Unable to process checkout. Please try again.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const userEmail = isGuest ? data.email : userData?.fetchUsersById?.email;
+    const userName = isGuest ? data.fullname : userData?.fetchUsersById?.fullName;
+    const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
+
 
     const checkoutInput = {
       userId: decodedToken?.userId,
@@ -176,7 +171,7 @@ const Checkout: React.FC = () => {
             ? product.productDiscounts[0].newPrice
             : 0,
       })),
-      guestEmail: isGuest ? data.email : userData?.fetchUsersById?.email,
+      guestEmail: userEmail,
       deliveryComment: data.deliveryComment,
       paymentMethod: paymentMethod,
     };
@@ -193,18 +188,35 @@ const Checkout: React.FC = () => {
       ],
       onCompleted: async (data) => {
         const customId = data.createCheckout.customId;
-        const userEmail = isGuest
-          ? checkoutInput.guestEmail
-          : userData?.fetchUsersById?.email;
-        const userName = isGuest
-          ? checkoutInput.userName
-          : userData?.fetchUsersById?.fullName;
-        const userPhone = isGuest
-          ? checkoutInput.phone
-          : userData?.fetchUsersById?.number;
 
-        if (userEmail) {
-          triggerEvents("Purchase", {
+        triggerEvents("Purchase", {
+          user_data: {
+            em: [userEmail.toLowerCase()],
+            fn: [userName],
+            ph: [userPhone],
+            country: ["tn"],
+            ct: checkoutInput.governorateId,
+            external_id: decodedToken?.userId,
+          },
+          custom_data: {
+            content_name: "Checkout",
+            content_type: "product",
+            currency: "TND",
+            value: parseFloat(total),
+            contents: products.map((product) => ({
+              id: product.id,
+              quantity: product.actualQuantity || product.quantity,
+            })),
+            num_items: products.reduce(
+              (sum, product) =>
+                sum + (product?.actualQuantity || product?.quantity || 0),
+              0
+            ),
+          },
+        })
+
+        if (paymentMethod === "CREDIT_CARD") {
+          triggerEvents("AddPaymentInfo", {
             user_data: {
               em: [userEmail.toLowerCase()],
               fn: [userName],
@@ -214,29 +226,15 @@ const Checkout: React.FC = () => {
               external_id: decodedToken?.userId,
             },
             custom_data: {
-              content_name: "Checkout",
-              content_type: "product",
+              content_category: "Checkout",
               currency: "TND",
               value: parseFloat(calculateTotal()),
-              contents: products.map((product) => ({
-                id: product.id,
-                quantity: product.actualQuantity || product.quantity,
-              })),
-              num_items: products.reduce(
-                (sum, product) =>
-                  sum + (product?.actualQuantity || product?.quantity || 0),
-                0,
-              ),
+              payment_type: paymentMethod === "CREDIT_CARD" ? "Credit Card" : "Cash on Delivery",
             },
           });
-          pushToDataLayer("Purchase");
 
-          window.sessionStorage.removeItem("productsInBasket");
-          clearBasket();
-        }
-
-        if (paymentMethod === "CREDIT_CARD") {
           await handleOnlinePayment(customId, userName, userPhone, userEmail);
+
         } else {
           router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
         }
@@ -330,12 +328,20 @@ const Checkout: React.FC = () => {
     const isValid = await trigger();
     if (isValid) {
       setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length));
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     } else {
       console.log("Form is invalid:", errors);
     }
   };
 
   const handlePreviousStep = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
   };
 
@@ -346,18 +352,11 @@ const Checkout: React.FC = () => {
 
   return (
     <>
-      <div className="flex justify-center items-center w-full my-10">
+      <div className="flex justify-center flex-col items-center w-full my-10">
+        <StepIndicator steps={steps} currentStep={currentStep} />
+
         <div className="container grid sm:px-10 w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32">
-          {/* Order Summary Section */}
-          <OrderSummary
-            products={products}
-            setDiscountPercentage={setDiscountPercentage}
-            discountPercentage={discountPercentage}
-            setCouponsId={setCouponsId}
-            deliveryPrice={deliveryPrice}
-            total={total}
-            calculateTotal={calculateTotal}
-          />
+
 
           {paymentLoading && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -372,7 +371,6 @@ const Checkout: React.FC = () => {
 
           {/* Checkout Form Section */}
           <div>
-            <StepIndicator steps={steps} currentStep={currentStep} />
             <div className="px-4 pt-8 pb-2 bg-white border">
               {currentStep === 1 && (
                 <Step1
@@ -422,33 +420,39 @@ const Checkout: React.FC = () => {
 
                       {/* Email Input (for guest users) */}
                       {!isLoggedIn && (
-                        <>
+                        <div className="mt-6">
                           <label
                             htmlFor="email"
-                            className="mt-4 mb-2 block text-sm font-medium"
+                            className="block text-sm font-medium text-gray-700"
                           >
-                            <CiMail className="inline-block mr-2 mb-1" /> Email
+                            <CiMail className="inline-block mr-2 align-text-bottom" /> Email (optionnel)
                           </label>
-                          <input
-                            type="email"
-                            id="email"
-                            {...register("email", {
-                              required: "Ce champ est requis",
-                              pattern: {
-                                value:
-                                  /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                message: "Adresse e-mail invalide",
-                              },
-                            })}
-                            className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
-                            placeholder="votre@email.com"
-                          />
+                          <div className="mt-1 relative rounded-md shadow-sm">
+                            <input
+                              type="email"
+                              id="email"
+                              {...register("email", {
+                                pattern: {
+                                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                  message: "Adresse e-mail invalide",
+                                },
+                              })}
+                              className="border border-gray-300 rounded-r-md px-4 py-2 w-full focus:outline-none "
+                              placeholder="votre@email.com"
+                            />
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                              <CiMail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </div>
+                          </div>
                           {errors.email && (
-                            <p className="text-red-500">
+                            <p className="mt-2 text-sm text-red-600" id="email-error">
                               {errors.email.message as string}
                             </p>
                           )}
-                        </>
+                          <p className="mt-2 text-sm text-gray-500" id="email-description">
+                            Fournir votre email nous permettra de vous envoyer des mises à jour sur votre commande.
+                          </p>
+                        </div>
                       )}
 
                       {/* Phone 1 Input */}
@@ -562,34 +566,30 @@ const Checkout: React.FC = () => {
                       {errors.address && (
                         <p className="text-red-500">Ce champ est requis</p>
                       )}
-                      <div className="flex items-center justify-evenly">
-                        <button
-                          type="button"
-                          onClick={handlePreviousStep}
-                          disabled={isLoggedIn}
-                          className={`px-4 py-2 bg-gray-200 text-gray-800 rounded-md transition-all duration-300 ${
-                            isLoggedIn
-                              ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-gray-300"
-                          }`}
+
+                      <div className="mb-8">
+                        <label
+                          htmlFor="deliveryComment"
+                          className="block text-sm font-medium text-gray-700 mb-2"
                         >
-                          Précédent
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleNextStep}
-                          className={`px-4 py-2 bg-primaryColor text-white rounded-md hover:bg-secondaryColor transition-all duration-300 ${
-                            !isValid ? "opacity-50 cursor-not-allowed" : ""
-                          }`}
-                        >
-                          Suivant
-                        </button>
+                          Commentaire pour la livraison (optionnel)
+                        </label>
+                        <textarea
+                          id="deliveryComment"
+                          {...register("deliveryComment")}
+                          rows={4}
+                          className="w-full rounded-md border border-gray-300 px-4 py-3 text-sm shadow-sm outline-none focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                          placeholder="Ajoutez des instructions spéciales pour la livraison ici..."
+                        ></textarea>
                       </div>
+
+
                     </div>
                   </div>
                 )}
+
                 {currentStep === 3 && (
-                  <div className="bg-white p-8 rounded-xl shadow-lg">
+                  <div className="bg-whit p-3 rounded-xl shado-lg">
                     <h2 className="text-2xl font-bold mb-6 text-gray-800">
                       Confirmation et mode de paiement
                     </h2>
@@ -600,7 +600,7 @@ const Checkout: React.FC = () => {
                           width={60}
                           height={60}
                           objectFit="contain"
-                          src="https://app.jax-delivery.com/assets/img/logo.png"
+                          src="/jaxDelivery.png"
                           alt="JAX Delivery Logo"
                         />
                       </div>
@@ -683,21 +683,7 @@ const Checkout: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="mb-8">
-                      <label
-                        htmlFor="deliveryComment"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Commentaire pour la livraison (optionnel)
-                      </label>
-                      <textarea
-                        id="deliveryComment"
-                        {...register("deliveryComment")}
-                        rows={4}
-                        className="w-full rounded-md border border-gray-300 px-4 py-3 text-sm shadow-sm outline-none focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
-                        placeholder="Ajoutez des instructions spéciales pour la livraison ici..."
-                      ></textarea>
-                    </div>
+
 
                     <div className="flex justify-between items-center">
                       <button
@@ -710,11 +696,10 @@ const Checkout: React.FC = () => {
                       <button
                         type="submit"
                         disabled={!isValid || loading || !paymentMethod}
-                        className={`px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-primaryColor/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primaryColor ${
-                          !isValid || loading || !paymentMethod
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
+                        className={`px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-primaryColor/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primaryColor ${!isValid || loading || !paymentMethod
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                          }`}
                       >
                         {loading ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
@@ -728,6 +713,23 @@ const Checkout: React.FC = () => {
               </form>
             </div>
           </div>
+
+          {/* Order Summary Section */}
+          <OrderSummary
+            products={products}
+            setDiscountPercentage={setDiscountPercentage}
+            discountPercentage={discountPercentage}
+            setCouponsId={setCouponsId}
+            deliveryPrice={deliveryPrice}
+            total={total}
+            calculateTotal={calculateTotal}
+            handlePreviousStep={handlePreviousStep}
+            isLoggedIn={isLoggedIn}
+            handleNextStep={handleNextStep}
+            currentStep={currentStep}
+            isValid={isValid}
+          />
+
         </div>
       </div>
     </>

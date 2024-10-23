@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { CiTrash } from "react-icons/ci";
-import { DELETE_BASKET_BY_ID_MUTATION } from "@/graphql/mutations";
+import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import prepRoute from "@/app/Helpers/_prepRoute";
 import {
@@ -19,6 +19,8 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { HiPlus } from "react-icons/hi2";
+import { RiSubtractLine } from "react-icons/ri";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -28,11 +30,26 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  inventory: number;
   images: string[];
-  actualQuantity: number;
+  quantity: number;
   basketId: string;
-  categories: string[];
-  productDiscounts?: { newPrice: number }[];
+  productDiscounts: {
+    newPrice: number;
+  }[];
+  categories: {
+    name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
+  }[];
+  [key: string]: any;
 }
 
 const BasketDrawer: React.FC = () => {
@@ -41,9 +58,11 @@ const BasketDrawer: React.FC = () => {
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const {
-    products,
+    products: storedProducts,
     removeProductFromBasket,
     setQuantityInBasket,
+    increaseProductInQtBasket,
+    decreaseProductInQtBasket,
   } = useProductsInBasketStore();
   const { isUpdated } = useBasketStore();
 
@@ -52,6 +71,10 @@ const BasketDrawer: React.FC = () => {
     skip: !decodedToken?.userId,
     fetchPolicy: "cache-and-network",
   });
+  const { toggleIsUpdated } = useBasketStore((state) => ({
+    isUpdated: state.isUpdated,
+    toggleIsUpdated: state.toggleIsUpdated,
+  }));
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
@@ -81,8 +104,8 @@ const BasketDrawer: React.FC = () => {
         basketId: basket.id,
       }));
     }
-    return products;
-  }, [decodedToken, data, products]);
+    return storedProducts;
+  }, [decodedToken, data, storedProducts]);
 
   const totalPrice = useMemo(() => {
     return productsInBasket.reduce((acc: number, curr: Product) => {
@@ -130,6 +153,70 @@ const BasketDrawer: React.FC = () => {
     },
     [decodedToken, deleteBasketById, removeProductFromBasket, refetch],
   );
+  const handleQuantityChange = useCallback(
+    (productId: string, change: number) => {
+      const updatedProducts = storedProducts.map((product) => {
+        if (product.id === productId) {
+          const newQuantity = Math.max(
+            1,
+            (product.actualQuantity ?? product.quantity) + change
+          );
+          return { ...product, actualQuantity: newQuantity };
+        }
+        return product;
+      });
+
+      setQuantityInBasket(
+        updatedProducts.reduce(
+          (total, product) =>
+            total + (product.actualQuantity ?? product.quantity),
+          0
+        )
+      );
+    },
+    [storedProducts, setQuantityInBasket]
+  );
+  // Mutations
+  const [increaseQuantity] = useMutation(INCREASE_QUANTITY_MUTATION);
+  const [decreaseQuantity] = useMutation(DECREASE_QUANTITY_MUTATION);
+  const handleIncreaseQuantity = useCallback(
+    (productId: string, basketId?: string) => {
+      if (decodedToken?.userId && basketId) {
+        increaseQuantity({
+          variables: { basketId },
+
+          onError: (error) => {
+            if (error.message === "Not enough inventory") {
+              toast({
+                title: "Notification de Stock",
+                description: `Le produit est en rupture de stock.`,
+                className: "bg-red-500 text-white",
+              });
+            }
+          },
+        });
+      } else {
+        increaseProductInQtBasket(productId,1);
+      }
+    },
+    [decodedToken, increaseQuantity, handleQuantityChange]
+  );
+
+  const handleDecreaseQuantity = useCallback(
+    (productId: string, basketId?: string) => {
+      if (decodedToken?.userId && basketId) {
+        decreaseQuantity({
+          variables: { basketId },
+
+        });
+      } else {
+        decreaseProductInQtBasket(productId);
+      }
+    },
+    [decodedToken, decreaseQuantity, handleQuantityChange]
+  );
+
+
 
   const renderProductList = () => (
     <ul role="list" className="divide-y divide-gray-200">
@@ -160,9 +247,40 @@ const BasketDrawer: React.FC = () => {
                 >
                   {product.name}
                 </Link>
-                <p className="quantiy font-light text-base text-gray-500">
-                  QTY: {product.actualQuantity}
-                </p>
+                <div className="quantity flex items-center gap-5">
+                  <p className="quantiy font-light text-base text-gray-500">
+                    QTY: {product.actualQuantity}
+                  </p>
+                  <div className="flex divide-x border w-max rounded-full">
+                    <button
+                      type="button"
+                      className="bg-secondaryColor opacity-80 hover:opacity-75 rounded-l-full transition-opacity text-white w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
+                      onClick={() =>
+                        handleDecreaseQuantity(product.id, product.basketId)
+                      }
+                      disabled={
+                        (product.quantity || product.actualQuantity) === 1
+                      }
+                    >
+                      <RiSubtractLine />
+                    </button>
+                    <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
+                      {product.quantity || product.actualQuantity}
+                    </span>
+                    <button
+                      type="button"
+                      className="w-fit  transition-opacity h-fit rounded-r-full  bg-secondaryColor text-white p-2 text-sm hover:opacity-75 font-semibold cursor-pointer"
+
+                      disabled={product.actualQuantity === product?.inventory}
+                      onClick={() =>
+                        handleIncreaseQuantity(product.id, product.basketId)
+                      }
+                    >
+                      <HiPlus />
+                    </button>
+                  </div>
+
+                </div>
                 <p className="font-semibold tracking-wide">
                   {(product.productDiscounts?.length
                     ? product.productDiscounts[0].newPrice
@@ -181,6 +299,7 @@ const BasketDrawer: React.FC = () => {
                 <CiTrash size={25} />
               </button>
             </div>
+
           </div>
         </li>
       ))}
@@ -192,7 +311,8 @@ const BasketDrawer: React.FC = () => {
       <h1 className="text-xl font-semibold">Votre panier est vide</h1>
       <MdOutlineRemoveShoppingCart color="grey" size={100} />
       <Link
-        href="/Collections/tunisie"
+        onClick={closeBasketDrawer}
+        href="/Collections/tunisie?page=1&section=Boutique"
         className="font-medium text-primaryColor hover:text-amber-200 mt-20"
       >
         Continuer vos achats
@@ -286,11 +406,11 @@ const BasketDrawer: React.FC = () => {
                       content_type: "product",
                       currency: "TND",
                       value: totalPrice,
-                      contents: products.map((product) => ({
+                      contents: storedProducts.map((product) => ({
                         id: product.id,
                         quantity: product.actualQuantity || product.quantity,
                       })),
-                      num_items: products.reduce(
+                      num_items: storedProducts.reduce(
                         (sum, product) =>
                           sum +
                           (product?.actualQuantity || product?.quantity || 0),
@@ -308,14 +428,13 @@ const BasketDrawer: React.FC = () => {
                     total: totalPrice.toFixed(3),
                   },
                 }}
-                className="flex items-center justify-center transition-all  border border-transparent bg-primaryColor px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500"
+                className="flex items-center justify-center transition-all  border border-transparent bg-blueColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80"
               >
-                Vérifier
-              </Link>
+                Procéder au paiement   </Link>
               <Link
                 onClick={closeBasketDrawer}
                 href={"/Basket"}
-                className="flex items-center transition-all justify-center  border border-transparent bg-lightBeige px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-amber-500 mt-4"
+                className="flex items-center transition-all justify-center  border border-transparent bg-pinkColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80 mt-4"
               >
                 Voir Panier
               </Link>
@@ -323,6 +442,7 @@ const BasketDrawer: React.FC = () => {
             <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
               <p>ou</p>
               <Link
+                onClick={closeBasketDrawer}
                 href="/Touts-Les-Produits"
                 className="font-medium text-primaryColor transition-all hover:text-secondaryColor"
               >

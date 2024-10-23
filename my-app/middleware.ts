@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-      'http://localhost:3001',
+  'http://localhost:4000',
+      'http://localhost:4001',
       'https://www.ita-luxury.com',
       'https://admin.ita-luxury.com',
   process.env.NEXT_ALLOW_REQUEST_API_URL,

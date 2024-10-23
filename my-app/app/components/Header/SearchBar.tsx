@@ -8,22 +8,35 @@ import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
 import Image from "next/legacy/image";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import prepRoute from "../../Helpers/_prepRoute";
 import triggerEvents from "@/utlils/trackEvents";
-
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
+
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
   const [searching, setSearching] = useState(false);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   const [searchProducts, { data }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
+    variables: {
+      userId: decodedToken?.userId,
+    },
+    skip: !decodedToken?.userId,
+  });
+
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -32,14 +45,29 @@ const SearchBar = () => {
     }
   }, []);
 
-  const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !decodedToken?.userId,
-  });
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        !inputRef.current?.contains(event.target as Node)
+      ) {
+        setSearching(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Use pathname to detect route changes
+  useEffect(() => {
+    setSearching(false);
+  }, [pathname]);
+
   const handleSearchChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setSearchQuery(inputValue);
@@ -91,27 +119,9 @@ const SearchBar = () => {
       },
     });
   };
-
-  useEffect(() => {
-    const handleMouseLeave = () => {
-      if (!inputRef.current?.contains(document.activeElement) && !searching) {
-        setSearchQuery("");
-      }
-    };
-
-    document.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      document.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [searching]);
-
   return (
-    <div
-      className="search-container relative w-full"
-      onClick={() => setSearching(true)}
-    >
-      <div className="search-input-wrapper flex w-full items-center border mx-auto bg-white border-gray-300 pl-4 relative max-w-md h-11 rounded-full">
+    <div className="search-container relative w-full">
+      <div className="search-input-wrapper flex w-full  items-center border mx-auto bg-white border-gray-300 pl-4 relative max-w-lg h-11 rounded-full">
         <input
           ref={inputRef}
           className="h-full w-full outline-none"
@@ -119,6 +129,7 @@ const SearchBar = () => {
           placeholder="Rechercher..."
           value={searchQuery}
           onChange={handleSearchChange}
+          onFocus={() => setSearching(true)}
         />
         <span
           className="flex items-center justify-center cursor-pointer h-full w-14 rounded-full bg-primaryColor"
@@ -126,6 +137,7 @@ const SearchBar = () => {
             router.push(`/Collections/tunisie?query=${searchQuery}`, {
               scroll: true,
             });
+            setSearching(false);
           }}
         >
           <CiSearch className="size-7 text-white" />
@@ -134,7 +146,7 @@ const SearchBar = () => {
 
       {data && searching && (
         <div
-          onMouseLeave={() => setSearching(false)}
+          ref={dropdownRef}
           className="search-results max-h-96 bg-white border-2 w-full left-2/4 -translate-x-2/4 absolute top-12 overflow-y-auto z-[100] rounded-md shadow-lg"
         >
           <div className="p-4">
@@ -160,8 +172,9 @@ const SearchBar = () => {
                           category_name: category.name,
                           category_id: category.id,
                         },
-                      }),
-                        pushToDataLayer("SelectSearchedCategory");
+                      });
+                      pushToDataLayer("SelectSearchedCategory");
+                      setSearching(false);
                     }}
                   >
                     <li className="py-2 border-b hover:opacity-75 h-full w-full transition-opacity border-b-gray-300 cursor-pointer">
@@ -194,7 +207,6 @@ const SearchBar = () => {
                         country: ["tn"],
                         external_id: userData?.fetchUsersById.id,
                       },
-
                       custom_data: {
                         product_name: product.name,
                         product_id: product.id,
@@ -205,8 +217,9 @@ const SearchBar = () => {
                         product_category: product.categories[0]?.name,
                         currency: "TND",
                       },
-                    }),
-                      pushToDataLayer("SelectSearchedProduct");
+                    });
+                    pushToDataLayer("SelectSearchedProduct");
+                    setSearching(false);
                   }}
                   className="product-item flex flex-col items-center p-2 border rounded-md hover:shadow-md transition-shadow"
                 >
@@ -218,7 +231,7 @@ const SearchBar = () => {
                       alt={product.name}
                     />
                   </div>
-                  <p className="text-base font-light tracking-widest text-center line-clamp-1">
+                  <p className="text-base font-light tracking-widest text-center ">
                     {product.name}
                   </p>
                   <p className="text-lg font-bold text-primaryColor">
@@ -240,9 +253,10 @@ const SearchBar = () => {
                 router.push(`/Collections/tunisie?query=${searchQuery}`, {
                   scroll: true,
                 });
+                setSearching(false);
               }}
             >
-              PLUS DE RÉSULTATS
+              Voir tous les résultats
             </button>
           </div>
         </div>

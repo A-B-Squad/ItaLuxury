@@ -1,8 +1,12 @@
 import React from "react";
+
 const Loading = () => {
   return (
-    <div className=" relative flex items-center justify-center h-screen w-full bg-white ">
-      <div className="loader"></div>
+    <div className="flex items-center z-[1000] fixed justify-center h-full top-0 w-full bg-white">
+      <img 
+        src="/Logo-animation.gif" 
+        alt="Loading animation" 
+      />
     </div>
   );
 };

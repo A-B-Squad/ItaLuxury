@@ -22,11 +22,14 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
+        primaryColor: "#212E53",
         lightBeige: "#F0EDD4",
-        secondaryColor: "#e0e0dc",
-        primaryColor: "#c7ae91",
+        secondaryColor: "#EBACA2",
         lightBlack: "#22222280",
         TopBanner: "#53366e",
+        blueColor: "#4A919E",
+        pinkColor: "#CE6A6B",
+        lightBlue: "#BED3C3"
       },
     },
   },

@@ -1,9 +1,8 @@
 import React from "react";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
 import dynamic from "next/dynamic";
-import "../../app/globals.css";
+import "../globals.css";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 const DrawerMobile = dynamic(
   () => import("../components/Header/MobileDrawer/DrawerMobile"),

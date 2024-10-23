@@ -17,7 +17,6 @@ const AnalyticsIntegration = () => {
           },
         });
         const data = await response.json();
-        console.log(data);
         
         setFbData(data);
       } catch (error) {
@@ -28,6 +27,7 @@ const AnalyticsIntegration = () => {
     fetchFacebookData();
   }, []);
 
+  
   return (
     <>
       {fbData.domainVerification && (

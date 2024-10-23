@@ -40,9 +40,7 @@ function NotFound() {
       <div className="flex flex-col items-center justify-center w-full h-screen bg-white  ">
         <Image
           alt="404"
-          src={
-            "https://res.cloudinary.com/dc1cdbirz/image/upload/v1728825987/ita-luxury/dqfdbyc7valu8faslf4j.png"
-          }
+          src="/404.png"
           priority={true}
           objectFit="contain"
           width={400}

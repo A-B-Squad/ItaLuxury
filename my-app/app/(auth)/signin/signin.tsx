@@ -204,7 +204,7 @@ const Signin = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           className="mx-auto"
-          src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1727269189/cz4cuthoiooetsaji7mp.png"
+          src="/LOGO.png"
           alt="ita-luxury"
           width={200}
           height={200}
@@ -288,11 +288,15 @@ const Signin = () => {
                   />
                 </div>
                 <input
+                  style={{
+                    WebkitAppearance: "none",
+                    appearance: "none",
+                  }}
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="********"
                   autoComplete="current-password"
-                  className={`block w-full pl-10 pr-10 sm:text-sm appearance-none outline-none py-2 border-gray-300 rounded-md ${
+                  className={`block w-full pl-10 pr-10 sm:text-sm  outline-none py-2 border-gray-300 rounded-md ${
                     errors.password ? "border-red-300" : ""
                   }`}
                   {...register("password", {

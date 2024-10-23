@@ -1,197 +1,16 @@
-import triggerEvents from "@/utlils/trackEvents";
-import {
-  useBasketStore,
-  useDrawerBasketStore,
-  useProductsInBasketStore,
-} from "@/app/store/zustand";
-import { useToast } from "@/components/ui/use-toast";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import { useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-
-import jwt, { JwtPayload } from "jsonwebtoken";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 const productDetailsDrawer = ({
   isBottom,
   productDetails,
   addToBasket,
   discount,
-  actualQuantity,
-  setActualQuantity,
+  handleDecreaseQuantity,
+  quantity,
+  handleIncreaseQuantity,
 }: any) => {
-  const { toast } = useToast();
-  const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-  const { openBasketDrawer } = useDrawerBasketStore();
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-
-  const { addProductToBasket, products } = useProductsInBasketStore(
-    (state) => ({
-      addProductToBasket: state.addProductToBasket,
-      products: state.products,
-    }),
-  );
-
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !decodedToken?.userId,
-  });
-  // Query the basket first
-  const { data: basketData } = useQuery(BASKET_QUERY, {
-    variables: { userId: decodedToken?.userId },
-  });
-  const AddToBasket = async (product: any) => {
-    if (decodedToken) {
-      try {
-        // Find if the product is already in the basket
-        const existingBasketItem = basketData.basketByUserId.find(
-          (item: any) => item.Product.id === product.id,
-        );
-
-        const currentBasketQuantity = existingBasketItem
-          ? existingBasketItem.quantity
-          : 0;
-        const totalQuantity = currentBasketQuantity + actualQuantity;
-
-        // Check if the total quantity exceeds the inventory
-        if (totalQuantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock. Votre panier contient déjà ${currentBasketQuantity} unités.`,
-            className: "bg-red-600 text-white",
-          });
-          return;
-        }
-
-        // If everything is okay, proceed with adding to basket
-        await addToBasket({
-          variables: {
-            input: {
-              userId: decodedToken?.userId,
-              quantity: actualQuantity,
-              productId: product.id,
-            },
-          },
-          refetchQueries: [
-            {
-              query: BASKET_QUERY,
-              variables: { userId: decodedToken?.userId },
-            },
-          ],
-          onCompleted: () => {
-            toast({
-              title: "Produit ajouté au panier",
-              description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-              className: "bg-primaryColor text-white",
-            });
-            // Track Add to Cart
-
-            triggerEvents("AddToCart", {
-              user_data: {
-                em: [userData?.fetchUsersById.email.toLowerCase()],
-                fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number],
-                country: ["tn"],
-                external_id: userData?.fetchUsersById.id,
-              },
-              custom_data: {
-                content_name: productDetails.name,
-                content_type: "product",
-                content_ids: [productDetails.id],
-                contents: productDetails,
-                value:
-                  productDetails.productDiscounts.length > 0
-                    ? productDetails.productDiscounts[0].newPrice
-                    : productDetails.price,
-                currency: "TND",
-              },
-            });
-            pushToDataLayer("AddToCart");
-          },
-        });
-      } catch (error) {
-        console.error("Error adding to basket:", error);
-        toast({
-          title: "Erreur",
-          description:
-            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
-          className: "bg-red-600 text-white",
-        });
-      }
-    } else {
-      const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
-      );
-      if (!isProductAlreadyInBasket) {
-        if (actualQuantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-            className: "bg-red-600 text-white",
-          });
-          return;
-        }
-        addProductToBasket({
-          ...product,
-          price:
-            product.productDiscounts.length > 0
-              ? product?.productDiscounts[0]?.newPrice
-              : product?.price,
-          actualQuantity: actualQuantity,
-        });
-        toast({
-          title: "Produit ajouté au panier",
-          description: `${actualQuantity} ${actualQuantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${actualQuantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-          className: "bg-green-600 text-white",
-        });
-      } else {
-        toast({
-          title: "Produit déjà dans le panier",
-          description: `"${productDetails?.name}" est déjà dans votre panier. Vous pouvez modifier la quantité dans le panier.`,
-          className: "bg-blue-600 text-white",
-        });
-      }
-      // Track Add to Cart
-      triggerEvents("AddToCart", {
-        user_data: {
-          em: [userData?.fetchUsersById.email.toLowerCase()],
-          fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number],
-          country: ["tn"],
-          external_id: userData?.fetchUsersById.id,
-        },
-        custom_data: {
-          content_name: productDetails.name,
-          content_type: "product",
-          content_ids: [productDetails.id],
-          contents: productDetails,
-          value:
-            productDetails.productDiscounts.length > 0
-              ? productDetails.productDiscounts[0].newPrice
-              : productDetails.price,
-          currency: "TND",
-        },
-      });
-      pushToDataLayer("AddToCart");
-    }
-    toggleIsUpdated();
-    openBasketDrawer();
-  };
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
   return (
     <div className="hidden md:flex ">
       {isBottom && !!productDetails && (
@@ -224,11 +43,8 @@ const productDetailsDrawer = ({
               <button
                 type="button"
                 className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
-                onClick={() => {
-                  setActualQuantity(
-                    actualQuantity > 1 ? actualQuantity - 1 : 1,
-                  );
-                }}
+                disabled={quantity == 1}
+                onClick={handleDecreaseQuantity}
               >
                 <RiSubtractFill />
               </button>
@@ -236,32 +52,27 @@ const productDetailsDrawer = ({
                 type="button"
                 className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
               >
-                {actualQuantity}
+                {quantity}
               </button>
               <button
                 type="button"
-                className={`${actualQuantity === productDetails?.inventory && "opacity-45"}w-fit h-fit  bg-primaryColor text-white p-2 text-sm  font-semibold cursor-pointer`}
-                onClick={() => {
-                  setActualQuantity(
-                    actualQuantity < productDetails.inventory
-                      ? actualQuantity + 1
-                      : actualQuantity,
-                  );
-                }}
+                className={`${quantity === productDetails?.inventory && "opacity-45"}w-fit h-fit  bg-primaryColor text-white p-2 text-sm  font-semibold cursor-pointer`}
+                disabled={quantity === productDetails?.inventory}
+                onClick={handleIncreaseQuantity}
               >
                 <FaPlus />
               </button>
             </div>
           </div>
           <div
-            className={`flex items-center w-60 transition-colors ${productDetails.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} bg-primaryColor hover:bg-secondaryColor`}
+            className={`flex items-center w-60 transition-colors ${productDetails.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} bg-secondaryColor hover:bg-secondaryColor`}
           >
             <button
               disabled={productDetails?.inventory <= 0}
               type="button"
               className=" text-white  py-3  w-full shadow-lg"
               onClick={() => {
-                AddToBasket(productDetails);
+                addToBasket(productDetails);
               }}
             >
               Ajouter au panier

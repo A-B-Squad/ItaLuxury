@@ -160,7 +160,7 @@ const ProductsSection: React.FC = () => {
     switch (view) {
       case 3:
       case 2:
-        return "flex-col items-center justify-between h-[365px]";
+        return "flex-col items-center justify-between h-[344px]";
       case 1:
         return "flex-row h-52 gap-8 items-center justify-between pl-2";
       default:

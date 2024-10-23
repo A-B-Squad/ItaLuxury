@@ -113,9 +113,13 @@ const ContactUsForm: React.FC = () => {
             </label>
             <div className="relative">
               <select
+                style={{
+                  WebkitAppearance: "none",
+                  appearance: "none",
+                }}
                 id="subject"
                 {...register("subject", { required: "Sujet est requis" })}
-                className="w-full px-3 py-2 border rounded-md appearance-none focus:outline-none focus:ring focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md  focus:outline-none focus:ring focus:border-blue-500"
                 defaultValue=""
               >
                 <option value="" disabled>
