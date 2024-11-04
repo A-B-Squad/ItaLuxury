@@ -7,7 +7,7 @@ import { useLazyQuery } from "@apollo/client";
 import { useToast } from "@/components/ui/use-toast";
 interface OrderSummaryProps {
   products: Product[];
-  total: number;
+  total: string;
   discountPercentage: number;
   setDiscountPercentage: (percentage: number) => void;
   deliveryPrice: number;

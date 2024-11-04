@@ -1,14 +1,14 @@
-import { ApolloWrapper } from "@/lib/apollo-wrapper";
-import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
-import "./globals.css";
-import type { Metadata } from "next";
-import React from "react";
+import AnalyticsIntegration from "@/app/components/AnalyticsIntegration";
+import TabBar from "@/app/components/TabBar";
+import WhatsAndBasketPopUp from "@/app/components/WhatsAndBasketPopUp";
 import { Toaster } from "@/components/ui/toaster";
-import AnalyticsIntegration from "./components/AnalyticsIntegration";
-import WhatsAndBasketPopUp from "./components/WhatsAndBasketPopUp";
-import TabBar from "./components/TabBar";
-import Script from "next/script";
+import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import keywords from "@/public/keywords";
+import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
+import type { Metadata } from "next";
+import Script from "next/script";
+import React from "react";
+import "./globals.css";
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment

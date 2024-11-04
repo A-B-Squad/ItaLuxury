@@ -41,6 +41,19 @@ const nextConfig = {
     ],
   },
 
+  async headers() {
+    return [
+      {
+        source: '/google4773007d2b4f68e3.html',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/html',
+          },
+        ],
+      },
+    ];
+  },
 
 
 };

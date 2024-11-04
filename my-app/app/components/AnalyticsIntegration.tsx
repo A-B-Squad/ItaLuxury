@@ -1,7 +1,7 @@
 "use client";
+import { init } from "@/utlils/pixel";
 import Script from "next/script";
 import React, { useEffect, useState } from "react";
-
 const AnalyticsIntegration = () => {
   const [fbData, setFbData] = useState({
     domainVerification: null,
@@ -17,7 +17,9 @@ const AnalyticsIntegration = () => {
           },
         });
         const data = await response.json();
-        
+        if (data.api_id) {
+          init(data.api_id);
+        }
         setFbData(data);
       } catch (error) {
         console.error("Error fetching Facebook data:", error);
@@ -27,7 +29,7 @@ const AnalyticsIntegration = () => {
     fetchFacebookData();
   }, []);
 
-  
+
   return (
     <>
       {fbData.domainVerification && (
@@ -36,6 +38,8 @@ const AnalyticsIntegration = () => {
           content={fbData.domainVerification}
         />
       )}
+      <meta name="msvalidate.01" content="9D6F4D25955329EA808B74416C671943" />
+      <meta name="google-site-verification" content="mNgh_Cr_ANLEQ34Grw9MdpyVZO42QknZyFHMVErtSNE" />
       {/* Google Tag Manager */}
       <Script
         id="gtm"
@@ -99,7 +103,7 @@ const AnalyticsIntegration = () => {
 
       <Script>
 
-        
+
       </Script>
     </>
   );

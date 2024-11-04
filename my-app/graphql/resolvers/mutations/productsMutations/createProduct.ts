@@ -89,7 +89,10 @@ export const createProduct = async (
     return "Product created successfully";  
   } catch (error: any) {  
     // Handle errors gracefully  
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      throw new Error(`Le nom du produit "${input.name}" existe déjà`);
+    }
     console.error("Error creating product:", error.message);  
-    return { error: "Failed to create product. Please try again." }; // A simpler error message  
+    return { error: "Failed to create product. Please try again." };  
   }  
 };

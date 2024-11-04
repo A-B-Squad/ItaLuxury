@@ -9,6 +9,7 @@ interface CategoryProps {
   data: {
     categories: Category[];
   };
+  closeCategoryDrawer: any
   setActiveCategory: (category: string) => void;
   activeCategory: string;
 }
@@ -22,14 +23,13 @@ interface Category {
 const Category: React.FC<CategoryProps> = ({
   data,
   setActiveCategory,
-  activeCategory,
+  activeCategory, closeCategoryDrawer
 }) => {
   return (
     <div className=" categories flex flex-col-reverse overflow-hidden">
       <div
-        className={`parentCategory flex flex-col transition-all duration-300 ${
-          activeCategory !== "" ? "-translate-x-full" : ""
-        }`}
+        className={`parentCategory flex flex-col transition-all duration-300 ${activeCategory !== "" ? "-translate-x-full" : ""
+          }`}
       >
         <h1 className="to-blue-300 text-lg list-outside  font-medium  uppercase px-7 pt-4  ">
           Choisir une catégorie :
@@ -38,17 +38,21 @@ const Category: React.FC<CategoryProps> = ({
         {data?.categories?.map((category: Category, index: number) => (
           <div
             key={index}
-            onClick={() => setActiveCategory(category.name)}
-            className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between  px-7 w-full border-b-2 ${
-              category.name === activeCategory
-                ? "translate-x-0"
-                : "translate-x-[full]"
-            }`}
+            onClick={() => { setActiveCategory(category.name), closeCategoryDrawer() }}
+            className={`flex py-3 cursor-pointer focus:text-red-200 items-center  justify-between  px-7 w-full border-b-2 ${category.name === activeCategory
+              ? "translate-x-0"
+              : "translate-x-[full]"
+              }`}
           >
             <Link
               className="capitalize"
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${[category.name]}`}
-            >
+              onClick={closeCategoryDrawer}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                {
+                  category: category.name,
+                  categories: category.name,
+                }
+              )}`}            >
               {category.name}
             </Link>
             {category.name === activeCategory ? (
@@ -61,15 +65,15 @@ const Category: React.FC<CategoryProps> = ({
       </div>
 
       <div
-        className={`subCategories-Container transition-all duration-300 ${
-          activeCategory !== "" ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`subCategories-Container transition-all duration-300 ${activeCategory !== "" ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {data?.categories
           ?.filter((category: Category) => category.name === activeCategory)
           .map((filteredCategory: Category, index: number) => (
             <Subcategory
               key={index}
+              closeCategoryDrawer={closeCategoryDrawer}
               subcategories={filteredCategory.subcategories}
               parentCategoryName={activeCategory}
               backToMainCategory={setActiveCategory}

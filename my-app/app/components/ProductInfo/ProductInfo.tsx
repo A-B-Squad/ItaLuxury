@@ -1,27 +1,26 @@
 "use client";
-import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import Image from "next/legacy/image";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import { IoMdCloseCircleOutline } from "react-icons/io";
-import { IoCloseOutline } from "react-icons/io5";
-import { RiSubtractFill } from "react-icons/ri";
-import InnerImageZoom from "react-inner-image-zoom";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import {
   useBasketStore,
   useProductDetails,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
-import { GoAlertFill } from "react-icons/go";
-import { SlBasket } from "react-icons/sl";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/trackEvents";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import triggerEvents from "@/utlils/trackEvents";
+import { useMutation, useQuery } from "@apollo/client";
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import { GoAlertFill } from "react-icons/go";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import { IoCloseOutline } from "react-icons/io5";
+import { RiSubtractFill } from "react-icons/ri";
+import { SlBasket } from "react-icons/sl";
+import InnerImageZoom from "react-inner-image-zoom";
+import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import SmallImageCarouselProductInfo from "./SmallImageCarouselProductInfo";
 
 interface DecodedToken extends JwtPayload {
@@ -35,8 +34,12 @@ const ProductInfo = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
 
+  const { toast } = useToast();
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
@@ -53,9 +56,8 @@ const ProductInfo = () => {
   const {
     products: storedProducts,
     addProductToBasket,
-    increaseProductInQtBasket
+    increaseProductInQtBasket,
   } = useProductsInBasketStore();
-
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -67,38 +69,34 @@ const ProductInfo = () => {
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
-
   const productsInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
         (item: any) => item.Product.id === productData?.id
       );
     }
-    return storedProducts.find((product: any) => product.id === productData?.id);
+    return storedProducts.find(
+      (product: any) => product.id === productData?.id
+    );
   }, [decodedToken, basketData, storedProducts]);
-
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productData?.inventory) {
-      setQuantity(prev => prev + 1);
+      setQuantity((prev) => prev + 1);
     }
   }, [quantity, productData?.inventory]);
 
   const handleDecreaseQuantity = useCallback(() => {
     if (quantity > 1) {
-      setQuantity(prev => prev - 1);
+      setQuantity((prev) => prev - 1);
     }
   }, [quantity]);
 
-
-
-
-
-
   const AddToBasket = async (product: any, quantity: number = 1) => {
-    const price = product.productDiscounts.length > 0
-      ? product.productDiscounts[0].newPrice
-      : product.price;
+    const price =
+      product.productDiscounts.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price;
     const addToCartData = {
       user_data: {
         em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -119,7 +117,7 @@ const ProductInfo = () => {
     if (decodedToken) {
       try {
         const currentBasketQuantity = productsInBasket
-          ? productsInBasket.quantity
+          ? productsInBasket.quantity || productsInBasket.actualQuantity
           : 0;
 
         if (currentBasketQuantity + quantity > product.inventory) {
@@ -159,15 +157,23 @@ const ProductInfo = () => {
         console.error("Error adding to basket:", error);
         toast({
           title: "Erreur",
-          description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+          description:
+            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
           className: "bg-red-600 text-white",
         });
       }
     } else {
-      const isProductAlreadyInBasket = storedProducts.some((p: any) => p.id === product?.id);
-      const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+      const isProductAlreadyInBasket = storedProducts.some(
+        (p: any) => p.id === product?.id
+      );
+      const filteredProduct = storedProducts.find(
+        (p: any) => p.id === product?.id
+      );
 
-      if (filteredProduct && filteredProduct.actualQuantity + quantity > product.inventory) {
+      if (
+        filteredProduct &&
+        filteredProduct.actualQuantity + quantity > product.inventory
+      ) {
         toast({
           title: "Quantité non disponible",
           description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
@@ -210,11 +216,14 @@ const ProductInfo = () => {
   }, [productData]);
 
 
+  if (!mounted || !isOpen) return null; 
   return (
     <>
-      <div
+<div
         onClick={closeProductDetails}
-        className={`productData  fixed cursor-none z-[14514]    ${isOpen ? "translate-y-0 opacity-100 z-[11111]" : "translate-y-full opacity-0 -z-50"} left-0 top-0 transition-all bg-lightBlack h-full flex  justify-center items-center w-full`}
+        className={`productData fixed cursor-none z-[11111111] 
+          left-0 top-0 transition-all bg-lightBlack h-full flex justify-center items-center w-full
+          ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       >
         <IoCloseOutline
           size={40}
@@ -224,7 +233,9 @@ const ProductInfo = () => {
       </div>
 
       <div
-        className={`fixed overflow-y-auto pb-20 overflow-x-hidden h-5/6 z-[11111600] border  ${isOpen ? "-translate-y-[46%] opacity-100 z-50" : "translate-y-full opacity-0 -z-50"} cursor-default left-2/4 -translate-x-2/4  top-2/4 transition-all bg-white  w-11/12 p-8 place-content-center  `}
+        className={`fixed overflow-y-auto pb-20 overflow-x-hidden h-5/6 z-[11111600] border 
+          left-2/4 -translate-x-2/4 -translate-y-2/4 top-2/4 transition-all bg-white w-11/12 p-8 place-content-center
+          ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       >
         <IoCloseOutline
           size={40}
@@ -241,7 +252,6 @@ const ProductInfo = () => {
                 zoomType="hover"
                 zoomScale={1.5}
                 hideHint={true}
-
               />
             </div>
 
@@ -250,7 +260,6 @@ const ProductInfo = () => {
               bigImage={bigImage}
               setBigImage={setBigImage}
             />
-
           </div>
 
           <div className="productData lg:w-2/4 w-full ">
@@ -361,8 +370,7 @@ const ProductInfo = () => {
                 <div className="flex items-center text-sm gap-3 ">
                   <GoAlertFill color="red" size={20} />
                   <p className="text-red-600 font-semibold tracking-wider">
-                    La quantité maximale de produits est de {quantity}
-                    .
+                    La quantité maximale de produits est de {quantity}.
                   </p>
                 </div>
               )}

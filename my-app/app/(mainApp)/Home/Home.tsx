@@ -1,10 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import React, { useMemo } from "react";
-import Link from "next/link";
-import { MdKeyboardArrowRight } from "react-icons/md";
 import { useQuery } from "@apollo/client";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useMemo } from "react";
+import { MdKeyboardArrowRight } from "react-icons/md";
 import {
   ADVERTISSMENT_QUERY,
   CONTENT_VISIBILITY,
@@ -35,10 +35,7 @@ const TitleProduct = dynamic(
 const BestSales = dynamic(() => import("./@TopSales/BestSales"), {
   ssr: false,
 });
-const ProductInfo = dynamic(
-  () => import("@/app/components/ProductInfo/ProductInfo"),
-  { ssr: false },
-);
+
 const Services = dynamic(() => import("./Components/services"), {
   ssr: false,
 });
@@ -162,7 +159,6 @@ const Home = () => {
           <Services />
 
           <div className="view lg:px-10">
-            <ProductInfo />
             {TopDealsSectionVisibility?.getSectionVisibility
               ?.visibility_status && (
                 <>

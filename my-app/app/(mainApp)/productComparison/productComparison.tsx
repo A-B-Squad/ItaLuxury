@@ -141,7 +141,7 @@ const ProductComparison = () => {
           className: "bg-primaryColor text-white",
         });
       } else {
-        increaseProductInQtBasket(product.id,1);
+        increaseProductInQtBasket(product.id, 1);
 
         toast({
           title: "Notification de Panier",
@@ -196,7 +196,11 @@ const ProductComparison = () => {
                       <Link
                         className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
                         rel="preload"
-                        href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
+                        href={`/products/tunisie/${prepRoute(product?.name)}/?${new URLSearchParams({
+                          productId: product.id,
+                          categories: product.categories.map((cat: { name: string; }) => cat.name).join(',')
+                        })}`}
+
                       >
                         <img
                           className="object-cover"
@@ -207,30 +211,10 @@ const ProductComparison = () => {
                       <div className="mt-4 px-3 pb-5">
                         <Link
                           rel="preload"
-                          href={{
-                            pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-                            query: {
-                              productId: product?.id,
-                              //categories:[
-                              //   // Get the name of the first category, if available
-                              //   product?.categories[0]?.name,
-                              //   // Get the ID of the first category, if available
-                              //   product?.categories[0]?.id,
-                              //   // Get the name of the first subcategory of the first category, if available
-                              //   product?.categories[0]?.subcategories[0]?.name,
-                              //   // Get the ID of the first subcategory of the first category, if available
-                              //   product?.categories[0]?.subcategories[0]?.id,
-                              //   // Get the name of the first subcategory of the first subcategory, if available
-                              //   product?.categories[0]?.subcategories[0]
-                              //     ?.subcategories[0]?.name,
-                              //   // Get the ID of the first subcategory of the first subcategory, if available
-                              //   product?.categories[0]?.subcategories[0]
-                              //     ?.subcategories[0]?.id,
-                              //   // Get the product name, if available
-                              //   product?.name,
-                              // ],
-                            },
-                          }}
+                          href={`/products/tunisie/${prepRoute(product?.name)}/?${new URLSearchParams({
+                            productId: product.id,
+                            categories: product.categories.map((cat: { name: string; }) => cat.name).join(',')
+                          })}`}
                         >
                           <p className="text-base text-black  text-center tracking-tight text-slate-900">
                             {product.name}
@@ -246,8 +230,8 @@ const ProductComparison = () => {
                             <p className="text-2xl font-bold text-red-500 text-slate-900">
                               {product.productDiscounts.length
                                 ? product.productDiscounts[0].newPrice.toFixed(
-                                    3
-                                  )
+                                  3
+                                )
                                 : product.price.toFixed(3)}{" "}
                               TND
                             </p>

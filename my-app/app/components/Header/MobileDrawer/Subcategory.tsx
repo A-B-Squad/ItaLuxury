@@ -8,6 +8,7 @@ interface SubcategoryProps {
   subcategories: Subcategory[];
   backToMainCategory: (category: string) => void;
   parentCategoryName: string;
+  closeCategoryDrawer: any
 }
 
 interface Subcategory {
@@ -20,7 +21,7 @@ interface Subcategory {
 const Subcategory: React.FC<SubcategoryProps> = ({
   subcategories,
   backToMainCategory,
-  parentCategoryName,
+  parentCategoryName, closeCategoryDrawer
 }) => {
   return (
     <>
@@ -36,8 +37,12 @@ const Subcategory: React.FC<SubcategoryProps> = ({
         subcategories.map((subcategory: Subcategory, subIndex: number) => (
           <div key={subIndex} className="h-fit cursor-pointer">
             <Link
-              href={`/Collections/tunisie/${prepRoute(subcategory.name)}/?category=${subcategory.name}&categories=${[parentCategoryName, subcategory.name]}`}
-              className="py-1 pl-5 font-bold text-primaryColor hover:font-bold w-full block transition-colors group border-b-2 cursor-pointer"
+              onClick={closeCategoryDrawer}
+              href={`/Collections/tunisie/?${new URLSearchParams({
+                category: subcategory.name,
+                categories: [parentCategoryName, subcategory.name].join(","),
+              })}
+  `} className="py-1 pl-5 font-bold text-primaryColor hover:font-bold w-full block transition-colors group border-b-2 cursor-pointer"
               data-parentcategory={subcategory.parentId}
             >
               {subcategory.name}
@@ -48,6 +53,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
                 <Subsubcategory
                   subsubcategories={subcategory.subcategories}
                   parentCategoryName={parentCategoryName}
+                  closeCategoryDrawer={closeCategoryDrawer}
                   parentSubCategoryName={subcategory.name}
                 />
               )}

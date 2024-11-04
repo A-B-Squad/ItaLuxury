@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { useMutation, useQuery } from "@apollo/client";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import React, { useEffect, useMemo, useState } from "react";
 
 
 import Cookies from "js-cookie";
@@ -12,16 +12,16 @@ import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import {
   useAllProductViewStore,
   useBasketStore,
-  useDrawerBasketStore,
   useProductsInBasketStore,
+  usePruchaseOptions
 } from "@/app/store/zustand";
-import ProductLabels from "./ProductLabels";
-import ProductImage from "./ProductImage";
-import ProductName from "./ProductName";
-import FullViewDetails from "./FullViewDetails";
-import CompactViewDetails from "./CompactViewDetails";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import triggerEvents from "@/utlils/trackEvents";
+import CompactViewDetails from "./CompactViewDetails";
+import FullViewDetails from "./FullViewDetails";
+import ProductImage from "./ProductImage";
+import ProductLabels from "./ProductLabels";
+import ProductName from "./ProductName";
 
 interface DecodedToken extends JwtPayload {
   userId: string;
@@ -34,9 +34,9 @@ interface ProductBoxProps {
 const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   const { toast } = useToast();
   const { view, changeProductView } = useAllProductViewStore();
-  const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
@@ -48,6 +48,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     addProductToBasket,
     increaseProductInQtBasket
   } = useProductsInBasketStore();
+  const { openPruchaseOptions } = usePruchaseOptions();
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
@@ -70,7 +71,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   }, []);
 
 
-  const productsInBasket = useMemo(() => {
+  const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
         (item: any) => item.Product.id === product.id
@@ -82,6 +83,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
 
   const AddToBasket = async (product: any, quantity: number = 1) => {
+    openPruchaseOptions(product)
+
     const price = product.productDiscounts.length > 0
       ? product.productDiscounts[0].newPrice
       : product.price;
@@ -104,8 +107,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
     if (decodedToken) {
       try {
-        const currentBasketQuantity = productsInBasket
-          ? productsInBasket.quantity
+        const currentBasketQuantity = productInBasket
+          ? productInBasket.quantity || productInBasket.actualQuantity
           : 0;
 
         if (currentBasketQuantity + quantity > product.inventory) {
@@ -181,38 +184,40 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
-    openBasketDrawer();
   };
 
 
   return (
-    <div
-      className={`product-box w-full relative group  flex items-center    ${view === 1 ? " justify-start h-[215px]" : "justify-center h-[344px]"}    bg-white    `}
-    >
+    <>
+      <div
+        className={`product-box w-full relative group  flex items-center    ${view === 1 ? " justify-start h-[215px]" : "justify-center h-[344px]"}    bg-white    `}
+      >
 
-      {/* Product labels */}
-      <ProductLabels product={product} />
+        {/* Product labels */}
+        <ProductLabels product={product} />
 
-      <div className={`product flex   ${view === 1 ? " flex-row" : "flex-col  "} `}>
+        <div className={`product flex   ${view === 1 ? " flex-row" : "flex-col  "} `}>
 
-        {/* Product image */}
-        <ProductImage product={product} onAddToBasket={AddToBasket} decodedToken={decodedToken} view={view} />
+          {/* Product image */}
+          <ProductImage product={product} onAddToBasket={AddToBasket} decodedToken={decodedToken} view={view} />
 
-        {/* Product details */}
-        <div className={`${view !== 1 ? "border-t" : ""} mt-2 px-4 lg:px-2  w-full`}>
-          <ProductName product={product} />
-          {view !== 1 ? (
-            <FullViewDetails
-              product={product}
-              onAddToBasket={AddToBasket}
-            />
-          ) : (
-            <CompactViewDetails product={product} />
-          )}
+          {/* Product details */}
+          <div className={`${view !== 1 ? "border-t" : ""} mt-2 px-4 lg:px-2  w-full`}>
+            <ProductName product={product} />
+            {view !== 1 ? (
+              <FullViewDetails
+                product={product}
+                onAddToBasket={AddToBasket}
+              />
+            ) : (
+              <CompactViewDetails product={product} />
+            )}
+          </div>
         </div>
-      </div>
 
-    </div>
+      </div>
+    </>
+
   );
 });
 

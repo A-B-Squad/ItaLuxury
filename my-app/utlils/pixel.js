@@ -23,9 +23,9 @@ export function getFbc() {
   );
 }
 
-export function init() {
-  if (typeof window !== 'undefined') {
-    window.fbq = window.fbq || function() {
+export function init(FB_PIXEL_ID) {
+  if (typeof window !== 'undefined' && FB_PIXEL_ID) {
+    window.fbq = window.fbq || function () {
       window.fbq.callMethod ? window.fbq.callMethod.apply(window.fbq, arguments) : window.fbq.queue.push(arguments);
     };
     if (!window._fbq) window._fbq = window.fbq;

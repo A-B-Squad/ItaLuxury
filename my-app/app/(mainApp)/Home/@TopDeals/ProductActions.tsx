@@ -80,6 +80,8 @@ const ProductActions = ({
                 productName={product?.name}
             />
         </ul>
+
+
     )
 };
 

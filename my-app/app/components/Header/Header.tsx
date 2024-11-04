@@ -5,7 +5,6 @@ import Dropdown from "./CategoryDropdown/Dropdown";
 import TopHeader from "./TopHeader";
 import { useQuery } from "@apollo/client";
 import { COMPANY_INFO_QUERY } from "@/graphql/queries";
-import Contact from "./ContactBanner";
 
 const Header = () => {
   const [showCategoryDropdown, setShowDropdown] = useState<Boolean>(false);

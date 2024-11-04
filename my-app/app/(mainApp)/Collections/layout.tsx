@@ -1,16 +1,13 @@
-import React, { ReactNode } from "react";
-import dynamic from "next/dynamic";
-import { Metadata } from "next";
-import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
-import { fetchGraphQLData } from "@/utlils/graphql";
-import { ALL_BRANDS, COLORS_QUERY, CATEGORIES_QUERY } from "@/graphql/queries";
-import keywords from "@/public/keywords";
 import Breadcumb from "@/app/components/Breadcumb";
+import { ALL_BRANDS, CATEGORIES_QUERY, COLORS_QUERY } from "@/graphql/queries";
+import keywords from "@/public/keywords";
+import { fetchGraphQLData } from "@/utlils/graphql";
+import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
+import { Metadata } from "next";
+import dynamic from "next/dynamic";
+import { ReactNode } from "react";
 
-const ProductInfo = dynamic(
-  () => import("@/app/components/ProductInfo/ProductInfo"),
-  { ssr: false }
-);
+
 const SideBar = dynamic(() => import("./components/sideBar"), { ssr: false });
 if (process.env.NODE_ENV === "development") {
   loadDevMessages();
@@ -81,7 +78,6 @@ export default async function Layout({ children }: LayoutProps) {
       <div className=" container  gap-3 px-4 flex md:flex-row items-center md:items-start flex-col-reverse  relative w-full h-full ">
         <SideBar categories={categories} brands={brands} colors={colors} />
         <main style={{ width: "inherit" }} className="relative ">
-          <ProductInfo />
           {children}
         </main>
       </div>

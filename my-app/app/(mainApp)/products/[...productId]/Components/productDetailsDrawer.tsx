@@ -1,6 +1,8 @@
+
 import React from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
+
 
 const productDetailsDrawer = ({
   isBottom,
@@ -11,8 +13,12 @@ const productDetailsDrawer = ({
   quantity,
   handleIncreaseQuantity,
 }: any) => {
+
+
+
   return (
     <div className="hidden md:flex ">
+
       {isBottom && !!productDetails && (
         <div className="fixed z-50 bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
           <img
@@ -22,16 +28,22 @@ const productDetailsDrawer = ({
           />
 
           <div className="items-center ">
-            <h2 className="product_name tracking-wider text-xl font-semibold ">
+            <h2 className="product_name tracking-wider text-xl max-w-60 line-clamp-1 font-semibold ">
               {productDetails.name}
             </h2>
-            <div className="discount flex flex-col  gap-1 mt-2">
-              <p className="text-primaryColor  tracking-wide text-2xl font-bold">
-                {discount
-                  ? discount.newPrice.toFixed(3)
-                  : productDetails.price.toFixed(3)}{" "}
-                <span className="text-xl ">TND</span>
-              </p>
+            <div className="discount flex items-center   gap-2">
+
+              {discount
+                ? <p className="text-gray-400 line-through  font-semibold 	text-lg" >{productDetails?.price.toFixed(3)} TND</p>
+                : <p className=" font-bold">
+                  {productDetails?.price.toFixed(3)} TND
+                </p>
+              }
+
+              {discount
+                ? <p className="text-red-500 text-xl  font-bold"> {discount.newPrice.toFixed(3)} TND</p>
+                : ""
+              }
             </div>
           </div>
           <div className="Quantity flex items-center  space-x-2">

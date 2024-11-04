@@ -1,8 +1,13 @@
 import crypto from 'crypto';
 import * as fbq from "./pixel";
 import { getUserIpAddress } from "./getUserIpAddress";
+import { v4 as uuidv4 } from 'uuid';
 
-function hashData(data: string): string {
+
+
+
+function hashData(data: string | undefined): string {
+  if (!data) return ''; // Return an empty string if data is undefined or null
   return crypto.createHash('sha256').update(data).digest('hex');
 }
 
@@ -43,8 +48,8 @@ async function createSendingData(
     event_source_url: window.location.href,
     user_data: {
       ...values.user_data,
-      em: values.user_data.em ? values.user_data.em.map(hashData) : undefined,
-      ph: values.user_data.ph ? values.user_data.ph.map(hashData) : undefined,
+      em: values.user_data.em ? values.user_data.em.map((email: string) => hashData(email)) : undefined,
+      ph: values.user_data.ph ? values.user_data.ph.map((phone: string) => hashData(phone)) : undefined,
       external_id: values.user_data.external_id ? hashData(values.user_data.external_id) : undefined,
       client_user_agent: navigator.userAgent,
       client_ip_address: userIp || undefined,
@@ -68,11 +73,11 @@ export default async function triggerEvents(eventName: string, eventData: any) {
     }
 
     const data = await response.json();
-    
+
     const PIXEL_ID = data.api_id;
     const ACCESS_KEY = data.access_token;
 
-    const eventId: string = crypto.randomUUID();
+    const eventId: string = uuidv4()
     const sendData = await createSendingData(eventData, eventName, eventId);
 
     // Client-side event
@@ -80,7 +85,7 @@ export default async function triggerEvents(eventName: string, eventData: any) {
 
     // Server-side event
     const pixelResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${PIXEL_ID}/events?access_token=${ACCESS_KEY}`,
+      `https://graph.facebook.com/v20.0/${PIXEL_ID}/events?access_token=${ACCESS_KEY}`,
       {
         method: "POST",
         headers: {

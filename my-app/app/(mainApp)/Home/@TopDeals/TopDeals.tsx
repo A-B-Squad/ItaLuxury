@@ -33,25 +33,15 @@ const TopDeals = () => {
     skip: !decodedToken?.userId,
   });
 
-
-
-
   const { data: topDeals } = useQuery(TOP_DEALS);
-
-
-
-
-
-
-
 
   const renderProducts = useMemo(() => {
     if (!topDeals?.allDeals) return null;
     return (
       <>
-        {topDeals.allDeals.map((product:any) => (
+        {topDeals.allDeals.map((product: any) => (
           <ProductDetails
-            key={product.id} 
+            key={product.id}
             product={product}
             basketData={basketData}
             decodedToken={decodedToken}
@@ -62,10 +52,7 @@ const TopDeals = () => {
         ))}
       </>
     );
-  }, [topDeals, basketData, decodedToken, setIsFavorite, isFavorite, userData]); 
-
-
-
+  }, [topDeals, basketData, decodedToken, setIsFavorite, isFavorite, userData]);
 
   return (
     <div className="md:grid grid-cols-2 gap-3 grid-flow-col min-h-72 bg-white border py-2 overflow-hidden block">

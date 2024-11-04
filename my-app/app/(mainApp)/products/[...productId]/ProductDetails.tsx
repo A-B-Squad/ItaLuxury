@@ -1,54 +1,53 @@
 "use client";
 
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import ProductTabs from "@/app/components/ProductCarousel/productTabs";
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
+import { useToast } from "@/components/ui/use-toast";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import triggerEvents from "@/utlils/trackEvents";
+import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import moment from "moment-timezone";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-
   FaPlus,
-  FaRegHeart,
-  FaStar,
+  FaRegHeart
 } from "react-icons/fa";
+import { GoAlertFill, GoGitCompare } from "react-icons/go";
+import { HiOutlineBellAlert } from "react-icons/hi2";
+import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { MdAddShoppingCart } from "react-icons/md";
 import { RiSubtractFill } from "react-icons/ri";
-import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
+import {
+  ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
+  ADD_TO_BASKET_MUTATION
+} from "../../../../graphql/mutations";
 import {
   BASKET_QUERY,
   FETCH_USER_BY_ID,
-  GET_REVIEW_QUERY,
-  GET_USER_REVIEW_QUERY,
-  TAKE_10_PRODUCTS_BY_CATEGORY,
+  TAKE_10_PRODUCTS_BY_CATEGORY
 } from "../../../../graphql/queries";
-
-import ProductTabs from "@/app/components/ProductCarousel/productTabs";
-import { GoAlertFill, GoGitCompare } from "react-icons/go";
-import {
-  ADD_RATING_MUTATION,
-  ADD_TO_BASKET_MUTATION,
-  ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
-  INCREASE_QUANTITY_MUTATION,
-  DECREASE_QUANTITY_MUTATION,
-} from "../../../../graphql/mutations";
 import Breadcumb from "../../../components/Breadcumb";
 import PopHover from "../../../components/PopHover";
-import ProductDetailsDrawer from "./Components/productDetailsDrawer";
-import { useToast } from "@/components/ui/use-toast";
-import Loading from "./loading";
 import {
   useBasketStore,
   useComparedProductsStore,
-  useDrawerBasketStore,
   useProductsInBasketStore,
+  usePruchaseOptions,
 } from "../../../store/zustand";
-import moment from "moment-timezone";
-import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
-import { HiOutlineBellAlert } from "react-icons/hi2";
-import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import triggerEvents from "@/utlils/trackEvents";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import ProductAttr from "./Components/ProductAttr";
+import ProductDetailsDrawer from "./Components/productDetailsDrawer";
+import RatingStars from "./Components/RatingStars";
 import SmallImageCarousel from "./Components/SmallImageCarousel";
-
+import Loading from "./loading";
+import OrderNow from "./Components/OrderNow";
+const InnerImageZoom = dynamic(
+  () => import('react-inner-image-zoom'),
+  { ssr: false }
+);
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -58,17 +57,9 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   const { toast } = useToast();
   const [bigImage, setBigImage] = useState<any>(null);
   const [smallImages, setSmallImages] = useState<any>(null);
-  const [rating, setRating] = useState<number>(0);
-  const [hover, setHover] = useState<any>(null);
+
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [discount, setDiscount] = useState<any>(null);
-  const [reviews, setReviews] = useState<number>(0);
-  const [userReviews, setUserReviews] = useState<number>(0);
-  const [oneStar, setOneStar] = useState<number>(0);
-  const [twoStar, setTwoStar] = useState<number>(0);
-  const [threeStar, setThreeStar] = useState<number>(0);
-  const [fourStar, setFourStar] = useState<number>(0);
-  const [fiveStar, setFiveStar] = useState<number>(0);
   const [attributes, setAttributes] = useState<any>(null);
   const [showPopover, setShowPopover] = useState<Boolean>(false);
   const [popoverTitle, setPopoverTitle] = useState("");
@@ -76,25 +67,18 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
 
-  const { openBasketDrawer } = useDrawerBasketStore();
 
 
-  const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
-  const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
+  const { openPruchaseOptions } = usePruchaseOptions();
+
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
-  const [addRating] = useMutation(ADD_RATING_MUTATION);
 
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
       variables: {
         limit: 10,
-        categoryName:
-          productDetails.categories[0]?.subcategories[0]?.subcategories[0]
-            ?.name ||
-          productDetails.categories[0]?.subcategories[0]?.name ||
-          productDetails.categories[0]?.name ||
-          "",
+        categoryName: productDetails?.categories[1]?.name
       },
     });
 
@@ -186,7 +170,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     pushToDataLayer("ViewContent");
   }, [productDetails]);
 
-  const productsInBasket = useMemo(() => {
+  const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
         (item: any) => item.Product.id === productId
@@ -194,7 +178,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     }
     return storedProducts.find((product: any) => product.id === productId);
   }, [decodedToken, basketData, storedProducts, productId]);
-
 
 
 
@@ -219,6 +202,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
 
   const AddToBasket = async (product: any) => {
+    openPruchaseOptions(product)
     const price = product.productDiscounts.length > 0
       ? product.productDiscounts[0].newPrice
       : product.price;
@@ -243,8 +227,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
     if (decodedToken) {
       try {
-        const currentBasketQuantity = productsInBasket
-          ? productsInBasket.quantity
+        const currentBasketQuantity = productInBasket
+          ? productInBasket.quantity || productInBasket.actualQuantity
           : 0;
 
         if (currentBasketQuantity + quantity > product.inventory) {
@@ -296,7 +280,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       const isProductAlreadyInBasket = storedProducts.some((p: any) => p.id === product?.id);
       const filteredProduct = storedProducts.filter((p: any) => p.id === product?.id)[0];
 
-      if (filteredProduct && filteredProduct.actualQuantity == product.inventory) {
+      if (filteredProduct && filteredProduct.actualQuantity >= product.inventory || (filteredProduct?.actualQuantity + quantity) >= product.inventory) {
         toast({
           title: "Quantité non disponible",
           description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
@@ -324,7 +308,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
-    openBasketDrawer();
   };
 
 
@@ -342,45 +325,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     }
   }, [quantity]);
 
-  useEffect(() => {
-    getReviews({
-      variables: { productId: productId },
-      onCompleted: (data) => {
-        setReviews(data.productReview.length);
-        setOneStar(
-          data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 1,
-          ).length,
-        );
-        setTwoStar(
-          data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 2,
-          ).length,
-        );
-        setThreeStar(
-          data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 3,
-          ).length,
-        );
-        setFourStar(
-          data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 4,
-          ).length,
-        );
-        setFiveStar(
-          data.productReview.filter(
-            (review: { rating: number }) => review?.rating === 5,
-          ).length,
-        );
-      },
-    });
-    getUserReviews({
-      variables: { productId: productId, userId: decodedToken?.userId },
-      onCompleted: (data) => {
-        setUserReviews(data.productReview[0]?.rating);
-      },
-    });
-  }, [rating]);
+
+
+
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -489,6 +437,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   return (
     <div className="productDetails">
+
       <div className="container relative  ">
         {!productDetails ? (
           <Loading />
@@ -506,6 +455,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     zoomType="hover"
                     zoomScale={1.5}
                     hideHint={true}
+
 
                   />
                   <span
@@ -527,6 +477,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               </div>
 
               <div className="product  lg:col-span-6 col-span-12 p-3 w-full ">
+
+
                 <h2 className="product_name tracking-wider text-xl lg:text-2xl w-fit font-semibold ">
                   {productDetails?.name}
                 </h2>
@@ -536,7 +488,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
 
                     {discount
-                      ? <p className="text-gray-400 line-through 	text-lg" >{productDetails?.price.toFixed(3)} TND</p>
+                      ? <p className="text-gray-400 line-through font-semibold text-lg" >{productDetails?.price.toFixed(3)} TND</p>
                       : <p className=" font-bold">
                         {productDetails?.price.toFixed(3)} TND
                       </p>
@@ -570,22 +522,22 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         </p>
                         <span className="text-sm">TTC</span>
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-green-400">
                         {countdown ? (
                           <>
                             La réduction se termine dans :{" "}
-                            <span className="font-semibold">
+                            <span className="font-semibold text-lg">
                               {Math.floor(countdown / (1000 * 60 * 60 * 24))}{" "}
                               jrs,{" "}
                               {Math.floor(
                                 (countdown % (1000 * 60 * 60 * 24)) /
                                 (1000 * 60 * 60),
                               )}{" "}
-                              hrs,{" "}
+                              hrs :{" "}
                               {Math.floor(
                                 (countdown % (1000 * 60 * 60)) / (1000 * 60),
                               )}{" "}
-                              mins,{" "}
+                              mins :{" "}
                               {Math.floor((countdown % (1000 * 60)) / 1000)}{" "}
                               secs
                             </span>
@@ -668,18 +620,19 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                       </button>
                     </div>
                   </div>
+                  <OrderNow ActualQuantity={quantity} productDetails={productDetails} />
+
                   <div className="addToBasket flex items-center mt-4  gap-2 md:gap-4  ">
                     <button
                       type="button"
-                      className={`$c{productDetails?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[250px] transition-colors  py-4  shadow-lg bg-secondaryColor hover:bg-secondaryColor text-white text-sm font-bold `}
+                      className={`${productDetails?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[250px] w-4/5 transition-opacity  py-4  shadow-lg flex items-center justify-center gap-2 bg-secondaryColor hover:opacity-80 text-white text-sm  font-bold `}
                       onClick={() => {
                         AddToBasket(productDetails);
                       }}
-
                     >
+                      <MdAddShoppingCart size={20} />
                       Ajouter au panier
                     </button>
-
                     <div
                       className="relative"
                       onMouseEnter={() =>
@@ -730,114 +683,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </div>
                 </div>
 
-                <div className="Rating_stars flex  space-x-2 mt-4 items-center">
-                  {[...Array(5)].map((_, index) => {
-                    const currentIndex = index + 1;
-                    return (
-                      <label key={currentIndex}>
-                        <input
-                          className="hidden  "
-                          type="radio"
-                          name="rating"
-                          value={currentIndex}
-                          onClick={() => {
-                            if (decodedToken?.userId) {
-                              setRating(currentIndex);
-                              addRating({
-                                variables: {
-                                  productId: productId,
-                                  userId: decodedToken.userId,
-                                  rating: currentIndex,
-                                },
-                              });
-                              toast({
-                                title: "Notification d'ajout d'évaluation",
-                                description: `Merci d'avoir ajouté une évaluation.`,
-                                className: "bg-primaryColor text-white",
-                              });
-                            } else {
-                              toast({
-                                title: "Notification d'ajout d'évaluation",
-                                description: `Vous devez vous connecter pour ajouter une évaluation.`,
-                                className: "bg-red-800 text-white",
-                              });
-                            }
-                          }}
-                        />
-                        <FaStar
-                          size={18}
-                          className="cursor-pointer"
-                          color={
-                            currentIndex <= (hover || rating || userReviews)
-                              ? "#f17e7e"
-                              : "grey"
-                          }
-                          onMouseEnter={() => setHover(currentIndex)}
-                          onMouseLeave={() => setHover(null)}
-                        />
-                      </label>
-                    );
-                  })}
-                  <h4 className="text-primaryColor text-sm">
-                    {reviews} Commentaires
-                  </h4>
-                </div>
-
-                <div className="Rating mt-8 lg:w-4/5 w-full">
-                  <div >
-                    <h3 className="text-lg font-bold text-primaryColor">
-                      Note globale ({reviews})               </h3>
-                    <div className="space-y-4 mt-6  md:w-full">
-                      {[
-                        { rating: 5, value: fiveStar },
-                        { rating: 4, value: fourStar },
-                        { rating: 3, value: threeStar },
-                        { rating: 2, value: twoStar },
-                        { rating: 1, value: oneStar },
-                      ].map(({ rating, value }) => (
-                        <div className="flex items-center gap-3" key={rating}>
-                          <div className="flex items-center ">
-                            <p className="text-sm font-bold">{rating}.0</p>
-                            <FaStar
-                              size={20}
-                              className="text-primaryColor ml-1"
-                            />
-                          </div>
-                          <div className="relative bg-gray-400 rounded-md w-full h-2 ml-3">
-                            <div
-                              style={{
-                                width: `${(value / reviews) * 100 || 0}%`,
-                              }}
-                              className="h-full rounded bg-primaryColor"
-                            ></div>
-                          </div>
-                          <p className="text-sm font-bold ">
-                            {(value / reviews) * 100 || 0}%
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <RatingStars productId={productId} userId={decodedToken?.userId} toast={toast} />
               </div>
             </div>
-            {attributes && (
-              <div className=" my-10 mx-5 lg:mx-auto w-11/12 m-auto bg-white  shadow-md ">
-                <h3 className="text-lg font-bold  text-white w-fit p-3 bg-primaryColor">
-                  Information de produit
-                </h3>
-                <ul className="mt-6 space-y-6 text-[#333] p-6">
-                  {attributes?.map((attribute: any, index: number) => (
-                    <li key={index} className="text-sm pb-2 border-b">
-                      {attribute.name.toUpperCase()}{" "}
-                      <span className="ml-4 float-right">
-                        {attribute.value.toUpperCase()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <ProductAttr attributes={attributes} />
           </div>
         )}
         <div className="Carousel voir aussi px-2 md:px-10 mb-[15%] ">

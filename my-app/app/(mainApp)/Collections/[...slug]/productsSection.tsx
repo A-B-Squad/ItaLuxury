@@ -1,14 +1,14 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useLazyQuery } from "@apollo/client";
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
-import { IoMdArrowDropdown } from "react-icons/io";
+import { useLazyQuery } from "@apollo/client";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 import { useAllProductViewStore } from "@/app/store/zustand";
-import Pagination from "../components/Paginations";
 import ProductBox from "../../../components/ProductBox/ProductBox";
+import Pagination from "../components/Paginations";
 import TopBar from "../components/topBar";
 
 // Define types for clarity
@@ -187,7 +187,7 @@ const ProductsSection: React.FC = () => {
       {productsData.length > 0 && !loading ? (
         <>
           {searchParams?.get("category") && categoryDescription !== "" && (
-            <p className="bg-white tracking-wider text-sm md:text-[15px] leading-7 px-2 md:px-7 text-gray-800 mb-5 py-2">
+            <p className="bg-white hidden md:block tracking-wider text-sm md:text-[15px] leading-7 px-2 md:px-7 text-gray-800 mb-5 py-2">
               {categoryDescription}
             </p>
           )}
