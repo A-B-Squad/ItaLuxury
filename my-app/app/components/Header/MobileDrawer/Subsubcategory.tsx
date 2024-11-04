@@ -12,20 +12,29 @@ interface SubsubcategoryProps {
   subsubcategories: Subcategory[];
   parentSubCategoryName: string;
   parentCategoryName: string;
+  closeCategoryDrawer:any
 }
 
 const Subsubcategory: React.FC<SubsubcategoryProps> = ({
   subsubcategories,
   parentSubCategoryName,
-  parentCategoryName,
+  parentCategoryName,closeCategoryDrawer
 }) => {
   return (
     <>
       {subsubcategories && subsubcategories.length > 0 ? (
         subsubcategories.map((subsubcategory, subIndex) => (
           <Link
-            href={`/Collections/tunisie/${prepRoute(subsubcategory.name)}/?category=${subsubcategory.name}&categories=${[parentCategoryName, parentSubCategoryName, subsubcategory.name]}`}
-            className="py-1 pl-5 group text-sm cursor-pointer transition-all relative left-2 flex hover:font-bold"
+          onClick={closeCategoryDrawer}
+            href={`/Collections/tunisie/?${new URLSearchParams({
+              category: subsubcategory.name,
+              categories: [
+                parentCategoryName,
+                parentSubCategoryName,
+                subsubcategory.name,
+              ].join(","),
+            })}
+          `} className="py-1 pl-5 group text-sm cursor-pointer transition-all relative left-2 flex hover:font-bold"
             key={subIndex}
           >
             <MdOutlineArrowRight className="text-xl transition-all" />

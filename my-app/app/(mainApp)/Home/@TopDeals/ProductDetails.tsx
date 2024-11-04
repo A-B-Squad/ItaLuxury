@@ -1,5 +1,5 @@
 import prepRoute from '@/app/Helpers/_prepRoute';
-import { useBasketStore, useProductDetails, useProductsInBasketStore } from '@/app/store/zustand';
+import { useBasketStore, useProductDetails, useProductsInBasketStore, usePruchaseOptions } from '@/app/store/zustand';
 import { useToast } from '@/components/ui/use-toast';
 import { ADD_TO_BASKET_MUTATION } from '@/graphql/mutations';
 import { BASKET_QUERY } from '@/graphql/queries';
@@ -8,7 +8,7 @@ import triggerEvents from '@/utlils/trackEvents';
 import { useMutation } from '@apollo/client';
 import { JwtPayload } from 'jsonwebtoken';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import ProductActions from './ProductActions';
 import ProductImage from './ProductImage';
 
@@ -38,6 +38,7 @@ const ProductDetails: React.FC<ProductProps> = ({
     const { toggleIsUpdated } = useBasketStore();
     const { openProductDetails } = useProductDetails();
     const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+    const { openPruchaseOptions } = usePruchaseOptions();
 
     const {
         products: storedProducts,
@@ -45,7 +46,7 @@ const ProductDetails: React.FC<ProductProps> = ({
         increaseProductInQtBasket
     } = useProductsInBasketStore();
 
-    const productsInBasket = useMemo(() => {
+    const productInBasket = useMemo(() => {
         if (decodedToken?.userId && basketData?.basketByUserId) {
             return basketData.basketByUserId.find(
                 (item: any) => item.Product.id === product.id
@@ -55,6 +56,8 @@ const ProductDetails: React.FC<ProductProps> = ({
     }, [decodedToken, basketData, storedProducts]);
 
     const AddToBasket = async (product: any, quantity: number = 1) => {
+        openPruchaseOptions(product)
+
         const price = product.productDiscounts.length > 0
             ? product.productDiscounts[0].newPrice
             : product.price;
@@ -77,8 +80,8 @@ const ProductDetails: React.FC<ProductProps> = ({
 
         if (decodedToken) {
             try {
-                const currentBasketQuantity = productsInBasket
-                    ? productsInBasket.quantity
+                const currentBasketQuantity = productInBasket
+                    ? productInBasket.quantity || productInBasket.actualQuantity
                     : 0;
 
                 if (currentBasketQuantity + quantity > product.inventory) {
@@ -155,12 +158,28 @@ const ProductDetails: React.FC<ProductProps> = ({
         }
         toggleIsUpdated();
     };
+    const handleCategoryStorage = useCallback((e: React.MouseEvent) => {
+        if (!product?.categories?.[0]) return;
+        const categories = [
+            product.categories[0].name,
+            product.categories[1]?.name,
+            product.categories[2]?.name,
+            product.name
+        ].filter(Boolean);
 
+        try {
+            localStorage.setItem('productCategories', JSON.stringify(categories));
+        } catch (error) {
+            console.error('Error storing categories in localStorage:', error);
+        }
+    }, [product]);
     return (
         <div
             key={product?.id}
             className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-sm px-2 h-4/5 md:h-full lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row place-self-center items-center gap-5 relative"
         >
+
+
             <ProductImage product={product} />
             <ProductActions
                 product={product}
@@ -173,7 +192,8 @@ const ProductDetails: React.FC<ProductProps> = ({
             />
             <div className="lg:col-span-2 row-span-1 lg:row-span-1 place-self-stretch lg:mt-3 flex flex-col justify-around">
                 <Link
-                    href={`/Collections/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
+                    href={`/Collections/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}`}
+                    onClick={handleCategoryStorage}
                 >
                     <h2 className="tracking-wider hover:text-secondaryColor transition-colors">
                         {product?.name}

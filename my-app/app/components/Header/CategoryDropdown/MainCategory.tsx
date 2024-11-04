@@ -29,22 +29,25 @@ const Category: React.FC<CategoryProps> = ({
         {data?.categories?.map((category: Category, index: number) => (
           <div data-parentcategory={category.name} key={index}>
             <Link
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${[category.name]}`}
+              href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                {
+                  category: category.name,
+                  categories: category.name,
+                }
+              )}`}
               onMouseEnter={() => setActiveCategory(category.name)}
-              className={`  group h-fit  py-2 px-3 w-full cursor-pointer hover:bg-gray-100  justify-between flex items-center gap-1  hover:font-semibold font-light transition-all ${
-                category.name === activeCategory
+              className={`  group h-fit  py-2 px-3 w-full cursor-pointer hover:bg-gray-100  justify-between flex items-center gap-1  hover:font-semibold font-light transition-all ${category.name === activeCategory
                   ? "bg-gray-100 font-semibold  "
                   : ""
-              }`}
+                }`}
               data-category={category.name}
             >
               {category.name}
               <IoIosArrowForward
-                className={` group-hover:text-black  transition-all ${
-                  category.name === activeCategory
+                className={` group-hover:text-black  transition-all ${category.name === activeCategory
                     ? "text-black  "
                     : "text-gray-700"
-                }`}
+                  }`}
                 size={13}
               />
             </Link>

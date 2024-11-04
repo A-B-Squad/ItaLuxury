@@ -42,7 +42,6 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
       }
     }
     
-    console.log(hasDiscount,"#########################");
     // If no products have discounts, update the visibility status
     if (!hasDiscount) {
       // First, find the ID of the "topDeals" section
@@ -53,7 +52,6 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
       });
       
       if (section) {
-        console.log(section,"ahhahahahahahahahhah");
         // Update the visibility status using the found ID
         await prisma.content_visibility.update({
           where: {

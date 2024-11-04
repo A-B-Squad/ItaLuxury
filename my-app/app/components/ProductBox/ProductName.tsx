@@ -7,16 +7,22 @@ interface ProductNameProps {
 }
 
 const ProductName: React.FC<ProductNameProps> = ({ product }) => {
+  const categoryNames = product.categories
+    .map(cat => cat.name)
+  const queryParams = new URLSearchParams({
+    productId: product.id,
+    categories: [categoryNames,product?.name].join(',')
+  });
 
   return (
     <Link
       rel="preload"
-      href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
+      href={`/products/tunisie/${prepRoute(product?.name)}/?${queryParams}`}
 
     >
       <div className="product-name pt-1 tracking-wider  hover:text-primaryColor transition-colors text-sm font-semibold ">
         <p className="category font-normal -tracking-tighter text-xs capitalize">
-          {product.categories[2]?.name}
+          {categoryNames[categoryNames.length - 1]}
         </p>
         <p className="text-xs lg:font-semibold lg:text-sm line-clamp-2 ">{product.name}</p>
       </div>

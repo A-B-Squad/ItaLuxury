@@ -242,6 +242,7 @@ function DrawerMobile() {
             data={data}
             activeCategory={activeCategory}
             setActiveCategory={setActiveCategory}
+            closeCategoryDrawer={closeCategoryDrawer}
           />
         ) : (
           <p>

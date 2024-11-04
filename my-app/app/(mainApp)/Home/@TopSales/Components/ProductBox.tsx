@@ -23,7 +23,6 @@ import triggerEvents from "@/utlils/trackEvents";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 const ProductBox = ({ product }: any) => {
-  const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
   interface DecodedToken extends JwtPayload {
     userId: string;
@@ -115,7 +114,7 @@ const ProductBox = ({ product }: any) => {
           actualQuantity: 1,
         });
       } else {
-        increaseProductInQtBasket(product.id,1);
+        increaseProductInQtBasket(product.id, 1);
       }
 
       // Track Add to Cart
@@ -146,7 +145,12 @@ const ProductBox = ({ product }: any) => {
     }
     toggleIsUpdated();
   };
-
+  const categoryNames = product.categories
+    .map((cat: { name: string; }) => cat.name)
+  const queryParams = new URLSearchParams({
+    productId: product.id,
+    categories: [categoryNames, product?.name].join(',')
+  });
   return (
     <div className="flex font-medium text-gray-900 w-full relative">
       <div className="w-full flex gap-5 items-center">
@@ -188,7 +192,7 @@ const ProductBox = ({ product }: any) => {
           <Link
             className="hover:text-primaryColor text-base font-light transition-all  cursor-pointer tracking-wider"
             title={product.name}
-            href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
+            href={`/products/tunisie/${prepRoute(product?.name)}/?${queryParams}`}
           >
             <p className="text-left">{product.name}</p>
           </Link>

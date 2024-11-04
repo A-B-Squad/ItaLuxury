@@ -23,7 +23,7 @@ import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
 import { StepIndicator } from "./components/StepIndicator";
 import { OrderSummary } from "./components/OrderSummary";
 import Step1 from "./components/Step1/Step1";
-import { useProductsInBasketStore } from "@/app/store/zustand";
+import { useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
 import { Loader2 } from "lucide-react";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
@@ -84,8 +84,7 @@ const Checkout: React.FC = () => {
   // Notification step
 
   // Step 2: Parse URL parameters
-  const total = searchParams?.get("total") || "0";
-  const products: Product[] = JSON.parse(searchParams?.get("products") || "[]");
+  const { checkoutProducts,checkoutTotal } = useCheckoutStore()
 
   // Step 3: Set up GraphQL queries and mutations
   const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
@@ -134,7 +133,7 @@ const Checkout: React.FC = () => {
 
   // Step 6: Define utility functions
   const calculateTotal = (): string => {
-    let subtotal = Number(total);
+    let subtotal = Number(checkoutTotal);
     const shippingCost = subtotal >= 499 ? 0 : deliveryPrice;
 
     if (discountPercentage > 0) {
@@ -160,9 +159,9 @@ const Checkout: React.FC = () => {
       governorateId: data.governorate,
       address: data.address,
       couponsId: couponsId,
-      freeDelivery: Number(total) >= 499,
+      freeDelivery: Number(checkoutTotal) >= 499,
       isGuest: isGuest,
-      products: products.map((product) => ({
+      products: checkoutProducts.map((product) => ({
         productId: product.id,
         productQuantity: product.actualQuantity || product.quantity,
         price: product.price,
@@ -202,18 +201,20 @@ const Checkout: React.FC = () => {
             content_name: "Checkout",
             content_type: "product",
             currency: "TND",
-            value: parseFloat(total),
-            contents: products.map((product) => ({
+            value: checkoutTotal,
+            contents: checkoutProducts.map((product) => ({
               id: product.id,
               quantity: product.actualQuantity || product.quantity,
             })),
-            num_items: products.reduce(
+            num_items: checkoutProducts.reduce(
               (sum, product) =>
                 sum + (product?.actualQuantity || product?.quantity || 0),
               0
             ),
           },
         })
+        pushToDataLayer("Purchase");
+
 
         if (paymentMethod === "CREDIT_CARD") {
           triggerEvents("AddPaymentInfo", {
@@ -346,7 +347,7 @@ const Checkout: React.FC = () => {
   };
 
   // Step 8: Render component
-  if (products.length === 0) {
+  if (checkoutProducts.length === 0) {
     return <Loading />;
   }
 
@@ -716,12 +717,12 @@ const Checkout: React.FC = () => {
 
           {/* Order Summary Section */}
           <OrderSummary
-            products={products}
+            products={checkoutProducts}
             setDiscountPercentage={setDiscountPercentage}
             discountPercentage={discountPercentage}
             setCouponsId={setCouponsId}
             deliveryPrice={deliveryPrice}
-            total={total}
+            total={checkoutTotal}
             calculateTotal={calculateTotal}
             handlePreviousStep={handlePreviousStep}
             isLoggedIn={isLoggedIn}

@@ -82,48 +82,48 @@ const updateAttributes = async (
   }
 };
 
-const updateDiscounts = async (  
-  prisma: PrismaClient,  
-  productId: string,  
-  price: number,  
-  discountInputs: DiscountInput[]  
-) => {  
-  for (const discountInput of discountInputs) {  
-    const dateOfEnd = moment(discountInput.dateOfEnd, 'DD/MM/YYYY HH:mm', true);  
-    const dateOfStart = moment(discountInput.dateOfStart, 'DD/MM/YYYY HH:mm', true);  
+const updateDiscounts = async (
+  prisma: PrismaClient,
+  productId: string,
+  price: number,
+  discountInputs: DiscountInput[]
+) => {
+  for (const discountInput of discountInputs) {
+    const dateOfEnd = moment(discountInput.dateOfEnd, 'DD/MM/YYYY HH:mm', true);
+    const dateOfStart = moment(discountInput.dateOfStart, 'DD/MM/YYYY HH:mm', true);
 
-    if (!dateOfEnd.isValid() || !dateOfStart.isValid()) {  
-      throw new Error(`Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`);  
-    }  
+    if (!dateOfEnd.isValid() || !dateOfStart.isValid()) {
+      throw new Error(`Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`);
+    }
 
-    const discountData = {  
-      newPrice: discountInput.newPrice,  
-      dateOfEnd: dateOfEnd.toDate(),  
-      dateOfStart: dateOfStart.toDate(),  
-      discountId: discountInput.discountId || null,  
-    };  
+    const discountData = {
+      newPrice: discountInput.newPrice,
+      dateOfEnd: dateOfEnd.toDate(),
+      dateOfStart: dateOfStart.toDate(),
+      discountId: discountInput.discountId || null,
+    };
 
-    const existingDiscount = await prisma.productDiscount.findFirst({  
-      where: { productId },  
-    });  
+    const existingDiscount = await prisma.productDiscount.findFirst({
+      where: { productId },
+    });
 
     // Avoiding the `unique constraint` error by properly handling existing discounts  
-    if (existingDiscount) {  
-      await prisma.productDiscount.update({  
+    if (existingDiscount) {
+      await prisma.productDiscount.update({
         where: { id: existingDiscount.id }, // Update only the existing discount by ID  
-        data: discountData,  
-      });  
-    } else {  
+        data: discountData,
+      });
+    } else {
       // You can consider checking if a discount with the same price exists for any other product  
-      await prisma.productDiscount.create({  
-        data: {  
-          productId,  
-          price,  
-          ...discountData,  
-        },  
-      });  
-    }  
-  }  
+      await prisma.productDiscount.create({
+        data: {
+          productId,
+          price,
+          ...discountData,
+        },
+      });
+    }
+  }
 };
 export const updateProduct = async (
   _: any,
@@ -147,6 +147,23 @@ export const updateProduct = async (
       brandId,
     } = input;
 
+
+
+    // First, disconnect only this product's categories
+    await prisma.product.update({
+      where: { id: productId },
+      data: {
+        categories: {
+          disconnect: (await prisma.product.findUnique({
+            where: { id: productId },
+            select: { categories: { select: { id: true } } },
+          }))?.categories.map(cat => ({ id: cat.id })) || [],
+        },
+      },
+    });
+
+
+
     // Update the product with the provided data
     await prisma.product.update({
       where: { id: productId },
@@ -162,7 +179,7 @@ export const updateProduct = async (
         colorsId,
         images,
         categories: {
-          connect: categories?.map((categoryId) => ({ id: categoryId })),
+          connect: categories?.map((categoryId) => ({ id: categoryId })) || [],
         },
       },
       include: {
@@ -192,7 +209,10 @@ export const updateProduct = async (
     }
 
     return "Product updated successfully";
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      throw new Error(`Le nom du produit "${input.name}" existe déjà`);
+    }
     console.error("Error updating product:", error);
     return `Failed to update product: ${error}`;
   }

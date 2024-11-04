@@ -63,12 +63,6 @@ const FavoriteList = () => {
 
   const handleRemoveFromFavorites = async (productId: string) => {
     try {
-      console.log({
-        product: productsData,
-        userId: decodedToken?.userId,
-        productId: productId,
-      });
-
       await removeFromFavorites({
         variables: {
           input: {

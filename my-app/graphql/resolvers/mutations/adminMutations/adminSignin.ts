@@ -9,7 +9,6 @@ export const adminSignIn = async (
   { prisma, jwtSecret, res }: Context
 ): Promise<string> => {
   const { fullName, password, role } = input;
-  console.log("tokennnnnnnnnnnnnnn","#######################################################################################");
 
   try {
     // Check if the user exists

@@ -46,7 +46,14 @@ export const metadata: Metadata = {
     ],
   },
 };
-
+const PurchaseOptions = dynamic(
+  () => import("@/app/components/PurchaseOptions"),
+  { ssr: false }
+);
+const ProductInfo = dynamic(
+  () => import("@/app/components/ProductInfo/ProductInfo"),
+  { ssr: false }
+);
 export default async function Layout({
   children,
 }: Readonly<{
@@ -56,6 +63,8 @@ export default async function Layout({
     <div className={` relative`}>
       <DrawerMobile />
       <BasketDrawer />
+      <PurchaseOptions />
+      <ProductInfo />
       <Header />
       <ApolloWrapper>{children}</ApolloWrapper>
       <Footer />

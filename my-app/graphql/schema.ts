@@ -184,7 +184,7 @@ type ApiCredentials {
   access_token: String!
   createdAt: String!
   integrationFor:String!
-  domainVerification:String
+  domainVerification:String!
 }
 
 

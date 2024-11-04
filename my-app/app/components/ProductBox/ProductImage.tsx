@@ -56,47 +56,47 @@ const ProductImage: React.FC<ProductImageProps> = ({
     }
   }, [product, productsInCompare, addProductToCompare, toast]);
 
+  const categoryNames = product.categories
+    .map(cat => cat.name)
+    const queryParams = new URLSearchParams({
+      productId: product.id,
+      categories: [categoryNames,product?.name].join(',')
+    });
+
   return (
     <div
       className={`images relative flex ${view == 1 ? "flex-row" : "flex-col"}  gap-1 `}
     >
       <Link
-        className="relative  w-full flex  mx-auto items-center  justify-center  overflow-hidden"
-        rel="preload"
-        href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
+        className="relative w-full flex mx-auto items-center justify-center overflow-hidden"
+        href={`/products/tunisie/${prepRoute(product?.name)}/?${queryParams}`}
+        prefetch={false}
       >
-        <div className="images   relative group  h-44 w-44 ">
-          {product.images.length > 1 ? (
-            <>
-              <Image
-                src={product.images[0]}
-                className="absolute group-hover:opacity-0 z-10 opacity-100 transition-all 
-            "
-                loading="eager"
-                priority
-                objectFit="contain"
-                alt={`products-${product.name}`}
-                layout="fill"
-              />
-              <Image
-                src={product.images[1]}
-                className="absolute group-hover:opacity-100 group-hover:scale-125  duration-1000   opacity-0 transition-all "
-                loading="eager"
-                priority
-                objectFit="contain"
-                alt={`products-${product.name}`}
-                layout="fill"
-              />
-            </>
-          ) : (
+        <div className="relative h-44 w-44">
+          {product.images.length > 0 && (
             <Image
               src={product.images[0]}
-              className="h-full w-full "
-              loading="eager"
-              priority
-              objectFit="contain"
-              alt={`products-${product.name}`}
+              alt={`${product.name}`}
               layout="fill"
+              objectFit="contain"
+              quality={75}
+              sizes="(max-width: 768px) 100vw, 176px"
+              priority={false}
+              loading="eager"
+              className="transition-opacity duration-300"
+            />
+          )}
+
+          {product.images.length > 1 && (
+            <Image
+              src={product.images[1]}
+              alt={`${product.name} - hover`}
+              layout="fill"
+              objectFit="contain"
+              quality={75}
+              sizes="(max-width: 768px) 100vw, 176px"
+              loading="lazy"
+              className="absolute top-0 left-0 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
             />
           )}
         </div>

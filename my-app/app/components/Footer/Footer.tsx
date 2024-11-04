@@ -1,11 +1,5 @@
 "use client";
-import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
-import Image from "next/legacy/image";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { MdEmail, MdLocalPhone } from "react-icons/md";
-import Cookies from "js-cookie";
-import { IoLocationSharp } from "react-icons/io5";
+import prepRoute from "@/app/Helpers/_prepRoute";
 import {
   Accordion,
   AccordionContent,
@@ -13,10 +7,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
-import { useQuery } from "@apollo/client";
 import { CATEGORY_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
+import { useQuery } from "@apollo/client";
+import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
-import prepRoute from "@/app/Helpers/_prepRoute";
+import Image from "next/legacy/image";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
+import { IoLocationSharp } from "react-icons/io5";
+import { MdEmail, MdLocalPhone } from "react-icons/md";
 
 interface DecodedToken extends jwt.JwtPayload {
   userId: string;
@@ -108,7 +108,12 @@ const Footer = () => {
               (category: { name: string; id: string }, subIndex: number) => (
                 <li key={subIndex}>
                   <Link
-                    href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
+                    href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                      {
+                        category: category.name,
+                        categories: category.name,
+                      }
+                    )}`}
 
                     className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                   >
@@ -158,7 +163,7 @@ const Footer = () => {
               Mes Commandes
             </Link>
             <Link
-              href={"/FavoriteList" }
+              href={"/FavoriteList"}
               className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
             >
               Ma Liste D'envies
@@ -229,8 +234,14 @@ const Footer = () => {
                 {categories.map((category: { name: string; id: string }) => (
                   <li key={category?.id} className="py-2">
                     <Link
-                    href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
-                    className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 "
+
+                      href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                        {
+                          category: category.name,
+                          categories: category.name,
+                        }
+                      )}`}
+                      className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 "
                     >
                       {category?.name}
                     </Link>
@@ -309,7 +320,7 @@ const Footer = () => {
         />
       </div>
       <div className="border-t py-5 pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors ">
-        © 2024 ita-luxury.com By ita-luxury Team
+        © 2024 ita-luxury.com By Ahmed Haddada
       </div>
     </div>
   );

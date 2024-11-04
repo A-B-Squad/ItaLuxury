@@ -32,7 +32,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   }
 
   return (
-    <div className="products-tab  w-full rounded-md shadow-sm">
+    <div className="products-tab relative  w-full rounded-md shadow-sm">
       {data.length > 0 && (
         <Carousel className="productCarousel w-full ">
           <div className="flex items-center justify-end -top-12 right-4 md:right-10 absolute gap-2 z-10">
@@ -44,7 +44,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
             {productPairs.map((pair, index) => (
               <CarouselItem
                 key={index}
-                className="pl-4 lg:pl-4 basis-1/2 lg:basis-1/3 2xl:basis-1/4 "
+                className="pl-4 lg:pl-4 basis-1/2  lg:basis-1/3 2xl:basis-1/4 "
               >
                 <div className="flex flex-col gap-3 h-full">
                   {pair.map((product, productIndex) => (

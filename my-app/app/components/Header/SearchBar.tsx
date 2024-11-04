@@ -95,18 +95,18 @@ const SearchBar = () => {
             search_string: inputValue,
             contentIds: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.id,
+                (category: any) => category.id
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name,
+                (product: any) => product.name
               ),
             ],
             contents: [
               data.searchProducts.results.categories.map(
-                (category: any) => category.name,
+                (category: any) => category.name
               ),
               data.searchProducts.results.products.map(
-                (product: any) => product.name,
+                (product: any) => product.name
               ),
             ].join(", "),
             Currency: "TND",
@@ -158,7 +158,12 @@ const SearchBar = () => {
                 {data.searchProducts.results.categories.map((category: any) => (
                   <Link
                     key={category.id}
-                    href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
+                    href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                      {
+                        category: category.name,
+                        categories: category.name,
+                      }
+                    )}`}
                     onClick={() => {
                       triggerEvents("SelectSearchedCategory", {
                         user_data: {
@@ -197,7 +202,14 @@ const SearchBar = () => {
               {data.searchProducts.results.products.map((product: any) => (
                 <Link
                   key={product.id}
-                  href={`/products/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}&categories=${[product?.categories[0]?.name, product?.categories[0]?.subcategories[0]?.name, product?.categories[0]?.subcategories[0]?.subcategories[0]?.name, product?.name]}`}
+                  href={`/products/tunisie/${prepRoute(product?.name)}/?${new URLSearchParams(
+                    {
+                      productId: product.id,
+                      categories: product.categories
+                        .map((cat: { name: string }) => cat.name)
+                        .join(","),
+                    }
+                  )}`}
                   onClick={() => {
                     triggerEvents("SelectSearchedProduct", {
                       user_data: {

@@ -49,6 +49,28 @@ interface ProductDetailsData {
   }[];
   [key: string]: any;
 }
+
+
+
+
+
+interface CheckoutState {
+  checkoutProducts: ProductDetailsData[];
+  checkoutTotal: number;
+  setCheckoutProducts: (products: any) => void;
+  setCheckoutTotal: (total: number) => void;
+  clearCheckout: () => void;
+}
+
+export const useCheckoutStore = create<CheckoutState>((set) => ({
+  checkoutProducts: [],
+  checkoutTotal: 0,
+  setCheckoutProducts: (products) => set({ checkoutProducts: products }),
+  setCheckoutTotal: (total) => set({ checkoutTotal: total }),
+  clearCheckout: () => set({ checkoutProducts: [], checkoutTotal: 0 }),
+}));
+
+
 type UseProductDetails = {
   isOpen: boolean;
   productData: ProductDetailsData | any;
@@ -61,6 +83,20 @@ export const useProductDetails = create<UseProductDetails>((set) => ({
   productData: null,
   openProductDetails: (productData) => set({ isOpen: true, productData }),
   closeProductDetails: () => set({ isOpen: false, productData: null }),
+}));
+
+type UsePruchaseOptions = {
+  isOpen: boolean;
+  productData: ProductDetailsData | any;
+  openPruchaseOptions: (productData: ProductDetailsData) => void;
+  closePruchaseOptions: () => void;
+};
+
+export const usePruchaseOptions = create<UsePruchaseOptions>((set) => ({
+  isOpen: false,
+  productData: null,
+  openPruchaseOptions: (productData) => set({ isOpen: true, productData }),
+  closePruchaseOptions: () => set({ isOpen: false, productData: null }),
 }));
 
 export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
@@ -142,7 +178,7 @@ interface ProductsInBasketStore {
   setQuantityInBasket: (quantity: number) => void;
   addProductToBasket: (product: ProductData) => void;
   removeProductFromBasket: (productId: string) => void;
-  increaseProductInQtBasket: (productId: string,quantity:number) => void;
+  increaseProductInQtBasket: (productId: string, quantity: number) => void;
   decreaseProductInQtBasket: (productId: string) => void;
   clearBasket: () => void;
 }
@@ -167,7 +203,7 @@ const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
       quantityInBasket: state.products.length + 1,
     }));
   },
-  increaseProductInQtBasket: (productId: string,quantity:number) => {
+  increaseProductInQtBasket: (productId: string, quantity: number) => {
     set((state) => {
       const updatedProducts = state.products.map((product) =>
         product.id === productId

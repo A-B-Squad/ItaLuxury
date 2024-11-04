@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import prepRoute from "@/app/Helpers/_prepRoute";
-import { useBasketStore, useProductsInBasketStore } from "@/app/store/zustand";
+import { useBasketStore, useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
 import {
   DECREASE_QUANTITY_MUTATION,
   DELETE_BASKET_BY_ID_MUTATION,
@@ -78,6 +78,8 @@ const Basket: React.FC = () => {
     increaseProductInQtBasket,
     decreaseProductInQtBasket,
   } = useProductsInBasketStore();
+  const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore()
+
   // Hooks
   const { toast } = useToast();
   const { toggleIsUpdated } = useBasketStore((state) => ({
@@ -207,7 +209,7 @@ const Basket: React.FC = () => {
           },
         });
       } else {
-        increaseProductInQtBasket(productId,1);
+        increaseProductInQtBasket(productId, 1);
       }
     },
     [decodedToken, increaseQuantity, handleQuantityChange]
@@ -260,7 +262,6 @@ const Basket: React.FC = () => {
     },
     [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
-
   // Render component
   return (
     <div className="">
@@ -276,8 +277,8 @@ const Basket: React.FC = () => {
 
           <Table>
             <TableCaption>Bienvenue sur notre site.</TableCaption>
-            <TableHeader>
-              <TableRow>
+            <TableHeader >
+              <TableRow className="w-full ">
                 <TableHead className="text-base">Description</TableHead>
                 <TableHead className="text-base">Quantité</TableHead>
                 <TableHead className="text-base">Prix</TableHead>
@@ -306,9 +307,8 @@ const Basket: React.FC = () => {
                       <Link
                         href={`/products/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
                           product.categories?.[0]?.name,
-                          product.categories?.[0]?.subcategories?.[0]?.name,
-                          product.categories?.[0]?.subcategories?.[0]
-                            ?.subcategories?.[0]?.name,
+                          product.categories?.[1]?.name,
+                          product.categories?.[2]?.name,
                           product.name,
                         ].filter(Boolean)}`}
                         className="text-md font-bold hover:text-primaryColor text-[#333]"
@@ -347,8 +347,8 @@ const Basket: React.FC = () => {
                       <button
                         type="button"
                         className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
-                      disabled={product.actualQuantity === product?.inventory}
-                       
+                        disabled={product.actualQuantity === product?.inventory}
+
                         onClick={() =>
                           handleIncreaseQuantity(product.id, product.basketId)
                         }
@@ -379,7 +379,7 @@ const Basket: React.FC = () => {
         </div>
 
         {/* Order summary */}
-        <div className="bg-white shadow-xl rounded-lg p-6">
+        <div className="bg-white h-fit sticky top-24 shadow-xl rounded-lg p-6">
           <h3 className="text-xl font-bold text-gray-800 border-b pb-4 mb-6">
             Récapitulatif de la commande
           </h3>
@@ -414,6 +414,9 @@ const Basket: React.FC = () => {
           {products.length > 0 ? (
             <Link
               onClick={() => {
+                setCheckoutProducts(products);
+                setCheckoutTotal(Number(totalPrice));
+
                 // Track Add to Cart
                 triggerEvents("InitiateCheckout", {
                   user_data: {
@@ -434,22 +437,22 @@ const Basket: React.FC = () => {
                     })),
                     num_items: products.reduce(
                       (sum, product) =>
-                        sum +
-                        (product?.actualQuantity || product?.quantity || 0),
+                        sum + (product?.actualQuantity || product?.quantity || 0),
                       0
                     ),
                   },
                 });
                 pushToDataLayer("Initiate Checkout");
               }}
-              href={{
-                pathname: "/Checkout",
-                query: {
-                  products: JSON.stringify(products),
-                  total: Number(totalPrice).toFixed(3),
-                },
-              }}
+              href={
+                "/Checkout"
+
+              }
               className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
+
+
+
+
             >
               Procéder au paiement
             </Link>

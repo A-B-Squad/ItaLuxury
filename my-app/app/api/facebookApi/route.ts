@@ -11,23 +11,22 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log(GRAPHQL_ENDPOINT);
 
     const response = await fetch(GRAPHQL_ENDPOINT, {
       method: "POST",
-      cache:"default",
+      cache:"force-cache",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: `
         query getApiCredentials($integrationFor: String) {
-  getApiCredentials(integrationFor: $integrationFor) {
-    api_id
-    access_token
-    domainVerification
-  }
-}
+          getApiCredentials(integrationFor: $integrationFor) {
+            api_id
+            access_token
+            domainVerification
+        }
+      }
 
         `,
         variables: { integrationFor: "FACEBOOK" },

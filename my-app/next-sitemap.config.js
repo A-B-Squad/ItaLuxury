@@ -1,13 +1,18 @@
 module.exports = {
-    siteUrl: 'https://www.ita-luxury.com/',
-    generateRobotsTxt: true,
-    generateIndexSitemap: false,
+//     siteUrl: 'https://localhost:4000',
+generateRobotsTxt: true,
+    generateIndexSitemap: true,
     robotsTxtOptions: {
         policies: [
-            {
-                userAgent: '*',
-                allow: '/',
-            }
-        ]
+      {
+        userAgent: "*",
+        disallow: "/admin",
+      },
+      {
+        userAgent: "*",
+        allow: "/",
+      },
+    ],
     }
 }
+

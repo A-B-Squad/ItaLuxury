@@ -2,7 +2,10 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('REFUNDED', 'BACK', 'CANCELLED', 'EXCHANGE', 'TRANSFER_TO_DELIVERY_COMPANY', 'PROCESSING', 'PAYED');
+CREATE TYPE "PaymentMethod" AS ENUM ('CREDIT_CARD', 'CASH_ON_DELIVERY');
+
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('REFUNDED', 'BACK', 'CANCELLED', 'EXCHANGE', 'TRANSFER_TO_DELIVERY_COMPANY', 'PROCESSING', 'PAYMENT_REFUSED', 'PAYED_AND_DELIVERED', 'PAYED_NOT_DELIVERED');
 
 -- CreateEnum
 CREATE TYPE "Cause" AS ENUM ('BROKEN', 'CANCEL', 'REFUND');
@@ -127,13 +130,30 @@ CREATE TABLE "Checkout" (
     "userId" TEXT,
     "governorateId" TEXT,
     "manualDiscount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "phone" INTEGER[],
+    "phone" TEXT[],
     "address" TEXT NOT NULL,
     "total" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "couponsId" TEXT,
+    "freeDelivery" BOOLEAN NOT NULL DEFAULT false,
+    "isGuest" BOOLEAN NOT NULL DEFAULT false,
+    "guestEmail" TEXT,
+    "deliveryComment" TEXT,
+    "paymentMethod" "PaymentMethod" NOT NULL,
 
     CONSTRAINT "Checkout_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ApiCredentials" (
+    "id" TEXT NOT NULL,
+    "api_id" TEXT NOT NULL,
+    "access_token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "integrationFor" TEXT NOT NULL,
+    "domainVerification" TEXT,
+
+    CONSTRAINT "ApiCredentials_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -224,7 +244,7 @@ CREATE TABLE "Governorate" (
 -- CreateTable
 CREATE TABLE "CompanyInfo" (
     "id" TEXT NOT NULL,
-    "phone" INTEGER[],
+    "phone" TEXT[],
     "deliveringPrice" INTEGER NOT NULL,
     "logo" TEXT NOT NULL,
     "instagram" TEXT NOT NULL,
@@ -344,13 +364,13 @@ ALTER TABLE "ProductDiscount" ADD CONSTRAINT "ProductDiscount_productId_fkey" FO
 ALTER TABLE "Basket" ADD CONSTRAINT "Basket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Basket" ADD CONSTRAINT "Basket_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_governorateId_fkey" FOREIGN KEY ("governorateId") REFERENCES "Governorate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_governorateId_fkey" FOREIGN KEY ("governorateId") REFERENCES "Governorate"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_couponsId_fkey" FOREIGN KEY ("couponsId") REFERENCES "Coupons"("id") ON DELETE SET NULL ON UPDATE CASCADE;

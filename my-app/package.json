@@ -50,8 +50,10 @@
     "react-icons": "^5.0.1",
     "react-inner-image-zoom": "^3.0.2",
     "react-schemaorg": "^2.0.0",
+    "sharp": "^0.33.5",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.1",
     "vaul": "^0.9.6",
     "zustand": "^4.5.2"
   },
