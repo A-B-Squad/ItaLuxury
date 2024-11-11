@@ -27,12 +27,14 @@ export const metadata: Metadata = {
   },
 };
 const pageTermsOfUse = () => {
+  const breadcrumbPaths = [
+    { href: "/", label: "Accueil" },
+    { href: "/Terms-of-use", label: "Conditions d'Utilisation", }
+  ];
   return (
     <div className="p-6">
-      <Breadcumb
-        pageName={"Conditions d'Utilisation"}
-        pageLink={"Terms-of-use"}
-      />
+          <Breadcumb Path={breadcrumbPaths} />
+
       <PrivacyPolicy />;
     </div>
   );

@@ -1,23 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { GiShoppingBag } from "react-icons/gi";
-
 import { useForm } from "react-hook-form";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import Image from "next/legacy/image";
 import { CiMail, CiPhone, CiUser } from "react-icons/ci";
-
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
-
 import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
-
-import { useProductsInBasketStore } from "@/app/store/zustand";
 import { Loader2 } from "lucide-react";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import {
     BASKET_QUERY,
     COMPANY_INFO_QUERY,
@@ -26,7 +19,6 @@ import {
     GET_GOVERMENT_INFO,
 } from "@/graphql/queries";
 import Link from "next/link";
-import { MdAddShoppingCart } from "react-icons/md";
 
 // Define interfaces
 interface DecodedToken extends JwtPayload {
@@ -58,13 +50,15 @@ const OrderNow: React.FC<OrderNowProps> = ({
     productDetails,
     ActualQuantity,
 }) => {
-    // Step 1: Initialize state and hooks
+    // State management
     const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
     const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
     const [discountPercentage, setDiscountPercentage] = useState<number>(0);
     const [couponsId, setCouponsId] = useState<string>("");
     const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     const {
         register,
@@ -78,19 +72,16 @@ const OrderNow: React.FC<OrderNowProps> = ({
     const { toast } = useToast();
     const router = useRouter();
 
-    // Notification step
+    // Calculate total
+    const total = productDetails?.productDiscounts?.length > 0
+        ? productDetails.productDiscounts[0].newPrice * ActualQuantity
+        : productDetails?.price * ActualQuantity;
 
-    // Step 2: Parse URL parameters
-    const total =
-        productDetails?.productDiscounts?.length > 0
-            ? productDetails?.productDiscounts[0].newPrice * ActualQuantity
-            : productDetails?.price * ActualQuantity;
-
-    // Step 3: Set up GraphQL queries and mutations
+    // GraphQL setup
     const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
-    const [isGuest, setIsGuest] = useState<boolean>(false);
+    const [isGuest, setIsGuest] = useState<boolean>(true);
 
-    // Step 4: Fetch initial data
+    // Fetch initial data
     useQuery(COMPANY_INFO_QUERY, {
         onCompleted: (companyData) => {
             setDeliveryPrice(companyData.companyInfo.deliveringPrice);
@@ -108,7 +99,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
         skip: !decodedToken?.userId,
     });
 
-    // Step 5: Set up side effects
+    // Authentication check
     useEffect(() => {
         const token = Cookies.get("Token");
         if (token) {
@@ -123,96 +114,82 @@ const OrderNow: React.FC<OrderNowProps> = ({
         }
     }, []);
 
-    // Step 6: Define utility functions
+    // Calculate total with discounts
     const calculateTotal = (): string => {
         const subtotal = Number(total || 0);
-
-        // Check if `subtotal` is valid
         if (isNaN(subtotal)) {
             throw new Error("Total must be a valid number");
         }
 
         const shippingCost = subtotal >= 499 ? 0 : deliveryPrice || 0;
-
         let discountedSubtotal = subtotal;
+
         if (discountPercentage && discountPercentage > 0) {
             discountedSubtotal -= (subtotal * discountPercentage) / 100;
         }
 
         const finalTotal = discountedSubtotal + shippingCost;
-
         return finalTotal.toFixed(3);
     };
 
-    // Step 7: Define event handlers
+    // Form submission handler
     const onSubmit = async (data: any) => {
+        if (isSubmitting) return; // Prevent double submission
+        setIsSubmitting(true);
+
         const userEmail = isGuest ? data.email : userData?.fetchUsersById?.email;
-        const userName = isGuest
-            ? data.fullname
-            : userData?.fetchUsersById?.fullName;
+        const userName = isGuest ? data.fullname : userData?.fetchUsersById?.fullName;
         const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
 
-        if (!isValid) {
-            toast({
-                title: "Erreur de validation",
-                description: "Veuillez remplir tous les champs requis correctement.",
-                variant: "destructive",
+        try {
+            setPaymentLoading(true);
+
+            if (!isValid) {
+                toast({
+                    title: "Erreur de validation",
+                    description: "Veuillez remplir tous les champs requis correctement.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            const checkoutInput = {
+                userId: decodedToken?.userId,
+                userName: data.fullname,
+                total: parseFloat(calculateTotal()),
+                phone: [data.phone_1, data.phone_2].filter(Boolean),
+                governorateId: data.governorate,
+                address: data.address,
+                couponsId: couponsId,
+                freeDelivery: Number(total) >= 499,
+                isGuest: isGuest,
+                products: [
+                    {
+                        productId: productDetails.id,
+                        productQuantity: ActualQuantity,
+                        price: productDetails.price,
+                        discountedPrice: productDetails.productDiscounts?.[0]?.newPrice || 0,
+                    },
+                ],
+                guestEmail: userEmail,
+                deliveryComment: data.deliveryComment,
+                paymentMethod: "CASH_ON_DELIVERY",
+            };
+
+            const response = await createCheckout({
+                variables: { input: checkoutInput },
+                refetchQueries: [
+                    {
+                        query: BASKET_QUERY,
+                        variables: { userId: decodedToken?.userId },
+                    },
+                ],
             });
-            return;
-        }
 
-        if (loading) {
-            toast({
-                title: "En traitement",
-                description:
-                    "Votre demande est en cours de traitement. Veuillez patienter.",
-                variant: "default",
-            });
-            return;
-        }
+            if (response.data) {
+                const customId = response.data.createCheckout.customId;
 
-
-        const checkoutInput = {
-            userId: decodedToken?.userId,
-            userName: data.fullname,
-            total: parseFloat(calculateTotal()),
-            phone: [data.phone_1, data.phone_2].filter(Boolean),
-            governorateId: data.governorate,
-            address: data.address,
-            couponsId: couponsId,
-            freeDelivery: Number(total) >= 499,
-            isGuest: isGuest,
-            products: [
-                {
-                    productId: productDetails.id,
-                    productQuantity: ActualQuantity,
-                    price: productDetails.price,
-                    discountedPrice:
-                        productDetails.productDiscounts &&
-                            productDetails.productDiscounts.length > 0
-                            ? productDetails.productDiscounts[0].newPrice
-                            : 0,
-                },
-            ],
-            guestEmail: userEmail,
-            deliveryComment: data.deliveryComment,
-            paymentMethod: "CASH_ON_DELIVERY",
-        };
-        console.log(checkoutInput);
-
-        createCheckout({
-            variables: {
-                input: checkoutInput,
-            },
-            refetchQueries: [
-                {
-                    query: BASKET_QUERY,
-                    variables: { userId: decodedToken?.userId },
-                },
-            ],
-            onCompleted: async (data) => {
-                const customId = data.createCheckout.customId;
-
+                // Track purchase event
                 triggerEvents("Purchase", {
                     user_data: {
                         em: [userEmail.toLowerCase()],
@@ -227,35 +204,28 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         content_type: "product",
                         currency: "TND",
                         value: parseFloat(calculateTotal()),
-                        contents: [
-                            {
-                                id: productDetails.id,
-                                quantity: ActualQuantity,
-                            },
-                        ],
+                        contents: [{ id: productDetails.id, quantity: ActualQuantity }],
                         num_items: ActualQuantity,
                     },
                 });
 
-
                 router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
-
-            },
-            onError: (error) => {
-                console.error("OrderNow Error:", error);
-                toast({
-                    title: "Error",
-                    description: "An error occurred during checkout. Please try again.",
-                    variant: "destructive",
-                });
-            },
-        });
+            }
+        } catch (error) {
+            console.error("Checkout error:", error);
+            toast({
+                title: "Error",
+                description: "Une erreur s'est produite lors de la commande. Veuillez réessayer.",
+                variant: "destructive",
+            });
+        } finally {
+            setPaymentLoading(false);
+            setIsSubmitting(false);
+        }
     };
 
-
-
+    // Coupon handling
     const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
-
     const [showInputCoupon, setShowInputCoupon] = useState<boolean>(false);
     const [changeCouponCode, setChangeCouponCode] = useState<string>("");
 
@@ -268,6 +238,11 @@ const OrderNow: React.FC<OrderNowProps> = ({
             if (uniqueCoupons?.findUniqueCoupons) {
                 setCouponsId(uniqueCoupons.findUniqueCoupons.id);
                 setDiscountPercentage(uniqueCoupons.findUniqueCoupons.discount);
+                toast({
+                    title: "Code Promo",
+                    description: "Code promo appliqué avec succès",
+                    className: "bg-green-800 text-white",
+                });
             } else {
                 toast({
                     title: "Code Promo",
@@ -294,11 +269,21 @@ const OrderNow: React.FC<OrderNowProps> = ({
     };
 
     return (
-        <div className="  flex justify-center flex-col items-center w-full mt-10 ">
+        <div className="md:hidden flex justify-center flex-col items-center w-full mt-10">
+            {paymentLoading && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+                        <p className="mt-2 text-gray-700">
+                            Redirection vers la page de paiement...
+                        </p>
+                    </div>
+                </div>
+            )}
 
 
-            {/* OrderNow Form Section */}
-            <div className=" w-full p-4 pb-2 bg-white border-2">
+
+            <div className=" w-full p-4 pb-2 bg-white border-2 gap-">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {!isValid && Object.keys(errors).length > 0 && (
                         <p className="text-red-500 mb-4">
@@ -308,14 +293,14 @@ const OrderNow: React.FC<OrderNowProps> = ({
                     <div className="flex flex-col w-full">
                         <div className="w-full">
                             <h2 className="text-2xl font-bold mb-4">
-                                أشتري الآن
+                                Acheter maintenant
                             </h2>
-                            <div className="inputs grid md:grid-cols-2 gap-2 ">
+                            <div className="inputs grid md:grid-cols-2  ">
                                 <div className="fullName">
                                     {/* Full Name Input */}
                                     <label
                                         htmlFor="fullname"
-                                        className="mt-4 mb-2 block text-sm font-medium"
+                                        className="mt-4  block text-sm font-medium"
                                     >
                                         <CiUser className="inline-block mr-2 mb-1" /> Nom et
                                         Prénom
@@ -340,7 +325,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                     {/* Address Input */}
                                     <label
                                         htmlFor="address"
-                                        className="mt-4 mb-2 block text-sm font-medium"
+                                        className="mt-4  block text-sm font-medium"
                                     >
                                         Adresse
                                     </label>
@@ -362,7 +347,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 <div className="phone1">
                                     <label
                                         htmlFor="phone_1"
-                                        className="mt-4 mb-2 block text-sm font-medium"
+                                        className="mt-4  block text-sm font-medium"
                                     >
                                         <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
                                         1
@@ -396,7 +381,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                     {/* Phone 2 Input (Optional) */}
                                     <label
                                         htmlFor="phone_2"
-                                        className="mt-4 mb-2 block text-sm font-medium"
+                                        className="mt-4  block text-sm font-medium"
                                     >
                                         <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
                                         2 (optional)
@@ -430,7 +415,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 <div className="Governorate">
                                     <label
                                         htmlFor="governorate"
-                                        className="mt-4 mb-2 block text-sm font-medium"
+                                        className="mt-4  block text-sm font-medium"
                                     >
                                         Governorat
                                     </label>
@@ -505,7 +490,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                             <div className="DeliveryCommentmb-4">
                                 <label
                                     htmlFor="deliveryComment"
-                                    className="block text-sm font-medium text-gray-700 mb-2"
+                                    className="block text-sm font-medium text-gray-700 "
                                 >
                                     Commentaire pour la livraison (optionnel)
                                 </label>
@@ -529,8 +514,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
 
                         {/* Coupon Section */}
-                        <div className="Coupons gap-2 mt-6 mb-3 md:px-4 ">
-                            <div className="flex items-center justify-between gap-2 mb-2">
+                        <div className="Coupons  mt-6 mb-3 md:px-4 ">
+                            <div className="flex items-center justify-between  ">
                                 <label
                                     htmlFor="coupon"
                                     className="block text-sm font-semibold"
@@ -547,7 +532,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                             </div>
                             {showInputCoupon && (
                                 <div className="bg-gray-100 p-4 rounded-md">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center ">
                                         <input
                                             type="text"
                                             className="flex-grow border-2 px-3 py-2 text-sm rounded-md outline-none"
@@ -601,18 +586,26 @@ const OrderNow: React.FC<OrderNowProps> = ({
                             </p>
                         </div>
 
-                        <div className="submit flex flex-col gap-2  w-full items-center mt-5">
 
+                        <div className="submit flex flex-col  w-full items-center mt-5">
                             <button
                                 type="submit"
-                                className={`${productDetails?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[250px] w-4/5 transition-opacity  py-4  shadow-lg bg-primaryColor hover:bg-opacity-80 text-white text-sm font-bold `}
+                                disabled={productDetails?.inventory <= 0 || isSubmitting || loading}
+                                className={`
+                                ${(productDetails?.inventory <= 0 || isSubmitting || loading)
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "cursor-pointer hover:bg-opacity-80"
+                                    } 
+                                min-w-[250px] w-4/5 transition-all py-4 shadow-lg 
+                                bg-primaryColor text-white text-sm font-bold
+                            `}
                             >
-                                {loading ? (
-                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                {loading || isSubmitting ? (
+                                    <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                                 ) : (
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-center justify-center ">
                                         <GiShoppingBag size={20} />
-                                        أشتري الآن
+                                        Acheter maintenant
                                     </div>
                                 )}
                             </button>

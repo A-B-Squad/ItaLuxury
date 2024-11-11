@@ -30,7 +30,7 @@ const AdsCarousel: React.FC<AdsCarouselProps> = ({
 
   if (images.length === 0 || loadingCenterAdsCarousel) {
     return (
-      <div className="rounded-xl animate-pulse lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-secondaryColor flex flex-col justify-center items-center">
+      <div className="rounded-xl animate-pulse lg:w-3/4 w-full h-[150px] md:h-[280px] lg:h-[350px] bg-gray-300 flex flex-col justify-center items-center">
         <IoImageOutline className="h-12 w-12 text-gray-500" />
       </div>
     );
@@ -59,14 +59,15 @@ const AdsCarousel: React.FC<AdsCarouselProps> = ({
       )}
     >
       {images.map((image, index) => (
-        <Link key={index} href={centerCarouselAds[0]?.link}>
+        <Link rel="preload" key={index} href={centerCarouselAds[0]?.link}>
           <div className="relative w-full h-full">
             <Image
               src={image}
               alt={`image ${index + 1}`}
               layout="fill"
               objectFit="contain"
-              priority={index === 0}
+              priority={true} 
+
               className="transition-all"
             />
           </div>

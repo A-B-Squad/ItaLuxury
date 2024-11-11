@@ -32,7 +32,6 @@ const Category: React.FC<CategoryProps> = ({
               href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
                 {
                   category: category.name,
-                  categories: category.name,
                 }
               )}`}
               onMouseEnter={() => setActiveCategory(category.name)}

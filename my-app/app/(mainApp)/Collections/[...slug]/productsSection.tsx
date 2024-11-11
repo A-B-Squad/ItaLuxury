@@ -8,8 +8,9 @@ import { IoMdArrowDropdown } from "react-icons/io";
 
 import { useAllProductViewStore } from "@/app/store/zustand";
 import ProductBox from "../../../components/ProductBox/ProductBox";
-import Pagination from "../components/Paginations";
+const Pagination = dynamic(() => import('../components/Paginations'), { ssr: false });
 import TopBar from "../components/topBar";
+import dynamic from "next/dynamic";
 
 // Define types for clarity
 type Product = {
@@ -137,7 +138,7 @@ const ProductsSection: React.FC = () => {
   };
 
   const handleClearFilters = () => {
-    router.push("/Collections/tunisie?page=1&section=Boutique", {
+    router.push("/Collections/tunisie?page=1", {
       scroll: true,
     });
   };
@@ -169,7 +170,7 @@ const ProductsSection: React.FC = () => {
   };
 
   const renderProducts = () => (
-    <div className={`grid w-full gap-4 ${getGridClasses()}`}>
+    <div className={`grid w-full gap-2 md:gap-4 ${getGridClasses()}`}>
       {productsData.map((product) => (
         <div
           key={product.id}

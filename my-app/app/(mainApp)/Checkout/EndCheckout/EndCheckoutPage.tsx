@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useMutation } from "@apollo/client";
 import { UPDATE_STATUS_PAYMENT_ONLINE_MUTATION } from "@/graphql/mutations";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SearchParams {
   packageId: string;
@@ -19,7 +20,8 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
   const [updatePaymentStatus] = useMutation(
     UPDATE_STATUS_PAYMENT_ONLINE_MUTATION,
   );
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
   const [mutationSent, setMutationSent] = useState(false);
 
   const isPayed =
@@ -44,9 +46,12 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
             setMutationSent(true);
           } catch (err) {
             console.error("Error updating payment status:", err);
-            setError(
-              "Failed to update payment status. Please contact support.",
-            );
+
+            toast({
+              title: "Error",
+              description: "Failed to update payment status. Please contact support.",
+              variant: "destructive",
+            });
           }
         } else {
           console.log("Mutation already sent for this package");

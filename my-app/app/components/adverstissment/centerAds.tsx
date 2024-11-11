@@ -1,16 +1,17 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/legacy/image";
-import { useQuery } from "@apollo/client";
-import Link from "next/link";
-import { IoIosClose } from "react-icons/io";
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
+import { useQuery } from "@apollo/client";
+import Image from "next/legacy/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
 
 const CenterAds = () => {
   const [showAds, setShowAds] = useState(false);
   const { data: centerAds } = useQuery(ADVERTISSMENT_QUERY, {
     variables: { position: "BigAds" },
+    fetchPolicy: "cache-first",
+
   });
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const CenterAds = () => {
 
   return (
     <div
-      className={`fixed inset-0 flex rounded-md items-center justify-center transition-all duration-500 ${
+      className={`fixed inset-0 hidden lg:flex rounded-md items-center justify-center transition-all duration-500 ${
         showAds
           ? "opacity-100 z-[1000]"
           : "opacity-0 translate-y-6 pointer-events-none"
@@ -58,6 +59,7 @@ const CenterAds = () => {
             <Image
               layout="fill"
               objectFit="contain"
+              priority={true}
               src={centerAds?.advertismentByPosition[0]?.images[0]}
             />
           </Link>

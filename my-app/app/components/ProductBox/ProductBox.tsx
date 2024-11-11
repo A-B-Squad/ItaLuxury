@@ -190,7 +190,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   return (
     <>
       <div
-        className={`product-box w-full relative group  flex items-center    ${view === 1 ? " justify-start h-[215px]" : "justify-center h-[344px]"}    bg-white    `}
+        className={`product-box w-full relative group  flex items-center overflow-hidden    ${view === 1 ? " justify-start h-[215px]" : "justify-center h-[344px]"}    bg-white    `}
       >
 
         {/* Product labels */}

@@ -34,7 +34,6 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
 
     for (let index = 0; index < products.length; index++) {
       const product = products[index];
-      console.log(product);
       
       if (product.product && product.product.productDiscounts.length > 0) {
         hasDiscount = true;

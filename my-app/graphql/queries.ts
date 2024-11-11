@@ -47,9 +47,6 @@ export const FETCH_USER_BY_ID = gql`
       email
       number
       fullName
-      baskets {
-        id
-      }
     }
   }
 `;
@@ -146,7 +143,7 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
     }
   }
 `;
-export const TAKE_16_PRODUCTS_PRICE_20 = gql`
+export const TAKE_14_PRODUCTS_PRICE_20 = gql`
   query ProductsLessThen20($limit: Int!) {
     productsLessThen20(limit: $limit) {
       id
@@ -362,15 +359,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
   }
 `;
 
-export const GET_ALL_API_CREDENTIALS = gql`
-  query GetAllApiCredentials($integrationFor: String) {
-    getAllApiCredentials(integrationFor: $integrationFor) {
-      api_id
-      access_token
-      domainVerification
-    }
-  }
-`;
+
 
 export const FAVORITE_PRODUCTS_QUERY = gql`
   query FavoriteProducts($userId: ID!) {
@@ -520,22 +509,20 @@ export const GET_PACKAGES_BY_ID = gql`
 `;
 
 export const ALL_BRANDS = `
-  query FetchBrands {
-    fetchBrands {
+ query FetchBrands {
+  fetchBrands {
+    id
+    name
+    logo
+    product {
       id
-      name
-      logo
-      Category{
-      id 
-      name
-              parentId
-      }
-      categoryId
-      product {
-        id
+      categories {
+        name
       }
     }
   }
+}
+
 `;
 export const GET_GOVERMENT_INFO = gql`
   query AllGovernorate {
@@ -553,7 +540,7 @@ export const CONTENT_VISIBILITY = gql`
     }
   }
 `;
-export const TAKE_16_PRODUCTS = gql`
+export const TAKE_14_PRODUCTS = gql`
   query AllNewProducts($limit: Int, $visibleProduct: Boolean) {
     allNewProducts(limit: $limit, visibleProduct: $visibleProduct) {
       id
@@ -599,7 +586,7 @@ export const TAKE_16_PRODUCTS = gql`
     }
   }
 `;
-export const TAKE_16_PRODUCTS_IN_DISCOUNT = gql`
+export const TAKE_14_PRODUCTS_IN_DISCOUNT = gql`
   query ProductsDiscounts($limit: Int) {
     productsDiscounts(limit: $limit) {
       id
@@ -647,12 +634,16 @@ export const TAKE_16_PRODUCTS_IN_DISCOUNT = gql`
 `;
 export const COLORS_QUERY = `
  query Colors {
-    colors {
+  colors {
+    id
+    color
+    Hex
+    Product {
       id
-      color
-      Hex
     }
   }
+}
+
 `;
 export const PACKAGE_QUERY = gql`
   query GetAllPackages {

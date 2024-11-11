@@ -38,7 +38,7 @@ const Category: React.FC<CategoryProps> = ({
         {data?.categories?.map((category: Category, index: number) => (
           <div
             key={index}
-            onClick={() => { setActiveCategory(category.name), closeCategoryDrawer() }}
+            onClick={() => { setActiveCategory(category.name) }}
             className={`flex py-3 cursor-pointer focus:text-red-200 items-center  justify-between  px-7 w-full border-b-2 ${category.name === activeCategory
               ? "translate-x-0"
               : "translate-x-[full]"
@@ -50,7 +50,6 @@ const Category: React.FC<CategoryProps> = ({
               href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
                 {
                   category: category.name,
-                  categories: category.name,
                 }
               )}`}            >
               {category.name}

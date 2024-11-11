@@ -65,12 +65,12 @@ const Footer = () => {
   }, []);
 
   return (
-    <div className="Footer pb-24 md:pb-0 bg-white shadow-lg shadow-black border-t-2 text-black flex flex-col items-center pt-3">
+    <div className="Footer container pb-24 md:pb-0 bg-white shadow-lg shadow-black border-t-2 text-black flex flex-col items-center pt-3">
       <div className="text-center flex justify-center items-center flex-col">
         <Image
           src={companyInfo?.logo}
-          width={250}
-          height={250}
+          width={180}
+          height={180}
           alt="ita-luxury"
           objectFit="contain"
         />

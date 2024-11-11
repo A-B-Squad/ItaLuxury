@@ -7,27 +7,28 @@ import Image from "next/legacy/image";
 
 const LeftAdsCarousel = ({
   AdsNextToCarousel,
-  loadingRightAdsCarousel,
+  loadingLeftAdsCarousel,
 }: any) => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
     if (AdsNextToCarousel) {
       const allImages = AdsNextToCarousel.flatMap(
-        (ad: { images: string[] }) => ad.images,
+        (ad: { images: string[] }) => ad.images
       );
+
       setImages(allImages);
     }
-  }, [loadingRightAdsCarousel]);
+  }, [loadingLeftAdsCarousel]);
 
   return (
     <>
-      {(images.length === 0 || loadingRightAdsCarousel) && (
+      {(images.length === 0 || loadingLeftAdsCarousel) && (
         <div className="left-ads flex xl:flex-col xl:max-w-[455px] w-full items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-secondaryColor ">
+          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-gray-300 ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
-          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-secondaryColor ">
+          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-gray-300 ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
         </div>
@@ -49,7 +50,10 @@ const LeftAdsCarousel = ({
               height={208}
               src={images[0]}
               loading="eager"
+              priority={true} 
+
               property="true"
+              objectFit="cover"
               alt="left-ads 0"
               className="  transition-all"
             />
@@ -69,6 +73,8 @@ const LeftAdsCarousel = ({
               src={images[1]}
               loading="eager"
               alt="left-ads 2"
+              priority={true} 
+              objectFit="cover"
               className=" hover:opacity-50 transition-all"
             />
           </Link>

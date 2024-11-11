@@ -241,9 +241,8 @@ const BasketDrawer: React.FC = () => {
               <div className="flex flex-col gap-2 text-base font-medium w-full justify-between text-gray-900">
                 <Link
                   className="hover:text-secondaryColor text-sm w-5/6 transition-colors"
-                  href={`/products/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
-                    product.name,
-                  ]}`}
+                  href={`/products/tunisie?productId=${product.id}`}
+
                 >
                   {product.name}
                 </Link>
@@ -312,7 +311,7 @@ const BasketDrawer: React.FC = () => {
       <MdOutlineRemoveShoppingCart color="grey" size={100} />
       <Link
         onClick={closeBasketDrawer}
-        href="/Collections/tunisie?page=1&section=Boutique"
+        href="/Collections/tunisie?page=1"
         className="font-medium text-primaryColor hover:text-amber-200 mt-20"
       >
         Continuer vos achats

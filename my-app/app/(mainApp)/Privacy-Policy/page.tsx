@@ -28,12 +28,15 @@ export const metadata: Metadata = {
 };
 
 const pagePricacyPolicy = () => {
+  const breadcrumbPaths = [
+    { href: "/", label: "Accueil" },
+    { href: "/Privacy-Policy", label: "Politique de Confidentialité", }
+  ];
   return (
     <div className="p-6">
-      <Breadcumb
-        pageName={"Politique de Confidentialité"}
-        pageLink={"Privacy-Policy"}
-      />
+      <Breadcumb Path={breadcrumbPaths} />
+
+
 
       <PrivacyPolicy />
     </div>

@@ -14,7 +14,6 @@ import keywords from "@/public/keywords";
 import BasketDrawer from "../components/BasketDrawer";
 
 if (process.env.NODE_ENV !== "production") {
-  // Adds messages only in a dev environment
   loadDevMessages();
   loadErrorMessages();
 }
@@ -22,6 +21,7 @@ if (process.env.NODE_ENV !== "production") {
 if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
   throw new Error("BASE_URL_DOMAIN is not defined");
 }
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
   title:
@@ -46,27 +46,30 @@ export const metadata: Metadata = {
     ],
   },
 };
+
 const PurchaseOptions = dynamic(
   () => import("@/app/components/PurchaseOptions"),
   { ssr: false }
 );
+
 const ProductInfo = dynamic(
   () => import("@/app/components/ProductInfo/ProductInfo"),
   { ssr: false }
 );
+
 export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div className={` relative`}>
+    <div className="relative">
+      <Header />
+      <ApolloWrapper>{children}</ApolloWrapper>
       <DrawerMobile />
       <BasketDrawer />
       <PurchaseOptions />
       <ProductInfo />
-      <Header />
-      <ApolloWrapper>{children}</ApolloWrapper>
       <Footer />
     </div>
   );

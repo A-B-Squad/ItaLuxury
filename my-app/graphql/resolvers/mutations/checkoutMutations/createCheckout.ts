@@ -1,6 +1,34 @@
+
 import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
 import { CreateCheckoutInput } from "../categoryMutations/types";
+
+// Improved type definitions
+interface ProductInCheckout {
+  productId: string;
+  productQuantity: number;
+  price: number;
+  discountedPrice: number;
+}
+
+interface CheckoutItem {
+  product: {
+    reference: string;
+    name: string;
+  };
+
+  price: number;
+  total: number;
+  discountedPrice: number;
+  productQuantity: number;
+}
+
+// Utility function to validate email if provided
+const isValidEmail = (email?: string): boolean => {
+  if (!email) return true;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 const generateCustomId = async (prisma: any) => {
   const currentYear = new Date().getFullYear();
@@ -48,11 +76,51 @@ const generateCustomId = async (prisma: any) => {
   return customId;
 };
 
-async function sendCheckoutEmail(
+const calculateTotals = (checkout: {
+  productInCheckout: CheckoutItem[],
+  Coupons?: { discount: number },
+  freeDelivery: boolean
+  total: number
+}, deliveryPrice: number) => {
+  const totalProducts = checkout.productInCheckout.reduce(
+    (acc: number, item: CheckoutItem) =>
+      acc + (item.discountedPrice || item.price) * item.productQuantity,
+    0
+  );
+
+  const couponDiscount = checkout.Coupons?.discount || 0;
+  const discountAmount = (totalProducts * couponDiscount) / 100;
+  const totalAfterDiscount = totalProducts - discountAmount;
+  const deliveryCost = checkout.freeDelivery ? 0 : deliveryPrice;
+  const totalToPay = checkout.total;
+
+  return {
+    totalProducts,
+    couponDiscount,
+    discountAmount,
+    totalAfterDiscount,
+    deliveryCost, totalToPay
+  };
+};
+
+// Optional email sending function
+async function tryToSendCheckoutEmail(
   checkout: any,
   customId: string,
-  deliveryPrice: any
-) {
+  deliveryPrice: number
+): Promise<void> {
+  const recipientEmail = checkout.isGuest ? checkout.guestEmail : checkout.User?.email;
+  // Skip if no email is provided or configuration is missing
+  if (!recipientEmail || !process.env.NEXT_PUBLIC_NODEMAILER_EMAIL || !process.env.NEXT_PUBLIC_NODEMAILER_PASS) {
+    return;
+  }
+
+  // Validate email format if provided
+  if (!isValidEmail(recipientEmail)) {
+    console.warn("Invalid email format provided, skipping email send");
+    return;
+  }
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -64,29 +132,7 @@ async function sendCheckoutEmail(
     },
   });
 
-  const totalProducts = checkout.productInCheckout.reduce(
-    (
-      acc: number,
-      item: { discountedPrice: any; price: any; productQuantity: number }
-    ) =>
-      acc +
-      (item.discountedPrice ? item.discountedPrice : item.price) *
-        item.productQuantity,
-    0
-  );
-
-  const couponDiscount = checkout.Coupons?.discount || 0;
-  const discountAmount = (totalProducts * couponDiscount) / 100;
-  const totalAfterDiscount = totalProducts - discountAmount;
-
-  // Update the delivery cost calculation to use the dynamic delivery price
-  const deliveryCost = checkout.freeDelivery ? 0.0 : deliveryPrice;
-  const totalToPay = checkout.total;
-  // Determine the recipient email address
-  const recipientEmail = checkout.isGuest
-    ? checkout.guestEmail
-    : checkout.User.email;
-
+  const totals = calculateTotals(checkout, deliveryPrice);
   const mailOptions = {
     from: '"ita-luxury" <no-reply@ita-luxury.com>',
     to: recipientEmail,
@@ -212,13 +258,13 @@ async function sendCheckoutEmail(
                 <th>Prix total</th>
               </tr>
               ${checkout.productInCheckout
-                .map(
-                  (item: {
-                    product: { reference: any; name: any };
-                    price: number;
-                    discountedPrice: number;
-                    productQuantity: number;
-                  }) => `
+        .map(
+          (item: {
+            product: { reference: any; name: any };
+            price: number;
+            discountedPrice: number;
+            productQuantity: number;
+          }) => `
                 <tr>
                   <td>${item.product.reference}</td>
                   <td >${item.product.name}</td>
@@ -227,31 +273,32 @@ async function sendCheckoutEmail(
                   <td>${(item.discountedPrice ? item.discountedPrice : item.price * item.productQuantity).toFixed(3)} TND</td>
                 </tr>
               `
-                )
-                .join("")}
+        )
+        .join("")}
               <tr class="totals-row">
                 <td colspan="4" class="label">Total des produits</td>
-                <td>${totalProducts.toFixed(3)} TND</td>
+                <td>${totals.totalProducts
+        .toFixed(3)} TND</td>
               </tr>
               <tr class="totals-row">
                 <td colspan="4" class="label">Coupon</td>
-                <td>${couponDiscount} %</td>
+                <td>${totals.couponDiscount} %</td>
               </tr>
               <tr class="totals-row">
                 <td colspan="4" class="label">Réduction du coupon</td>
-                <td>${discountAmount.toFixed(3)} TND</td>
+                <td>${totals.discountAmount.toFixed(3)} TND</td>
               </tr>
               <tr class="totals-row">
                 <td colspan="4" class="label">Total après réduction</td>
-                <td>${totalAfterDiscount.toFixed(3)} TND</td>
+                <td>${totals.totalAfterDiscount.toFixed(3)} TND</td>
               </tr>
               <tr class="totals-row">
                 <td colspan="4" class="label">Livraison</td>
-                <td>${deliveryCost.toFixed(3)} TND</td>
+                <td>${totals.deliveryCost.toFixed(3)} TND</td>
               </tr>
               <tr class="totals-row">
                 <td colspan="4" class="label">Total payé</td>
-                <td>${totalToPay.toFixed(3)} TND</td>
+                <td>${totals.totalToPay.toFixed(3)} TND</td>
               </tr>
             </table>
           </div>
@@ -302,6 +349,34 @@ async function sendCheckoutEmail(
   await transporter.sendMail(mailOptions);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const createCheckout = async (
   _: any,
   { input }: { input: CreateCheckoutInput },
@@ -324,10 +399,24 @@ export const createCheckout = async (
       products,
     } = input;
 
-    let productsInCheckout;
+    // Validate required fields
+    if (!address || !userName || !phone || (!isGuest && !userId)) {
+      throw new Error("Missing required fields");
+    }
+
+    // Validate email format if provided
+    if (guestEmail && !isValidEmail(guestEmail)) {
+      throw new Error("Invalid email format provided");
+    }
+
+    let productsInCheckout: ProductInCheckout[];
 
     if (isGuest) {
-      productsInCheckout = products?.map((product) => ({
+      if (!products?.length) {
+        throw new Error("Products are required for guest checkout");
+      }
+
+      productsInCheckout = products.map((product) => ({
         productId: product.productId,
         productQuantity: product.productQuantity,
         price: product.price,
@@ -350,7 +439,7 @@ export const createCheckout = async (
       });
 
       if (!userBasket.length) {
-        throw new Error("User's basket not found");
+        throw new Error("User's basket is empty");
       }
 
       productsInCheckout = userBasket.map((basket) => ({
@@ -358,60 +447,70 @@ export const createCheckout = async (
         productQuantity: basket.quantity,
         price: basket.Product?.price ?? 0,
         discountedPrice:
-          basket.Product?.productDiscounts &&
-          basket.Product.productDiscounts.length > 0
-            ? basket.Product.productDiscounts[0].newPrice
-            : 0,
+          basket.Product?.productDiscounts?.[0]?.newPrice || 0,
       }));
     }
 
-    const newCheckout = await prisma.checkout.create({
-      data: {
-        userId: isGuest ? null : userId,
-        userName,
-        governorateId,
-        freeDelivery,
-        isGuest,
-        productInCheckout: {
-          create: productsInCheckout,
+    // Create checkout in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+
+      const newCheckout = await tx.checkout.create({
+        data: {
+          userId: isGuest ? null : userId,
+          userName,
+          governorateId,
+          freeDelivery,
+          isGuest,
+          productInCheckout: {
+            create: productsInCheckout,
+          },
+          phone,
+          address,
+          total,
+          couponsId: couponsId || null,
+          guestEmail: guestEmail || null,
+          deliveryComment,
+          paymentMethod,
         },
-        phone,
-        address,
-        total,
-        couponsId: couponsId || null,
-        guestEmail: guestEmail || null,
-        deliveryComment,
-        paymentMethod,
-      },
-    });
-
-    if (couponsId) {
-      await prisma.coupons.update({
-        where: { id: couponsId },
-        data: { available: false },
       });
-    }
 
-    if (!isGuest) {
-      await prisma.basket.deleteMany({
-        where: { userId: userId },
+      if (couponsId) {
+        await tx.coupons.update({
+          where: { id: couponsId },
+          data: { available: false },
+        });
+      }
+
+      if (!isGuest) {
+        await tx.basket.deleteMany({
+          where: { userId },
+        });
+      }
+
+      const customId = await generateCustomId(tx);
+      const companyInfo = await tx.companyInfo.findFirst();
+
+      if (!companyInfo?.deliveringPrice) {
+        throw new Error("Delivery price not configured");
+      }
+
+      const packageRecord = await tx.package.create({
+        data: {
+          checkoutId: newCheckout.id,
+          customId,
+          status: "PROCESSING",
+        },
       });
-    }
 
-    const customId = await generateCustomId(prisma);
-    const companyInfo = await prisma.companyInfo.findFirst();
-    const deliveryPrice = companyInfo?.deliveringPrice;
-
-    await prisma.package.create({
-      data: {
-        checkoutId: newCheckout.id,
+      return {
+        checkout: newCheckout,
         customId,
-        status: "PROCESSING",
-      },
+        deliveryPrice: companyInfo.deliveringPrice,
+      };
     });
 
     const completeCheckout = await prisma.checkout.findUnique({
-      where: { id: newCheckout.id },
+      where: { id: result.checkout.id },
       include: {
         Governorate: true,
         package: true,
@@ -425,19 +524,16 @@ export const createCheckout = async (
       },
     });
 
-    if (completeCheckout) {
-      const emailToUse = isGuest ? guestEmail : completeCheckout.User?.email;
-
-      if (emailToUse) {
-        await sendCheckoutEmail(completeCheckout, customId, deliveryPrice);
-      } else {
-        console.log("No valid email address found. Skipping email send.");
-      }
+    if (!completeCheckout) {
+      throw new Error("Failed to retrieve complete checkout information");
     }
 
+    // Try to send email if provided, but don't block the checkout process
+    await tryToSendCheckoutEmail(completeCheckout, result.customId, result.deliveryPrice);
+
     return {
-      customId: customId,
-      orderId: completeCheckout?.id,
+      customId: result.customId,
+      orderId: completeCheckout.id,
     };
   } catch (error) {
     console.error("Error creating checkout:", error);

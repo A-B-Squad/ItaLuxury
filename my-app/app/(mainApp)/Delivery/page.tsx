@@ -31,9 +31,14 @@ export const metadata: Metadata = {
   },
 };
 const page = () => {
+  const breadcrumbPaths = [
+    { href: "/", label: "Accueil" },
+    { href: "/Delivery", label: "Expéditions et retours", }
+  ];
+
   return (
     <div className="flex flex-col  items-center  justify-center  h-max mb-16 py-10 px-2 relative ">
-      <Breadcumb pageName={"Expéditions et retours"} pageLink={"Delivery"} />
+      <Breadcumb Path={breadcrumbPaths} />
       <DeliveryPage />
     </div>
   );

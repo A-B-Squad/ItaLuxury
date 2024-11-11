@@ -1,31 +1,31 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
-import { useForm } from "react-hook-form";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { CiMail, CiPhone, CiUser } from "react-icons/ci";
 
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import Loading from "./loading";
 
+import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
 import {
   BASKET_QUERY,
-  GET_GOVERMENT_INFO,
-  FETCH_USER_BY_ID,
   COMPANY_INFO_QUERY,
+  FETCH_USER_BY_ID,
+  GET_GOVERMENT_INFO,
 } from "../../../graphql/queries";
-import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
 
-import { StepIndicator } from "./components/StepIndicator";
+import { useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { Loader2 } from "lucide-react";
 import { OrderSummary } from "./components/OrderSummary";
 import Step1 from "./components/Step1/Step1";
-import { useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
-import { Loader2 } from "lucide-react";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { StepIndicator } from "./components/StepIndicator";
 
 // Define interfaces
 interface DecodedToken extends JwtPayload {
@@ -78,13 +78,12 @@ const Checkout: React.FC = () => {
   });
 
   const { toast } = useToast();
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   // Notification step
 
   // Step 2: Parse URL parameters
-  const { checkoutProducts,checkoutTotal } = useCheckoutStore()
+  const { checkoutProducts, checkoutTotal } = useCheckoutStore()
 
   // Step 3: Set up GraphQL queries and mutations
   const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
@@ -132,7 +131,9 @@ const Checkout: React.FC = () => {
   }, []);
 
   // Step 6: Define utility functions
-  const calculateTotal = (): string => {
+
+
+  const calculateTotal = useCallback(() => {
     let subtotal = Number(checkoutTotal);
     const shippingCost = subtotal >= 499 ? 0 : deliveryPrice;
 
@@ -140,9 +141,10 @@ const Checkout: React.FC = () => {
       subtotal -= (subtotal * discountPercentage) / 100;
     }
 
-    const finalTotal = subtotal + shippingCost;
-    return finalTotal.toFixed(3);
-  };
+    return (subtotal + shippingCost).toFixed(3);
+  }, [checkoutTotal, deliveryPrice, discountPercentage]);
+
+
 
   // Step 7: Define event handlers
   const onSubmit = async (data: any) => {
@@ -187,7 +189,7 @@ const Checkout: React.FC = () => {
       ],
       onCompleted: async (data) => {
         const customId = data.createCheckout.customId;
-
+        clearBasket()
         triggerEvents("Purchase", {
           user_data: {
             em: [userEmail.toLowerCase()],

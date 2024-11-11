@@ -29,6 +29,7 @@ interface ProductDetailsData {
   inventory: number;
   productDiscounts: {
     newPrice: number;
+    price: number;
   }[];
   Colors: {
     color: string;
@@ -151,6 +152,7 @@ interface ProductData {
   basketId: string;
   productDiscounts: {
     newPrice: number;
+    price: number
   }[];
   Colors: {
     color: string;

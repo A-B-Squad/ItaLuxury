@@ -25,11 +25,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
         <Link
           href={`/Collections/tunisie/?${new URLSearchParams({
             category: subsubcategory.name,
-            categories: [
-              parentCategoryName,
-              parentSubCategoryName,
-              subsubcategory.name,
-            ].join(","),
+
           })}
           `}
           className="py-1 group text-sm cursor-pointer transition-all relative  left-[-20px] flex hover:font-bold  "

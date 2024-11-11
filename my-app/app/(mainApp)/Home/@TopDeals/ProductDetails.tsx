@@ -192,7 +192,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             />
             <div className="lg:col-span-2 row-span-1 lg:row-span-1 place-self-stretch lg:mt-3 flex flex-col justify-around">
                 <Link
-                    href={`/Collections/tunisie/${prepRoute(product?.name)}/?productId=${product?.id}`}
+                    href={`/Collections/tunisie/?productId=${product?.id}`}
                     onClick={handleCategoryStorage}
                 >
                     <h2 className="tracking-wider hover:text-secondaryColor transition-colors">

@@ -19,9 +19,7 @@ const FavoriteList = () => {
 
   const [getFavoriteProducts, { loading }] = useLazyQuery(
     FAVORITE_PRODUCTS_QUERY,
-    {
-      fetchPolicy: "no-cache",
-    },
+   
   );
 
   const [removeFromFavorites] = useMutation(

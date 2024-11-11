@@ -34,6 +34,7 @@ import {
 } from "../../../graphql/queries";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import triggerEvents from "@/utlils/trackEvents";
+import { Trash, Trash2Icon } from "lucide-react";
 
 // Interface definitions
 interface DecodedToken extends JwtPayload {
@@ -49,6 +50,7 @@ interface Product {
   basketId: string;
   productDiscounts: {
     newPrice: number;
+    price: number;
   }[];
   categories: {
     name: string;
@@ -263,11 +265,12 @@ const Basket: React.FC = () => {
     [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
   // Render component
+
   return (
-    <div className="">
-      <div className="grid lg:grid-cols-3 gap-5 h-max my-8 py-5">
+    <div className="container mx-auto px-4 lg:px-8 py-8">
+      <div className="grid lg:grid-cols-3 grid-cols-1 gap-5">
         {/* Product list */}
-        <div className="lg:col-span-2 p-10 bg-white overflow-x-auto shadow-xl">
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
           <div className="flex justify-between items-center border-b p-6">
             <h2 className="text-2xl font-bold text-gray-800">Panier</h2>
             <h3 className="text-xl font-semibold text-gray-600">
@@ -288,43 +291,23 @@ const Basket: React.FC = () => {
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell className="font-medium w-full flex items-center md:gap-7">
-                    <div className="w-40 h-40 relative">
+                  <TableCell className="flex items-center">
+                    <div className="w-24 h-24 relative">
                       <Image
                         alt={product.name}
                         loading="lazy"
-                        src={
-                          (product.images &&
-                            product.images.length > 0 &&
-                            product.images[0]) ||
-                          "https://res.cloudinary.com/dc1cdbirz/image/upload/v1718970701/b23xankqdny3n1bgrvjz.png"
-                        }
+                        src={product.images?.[0] || "https://via.placeholder.com/150"}
                         layout="fill"
                         objectFit="contain"
                       />
                     </div>
-                    <div>
+                    <div className="ml-4">
                       <Link
-                        href={`/products/tunisie/${prepRoute(product.name)}/?productId=${product.id}&categories=${[
-                          product.categories?.[0]?.name,
-                          product.categories?.[1]?.name,
-                          product.categories?.[2]?.name,
-                          product.name,
-                        ].filter(Boolean)}`}
-                        className="text-md font-bold hover:text-primaryColor text-[#333]"
-                      >
-                        {product.name}
-                      </Link>
-                      <button
-                        type="button"
-                        className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
-                        onClick={() =>
-                          handleRemoveProduct(product.id, product.basketId)
-                        }
-                      >
-                        <FaRegTrashAlt />
-                        Retirer
-                      </button>
+                        href={`/products/tunisie?productId=${product.id}`}
+                        className="font-semibold text-sm text-gray-800">{product.name}</Link>
+                      <p className="text-xs text-gray-500">
+                        {product.categories.map((category) => category.name).join(", ")}
+                      </p>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -350,7 +333,7 @@ const Basket: React.FC = () => {
                         disabled={product.actualQuantity === product?.inventory}
 
                         onClick={() =>
-                          handleIncreaseQuantity(product.id, product.basketId)
+                          handleIncreaseQuantity(product.id, product?.basketId)
                         }
                       >
                         <HiPlus />
@@ -363,14 +346,22 @@ const Basket: React.FC = () => {
                         {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
                       </h4>
                     )}
+                    {product?.productDiscounts?.length === 0 && (
+                      <h4 className="text-md w-max font-bold text-[#333]">
+                        {Number(product.price).toFixed(3)} TND
+                      </h4>
+                    )}
                     <h4
                       className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0
                         ? "text-gray-700 line-through"
                         : ""
                         }`}
                     >
-                      {product.price ? Number(product.price).toFixed(3) : "0.00"} TND
+                      {product?.productDiscounts?.length > 0 && Number(product.productDiscounts[0].price).toFixed(3)} TND
                     </h4>
+                  </TableCell>
+                  <TableCell>
+                    <Trash2Icon size={23} className="cursor-pointer" color="red" onClick={() => { handleRemoveProduct(product.id, product?.basketId) }} />
                   </TableCell>
                 </TableRow>
               ))}

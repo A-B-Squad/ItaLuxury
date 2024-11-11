@@ -30,7 +30,7 @@ const SideAds = ({ image, link, adsLoaded, adsPositon }: any) => {
             className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[100px] shadow-xl   group-hover:block z-20 absolute  left-0 w-[2000px] h-6 transition-all duration-500"
             style={{ animation: "slide-diagonal 1.2s forwards" }}
           ></span>
-          <Image src={image} layout="fill" alt="ita-luxury" />
+          <Image priority={true} src={image} layout="fill" alt="ita-luxury" />
         </Link>
       )}
     </div>

@@ -64,31 +64,41 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <nav className="flex justify-end  self-end mt-5">
-      <ul className="inline-flex -space-x-px gap-1">
+    <nav className="flex justify-center items-center my-6">
+      <ul className="inline-flex items-center -space-x-px">
         <li>
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-2 py-1 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg 
-              ${
-                currentPage !== 1
-                  ? "hover:bg-gray-100 hover:text-gray-700"
-                  : "cursor-not-allowed"
+            className={`px-3 py-2 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300
+              ${currentPage !== 1
+                ? "hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-600"
+                : "cursor-not-allowed"
               }`}
           >
-            Previous
+            <svg
+              aria-hidden="true"
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              ></path>
+            </svg>
           </button>
         </li>
         {getPageNumbers().map((number, index) => (
           <li key={index}>
             <button
               onClick={() => handlePageClick(number)}
-              className={`px-2 py-1 leading-tight border border-gray-300 
-                ${
-                  currentPage === number
-                    ? "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700"
-                    : "text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700"
+              className={`px-3 py-2 leading-tight border border-gray-300
+                ${currentPage === number
+                  ? "z-10 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-600"
+                  : "bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-600"
                 }`}
             >
               {number}
@@ -99,14 +109,25 @@ const Pagination: React.FC<PaginationProps> = ({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-2 py-1 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg 
-              ${
-                currentPage !== totalPages
-                  ? "hover:bg-gray-100 hover:text-gray-700"
-                  : "cursor-not-allowed"
+            className={`px-3 py-2 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300
+              ${currentPage !== totalPages
+                ? "hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-600"
+                : "cursor-not-allowed"
               }`}
           >
-            Next
+            <svg
+              aria-hidden="true"
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clipRule="evenodd"
+              ></path>
+            </svg>
           </button>
         </li>
       </ul>
