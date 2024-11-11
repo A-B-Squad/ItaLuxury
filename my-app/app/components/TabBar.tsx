@@ -45,7 +45,7 @@ const TabBar = () => {
           </Link>
 
           <Link
-            href="/Collections/tunisie?page=1&section=Boutique"
+            href="/Collections/tunisie?page=1"
             className="flex flex-col items-center"
           >
             <div

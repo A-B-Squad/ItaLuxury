@@ -1,12 +1,18 @@
 import prepRoute from "@/app/Helpers/_prepRoute";
 import { MetadataRoute } from "next";
 
-
+interface Product {
+  id: string;
+  name: string;
+  categories: Array<{
+    id: string;
+    name: string;
+    description?: string;
+  }>;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'http://localhost:4000';
-  const response = await fetch(`${baseUrl}/api/products`);
-  const productData: Product[] = await response.json();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ;
 
   const staticUrls = [
     { url: `${baseUrl}/api/facebookApi`, lastModified: new Date() },
@@ -25,16 +31,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/productComparison`, lastModified: new Date() },
   ];
 
-  const dynamicProductUrls = productData.map((product: any) => {
-    const formattedProductName = prepRoute(product.name);
-    return {
-      url: `${baseUrl}/products/tunisie/${formattedProductName}/?productId=${product.id}`,
-      lastModified: new Date(),
+  try {
+    const apiUrl = `${baseUrl}/api/products`;
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      next: { revalidate: 3600 }
+    });
 
-    };
-  });
+    if (!response.ok) {
+      console.error(`Failed to fetch products: ${response.status} ${response.statusText}`);
+      return staticUrls;
+    }
+
+    const products: Product[] = await response.json();
+
+    if (!Array.isArray(products)) {
+      console.error('Invalid product data received');
+      return staticUrls;
+    }
+
+    const dynamicProductUrls = products
+      .filter(product => product && product.id && product.name)
+      .map((product) => ({
+        url: `${baseUrl}/products/tunisie?productId=${product.id}`,
+        lastModified: new Date(),
+
+      }));
 
 
-  return [...staticUrls, ...dynamicProductUrls];
 
+    return [...staticUrls, ...dynamicProductUrls];
+
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    return staticUrls;
+  }
 }
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; 

@@ -104,9 +104,9 @@ export default function HomePage() {
             {
               "@type": "WebPage",
               "@id":
-                "https://www.ita-luxury.com/Collections/tunisie?page=1&section=Boutique",
+                "https://www.ita-luxury.com/Collections/tunisie?page=1",
               name: "Tous les produits",
-              url: "https://www.ita-luxury.com/Collections/tunisie?page=1&section=Boutique",
+              url: "https://www.ita-luxury.com/Collections/tunisie?page=1",
             },
             {
               "@type": "WebPage",

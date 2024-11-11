@@ -5,8 +5,7 @@ export const addBrand = async (
   {
     name,
     logo,
-    categoryId,
-  }: { name: string; logo: string; categoryId: string },
+  }: { name: string; logo: string; },
   { prisma }: Context
 ) => {
   try {
@@ -14,7 +13,6 @@ export const addBrand = async (
       data: {
         name,
         logo,
-        categoryId,
       },
     });
     return "Brand added successfully";

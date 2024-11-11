@@ -10,7 +10,6 @@ export const fetchMainCategories = async (_: any, __: any, { prisma }: Context
                 subcategories: true 
             }
         });
-        console.log(categories);
 
         return categories;
     } catch (error) {

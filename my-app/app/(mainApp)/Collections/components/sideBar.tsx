@@ -1,20 +1,15 @@
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  useRef,
-} from "react";
+import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
+import prepRoute from "@/app/Helpers/_prepRoute";
+import { useSidebarStore } from "@/app/store/zustand";
+import { useToast } from "@/components/ui/use-toast";
+import { Drawer, IconButton, Typography } from "@material-tailwind/react";
+import { debounce } from "lodash";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { IoIosClose } from "react-icons/io";
-import { useToast } from "@/components/ui/use-toast";
-import { useSidebarStore } from "@/app/store/zustand";
-import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
-import { debounce } from "lodash";
-import prepRoute from "@/app/Helpers/_prepRoute";
-import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 
 // Types
 interface SideBarProps {
@@ -27,6 +22,7 @@ interface Color {
   id: string;
   Hex: string;
   color: string;
+  Product: any[];
 }
 
 interface Brand {
@@ -89,7 +85,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         if (key === "color" || key === "choice" || key === "brand") {
           // For color, choice, and brand, use separate key-value pairs
           queryParts.push(
-            ...values.map((value) => `${key}=${encodeURIComponent(value)}`),
+            ...values.map((value) => `${key}=${encodeURIComponent(value)}`)
           );
         } else {
           // For other filters, join values with commas
@@ -116,7 +112,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
             : [value];
         } else {
           updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value,
+            (query) => query !== value
           );
           if (updatedQueries[name].length === 0) {
             delete updatedQueries[name];
@@ -129,24 +125,17 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         scroll: true,
       });
     },
-    [selectedFilterQueries, router],
+    [selectedFilterQueries, router]
   );
 
   const handleChoiceFilterOptions = useCallback(
     (value: string) => {
-      const updatedQueries: { [key: string]: string[] } = { ...selectedFilterQueries };
+      const updatedQueries: { [key: string]: string[] } = {
+        ...selectedFilterQueries,
+      };
 
       // Update the 'choice' parameter as an array
       updatedQueries["choice"] = [value];
-
-      // Set the appropriate section based on the value, ensuring it's always an array
-      if (value === "new-product") {
-        updatedQueries["section"] = ["Nouveaux Produits"];
-      } else if (value === "in-discount") {
-        updatedQueries["section"] = ["Promotions"];
-      } else {
-        delete updatedQueries["section"];
-      }
 
       // Remove unnecessary parameters
       delete updatedQueries["page"];
@@ -160,7 +149,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       router.push(newUrl, { scroll: true });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar, buildQueryString],
+    [selectedFilterQueries, router, toggleOpenSidebar, buildQueryString]
   );
   const handleColorSelection = useCallback(
     (colorName: string) => {
@@ -171,14 +160,14 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   // Debounced price update
   const debouncedUpdateUrl = useRef(
     debounce((price: number) => {
       router.push(`/Collections/tunisie?price=${price}`, { scroll: false });
-    }, 300),
+    }, 300)
   ).current;
 
   const handlePriceChange = useCallback(
@@ -186,7 +175,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       const newPrice = Number(e.target.value);
       setLocalPrice(newPrice);
     },
-    [],
+    []
   );
 
   const handlePriceChangeEnd = useCallback(() => {
@@ -195,7 +184,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
 
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
-    router.replace("/Collections/tunisie?page=1&section=Boutique", {
+    router.replace("/Collections/tunisie?page=1", {
       scroll: true,
     });
     toggleOpenSidebar();
@@ -219,17 +208,17 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-        selectedFilterQueries[name].includes(option.toLowerCase()),
+        selectedFilterQueries[name].includes(option)
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
 
   // Render helpers
@@ -253,16 +242,16 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               value={choice.id}
               checked={isChecked("choice", choice.id)}
               className={`h-3 w-3  outline-none ${isChecked("choice", choice.id)
-                ? "bg-secondaryColor"
-                : "bg-white"
+                  ? "bg-secondaryColor"
+                  : "bg-white"
                 } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
               onChange={() => handleChoiceFilterOptions(choice.id)}
             />
             <label
               htmlFor={`filtre-choix-${choice.id}`}
               className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", choice.id)
-                ? "text-black font-semibold"
-                : "text-gray-600"
+                  ? "text-black font-semibold"
+                  : "text-gray-600"
                 } group-hover:text-black group-hover:font-semibold transition-all`}
             >
               {choice.label}
@@ -284,7 +273,10 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
           >
             <Link
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?category=${category.name}&categories=${encodeURIComponent(category.name)}`}
+              href={`/Collections/tunisie/?${new URLSearchParams({
+                category: category.name,
+              })}
+              `}
               className="w-full h-full"
               onClick={() => handleCategoryClick(category.id)}
             >
@@ -292,8 +284,8 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
             </Link>
             <span
               className={`${searchParams?.get("category") === category?.id
-                ? "bg-primaryColor"
-                : "bg-secondaryColor"
+                  ? "bg-primaryColor"
+                  : "bg-secondaryColor"
                 } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
             ></span>
           </li>
@@ -359,79 +351,109 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       <h3 className="font-normal tracking-widest text-sm mb-6">COULEURS</h3>
       <div className="overflow-y-auto max-h-60">
         <div className="flex items-center flex-wrap px-3 w-full gap-3">
-          {colors?.map((color) => (
-            <div key={color.id} className="flex items-center">
-              <input
-                id={`filtre-color-${color.id}`}
-                name="color"
-                type="checkbox"
-                value={color.id}
-                checked={isChecked("color", color.id)}
-                style={{
-                  WebkitAppearance: "none",
-                  MozAppearance: "none",
-                  appearance: "none",
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  outline: "none",
-                  background: color.Hex,
-                  border: isChecked("color", color.id)
-                    ? "2px solid black"
-                    : "2px solid gray",
-                  transition: "border-color 0.3s",
-                }}
-                title={color.color}
-                className="color-checkbox cursor-pointer shadow-md shadow-white"
-                onChange={() => handleColorSelection(color.color)}
-              />
-            </div>
-          ))}
+          {colors
+            ?.filter((color) => color.Product?.length > 0)
+            .map((color) => (
+              <div key={color.id} className="flex items-center">
+                <input
+                  id={`filtre-color-${color.color}`}
+                  name="color"
+                  type="checkbox"
+                  value={color.id}
+                  checked={isChecked("color", color.color)}
+                  style={{
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    appearance: "none",
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    outline: "none",
+                    background: color.Hex,
+                    border: isChecked("color", color.color)
+                      ? "2px solid black"
+                      : "2px solid gray",
+                    transition: "border-color 0.3s",
+                  }}
+                  title={color.color}
+                  className="color-checkbox cursor-pointer shadow-md shadow-white"
+                  onChange={() => handleColorSelection(color.color)}
+                />
+              </div>
+            ))}
         </div>
       </div>
     </div>
   );
 
-  const renderBrandFilters = () => (
-    <div className="border-b pl-5 border-gray-200 py-6">
-      <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
-      <div className="overflow-y-auto max-h-60" id="filter-section-1">
-        <div className="space-y-4">
-          {brands?.map((brand) => (
-            <div key={brand.id} className="flex items-center">
-              <input
-                style={{
-                  WebkitAppearance: "none",
-                  appearance: "none",
-                }}
-                id={`filtre-brand-${brand.id}`}
-                name="brand"
-                type="radio"
-                value={brand.name}
-                checked={isChecked("brand", brand.name)}
-                className={`h-3 w-3  outline-none ${isChecked("brand", brand.name)
-                  ? "bg-secondaryColor"
-                  : "bg-white"
-                  } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
-                onChange={handleSelectBrandFilterOptions}
-              />
-              <div className="flex items-center justify-between w-full">
-                <label
-                  htmlFor={`filtre-brand-${brand.id}`}
-                  className="ml-3 text-sm tracking-wider text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                >
-                  {brand.name}
-                </label>
-                <span className="text-gray-600 mr-3">
-                  ({brand?.product?.length})
-                </span>
-              </div>
-            </div>
-          ))}
+  const BrandFilters = memo(({ selectedFilterQueries, brands }: any) => {
+    const filteredBrands = selectedFilterQueries.category?.length
+      ? brands?.filter((brand: { product: any[] }) =>
+        brand?.product.some((product: { categories: { name: string }[] }) =>
+          product?.categories.some((category: { name: string }) =>
+            selectedFilterQueries.category?.includes(category.name)
+          )
+        )
+      )
+      : brands;
+    return (
+      <div className="border-b pl-5 border-gray-200 py-6">
+        <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
+        <div className="overflow-y-auto max-h-60" id="filter-section-1">
+          <div className="space-y-4">
+            {filteredBrands?.map(
+              (brand: {
+                id: React.Key;
+                name: string;
+                product: string | any[];
+              }) => {
+                return (
+                  <div key={brand.id} className="flex items-center">
+                    <input
+                      style={{
+                        WebkitAppearance: "none",
+                        appearance: "none",
+                      }}
+                      id={`filtre-brand-${brand.id}`}
+                      name="brand"
+                      type="radio"
+                      value={brand.name}
+                      checked={isChecked("brand", brand.name)}
+                      className={`h-3 w-3  outline-none ${isChecked("brand", brand.name)
+                          ? "bg-secondaryColor"
+                          : "bg-white"
+                        } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
+                      onChange={handleSelectBrandFilterOptions}
+                    />
+                    <div className="flex items-center justify-between w-full">
+                      <label
+                        htmlFor={`filtre-brand-${brand.id}`}
+                        className="ml-3 text-sm tracking-wider text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                      >
+                        {brand.name}
+                      </label>
+                      <span className="text-gray-600 mr-3">
+                        ({brand?.product?.length})
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  });
+
+  const renderBrandFilters = () => {
+    return (
+      <BrandFilters
+        selectedFilterQueries={selectedFilterQueries}
+        brands={brands}
+      />
+    );
+  };
 
   // Main render
   const renderDrawerContent = () => (
@@ -505,7 +527,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       ) : (
         <section
           aria-labelledby="products-heading"
-          className={`overflow-y-auto z-50 w-80 h-fit py-5 transition-all bg-white shadow-md sticky top-0 `}
+          className={`overflow-y-auto z-50 w-80 h-fit py-5 transition-all bg-white shadow-md sticky top-56 `}
         >
           <form className="relative pt-5">
             <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">

@@ -29,7 +29,6 @@ const Subcategory: React.FC<SubcategoryProps> = ({
               data-parentcategory={subcategory.parentId}
               href={`/Collections/tunisie/?${new URLSearchParams({
                 category: subcategory.name,
-                categories: [parentCategoryName, subcategory.name].join(","),
               })}
               `}
             >

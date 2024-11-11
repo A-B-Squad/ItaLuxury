@@ -14,73 +14,38 @@ interface DiscountInput {
   discountId?: string;
 }
 
+
+
+
 const updateAttributes = async (
   prisma: PrismaClient,
   productId: string,
   attributeInputs: AttributeInput[]
 ) => {
-  const existingAttributes = await prisma.productAttribute.findMany({
-    where: { productId },
-  });
-
-  const attributesToCreate: AttributeInput[] = [];
-  const attributesToUpdate: { id: string; data: { value: string } }[] = [];
-  const attributesToDelete: string[] = [];
-
-  attributeInputs?.forEach((attribute) => {
-    const existingAttribute = existingAttributes.find(
-      (attr: { name: string; }) => attr.name.trim() === attribute.name.trim()
-    );
-    if (existingAttribute) {
-      attributesToUpdate.push({
-        id: existingAttribute.id,
-        data: { value: attribute.value },
-      });
-    } else {
-      attributesToCreate.push({
-        name: attribute.name,
-        value: attribute.value,
-      });
-    }
-  });
-
-  // Identify attributes to delete
-  existingAttributes.forEach((existingAttribute: { name: string; id: string; }) => {
-    const isStillPresent = attributeInputs.find(
-      (attr) => attr.name.trim() === existingAttribute.name.trim()
-    );
-    if (!isStillPresent) {
-      attributesToDelete.push(existingAttribute.id);
-    }
-  });
-
-  // Update existing attributes
-  for (const attribute of attributesToUpdate) {
-    await prisma.productAttribute.update({
-      where: { id: attribute.id },
-      data: attribute.data,
+  try {
+    // First, delete all existing attributes for the product
+    await prisma.productAttribute.deleteMany({
+      where: { productId },
     });
-  }
 
-  // Create new attributes
-  if (attributesToCreate.length > 0) {
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        attributes: {
-          create: attributesToCreate,
-        },
-      },
-    });
-  }
+    // Format the attributes for creation
+    const formattedAttributes = attributeInputs.map(attr => ({
+      name: attr.name.trim(),  // Trim whitespace
+      value: attr.value.trim(), // Trim whitespace
+      productId: productId     // Explicitly set the productId
+    }));
 
-  // Delete attributes that no longer exist in attributeInputs
-  for (const id of attributesToDelete) {
-    await prisma.productAttribute.delete({
-      where: { id },
+    // Create all new attributes in a single transaction
+    await prisma.productAttribute.createMany({
+      data: formattedAttributes,
     });
+
+  } catch (error) {
+    console.error("Error updating attributes:", error);
+    throw new Error("Failed to update product attributes");
   }
 };
+
 
 const updateDiscounts = async (
   prisma: PrismaClient,
@@ -107,14 +72,12 @@ const updateDiscounts = async (
       where: { productId },
     });
 
-    // Avoiding the `unique constraint` error by properly handling existing discounts  
     if (existingDiscount) {
       await prisma.productDiscount.update({
-        where: { id: existingDiscount.id }, // Update only the existing discount by ID  
+        where: { id: existingDiscount.id },
         data: discountData,
       });
     } else {
-      // You can consider checking if a discount with the same price exists for any other product  
       await prisma.productDiscount.create({
         data: {
           productId,
@@ -125,6 +88,7 @@ const updateDiscounts = async (
     }
   }
 };
+
 export const updateProduct = async (
   _: any,
   { productId, input }: { productId: string; input: ProductInput },
@@ -147,9 +111,7 @@ export const updateProduct = async (
       brandId,
     } = input;
 
-
-
-    // First, disconnect only this product's categories
+    // Disconnect all categories
     await prisma.product.update({
       where: { id: productId },
       data: {
@@ -161,8 +123,6 @@ export const updateProduct = async (
         },
       },
     });
-
-
 
     // Update the product with the provided data
     await prisma.product.update({
@@ -214,6 +174,6 @@ export const updateProduct = async (
       throw new Error(`Le nom du produit "${input.name}" existe déjà`);
     }
     console.error("Error updating product:", error);
-    return `Failed to update product: ${error}`;
+    throw error;
   }
 };

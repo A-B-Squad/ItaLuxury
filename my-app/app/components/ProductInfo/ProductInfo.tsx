@@ -19,10 +19,22 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import { SlBasket } from "react-icons/sl";
-import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import SmallImageCarouselProductInfo from "./SmallImageCarouselProductInfo";
+import dynamic from "next/dynamic";
+const InnerImageZoom = dynamic(() => import("react-inner-image-zoom"), {
+  loading: () => (
+    <div className="animate-pulse bg-gray-200 w-full h-full min-h-[300px]" />
+  ),
+  ssr: false,
+});
 
+const SmallImageCarousel = dynamic(
+  () => import("./SmallImageCarouselProductInfo"),
+  {
+    loading: () => <div className="animate-pulse bg-gray-200 w-full h-20" />,
+    ssr: false,
+  }
+);
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -215,11 +227,10 @@ const ProductInfo = () => {
     };
   }, [productData]);
 
-
-  if (!mounted || !isOpen) return null; 
+  if (!mounted || !isOpen) return null;
   return (
     <>
-<div
+      <div
         onClick={closeProductDetails}
         className={`productData fixed cursor-none z-[11111111] 
           left-0 top-0 transition-all bg-lightBlack h-full flex justify-center items-center w-full
@@ -255,7 +266,7 @@ const ProductInfo = () => {
               />
             </div>
 
-            <SmallImageCarouselProductInfo
+            <SmallImageCarousel
               images={productData?.images}
               bigImage={bigImage}
               setBigImage={setBigImage}
@@ -356,7 +367,7 @@ const ProductInfo = () => {
                 className={`text-lg font-semibold flex gap-3 items-center ${productData?.inventory !== undefined && productData.inventory > 0 ? "text-green-600" : "text-red-600"}`}
               >
                 {productData?.inventory !== undefined &&
-                  productData?.inventory <= 0 ? (
+                productData?.inventory <= 0 ? (
                   <>
                     <IoMdCloseCircleOutline />
                     En Rupture

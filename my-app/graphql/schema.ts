@@ -101,7 +101,8 @@ type Colors {
   id: ID!
   color: String!
   Hex: String!
-  product: Product!
+  Product: [Product!]
+
 }
 
 type Brand {
@@ -163,7 +164,6 @@ type Checkout {
   guestEmail:String
   deliveryComment:String
   paymentMethod:PaymentMethod
-
 }
 type CreateCheckoutOutput {
   customId:String!
@@ -326,7 +326,7 @@ type Query {
   allNewProducts(limit: Int,visibleProduct:Boolean): [Product!]
   fetchBrands: [Brand!]
   searchProducts(input: ProductSearchInput!): SearchProductsResult!
-  colors(limit: Int): [Colors!]!
+  colors(limit: Int): [Colors!]
   productsLessThen20(limit: Int): [Product!]
   productsByCategory(categoryName: String!, limit: Int): [Product!]!
   productById(id: ID!): Product!
@@ -463,7 +463,7 @@ type Mutation {
   addColor(color:String! , Hex:String!):String!
   deleteColor(Hex:String!):String!
   # Brand Mutations
-  addBrand(name:String!,logo:String!,categoryId:String):String!
+  addBrand(name:String!,logo:String!):String!
   deleteBrand(brandId:ID!):String!
 }
 

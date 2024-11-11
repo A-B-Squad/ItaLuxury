@@ -28,11 +28,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
           onClick={closeCategoryDrawer}
             href={`/Collections/tunisie/?${new URLSearchParams({
               category: subsubcategory.name,
-              categories: [
-                parentCategoryName,
-                parentSubCategoryName,
-                subsubcategory.name,
-              ].join(","),
+           
             })}
           `} className="py-1 pl-5 group text-sm cursor-pointer transition-all relative left-2 flex hover:font-bold"
             key={subIndex}

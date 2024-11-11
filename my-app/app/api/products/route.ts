@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 interface Product {
     id: string;
     name: string;
+    images?: string[];
     categories: Array<{
         id: string;
         name: string;
@@ -10,19 +11,33 @@ interface Product {
     }>;
 }
 
+interface GraphQLResponse {
+    data?: {
+        searchProducts?: {
+            totalCount: number;
+            results: {
+                products: Product[];
+            };
+        };
+    };
+    errors?: Array<{
+        message: string;
+    }>;
+}
+
 export async function GET(req: NextRequest) {
     try {
         if (!process.env.NEXT_PUBLIC_API_URL) {
-            console.error("NEXT_PUBLIC_API_URL is not defined");
-            return NextResponse.json([], { status: 500 });
+            throw new Error("NEXT_PUBLIC_API_URL is not defined");
         }
 
         const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
-            method: "GET",
-            cache: "no-cache",
+
             headers: {
                 "Content-Type": "application/json",
             },
+            method: "POST",
+
             body: JSON.stringify({
                 query: `
           query SearchProducts($input: ProductSearchInput!) {
@@ -57,19 +72,49 @@ export async function GET(req: NextRequest) {
                     },
                 },
             }),
+
+
         });
 
         if (!response.ok) {
-            throw new Error(`API response error: ${response.statusText}`);
+            throw new Error(`API response error: ${response.status} ${response.statusText}`);
         }
 
-        const { data } = await response.json();
-        const products = data?.searchProducts?.results?.products || [];
-console.log(data);
+        const graphqlResponse: GraphQLResponse = await response.json();
 
-        return NextResponse.json(products);
+        // Check for GraphQL errors
+        if (graphqlResponse.errors?.length) {
+            console.error('GraphQL Errors:', graphqlResponse.errors);
+            throw new Error(graphqlResponse.errors[0].message);
+        }
+
+        // Extract products with proper null checking
+        const products = graphqlResponse.data?.searchProducts?.results?.products;
+
+        if (!products) {
+            console.warn('No products found in the response');
+            return NextResponse.json([], {
+                status: 200,
+                headers: {
+                    'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200'
+                }
+            });
+        }
+
+        return NextResponse.json(products, {
+            status: 200,
+            headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200'
+            }
+        });
+
     } catch (error) {
         console.error('Error fetching product data:', error);
-        return NextResponse.json([], { status: 500 });
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : 'Unknown error occurred' },
+            { status: 500 }
+        );
     }
 }
+
+export const dynamic = 'force-dynamic';

@@ -14,7 +14,6 @@ export const createModerator = async (
       where: { fullName },
     });
 
-    console.log(existingAdmin);
 
     // Check if the user invoking the mutation is authorized
 

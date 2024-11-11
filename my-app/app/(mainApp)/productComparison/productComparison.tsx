@@ -196,10 +196,8 @@ const ProductComparison = () => {
                       <Link
                         className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
                         rel="preload"
-                        href={`/products/tunisie/${prepRoute(product?.name)}/?${new URLSearchParams({
-                          productId: product.id,
-                          categories: product.categories.map((cat: { name: string; }) => cat.name).join(',')
-                        })}`}
+                        href={`/products/tunisie?productId=${product.id}`}
+
 
                       >
                         <img
@@ -211,10 +209,8 @@ const ProductComparison = () => {
                       <div className="mt-4 px-3 pb-5">
                         <Link
                           rel="preload"
-                          href={`/products/tunisie/${prepRoute(product?.name)}/?${new URLSearchParams({
-                            productId: product.id,
-                            categories: product.categories.map((cat: { name: string; }) => cat.name).join(',')
-                          })}`}
+                          href={`/products/tunisie?productId=${product.id}`}
+
                         >
                           <p className="text-base text-black  text-center tracking-tight text-slate-900">
                             {product.name}

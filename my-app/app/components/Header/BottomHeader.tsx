@@ -143,13 +143,9 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
-                href={{
-                  pathname: `/Collections/tunisie`,
-                  query: {
-                    page: "1",
-                    section: "Boutique",
-                  },
-                }}
+                href={
+                  `/Collections/tunisie?page=1`}
+
               >
                 Boutique
               </Link>
@@ -158,10 +154,10 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               <Link
                 rel="preload"
                 href={{
-                  pathname: `/Collections/tunisie`, 
+                  pathname: `/Collections/tunisie`,
                   query: {
-                    choice: "in-discount", 
-                    section: "Promotions",  
+                    choice: "in-discount",
+
                   },
                 }}
               >

@@ -145,12 +145,6 @@ const ProductBox = ({ product }: any) => {
     }
     toggleIsUpdated();
   };
-  const categoryNames = product.categories
-    .map((cat: { name: string; }) => cat.name)
-  const queryParams = new URLSearchParams({
-    productId: product.id,
-    categories: [categoryNames, product?.name].join(',')
-  });
   return (
     <div className="flex font-medium text-gray-900 w-full relative">
       <div className="w-full flex gap-5 items-center">
@@ -192,8 +186,8 @@ const ProductBox = ({ product }: any) => {
           <Link
             className="hover:text-primaryColor text-base font-light transition-all  cursor-pointer tracking-wider"
             title={product.name}
-            href={`/products/tunisie/${prepRoute(product?.name)}/?${queryParams}`}
-          >
+            href={`/products/tunisie?productId=${product.id}`}
+            >
             <p className="text-left">{product.name}</p>
           </Link>
 

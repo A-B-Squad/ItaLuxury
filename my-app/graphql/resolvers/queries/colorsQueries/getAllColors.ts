@@ -9,7 +9,10 @@ export const colors = async (
 ) => {
   try {
     const colors = await prisma.colors.findMany({
-      take: limit || undefined, // Limit the number of colors returned
+      take: limit || undefined,
+      include: {
+        Product: true
+      },
     });
     return colors;
   } catch (error) {

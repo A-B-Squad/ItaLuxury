@@ -36,9 +36,14 @@ export const metadata: Metadata = {
 };
 
 const ContactUsPage = () => {
+  const breadcrumbPaths = [
+    { href: "/", label: "Accueil" },
+    { href: "/contact-us", label: "Contactez-Nous", }
+  ];
+
   return (
     <div className="contactUs flex flex-col items-center justify-center p-6">
-      <Breadcumb pageName="Contactez-Nous" pageLink="contact-us" />
+      <Breadcumb Path={breadcrumbPaths} />
       <div className="container flex flex-col items-center justify-center gap-10 py-10 border bg-white">
         <h1 className="text-3xl font-bold text-center ">Contactez-Nous</h1>
         <CompanyInfoBar />

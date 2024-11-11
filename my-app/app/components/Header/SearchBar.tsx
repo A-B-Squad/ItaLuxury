@@ -7,8 +7,7 @@ import {
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
 import Image from "next/legacy/image";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import prepRoute from "../../Helpers/_prepRoute";
 import triggerEvents from "@/utlils/trackEvents";
 import Cookies from "js-cookie";
@@ -23,17 +22,14 @@ const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-
-  const [searchProducts, { data }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
+  const [searchProducts, { data, error }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
 
   const router = useRouter();
   const pathname = usePathname();
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
+    variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
   });
 
@@ -57,13 +53,11 @@ const SearchBar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Use pathname to detect route changes
   useEffect(() => {
     setSearching(false);
   }, [pathname]);
@@ -71,6 +65,7 @@ const SearchBar = () => {
   const handleSearchChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setSearchQuery(inputValue);
+
     searchProducts({
       variables: {
         input: {
@@ -117,11 +112,15 @@ const SearchBar = () => {
         });
         pushToDataLayer("AddToCart");
       },
+      onError: (err) => {
+        console.error("Error fetching search results:", err);
+      },
     });
   };
+
   return (
     <div className="search-container relative w-full">
-      <div className="search-input-wrapper flex w-full  items-center border mx-auto bg-white border-gray-300 pl-4 relative max-w-lg h-11 rounded-full">
+      <div className="search-input-wrapper flex w-full items-center border mx-auto bg-white border-gray-300 pl-4 relative max-w-lg h-11 rounded-full">
         <input
           ref={inputRef}
           className="h-full w-full outline-none"
@@ -158,12 +157,7 @@ const SearchBar = () => {
                 {data.searchProducts.results.categories.map((category: any) => (
                   <Link
                     key={category.id}
-                    href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
-                      {
-                        category: category.name,
-                        categories: category.name,
-                      }
-                    )}`}
+                    href={`/Collections/tunisie/${prepRoute(category.name)}`}
                     onClick={() => {
                       triggerEvents("SelectSearchedCategory", {
                         user_data: {
@@ -202,14 +196,7 @@ const SearchBar = () => {
               {data.searchProducts.results.products.map((product: any) => (
                 <Link
                   key={product.id}
-                  href={`/products/tunisie/${prepRoute(product?.name)}/?${new URLSearchParams(
-                    {
-                      productId: product.id,
-                      categories: product.categories
-                        .map((cat: { name: string }) => cat.name)
-                        .join(","),
-                    }
-                  )}`}
+                  href={`/products/tunisie?productId=${product.id}`}
                   onClick={() => {
                     triggerEvents("SelectSearchedProduct", {
                       user_data: {
@@ -240,10 +227,12 @@ const SearchBar = () => {
                       layout="fill"
                       src={product.images[0]}
                       objectFit="contain"
+                      priority={true}
+                      quality={75}
                       alt={product.name}
                     />
                   </div>
-                  <p className="text-base font-light tracking-widest text-center ">
+                  <p className="text-base font-medium tracking-wider text-center">
                     {product.name}
                   </p>
                   <p className="text-lg font-bold text-primaryColor">
@@ -262,13 +251,11 @@ const SearchBar = () => {
             <button
               className="w-full sticky bottom-0 mt-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors"
               onClick={() => {
-                router.push(`/Collections/tunisie?query=${searchQuery}`, {
-                  scroll: true,
-                });
+                router.push(`/Collections/tunisie?query=${searchQuery}`);
                 setSearching(false);
               }}
             >
-              Voir tous les résultats
+              Afficher plus de résultats
             </button>
           </div>
         </div>

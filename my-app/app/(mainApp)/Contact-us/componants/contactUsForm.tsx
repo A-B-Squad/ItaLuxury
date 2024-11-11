@@ -84,11 +84,18 @@ const ContactUsForm: React.FC = () => {
   }, []);
 
   // Step 4: Handle file upload
+
+
   const handleFileInputChange = (event: any) => {
     const file = event.info;
     if (file) {
+      const optimizedUrl = `${file.url.replace(
+        "/upload/",
+        "/upload/f_auto,q_auto/"
+      )}`;
+
       setFileName(file.original_filename);
-      setFile(file.url);
+      setFile(optimizedUrl);
     } else {
       setFileName("");
     }
@@ -220,9 +227,8 @@ const ContactUsForm: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`py-2 px-4 bg-primaryColor text-white shadow-lg hover:bg-mediumBeige transition-colors uppercase ${
-                isLoading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`py-2 px-4 bg-primaryColor text-white shadow-lg hover:bg-mediumBeige transition-colors uppercase ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               {isLoading ? (
                 <div className="flex items-center">

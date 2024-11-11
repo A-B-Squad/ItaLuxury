@@ -97,10 +97,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                 height={96}
                 objectFit="contain"
                 src={product.images[0]}
-                alt={product.name}
+                alt={product?.name}
               />
               <div className="flex w-full flex-col px-4 py-4">
-                <span className="font-semibold">{product.name}</span>
+                <span className="font-semibold">{product?.name}</span>
                 <p className="mt-auto text-lg font-bold">
                   {product.productDiscounts?.length
                     ? product.productDiscounts[0].newPrice.toFixed(3)

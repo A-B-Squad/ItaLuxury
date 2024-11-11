@@ -1,11 +1,8 @@
-
-import React from "react";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
 
-
 const productDetailsDrawer = ({
-  isBottom,
   productDetails,
   addToBasket,
   discount,
@@ -13,12 +10,31 @@ const productDetailsDrawer = ({
   quantity,
   handleIncreaseQuantity,
 }: any) => {
+  const [isBottom, setIsBottom] = useState<Boolean>(false);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight;
+      const scrollPosition = window.scrollY;
 
+      // Calculate the position halfway through the window
+      const halfwayPosition = windowHeight / 2;
+
+      // Check if the scroll position is greater than or equal to halfway
+      const isHalfway = scrollPosition >= halfwayPosition;
+
+      setIsBottom(isHalfway);
+    };
+    // Attach the scroll event listener
+    window.addEventListener("scroll", handleScroll);
+    // Detach the scroll event listener on component unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <div className="hidden md:flex ">
-
       {isBottom && !!productDetails && (
         <div className="fixed z-50 bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
           <img
@@ -29,21 +45,27 @@ const productDetailsDrawer = ({
 
           <div className="items-center ">
             <h2 className="product_name tracking-wider text-xl max-w-60 line-clamp-1 font-semibold ">
-              {productDetails.name}
+              {productDetails?.name}
             </h2>
             <div className="discount flex items-center   gap-2">
-
-              {discount
-                ? <p className="text-gray-400 line-through  font-semibold 	text-lg" >{productDetails?.price.toFixed(3)} TND</p>
-                : <p className=" font-bold">
+              {discount ? (
+                <p className="text-gray-400 line-through  font-semibold 	text-lg">
                   {productDetails?.price.toFixed(3)} TND
                 </p>
-              }
+              ) : (
+                <p className=" font-bold">
+                  {productDetails?.price.toFixed(3)} TND
+                </p>
+              )}
 
-              {discount
-                ? <p className="text-red-500 text-xl  font-bold"> {discount.newPrice.toFixed(3)} TND</p>
-                : ""
-              }
+              {discount ? (
+                <p className="text-red-500 text-xl  font-bold">
+                  {" "}
+                  {discount.newPrice.toFixed(3)} TND
+                </p>
+              ) : (
+                ""
+              )}
             </div>
           </div>
           <div className="Quantity flex items-center  space-x-2">

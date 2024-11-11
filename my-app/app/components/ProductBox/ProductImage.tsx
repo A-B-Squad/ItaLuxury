@@ -1,7 +1,7 @@
 import prepRoute from "@/app/Helpers/_prepRoute";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import QuickActionButton from "./components/QuickActionButton";
 import { FaRegEye } from "react-icons/fa";
 import { IoGitCompare } from "react-icons/io5";
@@ -31,6 +31,12 @@ const ProductImage: React.FC<ProductImageProps> = ({
   view,
 }) => {
   const { toast } = useToast();
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const hasImages = useMemo(() => product.images.length > 0, [product.images]);
+  const hasSecondImage = useMemo(
+    () => product.images.length > 1,
+    [product.images]
+  );
 
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
@@ -40,6 +46,18 @@ const ProductImage: React.FC<ProductImageProps> = ({
       productsInCompare: state.products,
     })
   );
+
+  const primaryImageUrl = useMemo(() => {
+    if (!hasImages) return "";
+
+    return product.images[0];
+  }, [product.images, hasImages]);
+
+  const secondaryImageUrl = useMemo(() => {
+    if (!hasSecondImage) return "";
+
+    return product.images[1];
+  }, [product.images, hasSecondImage]);
 
   const onAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = productsInCompare.some(
@@ -56,45 +74,51 @@ const ProductImage: React.FC<ProductImageProps> = ({
     }
   }, [product, productsInCompare, addProductToCompare, toast]);
 
-  const categoryNames = product.categories
-    .map(cat => cat.name)
-    const queryParams = new URLSearchParams({
-      productId: product.id,
-      categories: [categoryNames,product?.name].join(',')
-    });
+  const handleImageLoad = useCallback(() => {
+    setIsImageLoaded(true);
+  }, []);
 
   return (
     <div
-      className={`images relative flex ${view == 1 ? "flex-row" : "flex-col"}  gap-1 `}
+      className={`images relative flex ${view == 1 ? "flex-row" : "flex-col"}  gap-1`}
     >
       <Link
         className="relative w-full flex mx-auto items-center justify-center overflow-hidden"
-        href={`/products/tunisie/${prepRoute(product?.name)}/?${queryParams}`}
-        prefetch={false}
+        href={`/products/tunisie?productId=${product.id}`}
       >
         <div className="relative h-44 w-44">
-          {product.images.length > 0 && (
+          <div
+            className={`absolute inset-0 bg-gray-100 transition-opacity duration-300 ${
+              isImageLoaded && (
+                <Image src={"/sale.png"} width={100} height={100} />
+              )
+            }`}
+          />
+
+          {hasImages && (
             <Image
-              src={product.images[0]}
+              src={primaryImageUrl}
               alt={`${product.name}`}
               layout="fill"
               objectFit="contain"
               quality={75}
-              sizes="(max-width: 768px) 100vw, 176px"
-              priority={false}
-              loading="eager"
-              className="transition-opacity duration-300"
+              sizes="176px"
+              priority={true}
+              onLoad={handleImageLoad}
+              className={`transition-opacity duration-300 ${
+                isImageLoaded ? "opacity-100" : "opacity-0"
+              }`}
             />
           )}
 
-          {product.images.length > 1 && (
+          {hasSecondImage && (
             <Image
-              src={product.images[1]}
+              src={secondaryImageUrl}
               alt={`${product.name} - hover`}
               layout="fill"
               objectFit="contain"
               quality={75}
-              sizes="(max-width: 768px) 100vw, 176px"
+              sizes="176px"
               loading="lazy"
               className="absolute top-0 left-0 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
             />
@@ -102,9 +126,12 @@ const ProductImage: React.FC<ProductImageProps> = ({
         </div>
       </Link>
 
-      {/* Quick action buttons */}
       <ul
-        className={`plus_button absolute h-fit flex ${view === 1 ? "   right-0 top-2/4 -translate-y-2/4  flex-col" : " bottom-0 left-2/4 -translate-x-2/4"} items-center justify-center lg:opacity-0 lg:group-hover:opacity-100   z-30  gap-2  `}
+        className={`plus_button absolute h-fit flex ${
+          view === 1
+            ? "right-0 top-2/4 -translate-y-2/4 flex-col"
+            : "bottom-0 left-2/4 -translate-x-2/4"
+        } items-center justify-center lg:opacity-0 lg:group-hover:opacity-100 z-30 gap-2`}
       >
         <QuickActionButton
           icon={<FaRegEye color="white" className="text-xs md:text-base" />}
@@ -115,9 +142,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
           icon={
             <FaBasketShopping color="white" className="text-xs md:text-base" />
           }
-          onClick={() => {
-            onAddToBasket(product, 1);
-          }}
+          onClick={() => onAddToBasket(product, 1)}
           title="Ajouter au panier"
           disabled={product.inventory <= 0}
           isAddToCart={true}

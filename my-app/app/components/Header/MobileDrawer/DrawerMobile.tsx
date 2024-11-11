@@ -256,13 +256,9 @@ function DrawerMobile() {
           className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between px-7 w-full border-b-2`}
         >
           <Link
-            href={{
-              pathname: "/Collections/tunisie?page=1&section=Boutique",
-              query: {
-                page: "1",
-                section: "Boutique",
-              },
-            }}
+            href={"/Collections/tunisie?page=1"
+
+            }
             className="capitalize font-bold w-full"
             onClick={closeCategoryDrawer}
 

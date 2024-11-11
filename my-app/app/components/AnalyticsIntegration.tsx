@@ -89,22 +89,21 @@ const AnalyticsIntegration = () => {
 
       {/* Google Analytics */}
       <Script
-        async
-        src="https://www.googletagmanager.com/gtag/js?id=G-2C9K3VF02Y"
-      ></Script>
-      <Script>
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-2C9K3VF02Y');
-        `}
-      </Script>
-
-      <Script>
-
-
-      </Script>
+        src="https://www.googletagmanager.com/gtag/js?id=G-GDPGKPJKW1"
+        strategy="afterInteractive"
+      />
+      <Script
+        id="ga-setup"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-GDPGKPJKW1');
+          `,
+        }}
+      />
     </>
   );
 };

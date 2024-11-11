@@ -70,7 +70,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
     },
     skip: !decodedToken?.userId,
   });
-  
+
   const { data: basketData, refetch: refetchBasket } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
@@ -130,7 +130,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             width={192}
             height={96}
             alt="ita-luxury"
-            priority
+            priority={true}
             layout="responsive"
             objectFit="contain"
           />
@@ -247,9 +247,9 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   onClick={() => {
                     Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
                     window.sessionStorage.removeItem("productsInBasket");
-                      window.sessionStorage.removeItem("comparedProducts");
-                      window.location.replace("/");
-                    
+                    window.sessionStorage.removeItem("comparedProducts");
+                    window.location.replace("/");
+
                   }}
                   className="w-full text-sm py-2 border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
                   href={"/"}

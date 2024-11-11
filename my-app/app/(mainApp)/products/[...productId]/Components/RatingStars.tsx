@@ -1,67 +1,52 @@
-import { ADD_RATING_MUTATION } from '@/graphql/mutations';
-import { GET_REVIEW_QUERY, GET_USER_REVIEW_QUERY } from '@/graphql/queries';
-import { useLazyQuery, useMutation } from '@apollo/client';
-import React, { useEffect, useState } from 'react'
-import { FaStar } from 'react-icons/fa';
+import { ADD_RATING_MUTATION } from "@/graphql/mutations";
+import { GET_REVIEW_QUERY, GET_USER_REVIEW_QUERY } from "@/graphql/queries";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { Star } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-const RatingStars = ({ productId, userId, toast }: { productId: string, userId: string | undefined, toast: any }) => {
-
+const RatingStars = ({ productId, userId, toast }: { productId: string; userId: string | undefined; toast: any }) => {
     const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
     const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
     const [addRating] = useMutation(ADD_RATING_MUTATION);
-
-    const [localRating, setLocalRating] = useState<number>(0);
     const [serverRating, setServerRating] = useState<number>(0);
 
-
-    const [hover, setHover] = useState<any>(null);
+    const [hover, setHover] = useState<number | null>(null);
     const [userReviews, setUserReviews] = useState<number>(0);
     const [reviews, setReviews] = useState<number>(0);
-    const [oneStar, setOneStar] = useState<number>(0);
-    const [twoStar, setTwoStar] = useState<number>(0);
-    const [threeStar, setThreeStar] = useState<number>(0);
-    const [fourStar, setFourStar] = useState<number>(0);
-    const [fiveStar, setFiveStar] = useState<number>(0);
+    const [ratings, setRatings] = useState({
+        one: 0,
+        two: 0,
+        three: 0,
+        four: 0,
+        five: 0,
+    });
+    const [isRatingLoading, setIsRatingLoading] = useState<boolean>(false);
 
-    // Add loading state for rating
-    const [isRatingLoading, setIsRatingLoading] = useState(false);
     const handleRatingSubmit = async (currentIndex: number) => {
-
-
-        setIsRatingLoading(true);
-        setLocalRating(currentIndex);
+        if (!userId) {
+            return toast({
+                title: "Connectez-vous",
+                description: "Vous devez être connecté pour évaluer.",
+                className: "bg-red-600 text-white",
+            });
+        }
 
         try {
+            setIsRatingLoading(true);
             await addRating({
-                variables: {
-                    productId: productId,
-                    userId: userId,
-                    rating: currentIndex,
-                },
+                variables: { productId, userId, rating: currentIndex },
             });
-            // Refetch reviews after rating submission
-            await getReviews({
-                variables: { productId: productId }
-            });
-            await getUserReviews({
-                variables: {
-                    productId: productId,
-                    userId: userId
-                }
-            });
+            await Promise.all([getReviews({ variables: { productId } }), getUserReviews({ variables: { productId, userId } })]);
             setServerRating(currentIndex);
             toast({
-                title: "Notification d'ajout d'évaluation",
-                description: `Merci d'avoir ajouté une évaluation.`,
+                title: "Évaluation ajoutée",
+                description: "Merci pour votre évaluation.",
                 className: "bg-primaryColor text-white",
             });
         } catch (error) {
-            console.error("Error submitting rating:", error);
-            setLocalRating(serverRating); 
-
             toast({
                 title: "Erreur",
-                description: "Une erreur s'est produite lors de l'ajout de l'évaluation.",
+                description: "Une erreur est survenue lors de l'évaluation.",
                 className: "bg-red-600 text-white",
             });
         } finally {
@@ -71,128 +56,99 @@ const RatingStars = ({ productId, userId, toast }: { productId: string, userId: 
 
     useEffect(() => {
         getReviews({
-            variables: { productId: productId },
+            variables: { productId },
             onCompleted: (data) => {
-                setReviews(data.productReview.length);
-                setOneStar(
-                    data.productReview.filter(
-                        (review: { rating: number }) => review?.rating === 1,
-                    ).length,
-                );
-                setTwoStar(
-                    data.productReview.filter(
-                        (review: { rating: number }) => review?.rating === 2,
-                    ).length,
-                );
-                setThreeStar(
-                    data.productReview.filter(
-                        (review: { rating: number }) => review?.rating === 3,
-                    ).length,
-                );
-                setFourStar(
-                    data.productReview.filter(
-                        (review: { rating: number }) => review?.rating === 4,
-                    ).length,
-                );
-                setFiveStar(
-                    data.productReview.filter(
-                        (review: { rating: number }) => review?.rating === 5,
-                    ).length,
-                );
+                const totalReviews = data.productReview.length;
+                setReviews(totalReviews);
+                const ratingCounts = {
+                    one: data.productReview.filter((review: { rating: number }) => review.rating === 1).length,
+                    two: data.productReview.filter((review: { rating: number }) => review.rating === 2).length,
+                    three: data.productReview.filter((review: { rating: number }) => review.rating === 3).length,
+                    four: data.productReview.filter((review: { rating: number }) => review.rating === 4).length,
+                    five: data.productReview.filter((review: { rating: number }) => review.rating === 5).length,
+                };
+                setRatings(ratingCounts);
             },
         });
         getUserReviews({
-            variables: { productId: productId, userId: userId },
+            variables: { productId, userId },
             onCompleted: (data) => {
-                setUserReviews(data.productReview[0]?.rating);
+                setUserReviews(data.productReview[0]?.rating || 0);
             },
         });
-    }, [localRating, serverRating]);
-
-
+    }, [serverRating]);
 
     return (
-        <>
-
-            <div className="Rating_stars flex space-x-2 mt-4 items-center">
-                {[...Array(5)].map((_, index) => {
-                    const currentIndex = index + 1;
-                    return (
-                        <label key={currentIndex}>
-                            <input
-                                className="hidden"
-                                type="radio"
-                                name="rating"
-                                value={currentIndex}
+        <div className="w-full max-w-3xl mx-auto bg-white rounded-lg shadow-md p-3 mt-6">
+            <div className="flex flex-col items-center space-y-4">
+                {/* Star Rating Section */}
+                <div className="flex items-center space-x-2">
+                    {[...Array(5)].map((_, index) => {
+                        const currentIndex = index + 1;
+                        return (
+                            <button
+                                key={currentIndex}
                                 onClick={() => handleRatingSubmit(currentIndex)}
                                 disabled={isRatingLoading}
-                            />
-                            <FaStar
-                                size={18}
-                                className={`cursor-pointer ${isRatingLoading ? 'opacity-50' : ''}`}
-                                color={
-                                    currentIndex <= (hover || localRating || userReviews)
-                                        ? "#f17e7e"
-                                        : "grey"
-                                }
-                                onMouseEnter={() => setHover(currentIndex)}
-                                onMouseLeave={() => setHover(null)}
-                            />
-                        </label>
-                    );
-                })}
-                <h4 className="text-primaryColor text-sm">
-                    {reviews} Commentaires
-                </h4>
-            </div>
+                                className="relative p-1 bg-transparent border-none cursor-pointer"
+                            >
+                                <Star
+                                    size={20} // Reduced size
+                                    className={`transition-all duration-200 ${currentIndex <= (hover || userReviews)
+                                            ? "fill-yellow-400 stroke-yellow-400"
+                                            : "stroke-gray-300"
+                                        } ${isRatingLoading ? "opacity-50" : "hover:scale-110"}`}
+                                    onMouseEnter={() => setHover(currentIndex)}
+                                    onMouseLeave={() => setHover(null)}
+                                />
+                            </button>
+                        );
+                    })}
+                </div>
+                <span className="text-xs font-medium text-gray-600">{reviews} avis</span>
 
+                {/* Rating Distribution */}
+                <div className="w-full pt-1 border-t border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-800 text-center mb-4">Répartition des évaluations</h3>
 
+                    <div className="space-y-3">
+                        {[5, 4, 3, 2, 1].map((rating) => {
+                            const ratingKey =
+                                rating === 5
+                                    ? "five"
+                                    : rating === 4
+                                        ? "four"
+                                        : rating === 3
+                                            ? "three"
+                                            : rating === 2
+                                                ? "two"
+                                                : "one";
+                            const percentage =
+                                reviews > 0 ? ((ratings[ratingKey] / reviews) * 100).toFixed(1) : 0;
 
+                            return (
+                                <div className="flex items-center gap-2" key={rating}>
+                                    <div className="flex items-center min-w-[50px]">
+                                        <span className="font-medium text-gray-700">{rating}</span>
+                                        <Star size={14} className="ml-1 fill-yellow-400 stroke-yellow-400" />
+                                    </div>
 
+                                    <div className="relative flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                                        <div
+                                            style={{ width: `${percentage}%` }}
+                                            className="absolute h-full bg-yellow-400 rounded-full transition-all duration-300"
+                                        />
+                                    </div>
 
-
-
-            <div className="Rating mt-8 lg:w-4/5 w-full">
-                <div >
-                    <h3 className="text-lg font-bold text-primaryColor">
-                        Note globale ({reviews})               </h3>
-                    <div className="space-y-4 mt-6  md:w-full">
-                        {[
-                            { rating: 5, value: fiveStar },
-                            { rating: 4, value: fourStar },
-                            { rating: 3, value: threeStar },
-                            { rating: 2, value: twoStar },
-                            { rating: 1, value: oneStar },
-                        ].map(({ rating, value }) => (
-                            <div className="flex items-center gap-3" key={rating}>
-                                <div className="flex items-center ">
-                                    <p className="text-sm font-bold">{rating}.0</p>
-                                    <FaStar
-                                        size={20}
-                                        className="text-primaryColor ml-1"
-                                    />
+                                    <div className="min-w-[50px] text-xs text-right text-gray-600">{percentage}%</div>
                                 </div>
-                                <div className="relative bg-gray-400 rounded-md w-full h-2 ml-3">
-                                    <div
-                                        style={{
-                                            width: `${(value / reviews) * 100 || 0}%`,
-                                        }}
-                                        className="h-full rounded bg-primaryColor"
-                                    ></div>
-                                </div>
-                                <p className="text-sm font-bold ">
-                                    {(value / reviews) * 100 || 0}%
-                                </p>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>
+        </div>
+    );
+};
 
-        </>
-    )
-}
-
-export default RatingStars
-
-
+export default RatingStars;
