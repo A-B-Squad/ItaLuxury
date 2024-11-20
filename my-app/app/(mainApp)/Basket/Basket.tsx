@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import Link from "next/link";
 import Image from "next/legacy/image";
-import { FaRegTrashAlt } from "react-icons/fa";
+import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 import { HiPlus } from "react-icons/hi2";
 import { RiSubtractLine } from "react-icons/ri";
 
+import { useBasketStore, useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
 import {
   Table,
   TableBody,
@@ -20,8 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import prepRoute from "@/app/Helpers/_prepRoute";
-import { useBasketStore, useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import triggerEvents from "@/utlils/trackEvents";
+import { Trash2Icon } from "lucide-react";
 import {
   DECREASE_QUANTITY_MUTATION,
   DELETE_BASKET_BY_ID_MUTATION,
@@ -32,9 +33,6 @@ import {
   COMPANY_INFO_QUERY,
   FETCH_USER_BY_ID,
 } from "../../../graphql/queries";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
-import triggerEvents from "@/utlils/trackEvents";
-import { Trash, Trash2Icon } from "lucide-react";
 
 // Interface definitions
 interface DecodedToken extends JwtPayload {
@@ -126,7 +124,7 @@ const Basket: React.FC = () => {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
     onCompleted: (data) => {
-      const fetchedProducts = data.basketByUserId.map((basket: any) => ({
+      const fetchedProducts = data.basketByUserId?.map((basket: any) => ({
         ...basket.Product,
         quantity: basket.quantity,
         basketId: basket.id,
@@ -288,8 +286,9 @@ const Basket: React.FC = () => {
               </TableRow>
             </TableHeader>
 
+
             <TableBody>
-              {products.map((product) => (
+              {(products?.length > 0 ? products : []).map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="flex items-center">
                     <div className="w-24 h-24 relative">
@@ -306,7 +305,7 @@ const Basket: React.FC = () => {
                         href={`/products/tunisie?productId=${product.id}`}
                         className="font-semibold text-sm text-gray-800">{product.name}</Link>
                       <p className="text-xs text-gray-500">
-                        {product.categories.map((category) => category.name).join(", ")}
+                        {product.categories?.map((category) => category.name).join(", ") || "No categories"}
                       </p>
                     </div>
                   </TableCell>
@@ -331,7 +330,6 @@ const Basket: React.FC = () => {
                         type="button"
                         className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
                         disabled={product.actualQuantity === product?.inventory}
-
                         onClick={() =>
                           handleIncreaseQuantity(product.id, product?.basketId)
                         }
@@ -341,14 +339,13 @@ const Basket: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell className="w-[30%]">
-                    {product?.productDiscounts?.length > 0 && product.productDiscounts[0]?.newPrice && (
+                    {(product?.productDiscounts?.length > 0 && product.productDiscounts[0]?.newPrice) ? (
                       <h4 className="text-md w-max font-bold text-[#333]">
                         {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
                       </h4>
-                    )}
-                    {product?.productDiscounts?.length === 0 && (
+                    ) : (
                       <h4 className="text-md w-max font-bold text-[#333]">
-                        {Number(product.price).toFixed(3)} TND
+                        {Number(product.price || 0).toFixed(3)} TND
                       </h4>
                     )}
                     <h4
@@ -364,7 +361,12 @@ const Basket: React.FC = () => {
                     <Trash2Icon size={23} className="cursor-pointer" color="red" onClick={() => { handleRemoveProduct(product.id, product?.basketId) }} />
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+
+              }
+
+
+
             </TableBody>
           </Table>
         </div>
@@ -437,12 +439,8 @@ const Basket: React.FC = () => {
               }}
               href={
                 "/Checkout"
-
               }
               className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
-
-
-
 
             >
               Procéder au paiement

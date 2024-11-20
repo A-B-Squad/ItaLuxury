@@ -16,9 +16,10 @@ interface UpdateCheckoutInput {
 
 async function sendCheckoutEmail(
   checkout: any,
-  products: any[],
+  productInCheckout: any[],
   customId: string,
-  deliveryPrice: any
+  deliveryPrice: any,
+  Email: string
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -31,14 +32,14 @@ async function sendCheckoutEmail(
     },
   });
 
-  const totalProducts = checkout.productInCheckout.reduce(
+  const totalProducts = productInCheckout.reduce(
     (
       acc: number,
       item: { discountedPrice: any; price: any; productQuantity: number }
     ) =>
       acc +
       (item.discountedPrice ? item.discountedPrice : item.price) *
-        item.productQuantity,
+      item.productQuantity,
     0
   );
 
@@ -50,7 +51,7 @@ async function sendCheckoutEmail(
 
   const mailOptions = {
     from: '"ita-luxury" <no-reply@ita-luxury.com>',
-    to: checkout.User.email,
+    to: Email,
     subject: "Mise à jour de votre commande",
     html: `
       <!DOCTYPE html>
@@ -173,13 +174,13 @@ async function sendCheckoutEmail(
                 <th>Prix total</th>
               </tr>
               ${checkout.productInCheckout
-                .map(
-                  (item: {
-                    product: { reference: any; name: any };
-                    price: number;
-                    discountedPrice: number;
-                    productQuantity: number;
-                  }) => `
+        .map(
+          (item: {
+            product: { reference: any; name: any };
+            price: number;
+            discountedPrice: number;
+            productQuantity: number;
+          }) => `
                 <tr>
                   <td>${item.product.reference}</td>
                   <td>${item.product.name}</td>
@@ -188,8 +189,8 @@ async function sendCheckoutEmail(
                   <td>${(item.discountedPrice ? item.discountedPrice : item.price * item.productQuantity).toFixed(3)} TND</td>
                 </tr>
               `
-                )
-                .join("")}
+        )
+        .join("")}
               <tr class="totals-row">
                 <td colspan="4" class="label">Total des produits</td>
                 <td>${totalProducts.toFixed(3)} TND</td>
@@ -342,7 +343,7 @@ export const updateCheckout = async (
           updatedCheckout,
           updatedCheckout.productInCheckout,
           updatedCheckout.package[0]?.customId,
-          deliveryPrice
+          deliveryPrice, emailToUse
         );
       } else {
         console.log(

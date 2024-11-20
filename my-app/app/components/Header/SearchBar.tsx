@@ -192,7 +192,7 @@ const SearchBar = () => {
               Résultat de la recherche: (
               {data.searchProducts.results.products.length})
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid place-content-start grid-cols-1 lg:grid-cols-2 gap-4">
               {data.searchProducts.results.products.map((product: any) => (
                 <Link
                   key={product.id}
@@ -220,9 +220,9 @@ const SearchBar = () => {
                     pushToDataLayer("SelectSearchedProduct");
                     setSearching(false);
                   }}
-                  className="product-item flex flex-col items-center p-2 border rounded-md hover:shadow-md transition-shadow"
+                  className="product-item flex flex-row lg:flex-col items-center lg:p-2 border-b rounded-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="relative w-24 h-24 mb-2">
+                  <div className="relative w-24  h-24 mb-2">
                     <Image
                       layout="fill"
                       src={product.images[0]}
@@ -232,19 +232,26 @@ const SearchBar = () => {
                       alt={product.name}
                     />
                   </div>
-                  <p className="text-base font-medium tracking-wider text-center">
-                    {product.name}
-                  </p>
-                  <p className="text-lg font-bold text-primaryColor">
-                    {product.productDiscounts.length > 0
-                      ? product.productDiscounts[0].newPrice.toFixed(3) + " TND"
-                      : product.price.toFixed(3) + " TND"}
-                  </p>
-                  {product.productDiscounts.length > 0 && (
-                    <p className="text-sm line-through text-gray-500">
-                      {product.price.toFixed(3)} TND
+                  <div className="info lg:text-center ml-2  ">
+
+                    <p className="text-xs w-auto lg:text-base font-medium line-clamp-1 lg:line-clamp-none tracking-wider ">
+                      {product.name}
                     </p>
-                  )}
+                    <div className="price">
+
+                      <p className="text-sm lg:text-lg font-bold text-primaryColor">
+                        {product.productDiscounts.length > 0
+                          ? product.productDiscounts[0].newPrice.toFixed(3) + " TND"
+                          : product.price.toFixed(3) + " TND"}
+                      </p>
+                      {product.productDiscounts.length > 0 && (
+                        <p className=" text-xs lg:text-sm line-through text-gray-500">
+                          {product.price.toFixed(3)} TND
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
                 </Link>
               ))}
             </div>

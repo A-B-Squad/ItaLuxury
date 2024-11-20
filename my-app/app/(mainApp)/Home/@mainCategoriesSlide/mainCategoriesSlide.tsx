@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { MAIN_CATEGORY_QUERY } from "@/graphql/queries";
 
 import {
@@ -25,7 +24,7 @@ const MainCategoriesSlide = () => {
           (category: any, index: any) => (
             <>
               <CarouselItem
-                key={index}
+                key={category.id || category.name}
                 className={`carousel-item overflow-hidden     group hover:rounded-sm   h-[180px] transition-all relative  basis-1/2 md:basis-1/3 lg:basis-1/6 flex  flex-col justify-evenly  items-center    `}
               >
                 <Link
@@ -41,7 +40,7 @@ const MainCategoriesSlide = () => {
                       src={category.smallImage}
                       width={130}
                       height={130}
-                      priority={true} 
+                      priority={true}
                       alt={category.name}
                       objectFit="contain"
                       className="h-24 w-24 lg:grayscale lg:hover:grayscale-0 transition-all object-cover"

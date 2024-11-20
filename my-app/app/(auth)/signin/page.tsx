@@ -30,6 +30,9 @@ export const metadata: Metadata = {
       },
     ],
   },
+  alternates: {
+    canonical: "https://www.ita-luxury.com/signin",
+  },
 };
 const page = () => {
   return <Signin />;

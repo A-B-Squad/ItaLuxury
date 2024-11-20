@@ -38,6 +38,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
+  
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId

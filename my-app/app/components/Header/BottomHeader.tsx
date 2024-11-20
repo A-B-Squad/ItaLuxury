@@ -1,22 +1,19 @@
 "use client";
-import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
-import { FiHeart, FiUser } from "react-icons/fi";
-import { HiMiniBars3CenterLeft } from "react-icons/hi2";
-import { RiShoppingCartLine } from "react-icons/ri";
 import {
   useDrawerBasketStore,
   useDrawerMobileStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
+import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { GoPackageDependents } from "react-icons/go";
-import { IoIosLogOut } from "react-icons/io";
-import { IoGitCompare } from "react-icons/io5";
-import { GrContact } from "react-icons/gr";
-import { useToast } from "@/components/ui/use-toast";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
+import { FiUser } from "react-icons/fi";
+import { HiMiniBars3CenterLeft } from "react-icons/hi2";
+import { IoIosLogOut } from "react-icons/io";
+import { RiShoppingCartLine } from "react-icons/ri";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -38,7 +35,6 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const { openCategoryDrawer } = useDrawerMobileStore();
   const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [LengthComparer, setLengthComparer] = useState<number>(0);
   const quantityInBasket = useProductsInBasketStore(
     (state) => state.quantityInBasket,
   );
@@ -48,13 +44,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
-    const comparedProductsString =
-      window.sessionStorage.getItem("comparedProducts");
 
-    if (comparedProductsString !== null) {
-      const comparedProducts = JSON.parse(comparedProductsString);
-      setLengthComparer(comparedProducts?.state?.products.length);
-    }
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -79,7 +69,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
       Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
 
       // Nettoyer le sessionStorage
-      window.sessionStorage.removeItem("productsInBasket");
+      window.sessionStorage.removeItem("products-in-basket");
       window.sessionStorage.removeItem("comparedProducts");
 
       // Rediriger vers la page d'accueil

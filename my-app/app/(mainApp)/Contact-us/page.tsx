@@ -28,7 +28,6 @@ export const metadata: Metadata = {
     title: "Contactez-Nous | ita-luxury",
     description:
       "Besoin d'aide ? Contactez l'équipe ita-luxury. Nous sommes là pour vous aider.",
-    images: ["/images/contact-us-twitter.jpg"],
   },
   alternates: {
     canonical: "https://www.ita-luxury.com/Contact-us",

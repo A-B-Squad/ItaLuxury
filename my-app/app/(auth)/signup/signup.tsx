@@ -352,15 +352,15 @@ const Signup: React.FC = () => {
                   </span>
                 </div>
               </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <button
+              {/* Sign up Google & Facebook */}
+              <div className="mt-6 grid grid-cols-1 gap-3">
+                {/* <button
                   onClick={() => handleSocialLogin(facebookProvider)}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
                   <FaFacebook className="h-5 w-5 text-blue-600" />
                   <span className="ml-2">Facebook</span>
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleSocialLogin(googleProvider)}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"

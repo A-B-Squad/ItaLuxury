@@ -59,7 +59,7 @@ function DrawerMobile() {
 
 
       // Nettoyer le sessionStorage
-      window.sessionStorage.removeItem("productsInBasket");
+      window.sessionStorage.removeItem("products-in-basket");
       window.sessionStorage.removeItem("comparedProducts");
 
       // Rediriger vers la page d'accueil

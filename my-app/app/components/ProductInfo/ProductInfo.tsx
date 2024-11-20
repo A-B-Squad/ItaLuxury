@@ -349,7 +349,7 @@ const ProductInfo = () => {
                 </h3>
 
                 <p
-                  className="w-full text-xs md:text-sm pt-2 tracking-wider "
+                  className="product-description text-base text-[#000] tracking-wide  border-b-2 border-dashed pb-6"
                   dangerouslySetInnerHTML={{ __html: productData?.description }}
                 />
               </div>
@@ -367,7 +367,7 @@ const ProductInfo = () => {
                 className={`text-lg font-semibold flex gap-3 items-center ${productData?.inventory !== undefined && productData.inventory > 0 ? "text-green-600" : "text-red-600"}`}
               >
                 {productData?.inventory !== undefined &&
-                productData?.inventory <= 0 ? (
+                  productData?.inventory <= 0 ? (
                   <>
                     <IoMdCloseCircleOutline />
                     En Rupture

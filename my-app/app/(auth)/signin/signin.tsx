@@ -1,6 +1,5 @@
 "use client";
 
-// Step 1: Import necessary dependencies and components
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
@@ -248,9 +247,8 @@ const Signin = () => {
                   id="emailOrPhone"
                   type="text"
                   autoComplete="email"
-                  className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
-                    errors.emailOrPhone ? "border-red-300" : ""
-                  }`}
+                  className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${errors.emailOrPhone ? "border-red-300" : ""
+                    }`}
                   placeholder="vous@exemple.com ou 12345678"
                   {...register("emailOrPhone", {
                     required: "L'email ou le numéro de téléphone est requis",
@@ -296,9 +294,8 @@ const Signin = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="********"
                   autoComplete="current-password"
-                  className={`block w-full pl-10 pr-10 sm:text-sm  outline-none py-2 border-gray-300 rounded-md ${
-                    errors.password ? "border-red-300" : ""
-                  }`}
+                  className={`block w-full pl-10 pr-10 sm:text-sm  outline-none py-2 border-gray-300 rounded-md ${errors.password ? "border-red-300" : ""
+                    }`}
                   {...register("password", {
                     required: "Le mot de passe est requis",
                   })}
@@ -337,14 +334,14 @@ const Signin = () => {
           </form>
           {/* Google and Facebook Login Buttons */}
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <button
+          <div className="mt-6 grid grid-cols-1 gap-3">
+            {/* <button
               onClick={handleFacebookLogin}
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               <FaFacebook className="h-5 w-5 text-blue-600" />
               <span className="ml-2">Facebook</span>
-            </button>
+            </button> */}
             <button
               onClick={handleGoogleLogin}
               className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"

@@ -31,6 +31,9 @@ export const metadata: Metadata = {
       },
     ],
   },
+  alternates: {
+    canonical: "https://www.ita-luxury.com/Basket",
+  },
   robots: "index, follow",
 };
 

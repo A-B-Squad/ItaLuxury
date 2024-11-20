@@ -25,13 +25,12 @@ export const signIn = async (
         { number: isPhone ? emailOrPhone : undefined },
       ],
     },
-    
   });
-  
+
   if (!existingUser) {
     return new Error("Invalid email or password");
   }
-  
+
   // Check if the password is correct
   const validPassword = await bcrypt.compare(password, existingUser.password);
 
@@ -48,11 +47,17 @@ export const signIn = async (
   const expirationDate = new Date();
   expirationDate.setDate(expirationDate.getDate() + 30);
 
-  // Set the cookie
+  // Determine the domain and secure settings based on environment
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
+  const secureFlag = isDevelopment ? '' : 'Secure;';
+
+  // Set the cookie with environment-specific settings
   res.setHeader(
     "Set-Cookie",
-    `Token=${token}; Path=/; Domain=ita-luxury.com;SameSite=Strict; Secure; Expires=${expirationDate.toUTCString()}`
+    `Token=${token}; Path=/; Domain=${domain}; SameSite=Strict; ${secureFlag} Expires=${expirationDate.toUTCString()}`
   );
+
   return {
     user: existingUser,
     token,
@@ -73,10 +78,15 @@ export const refreshToken = async (
       expiresIn: "1h",
     });
 
+    // Determine the domain and secure settings based on environment
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
+    const secureFlag = isDevelopment ? '' : 'Secure;';
+
     // Set the new access Token in the cookie
     res.setHeader(
       "Set-Cookie",
-      `Token=${accessToken}; Path=/; SameSite=Strict; Secure`
+      `Token=${accessToken}; Path=/; Domain=${domain}; SameSite=Strict; ${secureFlag}`
     );
 
     // Return the new access Token

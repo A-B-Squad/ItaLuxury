@@ -246,7 +246,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   rel="preload"
                   onClick={() => {
                     Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
-                    window.sessionStorage.removeItem("productsInBasket");
+                    window.sessionStorage.removeItem("products-in-basket");
                     window.sessionStorage.removeItem("comparedProducts");
                     window.location.replace("/");
 
