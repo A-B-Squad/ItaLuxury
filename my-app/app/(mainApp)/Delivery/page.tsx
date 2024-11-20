@@ -25,9 +25,13 @@ export const metadata: Metadata = {
         url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
         width: 1200,
         height: 630,
-        alt: "Contactez ita-luxury",
+        alt: "Delivery ita-luxury",
       },
     ],
+  },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Delivery`,
+
   },
 };
 const page = () => {

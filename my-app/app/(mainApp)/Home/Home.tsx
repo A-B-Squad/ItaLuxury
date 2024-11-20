@@ -63,6 +63,9 @@ const MainCategoriesSlide = dynamic(
   { ssr: false }
 );
 
+
+
+
 const Home = () => {
   const { data: leftAds, loading: loadingLeftAds } = useQuery(
     ADVERTISSMENT_QUERY,

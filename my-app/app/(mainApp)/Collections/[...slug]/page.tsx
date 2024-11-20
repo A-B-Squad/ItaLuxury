@@ -212,22 +212,22 @@ async function generateBreadcrumbPath(searchParams: SearchParams): Promise<Bread
   // If no choice or category is selected, show the boutique path
   if (!searchParams.choice && !searchParams.category) {
     path.push({
-      href: "/boutique",  // Adjust the URL for your boutique page
-      label: "Boutique"
+      href: "/boutique",
+      label: "Boutique",
     });
   }
 
   // Add choice path (in-discount or new-product)
   if (searchParams.choice) {
     const choiceLabels: Record<string, string> = {
-      'in-discount': 'Promotions',
-      'new-product': 'Nouveautés'
+      "in-discount": "Promotions",
+      "new-product": "Nouveautés",
     };
 
     if (choiceLabels[searchParams.choice]) {
       path.push({
-        href: `/Collections/tunisie?choice=${searchParams.choice}`,
-        label: choiceLabels[searchParams.choice]
+        href: `/Collections/tunisie?choice=${encodeURIComponent(searchParams.choice)}`,
+        label: choiceLabels[searchParams.choice],
       });
     }
   }
@@ -240,21 +240,22 @@ async function generateBreadcrumbPath(searchParams: SearchParams): Promise<Bread
 
       categoryPath.forEach((category) => {
         path.push({
-          href: `/Collections/tunisie?category=${category.name}${searchParams.choice ? `&choice=${searchParams.choice}` : ''}`,
-          label: category.name
+          href: `/Collections/tunisie?category=${encodeURIComponent(category.name)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+          label: category.name,
         });
       });
     } catch (error) {
-      console.error('Error generating breadcrumb path:', error);
+      console.error("Error generating breadcrumb path:", error);
       path.push({
-        href: `/Collections/tunisie?category=${searchParams.category}${searchParams.choice ? `&choice=${searchParams.choice}` : ''}`,
-        label: searchParams.category
+        href: `/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+        label: searchParams.category,
       });
     }
   }
 
   return path;
 }
+
 
 // Metadata Generation
 export async function generateMetadata(

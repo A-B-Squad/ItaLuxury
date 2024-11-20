@@ -110,6 +110,7 @@ async function tryToSendCheckoutEmail(
   deliveryPrice: number
 ): Promise<void> {
   const recipientEmail = checkout.isGuest ? checkout.guestEmail : checkout.User?.email;
+  
   // Skip if no email is provided or configuration is missing
   if (!recipientEmail || !process.env.NEXT_PUBLIC_NODEMAILER_EMAIL || !process.env.NEXT_PUBLIC_NODEMAILER_PASS) {
     return;

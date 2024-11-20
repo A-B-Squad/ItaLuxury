@@ -216,7 +216,8 @@ export async function generateMetadata({
     },
     keywords: productKeywords.join(", "),
     alternates: {
-      canonical: `${baseUrl}/product?productId=${searchParams.productId}`,
+      canonical: `${baseUrl}/products/tunisie?productId=${searchParams.productId}`,
+
     },
     robots: {
       index: true,

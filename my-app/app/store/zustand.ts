@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
@@ -119,7 +119,7 @@ export const useBasketStore = create<BasketStore>((set) => ({
   toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
 }));
 
-const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
+const comparedProductsStore = (set: any, get: any) => ({
   products: [],
   addProductToCompare: (product: any) => {
     const currentProducts = get().products;
@@ -173,10 +173,17 @@ interface ProductData {
   }[];
   [key: string]: any;
 }
-// Define the ProductsInBasketStore type
-interface ProductsInBasketStore {
+
+
+
+
+
+type State = {
   products: ProductData[];
   quantityInBasket: number;
+}
+
+type Actions = {
   setQuantityInBasket: (quantity: number) => void;
   addProductToBasket: (product: ProductData) => void;
   removeProductFromBasket: (productId: string) => void;
@@ -185,92 +192,113 @@ interface ProductsInBasketStore {
   clearBasket: () => void;
 }
 
-// Define the set type
-type SetState = (
-  update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>
-) => void;
+type ProductsInBasketStore = State & Actions;
 
-// Define the store creation function
-const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
-  products: [],
-  quantityInBasket: 0,
-  setQuantityInBasket: (quantity: number) => {
-    set((state) => ({
-      quantityInBasket: quantity,
-    }));
-  },
-  addProductToBasket: (product: ProductData) => {
-    set((state) => ({
-      products: [...state.products, product],
-      quantityInBasket: state.products.length + 1,
-    }));
-  },
-  increaseProductInQtBasket: (productId: string, quantity: number) => {
-    set((state) => {
-      const updatedProducts = state.products.map((product) =>
-        product.id === productId
-          ? { ...product, actualQuantity: (product.actualQuantity || 0) + quantity }
-          : product
-      );
 
-      const updatedQuantityInBasket = updatedProducts.reduce(
-        (sum, product) => sum + (product.actualQuantity || 0),
-        0
-      );
-
-      return {
-        products: updatedProducts,
-        quantityInBasket: updatedQuantityInBasket,
-      };
-    });
-  },
-
-  decreaseProductInQtBasket: (productId: string) => {
-    set((state) => {
-      const updatedProducts = state.products
-        .map((product) =>
-          product.id === productId && product.actualQuantity > 0
-            ? { ...product, actualQuantity: product.actualQuantity - 1 }
-            : product
-        )
-        .filter((product) => product.actualQuantity > 0);
-
-      const updatedQuantityInBasket = updatedProducts.reduce(
-        (sum, product) => sum + product.actualQuantity,
-        0
-      );
-
-      return {
-        products: updatedProducts,
-        quantityInBasket: updatedQuantityInBasket,
-      };
-    });
-  },
-  removeProductFromBasket: (productId: string) => {
-    set((state) => {
-      const updatedProducts = state.products.filter(
-        (product) => product.id !== productId
-      );
-      return {
-        products: updatedProducts,
-        quantityInBasket: updatedProducts.length,
-      };
-    });
-  },
-  clearBasket: () => {
-    set(() => ({
+export const useProductsInBasketStore = create<ProductsInBasketStore>()(
+  persist(
+    (set) => ({
       products: [],
       quantityInBasket: 0,
-    }));
-  },
-});
 
-export const useProductsInBasketStore = create(
-  persist<ProductsInBasketStore>(productsInBasketStore, {
-    name: "productsInBasket",
-    storage: createJSONStorage(() => sessionStorage),
-  })
+      setQuantityInBasket: (quantity: number) => {
+        set(() => ({
+          quantityInBasket: quantity,
+        }));
+      },
+
+      addProductToBasket: (product: ProductData) => {
+        set((state) => ({
+          products: [...state.products, product],
+          quantityInBasket: state.products.length + 1,
+        }));
+      },
+
+      increaseProductInQtBasket: (productId: string, quantity: number) => {
+        set((state) => {
+          const updatedProducts = state.products.map((product) =>
+            product.id === productId
+              ? { ...product, actualQuantity: (product.actualQuantity || 0) + quantity }
+              : product
+          );
+
+          const updatedQuantityInBasket = updatedProducts.reduce(
+            (sum, product) => sum + (product.actualQuantity || 0),
+            0
+          );
+
+          return {
+            products: updatedProducts,
+            quantityInBasket: updatedQuantityInBasket,
+          };
+        });
+      },
+
+      decreaseProductInQtBasket: (productId: string) => {
+        set((state) => {
+          const updatedProducts = state.products
+            .map((product) =>
+              product.id === productId && (product.actualQuantity || 0) > 0
+                ? { ...product, actualQuantity: (product.actualQuantity || 0) - 1 }
+                : product
+            )
+            .filter((product) => (product.actualQuantity || 0) > 0);
+
+          const updatedQuantityInBasket = updatedProducts.reduce(
+            (sum, product) => sum + (product.actualQuantity || 0),
+            0
+          );
+
+          return {
+            products: updatedProducts,
+            quantityInBasket: updatedQuantityInBasket,
+          };
+        });
+      },
+
+      removeProductFromBasket: (productId: string) => {
+        set((state) => {
+          const updatedProducts = state.products.filter(
+            (product) => product.id !== productId
+          );
+
+          const updatedQuantityInBasket = updatedProducts.reduce(
+            (sum, product) => sum + (product.actualQuantity || 0),
+            0
+          );
+
+          return {
+            products: updatedProducts,
+            quantityInBasket: updatedQuantityInBasket,
+          };
+        });
+      },
+
+      clearBasket: () => {
+        set(() => ({
+          products: [],
+          quantityInBasket: 0,
+        }));
+      },
+
+
+    }),
+    {
+      name: 'products-in-basket',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state: ProductsInBasketStore): State => ({
+        products: state.products,
+        quantityInBasket: state.quantityInBasket
+      }),
+      merge: (persistedState, currentState) => ({ ...currentState, ...(persistedState as ProductsInBasketStore) }),
+
+    }
+  ),
 );
+
+
+
+
 
 export const useComparedProductsStore = create(
   persist(comparedProductsStore, {

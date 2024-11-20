@@ -620,7 +620,7 @@ input CreateCheckoutInput {
 }
 
 input CreateCheckoutFromAdminInput {
-  userId: ID!
+  userId: ID
   governorateId: ID!
   userName: String
   products: [ProductInCheckoutFromAdminInput!]

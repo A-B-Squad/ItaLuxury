@@ -19,31 +19,33 @@ const PurchaseOptions: React.FC = () => {
     const { quantityInBasket } = useProductsInBasketStore();
     const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
     const { productData, closePruchaseOptions, isOpen } = usePruchaseOptions();
-    const [mounted, setMounted] = useState(false);
 
-    // Add mounted state to handle initial render
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useQuery(COMPANY_INFO_QUERY, {
+    // Remove mounted state and adjust conditional rendering
+    const { loading: companyInfoLoading } = useQuery(COMPANY_INFO_QUERY, {
         onCompleted: (companyData) => {
             setDeliveryPrice(companyData.companyInfo.deliveringPrice);
         },
+        // Add skip condition to prevent unnecessary queries
+        skip: !isOpen
     });
 
-    const { data: basketData } = useQuery(BASKET_QUERY, {
+    const { data: basketData, loading: basketLoading } = useQuery(BASKET_QUERY, {
         variables: { userId: decodedToken?.userId },
-        skip: !decodedToken?.userId,
+        skip: !decodedToken?.userId || !isOpen,
     });
 
     const { products: storedProducts } = useProductsInBasketStore();
 
     useEffect(() => {
+        // Move token decoding to useEffect to ensure it runs after mount
         const token = Cookies.get("Token");
         if (token) {
-            const decoded = jwt.decode(token) as DecodedToken;
-            setDecodedToken(decoded);
+            try {
+                const decoded = jwt.decode(token) as DecodedToken;
+                setDecodedToken(decoded);
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
         }
     }, []);
 
@@ -55,7 +57,7 @@ const PurchaseOptions: React.FC = () => {
     }, [decodedToken, basketData, storedProducts]);
 
     const calculateTotalPrice = useCallback(() => {
-        return productsInBasket.reduce((acc: any, product: any) => {
+        return productsInBasket.reduce((acc: number, product: any) => {
             const productPrice =
                 product.productDiscounts?.length > 0
                     ? product.productDiscounts[0].newPrice
@@ -84,8 +86,11 @@ const PurchaseOptions: React.FC = () => {
         closePruchaseOptions();
     };
 
-    if (!mounted || !isOpen) return null
-    // Use visibility:hidden instead of display:none to keep the component mounted
+    if (!isOpen) return null;
+
+    // Prevent rendering if critical data is still loading
+    if (companyInfoLoading || basketLoading) return null;
+
     return (
         <div
             className="fixed inset-0 z-[11111111] transition-all duration-300"
@@ -175,7 +180,7 @@ const PurchaseOptions: React.FC = () => {
                                                 : `${deliveryPrice.toFixed(3)} TND`}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between text-lg border-t pt-2">
+                                    <div className="flex justify-between text-lg text-black border-t pt-2">
                                         <span className="font-semibold">Total :</span>
                                         <span>{calculateTotal()} TND (TTC)</span>
                                     </div>

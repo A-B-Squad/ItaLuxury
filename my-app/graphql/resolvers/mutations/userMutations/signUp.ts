@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
 import { Context } from "../../../../pages/api/graphql";
 
 function generateProfessionalId(length: number) {
@@ -66,7 +65,18 @@ export const signUp = async (
 
   // Generate JWT token
   const token = jwt.sign({ userId: newUser.id }, jwtSecret);
-  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
+
+  // Determine the domain and secure settings based on environment
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
+  const secureFlag = isDevelopment ? '' : 'Secure;';
+
+  // Set the cookie with environment-specific settings
+  res.setHeader(
+    "Set-Cookie",
+    `Token=${token}; Path=/; Domain=${domain}; SameSite=Strict; ${secureFlag} `
+  );
+
 
   return {
     user: newUser,

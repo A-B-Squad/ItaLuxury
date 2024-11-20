@@ -1,25 +1,25 @@
 "use client";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useMutation, useQuery } from "@apollo/client";
-import { Drawer, IconButton, Typography } from "@material-tailwind/react";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import Link from "next/link";
-import Image from "next/legacy/image";
-import { MdOutlineRemoveShoppingCart } from "react-icons/md";
-import { CiTrash } from "react-icons/ci";
-import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import prepRoute from "@/app/Helpers/_prepRoute";
 import {
   useBasketStore,
+  useCheckoutStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/trackEvents";
+import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
+import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import triggerEvents from "@/utlils/trackEvents";
+import { useMutation, useQuery } from "@apollo/client";
+import { Drawer, IconButton, Typography } from "@material-tailwind/react";
+import Cookies from "js-cookie";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import Image from "next/legacy/image";
+import Link from "next/link";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { CiTrash } from "react-icons/ci";
 import { HiPlus } from "react-icons/hi2";
+import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 
 interface DecodedToken extends JwtPayload {
@@ -54,7 +54,7 @@ interface Product {
 
 const BasketDrawer: React.FC = () => {
   const { toast } = useToast();
-
+  const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore()
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const {
@@ -196,7 +196,7 @@ const BasketDrawer: React.FC = () => {
           },
         });
       } else {
-        increaseProductInQtBasket(productId,1);
+        increaseProductInQtBasket(productId, 1);
       }
     },
     [decodedToken, increaseQuantity, handleQuantityChange]
@@ -230,7 +230,7 @@ const BasketDrawer: React.FC = () => {
                 (product.images &&
                   product.images.length > 0 &&
                   product.images[0]) ||
-                "https://res.cloudinary.com/dc1cdbirz/image/upload/v1718970701/b23xankqdny3n1bgrvjz.png"
+                "https://res.cloudinary.com/dc1cdbirz/image/upload/v1732014003/ita-luxury/zdiptq7s9m9ck13ljnvy.jpg"
               }
               alt={product.name}
               className="h-full w-full object-cover object-center"
@@ -391,6 +391,9 @@ const BasketDrawer: React.FC = () => {
             <div className="mt-6">
               <Link
                 onClick={() => {
+                  setCheckoutProducts(storedProducts);
+                  setCheckoutTotal(Number(totalPrice));
+                  closeBasketDrawer()
                   // Track Add to Cart
                   triggerEvents("InitiateCheckout", {
                     user_data: {
@@ -401,7 +404,7 @@ const BasketDrawer: React.FC = () => {
                       external_id: userData?.fetchUsersById.id,
                     },
                     custom_data: {
-                      content_name: "Initiate Checkout",
+                      content_name: "InitiateCheckout",
                       content_type: "product",
                       currency: "TND",
                       value: totalPrice,
@@ -411,22 +414,16 @@ const BasketDrawer: React.FC = () => {
                       })),
                       num_items: storedProducts.reduce(
                         (sum, product) =>
-                          sum +
-                          (product?.actualQuantity || product?.quantity || 0),
-                        0,
+                          sum + (product?.actualQuantity || product?.quantity || 0),
+                        0
                       ),
                     },
                   });
                   pushToDataLayer("Initiate Checkout");
-                  closeBasketDrawer()
                 }}
-                href={{
-                  pathname: "/Checkout",
-                  query: {
-                    products: JSON.stringify(productsInBasket),
-                    total: totalPrice.toFixed(3),
-                  },
-                }}
+                href={
+                  "/Checkout"
+                }
                 className="flex items-center justify-center transition-all  border border-transparent bg-blueColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80"
               >
                 Procéder au paiement   </Link>

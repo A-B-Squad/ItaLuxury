@@ -154,7 +154,7 @@ const ProductInfo = memo(({
             Description
           </h3>
           <div
-            className="product-description text-sm tracking-wide font-extralight border-b-2 border-dashed pb-6"
+            className="product-description text-base text-[#000] tracking-wide  border-b-2 border-dashed pb-6"
             dangerouslySetInnerHTML={productDescription}
           />
         </div>

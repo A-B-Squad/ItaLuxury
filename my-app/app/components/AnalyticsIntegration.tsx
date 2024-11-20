@@ -38,8 +38,12 @@ const AnalyticsIntegration = () => {
           content={fbData.domainVerification}
         />
       )}
+      {/* Static Facebook app ID meta tag for Open Graph */}
+      <meta property="fb:app_id" content="1809715203170770" />
+      {/* Meta tags for Bing and Google site verification */}
       <meta name="msvalidate.01" content="9D6F4D25955329EA808B74416C671943" />
       <meta name="google-site-verification" content="mNgh_Cr_ANLEQ34Grw9MdpyVZO42QknZyFHMVErtSNE" />
+      
       {/* Google Tag Manager */}
       <Script
         id="gtm"

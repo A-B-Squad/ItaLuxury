@@ -66,6 +66,7 @@ const Checkout: React.FC = () => {
     "CASH_ON_DELIVERY" | "CREDIT_CARD"
   >("CASH_ON_DELIVERY");
   const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const { clearBasket } = useProductsInBasketStore();
   const {
@@ -151,7 +152,7 @@ const Checkout: React.FC = () => {
     const userEmail = isGuest ? data.email : userData?.fetchUsersById?.email;
     const userName = isGuest ? data.fullname : userData?.fetchUsersById?.fullName;
     const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
-
+    setSubmitLoading(true)
 
     const checkoutInput = {
       userId: decodedToken?.userId,
@@ -241,6 +242,8 @@ const Checkout: React.FC = () => {
         } else {
           router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
         }
+        setSubmitLoading(false)
+
       },
       onError: (error) => {
         console.error("Checkout Error:", error);
@@ -367,6 +370,17 @@ const Checkout: React.FC = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
                 <p className="mt-2 text-gray-700">
                   Redirection vers la page de paiement...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {submitLoading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+                <p className="mt-2 text-gray-700">
+                  Redirection vers la page de Confirmation...
                 </p>
               </div>
             </div>
@@ -698,7 +712,7 @@ const Checkout: React.FC = () => {
                       </button>
                       <button
                         type="submit"
-                        disabled={!isValid || loading || !paymentMethod}
+                        disabled={!isValid || loading || paymentLoading || submitLoading || !paymentMethod}
                         className={`px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-primaryColor/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primaryColor ${!isValid || loading || !paymentMethod
                           ? "opacity-50 cursor-not-allowed"
                           : ""

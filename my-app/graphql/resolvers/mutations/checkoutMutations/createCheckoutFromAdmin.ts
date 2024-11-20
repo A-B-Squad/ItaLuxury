@@ -355,29 +355,47 @@ export const createCheckoutFromAdmin = async (
   { prisma }: Context
 ) => {
   try {
-    const productInCheckout = input.products.map((product: ProductInCheckout) => ({
+    const {
+      userId,
+      userName,
+      governorateId,
+      freeDelivery,
+      manualDiscount,
+      phone,
+      address,
+      total,
+      products,
+    } = input;
+
+    // Determine if this is a guest checkout by checking if userId is null or undefined
+    const isGuest = !userId;
+
+    // Prepare products for the checkout
+    const productInCheckout = products.map((product: ProductInCheckout) => ({
       productId: product.productId,
       productQuantity: product.productQuantity,
       price: product.price ?? 0,
-      discountedPrice:
-        product.Product?.productDiscounts?.[0]?.newPrice ?? 0,
+      discountedPrice: product.Product?.productDiscounts?.[0]?.newPrice ?? 0,
     }));
 
     const result = await prisma.$transaction(async (tx) => {
+      // Create a new checkout record
       const newCheckout = await tx.checkout.create({
         data: {
-          userId: input.userId,
-          userName: input.userName,
-          governorateId: input.governorateId,
-          freeDelivery: input.freeDelivery,
+          userId: isGuest ? null : userId,
+          userName,
+          governorateId,
+          freeDelivery,
           productInCheckout: {
             create: productInCheckout,
           },
-          manualDiscount: input.manualDiscount,
-          phone: input.phone,
-          address: input.address,
-          total: input.total,
+          manualDiscount,
+          phone,
+          address,
+          total,
           paymentMethod: "CASH_ON_DELIVERY",
+          isGuest,
+          guestEmail: null,
         },
       });
 
@@ -387,7 +405,6 @@ export const createCheckoutFromAdmin = async (
       if (!companyInfo?.deliveringPrice) {
         throw new Error("Delivery price not configured");
       }
-      console.log(newCheckout.id, "ddddd");
 
       const newPackage = await tx.package.create({
         data: {
@@ -423,6 +440,7 @@ export const createCheckoutFromAdmin = async (
       throw new Error("Failed to retrieve complete checkout information");
     }
 
+    // Try sending a checkout email if applicable
     await tryToSendCheckoutEmail(completeCheckout, result.customId, result.deliveryPrice);
 
     return result.package.id;

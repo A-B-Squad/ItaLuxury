@@ -15,15 +15,19 @@ export const metadata: Metadata = {
       "Consultez nos conditions d'utilisation pour utiliser notre site ecommerce en toute sécurité.",
 
     type: "website",
-    url: "https://www.ita-luxury.com/productComparison",
+    url: "https://www.ita-luxury.com/Terms-of-use",
     images: [
       {
         url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
         width: 1200,
         height: 630,
-        alt: "Comparaison de Produits ita-luxury",
+        alt: "Conditions d'Utilisation ita-luxury",
       },
     ],
+  },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Terms-of-use`,
+
   },
 };
 const pageTermsOfUse = () => {
@@ -33,7 +37,7 @@ const pageTermsOfUse = () => {
   ];
   return (
     <div className="p-6">
-          <Breadcumb Path={breadcrumbPaths} />
+      <Breadcumb Path={breadcrumbPaths} />
 
       <PrivacyPolicy />;
     </div>
