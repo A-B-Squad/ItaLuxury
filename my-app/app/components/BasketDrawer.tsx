@@ -66,15 +66,11 @@ const BasketDrawer: React.FC = () => {
   } = useProductsInBasketStore();
   const { isUpdated } = useBasketStore();
 
-  const { data, error, refetch } = useQuery(BASKET_QUERY, {
+  const { data: fetchedProductInBasket, error, refetch } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
     fetchPolicy: "cache-and-network",
   });
-  const { toggleIsUpdated } = useBasketStore((state) => ({
-    isUpdated: state.isUpdated,
-    toggleIsUpdated: state.toggleIsUpdated,
-  }));
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
@@ -96,17 +92,19 @@ const BasketDrawer: React.FC = () => {
     }
   }, []);
 
+  // Compute products in basket (server or local)
   const productsInBasket = useMemo(() => {
-    if (decodedToken?.userId && data?.basketByUserId) {
-      return data.basketByUserId.map((basket: any) => ({
+    if (decodedToken?.userId && fetchedProductInBasket?.basketByUserId) {
+      return fetchedProductInBasket.basketByUserId.map((basket: any) => ({
         ...basket.Product,
         actualQuantity: basket.quantity,
         basketId: basket.id,
       }));
     }
     return storedProducts;
-  }, [decodedToken, data, storedProducts]);
+  }, [decodedToken, fetchedProductInBasket, storedProducts]);
 
+  // Calculate total price
   const totalPrice = useMemo(() => {
     return productsInBasket.reduce((acc: number, curr: Product) => {
       const price = curr.productDiscounts?.length
@@ -391,10 +389,9 @@ const BasketDrawer: React.FC = () => {
             <div className="mt-6">
               <Link
                 onClick={() => {
-                  setCheckoutProducts(storedProducts);
+                  setCheckoutProducts(productsInBasket);
                   setCheckoutTotal(Number(totalPrice));
                   closeBasketDrawer()
-                  // Track Add to Cart
                   triggerEvents("InitiateCheckout", {
                     user_data: {
                       em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -408,32 +405,62 @@ const BasketDrawer: React.FC = () => {
                       content_type: "product",
                       currency: "TND",
                       value: totalPrice,
-                      contents: storedProducts.map((product) => ({
+                      contents: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
                         id: product.id,
                         quantity: product.actualQuantity || product.quantity,
                       })),
-                      num_items: storedProducts.reduce(
-                        (sum, product) =>
+                      num_items: productsInBasket.reduce(
+                        (sum: any, product: { actualQuantity: any; quantity: any; }) =>
                           sum + (product?.actualQuantity || product?.quantity || 0),
                         0
                       ),
                     },
                   });
-                  pushToDataLayer("Initiate Checkout");
+                  pushToDataLayer("InitiateCheckout");
+
                 }}
-                href={
-                  "/Checkout"
-                }
-                className="flex items-center justify-center transition-all  border border-transparent bg-blueColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80"
+                href={"/Checkout"}
+                className="chekout flex items-center justify-center transition-all  border border-transparent bg-blueColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80"
               >
-                Procéder au paiement   </Link>
+                Procéder au paiement
+              </Link>
+
               <Link
-                onClick={closeBasketDrawer}
+                onClick={() => {
+                  closeBasketDrawer()
+
+                  triggerEvents("ViewContent", {
+                    user_data: {
+                      em: [userData?.fetchUsersById.email.toLowerCase()],
+                      fn: [userData?.fetchUsersById.fullName],
+                      ph: [userData?.fetchUsersById?.number],
+                      country: ["tn"],
+                      external_id: userData?.fetchUsersById.id,
+                    },
+                    custom_data: {
+                      content_name: "viewBasket",
+                      content_type: "product",
+                      currency: "TND",
+                      value: totalPrice,
+                      contents: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
+                        id: product.id,
+                        quantity: product.actualQuantity || product.quantity,
+                      })),
+                      num_items: productsInBasket.reduce(
+                        (sum: any, product: { actualQuantity: any; quantity: any; }) =>
+                          sum + (product?.actualQuantity || product?.quantity || 0),
+                        0
+                      ),
+                    },
+                  });
+                  pushToDataLayer("ViewContent");
+                }}
                 href={"/Basket"}
-                className="flex items-center transition-all justify-center  border border-transparent bg-pinkColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80 mt-4"
+                className="showBasket flex items-center transition-all justify-center  border border-transparent bg-pinkColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80 mt-4"
               >
                 Voir Panier
               </Link>
+
             </div>
             <div className="mt-6 flex gap-2 justify-center text-center text-sm text-gray-500">
               <p>ou</p>

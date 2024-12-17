@@ -58,9 +58,11 @@ async function fetchProductData(
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
       method: "POST",
-      cache: 'no-cache',
       headers: {
         "Content-Type": "application/json",
+      },
+      next: {
+        revalidate: 3600
       },
       body: JSON.stringify({
         query: `
@@ -164,7 +166,7 @@ export async function generateMetadata({
 
   const rating = formatRating(productData.reviews || []);
   const cleanDescription =
-    productData.categories[2].description?.replace(/<[^>]*>/g, "") || "";
+    productData.categories[2]?.description?.replace(/<[^>]*>/g, "") || "";
   const productName = productData.name || "Product";
   const productReference = productData.reference || "";
 
@@ -335,7 +337,7 @@ const ProductDetailsPage = async ({
   };
 
   return (
-    <div className="bg-gray-50 p-2 md:p-6">
+    <div className="bg-gray-50 p-2 md:py-6">
       <JsonLd<any> item={breadcrumbList} />
       <JsonLd<any> item={productSchema} />
       <ProductDetails

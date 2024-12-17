@@ -9,11 +9,11 @@ import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { HiMiniBars3CenterLeft } from "react-icons/hi2";
 import { IoIosLogOut } from "react-icons/io";
-import { RiShoppingCartLine } from "react-icons/ri";
+import { IoBagHandleOutline } from "react-icons/io5";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -35,9 +35,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const { openCategoryDrawer } = useDrawerMobileStore();
   const { openBasketDrawer } = useDrawerBasketStore();
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const quantityInBasket = useProductsInBasketStore(
-    (state) => state.quantityInBasket,
-  );
+  const {quantityInBasket} = useProductsInBasketStore();
   useEffect(() => {
     const token = Cookies.get("Token");
     if (token) {
@@ -97,7 +95,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   };
   return (
     <div
-      className={` transition-all duration-300 ${isFixed ? "fixed top-0 w-full bg-[#fffffff2] z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative sm:mt-4 mt-0 bg-white"}`}
+      className={` transition-all duration-300 ${isFixed ? "fixed top-0 w-full bg-[#fffffff2] z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative sm:my-3 mt-0 bg-white"}`}
       onMouseEnter={() => setShowDropdown(false)}
     >
       <div
@@ -165,7 +163,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               className={`${isFixed ? "visible" : "invisible"} whishlist   gap-2 cursor-pointer hover:text-primaryColor transition-all`}
             >
               <div className="relative inline-flex">
-                <RiShoppingCartLine className="text-xl" />
+                <IoBagHandleOutline size={25} />
                 {quantityInBasket > 0 && (
                   <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                     {quantityInBasket}
@@ -200,7 +198,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               onClick={openBasketDrawer}
               className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
             >
-              <RiShoppingCartLine />
+              <IoBagHandleOutline size={20} />
               {quantityInBasket >= 0 && (
                 <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
                   {quantityInBasket}

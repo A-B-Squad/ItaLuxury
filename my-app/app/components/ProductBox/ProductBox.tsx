@@ -2,7 +2,6 @@ import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useMemo, useState } from "react";
 
-
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
@@ -13,9 +12,8 @@ import {
   useAllProductViewStore,
   useBasketStore,
   useProductsInBasketStore,
-  usePruchaseOptions
+  usePruchaseOptions,
 } from "@/app/store/zustand";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import triggerEvents from "@/utlils/trackEvents";
 import CompactViewDetails from "./CompactViewDetails";
 import FullViewDetails from "./FullViewDetails";
@@ -38,16 +36,15 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-  
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId
+    skip: !decodedToken?.userId,
   });
 
   const {
     products: storedProducts,
     addProductToBasket,
-    increaseProductInQtBasket
+    increaseProductInQtBasket,
   } = useProductsInBasketStore();
   const { openPruchaseOptions } = usePruchaseOptions();
 
@@ -71,7 +68,6 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     }
   }, []);
 
-
   const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
@@ -83,12 +79,14 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
 
 
-  const AddToBasket = async (product: any, quantity: number = 1) => {
-    openPruchaseOptions(product)
 
-    const price = product.productDiscounts.length > 0
-      ? product.productDiscounts[0].newPrice
-      : product.price;
+  const AddToBasket = async (product: any, quantity: number = 1) => {
+    openPruchaseOptions(product);
+
+    const price =
+      product.productDiscounts.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price;
     const addToCartData = {
       user_data: {
         em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -105,6 +103,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         currency: "TND",
       },
     };
+    triggerEvents("AddToCart", addToCartData);
 
     if (decodedToken) {
       try {
@@ -141,23 +140,29 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
               description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
               className: "bg-primaryColor text-white",
             });
-            triggerEvents("AddToCart", addToCartData);
-            pushToDataLayer("AddToCart");
           },
         });
       } catch (error) {
         console.error("Error adding to basket:", error);
         toast({
           title: "Erreur",
-          description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+          description:
+            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
           className: "bg-red-600 text-white",
         });
       }
     } else {
-      const isProductAlreadyInBasket = storedProducts.some((p: any) => p.id === product?.id);
-      const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+      const isProductAlreadyInBasket = storedProducts.some(
+        (p: any) => p.id === product?.id
+      );
+      const filteredProduct = storedProducts.find(
+        (p: any) => p.id === product?.id
+      );
 
-      if (filteredProduct && filteredProduct.actualQuantity + quantity > product.inventory) {
+      if (
+        filteredProduct &&
+        filteredProduct.actualQuantity + quantity > product.inventory
+      ) {
         toast({
           title: "Quantité non disponible",
           description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
@@ -181,44 +186,44 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
         className: "bg-green-600 text-white",
       });
-      triggerEvents("AddToCart", addToCartData);
-      pushToDataLayer("AddToCart");
+
     }
     toggleIsUpdated();
   };
-
 
   return (
     <>
       <div
         className={`product-box w-full relative group  flex items-center overflow-hidden    ${view === 1 ? " justify-start h-[215px]" : "justify-center h-[344px]"}    bg-white    `}
       >
-
         {/* Product labels */}
         <ProductLabels product={product} />
 
-        <div className={`product flex   ${view === 1 ? " flex-row" : "flex-col  "} `}>
-
+        <div
+          className={`product flex  w-full   ${view === 1 ? " flex-row" : "flex-col  "} `}
+        >
           {/* Product image */}
-          <ProductImage product={product} onAddToBasket={AddToBasket} decodedToken={decodedToken} view={view} />
+          <ProductImage
+            product={product}
+            onAddToBasket={AddToBasket}
+            decodedToken={decodedToken}
+            view={view}
+          />
 
           {/* Product details */}
-          <div className={`${view !== 1 ? "border-t" : ""} mt-2 px-4 lg:px-2  w-full`}>
+          <div
+            className={`${view !== 1 ? "border-t" : ""} mt-2 px-4 lg:px-2  w-full`}
+          >
             <ProductName product={product} />
             {view !== 1 ? (
-              <FullViewDetails
-                product={product}
-                onAddToBasket={AddToBasket}
-              />
+              <FullViewDetails product={product} onAddToBasket={AddToBasket} />
             ) : (
               <CompactViewDetails product={product} />
             )}
           </div>
         </div>
-
       </div>
     </>
-
   );
 });
 

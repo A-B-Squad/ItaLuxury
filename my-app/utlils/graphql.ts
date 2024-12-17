@@ -11,6 +11,9 @@ export async function fetchGraphQLData(query: string, variables = {}) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ query, variables }),
+    next: {
+      revalidate: 3600
+    },
   });
 
   if (!response.ok) {

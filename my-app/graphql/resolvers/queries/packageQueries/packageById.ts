@@ -15,11 +15,7 @@ export const packageById = async (
               include: {
                 product: {
                   include: {
-                    productDiscounts: {
-                      include: {
-                        Discount: true,
-                      },
-                    },
+                    productDiscounts: true
                   },
                 },
               },

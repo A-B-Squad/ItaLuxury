@@ -4,12 +4,10 @@ import { useMutation, useQuery } from "@apollo/client";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import prepRoute from "@/app/Helpers/_prepRoute";
 import { FaBasketShopping } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa";
 import {
   useBasketStore,
-  useDrawerBasketStore,
   useProductDetails,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
@@ -49,14 +47,40 @@ const ProductBox = ({ product }: any) => {
     }
   }, []);
 
-  const { addProductToBasket, products, increaseProductInQtBasket } =
-    useProductsInBasketStore((state) => ({
-      increaseProductInQtBasket: state.increaseProductInQtBasket,
-      addProductToBasket: state.addProductToBasket,
-      products: state.products,
-    }));
+
+
+    const {
+      products,
+      addProductToBasket,
+      increaseProductInQtBasket,
+  } = useProductsInBasketStore();
 
   const AddToBasket = async (product: any) => {
+    triggerEvents("AddToCart", {
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.email.id,
+      },
+      custom_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        contents: {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity,
+        },
+        value:
+          product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : product.price,
+        currency: "TND",
+      },
+    });
+    pushToDataLayer("AddToCart");
+
     if (decodedToken) {
       addToBasket({
         variables: {
@@ -72,37 +96,10 @@ const ProductBox = ({ product }: any) => {
             variables: { userId: decodedToken?.userId },
           },
         ],
-        onCompleted: () => {
-          // Track Add to Cart
-          triggerEvents("AddToCart", {
-            user_data: {
-              em: [userData?.fetchUsersById.email.toLowerCase()],
-              fn: [userData?.fetchUsersById.fullName],
-              ph: [userData?.fetchUsersById?.number],
-              country: ["tn"],
-              external_id: userData?.fetchUsersById.email.id,
-            },
-            custom_data: {
-              content_name: product.name,
-              content_type: "product",
-              content_ids: [product.id],
-              contents: {
-                id: product.id,
-                quantity: product.actualQuantity || product.quantity,
-              },
-              value:
-                product.productDiscounts.length > 0
-                  ? product.productDiscounts[0].newPrice
-                  : product.price,
-              currency: "TND",
-            },
-          });
-          pushToDataLayer("AddToCart");
-        },
       });
     } else {
       const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id,
+        (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
@@ -116,39 +113,13 @@ const ProductBox = ({ product }: any) => {
       } else {
         increaseProductInQtBasket(product.id, 1);
       }
-
-      // Track Add to Cart
-      triggerEvents("AddToCart", {
-        user_data: {
-          em: [userData?.fetchUsersById.email.toLowerCase()],
-          fn: [userData?.fetchUsersById.fullName],
-          ph: [userData?.fetchUsersById?.number],
-          country: ["tn"],
-          external_id: userData?.fetchUsersById.email.id,
-        },
-        custom_data: {
-          content_name: product.name,
-          content_type: "product",
-          content_ids: [product.id],
-          contents: {
-            id: product.id,
-            quantity: product.actualQuantity || product.quantity,
-          },
-          value:
-            product.productDiscounts.length > 0
-              ? product.productDiscounts[0].newPrice
-              : product.price,
-          currency: "TND",
-        },
-      });
-      pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
   };
   return (
     <div className="flex font-medium text-gray-900 w-full relative">
       <div className="w-full flex gap-5 items-center">
-        <div className="relative h-20 w-20">
+        <div className="relative h-28  w-28">
           <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
             <button
               type="button"
@@ -187,8 +158,8 @@ const ProductBox = ({ product }: any) => {
             className="hover:text-primaryColor text-base font-light transition-all  cursor-pointer tracking-wider"
             title={product.name}
             href={`/products/tunisie?productId=${product.id}`}
-            >
-            <p className="text-left">{product.name}</p>
+          >
+            <p className="text-left line-clamp-2">{product.name}</p>
           </Link>
 
           {product.productDiscounts.length === 0 ? (

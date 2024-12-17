@@ -65,8 +65,19 @@ const Footer = () => {
   }, []);
 
   return (
-    <div className="Footer container pb-24 md:pb-0 bg-white shadow-lg shadow-black border-t-2 text-black flex flex-col items-center pt-3">
-      <div className="text-center flex justify-center items-center flex-col">
+    <div className="Footer container pb-24 md:pb-0  bg-white shado-lg pt-2  border-t-2 text-black flex flex-col items-center ">
+
+      <div
+        className="hidden lg:flex bg-center bg-cover bg-no-repeat min-h-[200px] h-[304px] max-w-[1419px] w-full  justify-center items-center"
+        style={{
+          backgroundImage: `url('footerImage.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+      </div>
+
+      <div className=" lg:hidden text-center flex justify-center items-center flex-col">
         <Image
           src={companyInfo?.logo}
           width={180}
@@ -202,6 +213,8 @@ const Footer = () => {
           </span>
         </div>
       </div>
+
+      
       {/* Mobile accordion */}
       <div className="flex flex-col lg:hidden w-full px-5">
         <Accordion type="single" collapsible>

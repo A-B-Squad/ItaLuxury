@@ -1,6 +1,7 @@
 "use client";
-import { init } from "@/utlils/pixel";
-import Script from "next/script";
+// import { init } from "@/utlils/pixel";
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google'
+import Script from 'next/script';
 import React, { useEffect, useState } from "react";
 const AnalyticsIntegration = () => {
   const [fbData, setFbData] = useState({
@@ -17,9 +18,9 @@ const AnalyticsIntegration = () => {
           },
         });
         const data = await response.json();
-        if (data.api_id) {
-          init(data.api_id);
-        }
+        // if (data.api_id) {
+        //   init(data.api_id);
+        // }
         setFbData(data);
       } catch (error) {
         console.error("Error fetching Facebook data:", error);
@@ -29,9 +30,11 @@ const AnalyticsIntegration = () => {
     fetchFacebookData();
   }, []);
 
-
   return (
+
+
     <>
+
       {fbData.domainVerification && (
         <meta
           name="facebook-domain-verification"
@@ -43,71 +46,34 @@ const AnalyticsIntegration = () => {
       {/* Meta tags for Bing and Google site verification */}
       <meta name="msvalidate.01" content="9D6F4D25955329EA808B74416C671943" />
       <meta name="google-site-verification" content="mNgh_Cr_ANLEQ34Grw9MdpyVZO42QknZyFHMVErtSNE" />
-      
-      {/* Google Tag Manager */}
+
+      <GoogleTagManager gtmId="GTM-T7FRWMJ3" />
+      <GoogleAnalytics gaId="G-GDPGKPJKW1" />
+
       <Script
-        id="gtm"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-T7FRWMJ3');
-          `,
-        }}
+        src="https://js.pusher.com/beams/1.0.0/push-notifications-cdn.js"
+        strategy="beforeInteractive"
       />
 
-      {/* Meta Pixel */}
-      {/* {fbData.api_id && (
-        <>
-          <Script
-            id="fb-pixel"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;
-                t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}(window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${fbData.api_id}');
-                fbq('track', 'PageView');
-              `,
-            }}
-          />
-          <noscript>
-            <img
-              height="1"
-              width="1"
-              style={{ display: "none" }}
-              src={`https://www.facebook.com/tr?id=${fbData.api_id}&ev=PageView&noscript=1`}
-            />
-          </noscript>
-        </>
-      )} */}
+      <Script id="pusher-beams-init" strategy="afterInteractive">
+        {`
+    const beamsClient = new PusherPushNotifications.Client({
+      instanceId: 'e7307155-0ed4-4c85-8198-822101af6f25',
+    });
+    beamsClient.start()
+      .then(() => {
+        return beamsClient.addDeviceInterest('hello');
+      })
+      .then(() => {
+        return beamsClient.getDeviceInterests();
+      })
+      .then((interests) => {
+        console.log("Current interests:", interests);
+      })
+      .catch(console.error);
+  `}
+      </Script>
 
-      {/* Google Analytics */}
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-GDPGKPJKW1"
-        strategy="afterInteractive"
-      />
-      <Script
-        id="ga-setup"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-GDPGKPJKW1');
-          `,
-        }}
-      />
     </>
   );
 };

@@ -12,8 +12,8 @@ function makeClient() {
 
   const httpLink = new HttpLink({
     uri: `${process.env.NEXT_PUBLIC_API_URL}`,
-    credentials:'include',
-    
+    credentials: 'include',
+
   });
 
   return new NextSSRApolloClient({
@@ -21,11 +21,11 @@ function makeClient() {
     link:
       typeof window === "undefined"
         ? ApolloLink.from([
-            new SSRMultipartLink({
-              stripDefer: true,
-            }),
-            httpLink,
-          ])
+          new SSRMultipartLink({
+            stripDefer: true,
+          }),
+          httpLink,
+        ])
         : httpLink,
   });
 }

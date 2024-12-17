@@ -7,7 +7,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import triggerEvents from "@/utlils/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
@@ -125,6 +124,7 @@ const ProductInfo = () => {
         currency: "TND",
       },
     };
+    triggerEvents("AddToCart", addToCartData);
 
     if (decodedToken) {
       try {
@@ -161,8 +161,6 @@ const ProductInfo = () => {
               description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
               className: "bg-primaryColor text-white",
             });
-            triggerEvents("AddToCart", addToCartData);
-            pushToDataLayer("AddToCart");
           },
         });
       } catch (error) {
@@ -209,8 +207,7 @@ const ProductInfo = () => {
         description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
         className: "bg-green-600 text-white",
       });
-      triggerEvents("AddToCart", addToCartData);
-      pushToDataLayer("AddToCart");
+
     }
     toggleIsUpdated();
   };

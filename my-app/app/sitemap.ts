@@ -1,4 +1,3 @@
-import prepRoute from "@/app/Helpers/_prepRoute";
 import { MetadataRoute } from "next";
 
 interface Product {

@@ -40,13 +40,8 @@ interface CategoryInfo {
 interface DiscountInfo {
   newPrice: number;
   oldPrice: number;
-  discount: Discount;
 }
 
-interface Discount {
-  id: string;
-  description: string;
-}
 
 interface BasketInfo {
   id: string;
@@ -79,7 +74,6 @@ interface ProductInput {
 }
 
 interface ProductDiscountInput {
-  discountId: string;
   productId: string;
   dateOfStart: string;
   dateOfEnd: string;

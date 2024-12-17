@@ -429,11 +429,7 @@ export const createCheckout = async (
         include: {
           Product: {
             include: {
-              productDiscounts: {
-                include: {
-                  Discount: true,
-                },
-              },
+              productDiscounts: true,
             },
           },
         },

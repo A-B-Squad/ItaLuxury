@@ -11,7 +11,6 @@ interface DiscountInput {
   newPrice: GLfloat;
   dateOfEnd: string;
   dateOfStart: string;
-  discountId?: string;
 }
 
 
@@ -30,9 +29,9 @@ const updateAttributes = async (
 
     // Format the attributes for creation
     const formattedAttributes = attributeInputs.map(attr => ({
-      name: attr.name.trim(),  // Trim whitespace
-      value: attr.value.trim(), // Trim whitespace
-      productId: productId     // Explicitly set the productId
+      name: attr.name.trim(),  
+      value: attr.value.trim(), 
+      productId: productId     
     }));
 
     // Create all new attributes in a single transaction
@@ -65,7 +64,6 @@ const updateDiscounts = async (
       newPrice: discountInput.newPrice,
       dateOfEnd: dateOfEnd.toDate(),
       dateOfStart: dateOfStart.toDate(),
-      discountId: discountInput.discountId || null,
     };
 
     const existingDiscount = await prisma.productDiscount.findFirst({

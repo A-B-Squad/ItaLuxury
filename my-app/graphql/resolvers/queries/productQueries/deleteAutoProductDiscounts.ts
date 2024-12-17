@@ -16,11 +16,7 @@ export const deleteAutoProductDiscount = async (
   try {
     const products = await prisma.product.findMany({
       include: {
-        productDiscounts: {
-          include: {
-            Discount: true,
-          },
-        },
+        productDiscounts: true
       },
     });
 

@@ -93,17 +93,8 @@ CREATE TABLE "TopDeals" (
 );
 
 -- CreateTable
-CREATE TABLE "Discount" (
-    "id" TEXT NOT NULL,
-    "percentage" INTEGER NOT NULL,
-
-    CONSTRAINT "Discount_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ProductDiscount" (
     "id" TEXT NOT NULL,
-    "discountId" TEXT,
     "productId" TEXT,
     "price" DOUBLE PRECISION NOT NULL,
     "newPrice" DOUBLE PRECISION NOT NULL,
@@ -269,7 +260,6 @@ CREATE TABLE "Brand" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "logo" TEXT NOT NULL,
-    "categoryId" TEXT,
 
     CONSTRAINT "Brand_pkey" PRIMARY KEY ("id")
 );
@@ -313,9 +303,6 @@ CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Colors_color_key" ON "Colors"("color");
 
 -- CreateIndex
@@ -353,9 +340,6 @@ ALTER TABLE "BestSales" ADD CONSTRAINT "BestSales_productId_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "TopDeals" ADD CONSTRAINT "TopDeals_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ProductDiscount" ADD CONSTRAINT "ProductDiscount_discountId_fkey" FOREIGN KEY ("discountId") REFERENCES "Discount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductDiscount" ADD CONSTRAINT "ProductDiscount_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -401,9 +385,6 @@ ALTER TABLE "FavoriteProducts" ADD CONSTRAINT "FavoriteProducts_productId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "ProductAttribute" ADD CONSTRAINT "ProductAttribute_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Brand" ADD CONSTRAINT "Brand_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ContactUs" ADD CONSTRAINT "ContactUs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

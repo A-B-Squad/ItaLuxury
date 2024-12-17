@@ -24,7 +24,7 @@ const LeftAdsCarousel = ({
   return (
     <>
       {(images.length === 0 || loadingLeftAdsCarousel) && (
-        <div className="left-ads flex xl:flex-col xl:max-w-[455px] w-full items-center justify-center  gap-5 md:gap-12">
+        <div className="left-Img flex xl:flex-col xl:max-w-[455px] w-full items-center justify-center  gap-5 md:gap-12">
           <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-gray-300 ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
@@ -35,7 +35,7 @@ const LeftAdsCarousel = ({
       )}
 
       {images.length > 0 && (
-        <div className="left-ads flex xl:flex-col xl:max-w-[455px]  w-full h-full  gap-5 md:gap-12">
+        <div className="left-Img flex xl:flex-col xl:max-w-[455px]  w-full h-full  gap-5 md:gap-12">
           <Link
             className="relative group  rounded-sm border bg-white overflow-hidden w-[455px] max-h-[230px] h-full max-w-full hover:opacity-90 transition-all "
             href={AdsNextToCarousel[0]?.link}
@@ -50,11 +50,11 @@ const LeftAdsCarousel = ({
               height={208}
               src={images[0]}
               loading="eager"
-              priority={true} 
-
+              priority={true}
+              style={{ padding: "50% 0 0 " }}
               property="true"
               objectFit="cover"
-              alt="left-ads 0"
+              alt="left-Img 0"
               className="  transition-all"
             />
           </Link>
@@ -72,8 +72,9 @@ const LeftAdsCarousel = ({
               height={208}
               src={images[1]}
               loading="eager"
-              alt="left-ads 2"
-              priority={true} 
+              style={{ padding: "50% 0 0 " }}
+              alt="left-Img 2"
+              priority={true}
               objectFit="cover"
               className=" hover:opacity-50 transition-all"
             />

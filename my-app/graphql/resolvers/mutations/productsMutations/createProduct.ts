@@ -80,7 +80,6 @@ export const createProduct = async (
             price,  
             dateOfEnd: dateOfEnd.toDate(),  
             dateOfStart: dateOfStart.toDate(),  
-            discountId: discountInput.discountId || null,  
           },  
         });  
       }  

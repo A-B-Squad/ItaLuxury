@@ -17,7 +17,7 @@ const DeliveryPage = async () => {
           adsLoaded={loadingclinetContactSideAds}
           image={clinetContactSideAds?.advertismentByPosition[0]?.images[0]}
           link={clinetContactSideAds?.advertismentByPosition[0]?.link}
-          adsPositon={"Left Ads"}
+          adsPositon={"Left Img"}
         />
       </div>
       <div className="h-full ml-5">

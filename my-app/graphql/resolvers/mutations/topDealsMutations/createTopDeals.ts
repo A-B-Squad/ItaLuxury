@@ -1,6 +1,6 @@
 import { Context } from "@/pages/api/graphql";
 
-export const addProductToTopDeals = async ( 
+export const addProductToTopDeals = async (
     _: any,
     { productId }: { productId: string },
     { prisma }: Context
@@ -13,9 +13,7 @@ export const addProductToTopDeals = async (
             include: {
                 product: {
                     include: {
-                        productDiscounts: {
-                            include: { Discount: true }
-                        }, Colors: true, attributes: true, categories: true
+                        productDiscounts: true, Colors: true, attributes: true, categories: true
                     }
                 }
             }

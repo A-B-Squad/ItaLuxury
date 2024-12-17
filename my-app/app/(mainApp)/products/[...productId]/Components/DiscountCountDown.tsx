@@ -1,22 +1,18 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 
-const DiscountCountDown = ({ discount }:any) => {
-  // Memoize timezone to avoid recreating it
+const DiscountCountDown = ({ discount }: any) => {
   const DEFAULT_TIMEZONE = useMemo(() => "Africa/Tunis", []);
-  
-  // Pre-calculate the target date once
+
   const targetDate = useMemo(() => {
     if (!discount?.dateOfEnd) return null;
-    return new Date(parseInt(discount.dateOfEnd) - 3600000); 
+    return new Date(parseInt(discount.dateOfEnd) - 3600000);
   }, [discount?.dateOfEnd]);
 
-  // Memoize price difference calculation
   const priceDifference = useMemo(() => {
     if (!discount?.price || !discount?.newPrice) return "0.000";
     return (discount.price - discount.newPrice).toFixed(3);
   }, [discount?.price, discount?.newPrice]);
 
-  // Use more efficient date calculations without moment.js
   const [timeRemaining, setTimeRemaining] = useState({
     days: 0,
     hours: 0,
@@ -25,13 +21,12 @@ const DiscountCountDown = ({ discount }:any) => {
     isExpired: false
   });
 
-  // Memoize the calculation function to prevent recreation on each render
   const calculateTimeRemaining = useCallback(() => {
     if (!targetDate) return null;
-    
+
     const now = new Date().getTime();
     const distance = targetDate.getTime() - now;
-    
+
     if (distance <= 0) {
       return {
         days: 0,
@@ -52,18 +47,14 @@ const DiscountCountDown = ({ discount }:any) => {
   }, [targetDate]);
 
   useEffect(() => {
-    // Initial calculation
     setTimeRemaining(calculateTimeRemaining() || timeRemaining);
 
-    // Only set up interval if we have a valid target date
     if (!targetDate) return;
 
     const interval = setInterval(() => {
       const newTimeRemaining = calculateTimeRemaining();
       if (newTimeRemaining) {
         setTimeRemaining(newTimeRemaining);
-        
-        // Clear interval if expired
         if (newTimeRemaining.isExpired) {
           clearInterval(interval);
         }
@@ -73,22 +64,14 @@ const DiscountCountDown = ({ discount }:any) => {
     return () => clearInterval(interval);
   }, [targetDate, calculateTimeRemaining]);
 
-  // Memoize the countdown display to prevent unnecessary re-renders
-  const countdownDisplay = useMemo(() => {
-    if (timeRemaining.isExpired) {
-      return "La réduction a expiré";
-    }
-    
-    return (
-      <>
-        La réduction se termine dans :{' '}
-        <span className="font-semibold text-lg">
-          {timeRemaining.days} jrs,{' '}
-          {timeRemaining.hours} hrs : {timeRemaining.minutes} mins : {timeRemaining.seconds} secs
-        </span>
-      </>
-    );
-  }, [timeRemaining]);
+  const TimeBlock = ({ value, label }: any) => (
+    <div className="bg-gray-100 px-3 py-2 rounded-md">
+      <span className="text-xl font-mono font-bold text-gray-800">
+        {value.toString().padStart(2, '0')}
+      </span>
+      <span className="text-xs text-gray-500 ml-1">{label}</span>
+    </div>
+  );
 
   return (
     <>
@@ -99,9 +82,20 @@ const DiscountCountDown = ({ discount }:any) => {
         </p>
         <span className="text-sm">TTC</span>
       </div>
-      <div className="text-sm text-green-400">
-        {countdownDisplay}
-      </div>
+      {timeRemaining.isExpired ? (
+        <div className="text-red-500 font-medium mt-2">
+          La réduction a expiré
+        </div>
+      ) : (
+        <div className="flex items-center gap-1 mt-2">
+          <div className="flex gap-1">
+            <TimeBlock value={timeRemaining.days} label="j" />
+            <TimeBlock value={timeRemaining.hours} label="h" />
+            <TimeBlock value={timeRemaining.minutes} label="m" />
+            <TimeBlock value={timeRemaining.seconds} label="s" />
+          </div>
+        </div>
+      )}
     </>
   );
 };

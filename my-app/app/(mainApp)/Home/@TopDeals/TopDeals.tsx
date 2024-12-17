@@ -22,10 +22,12 @@ const TopDeals = () => {
       setDecodedToken(decoded);
     }
   }, []);
+
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
   });
+
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
@@ -39,10 +41,10 @@ const TopDeals = () => {
     if (!topDeals?.allDeals) return null;
     return (
       <>
-        {topDeals.allDeals.map((product: any) => (
+        {topDeals.allDeals?.map((product: any) => (
           <ProductDetails
             key={product.id}
-            product={product}
+            product={product.product}
             basketData={basketData}
             decodedToken={decodedToken}
             setIsFavorite={setIsFavorite}

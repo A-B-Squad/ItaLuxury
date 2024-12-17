@@ -114,17 +114,10 @@ type Brand {
   product: [Product!]
 }
 
-# Discount-related types
-type Discount {
-  id: ID
-  percentage: Int
-}
 
 type ProductDiscount {
   id: ID
-  Discount: Discount
   productId: ID
-  discountId: ID
   product: Product
   price: Float
   newPrice: Float
@@ -342,7 +335,6 @@ type Query {
   basketByUserId(userId: ID!): [Basket!]!
   fetchAllBasket: [Basket!]!
   productDiscount(productId: ID!): ProductDiscount!
-  DiscountsPercentage: [Discount!]
   productsDiscounts(limit: Int): [Product!]!
 
   # Review and favorite queries
@@ -591,7 +583,6 @@ input CreateApiCredentialsInput {
 
 
 input CreateProductDiscountInput {
-  discountId: String
   dateOfStart: String
   dateOfEnd: String
   newPrice: Float

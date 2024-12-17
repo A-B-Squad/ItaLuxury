@@ -9,14 +9,13 @@ import { RiShoppingCartLine } from "react-icons/ri";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import {
   useBasketStore,
-  useComparedProductsStore,
+  useProductComparisonStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "../../../graphql/queries";
-import prepRoute from "@/app/Helpers/_prepRoute";
 import triggerEvents from "../../../utlils/trackEvents";
 import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
@@ -26,12 +25,7 @@ interface DecodedToken extends JwtPayload {
 
 const ProductComparison = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const { products, removeProductFromCompare } = useComparedProductsStore(
-    (state) => ({
-      products: state.products,
-      removeProductFromCompare: state.removeProductFromCompare,
-    })
-  );
+  const { comparisonList, removeFromComparison } = useProductComparisonStore();
 
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
@@ -53,24 +47,45 @@ const ProductComparison = () => {
   }, []);
   const removeProduct = useCallback(
     (product: Product) => {
-      removeProductFromCompare(product.id);
+      removeFromComparison(product.id);
       toast({
         title: "Produit retiré de la comparaison",
         description: `Le produit "${product?.name}" a été retiré de la comparaison.`,
         className: "bg-primaryColor text-white",
       });
     },
-    [removeProductFromCompare, toast]
+    [removeFromComparison, toast]
   );
 
-  const { addProductToBasket, increaseProductInQtBasket } =
-    useProductsInBasketStore((state) => ({
-      increaseProductInQtBasket: state.increaseProductInQtBasket,
-      addProductToBasket: state.addProductToBasket,
-      products: state.products,
-    }));
+  const { addProductToBasket, increaseProductInQtBasket } = useProductsInBasketStore();
 
   const AddToBasket = async (product: any) => {
+    // Track Add to Cart
+
+    triggerEvents("AddToCart", {
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.email.id,
+      },
+      custom_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        contents: {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity,
+        },
+        value:
+          product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : product.price,
+        currency: "TND",
+      },
+    });
+    pushToDataLayer("AddToCart");
     if (decodedToken) {
       addToBasket({
         variables: {
@@ -93,36 +108,10 @@ const ProductComparison = () => {
             description: `Le produit "${product?.name}" a été ajouté au panier.`,
             className: "bg-primaryColor text-white",
           });
-          // Track Add to Cart
-
-          triggerEvents("AddToCart", {
-            user_data: {
-              em: [userData?.fetchUsersById.email.toLowerCase()],
-              fn: [userData?.fetchUsersById.fullName],
-              ph: [userData?.fetchUsersById?.number],
-              country: ["tn"],
-              external_id: userData?.fetchUsersById.email.id,
-            },
-            custom_data: {
-              content_name: product.name,
-              content_type: "product",
-              content_ids: [product.id],
-              contents: {
-                id: product.id,
-                quantity: product.actualQuantity || product.quantity,
-              },
-              value:
-                product.productDiscounts.length > 0
-                  ? product.productDiscounts[0].newPrice
-                  : product.price,
-              currency: "TND",
-            },
-          });
-          pushToDataLayer("AddToCart");
         },
       });
     } else {
-      const isProductAlreadyInBasket = products.some(
+      const isProductAlreadyInBasket = comparisonList.some(
         (p: any) => p.id === product?.id
       );
       if (!isProductAlreadyInBasket) {
@@ -148,32 +137,6 @@ const ProductComparison = () => {
           description: `Product is already in the basket`,
           className: "bg-primaryColor text-white",
         });
-
-        // Track Add to Cart
-        triggerEvents("AddToCart", {
-          user_data: {
-            em: [userData?.fetchUsersById.email.toLowerCase()],
-            fn: [userData?.fetchUsersById.fullName],
-            ph: [userData?.fetchUsersById?.number],
-            country: ["tn"],
-            external_id: userData?.fetchUsersById.email.id,
-          },
-          custom_data: {
-            content_name: product.name,
-            content_type: "product",
-            content_ids: [product.id],
-            contents: {
-              id: product.id,
-              quantity: product.actualQuantity || product.quantity,
-            },
-            value:
-              product.productDiscounts.length > 0
-                ? product.productDiscounts[0].newPrice
-                : product.price,
-            currency: "TND",
-          },
-        });
-        pushToDataLayer("AddToCart");
       }
     }
     toggleIsUpdated();
@@ -182,23 +145,21 @@ const ProductComparison = () => {
 
   return (
     <>
-      {products.length > 0 ? (
+      {comparisonList.length > 0 ? (
         <div className="relative overflow-x-auto p-6">
           <h1 className="font-bold text-2xl">
-            Compare Produits ({products?.length})
+            Compare Produits ({comparisonList?.length})
           </h1>
           <table className="w-full text-sm text-left rtl:text-right">
             <thead className="text-xs text-gray-700 uppercase  ">
               <tr>
-                {products.map((product: any) => (
+                {comparisonList.map((product: any) => (
                   <th scope="col" className="px-2 py-1">
                     <div className="relative m-2 flex w-[40rem] max-w-xs flex-col items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
                       <Link
                         className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
                         rel="preload"
                         href={`/products/tunisie?productId=${product.id}`}
-
-
                       >
                         <img
                           className="object-cover"
@@ -210,7 +171,6 @@ const ProductComparison = () => {
                         <Link
                           rel="preload"
                           href={`/products/tunisie?productId=${product.id}`}
-
                         >
                           <p className="text-base text-black  text-center tracking-tight text-slate-900">
                             {product.name}
@@ -274,7 +234,7 @@ const ProductComparison = () => {
                 >
                   Prix
                 </th>
-                {products.map((product: any) => (
+                {comparisonList.map((product: any) => (
                   <td className="px-6 py-4">{product?.price.toFixed(3)} TND</td>
                 ))}
               </tr>
@@ -285,7 +245,7 @@ const ProductComparison = () => {
                 >
                   Description
                 </th>
-                {products.map((product: any) => (
+                {comparisonList.map((product: any) => (
                   <td
                     key={product.id}
                     className="px-6 py-4"

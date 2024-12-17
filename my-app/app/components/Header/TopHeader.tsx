@@ -1,26 +1,25 @@
 "use client";
-import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
-import SearchBar from "./SearchBar";
-import { FiHeart, FiUser } from "react-icons/fi";
-import { RiShoppingCartLine } from "react-icons/ri";
 import Cookies from "js-cookie";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { FiHeart, FiUser } from "react-icons/fi";
+import SearchBar from "./SearchBar";
 
+import { useOutsideClick } from "@/app/Helpers/_outsideClick";
 import {
-  useComparedProductsStore,
+  useProductComparisonStore,
   useDrawerBasketStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
-import { IoGitCompare } from "react-icons/io5";
-import Image from "next/legacy/image";
-import { GoPackageDependents } from "react-icons/go";
-import { useForm } from "react-hook-form";
-import { useMutation, useQuery } from "@apollo/client";
-import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
-import { useOutsideClick } from "@/app/Helpers/_outsideClick";
+import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import Image from "next/legacy/image";
+import { useForm } from "react-hook-form";
+import { GoPackageDependents } from "react-icons/go";
+import { IoBagHandleOutline, IoGitCompare } from "react-icons/io5";
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -28,11 +27,14 @@ const TopHeader = ({ logo }: { logo: string }) => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const { openBasketDrawer } = useDrawerBasketStore();
-  const { productsInCompare } = useComparedProductsStore((state) => ({
-    productsInCompare: state.products,
-  }));
+  const { comparisonList } = useProductComparisonStore();
 
-  const { quantityInBasket } = useProductsInBasketStore();
+  const {
+    quantityInBasket,
+    addMultipleProducts,
+    setQuantityInBasket,
+    clearBasket
+  } = useProductsInBasketStore();
 
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
@@ -78,25 +80,31 @@ const TopHeader = ({ logo }: { logo: string }) => {
   });
 
   const updateBasketQuantity = useCallback(() => {
+
     if (basketData?.basketByUserId) {
+
+      // Prepare basket products with quantity
+      const basketProducts = basketData.basketByUserId.map((item: any) => ({
+        ...item.product,
+        actualQuantity: item.quantity,
+      }));
+
+      // Calculate total quantity
       const totalQuantity = basketData.basketByUserId.reduce(
         (acc: number, item: any) => acc + item.quantity,
-        0,
+        0
       );
-      useProductsInBasketStore.setState({
-        products: basketData.basketByUserId.map((item: any) => ({
-          ...item.product,
-          quantity: item.quantity,
-        })),
-        quantityInBasket: totalQuantity,
-      });
+
+      // Clear existing basket and set new products
+      clearBasket();
+      addMultipleProducts(basketProducts);
+      setQuantityInBasket(totalQuantity);
+
     } else {
-      useProductsInBasketStore.setState({
-        products: [],
-        quantityInBasket: 0,
-      });
+      // Clear basket if no items
+      clearBasket();
     }
-  }, [basketData]);
+  }, [basketData, clearBasket, setQuantityInBasket]);
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -115,6 +123,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
   useEffect(() => {
     updateBasketQuantity();
   }, [basketData, updateBasketQuantity]);
+
 
   const onSubmit = (data: any) => {
     SignIn({ variables: { input: data } });
@@ -293,7 +302,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               >
                 <IoGitCompare />
                 <p className="font-semibold uppercase">
-                  Comparer ({productsInCompare.length})
+                  Comparer ({comparisonList.length})
                 </p>
               </Link>
             </div>
@@ -304,9 +313,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
             title="Votre Panier"
             className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
           >
-            <p>Panier</p>
             <div className="relative inline-flex">
-              <RiShoppingCartLine className="text-xl" />
+              <IoBagHandleOutline size={30} />
 
               {quantityInBasket >= 0 && (
                 <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">

@@ -19,11 +19,7 @@ export const productsLessThen20 = async (
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         }, // Include categories related to products
-        productDiscounts: {
-          include: {
-            Discount: true,
-          },
-        },
+        productDiscounts: true,
         baskets: true,
 
         reviews: true,

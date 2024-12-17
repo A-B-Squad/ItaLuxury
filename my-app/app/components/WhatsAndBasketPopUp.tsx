@@ -23,7 +23,7 @@ const WhatsAndBasketPopUp = () => {
       ) : (
         <Link
           href="/Basket"
-          className="rounded-full relative flex items-center justify-center p-2 w-[60px] h-[60px] bg-[#183a84] shadow-xl "
+          className="showBasket rounded-full relative flex items-center justify-center p-2 w-[60px] h-[60px] bg-[#183a84] shadow-xl "
         >
           <SlBasket size={25} style={{ transform: "scaleX(-1)" }} color="white" />
           {quantityInBasket >= 0 && (

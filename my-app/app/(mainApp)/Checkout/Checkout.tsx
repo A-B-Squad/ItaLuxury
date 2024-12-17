@@ -20,12 +20,15 @@ import {
   GET_GOVERMENT_INFO,
 } from "../../../graphql/queries";
 
-import { useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import {
+  useCheckoutStore,
+  useProductsInBasketStore,
+} from "@/app/store/zustand";
 import { Loader2 } from "lucide-react";
 import { OrderSummary } from "./components/OrderSummary";
 import Step1 from "./components/Step1/Step1";
 import { StepIndicator } from "./components/StepIndicator";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 // Define interfaces
 interface DecodedToken extends JwtPayload {
@@ -52,12 +55,16 @@ interface Step {
   name: string;
 }
 
+interface CouponState {
+  id: string;
+  couponCode: string;
+}
 const Checkout: React.FC = () => {
   // Step 1: Initialize state and hooks
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
   const [discountPercentage, setDiscountPercentage] = useState<number>(0);
-  const [couponsId, setCouponsId] = useState<string>("");
+  const [coupon, setCoupon] = useState<CouponState>({ id: "", couponCode: "" });
   const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
@@ -84,7 +91,7 @@ const Checkout: React.FC = () => {
   // Notification step
 
   // Step 2: Parse URL parameters
-  const { checkoutProducts, checkoutTotal } = useCheckoutStore()
+  const { checkoutProducts, checkoutTotal } = useCheckoutStore();
 
   // Step 3: Set up GraphQL queries and mutations
   const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
@@ -118,6 +125,7 @@ const Checkout: React.FC = () => {
   // Step 5: Set up side effects
   useEffect(() => {
     const token = Cookies.get("Token");
+
     if (token) {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
@@ -131,8 +139,14 @@ const Checkout: React.FC = () => {
     }
   }, []);
 
-  // Step 6: Define utility functions
 
+
+
+
+
+
+
+  // Step 6: Define utility functions
 
   const calculateTotal = useCallback(() => {
     let subtotal = Number(checkoutTotal);
@@ -146,28 +160,59 @@ const Checkout: React.FC = () => {
   }, [checkoutTotal, deliveryPrice, discountPercentage]);
 
 
+  const sendNotification = async (
+    orderId: string,
+    productsNumber: number,
+    userName: string,
+    orderTotal: number
+  ) => {
+    try {
+      const response = await fetch("/api/send-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId,
+          productsNumber,
+          userName,
+          orderTotal,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Notification sent successfully!");
+      } else {
+        console.error("Failed to send notification:", await response.json());
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
 
   // Step 7: Define event handlers
   const onSubmit = async (data: any) => {
     const userEmail = isGuest ? data.email : userData?.fetchUsersById?.email;
-    const userName = isGuest ? data.fullname : userData?.fetchUsersById?.fullName;
+    const userName = isGuest
+      ? data.fullname
+      : userData?.fetchUsersById?.fullName;
     const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
-    setSubmitLoading(true)
-
+    const orderTotal = parseFloat(calculateTotal())
     const checkoutInput = {
       userId: decodedToken?.userId,
       userName: data.fullname,
-      total: parseFloat(calculateTotal()),
+      total: orderTotal,
       phone: [data.phone_1, data.phone_2].filter(Boolean),
       governorateId: data.governorate,
       address: data.address,
-      couponsId: couponsId,
+      couponsId: coupon.id,
       freeDelivery: Number(checkoutTotal) >= 499,
       isGuest: isGuest,
       products: checkoutProducts.map((product) => ({
         productId: product.id,
         productQuantity: product.actualQuantity || product.quantity,
         price: product.price,
+
         discountedPrice:
           product.productDiscounts && product.productDiscounts.length > 0
             ? product.productDiscounts[0].newPrice
@@ -190,7 +235,8 @@ const Checkout: React.FC = () => {
       ],
       onCompleted: async (data) => {
         const customId = data.createCheckout.customId;
-        clearBasket()
+        clearBasket();
+        sendNotification(customId, checkoutProducts.length, userName, orderTotal)
         triggerEvents("Purchase", {
           user_data: {
             em: [userEmail.toLowerCase()],
@@ -218,7 +264,6 @@ const Checkout: React.FC = () => {
         })
         pushToDataLayer("Purchase");
 
-
         if (paymentMethod === "CREDIT_CARD") {
           triggerEvents("AddPaymentInfo", {
             user_data: {
@@ -236,14 +281,13 @@ const Checkout: React.FC = () => {
               payment_type: paymentMethod === "CREDIT_CARD" ? "Credit Card" : "Cash on Delivery",
             },
           });
+          pushToDataLayer("AddPaymentInfo");
 
           await handleOnlinePayment(customId, userName, userPhone, userEmail);
-
         } else {
+          setSubmitLoading(true);
           router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
         }
-        setSubmitLoading(false)
-
       },
       onError: (error) => {
         console.error("Checkout Error:", error);
@@ -260,7 +304,7 @@ const Checkout: React.FC = () => {
     orderId: string,
     userName: string,
     userPhone: string,
-    userEmail: string,
+    userEmail: string
   ) => {
     if (paymentMethod === "CREDIT_CARD") {
       setPaymentLoading(true);
@@ -336,7 +380,7 @@ const Checkout: React.FC = () => {
       setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length));
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     } else {
       console.log("Form is invalid:", errors);
@@ -346,7 +390,7 @@ const Checkout: React.FC = () => {
   const handlePreviousStep = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
     setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
   };
@@ -362,8 +406,6 @@ const Checkout: React.FC = () => {
         <StepIndicator steps={steps} currentStep={currentStep} />
 
         <div className="container grid sm:px-10 w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32">
-
-
           {paymentLoading && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white p-5 rounded-lg flex flex-col items-center">
@@ -442,7 +484,8 @@ const Checkout: React.FC = () => {
                             htmlFor="email"
                             className="block text-sm font-medium text-gray-700"
                           >
-                            <CiMail className="inline-block mr-2 align-text-bottom" /> Email (optionnel)
+                            <CiMail className="inline-block mr-2 align-text-bottom" />{" "}
+                            Email (optionnel)
                           </label>
                           <div className="mt-1 relative rounded-md shadow-sm">
                             <input
@@ -450,7 +493,8 @@ const Checkout: React.FC = () => {
                               id="email"
                               {...register("email", {
                                 pattern: {
-                                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                  value:
+                                    /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                                   message: "Adresse e-mail invalide",
                                 },
                               })}
@@ -458,16 +502,26 @@ const Checkout: React.FC = () => {
                               placeholder="votre@email.com"
                             />
                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                              <CiMail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                              <CiMail
+                                className="h-5 w-5 text-gray-400"
+                                aria-hidden="true"
+                              />
                             </div>
                           </div>
                           {errors.email && (
-                            <p className="mt-2 text-sm text-red-600" id="email-error">
+                            <p
+                              className="mt-2 text-sm text-red-600"
+                              id="email-error"
+                            >
                               {errors.email.message as string}
                             </p>
                           )}
-                          <p className="mt-2 text-sm text-gray-500" id="email-description">
-                            Fournir votre email nous permettra de vous envoyer des mises à jour sur votre commande.
+                          <p
+                            className="mt-2 text-sm text-gray-500"
+                            id="email-description"
+                          >
+                            Fournir votre email nous permettra de vous envoyer
+                            des mises à jour sur votre commande.
                           </p>
                         </div>
                       )}
@@ -599,8 +653,6 @@ const Checkout: React.FC = () => {
                           placeholder="Ajoutez des instructions spéciales pour la livraison ici..."
                         ></textarea>
                       </div>
-
-
                     </div>
                   </div>
                 )}
@@ -658,7 +710,7 @@ const Checkout: React.FC = () => {
                                         peer-checked:border-primaryColor peer-checked:bg-primaryColor"
                               ></div>
                             </label>
-                          ),
+                          )
                         )}
                       </div>
                       {paymentMethod && (
@@ -700,8 +752,6 @@ const Checkout: React.FC = () => {
                       )}
                     </div>
 
-
-
                     <div className="flex justify-between items-center">
                       <button
                         type="button"
@@ -712,7 +762,13 @@ const Checkout: React.FC = () => {
                       </button>
                       <button
                         type="submit"
-                        disabled={!isValid || loading || paymentLoading || submitLoading || !paymentMethod}
+                        disabled={
+                          !isValid ||
+                          loading ||
+                          paymentLoading ||
+                          submitLoading ||
+                          !paymentMethod
+                        }
                         className={`px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-primaryColor/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primaryColor ${!isValid || loading || !paymentMethod
                           ? "opacity-50 cursor-not-allowed"
                           : ""
@@ -736,7 +792,7 @@ const Checkout: React.FC = () => {
             products={checkoutProducts}
             setDiscountPercentage={setDiscountPercentage}
             discountPercentage={discountPercentage}
-            setCouponsId={setCouponsId}
+            setCoupon={setCoupon}
             deliveryPrice={deliveryPrice}
             total={checkoutTotal}
             calculateTotal={calculateTotal}
@@ -746,7 +802,6 @@ const Checkout: React.FC = () => {
             currentStep={currentStep}
             isValid={isValid}
           />
-
         </div>
       </div>
     </>

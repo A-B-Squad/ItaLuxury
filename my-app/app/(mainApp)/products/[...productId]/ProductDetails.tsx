@@ -1,7 +1,6 @@
 "use client";
 
 import { useToast } from "@/components/ui/use-toast";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import triggerEvents from "@/utlils/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
 import Cookies from "js-cookie";
@@ -9,7 +8,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
-import { ADD_TO_BASKET_MUTATION } from "../../../../graphql/mutations";
+import {
+  ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
+  ADD_TO_BASKET_MUTATION,
+} from "../../../../graphql/mutations";
 import {
   BASKET_QUERY,
   FETCH_USER_BY_ID,
@@ -18,6 +20,7 @@ import {
 import Breadcumb from "../../../components/Breadcumb";
 import {
   useBasketStore,
+  useProductComparisonStore,
   useProductsInBasketStore,
   usePruchaseOptions,
 } from "../../../store/zustand";
@@ -61,12 +64,12 @@ const ProductDetailsDrawer = dynamic(
   }
 );
 
-const InnerImageZoom = dynamic(() => import("react-inner-image-zoom"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full animate-pulse bg-gray-100 rounded-md" />
-  ),
-});
+import CustomInnerZoom from "./Components/CustomInnerZoom";
+import ActionButton from "./Components/ActionButton";
+import ProductAttr from "./Components/ProductAttrLaptop";
+import ProductAttrLaptop from "./Components/ProductAttrLaptop";
+import { sendGTMEvent } from "@next/third-parties/google";
+
 interface DecodedToken extends JwtPayload {
   userId: string;
 }
@@ -115,6 +118,15 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     skip: !decodedToken?.userId,
   });
 
+
+  // Fixed store destructuring to match actual property names
+  const { addToComparison, comparisonList } = useProductComparisonStore();
+
+  const isProductInCompare = useMemo(
+    () => comparisonList.some((p: any) => p.id === productDetails?.id),
+    [comparisonList, productDetails?.id]
+  );
+
   const {
     products: storedProducts,
     addProductToBasket,
@@ -127,8 +139,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       setSmallImages(productDetails.images);
     }
   }, [productDetails]);
-
-
 
   useEffect(() => {
     const token = Cookies.get("Token");
@@ -154,21 +164,19 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     } = productDetails;
 
     const discount = productDiscounts?.[0];
-    const categoryNames = categories
-      ?.map((category: { name: any }) => category.name)
-      .join(", ");
-
     const brandName = Brand?.name || "Unknown Brand";
     const colorName = Colors?.color || "No Color";
     const finalPrice = discount?.newPrice ?? price;
+    const reference = productDetails.reference;
 
-    triggerEvents("ViewContent", {
+    triggerEvents("PageView", {
       user_data: {
-        em: [userData?.fetchUsersById?.email.toLowerCase()],
-        fn: [userData?.fetchUsersById?.fullName],
-        ph: [userData?.fetchUsersById?.number],
-        country: ["tn"],
-        external_id: userData?.fetchUsersById.id,
+        user_email: [userData?.fetchUsersById.email.toLowerCase()],
+        user_fullName: [userData?.fetchUsersById.fullName],
+        user_phone: [userData?.fetchUsersById?.number],
+        user_country: ["tn"],
+        user_city: "",
+        user_id: decodedToken?.userId,
       },
       custom_data: {
         content_name: name,
@@ -179,24 +187,28 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         content_category: categoryNames,
         contents: [
           {
-            id,
+            item_id: id,
+            reference,
+            item_name: name,
+            value: finalPrice,
             quantity: 1,
             item_price: price,
-            brand: brandName,
+            item_brand: brandName,
+            item_category: categories[0]?.name,
+            item_category2: categories[1]?.name,
+            item_category3: categories[2]?.name,
             availability: inventory > 0 ? "in stock" : "out of stock",
-            condition: "new",
-            description,
-            color: colorName,
-            sizes: attributes
-              ?.filter((attr: { name: string }) =>
-                attr.name.toLowerCase().includes("size")
-              )
-              .map((attr: { value: any }) => attr.value),
+            item_description: description,
+            item_variant: colorName,
+            item_Att: attributes?.map(
+              (attr: { name: string; value: string }) =>
+                attr.name + " " + attr.value
+            ),
           },
         ],
       },
     });
-    pushToDataLayer("ViewContent");
+
     setDiscount(productDetails.productDiscounts[0]);
     setAttributes(productDetails.attributes);
   }, [productId]);
@@ -212,26 +224,45 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
+  const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
+
   const AddToBasket = async (product: any) => {
-    openPruchaseOptions(product);
     const price =
       product.productDiscounts.length > 0
         ? product.productDiscounts[0].newPrice
         : product.price;
     const addToCartData = {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
-        country: ["tn"],
-        external_id: userData?.fetchUsersById.id,
+        user_email: [userData?.fetchUsersById.email.toLowerCase()],
+        user_fullName: [userData?.fetchUsersById.fullName],
+        user_phone: [userData?.fetchUsersById?.number],
+        user_country: ["tn"],
+        user_city: "",
+        user_id: decodedToken?.userId,
       },
-      custom_data: {
-        content_name: productDetails?.name,
-        content_type: "product",
-        content_ids: [productDetails.id],
-        value: price,
+      ecommerce: {
         currency: "TND",
+        items: [
+          {
+            item_id: product.id,
+            reference: product.reference,
+            item_name: product.name,
+            item_category: product.categories[0]?.name,
+            item_category2: product.categories[1]?.name,
+            item_category3: product.categories[2]?.name,
+            item_variant: product.Colors.color,
+            item_price: product.productDiscounts?.length
+              ? product.productDiscounts[0].newPrice.toFixed(3)
+              : product.price.toFixed(3),
+            item_description: product.description,
+            item_Att: attributes?.map(
+              (attr: { name: string; value: string }) =>
+                attr.name + " " + attr.value
+            ),
+            quantity: product.actualQuantity || product.quantity,
+
+          },
+        ],
       },
     };
 
@@ -273,7 +304,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             });
             // Track Add to Cart
             triggerEvents("AddToCart", addToCartData);
-            pushToDataLayer("AddToCart");
           },
         });
       } catch (error) {
@@ -322,7 +352,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         className: "bg-green-600 text-white",
       });
       triggerEvents("AddToCart", addToCartData);
-      pushToDataLayer("AddToCart");
     }
     toggleIsUpdated();
   };
@@ -354,6 +383,66 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     },
   ];
 
+
+
+  const handleToggleFavorite = useCallback(() => {
+    if (decodedToken?.userId) {
+      const userId = decodedToken.userId;
+
+      addToFavorite({
+        variables: {
+          input: { userId, productId },
+        },
+        onCompleted: () => {
+          toast({
+            title: "Produit ajouté aux favoris",
+            description: `Le produit "${productDetails?.name}" a été ajouté à vos favoris.`,
+            className: "bg-primaryColor text-white",
+          });
+        },
+        onError: (error) => {
+          toast({
+            title: "Erreur",
+            description: `Une erreur est survenue en ajoutant le produit "${productDetails?.name}" aux favoris.`,
+            className: "bg-red-500 text-white",
+          });
+        },
+      });
+    } else {
+      toast({
+        title: "Veuillez vous connecter",
+        description:
+          "Vous devez être connecté pour ajouter ce produit à vos favoris.",
+        className: "bg-yellow-500 text-black",
+      });
+    }
+  }, [
+    decodedToken?.userId,
+    productId,
+    productDetails?.name,
+    addToFavorite,
+    toast,
+  ]);
+
+  const addToCompare = useCallback(
+    (product: any) => {
+      const isProductAlreadyInCompare = comparisonList.some(
+        (p: any) => p.id === product.id
+      );
+
+      if (!isProductAlreadyInCompare) {
+        addToComparison(product);
+      } else {
+        toast({
+          title: "Produit ajouté à la comparaison",
+          description: `Le produit "${productDetails?.name}" a été ajouté à la comparaison.`,
+          className: "bg-primaryColor text-white",
+        });
+      }
+    },
+    [comparisonList, addToComparison, productDetails?.name, toast]
+  );
+
   return (
     <div className="productDetails">
       <div className="container relative  ">
@@ -364,15 +453,12 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             <Breadcumb Path={categoriesPath} />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm gap-2 ">
-              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 flex lg:flex-row-reverse flex-col  items-center bg-white col-span-12 lg:col-span-6 w-full text-center">
+              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 flex lg:flex-row-reverse flex-col  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
                 <div className="relative shadow-sm overflow-hidden   flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
-                  <InnerImageZoom
-                    className=" h-fit flex items-center justify-center rounded "
+                  <CustomInnerZoom
+                    className="h-fit flex items-center justify-center rounded"
                     zoomSrc={bigImage || ""}
                     src={bigImage || ""}
-                    zoomType="hover"
-                    zoomScale={1.5}
-                    hideHint={true}
                   />
                   <span
                     className={`absolute top-2 right-2 p-2 ${productDetails?.inventory > 1 ? "bg-blueColor" : productDetails?.inventory === 1 ? "bg-gray-400 " : "bg-gray-400"} bg-blue text-xs font-400 text-white`}
@@ -401,8 +487,27 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 quantity={quantity}
                 handleIncreaseQuantity={handleIncreaseQuantity}
                 handleDecreaseQuantity={handleDecreaseQuantity}
+                handleToggleFavorite={handleToggleFavorite}
+                isProductInCompare={isProductInCompare}
+                addToCompare={addToCompare}
+              />
+
+              <ActionButton
+                productDetails={productDetails}
+                attributes={attributes}
+                userId={decodedToken?.userId}
+                discount={discount}
+                productId={productId}
+                AddToBasket={AddToBasket}
+                quantity={quantity}
+                handleIncreaseQuantity={handleIncreaseQuantity}
+                handleDecreaseQuantity={handleDecreaseQuantity}
+                handleToggleFavorite={handleToggleFavorite}
+                isProductInCompare={isProductInCompare}
+                addToCompare={addToCompare}
               />
             </div>
+            <ProductAttrLaptop attributes={attributes} />
           </div>
         )}
         <div className="Carousel voir aussi px-2 md:px-10 my-8 mb-[15%] ">

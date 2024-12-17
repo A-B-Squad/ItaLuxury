@@ -18,11 +18,7 @@ export const getBestSells = async (
                   }
                 }
               }
-            }, productDiscounts: {
-              include: {
-                Discount: true
-              }
-            }
+            }, productDiscounts: true,
           }
         },
         Category: true

@@ -9,12 +9,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import React from "react";
 import "./globals.css";
-import NotificationHandler from "./components/NotificationHandler";
-import { onMessage } from "firebase/messaging";
-import { useToast } from "@/components/ui/use-toast";
-import { messaging } from "@/lib/fireBase/firebase";
-import FirebaseNotificationHandler from "./components/NotfHandle";
-
 
 if (process.env.NODE_ENV !== "production") {
   // Adds messages only in a dev environment
@@ -79,21 +73,18 @@ function TawkToScript() {
     </Script>
   );
 }
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
- 
+
   return (
     <html lang="en">
       <head>
         <AnalyticsIntegration />
       </head>
       <body>
-        {/* <NotificationHandler /> */}
-        {/* <FirebaseNotificationHandler/> */}
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
         <WhatsAndBasketPopUp />
