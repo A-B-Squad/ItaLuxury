@@ -1,6 +1,5 @@
 import Link from "next/link";
 import React from "react";
-import prepRoute from "../../../Helpers/_prepRoute";
 import Subsubcategory from "./Subsubcategory";
 
 interface SubcategoryProps {
@@ -20,7 +19,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
   parentCategoryName,
 }) => {
   return (
-    <div className="flex relative flex-grow gap-3 flex-auto">
+    <div className=" relative grid grid-cols-2	 gap-3 ">
       {subcategories.map((subcategory: Subcategory, subIndex: number) => {
         return (
           <div key={subIndex} className="w-full relative gap-4  h-fit">

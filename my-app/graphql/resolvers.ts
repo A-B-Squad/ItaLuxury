@@ -25,7 +25,6 @@ import { contactUsQueries } from "./resolvers/queries/contactUsQueries/contactUs
 import { usersQueries } from "./resolvers/queries/usersQueries/usersQueries";
 import { couponsQueries } from "./resolvers/queries/coupons/couponsQueries";
 import { advertismentMutations } from "./resolvers/mutations/advertisementMutations/advertismentMutations";
-import { discountsQueries } from "./resolvers/queries/discountsQueries/discountsQueries";
 import { couponsMutations } from "./resolvers/mutations/couponsMutations/couponsMutations";
 import { colorMutations } from "./resolvers/mutations/colorsMutations/colorsMutations";
 import { brandMutations } from "./resolvers/mutations/brandMutations/brandMutations";
@@ -49,7 +48,6 @@ export const resolvers = {
     ...contactUsQueries,
     ...usersQueries,
     ...couponsQueries,
-    ...discountsQueries,
     ...apiCredentialsQueries,
   },
 

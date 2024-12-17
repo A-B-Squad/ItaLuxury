@@ -1,41 +1,42 @@
 import React from "react";
 import { IoImageOutline } from "react-icons/io5";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from "next/link";
+
 const FullWidthAds = ({
   FullAdsLoaded,
   FullImageAds,
   LinkTo,
 }: {
-  FullAdsLoaded: Boolean;
+  FullAdsLoaded: boolean;
   FullImageAds: string;
   LinkTo: string;
 }) => {
   return (
     <>
       {FullAdsLoaded && (
-        <div className="grid relative animate-pulse w-full h-52 mt-12  place-items-center rounded-lg bg-secondaryColor ">
+        <div className="grid relative animate-pulse w-full h-52 mt-12 place-items-center rounded-lg bg-secondaryColor">
           <IoImageOutline className="h-12 w-12 text-gray-500" />
         </div>
       )}
 
       {!FullAdsLoaded && !FullImageAds && (
-        <div className="rounded-xl relative w-full h-52 mt-12 bg-secondaryColor flex flex-col justify-center items-center ">
-          <p>{"Full Ads"}</p>
-          <p>180px x 960px</p>
+        <div className="rounded-xl relative w-full h-52 mt-12 bg-secondaryColor flex flex-col justify-center items-center">
+          <p>Full screen</p>
         </div>
       )}
 
       {FullImageAds && !FullAdsLoaded && (
         <Link href={LinkTo}>
-          <div className=" md:my-8  w-full mt-8 relative h-[85px] md:h-[200px]   ">
+          <div className="w-full relative aspect-[16/3] md:my-8 mt-8">
             <Image
-              className=" h-[85px] md:h-[200px]"
               src={FullImageAds}
-              layout="fill"
-              objectFit="cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 960px"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
               loading="eager"
-              alt="adsFullWidth"
+              alt="Full screen"
+              quality={100}
             />
           </div>
         </Link>

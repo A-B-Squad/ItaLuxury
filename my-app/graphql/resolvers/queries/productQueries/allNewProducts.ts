@@ -11,28 +11,24 @@ export const allNewProducts = async (
     const products = await prisma.product.findMany({
       where: {
         isVisible: visibleProduct || true,
-       
+
       },
       include: {
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         },
-        productDiscounts: {
-          include: {
-            Discount: true,
-          },
-        },
+        productDiscounts: true,
         baskets: true,
         reviews: true,
         favoriteProducts: true,
         attributes: true,
         Colors: true,
-      
+
         Brand: true,
       },
       take: takeValue,
       orderBy: {
-        createdAt: 'desc', 
+        createdAt: 'desc',
       },
     });
 

@@ -16,7 +16,7 @@ interface DecodedToken extends JwtPayload {
 const PurchaseOptions: React.FC = () => {
     const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
     const [totalPrice, setTotalPrice] = useState<number>(0);
-    const { quantityInBasket } = useProductsInBasketStore();
+    const {products: storedProducts , quantityInBasket } = useProductsInBasketStore();
     const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
     const { productData, closePruchaseOptions, isOpen } = usePruchaseOptions();
 
@@ -34,7 +34,6 @@ const PurchaseOptions: React.FC = () => {
         skip: !decodedToken?.userId || !isOpen,
     });
 
-    const { products: storedProducts } = useProductsInBasketStore();
 
     useEffect(() => {
         // Move token decoding to useEffect to ensure it runs after mount
@@ -58,15 +57,18 @@ const PurchaseOptions: React.FC = () => {
 
     const calculateTotalPrice = useCallback(() => {
         return productsInBasket.reduce((acc: number, product: any) => {
-            const productPrice =
-                product.productDiscounts?.length > 0
-                    ? product.productDiscounts[0].newPrice
-                    : product.price;
-            const quantity = product.quantity || product.actualQuantity || 0;
+            // Add optional chaining and nullish coalescing to handle potential undefined values
+            const productDiscounts = product.productDiscounts ?? product?.Product?.productDiscounts ?? [];
+
+            const productPrice = productDiscounts.length > 0
+                ? (productDiscounts[0].newPrice)
+                : (product.price ?? product?.Product?.price ?? 0);
+
+            const quantity = product.quantity ?? product.actualQuantity ?? 0;
+
             return acc + Number(productPrice) * quantity;
         }, 0);
     }, [productsInBasket]);
-
     useEffect(() => {
         const updatedTotalPrice = calculateTotalPrice();
         setTotalPrice(updatedTotalPrice);
@@ -132,6 +134,9 @@ const PurchaseOptions: React.FC = () => {
                                             src={productData.images[0]}
                                             alt={productData?.name || "Product"}
                                             className="object-cover rounded"
+                                            // placeholder="blur"
+                                            loading="lazy"
+                                            priority={false}
                                         />
                                     </div>
                                 )}

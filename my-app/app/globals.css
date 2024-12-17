@@ -13,7 +13,12 @@
   margin-top: 10px;
   text-align: center;
 }
-
+img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
 #imageContainer {
   display: flex;
   align-items: center;

@@ -3,7 +3,6 @@ import {
   getAuth,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { getMessaging, Messaging } from "firebase/messaging";
 
 import { getApp, getApps, initializeApp } from "firebase/app";
 
@@ -23,9 +22,6 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
-let messaging: Messaging | null = null;
-if (typeof window !== 'undefined') {
-  messaging = getMessaging(app);
-}
 
-export { app, auth, googleProvider, facebookProvider, messaging };
+
+export { app, auth, googleProvider, facebookProvider };

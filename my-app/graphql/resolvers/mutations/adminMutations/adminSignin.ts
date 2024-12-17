@@ -28,16 +28,19 @@ export const adminSignIn = async (
     }
 
     // Generate JWT token with 5 hour expiration
-    const token = jwt.sign({ userId: existingAdmin.id,role:existingAdmin.role }, jwtSecret, {
+    const token = jwt.sign({ userId: existingAdmin.id, role: existingAdmin.role }, jwtSecret, {
       expiresIn: "30d",
     });
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
+    const secureFlag = isDevelopment ? '' : 'Secure;';
 
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 30);
     // Set the cookie with a domain that covers both the admin and user projects
     res.setHeader(
       "Set-Cookie",
-      `AdminToken=${token}; Path=/; SameSite=Strict; Secure; Expires=${expirationDate.toUTCString()}`
+      `AdminToken=${token}; Path=/;Domain=${domain}; SameSite=Strict; ${secureFlag}; Expires=${expirationDate.toUTCString()}`
     );
 
     return token;

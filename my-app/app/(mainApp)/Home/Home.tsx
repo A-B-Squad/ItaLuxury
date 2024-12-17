@@ -28,10 +28,8 @@ const RightAdsCarousel = dynamic(
   () => import("../../components/adverstissment/RightAdsCarousel"),
   { ssr: false }
 );
-const SideAds = dynamic(
-  () => import("@/app/components/adverstissment/sideAds"),
-  { ssr: false }
-);
+import SideAds from "@/app/components/adverstissment/sideAds"
+import NoProductYet from "@/app/components/ProductCarousel/NoProductYet";
 const TitleProduct = dynamic(
   () => import("@/app/components/ProductCarousel/titleProduct"),
   { ssr: false }
@@ -52,8 +50,12 @@ const FullWidthAds = dynamic(
 );
 const ProductTabs = dynamic(
   () => import("@/app/components/ProductCarousel/productTabs"),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <NoProductYet />
+  }
 );
+
 const TopDeals = dynamic(() => import("./@TopDeals/TopDeals"), { ssr: false });
 const ClientServices = dynamic(() => import("./Components/ClientServices"), {
   ssr: false,
@@ -62,9 +64,6 @@ const MainCategoriesSlide = dynamic(
   () => import("./@mainCategoriesSlide/mainCategoriesSlide"),
   { ssr: false }
 );
-
-
-
 
 const Home = () => {
   const { data: leftAds, loading: loadingLeftAds } = useQuery(
@@ -158,6 +157,7 @@ const Home = () => {
           </section>
           <Services />
 
+
           <div className="view lg:px-10">
             {TopDealsSectionVisibility?.getSectionVisibility
               ?.visibility_status && (
@@ -196,7 +196,7 @@ const Home = () => {
                 </div>
               </div>
               <div className="Carousel_new_product relative  items-center gap-5 place-content-between grid grid-cols-12 ">
-                <div className="ads  flex-col gap-3  w-fit hidden  xl:flex xl:col-span-2">
+                <div className="sideImg  flex-col gap-3  w-fit hidden  xl:flex xl:col-span-2">
                   <SideAds
                     adsLoaded={loadingClinetContactSideAds}
                     image={
@@ -268,12 +268,12 @@ const Home = () => {
                     loadingProduct={loadingProducts_inDiscount_14}
                   />
                 </div>
-                <div className="ads w-fit  hidden xl:block xl:col-span-2">
+                <div className="sideImg w-fit  hidden xl:block xl:col-span-2">
                   <SideAds
                     adsLoaded={loadingRightAds}
                     image={rightAds?.advertismentByPosition[0]?.images[0]}
                     link={rightAds?.advertismentByPosition[0]?.link}
-                    adsPositon={"Right Ads"}
+                    adsPositon={"Right Img"}
                   />
                 </div>
               </div>

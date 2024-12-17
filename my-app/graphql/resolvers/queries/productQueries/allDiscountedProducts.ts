@@ -37,9 +37,7 @@ export const productsDiscounts = async (
             categories: {
               include: { subcategories: { include: { subcategories: true } } },
             },
-            productDiscounts: {
-              include: { Discount: true },
-            },
+            productDiscounts: true,
 
             baskets: true,
             reviews: true,
@@ -49,7 +47,6 @@ export const productsDiscounts = async (
             Brand: true,
           },
         },
-        Discount: true,
       },
       take: takeValue,
       orderBy: currentOrdering,

@@ -5,6 +5,7 @@ import Dropdown from "./CategoryDropdown/Dropdown";
 import TopHeader from "./TopHeader";
 import { useQuery } from "@apollo/client";
 import { COMPANY_INFO_QUERY } from "@/graphql/queries";
+import ContactBanner from "./ContactBanner";
 
 const Header = () => {
   const [showCategoryDropdown, setShowDropdown] = useState<Boolean>(false);
@@ -34,7 +35,7 @@ const Header = () => {
 
   return (
     <>
-      {/* <Contact CompanyInfoData={CompanyInfoData} /> */}
+      <ContactBanner CompanyInfoData={CompanyInfoData} />
 
       <div
         className={`header  relative  flex justify-center shadow-md bg-white  px-10 md:px-14  ${isHeaderFixed ? "fixed top-0  left-0 right-0 z-[100]" : "relative"}`}

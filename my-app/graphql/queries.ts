@@ -136,9 +136,7 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
@@ -176,9 +174,7 @@ export const TAKE_14_PRODUCTS_PRICE_20 = gql`
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
@@ -231,9 +227,7 @@ export const TOP_DEALS = gql`
           price
           newPrice
           dateOfEnd
-          Discount {
-            percentage
-          }
+          
         }
       }
     }
@@ -343,9 +337,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           productDiscounts {
             price
             newPrice
-            Discount {
-              percentage
-            }
+            
           }
         }
         categories {
@@ -412,10 +404,7 @@ export const BEST_SALES_QUERY = gql`
         productDiscounts {
           newPrice
           price
-          Discount {
-            id
-            percentage
-          }
+         
         }
         categories {
           id
@@ -579,9 +568,7 @@ export const TAKE_14_PRODUCTS = gql`
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
@@ -625,9 +612,7 @@ export const TAKE_14_PRODUCTS_IN_DISCOUNT = gql`
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }

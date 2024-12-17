@@ -1,5 +1,4 @@
 // fbq.js
-
 export function pageview() {
   try {
     if (window.fbq) {
@@ -47,39 +46,39 @@ export function getFbc() {
 }
 
 
-export function loadFbPixel() {
-  if (typeof window === 'undefined') return;
+// export function loadFbPixel() {
+//   if (typeof window === 'undefined') return;
 
-  if (!window.fbq) {
-    // Load the Pixel script dynamically
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-    document.head.appendChild(script);
+//   if (!window.fbq) {
+//     // Load the Pixel script dynamically
+//     const script = document.createElement('script');
+//     script.async = true;
+//     script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+//     document.head.appendChild(script);
 
-    // Initialize fbq
-    window.fbq = function () {
-      (window.fbq.q = window.fbq.q || []).push(arguments);
-    };
-    window.fbq.loaded = true;
-  }
-}
+//     // Initialize fbq
+//     window.fbq = function () {
+//       (window.fbq.q = window.fbq.q || []).push(arguments);
+//     };
+//     window.fbq.loaded = true;
+//   }
+// }
 
 
 
-export function init(FB_PIXEL_ID) {
-  if (typeof window === 'undefined') return; // Ensure it's on the client side
+// export function init(FB_PIXEL_ID) {
+//   if (typeof window === 'undefined') return;
 
-  if (FB_PIXEL_ID) {
-    loadFbPixel();
+//   if (FB_PIXEL_ID) {
+//     loadFbPixel();
 
-    window.fbq = window.fbq || function () {
-      (window.fbq.q = window.fbq.q || []).push(arguments);
-    };
+//     window.fbq = window.fbq || function () {
+//       (window.fbq.q = window.fbq.q || []).push(arguments);
+//     };
 
-    window.fbq('init', FB_PIXEL_ID);
-    pageview();
-  } else {
-    console.error('[Meta Pixel] Pixel ID is required for initialization.');
-  }
-}
+//     window.fbq('init', FB_PIXEL_ID);
+//     pageview();
+//   } else {
+//     console.error('[Meta Pixel] Pixel ID is required for initialization.');
+//   }
+// }

@@ -8,7 +8,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:4001/api/:path*', // Redirect API calls to admin server
+        destination: 'http://localhost:4001/api/:path*',
       },
     ];
   },
@@ -94,10 +94,11 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: `
-              default-src 'self' 
-                ${process.env.NODE_ENV === 'development'
-                ? 'http://localhost:4000 http://localhost:4001'
-                : 'https://ita-luxury.com https://admin.ita-luxury.com'};
+              default-src 'self' ${
+                process.env.NODE_ENV === 'development'
+                  ? 'http://localhost:4000 http://localhost:4001'
+                  : 'https://ita-luxury.com https://admin.ita-luxury.com'
+              };
               script-src 'self' 'unsafe-inline' 'unsafe-eval'
                 https://apis.google.com
                 https://www.google-analytics.com
@@ -105,48 +106,55 @@ const nextConfig = {
                 https://connect.facebook.net
                 https://konnect.network
                 https://embed.tawk.to
-                https://*.tawk.to
                 https://cdn.jsdelivr.net
                 https://cdnjs.cloudflare.com
                 https://ajax.googleapis.com
-                https://static.cloudflareinsights.com
-                ${process.env.NODE_ENV === 'development'
-                ? 'http://localhost:4000 http://localhost:4001'
-                : 'https://ita-luxury.com https://admin.ita-luxury.com'};
-              style-src 'self' 'unsafe-inline'
+                https://js.pusher.com
+                https://static.cloudflareinsights.com;
+                
+                style-src 'self' 'unsafe-inline'
                 https://fonts.googleapis.com
                 https://embed.tawk.to
-                ${process.env.NODE_ENV === 'development'
-                ? 'http://localhost:4000 http://localhost:4001'
-                : 'https://ita-luxury.com https://admin.ita-luxury.com'};
-              img-src 'self' data: https: http: blob:;
-              font-src 'self' data: 
+                https://js.pusher.com
+                https://www.googletagmanager.com;
+                
+                img-src 'self' data: https: http: blob:;
+                
+                font-src 'self' data: 
                 https://fonts.gstatic.com
+                https://js.pusher.com
                 https://fonts.googleapis.com
-                https://embed.tawk.to
-                https://*.tawk.to;
-              connect-src 'self' 
+                https://embed.tawk.to;
+                
+                connect-src 'self' 
                 https: 
                 wss:
                 https://apis.google.com
+                https://js.pusher.com
                 https://www.google-analytics.com
                 https://www.googletagmanager.com
                 https://connect.facebook.net
                 https://konnect.network
                 https://embed.tawk.to
-                https://*.tawk.to
                 https://cdn.jsdelivr.net
                 https://cdnjs.cloudflare.com
                 https://ajax.googleapis.com
+                https://www.ita-luxury.com/api/facebookApi
                 https://static.cloudflareinsights.com
-                ${process.env.NODE_ENV === 'development'
-                ? 'http://localhost:4000 http://localhost:4001 ws://localhost:4000 ws://localhost:4001'
-                : 'https://ita-luxury.com https://admin.ita-luxury.com'};
+                ${
+                  process.env.NODE_ENV === 'development'
+                    ? 'http://localhost:4000 http://localhost:4001 ws://localhost:4000 ws://localhost:4001'
+                    : 'https://ita-luxury.com https://admin.ita-luxury.com'
+                };
+              
               frame-src 'self' 
                 https: 
-                ${process.env.NODE_ENV === 'development'
-                ? 'http://localhost:4000 http://localhost:4001'
-                : 'https://ita-luxury.com https://admin.ita-luxury.com'};
+                ${
+                  process.env.NODE_ENV === 'development'
+                    ? 'http://localhost:4000 http://localhost:4001'
+                    : 'https://ita-luxury.com https://admin.ita-luxury.com'
+                };
+              
               object-src 'none';
               base-uri 'self';
               form-action 'self';
@@ -216,6 +224,13 @@ const nextConfig = {
 
   // Webpack configuration
   webpack: (config, { dev, isServer }) => {
+
+
+      config.module.rules.push({
+        test: /firebase-messaging-sw\.js$/,
+        use: 'file-loader',
+      });
+    
     if (!dev && !isServer) {
       config.optimization.minimize = true;
     }

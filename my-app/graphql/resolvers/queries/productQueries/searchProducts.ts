@@ -43,8 +43,8 @@ export const searchProducts = async (
     const whereCondition: Record<string, any> = {
       ...(visibleProduct !== null &&
         visibleProduct !== undefined && {
-          isVisible: visibleProduct,
-        }),
+        isVisible: visibleProduct,
+      }),
       ...(query && {
         OR: [
           { name: { contains: query, mode: "insensitive" } },
@@ -59,8 +59,8 @@ export const searchProducts = async (
       }),
       ...(minPrice !== undefined &&
         maxPrice !== undefined && {
-          price: { gte: minPrice, lte: maxPrice },
-        }),
+        price: { gte: minPrice, lte: maxPrice },
+      }),
       ...(categoryName && { categories: { some: { name: categoryName } } }),
       ...(brandName && { Brand: { name: brandName } }),
       ...(colorName && { Colors: { color: colorName } }),
@@ -94,7 +94,7 @@ export const searchProducts = async (
           categories: {
             include: { subcategories: { include: { subcategories: true } } },
           },
-          productDiscounts: { include: { Discount: true } },
+          productDiscounts: true,
           baskets: true,
           reviews: true,
           favoriteProducts: true,

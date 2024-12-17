@@ -1,7 +1,8 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 import * as fbq from "./pixel";
 import { getUserIpAddress } from "./getUserIpAddress";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 function hashData(data: string | undefined): string {
   if (!data) return '';
@@ -102,11 +103,6 @@ async function createSendingData(
   };
 }
 
-
-
-
-
-
 export default async function triggerEvents(eventName: string, eventData: any) {
   try {
     const response = await fetch("/api/facebookApi", {
@@ -126,16 +122,15 @@ export default async function triggerEvents(eventName: string, eventData: any) {
     const eventId: string = uuidv4();
     const sendData = await createSendingData(eventData, eventName, eventId);
 
-    // Log the data being sent for debugging
-    console.log('Sending data to Facebook:', JSON.stringify(sendData, null, 2));
-
     // Client-side event
     fbq.event(eventName, sendData.custom_data, { eventID: eventId });
 
     // Create FormData object
     const formData = new FormData();
+    sendGTMEvent(JSON.stringify([sendData]))
     formData.append('data', JSON.stringify([sendData]));
     formData.append('access_token', ACCESS_TOKEN);
+    formData.append('test_event_code', "TEST53186");
 
     // Server-side event
     const pixelResponse = await fetch(
@@ -158,3 +153,4 @@ export default async function triggerEvents(eventName: string, eventData: any) {
     throw error;
   }
 }
+

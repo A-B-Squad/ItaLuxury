@@ -1,6 +1,6 @@
 import QuickActionButton from "@/app/components/ProductBox/components/QuickActionButton";
 import FavoriteProductButton from "@/app/components/ProductBox/FavoriteProductButton";
-import { useComparedProductsStore } from "@/app/store/zustand";
+import { useProductComparisonStore } from "@/app/store/zustand";
 import { JwtPayload } from "jsonwebtoken";
 import { useCallback } from "react";
 import { FaRegEye } from "react-icons/fa";
@@ -29,19 +29,16 @@ const ProductActions = ({
     openProductDetails
 }: ProductProps) => {
 
-    const { addProductToCompare, productsInCompare } = useComparedProductsStore(
-        (state) => ({
-            addProductToCompare: state.addProductToCompare,
-            productsInCompare: state.products,
-        })
+    const { addToComparison, comparisonList } = useProductComparisonStore(
+
     );
 
     const onAddToCompare = useCallback(() => {
-        const isProductAlreadyInCompare = productsInCompare.some(
+        const isProductAlreadyInCompare = comparisonList.some(
             (p: any) => p.id === product.id
         );
         if (!isProductAlreadyInCompare) {
-            addProductToCompare(product);
+            addToComparison(product);
         } else {
             toast({
                 title: "Produit ajouté à la comparaison",
@@ -49,7 +46,7 @@ const ProductActions = ({
                 className: "bg-primaryColor text-white",
             });
         }
-    }, [product, productsInCompare, addProductToCompare]);
+    }, [product, comparisonList, addToComparison]);
 
     return (
         <ul className="plus_button lg:opacity-0 group-hover:opacity-100 absolute right-3 z-40 top-14 flex flex-col gap-3">

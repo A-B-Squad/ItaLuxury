@@ -1,16 +1,20 @@
-import prepRoute from '@/app/Helpers/_prepRoute';
-import { useBasketStore, useProductDetails, useProductsInBasketStore, usePruchaseOptions } from '@/app/store/zustand';
-import { useToast } from '@/components/ui/use-toast';
-import { ADD_TO_BASKET_MUTATION } from '@/graphql/mutations';
-import { BASKET_QUERY } from '@/graphql/queries';
-import { pushToDataLayer } from '@/utlils/pushToDataLayer';
-import triggerEvents from '@/utlils/trackEvents';
-import { useMutation } from '@apollo/client';
-import { JwtPayload } from 'jsonwebtoken';
-import Link from 'next/link';
-import { useCallback, useEffect, useMemo } from 'react';
-import ProductActions from './ProductActions';
-import ProductImage from './ProductImage';
+import {
+    useBasketStore,
+    useProductDetails,
+    useProductsInBasketStore,
+    usePruchaseOptions,
+} from "@/app/store/zustand";
+import { useToast } from "@/components/ui/use-toast";
+import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import { BASKET_QUERY } from "@/graphql/queries";
+import triggerEvents from "@/utlils/trackEvents";
+import { useMutation } from "@apollo/client";
+import { JwtPayload } from "jsonwebtoken";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo } from "react";
+import ProductActions from "./ProductActions";
+import ProductImage from "./ProductImage";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 interface DecodedToken extends JwtPayload {
     userId: string;
@@ -32,7 +36,7 @@ const ProductDetails: React.FC<ProductProps> = ({
     decodedToken,
     userData,
     setIsFavorite,
-    isFavorite
+    isFavorite,
 }) => {
     const { toast } = useToast();
     const { toggleIsUpdated } = useBasketStore();
@@ -43,7 +47,7 @@ const ProductDetails: React.FC<ProductProps> = ({
     const {
         products: storedProducts,
         addProductToBasket,
-        increaseProductInQtBasket
+        increaseProductInQtBasket,
     } = useProductsInBasketStore();
 
     const productInBasket = useMemo(() => {
@@ -56,11 +60,12 @@ const ProductDetails: React.FC<ProductProps> = ({
     }, [decodedToken, basketData, storedProducts]);
 
     const AddToBasket = async (product: any, quantity: number = 1) => {
-        openPruchaseOptions(product)
+        openPruchaseOptions(product);
 
-        const price = product.productDiscounts.length > 0
-            ? product.productDiscounts[0].newPrice
-            : product.price;
+        const price =
+            product.productDiscounts.length > 0
+                ? product.productDiscounts[0].newPrice
+                : product.price;
         const addToCartData = {
             user_data: {
                 em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -77,6 +82,8 @@ const ProductDetails: React.FC<ProductProps> = ({
                 currency: "TND",
             },
         };
+        triggerEvents("AddToCart", addToCartData);
+        pushToDataLayer("AddToCart");
 
         if (decodedToken) {
             try {
@@ -113,23 +120,29 @@ const ProductDetails: React.FC<ProductProps> = ({
                             description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
                             className: "bg-primaryColor text-white",
                         });
-                        triggerEvents("AddToCart", addToCartData);
-                        pushToDataLayer("AddToCart");
                     },
                 });
             } catch (error) {
                 console.error("Error adding to basket:", error);
                 toast({
                     title: "Erreur",
-                    description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+                    description:
+                        "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
                     className: "bg-red-600 text-white",
                 });
             }
         } else {
-            const isProductAlreadyInBasket = storedProducts.some((p: any) => p.id === product?.id);
-            const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+            const isProductAlreadyInBasket = storedProducts.some(
+                (p: any) => p.id === product?.id
+            );
+            const filteredProduct = storedProducts.find(
+                (p: any) => p.id === product?.id
+            );
 
-            if (filteredProduct && filteredProduct.actualQuantity + quantity > product.inventory) {
+            if (
+                filteredProduct &&
+                filteredProduct.actualQuantity + quantity > product.inventory
+            ) {
                 toast({
                     title: "Quantité non disponible",
                     description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
@@ -153,33 +166,33 @@ const ProductDetails: React.FC<ProductProps> = ({
                 description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
                 className: "bg-green-600 text-white",
             });
-            triggerEvents("AddToCart", addToCartData);
-            pushToDataLayer("AddToCart");
         }
         toggleIsUpdated();
     };
-    const handleCategoryStorage = useCallback((e: React.MouseEvent) => {
-        if (!product?.categories?.[0]) return;
-        const categories = [
-            product.categories[0].name,
-            product.categories[1]?.name,
-            product.categories[2]?.name,
-            product.name
-        ].filter(Boolean);
+    const handleCategoryStorage = useCallback(
+        (e: React.MouseEvent) => {
+            if (!product?.categories?.[0]) return;
+            const categories = [
+                product.categories[0].name,
+                product.categories[1]?.name,
+                product.categories[2]?.name,
+                product.name,
+            ].filter(Boolean);
 
-        try {
-            localStorage.setItem('productCategories', JSON.stringify(categories));
-        } catch (error) {
-            console.error('Error storing categories in localStorage:', error);
-        }
-    }, [product]);
+            try {
+                localStorage.setItem("productCategories", JSON.stringify(categories));
+            } catch (error) {
+                console.error("Error storing categories in localStorage:", error);
+            }
+        },
+        [product]
+    );
+
     return (
         <div
             key={product?.id}
             className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-sm px-2 h-4/5 md:h-full lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row place-self-center items-center gap-5 relative"
         >
-
-
             <ProductImage product={product} />
             <ProductActions
                 product={product}
@@ -209,8 +222,8 @@ const ProductDetails: React.FC<ProductProps> = ({
 
                     <ul className="text-xs md:text-sm text-gray-500 tracking-wider mt-2">
                         {product?.attributes
-                            .slice(0, 2)
-                            .map((attribute: any, i: number) => (
+                            ?.slice(0, 2)
+                            ?.map((attribute: any, i: number) => (
                                 <li key={i}>
                                     <span className="text-sm font-semibold">
                                         {attribute.name}

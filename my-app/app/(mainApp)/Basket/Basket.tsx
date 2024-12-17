@@ -9,7 +9,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { HiPlus } from "react-icons/hi2";
 import { RiSubtractLine } from "react-icons/ri";
 
-import { useBasketStore, useCheckoutStore, useProductsInBasketStore } from "@/app/store/zustand";
+import {
+  useBasketStore,
+  useCheckoutStore,
+  useProductsInBasketStore,
+} from "@/app/store/zustand";
 import {
   Table,
   TableBody,
@@ -20,7 +24,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 import triggerEvents from "@/utlils/trackEvents";
 import { Trash2Icon } from "lucide-react";
 import {
@@ -33,6 +36,7 @@ import {
   COMPANY_INFO_QUERY,
   FETCH_USER_BY_ID,
 } from "../../../graphql/queries";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 // Interface definitions
 interface DecodedToken extends JwtPayload {
@@ -78,7 +82,7 @@ const Basket: React.FC = () => {
     increaseProductInQtBasket,
     decreaseProductInQtBasket,
   } = useProductsInBasketStore();
-  const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore()
+  const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore();
 
   // Hooks
   const { toast } = useToast();
@@ -106,6 +110,8 @@ const Basket: React.FC = () => {
       const decoded = jwt.decode(token) as DecodedToken;
       setDecodedToken(decoded);
     }
+
+
   }, []);
 
   useEffect(() => {
@@ -117,6 +123,7 @@ const Basket: React.FC = () => {
   useEffect(() => {
     const updatedTotalPrice = calculateTotalPrice();
     setTotalPrice(updatedTotalPrice);
+
   }, [products]);
 
   // Queries
@@ -156,6 +163,7 @@ const Basket: React.FC = () => {
 
   const handleQuantityChange = useCallback(
     (productId: string, change: number) => {
+
       const updatedProducts = storedProducts.map((product) => {
         if (product.id === productId) {
           const newQuantity = Math.max(
@@ -166,14 +174,14 @@ const Basket: React.FC = () => {
         }
         return product;
       });
-
+      const quantityInBasket = updatedProducts.reduce(
+        (total, product) =>
+          total + (product.actualQuantity ?? product.quantity),
+        0
+      )
       setProducts(updatedProducts);
       setQuantityInBasket(
-        updatedProducts.reduce(
-          (total, product) =>
-            total + (product.actualQuantity ?? product.quantity),
-          0
-        )
+        quantityInBasket
       );
     },
     [storedProducts, setQuantityInBasket]
@@ -278,14 +286,13 @@ const Basket: React.FC = () => {
 
           <Table>
             <TableCaption>Bienvenue sur notre site.</TableCaption>
-            <TableHeader >
+            <TableHeader>
               <TableRow className="w-full ">
                 <TableHead className="text-base">Description</TableHead>
                 <TableHead className="text-base">Quantité</TableHead>
                 <TableHead className="text-base">Prix</TableHead>
               </TableRow>
             </TableHeader>
-
 
             <TableBody>
               {(products?.length > 0 ? products : []).map((product) => (
@@ -295,7 +302,10 @@ const Basket: React.FC = () => {
                       <Image
                         alt={product.name}
                         loading="lazy"
-                        src={product.images?.[0] || "https://via.placeholder.com/150"}
+                        src={
+                          product.images?.[0] ||
+                          "https://via.placeholder.com/150"
+                        }
                         layout="fill"
                         objectFit="contain"
                       />
@@ -303,9 +313,14 @@ const Basket: React.FC = () => {
                     <div className="ml-4">
                       <Link
                         href={`/products/tunisie?productId=${product.id}`}
-                        className="font-semibold text-sm text-gray-800">{product.name}</Link>
+                        className="font-semibold text-sm text-gray-800"
+                      >
+                        {product.name}
+                      </Link>
                       <p className="text-xs text-gray-500">
-                        {product.categories?.map((category) => category.name).join(", ") || "No categories"}
+                        {product.categories
+                          ?.map((category) => category.name)
+                          .join(", ") || "No categories"}
                       </p>
                     </div>
                   </TableCell>
@@ -339,9 +354,13 @@ const Basket: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell className="w-[30%]">
-                    {(product?.productDiscounts?.length > 0 && product.productDiscounts[0]?.newPrice) ? (
+                    {product?.productDiscounts?.length > 0 &&
+                      product.productDiscounts[0]?.newPrice ? (
                       <h4 className="text-md w-max font-bold text-[#333]">
-                        {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
+                        {Number(product.productDiscounts[0].newPrice).toFixed(
+                          3
+                        )}{" "}
+                        TND
                       </h4>
                     ) : (
                       <h4 className="text-md w-max font-bold text-[#333]">
@@ -354,19 +373,25 @@ const Basket: React.FC = () => {
                         : ""
                         }`}
                     >
-                      {product?.productDiscounts?.length > 0 && Number(product.productDiscounts[0].price).toFixed(3)} TND
+                      {product?.productDiscounts?.length > 0 &&
+                        Number(product.price).toFixed(
+                          3
+                        )}{" "}
+                      TND
                     </h4>
                   </TableCell>
                   <TableCell>
-                    <Trash2Icon size={23} className="cursor-pointer" color="red" onClick={() => { handleRemoveProduct(product.id, product?.basketId) }} />
+                    <Trash2Icon
+                      size={23}
+                      className="cursor-pointer"
+                      color="red"
+                      onClick={() => {
+                        handleRemoveProduct(product.id, product?.basketId);
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
-              ))
-
-              }
-
-
-
+              ))}
             </TableBody>
           </Table>
         </div>
@@ -409,8 +434,7 @@ const Basket: React.FC = () => {
               onClick={() => {
                 setCheckoutProducts(products);
                 setCheckoutTotal(Number(totalPrice));
-
-                // Track Add to Cart
+                // Track InitiateCheckout
                 triggerEvents("InitiateCheckout", {
                   user_data: {
                     em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -435,13 +459,10 @@ const Basket: React.FC = () => {
                     ),
                   },
                 });
-                pushToDataLayer("Initiate Checkout");
+                pushToDataLayer("InitiateCheckout");
               }}
-              href={
-                "/Checkout"
-              }
+              href={"/Checkout"}
               className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
-
             >
               Procéder au paiement
             </Link>

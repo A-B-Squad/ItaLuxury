@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
 import { Loader2 } from "lucide-react";
+
 import {
     BASKET_QUERY,
     COMPANY_INFO_QUERY,
@@ -19,6 +20,7 @@ import {
     GET_GOVERMENT_INFO,
 } from "@/graphql/queries";
 import Link from "next/link";
+import { pushToDataLayer } from "@/utlils/pushToDataLayer";
 
 // Define interfaces
 interface DecodedToken extends JwtPayload {
@@ -27,13 +29,16 @@ interface DecodedToken extends JwtPayload {
 
 interface Product {
     id: string;
+    reference: string;
     name: string;
     images: string[];
     price: number;
     inventory: number;
     quantity: number;
     actualQuantity: number;
-    productDiscounts: { newPrice: number }[];
+    productDiscounts: Array<{ newPrice: number }>;
+    Colors: { color: string };
+    categories: Array<{ name: string }>;
 }
 
 interface Governorate {
@@ -73,9 +78,10 @@ const OrderNow: React.FC<OrderNowProps> = ({
     const router = useRouter();
 
     // Calculate total
-    const total = productDetails?.productDiscounts?.length > 0
-        ? productDetails.productDiscounts[0].newPrice * ActualQuantity
-        : productDetails?.price * ActualQuantity;
+    const total =
+        productDetails?.productDiscounts?.length > 0
+            ? productDetails.productDiscounts[0].newPrice * ActualQuantity
+            : productDetails?.price * ActualQuantity;
 
     // GraphQL setup
     const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
@@ -132,13 +138,44 @@ const OrderNow: React.FC<OrderNowProps> = ({
         return finalTotal.toFixed(3);
     };
 
+    const sendNotification = async (
+        orderId: string,
+        productsNumber: number,
+        userName: string,
+        orderTotal: number
+    ) => {
+        try {
+            const response = await fetch("/api/send-notification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    orderId,
+                    productsNumber,
+                    userName,
+                    orderTotal,
+                }),
+            });
+
+            if (response.ok) {
+                console.log("Notification sent successfully!");
+            } else {
+                console.error("Failed to send notification:", await response.json());
+            }
+        } catch (error) {
+            console.error("Error sending notification:", error);
+        }
+    };
     // Form submission handler
     const onSubmit = async (data: any) => {
-        if (isSubmitting) return; // Prevent double submission
+        if (isSubmitting) return;
         setIsSubmitting(true);
 
         const userEmail = isGuest ? data.email : userData?.fetchUsersById?.email;
-        const userName = isGuest ? data.fullname : userData?.fetchUsersById?.fullName;
+        const userName = isGuest
+            ? data.fullname
+            : userData?.fetchUsersById?.fullName;
         const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
 
         try {
@@ -168,7 +205,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         productId: productDetails.id,
                         productQuantity: ActualQuantity,
                         price: productDetails.price,
-                        discountedPrice: productDetails.productDiscounts?.[0]?.newPrice || 0,
+                        discountedPrice:
+                            productDetails.productDiscounts?.[0]?.newPrice || 0,
                     },
                 ],
                 guestEmail: userEmail,
@@ -188,7 +226,15 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
             if (response.data) {
                 const customId = response.data.createCheckout.customId;
-
+                sendNotification(
+                    customId,
+                    1,
+                    userName,
+                    productDetails?.productDiscounts &&
+                        productDetails.productDiscounts.length > 0
+                        ? productDetails.productDiscounts[0].newPrice
+                        : productDetails.price
+                );
                 // Track purchase event
                 triggerEvents("Purchase", {
                     user_data: {
@@ -208,6 +254,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         num_items: ActualQuantity,
                     },
                 });
+                pushToDataLayer("Purchase");
 
                 router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
             }
@@ -215,7 +262,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
             console.error("Checkout error:", error);
             toast({
                 title: "Error",
-                description: "Une erreur s'est produite lors de la commande. Veuillez réessayer.",
+                description:
+                    "Une erreur s'est produite lors de la commande. Veuillez réessayer.",
                 variant: "destructive",
             });
         } finally {
@@ -281,8 +329,6 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 </div>
             )}
 
-
-
             <div className=" w-full p-4 pb-2 bg-white border-2 gap-">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {!isValid && Object.keys(errors).length > 0 && (
@@ -292,9 +338,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                     )}
                     <div className="flex flex-col w-full">
                         <div className="w-full">
-                            <h2 className="text-2xl font-bold mb-4">
-                                Acheter maintenant
-                            </h2>
+                            <h2 className="text-2xl font-bold mb-4">Acheter maintenant</h2>
                             <div className="inputs grid md:grid-cols-2  ">
                                 <div className="fullName">
                                     {/* Full Name Input */}
@@ -302,8 +346,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                         htmlFor="fullname"
                                         className="mt-4  block text-sm font-medium"
                                     >
-                                        <CiUser className="inline-block mr-2 mb-1" /> Nom et
-                                        Prénom
+                                        <CiUser className="inline-block mr-2 mb-1" /> Nom et Prénom
                                     </label>
                                     <input
                                         type="text"
@@ -349,8 +392,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                         htmlFor="phone_1"
                                         className="mt-4  block text-sm font-medium"
                                     >
-                                        <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
-                                        1
+                                        <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1
                                     </label>
                                     <div className="flex items-center">
                                         <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
@@ -383,8 +425,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                         htmlFor="phone_2"
                                         className="mt-4  block text-sm font-medium"
                                     >
-                                        <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
-                                        2 (optional)
+                                        <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2
+                                        (optional)
                                     </label>
                                     <div className="flex items-center">
                                         <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
@@ -453,8 +495,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                                 id="email"
                                                 {...register("email", {
                                                     pattern: {
-                                                        value:
-                                                            /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                                                         message: "Adresse e-mail invalide",
                                                     },
                                                 })}
@@ -469,10 +510,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                             </div>
                                         </div>
                                         {errors.email && (
-                                            <p
-                                                className="mt-2 text-sm text-red-600"
-                                                id="email-error"
-                                            >
+                                            <p className="mt-2 text-sm text-red-600" id="email-error">
                                                 {errors.email.message as string}
                                             </p>
                                         )}
@@ -510,16 +548,10 @@ const OrderNow: React.FC<OrderNowProps> = ({
                             Confirmation et mode de paiement
                         </h2>
 
-
-
-
                         {/* Coupon Section */}
                         <div className="Coupons  mt-6 mb-3 md:px-4 ">
                             <div className="flex items-center justify-between  ">
-                                <label
-                                    htmlFor="coupon"
-                                    className="block text-sm font-semibold"
-                                >
+                                <label htmlFor="coupon" className="block text-sm font-semibold">
                                     Code promo
                                 </label>
                                 <button
@@ -558,9 +590,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
                         <div className="info md:px-4">
                             <div className="Total py-2 flex w-full items-center justify-between">
-                                <p className="text-2xl font-medium text-gray-900">
-                                    Total :
-                                </p>
+                                <p className="text-2xl font-medium text-gray-900">Total :</p>
                                 <p className="text-2xl font-semibold text-gray-900">
                                     {calculateTotal()} TND
                                 </p>
@@ -586,13 +616,16 @@ const OrderNow: React.FC<OrderNowProps> = ({
                             </p>
                         </div>
 
-
                         <div className="submit flex flex-col  w-full items-center mt-5">
                             <button
                                 type="submit"
-                                disabled={productDetails?.inventory <= 0 || isSubmitting || loading}
+                                disabled={
+                                    productDetails?.inventory <= 0 || isSubmitting || loading
+                                }
                                 className={`
-                                ${(productDetails?.inventory <= 0 || isSubmitting || loading)
+                                ${productDetails?.inventory <= 0 ||
+                                        isSubmitting ||
+                                        loading
                                         ? "opacity-50 cursor-not-allowed"
                                         : "cursor-pointer hover:bg-opacity-80"
                                     } 
@@ -614,7 +647,6 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 </form>
             </div>
         </div>
-
     );
 };
 

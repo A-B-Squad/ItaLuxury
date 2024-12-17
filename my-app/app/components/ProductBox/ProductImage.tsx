@@ -8,7 +8,7 @@ import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import FavoriteProductButton from "./FavoriteProductButton";
 import {
-  useComparedProductsStore,
+  useProductComparisonStore,
   useProductDetails,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
@@ -40,11 +40,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
 
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-  const { addProductToCompare, productsInCompare } = useComparedProductsStore(
-    (state) => ({
-      addProductToCompare: state.addProductToCompare,
-      productsInCompare: state.products,
-    })
+  const { addToComparison, comparisonList } = useProductComparisonStore(
   );
 
   const primaryImageUrl = useMemo(() => {
@@ -60,11 +56,11 @@ const ProductImage: React.FC<ProductImageProps> = ({
   }, [product.images, hasSecondImage]);
 
   const onAddToCompare = useCallback(() => {
-    const isProductAlreadyInCompare = productsInCompare.some(
+    const isProductAlreadyInCompare = comparisonList.some(
       (p: any) => p.id === product.id
     );
     if (!isProductAlreadyInCompare) {
-      addProductToCompare(product);
+      addToComparison(product);
     } else {
       toast({
         title: "Produit ajouté à la comparaison",
@@ -72,7 +68,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
         className: "bg-primaryColor text-white",
       });
     }
-  }, [product, productsInCompare, addProductToCompare, toast]);
+  }, [product, comparisonList]);
 
   const handleImageLoad = useCallback(() => {
     setIsImageLoaded(true);
@@ -88,11 +84,10 @@ const ProductImage: React.FC<ProductImageProps> = ({
       >
         <div className="relative h-44 w-44">
           <div
-            className={`absolute inset-0 bg-gray-100 transition-opacity duration-300 ${
-              isImageLoaded && (
-                <Image src={"/sale.png"} width={100} height={100} />
-              )
-            }`}
+            className={`absolute inset-0 ${isImageLoaded && ("bg-gray-100")} transition-opacity duration-300 ${isImageLoaded && (
+              <Image src={"/sale.png"} width={100} height={100} />
+            )
+              }`}
           />
 
           {hasImages && (
@@ -102,12 +97,11 @@ const ProductImage: React.FC<ProductImageProps> = ({
               layout="fill"
               objectFit="contain"
               quality={75}
-              sizes="176px"
+              sizes="180px"
               priority={true}
               onLoad={handleImageLoad}
-              className={`transition-opacity duration-300 ${
-                isImageLoaded ? "opacity-100" : "opacity-0"
-              }`}
+              className={`transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"
+                }`}
             />
           )}
 
@@ -127,11 +121,10 @@ const ProductImage: React.FC<ProductImageProps> = ({
       </Link>
 
       <ul
-        className={`plus_button absolute h-fit flex ${
-          view === 1
-            ? "right-0 top-2/4 -translate-y-2/4 flex-col"
-            : "bottom-0 left-2/4 -translate-x-2/4"
-        } items-center justify-center lg:opacity-0 lg:group-hover:opacity-100 z-30 gap-2`}
+        className={`plus_button absolute h-fit flex ${view === 1
+          ? "right-0 top-2/4 -translate-y-2/4 flex-col"
+          : "bottom-0 left-2/4 -translate-x-2/4"
+          } items-center justify-center lg:opacity-0 lg:group-hover:opacity-100 z-30 gap-2`}
       >
         <QuickActionButton
           icon={<FaRegEye color="white" className="text-xs md:text-base" />}

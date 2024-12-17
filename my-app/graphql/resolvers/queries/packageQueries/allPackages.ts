@@ -21,11 +21,7 @@ export const getAllPackages = async (_: any, __: any, { prisma }: Context) => {
               include: {
                 product: {
                   include: {
-                    productDiscounts: {
-                      include: {
-                        Discount: true,
-                      },
-                    },
+                    productDiscounts: true
                   },
                 },
               },
@@ -68,11 +64,7 @@ export const getAllPackages = async (_: any, __: any, { prisma }: Context) => {
               include: {
                 product: {
                   include: {
-                    productDiscounts: {
-                      include: {
-                        Discount: true,
-                      },
-                    },
+                    productDiscounts: true
                   },
                 },
               },
