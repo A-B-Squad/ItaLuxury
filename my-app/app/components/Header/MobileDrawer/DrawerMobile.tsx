@@ -3,7 +3,7 @@
 import { useQuery } from "@apollo/client";
 import { Drawer, IconButton } from "@material-tailwind/react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { FiUser, FiHeart } from "react-icons/fi";
 import { IoIosLogOut } from "react-icons/io";
@@ -13,22 +13,16 @@ import { GrContact } from "react-icons/gr";
 import { useDrawerMobileStore } from "../../../store/zustand";
 import Category from "./MainCategory";
 import { CATEGORY_QUERY, FETCH_USER_BY_ID } from "../../../../graphql/queries";
-import Cookies from "js-cookie";
-import { JwtPayload } from "jsonwebtoken";
+
 import jwt from "jsonwebtoken";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import Loading from "@/app/(mainApp)/Collections/loading";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/useAuth";
+import { removeToken } from "@/lib/auth/token";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 
-interface Subcategory {
-  name: string;
-  subcategories?: Subcategory[];
-}
 
 function DrawerMobile() {
   const { toast } = useToast();
@@ -36,27 +30,20 @@ function DrawerMobile() {
 
   const { isOpen, closeCategoryDrawer } = useDrawerMobileStore();
   const { loading, error, data } = useQuery(CATEGORY_QUERY);
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
   const [activeCategory, setActiveCategory] = useState<string>("");
 
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
+
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
   const handleLogout = async () => {
     try {
       // Supprimer le token
-      Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
-
+      removeToken();
 
       // Nettoyer le sessionStorage
       window.sessionStorage.removeItem("products-in-basket");
@@ -107,7 +94,7 @@ function DrawerMobile() {
       >
         <div className="px-2 py-3 flex items-center justify-center text-white bg-primaryColor">
           <Link
-            href={`${decodedToken?.userId ? "/Collections/tunisie" : "/signin"}`}
+            href={`${isAuthenticated ? "/Collections/tunisie" : "/signin"}`}
             className="font-bold text-lg flex items-center gap-2"
             onClick={closeCategoryDrawer}
           >
@@ -186,7 +173,7 @@ function DrawerMobile() {
             <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
-                href={`${decodedToken?.userId ? "/FavoriteList" : "/signin"}`}
+                href={`${isAuthenticated ? "/FavoriteList" : "/signin"}`}
                 className="flex items-center gap-2 w-full"
                 onClick={closeCategoryDrawer}
 

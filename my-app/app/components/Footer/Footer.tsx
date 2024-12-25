@@ -8,19 +8,15 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 import { CATEGORY_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
+import { useAuth } from "@/lib/auth/useAuth";
 import { useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt from "jsonwebtoken";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import { MdEmail, MdLocalPhone } from "react-icons/md";
 
-interface DecodedToken extends jwt.JwtPayload {
-  userId: string;
-}
 
 // Reusable SocialIcon component with hover effect
 const SocialIcon = ({
@@ -41,7 +37,7 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const { data: companyInfoData } = useQuery(COMPANY_INFO_QUERY);
   const { data: categoriesData } = useQuery(CATEGORY_QUERY);
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
 
   const companyInfo = companyInfoData?.companyInfo;
   const categories = categoriesData?.categories || [];
@@ -55,14 +51,6 @@ const Footer = () => {
     });
     setEmail("");
   };
-
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
 
   return (
     <div className="Footer container pb-24 md:pb-0  bg-white shado-lg pt-2  border-t-2 text-black flex flex-col items-center ">
@@ -168,7 +156,7 @@ const Footer = () => {
           <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
           <div className="flex flex-col">
             <Link
-              href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
+              href={isAuthenticated ? `/TrackingPackages` : "/signin"}
               className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
             >
               Mes Commandes
@@ -214,7 +202,7 @@ const Footer = () => {
         </div>
       </div>
 
-      
+
       {/* Mobile accordion */}
       <div className="flex flex-col lg:hidden w-full px-5">
         <Accordion type="single" collapsible>
@@ -299,13 +287,13 @@ const Footer = () => {
             <AccordionContent>
               <div className="flex flex-col">
                 <Link
-                  href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
+                  href={isAuthenticated ? `/TrackingPackages` : "/signin"}
                   className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                 >
                   Mes Commandes
                 </Link>
                 <Link
-                  href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
+                  href={isAuthenticated ? `/FavoriteList` : "/signin"}
                   className="py-1 tracking-wider hover:opacity-75 transition-all text-gray-700 text-sm"
                 >
                   Ma Liste D'envies

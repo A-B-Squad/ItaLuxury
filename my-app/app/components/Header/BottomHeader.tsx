@@ -5,21 +5,20 @@ import {
   useProductsInBasketStore,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { removeToken } from "@/lib/auth/token";
+import { useAuth } from "@/lib/auth/useAuth";
+import { sendGTMEvent } from "@next/third-parties/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { FiUser } from "react-icons/fi";
 import { HiMiniBars3CenterLeft } from "react-icons/hi2";
 import { IoIosLogOut } from "react-icons/io";
 import { IoBagHandleOutline } from "react-icons/io5";
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 function debounce<T extends (...args: any[]) => void>(
   func: T,
-  wait: number,
+  wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
@@ -34,16 +33,9 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
   const { openCategoryDrawer } = useDrawerMobileStore();
   const { openBasketDrawer } = useDrawerBasketStore();
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const {quantityInBasket} = useProductsInBasketStore();
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
+  const { quantityInBasket } = useProductsInBasketStore();
+  const { decodedToken, isAuthenticated } = useAuth();
 
-  }, []);
 
   const handleScroll = useCallback(() => {
     if (window.scrollY > 50) {
@@ -64,8 +56,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const handleLogout = async () => {
     try {
       // Supprimer le token
-      Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
-
+      removeToken()
       // Nettoyer le sessionStorage
       window.sessionStorage.removeItem("products-in-basket");
       window.sessionStorage.removeItem("comparedProducts");
@@ -93,6 +84,26 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
       });
     }
   };
+
+  // Add tracking function for navigation
+  const handleNavigation = (pageName: string) => {
+    sendGTMEvent({
+      event: "page_view",
+      page_title: pageName,
+      page_location: window.location.href,
+      user_data: isAuthenticated
+        ? {
+          country: ["tn"],
+          external_id: decodedToken?.userId,
+        }
+        : undefined,
+      facebook_data: {
+        content_name: pageName,
+        content_type: "page",
+      },
+    });
+  };
+
   return (
     <div
       className={` transition-all duration-300 ${isFixed ? "fixed top-0 w-full bg-[#fffffff2] z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative sm:my-3 mt-0 bg-white"}`}
@@ -124,16 +135,19 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
         <div className="dropDown hidden md:flex">
           <ul className="flex gap-5 ">
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
-              <Link rel="preload" href={`/`}>
+              <Link
+                rel="preload"
+                href={`/`}
+                onClick={() => handleNavigation("Accueil")}
+              >
                 Accueil
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
               <Link
                 rel="preload"
-                href={
-                  `/Collections/tunisie?page=1`}
-
+                href={`/Collections/tunisie?page=1`}
+                onClick={() => handleNavigation("Boutique")}
               >
                 Boutique
               </Link>
@@ -145,15 +159,19 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                   pathname: `/Collections/tunisie`,
                   query: {
                     choice: "in-discount",
-
                   },
                 }}
+                onClick={() => handleNavigation("Promotions")}
               >
                 Promotions
               </Link>
             </li>
             <li className=" cursor-pointer hover:text-primaryColor transition-all">
-              <Link rel="preload" href={`/Contact-us`}>
+              <Link
+                rel="preload"
+                href={`/Contact-us`}
+                onClick={() => handleNavigation("Contact")}
+              >
                 Contact
               </Link>
             </li>
@@ -176,14 +194,14 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
         <div className="list md:hidden items-center gap-5 cursor-pointer text-xl flex">
           <ul className="flex  gap-5">
-            {!decodedToken?.userId && (
+            {!isAuthenticated && (
               <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
                 <Link rel="preload" href={`/signin`}>
                   <FiUser />
                 </Link>
               </li>
             )}
-            {decodedToken?.userId && (
+            {isAuthenticated && (
               <li
                 onClick={handleLogout}
                 className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"

@@ -23,11 +23,11 @@ const config: Config = {
       },
       colors: {
         primaryColor: "#212E53",
+        secondaryColor: "#BEC4D4",
         lightBeige: "#F0EDD4",
-        secondaryColor: "#EBACA2",
         lightBlack: "#22222280",
         TopBanner: "#53366e",
-        blueColor: "#4A919E",
+        blueColor: "#7C88A9",
         pinkColor: "#CE6A6B",
         lightBlue: "#BED3C3"
       },

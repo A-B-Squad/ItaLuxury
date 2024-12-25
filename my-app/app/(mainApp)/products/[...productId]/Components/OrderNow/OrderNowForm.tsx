@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { GiShoppingBag } from "react-icons/gi";
 import { useForm } from "react-hook-form";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
+
 import { CiMail, CiPhone, CiUser } from "react-icons/ci";
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
@@ -20,12 +19,10 @@ import {
     GET_GOVERMENT_INFO,
 } from "@/graphql/queries";
 import Link from "next/link";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
 // Define interfaces
-interface DecodedToken extends JwtPayload {
-    userId: string;
-}
 
 interface Product {
     id: string;
@@ -56,7 +53,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
     ActualQuantity,
 }) => {
     // State management
-    const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+    const { decodedToken, setDecodedToken, isAuthenticated } = useAuth();
     const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
     const [discountPercentage, setDiscountPercentage] = useState<number>(0);
     const [couponsId, setCouponsId] = useState<string>("");
@@ -102,15 +99,12 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
     const { data: userData } = useQuery(FETCH_USER_BY_ID, {
         variables: { userId: decodedToken?.userId },
-        skip: !decodedToken?.userId,
+        skip: !isAuthenticated,
     });
 
     // Authentication check
     useEffect(() => {
-        const token = Cookies.get("Token");
-        if (token) {
-            const decoded = jwt.decode(token) as DecodedToken;
-            setDecodedToken(decoded);
+        if (isAuthenticated) {
             setIsLoggedIn(true);
             setIsGuest(false);
         } else {
@@ -225,9 +219,9 @@ const OrderNow: React.FC<OrderNowProps> = ({
             });
 
             if (response.data) {
-                const customId = response.data.createCheckout.customId;
+                const orderId = response.data.createCheckout.customId;
                 sendNotification(
-                    customId,
+                    orderId,
                     1,
                     userName,
                     productDetails?.productDiscounts &&
@@ -254,9 +248,36 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         num_items: ActualQuantity,
                     },
                 });
-                pushToDataLayer("Purchase");
+                sendGTMEvent({
+                    event: "purchase",
+                    ecommerce: {
+                        currency: "TND",
+                        value: parseFloat(calculateTotal()),
+                        items: [
+                            { id: productDetails.id, quantity: ActualQuantity }
+                        ],
+                        transaction_id: orderId,
+                    },
+                    user_data: {
+                        em: [userEmail.toLowerCase()],
+                        fn: [userName],
+                        ph: [userPhone],
+                        country: ["tn"],
+                        ct: checkoutInput.governorateId,
+                        external_id: decodedToken?.userId
+                    },
+                    facebook_data: {
+                        content_name: "Checkout",
+                        content_type: "product",
+                        currency: "TND",
+                        value: parseFloat(calculateTotal()),
+                        contents: [{ id: productDetails.id, quantity: ActualQuantity }],
 
-                router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
+                        num_items: ActualQuantity
+                    }
+                });
+
+                router.replace(`/Checkout/EndCheckout?packageId=${orderId}`);
             }
         } catch (error) {
             console.error("Checkout error:", error);

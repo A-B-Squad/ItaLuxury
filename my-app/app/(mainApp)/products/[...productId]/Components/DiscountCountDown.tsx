@@ -18,7 +18,8 @@ const DiscountCountDown = ({ discount }: any) => {
     hours: 0,
     minutes: 0,
     seconds: 0,
-    isExpired: false
+    isExpired: false,
+    show: false
   });
 
   const calculateTimeRemaining = useCallback(() => {
@@ -33,16 +34,28 @@ const DiscountCountDown = ({ discount }: any) => {
         hours: 0,
         minutes: 0,
         seconds: 0,
-        isExpired: true
+        isExpired: true,
+        show: false
       };
     }
 
+    // Calculate time components
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Show only if 24 hours or less remaining
+    const totalHours = days * 24 + hours;
+    const show = totalHours <= 24;
+
     return {
-      days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-      minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-      seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      isExpired: false
+      days,
+      hours,
+      minutes,
+      seconds,
+      isExpired: false,
+      show
     };
   }, [targetDate]);
 
@@ -72,6 +85,11 @@ const DiscountCountDown = ({ discount }: any) => {
       <span className="text-xs text-gray-500 ml-1">{label}</span>
     </div>
   );
+
+  // Don't render anything if more than 24 hours remaining
+  if (!timeRemaining.show) {
+    return null;
+  }
 
   return (
     <>

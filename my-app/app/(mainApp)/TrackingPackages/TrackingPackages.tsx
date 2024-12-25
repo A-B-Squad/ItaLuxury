@@ -1,8 +1,6 @@
 "use client";
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useQuery, useLazyQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import {
   COMPANY_INFO_QUERY,
   GET_PACKAGES_BY_ID,
@@ -20,6 +18,7 @@ import {
 import Loading from "./loading";
 import moment from "moment-timezone";
 import "moment/locale/fr";
+import { useAuth } from "@/lib/auth/useAuth";
 
 interface Product {
   product: any;
@@ -46,9 +45,6 @@ interface Package {
   createdAt: string;
 }
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 
 type Status =
   | "RETOUR"
@@ -63,18 +59,12 @@ const TrackingPackages: React.FC = () => {
   const [searchInput, setSearchInput] = useState("");
   const [packages, setPackages] = useState<Package[]>([]);
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [openPackageId, setOpenPackageId] = useState<string | null>(null);
   const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+  const { decodedToken, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
+
 
   const [userPackages] = useLazyQuery(GET_PACKAGES_BY_USER_ID);
 
@@ -94,10 +84,10 @@ const TrackingPackages: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (decodedToken?.userId) {
+      if (isAuthenticated) {
         try {
           const { data } = await userPackages({
-            variables: { userId: decodedToken.userId },
+            variables: { userId: decodedToken?.userId },
           });
 
           if (data && data.packageByUserId) {
@@ -109,10 +99,10 @@ const TrackingPackages: React.FC = () => {
       }
     };
 
-    if (!searchPerformed && decodedToken?.userId) {
+    if (!searchPerformed && isAuthenticated) {
       fetchData();
     }
-  }, [userPackages, searchPerformed, decodedToken?.userId]);
+  }, [userPackages, searchPerformed, isAuthenticated]);
 
   useEffect(() => {
     if (searchInput.length && packageById) {
@@ -174,7 +164,7 @@ const TrackingPackages: React.FC = () => {
     setOpenPackageId((prev) => (prev === packageId ? null : packageId));
   };
 
-  if (!decodedToken?.userId) {
+  if (!isAuthenticated) {
     return (
       <div className="flex  justify-center py-10 ">
         <div className="border shadow-md p-6 w-full h-fit md:w-4/5 bg-white text-center rounded-lg">
@@ -217,9 +207,8 @@ const TrackingPackages: React.FC = () => {
                 {filteredPackages.map((pkg) => (
                   <React.Fragment key={pkg.id}>
                     <TableRow
-                      className={`hover:bg-gray-50 overflow-x-auto ${
-                        isOpen(pkg.id) ? "bg-gray-100" : ""
-                      } cursor-pointer`}
+                      className={`hover:bg-gray-50 overflow-x-auto ${isOpen(pkg.id) ? "bg-gray-100" : ""
+                        } cursor-pointer`}
                       onClick={() => handleRowClick(pkg.id)}
                     >
                       <TableCell className="text-xs lg:text-sm ">

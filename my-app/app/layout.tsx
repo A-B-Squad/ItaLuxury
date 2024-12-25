@@ -1,5 +1,5 @@
 import AnalyticsIntegration from "@/app/components/AnalyticsIntegration";
-import TabBar from "@/app/components/TabBar";
+import TabBarMobile from "@/app/components/TabBarMobile";
 import WhatsAndBasketPopUp from "@/app/components/WhatsAndBasketPopUp";
 import { Toaster } from "@/components/ui/toaster";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
@@ -52,7 +52,6 @@ function TawkToScript() {
         var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
         Tawk_API.customStyle = {
 		visibility : {
-	
       mobile : {
 				position : 'br',
 				xOffset : '10px',
@@ -88,7 +87,7 @@ export default function RootLayout({
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
         <WhatsAndBasketPopUp />
-        <TabBar />
+        <TabBarMobile />
         <TawkToScript />
       </body>
     </html>

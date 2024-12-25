@@ -1,18 +1,14 @@
-// Import necessary dependencies and components
 "use client";
 import { CONTACT_US_MUTATION } from "@/graphql/mutations";
 import { useMutation } from "@apollo/client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { CldUploadWidget } from "next-cloudinary";
 import { useToast } from "@/components/ui/use-toast";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { useAuth } from "@/lib/auth/useAuth";
 
 // Define interfaces for type safety
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 
 interface FormData {
   email: string;
@@ -32,10 +28,10 @@ const ContactUsForm: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>();
   const [fileName, setFileName] = useState<string>("");
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [file, setFile] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [createContactUs] = useMutation(CONTACT_US_MUTATION);
+  const { decodedToken } = useAuth();
 
   // Step 2: Define form submission handler
   const onSubmit = async (data: FormData) => {
@@ -74,16 +70,9 @@ const ContactUsForm: React.FC = () => {
     }
   };
 
-  // Step 3: Decode JWT token on component mount
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
 
-  // Step 4: Handle file upload
+
+  // Step 3: Handle file upload
 
 
   const handleFileInputChange = (event: any) => {

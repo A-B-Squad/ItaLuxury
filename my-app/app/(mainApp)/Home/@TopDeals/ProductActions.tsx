@@ -1,18 +1,15 @@
 import QuickActionButton from "@/app/components/ProductBox/components/QuickActionButton";
 import FavoriteProductButton from "@/app/components/ProductBox/FavoriteProductButton";
 import { useProductComparisonStore } from "@/app/store/zustand";
-import { JwtPayload } from "jsonwebtoken";
+import { useAuth } from "@/lib/auth/useAuth";
 import { useCallback } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
-interface DecodedToken extends JwtPayload {
-    userId: string;
-}
+
 interface ProductProps {
     product: any;
     onAddToBasket: (product: any, quantity: number) => void;
-    decodedToken: DecodedToken | null;
     isFavorite: boolean;
     setIsFavorite: (value: boolean) => void;
     openProductDetails: (product: any) => void;
@@ -23,15 +20,14 @@ interface ProductProps {
 const ProductActions = ({
     product,
     onAddToBasket,
-    decodedToken, toast,
+     toast,
     isFavorite,
     setIsFavorite,
     openProductDetails
 }: ProductProps) => {
 
-    const { addToComparison, comparisonList } = useProductComparisonStore(
-
-    );
+    const { addToComparison, comparisonList } = useProductComparisonStore();
+  const { decodedToken } = useAuth();
 
     const onAddToCompare = useCallback(() => {
         const isProductAlreadyInCompare = comparisonList.some(

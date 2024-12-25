@@ -2,9 +2,6 @@ import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useMemo, useState } from "react";
 
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 
@@ -20,10 +17,9 @@ import FullViewDetails from "./FullViewDetails";
 import ProductImage from "./ProductImage";
 import ProductLabels from "./ProductLabels";
 import ProductName from "./ProductName";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 
 interface ProductBoxProps {
   product: any;
@@ -32,13 +28,13 @@ interface ProductBoxProps {
 const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   const { toast } = useToast();
   const { view, changeProductView } = useAllProductViewStore();
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const {
@@ -52,7 +48,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   useEffect(() => {
@@ -60,22 +56,16 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       changeProductView(3);
     }
   }, [window.location]);
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
+
 
   const productInBasket = useMemo(() => {
-    if (decodedToken?.userId && basketData?.basketByUserId) {
+    if (isAuthenticated && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
         (item: any) => item.Product.id === product.id
       );
     }
     return storedProducts.find((product: any) => product.id === product.id);
-  }, [decodedToken, basketData, storedProducts, product.id]);
+  }, [isAuthenticated, basketData, storedProducts, product.id]);
 
 
 
@@ -104,8 +94,45 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       },
     };
     triggerEvents("AddToCart", addToCartData);
+    sendGTMEvent({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "TND",
+        value: product.productDiscounts.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price,
+        items: [{
+          item_id: product.id,
+          item_name: product.name,
+          quantity: product.actualQuantity || product.quantity,
+          price: product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : product.price
+        }]
+      },
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.email.id
+      },
+      facebook_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        contents: {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity
+        },
+        value: product.productDiscounts.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price,
+        currency: "TND"
+      }
+    });
 
-    if (decodedToken) {
+    if (isAuthenticated) {
       try {
         const currentBasketQuantity = productInBasket
           ? productInBasket.quantity || productInBasket.actualQuantity

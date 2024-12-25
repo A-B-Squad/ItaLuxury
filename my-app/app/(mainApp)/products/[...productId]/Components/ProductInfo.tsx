@@ -8,10 +8,9 @@ import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import { MdAddShoppingCart } from "react-icons/md";
 import { RiSubtractFill } from "react-icons/ri";
 import DiscountCountDown from "./DiscountCountDown";
-import OrderNow from "./OrderNow";
-import ProductAttr from "./ProductAttrLaptop";
-import RatingStars from "./RatingStars";
+import OrderNow from "./OrderNow/OrderNowForm";
 import ProductAttrMobile from "./ProductAttrMobile";
+import RatingStarsMobile from "./RatingStarsMobile";
 // Separate component for hover functionality
 const HoverButton = memo(({ title, icon, onClick }: any) => {
   const [showPopover, setShowPopover] = useState(false);
@@ -157,7 +156,7 @@ const ProductInfo = memo(({
         </div>
 
         <ProductAttrMobile attributes={attributes} />
-        <RatingStars productId={productId} userId={userId} toast={toast} />
+        <RatingStarsMobile productId={productId} userId={userId} toast={toast} />
 
         <OrderNow ActualQuantity={quantity} productDetails={productDetails} />
 

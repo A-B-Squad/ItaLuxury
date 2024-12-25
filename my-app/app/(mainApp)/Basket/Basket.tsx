@@ -1,8 +1,5 @@
 "use client";
-
 import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
@@ -36,12 +33,11 @@ import {
   COMPANY_INFO_QUERY,
   FETCH_USER_BY_ID,
 } from "../../../graphql/queries";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
 // Interface definitions
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 
 interface Product {
   id: string;
@@ -71,7 +67,8 @@ interface Product {
 
 const Basket: React.FC = () => {
   // State declarations
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
@@ -103,19 +100,8 @@ const Basket: React.FC = () => {
     }, 0);
   }, [products]);
 
-  // Effects
   useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-
-
-  }, []);
-
-  useEffect(() => {
-    if (!decodedToken?.userId) {
+    if (!isAuthenticated) {
       setProducts(storedProducts);
     }
   }, [storedProducts]);
@@ -129,7 +115,7 @@ const Basket: React.FC = () => {
   // Queries
   const { refetch } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
     onCompleted: (data) => {
       const fetchedProducts = data.basketByUserId?.map((basket: any) => ({
         ...basket.Product,
@@ -152,7 +138,7 @@ const Basket: React.FC = () => {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   useQuery(COMPANY_INFO_QUERY, {
@@ -270,7 +256,8 @@ const Basket: React.FC = () => {
     },
     [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
-  // Render component
+
+
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-8">
@@ -374,7 +361,7 @@ const Basket: React.FC = () => {
                         }`}
                     >
                       {product?.productDiscounts?.length > 0 &&
-                        Number(product.price).toFixed(
+                        Number(product.productDiscounts[0].price).toFixed(
                           3
                         )}{" "}
                       TND
@@ -435,6 +422,39 @@ const Basket: React.FC = () => {
                 setCheckoutProducts(products);
                 setCheckoutTotal(Number(totalPrice));
                 // Track InitiateCheckout
+                sendGTMEvent({
+                  event: "begin_checkout",
+                  ecommerce: {
+                    currency: "TND",
+                    value: totalPrice,
+                    items: products.map(product => ({
+                      item_id: product.id,
+                      quantity: product.actualQuantity || product.quantity
+                    }))
+                  },
+                  user_data: {
+                    em: [userData?.fetchUsersById.email.toLowerCase()],
+                    fn: [userData?.fetchUsersById.fullName],
+                    ph: [userData?.fetchUsersById?.number],
+                    country: ["tn"],
+                    external_id: userData?.fetchUsersById.id
+                  },
+                  facebook_data: {
+                    content_name: "InitiateCheckout",
+                    content_type: "product",
+                    currency: "TND",
+                    value: totalPrice,
+                    contents: products.map(product => ({
+                      id: product.id,
+                      quantity: product.actualQuantity || product.quantity,
+                    })),
+                    num_items: products.reduce(
+                      (sum, product) =>
+                        sum + (product?.actualQuantity || product?.quantity || 0),
+                      0
+                    )
+                  }
+                });
                 triggerEvents("InitiateCheckout", {
                   user_data: {
                     em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -459,7 +479,6 @@ const Basket: React.FC = () => {
                     ),
                   },
                 });
-                pushToDataLayer("InitiateCheckout");
               }}
               href={"/Checkout"}
               className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"

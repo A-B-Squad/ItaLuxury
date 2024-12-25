@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { CiStar } from "react-icons/ci";
 
-const RatingStars = ({ productId, userId, toast }: any) => {
+const RatingStarsMobile = ({ productId, userId, toast }: any) => {
     const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
     const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
     const [addRating] = useMutation(ADD_RATING_MUTATION);
@@ -22,7 +22,7 @@ const RatingStars = ({ productId, userId, toast }: any) => {
         five: 0,
     });
     const [isRatingLoading, setIsRatingLoading] = useState<boolean>(false);
-    const [showRatingSection, setShowRatingSection] = useState<boolean>(false); // State to control visibility
+    const [showRatingSection, setShowRatingSection] = useState<boolean>(false);
 
     const handleRatingSubmit = async (currentIndex: React.SetStateAction<number>) => {
         if (!userId) {
@@ -84,10 +84,7 @@ const RatingStars = ({ productId, userId, toast }: any) => {
 
 
 
-        <div className=" ">
-
-
-
+        <div className=" block lg:hidden">
             {showRatingSection ? (
                 <>
                     <div
@@ -169,4 +166,4 @@ const RatingStars = ({ productId, userId, toast }: any) => {
     );
 };
 
-export default RatingStars;
+export default RatingStarsMobile;

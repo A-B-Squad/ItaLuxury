@@ -39,24 +39,23 @@ const ActionButton = memo((
             <div className="Quantity flex items-center mt-4 space-x-3">
                 <h3 className="tracking-wider font-semibold text-lg text-primaryColor">Quantité:</h3>
 
-                <div className="flex items-center gap-2 divide-x divide-gray-300 rounded border border-gray-300">
+                <div className="flex items-center gap-2 di rounded border border-gray-300">
                     <button
                         type="button"
-                        className="px-3 py-1 text-lg font-semibold cursor-pointer"
+                        className="px-3 py-1 text-lg font-semibold border-r border-gray-300 cursor-pointer"
                         disabled={quantity === 1}
                         onClick={handleDecreaseQuantity}
                     >
                         <RiSubtractFill className="text-gray-600" />
                     </button>
-                    <button
-                        type="button"
-                        className="px-4 py-2 border-l border-gray-300 text-md font-semibold"
+                    <span
+                        className="px-4 py-2 text-md 300 font-semibold"
                     >
                         {quantity}
-                    </button>
+                    </span>
                     <button
                         type="button"
-                        className={`${quantity === productDetails.inventory ? "opacity-50" : ""} px-3 py-1 text-lg font-semibold cursor-pointer`}
+                        className={`${quantity === productDetails.inventory ? "opacity-50" : ""} px-3 py-1 text-lg border-l border-gray-300 font-semibold cursor-pointer`}
                         disabled={quantity === productDetails.inventory}
                         onClick={handleIncreaseQuantity}
                     >

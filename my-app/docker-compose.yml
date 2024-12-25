@@ -44,36 +44,36 @@ services:
     env_file:
       - .env
   
-  # client-prod:
-  #   depends_on:
-  #     - db
-  #   environment: # Environment variables for the PostgreSQL container
-  #     - POSTGRES_DB=postgres # Default database name
-  #     - POSTGRES_USER=${DB_USER} # Username for accessing the database (variable)
-  #     - POSTGRES_PASSWORD=${DB_PASSWORD} # Password for accessing the database (variable)
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.prod
-  #   ports:
-  #     - "8080:8080"
-  #   develop:
-  #     watch:
-  #       - path: ./package.json
-  #         action: rebuild
-  #       - path: ./next.config.mjs
-  #         action: rebuild
-  #       - path: ./package-lock.json
-  #         action: rebuild
-  #       - path: ./.env
-  #         action: rebuild
-  #       - path: .
-  #         target: /graphql
-  #         action: sync
-  #       - path: .
-  #         target: /app
-  #         action: sync
-  #       - path: .
-  #         target: /componants
-  #         action: sync
-  #   env_file:
-  #     - .env
+  client-prod:
+    depends_on:
+      - db
+    environment: # Environment variables for the PostgreSQL container
+      - POSTGRES_DB=postgres # Default database name
+      - POSTGRES_USER=${DB_USER} # Username for accessing the database (variable)
+      - POSTGRES_PASSWORD=${DB_PASSWORD} # Password for accessing the database (variable)
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8080:8080"
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./next.config.mjs
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        - path: ./.env
+          action: rebuild
+        - path: .
+          target: /graphql
+          action: sync
+        - path: .
+          target: /app
+          action: sync
+        - path: .
+          target: /componants
+          action: sync
+    env_file:
+      - .env
