@@ -1,23 +1,18 @@
 "use client"
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BASKET_QUERY, COMPANY_INFO_QUERY } from '@/graphql/queries';
 import { useQuery } from '@apollo/client';
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from 'next/legacy/image';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useProductsInBasketStore, usePruchaseOptions } from '../store/zustand';
-
-interface DecodedToken extends JwtPayload {
-    userId: string;
-}
+import { useAuth } from '@/lib/auth/useAuth';
 
 const PurchaseOptions: React.FC = () => {
     const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
     const [totalPrice, setTotalPrice] = useState<number>(0);
-    const {products: storedProducts , quantityInBasket } = useProductsInBasketStore();
-    const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+    const { products: storedProducts, quantityInBasket } = useProductsInBasketStore();
+    const { decodedToken, isAuthenticated } = useAuth();
     const { productData, closePruchaseOptions, isOpen } = usePruchaseOptions();
 
     // Remove mounted state and adjust conditional rendering
@@ -25,28 +20,13 @@ const PurchaseOptions: React.FC = () => {
         onCompleted: (companyData) => {
             setDeliveryPrice(companyData.companyInfo.deliveringPrice);
         },
-        // Add skip condition to prevent unnecessary queries
         skip: !isOpen
     });
 
     const { data: basketData, loading: basketLoading } = useQuery(BASKET_QUERY, {
         variables: { userId: decodedToken?.userId },
-        skip: !decodedToken?.userId || !isOpen,
+        skip: !isAuthenticated || !isOpen,
     });
-
-
-    useEffect(() => {
-        // Move token decoding to useEffect to ensure it runs after mount
-        const token = Cookies.get("Token");
-        if (token) {
-            try {
-                const decoded = jwt.decode(token) as DecodedToken;
-                setDecodedToken(decoded);
-            } catch (error) {
-                console.error("Error decoding token:", error);
-            }
-        }
-    }, []);
 
     const productsInBasket = useMemo(() => {
         if (decodedToken?.userId && basketData?.basketByUserId) {

@@ -1,8 +1,6 @@
 "use client";
 import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
 import { RiShoppingCartLine } from "react-icons/ri";
@@ -17,34 +15,24 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "../../../graphql/queries";
 import triggerEvents from "../../../utlils/trackEvents";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 
 const ProductComparison = () => {
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const { comparisonList, removeFromComparison } = useProductComparisonStore();
-
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
+  const { decodedToken, isAuthenticated } = useAuth();
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
   const removeProduct = useCallback(
     (product: Product) => {
       removeFromComparison(product.id);
@@ -85,7 +73,43 @@ const ProductComparison = () => {
         currency: "TND",
       },
     });
-    pushToDataLayer("AddToCart");
+    sendGTMEvent({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "TND",
+        value: product.productDiscounts.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price,
+        items: [{
+          item_id: product.id,
+          item_name: product.name,
+          quantity: product.actualQuantity || product.quantity,
+          price: product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : product.price
+        }]
+      },
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.email.id
+      },
+      facebook_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        contents: {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity
+        },
+        value: product.productDiscounts.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price,
+        currency: "TND"
+      }
+    });
     if (decodedToken) {
       addToBasket({
         variables: {

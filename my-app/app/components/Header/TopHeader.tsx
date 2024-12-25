@@ -1,6 +1,4 @@
 "use client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FiHeart, FiUser } from "react-icons/fi";
@@ -20,11 +18,12 @@ import Image from "next/legacy/image";
 import { useForm } from "react-hook-form";
 import { GoPackageDependents } from "react-icons/go";
 import { IoBagHandleOutline, IoGitCompare } from "react-icons/io5";
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
+import { removeToken } from "@/lib/auth/token";
+
 const TopHeader = ({ logo }: { logo: string }) => {
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
   const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const { openBasketDrawer } = useDrawerBasketStore();
   const { comparisonList } = useProductComparisonStore();
@@ -70,19 +69,18 @@ const TopHeader = ({ logo }: { logo: string }) => {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const { data: basketData, refetch: refetchBasket } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
     fetchPolicy: "network-only",
   });
 
   const updateBasketQuantity = useCallback(() => {
 
-    if (basketData?.basketByUserId) {
-
+    if (decodedToken?.userId && basketData?.basketByUserId) {
       // Prepare basket products with quantity
       const basketProducts = basketData.basketByUserId.map((item: any) => ({
         ...item.product,
@@ -99,20 +97,9 @@ const TopHeader = ({ logo }: { logo: string }) => {
       clearBasket();
       addMultipleProducts(basketProducts);
       setQuantityInBasket(totalQuantity);
-
-    } else {
-      // Clear basket if no items
-      clearBasket();
     }
-  }, [basketData, clearBasket, setQuantityInBasket]);
+  }, [basketData, clearBasket, addMultipleProducts, setQuantityInBasket, decodedToken]);
 
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
 
   useEffect(() => {
     if (decodedToken?.userId) {
@@ -121,9 +108,31 @@ const TopHeader = ({ logo }: { logo: string }) => {
   }, [decodedToken, refetchBasket]);
 
   useEffect(() => {
-    updateBasketQuantity();
-  }, [basketData, updateBasketQuantity]);
+    // Only call updateBasketQuantity when user is logged in
+    if (isAuthenticated) {
+      updateBasketQuantity();
+    }
+  }, [basketData, updateBasketQuantity, isAuthenticated]);
 
+  const handleBasketClick = () => {
+    // Send GTM event
+    sendGTMEvent({
+      event: "view_cart",
+      page_location: window.location.href,
+      user_data: isAuthenticated ? {
+        country: ["tn"],
+        external_id: decodedToken?.userId
+      } : undefined,
+      facebook_data: {
+        content_name: "Cart View",
+        content_type: "cart",
+        currency: "TND",
+        num_items: quantityInBasket
+      }
+    });
+    // Open basket drawer
+    openBasketDrawer();
+  };
 
   const onSubmit = (data: any) => {
     SignIn({ variables: { input: data } });
@@ -171,7 +180,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
               ref={clickOutside}
               className={` absolute w-72 h-96 border-2  px-2 py-2  z-[60]  flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
             >
-              {!decodedToken?.userId && (
+              {!isAuthenticated && (
                 <form
                   className="flex flex-col w-full "
                   onSubmit={handleSubmit(onSubmit)}
@@ -229,7 +238,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   </button>
                 </form>
               )}
-              {!decodedToken?.userId && (
+              {!isAuthenticated && (
                 <Link
                   rel="preload"
                   href={"/signup"}
@@ -240,7 +249,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                   <span className="font-semibold">COMMENCER ICI</span>
                 </Link>
               )}
-              {!decodedToken?.userId && (
+              {!isAuthenticated && (
                 <Link
                   rel="preload"
                   className="w-full py-2  text-sm border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
@@ -254,7 +263,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
                 <Link
                   rel="preload"
                   onClick={() => {
-                    Cookies.remove("Token", { domain: ".ita-luxury.com", path: "/" });
+                    removeToken()
                     window.sessionStorage.removeItem("products-in-basket");
                     window.sessionStorage.removeItem("comparedProducts");
                     window.location.replace("/");
@@ -309,8 +318,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
           </li>
 
           <li
-            onClick={openBasketDrawer}
-            title="Votre Panier"
+            onClick={handleBasketClick} title="Votre Panier"
             className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
           >
             <div className="relative inline-flex">

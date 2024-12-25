@@ -14,19 +14,13 @@ import {
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import { useToast } from "@/components/ui/use-toast";
-
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import triggerEvents from "@/utlils/trackEvents";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
-const ProductBox = ({ product }: any) => {
+const TopSalesProductBox = ({ product }: any) => {
   const { toast } = useToast();
-  interface DecodedToken extends JwtPayload {
-    userId: string;
-  }
-
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -37,22 +31,16 @@ const ProductBox = ({ product }: any) => {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
 
 
 
-    const {
-      products,
-      addProductToBasket,
-      increaseProductInQtBasket,
+
+  const {
+    products,
+    addProductToBasket,
+    increaseProductInQtBasket,
   } = useProductsInBasketStore();
 
   const AddToBasket = async (product: any) => {
@@ -79,7 +67,43 @@ const ProductBox = ({ product }: any) => {
         currency: "TND",
       },
     });
-    pushToDataLayer("AddToCart");
+    sendGTMEvent({
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "TND",
+        value: product.productDiscounts.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price,
+        items: [{
+          item_id: product.id,
+          item_name: product.name,
+          quantity: product.actualQuantity || product.quantity,
+          price: product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : product.price
+        }]
+      },
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.email.id
+      },
+      facebook_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        contents: {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity
+        },
+        value: product.productDiscounts.length > 0
+          ? product.productDiscounts[0].newPrice
+          : product.price,
+        currency: "TND"
+      }
+    });
 
     if (decodedToken) {
       addToBasket({
@@ -193,4 +217,4 @@ const ProductBox = ({ product }: any) => {
   );
 };
 
-export default ProductBox;
+export default TopSalesProductBox;

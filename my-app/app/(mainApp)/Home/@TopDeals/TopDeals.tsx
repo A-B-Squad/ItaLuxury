@@ -1,38 +1,25 @@
 "use client";
 import { BASKET_QUERY, FETCH_USER_BY_ID, TOP_DEALS } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-
-import jwt, { JwtPayload } from "jsonwebtoken";
 import React, { useEffect, useMemo, useState } from "react";
 import ProductDetails from "./ProductDetails";
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+import { useAuth } from "@/lib/auth/useAuth";
+
 const TopDeals = () => {
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const { decodedToken, isAuthenticated } = useAuth();
 
-
-
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
 
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated
   });
 
   const { data: topDeals } = useQuery(TOP_DEALS);
@@ -46,7 +33,6 @@ const TopDeals = () => {
             key={product.id}
             product={product.product}
             basketData={basketData}
-            decodedToken={decodedToken}
             setIsFavorite={setIsFavorite}
             isFavorite={isFavorite}
             userData={userData}

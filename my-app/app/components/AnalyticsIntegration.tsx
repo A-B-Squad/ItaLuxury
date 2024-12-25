@@ -48,7 +48,6 @@ const AnalyticsIntegration = () => {
       <meta name="google-site-verification" content="mNgh_Cr_ANLEQ34Grw9MdpyVZO42QknZyFHMVErtSNE" />
 
       <GoogleTagManager gtmId="GTM-T7FRWMJ3" />
-      <GoogleAnalytics gaId="G-GDPGKPJKW1" />
 
       <Script
         src="https://js.pusher.com/beams/1.0.0/push-notifications-cdn.js"

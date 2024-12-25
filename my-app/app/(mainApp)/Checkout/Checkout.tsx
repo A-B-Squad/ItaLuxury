@@ -1,7 +1,5 @@
 "use client";
 import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import Image from "next/legacy/image";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
@@ -28,12 +26,11 @@ import { Loader2 } from "lucide-react";
 import { OrderSummary } from "./components/OrderSummary";
 import Step1 from "./components/Step1/Step1";
 import { StepIndicator } from "./components/StepIndicator";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
 // Define interfaces
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 
 interface Product {
   id: string;
@@ -61,7 +58,6 @@ interface CouponState {
 }
 const Checkout: React.FC = () => {
   // Step 1: Initialize state and hooks
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
   const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const [coupon, setCoupon] = useState<CouponState>({ id: "", couponCode: "" });
@@ -74,8 +70,9 @@ const Checkout: React.FC = () => {
   >("CASH_ON_DELIVERY");
   const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
-
   const { clearBasket } = useProductsInBasketStore();
+  const { decodedToken, setDecodedToken, isAuthenticated } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -124,11 +121,9 @@ const Checkout: React.FC = () => {
 
   // Step 5: Set up side effects
   useEffect(() => {
-    const token = Cookies.get("Token");
 
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
+    if (isAuthenticated) {
+
       setIsLoggedIn(true);
       setCurrentStep(2);
       setIsGuest(false);
@@ -234,9 +229,43 @@ const Checkout: React.FC = () => {
         },
       ],
       onCompleted: async (data) => {
-        const customId = data.createCheckout.customId;
+        const customOrderId = data.createCheckout.customId;
         clearBasket();
-        sendNotification(customId, checkoutProducts.length, userName, orderTotal)
+        sendGTMEvent({
+          event: "purchase",
+          ecommerce: {
+            currency: "TND",
+            value: checkoutTotal,
+            items: checkoutProducts.map(product => ({
+              item_id: product.id,
+              quantity: product.actualQuantity || product.quantity
+            })),
+            transaction_id: customOrderId,
+          },
+          user_data: {
+            em: [userEmail.toLowerCase()],
+            fn: [userName],
+            ph: [userPhone],
+            country: ["tn"],
+            ct: checkoutInput.governorateId,
+            external_id: decodedToken?.userId
+          },
+          facebook_data: {
+            content_name: "Checkout",
+            content_type: "product",
+            currency: "TND",
+            value: checkoutTotal,
+            contents: checkoutProducts.map(product => ({
+              id: product.id,
+              quantity: product.actualQuantity || product.quantity,
+            })),
+            num_items: checkoutProducts.reduce(
+              (sum, product) =>
+                sum + (product?.actualQuantity || product?.quantity || 0),
+              0
+            )
+          }
+        });
         triggerEvents("Purchase", {
           user_data: {
             em: [userEmail.toLowerCase()],
@@ -262,9 +291,31 @@ const Checkout: React.FC = () => {
             ),
           },
         })
-        pushToDataLayer("Purchase");
 
         if (paymentMethod === "CREDIT_CARD") {
+          sendGTMEvent({
+            event: "add_payment_info",
+            ecommerce: {
+              currency: "TND",
+              value: parseFloat(calculateTotal()),
+              payment_type: paymentMethod === "CREDIT_CARD" ? "Credit Card" : "Cash on Delivery",
+              items: checkoutProducts
+            },
+            user_data: {
+              em: [userEmail.toLowerCase()],
+              fn: [userName],
+              ph: [userPhone],
+              country: ["tn"],
+              ct: checkoutInput.governorateId,
+              external_id: decodedToken?.userId
+            },
+            facebook_data: {
+              content_category: "Checkout",
+              currency: "TND",
+              value: parseFloat(calculateTotal()),
+              payment_type: paymentMethod === "CREDIT_CARD" ? "Credit Card" : "Cash on Delivery"
+            }
+          });
           triggerEvents("AddPaymentInfo", {
             user_data: {
               em: [userEmail.toLowerCase()],
@@ -281,12 +332,12 @@ const Checkout: React.FC = () => {
               payment_type: paymentMethod === "CREDIT_CARD" ? "Credit Card" : "Cash on Delivery",
             },
           });
-          pushToDataLayer("AddPaymentInfo");
 
-          await handleOnlinePayment(customId, userName, userPhone, userEmail);
+          await handleOnlinePayment(customOrderId, userName, userPhone, userEmail);
         } else {
           setSubmitLoading(true);
-          router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
+          sendNotification(customOrderId, checkoutProducts.length, userName, orderTotal)
+          router.replace(`/Checkout/EndCheckout?packageId=${customOrderId}`);
         }
       },
       onError: (error) => {
@@ -308,6 +359,7 @@ const Checkout: React.FC = () => {
   ) => {
     if (paymentMethod === "CREDIT_CARD") {
       setPaymentLoading(true);
+      const orderTotal = Math.round(Number(calculateTotal()) * 1000)
 
       try {
         const response = await fetch("/api/payment", {
@@ -317,7 +369,7 @@ const Checkout: React.FC = () => {
           },
           body: JSON.stringify({
             token: "TND",
-            amount: Math.round(Number(calculateTotal()) * 1000),
+            amount: orderTotal,
             type: "immediate",
             description: "Online payment for order",
             acceptedPaymentMethods: ["wallet", "bank_card", "e-DINAR"],
@@ -354,6 +406,7 @@ const Checkout: React.FC = () => {
 
         // Redirect to the payment URL if provided
         if (data.payUrl) {
+          sendNotification(orderId, checkoutProducts.length, userName, orderTotal)
           window.location.href = data.payUrl;
         } else {
           throw new Error("No payment URL received");

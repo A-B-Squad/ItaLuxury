@@ -2,24 +2,22 @@
 import React, { useEffect, useState } from "react";
 import { FAVORITE_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import Cookies from "js-cookie";
+
 import Loading from "../loading";
 import { HiX } from "react-icons/hi";
 import ProductBox from "../../components/ProductBox/ProductBox";
 import { ADD_DELETE_PRODUCT_FAVORITE_MUTATION } from "@/graphql/mutations";
+import { useAuth } from "@/lib/auth/useAuth";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 
 const FavoriteList = () => {
   const [productsData, setProductsData] = useState<Product[]>([]);
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
 
   const [getFavoriteProducts, { loading }] = useLazyQuery(
     FAVORITE_PRODUCTS_QUERY,
-   
+
   );
 
   const [removeFromFavorites] = useMutation(
@@ -27,15 +25,7 @@ const FavoriteList = () => {
   );
 
   useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (decodedToken?.userId) {
+    if (isAuthenticated) {
       fetchProducts();
     }
   }, [decodedToken]);

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { BEST_SALES_QUERY } from "@/graphql/queries";
 import { MdArrowLeft, MdArrowRight } from "react-icons/md";
-import ProductBox from "./Components/ProductBox";
+import TopSalesProductBox from "./Components/TopSalesProductBox";
 
 interface Category {
   id: string;
@@ -123,7 +123,7 @@ const BestSales = () => {
                     key={product.id}
                     className="w-full relative py-1 hover:opacity-90 transition-all group"
                   >
-                    <ProductBox product={product} />
+                    <TopSalesProductBox product={product} />
                   </div>
                 ))}
             </div>

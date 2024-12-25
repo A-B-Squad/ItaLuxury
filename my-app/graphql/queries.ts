@@ -80,6 +80,7 @@ export const BASKET_QUERY = gql`
         images
         productDiscounts {
           newPrice
+          price
         }
         categories {
           id

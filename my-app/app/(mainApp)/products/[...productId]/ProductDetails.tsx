@@ -3,8 +3,6 @@
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
@@ -66,13 +64,10 @@ const ProductDetailsDrawer = dynamic(
 
 import CustomInnerZoom from "./Components/CustomInnerZoom";
 import ActionButton from "./Components/ActionButton";
-import ProductAttr from "./Components/ProductAttrLaptop";
 import ProductAttrLaptop from "./Components/ProductAttrLaptop";
 import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 
 const ProductDetails = ({ productDetails, productId }: any) => {
   const { toast } = useToast();
@@ -83,16 +78,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   );
 
   const [bigImage, setBigImage] = useState<any>(mainImage);
-
   const [smallImages, setSmallImages] = useState<any>(null);
-
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
   const [discount, setDiscount] = useState<any>(null);
   const [attributes, setAttributes] = useState<any>(null);
 
   const [quantity, setQuantity] = useState<number>(1);
 
-  const { openPruchaseOptions } = usePruchaseOptions();
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
@@ -108,14 +100,14 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
 
@@ -141,11 +133,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   }, [productDetails]);
 
   useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
     window.scrollTo(0, 0);
   }, []);
 
@@ -169,14 +156,67 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     const finalPrice = discount?.newPrice ?? price;
     const reference = productDetails.reference;
 
+    sendGTMEvent({
+      event: "view_item",
+      ecommerce: {
+        currency: "TND",
+        value: finalPrice,
+        items: [{
+          item_id: id,
+          item_name: name,
+          item_brand: brandName,
+          item_category: categories[0]?.name,
+          item_category2: categories[1]?.name,
+          item_category3: categories[2]?.name,
+          item_variant: colorName,
+          price: price,
+          quantity: 1
+        }]
+      },
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        ct: "",
+        external_id: decodedToken?.userId
+      },
+      facebook_data: {
+        content_name: name,
+        content_type: "product details",
+        content_ids: [id],
+        content_category: categoryNames,
+        contents: [{
+          id: id,
+          reference: reference,
+          name: name,
+          value: finalPrice,
+          quantity: 1,
+          price: price,
+          brand: brandName,
+          category: categories[0]?.name,
+          category2: categories[1]?.name,
+          category3: categories[2]?.name,
+          availability: inventory > 0 ? "in stock" : "out of stock",
+          description: description,
+          variant: colorName,
+          attributes: attributes?.map(
+            (attr: { name: string; value: string }) =>
+              attr.name + " " + attr.value
+          )
+        }]
+      }
+    });
+
+
     triggerEvents("PageView", {
       user_data: {
-        user_email: [userData?.fetchUsersById.email.toLowerCase()],
-        user_fullName: [userData?.fetchUsersById.fullName],
-        user_phone: [userData?.fetchUsersById?.number],
-        user_country: ["tn"],
-        user_city: "",
-        user_id: decodedToken?.userId,
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        ct: "",
+        external_id: decodedToken?.userId,
       },
       custom_data: {
         content_name: name,
@@ -266,6 +306,58 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       },
     };
 
+    const cartEventDataGTM = {
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "TND",
+        items: [
+          {
+            item_id: product.id,
+            reference: product.reference,
+            item_name: product.name,
+            item_category: product.categories[0]?.name,
+            item_category2: product.categories[1]?.name,
+            item_category3: product.categories[2]?.name,
+            item_variant: product.Colors.color,
+            item_price: product.productDiscounts?.length
+              ? product.productDiscounts[0].newPrice.toFixed(3)
+              : product.price.toFixed(3),
+            item_description: product.description,
+            item_Att: attributes?.map(
+              (attr: { name: string; value: string; }) => attr.name + " " + attr.value
+            ),
+            quantity: product.actualQuantity || product.quantity
+          }
+        ],
+        value: product.productDiscounts?.length
+          ? product.productDiscounts[0].newPrice * (product.actualQuantity || product.quantity)
+          : product.price * (product.actualQuantity || product.quantity)
+      },
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        ct: "",
+        external_id: decodedToken?.userId
+      },
+      facebook_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        contents: {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity
+        },
+        value: product.productDiscounts?.length
+          ? product.productDiscounts[0].newPrice * (product.actualQuantity || product.quantity)
+          : product.price * (product.actualQuantity || product.quantity),
+        currency: "TND"
+      }
+    };
+    // Track Add to Cart
+    triggerEvents("AddToCart", addToCartData);
+    sendGTMEvent(cartEventDataGTM);
     if (decodedToken) {
       try {
         const currentBasketQuantity = productInBasket
@@ -302,8 +394,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
               className: "bg-primaryColor text-white",
             });
-            // Track Add to Cart
-            triggerEvents("AddToCart", addToCartData);
+
           },
         });
       } catch (error) {
@@ -351,7 +442,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
         className: "bg-green-600 text-white",
       });
-      triggerEvents("AddToCart", addToCartData);
     }
     toggleIsUpdated();
   };
@@ -507,7 +597,11 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 addToCompare={addToCompare}
               />
             </div>
-            <ProductAttrLaptop attributes={attributes} />
+            <ProductAttrLaptop attributes={attributes}
+              productId={productDetails.id}
+              userId={decodedToken?.userId || ""}
+              toast={toast}
+            />
           </div>
         )}
         <div className="Carousel voir aussi px-2 md:px-10 my-8 mb-[15%] ">

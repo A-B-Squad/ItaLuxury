@@ -9,8 +9,6 @@ import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import triggerEvents from "@/utlils/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { GoAlertFill } from "react-icons/go";
@@ -20,6 +18,8 @@ import { RiSubtractFill } from "react-icons/ri";
 import { SlBasket } from "react-icons/sl";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import dynamic from "next/dynamic";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 const InnerImageZoom = dynamic(() => import("react-inner-image-zoom"), {
   loading: () => (
     <div className="animate-pulse bg-gray-200 w-full h-full min-h-[300px]" />
@@ -34,15 +34,13 @@ const SmallImageCarousel = dynamic(
     ssr: false,
   }
 );
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+
 
 const ProductInfo = () => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const { isOpen, productData, closeProductDetails } = useProductDetails();
   const [bigImage, setBigImage] = useState<any>("");
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
   const [quantity, setQuantity] = useState<number>(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
@@ -54,14 +52,14 @@ const ProductInfo = () => {
 
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const {
@@ -70,18 +68,10 @@ const ProductInfo = () => {
     increaseProductInQtBasket,
   } = useProductsInBasketStore();
 
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
-
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
   const productsInBasket = useMemo(() => {
-    if (decodedToken?.userId && basketData?.basketByUserId) {
+    if (isAuthenticated && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
         (item: any) => item.Product.id === productData?.id
       );
@@ -89,7 +79,7 @@ const ProductInfo = () => {
     return storedProducts.find(
       (product: any) => product.id === productData?.id
     );
-  }, [decodedToken, basketData, storedProducts]);
+  }, [isAuthenticated, basketData, storedProducts]);
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productData?.inventory) {
@@ -124,9 +114,39 @@ const ProductInfo = () => {
         currency: "TND",
       },
     };
+    const cartEventData = {
+      event: "add_to_cart",
+      ecommerce: {
+        currency: "TND",
+        value: price * quantity,
+        items: [{
+          item_id: product.id,
+          item_name: product.name,
+          quantity: quantity,
+          price: price
+        }]
+      },
+      // User data for both events
+      user_data: {
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        external_id: userData?.fetchUsersById.id
+      },
+      // Facebook specific data
+      facebook_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
+        value: price * quantity,
+        currency: "TND"
+      }
+    };
     triggerEvents("AddToCart", addToCartData);
+    sendGTMEvent(cartEventData);
 
-    if (decodedToken) {
+    if (isAuthenticated) {
       try {
         const currentBasketQuantity = productsInBasket
           ? productsInBasket.quantity || productsInBasket.actualQuantity
@@ -311,7 +331,7 @@ const ProductInfo = () => {
 
             <div className="border-t-2 mt-4">
               <div className="flex items-center mt-4  space-x-2">
-                <h3 className="text-lg tracking-wider font-bold  capitalize text-primaryColor">
+                <h3 className="text-lg tracking-wider font-bold  capitalize ">
                   Quantité
                 </h3>
 
@@ -341,7 +361,7 @@ const ProductInfo = () => {
                 </div>
               </div>
               <div className="mt-3 ">
-                <h3 className="text-lg tracking-wider font-bold capitalize text-primaryColor">
+                <h3 className="text-lg tracking-wider font-bold capitalize ">
                   Description
                 </h3>
 
@@ -386,7 +406,7 @@ const ProductInfo = () => {
               <button
                 disabled={productData?.inventory <= 0}
                 type="button"
-                className={`${productData?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-secondaryColor text-white text-sm font-bold rounded`}
+                className={`${productData?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} min-w-[200px] transition-colors flex items-center gap-2 px-4 py-3 bg-primaryColor text-white text-sm lg:text-base rounded-sm font-bold  `}
                 onClick={() => {
                   AddToBasket(productData, 1);
                 }}

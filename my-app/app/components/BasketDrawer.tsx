@@ -8,23 +8,20 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { useAuth } from "@/lib/auth/useAuth";
 import triggerEvents from "@/utlils/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { sendGTMEvent } from "@next/third-parties/google";
+
 import Image from "next/legacy/image";
 import Link from "next/link";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { CiTrash } from "react-icons/ci";
 import { HiPlus } from "react-icons/hi2";
 import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 
 interface Product {
   id: string;
@@ -56,7 +53,7 @@ const BasketDrawer: React.FC = () => {
   const { toast } = useToast();
   const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore()
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
+  const { decodedToken, isAuthenticated } = useAuth();
   const {
     products: storedProducts,
     removeProductFromBasket,
@@ -68,7 +65,7 @@ const BasketDrawer: React.FC = () => {
 
   const { data: fetchedProductInBasket, error, refetch } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
     fetchPolicy: "cache-and-network",
   });
 
@@ -76,21 +73,10 @@ const BasketDrawer: React.FC = () => {
     variables: {
       userId: decodedToken?.userId,
     },
-    skip: !decodedToken?.userId,
+    skip: !isAuthenticated,
   });
 
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
-
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      try {
-        setDecodedToken(jwt.decode(token) as DecodedToken);
-      } catch (error) {
-        console.error("Failed to decode token:", error);
-      }
-    }
-  }, []);
 
   // Compute products in basket (server or local)
   const productsInBasket = useMemo(() => {
@@ -416,7 +402,38 @@ const BasketDrawer: React.FC = () => {
                       ),
                     },
                   });
-                  pushToDataLayer("InitiateCheckout");
+                  sendGTMEvent({
+                    event: "begin_checkout",
+                    ecommerce: {
+                      currency: "TND",
+                      value: totalPrice,
+                      items: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
+                        item_id: product.id,
+                        quantity: product.actualQuantity || product.quantity
+                      }))
+                    },
+                    user_data: {
+                      em: [userData?.fetchUsersById.email.toLowerCase()],
+                      fn: [userData?.fetchUsersById.fullName],
+                      ph: [userData?.fetchUsersById?.number],
+                      country: ["tn"],
+                      external_id: userData?.fetchUsersById.id
+                    },
+                    facebook_data: {
+                      content_name: "InitiateCheckout",
+                      content_type: "product",
+                      currency: "TND",
+                      value: totalPrice,
+                      contents: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
+                        id: product.id,
+                        quantity: product.actualQuantity || product.quantity
+                      })),
+                      num_items: productsInBasket.reduce(
+                        (sum: any, product: { actualQuantity: any; quantity: any; }) => sum + (product?.actualQuantity || product?.quantity || 0),
+                        0
+                      )
+                    }
+                  });
 
                 }}
                 href={"/Checkout"}
@@ -453,7 +470,38 @@ const BasketDrawer: React.FC = () => {
                       ),
                     },
                   });
-                  pushToDataLayer("ViewContent");
+                  sendGTMEvent({
+                    event: "view_cart",
+                    ecommerce: {
+                      currency: "TND",
+                      value: totalPrice,
+                      items: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
+                        item_id: product.id,
+                        quantity: product.actualQuantity || product.quantity
+                      }))
+                    },
+                    user_data: {
+                      em: [userData?.fetchUsersById.email.toLowerCase()],
+                      fn: [userData?.fetchUsersById.fullName],
+                      ph: [userData?.fetchUsersById?.number],
+                      country: ["tn"],
+                      external_id: userData?.fetchUsersById.id
+                    },
+                    facebook_data: {
+                      content_name: "viewBasket",
+                      content_type: "product",
+                      currency: "TND",
+                      value: totalPrice,
+                      contents: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
+                        id: product.id,
+                        quantity: product.actualQuantity || product.quantity
+                      })),
+                      num_items: productsInBasket.reduce(
+                        (sum: any, product: { actualQuantity: any; quantity: any; }) => sum + (product?.actualQuantity || product?.quantity || 0),
+                        0
+                      )
+                    }
+                  });
                 }}
                 href={"/Basket"}
                 className="showBasket flex items-center transition-all justify-center  border border-transparent bg-pinkColor px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80 mt-4"

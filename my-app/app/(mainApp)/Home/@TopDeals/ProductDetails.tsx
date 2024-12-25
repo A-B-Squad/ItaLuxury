@@ -9,21 +9,17 @@ import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
 import triggerEvents from "@/utlils/trackEvents";
 import { useMutation } from "@apollo/client";
-import { JwtPayload } from "jsonwebtoken";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import ProductActions from "./ProductActions";
 import ProductImage from "./ProductImage";
-import { pushToDataLayer } from "@/utlils/pushToDataLayer";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
 
-interface DecodedToken extends JwtPayload {
-    userId: string;
-}
 
 interface ProductProps {
     key: any;
     product: any;
-    decodedToken: DecodedToken | null;
     isFavorite: boolean;
     setIsFavorite: (value: boolean) => void;
     basketData: any;
@@ -33,7 +29,6 @@ interface ProductProps {
 const ProductDetails: React.FC<ProductProps> = ({
     product,
     basketData,
-    decodedToken,
     userData,
     setIsFavorite,
     isFavorite,
@@ -43,6 +38,7 @@ const ProductDetails: React.FC<ProductProps> = ({
     const { openProductDetails } = useProductDetails();
     const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
     const { openPruchaseOptions } = usePruchaseOptions();
+  const { decodedToken, isAuthenticated } = useAuth();
 
     const {
         products: storedProducts,
@@ -51,13 +47,13 @@ const ProductDetails: React.FC<ProductProps> = ({
     } = useProductsInBasketStore();
 
     const productInBasket = useMemo(() => {
-        if (decodedToken?.userId && basketData?.basketByUserId) {
+        if (isAuthenticated && basketData?.basketByUserId) {
             return basketData.basketByUserId.find(
                 (item: any) => item.Product.id === product.id
             );
         }
         return storedProducts.find((product: any) => product.id === product.id);
-    }, [decodedToken, basketData, storedProducts]);
+    }, [isAuthenticated, basketData, storedProducts]);
 
     const AddToBasket = async (product: any, quantity: number = 1) => {
         openPruchaseOptions(product);
@@ -82,10 +78,39 @@ const ProductDetails: React.FC<ProductProps> = ({
                 currency: "TND",
             },
         };
-        triggerEvents("AddToCart", addToCartData);
-        pushToDataLayer("AddToCart");
+        const cartEventDataGTM = {
+            event: "add_to_cart",
+            ecommerce: {
+              currency: "TND",
+              value: price * quantity,
+              items: [{
+                item_id: product.id,
+                item_name: product.name,
+                quantity: quantity,
+                price: price
+              }]
+            },
+            // User data for both events
+            user_data: {
+              em: [userData?.fetchUsersById.email.toLowerCase()],
+              fn: [userData?.fetchUsersById.fullName],
+              ph: [userData?.fetchUsersById?.number],
+              country: ["tn"],
+              external_id: userData?.fetchUsersById.id
+            },
+            // Facebook specific data
+            facebook_data: {
+              content_name: product.name,
+              content_type: "product",
+              content_ids: [product.id],
+              value: price * quantity,
+              currency: "TND"
+            }
+          };
+          triggerEvents("AddToCart", addToCartData);
+          sendGTMEvent(cartEventDataGTM);
 
-        if (decodedToken) {
+        if (isAuthenticated) {
             try {
                 const currentBasketQuantity = productInBasket
                     ? productInBasket.quantity || productInBasket.actualQuantity
@@ -197,7 +222,6 @@ const ProductDetails: React.FC<ProductProps> = ({
             <ProductActions
                 product={product}
                 toast={toast}
-                decodedToken={decodedToken}
                 isFavorite={isFavorite}
                 setIsFavorite={setIsFavorite}
                 openProductDetails={openProductDetails}

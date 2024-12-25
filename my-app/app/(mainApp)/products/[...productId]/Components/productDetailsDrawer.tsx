@@ -73,28 +73,28 @@ const productDetailsDrawer = ({
               Quantité:{" "}
             </h3>
 
-            <div className="flex  items-center gap-2  divide-x-0  overflow-hidden ">
+
+            <div className="flex items-center gap-2 di rounded border border-gray-300">
               <button
                 type="button"
-                className="bg-lightBeige hover:bg-secondaryColor transition-all w-fit h-fit  p-2  text-sm font-semibold cursor-pointer"
-                disabled={quantity == 1}
+                className="px-3 py-1 text-lg font-semibold border-r border-gray-300 cursor-pointer"
+                disabled={quantity === 1}
                 onClick={handleDecreaseQuantity}
               >
-                <RiSubtractFill />
+                <RiSubtractFill className="text-gray-600" />
               </button>
-              <button
-                type="button"
-                className="bg-transparent px-4  py-2 h-full border shadow-md font-semibold  text-[#333] text-md"
+              <span
+                className="px-4 py-2 text-md 300 font-semibold"
               >
                 {quantity}
-              </button>
+              </span>
               <button
                 type="button"
-                className={`${quantity === productDetails?.inventory && "opacity-45"}w-fit h-fit  bg-primaryColor text-white p-2 text-sm  font-semibold cursor-pointer`}
-                disabled={quantity === productDetails?.inventory}
+                className={`${quantity === productDetails.inventory ? "opacity-50" : ""} px-3 py-1 text-lg border-l border-gray-300 font-semibold cursor-pointer`}
+                disabled={quantity === productDetails.inventory}
                 onClick={handleIncreaseQuantity}
               >
-                <FaPlus />
+                <FaPlus className="text-gray-600" />
               </button>
             </div>
           </div>

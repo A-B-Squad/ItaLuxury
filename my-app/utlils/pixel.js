@@ -1,15 +1,4 @@
 // fbq.js
-export function pageview() {
-  try {
-    if (window.fbq) {
-      window.fbq('track', 'PageView');
-    } else {
-      console.warn('[Meta Pixel] fbq is not defined. Pixel may be blocked by an ad blocker.');
-    }
-  } catch (error) {
-    console.error('[Meta Pixel] Error in pageview tracking:', error);
-  }
-}
 
 export function event(name, options = {}, eventID = {}) {
   try {

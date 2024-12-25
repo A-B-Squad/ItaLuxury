@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Home,
   ShoppingBag,
@@ -10,10 +10,10 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GoPackageDependents } from "react-icons/go";
+import { sendGTMEvent } from "@next/third-parties/google";
 
-const TabBar = () => {
+const TabBarMobile = () => {
   const pathname = usePathname();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const isActive = (path: string): boolean => {
     if (!pathname) return false;
@@ -23,15 +23,28 @@ const TabBar = () => {
     return pathname.startsWith(path);
   };
 
- 
+
+  const handleNavigation = (pageName: string) => {
+    sendGTMEvent({
+      event: "page_view",
+      page_title: pageName,
+      page_location: window.location.href,
+      facebook_data: {
+        content_name: pageName,
+        content_type: "page"
+      }
+    });
+  };
 
   return (
     <div className="fixed  md:hidden bottom-0 left-2 right-2 z-50 ">
       <div className="bg-[#fffffff2] rounded-full shadow-lg  overflow-hidden">
         <div
-          className={`flex justify-around items-center py-2 transition-all duration-300 ${isExpanded ? "opacity-0" : "opacity-100"}`}
+          className={`flex justify-around items-center py-2 transition-all duration-300 `}
         >
-          <Link href="/" className="flex flex-col items-center">
+          <Link href="/"
+            onClick={() => handleNavigation("Accueil")}
+            className="flex flex-col items-center">
             <div
               className={`p-2 rounded-full ${isActive("/") ? "bg-primaryColor text-white" : "text-gray-500"}`}
             >
@@ -47,6 +60,8 @@ const TabBar = () => {
           <Link
             href="/Collections/tunisie?page=1"
             className="flex flex-col items-center"
+            onClick={() => handleNavigation("Boutique")}
+
           >
             <div
               className={`p-2 rounded-full ${isActive("/Collections") ? "bg-primaryColor text-white" : "text-gray-500"}`}
@@ -60,13 +75,17 @@ const TabBar = () => {
             </span>
           </Link>
 
-          <Link href="/FavoriteList" className="flex flex-col items-center">
+          <Link href="/FavoriteList"
+            onClick={() => handleNavigation("Favoris")}
+            className="flex flex-col items-center">
             <div className="p-2 rounded-full text-gray-500">
               <Heart size={24} />
             </div>
             <span className="text-xs mt-1 text-gray-500">Favoris</span>
           </Link>
-          <Link href="/TrackingPackages" className="flex flex-col items-center">
+          <Link href="/TrackingPackages"
+            onClick={() => handleNavigation("Colis")}
+            className="flex flex-col items-center">
             <div
               className={`p-2 rounded-full ${isActive("/TrackingPackages") ? "bg-primaryColor text-white" : "text-gray-500"}`}
             >
@@ -85,4 +104,4 @@ const TabBar = () => {
   );
 };
 
-export default TabBar;
+export default TabBarMobile;
