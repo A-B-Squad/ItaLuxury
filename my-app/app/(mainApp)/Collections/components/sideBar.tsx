@@ -8,7 +8,14 @@ import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import { debounce } from "lodash";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { IoIosClose } from "react-icons/io";
 
 // Types
@@ -42,81 +49,64 @@ interface FilterQueries {
 
 // Component
 const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
-  // Hooks
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isOpenSideBard, toggleOpenSidebar } = useSidebarStore();
   const [isMobile, setIsMobile] = useState<boolean>(false);
-
-  // State
   const [selectedFilterQueries, setSelectedFilterQueries] =
     useState<FilterQueries>({});
   const [localPrice, setLocalPrice] = useState<number>(500);
-
-  // Effects
+  // Initialize filters and price from URL parameters
   useEffect(() => {
-    // Initialize filters and price from URL parameters
     const paramsObj = convertStringToQueriesObject(searchParams);
     setSelectedFilterQueries(paramsObj);
+
     const priceFromParams = searchParams?.get("price");
     if (priceFromParams) {
       setLocalPrice(+priceFromParams);
     }
   }, [searchParams]);
 
+  // Handle window resize
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Helper function to build query string
   // This function handles different formatting for color, choice, and brand vs other filters
   const buildQueryString = (queries: FilterQueries): string => {
-    const queryParts: string[] = [];
-    for (const [key, values] of Object.entries(queries)) {
-      if (values.length > 0) {
-        if (key === "color" || key === "choice" || key === "brand") {
-          // For color, choice, and brand, use separate key-value pairs
-          queryParts.push(
-            ...values.map((value) => `${key}=${encodeURIComponent(value)}`)
-          );
-        } else {
-          // For other filters, join values with commas
-          queryParts.push(`${key}=${values.map(encodeURIComponent).join(",")}`);
-        }
-      }
-    }
-    return queryParts.join("&");
+    return Object.entries(queries)
+      .filter(([_, values]) => values.length > 0) // Filter out empty arrays
+      .map(
+        ([key, values]) =>
+          key === "color" || key === "choice" || key === "brand"
+            ? values
+              .map((value) => `${key}=${encodeURIComponent(value)}`)
+              .join("&") // Handle special cases
+            : `${key}=${values.map(encodeURIComponent).join(",")}` // Handle general cases
+      )
+      .join("&");
   };
 
-  // Callbacks
+  // Handle brand filter selection
   const handleSelectBrandFilterOptions = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value, checked } = e.target;
       const updatedQueries = { ...selectedFilterQueries };
-      delete updatedQueries["query"];
 
       if (name === "brand") {
         updatedQueries["brand"] = checked ? [value] : [];
       } else {
-        if (checked) {
-          updatedQueries[name] = updatedQueries[name]
-            ? [...updatedQueries[name], value]
-            : [value];
-        } else {
-          updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value
-          );
-          if (updatedQueries[name].length === 0) {
-            delete updatedQueries[name];
-          }
+        updatedQueries[name] = checked
+          ? [...(updatedQueries[name] || []), value]
+          : (updatedQueries[name] || []).filter((query) => query !== value);
+
+        if (updatedQueries[name]?.length === 0) {
+          delete updatedQueries[name];
         }
       }
 
@@ -184,9 +174,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
 
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
-    router.replace("/Collections/tunisie?page=1", {
-      scroll: true,
-    });
+    router.replace("/Collections/tunisie?page=1", { scroll: true });
     toggleOpenSidebar();
     toast({
       title: "Filtres réinitialisés",
@@ -194,7 +182,6 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       className: "bg-primaryColor text-white",
     });
   }, [router, toggleOpenSidebar, toast]);
-
   const handleCategoryClick = useCallback(
     (categoryId: string) => {
       const updatedQueries = {
@@ -386,16 +373,18 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
     </div>
   );
 
-  const BrandFilters = memo(({ selectedFilterQueries, brands }: any) => {
-    const filteredBrands = selectedFilterQueries.category?.length
-      ? brands?.filter((brand: { product: any[] }) =>
-        brand?.product.some((product: { categories: { name: string }[] }) =>
-          product?.categories.some((category: { name: string }) =>
-            selectedFilterQueries.category?.includes(category.name)
+  const filteredBrands = useMemo(() => {
+    return selectedFilterQueries.category?.length
+      ? brands.filter((brand) =>
+        brand.product.some((product) =>
+          product.categories.some((category: { name: string }) =>
+            selectedFilterQueries.category.includes(category.name)
           )
         )
       )
       : brands;
+  }, [brands, selectedFilterQueries.category]);
+  const BrandFilters = memo(() => {
     return (
       <div className="border-b pl-5 border-gray-200 py-6">
         <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
@@ -410,20 +399,14 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
                 return (
                   <div key={brand.id} className="flex items-center">
                     <input
-                      style={{
-                        WebkitAppearance: "none",
-                        appearance: "none",
-                      }}
                       id={`filtre-brand-${brand.id}`}
                       name="brand"
                       type="radio"
                       value={brand.name}
                       checked={isChecked("brand", brand.name)}
-                      className={`h-3 w-3  outline-none ${isChecked("brand", brand.name)
-                          ? "bg-secondaryColor"
-                          : "bg-white"
-                        } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
+                      className={`h-3 w-3 outline-none ${isChecked("brand", brand.name) ? "bg-secondaryColor" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all  hover:shadow-lg cursor-pointer group text-primaryColor`}
                       onChange={handleSelectBrandFilterOptions}
+                      aria-label={`Filter by ${brand.name}`}
                     />
                     <div className="flex items-center justify-between w-full">
                       <label
@@ -447,12 +430,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   });
 
   const renderBrandFilters = () => {
-    return (
-      <BrandFilters
-        selectedFilterQueries={selectedFilterQueries}
-        brands={brands}
-      />
-    );
+    return <BrandFilters />;
   };
 
   // Main render
@@ -476,7 +454,8 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
           open={isOpenSideBard}
           onClose={toggleOpenSidebar}
           size={300}
-          className="p-4 flex flex-col h-full"
+          className="p-4 flex flex-col h-full z-[9999]"
+          overlayProps={{ className: "bg-black/50" }}
         >
           <div className="mb-6 flex items-center justify-between">
             <Typography
@@ -501,10 +480,6 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
           </div>
           <div className=" pb-16  flex-grow overflow-y-auto ">
             <form className="relative">
-              <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
-                FILTRER
-              </h3>
-
               {Object.keys(selectedFilterQueries).length > 0 && (
                 <div
                   onClick={handleClearFilters}
@@ -527,7 +502,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       ) : (
         <section
           aria-labelledby="products-heading"
-          className={`overflow-y-auto z-50 w-80 h-fit py-5 transition-all bg-white shadow-md sticky top-56 `}
+          className="overflow-y-auto z-50 w-80 h-fit py-5 transition-all bg-white shadow-md relative top-16"
         >
           <form className="relative pt-5">
             <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">

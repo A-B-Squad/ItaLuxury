@@ -54,7 +54,9 @@ async function fetchProductData(
   if (!process.env.NEXT_PUBLIC_API_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
   }
-
+  if (!productId) {
+    return null;
+  }
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
       method: "POST",

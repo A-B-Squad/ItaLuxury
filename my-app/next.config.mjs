@@ -3,7 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
-  // Development server configuration
   async rewrites() {
     return [
       {
@@ -13,39 +12,25 @@ const nextConfig = {
     ];
   },
 
-  // Headers configuration for comprehensive cross-origin support
   async headers() {
+    const developmentHosts = 'http://localhost:4000 http://localhost:4001';
+    const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
+    
     return [
-      // Robots.txt specific header
       {
         source: '/robots.txt',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'text/plain',
-          },
-        ],
+        headers: [{ key: 'Content-Type', value: 'text/plain' }],
       },
-      // Google verification file
       {
         source: '/google4773007d2b4f68e3.html',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'text/html',
-          },
-        ],
+        headers: [{ key: 'Content-Type', value: 'text/html' }],
       },
-      // Global headers for all routes
       {
         source: '/:path*',
         headers: [
-          // CORS Headers
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.NODE_ENV === 'development'
-              ? 'http://localhost:4000 http://localhost:4001 http://client.localhost:4000 http://admin.localhost:4001'
-              : 'https://ita-luxury.com https://admin.ita-luxury.com',
+            value: process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts,
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -59,8 +44,6 @@ const nextConfig = {
             key: 'Access-Control-Allow-Credentials',
             value: 'true',
           },
-
-          // Security Headers
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
@@ -73,13 +56,9 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
-
-          // Cross-Origin Policies
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: process.env.NODE_ENV === 'development'
-              ? 'unsafe-none'
-              : 'same-origin-allow-popups',
+            value: process.env.NODE_ENV === 'development' ? 'unsafe-none' : 'same-origin-allow-popups',
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
@@ -89,18 +68,13 @@ const nextConfig = {
             key: 'Cross-Origin-Resource-Policy',
             value: 'cross-origin',
           },
-
-          // Content Security Policy
           {
             key: 'Content-Security-Policy',
             value: `
-              default-src 'self' ${
-                process.env.NODE_ENV === 'development'
-                  ? 'http://localhost:4000 http://localhost:4001'
-                  : 'https://ita-luxury.com https://admin.ita-luxury.com'
-              };
-              script-src 'self' 'unsafe-inline' 'unsafe-eval'
+              default-src 'self' ${process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts};
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' 
                 https://apis.google.com
+                https://accounts.google.com
                 https://www.google-analytics.com
                 https://www.googletagmanager.com
                 https://connect.facebook.net
@@ -110,26 +84,30 @@ const nextConfig = {
                 https://cdnjs.cloudflare.com
                 https://ajax.googleapis.com
                 https://js.pusher.com
-                https://static.cloudflareinsights.com;
-                
-                style-src 'self' 'unsafe-inline'
+                https://static.cloudflareinsights.com
+                https://apollo-server-landing-page.cdn.apollographql.com
+                https://embeddable-sandbox.cdn.apollographql.com
+                https://embeddable-explorer.cdn.apollographql.com;
+              style-src 'self' 'unsafe-inline'
                 https://fonts.googleapis.com
                 https://embed.tawk.to
                 https://js.pusher.com
-                https://www.googletagmanager.com;
-                
-                img-src 'self' data: https: http: blob:;
-                
-                font-src 'self' data: 
+                https://www.googletagmanager.com
+                https://apollo-server-landing-page.cdn.apollographql.com
+                https://embeddable-sandbox.cdn.apollographql.com
+                https://embeddable-explorer.cdn.apollographql.com;
+              img-src 'self' data: https: http: blob:
+                https://apollo-server-landing-page.cdn.apollographql.com;
+              font-src 'self' data:
                 https://fonts.gstatic.com
                 https://js.pusher.com
                 https://fonts.googleapis.com
                 https://embed.tawk.to;
-                
-                connect-src 'self' 
-                https: 
-                wss:
+              connect-src 'self' https: wss:
+                ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : productionHosts}
                 https://apis.google.com
+                https://accounts.google.com
+                https://securetoken.googleapis.com
                 https://js.pusher.com
                 https://www.google-analytics.com
                 https://www.googletagmanager.com
@@ -141,28 +119,20 @@ const nextConfig = {
                 https://ajax.googleapis.com
                 https://www.ita-luxury.com/api/facebookApi
                 https://static.cloudflareinsights.com
-                ${
-                  process.env.NODE_ENV === 'development'
-                    ? 'http://localhost:4000 http://localhost:4001 ws://localhost:4000 ws://localhost:4001'
-                    : 'https://ita-luxury.com https://admin.ita-luxury.com'
-                };
-              
-              frame-src 'self' 
-                https: 
-                ${
-                  process.env.NODE_ENV === 'development'
-                    ? 'http://localhost:4000 http://localhost:4001'
-                    : 'https://ita-luxury.com https://admin.ita-luxury.com'
-                };
-              
+                https://apollo-server-landing-page.cdn.apollographql.com
+                https://embeddable-sandbox.cdn.apollographql.com
+                https://embeddable-explorer.cdn.apollographql.com;
+              frame-src 'self' https:
+                https://accounts.google.com
+                ${process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts};
+              manifest-src 'self'
+                https://apollo-server-landing-page.cdn.apollographql.com;
               object-src 'none';
               base-uri 'self';
-              form-action 'self';
+              form-action 'self' https://www.facebook.com;
               upgrade-insecure-requests;
             `.replace(/\s+/g, ' ').trim(),
           },
-
-          // Other Security Headers
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
@@ -173,14 +143,14 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), sync-xhr=(), autoplay=(), display-capture=(), encrypted-media=(), fullscreen=(), picture-in-picture=()',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), sync-xhr=(), autoplay=(), display-capture=(), encrypted-media=(), fullscreen=(), picture-in-picture=()',
           },
         ],
       },
     ];
   },
 
-  // Image optimization configuration
+  // Rest of the config remains unchanged
   images: {
     remotePatterns: [
       {
@@ -219,17 +189,14 @@ const nextConfig = {
     minimumCacheTTL: 60,
     domains: ['res.cloudinary.com', "via.placeholder.com", 'localhost'],
   },
-  // Compression and optimization
+
   compress: true,
 
-  // Webpack configuration
   webpack: (config, { dev, isServer }) => {
-
-
-      config.module.rules.push({
-        test: /firebase-messaging-sw\.js$/,
-        use: 'file-loader',
-      });
+    config.module.rules.push({
+      test: /firebase-messaging-sw\.js$/,
+      use: 'file-loader',
+    });
     
     if (!dev && !isServer) {
       config.optimization.minimize = true;

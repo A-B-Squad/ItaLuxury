@@ -465,12 +465,28 @@ const Basket: React.FC = () => {
                   },
                   custom_data: {
                     content_name: "InitiateCheckout",
-                    content_type: "product",
+                    content_type: "product_group",
                     currency: "TND",
-                    value: totalPrice,
-                    contents: products.map((product) => ({
+                    value: Number(totalPrice),
+                    contents: products.map(product => ({
                       id: product.id,
                       quantity: product.actualQuantity || product.quantity,
+                      price: product.productDiscounts?.length > 0
+                        ? Number(product.productDiscounts[0].newPrice)
+                        : Number(product.price)
+                      ,
+                      item_name: product.name,
+                      item_brand: product.Brand?.name,
+                      item_category: product.categories[0]?.name,
+                      item_category2: product.categories[1]?.name,
+                      item_category3: product.categories[2]?.name,
+                      availability: product.inventory > 0 ? "in stock" : "out of stock",
+                      item_description: product.description,
+                      item_variant: product.Colors?.color,
+                      item_Att: product.attributes?.map(
+                        (attr: { name: string; value: string }) =>
+                          attr.name + " " + attr.value
+                      ),
                     })),
                     num_items: products.reduce(
                       (sum, product) =>

@@ -75,46 +75,38 @@ const ProductImage: React.FC<ProductImageProps> = ({
   }, []);
 
   return (
-    <div
-      className={`images relative flex ${view == 1 ? "flex-row" : "flex-col"}  gap-1`}
-    >
+    <div className={`
+      relative w-full group
+      ${view === 1 ? 'max-w-[160px]' : ''}
+    `}>
       <Link
-        className="relative w-full flex mx-auto items-center justify-center overflow-hidden"
         href={`/products/tunisie?productId=${product.id}`}
+        className="block w-full h-40 md:h-[268px]"
       >
-        <div className="relative h-44 w-44">
-          <div
-            className={`absolute inset-0 ${isImageLoaded && ("bg-gray-100")} transition-opacity duration-300 ${isImageLoaded && (
-              <Image src={"/sale.png"} width={100} height={100} />
-            )
-              }`}
-          />
-
+        <div className="relative w-full h-full">
+          {!isImageLoaded && (
+            <div className="absolute inset-0 bg-gray-50 animate-pulse" />
+          )}
           {hasImages && (
             <Image
               src={primaryImageUrl}
-              alt={`${product.name}`}
+              alt={product.name}
               layout="fill"
               objectFit="contain"
-              quality={75}
-              sizes="180px"
+              quality={80}
               priority={true}
               onLoad={handleImageLoad}
-              className={`transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"
-                }`}
+              className={`p-2 transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
           )}
-
           {hasSecondImage && (
             <Image
               src={secondaryImageUrl}
               alt={`${product.name} - hover`}
               layout="fill"
               objectFit="contain"
-              quality={75}
-              sizes="176px"
-              loading="lazy"
-              className="absolute top-0 left-0 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
+              quality={80}
+              className="absolute inset-0 p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
             />
           )}
         </div>

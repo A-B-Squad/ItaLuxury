@@ -142,8 +142,8 @@ const Home = () => {
 
   return (
     <>
-      <CenterAds />
-      <div className="Home py-10 flex min-h-screen flex-col items-center md:px-8 px-3">
+      {/* <CenterAds /> */}
+      <div className="Home py-7 flex min-h-screen flex-col items-center md:px-8 px-3">
         <div className="container overflow-hidden">
           <section className="TOP-IMG flex justify-center xl:flex-row flex-col-reverse  gap-4 items-center">
             <LeftAdsCarousel
@@ -195,8 +195,9 @@ const Home = () => {
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className="Carousel_new_product relative  items-center gap-5 place-content-between grid grid-cols-12 ">
-                <div className="sideImg  flex-col gap-3  w-fit hidden  xl:flex xl:col-span-2">
+              <div className="Carousel_new_product relative  items-center gap-3  flex ">
+
+                <div className="sideImg  xl:flex-col gap-3  w-fit hidden  xl:flex ">
                   <SideAds
                     adsLoaded={loadingClinetContactSideAds}
                     image={
@@ -213,12 +214,10 @@ const Home = () => {
                   />
                 </div>
 
-                <div className=" col-span-12 xl:col-span-10">
                   <ProductTabs
                     data={newProducts}
                     loadingProduct={loadingNewProducts_14}
                   />
-                </div>
               </div>
             </div>
 
@@ -239,6 +238,7 @@ const Home = () => {
                   <MdKeyboardArrowRight />
                 </div>
               </div>
+
               <ProductTabs
                 data={productsLessThan20}
                 loadingProduct={loadingProducts_less_20}
@@ -261,14 +261,12 @@ const Home = () => {
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className=" items-center grid  grid-cols-12 gap-5">
-                <div className="productTabs col-span-12 xl:col-span-10">
+              <div className=" relative items-center gap-3  flex">
                   <ProductTabs
                     data={discountedProducts}
                     loadingProduct={loadingProducts_inDiscount_14}
                   />
-                </div>
-                <div className="sideImg w-fit  hidden xl:block xl:col-span-2">
+                <div className="sideImg w-fit  hidden xl:block ">
                   <SideAds
                     adsLoaded={loadingRightAds}
                     image={rightAds?.advertismentByPosition[0]?.images[0]}

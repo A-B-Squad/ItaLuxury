@@ -9,19 +9,17 @@ import {
 import NoProductYet from "./NoProductYet";
 import ProductBox from "../ProductBox/ProductBox";
 
-// Define the shape of a product
 interface Product {
   id: string;
 }
 
-// Define the props for the ProductTabs component
 interface ProductTabsProps {
   data: Product[];
   loadingProduct: boolean;
 }
 
 const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
-  if (!data || (data && data.length === 0) || loadingProduct) {
+  if (!data || data.length === 0 || loadingProduct) {
     return <NoProductYet />;
   }
 
@@ -31,13 +29,15 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
     productPairs.push(data.slice(i, i + 2));
   }
 
-  // Only show carousel if there are 4 or more products
+  // Static grid for 4 or fewer products
   if (data.length <= 4) {
     return (
-      <div className="products-tab w-full rounded-md shadow-sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 md:gap-3">
+      <div className="w-full">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {data.map((product) => (
-            <ProductBox key={product.id} product={product} />
+            <div key={product.id} className="bg-white rounded-lg">
+              <ProductBox product={product} />
+            </div>
           ))}
         </div>
       </div>
@@ -45,25 +45,39 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   }
 
   return (
-    <div className="products-tab relative w-full rounded-md shadow-sm">
-      <Carousel className="productCarousel w-full">
-        <div className="flex items-center justify-end -top-12 right-4 md:right-10 absolute gap-2 z-10">
-          <CarouselPrevious className="px-2 shadow-lg border hover:opacity-85 transition-opacity bg-primaryColor text-white" />
-          <CarouselNext className="px-2 shadow-lg border bg-primaryColor text-white hover:opacity-85 transition-opacity" />
+    <div className="ProductTabs relative w-full ">
+      <Carousel
+        className="w-full"
+        opts={{
+          align: "start",
+          containScroll: "trimSnaps"
+        }}
+      >
+        <div className="flex items-center justify-end gap-2 absolute -top-16 right-0">
+          <CarouselPrevious
+            className="relative h-9 w-9 rounded-full border bg-white 
+                      shadow-sm hover:bg-gray-50 transition-colors"
+          />
+          <CarouselNext
+            className="relative h-9 w-9 rounded-full border bg-white 
+                      shadow-sm hover:bg-gray-50 transition-colors"
+          />
         </div>
 
-        <CarouselContent className="productCarouselContent lg:pl-10">
+        <CarouselContent className="-ml-4">
           {productPairs.map((pair, index) => (
             <CarouselItem
               key={index}
-              className="pl-1 lg:pl-4 basis-1/2 lg:basis-1/3 2xl:basis-1/4"
+              className="pl-3 basis-1/2 md:basis-1/3 lg:basis-1/4"
             >
-              <div className="flex flex-col gap-1 md:gap-3 h-full">
+              <div className="flex flex-col gap-4">
                 {pair.map((product, productIndex) => (
-                  <ProductBox
+                  <div
                     key={`${product.id}-${productIndex}`}
-                    product={product}
-                  />
+                    className="  h-full max-h-[396px] w-full bgwhite rounded-lg"
+                  >
+                    <ProductBox product={product} />
+                  </div>
                 ))}
               </div>
             </CarouselItem>

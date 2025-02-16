@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getLanguage } from "./lib/getLanguage";
 
 const ALLOWED_ORIGINS = [
   'http://localhost:4000',
@@ -17,9 +18,12 @@ const TOKEN_COOKIE_NAME = "Token";
 
 export function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  const locale = getLanguage();
+  res.headers.set('Accept-Language', locale);
 
   // CORS handling
   const origin = req.headers.get("origin");
+  
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     res.headers.set("Access-Control-Allow-Origin", origin);
   }

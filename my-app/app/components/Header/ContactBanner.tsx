@@ -1,8 +1,10 @@
 import React from "react";
-import { CiDeliveryTruck, CiPhone } from "react-icons/ci";
+import { useTranslation } from "react-i18next";
+import {  CiPhone } from "react-icons/ci";
 
 const ContactBanner = ({ CompanyInfoData }: any) => {
   const Phone = CompanyInfoData?.companyInfo?.phone;
+  const { t } = useTranslation('common');
 
   return (
     <div className="bg-TopBar md:hidden bg-black w-full flex justify-center  text-xs md:text-base h-10 items-center text-white">
@@ -10,7 +12,7 @@ const ContactBanner = ({ CompanyInfoData }: any) => {
         <CiPhone size={22} />
 
         <p className="tracking-wider">
-          INFOLINE: {Phone && Phone[0]} {Phone && Phone[1] && ` / ${Phone[1]}`}
+        {t('contact_banner.infoline')}: {Phone && Phone[0]} {Phone && Phone[1] && ` / ${Phone[1]}`}
         </p>
       </div>
       {/* <div className="flex items-center gap-2">

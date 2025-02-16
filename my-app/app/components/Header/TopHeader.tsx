@@ -138,20 +138,20 @@ const TopHeader = ({ logo }: { logo: string }) => {
     SignIn({ variables: { input: data } });
   };
   return (
-    <div
-      className="container flex  md:flex-row flex-col gap-3 justify-between items-center  md:border-b-2 "
-    >
-      <div className="logo relative w-40 h-20 md:w-48 md:h-20 content-center  ">
-        <Link href={"/"}>
-          <Image
-            src={logo}
-            width={192}
-            height={96}
-            alt="ita-luxury"
-            priority={true}
-            layout="responsive"
-            objectFit="contain"
-          />
+    <div className="container flex md:flex-row flex-col gap-3  py-1 justify-between items-center md:border-b-2">
+      <div className="logo-container relative w-full max-w-[200px] h-20 md:h-24 transition-all duration-300 hover:opacity-95">
+        <Link href="/" className="block w-full h-full">
+          <div className="relative w-full h-full">
+            <Image
+              src={"/LOGO.png"}
+              layout="fill"
+              objectFit="contain"
+              quality={100}
+              priority={true}
+              alt="ita-luxury"
+              className="transition-transform duration-300 transform-gpu hover:scale-[1.02]"
+            />
+          </div>
         </Link>
       </div>
       <SearchBar />

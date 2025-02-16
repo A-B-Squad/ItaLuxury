@@ -2,17 +2,13 @@
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
-
-import { useAllProductViewStore } from "@/app/store/zustand";
+import { useAllProductViewStore, useSidebarStore } from "@/app/store/zustand";
 import ProductBox from "../../../components/ProductBox/ProductBox";
-const Pagination = dynamic(() => import('../components/Paginations'), { ssr: false });
 import TopBar from "../components/topBar";
-import dynamic from "next/dynamic";
 
-// Define types for clarity
 type Product = {
   id: string;
   name: string;
@@ -26,124 +22,190 @@ type SearchProductsResult = {
       products: Product[];
     };
     totalCount: number;
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
   };
 };
 
 const ProductsSection: React.FC = () => {
-  // Initialize hooks and state
   const searchParams = useSearchParams();
   const router = useRouter();
   const { view } = useAllProductViewStore();
-  const [searchProducts, { loading }] = useLazyQuery<SearchProductsResult>(
-    SEARCH_PRODUCTS_QUERY,
-  );
+  const [searchProducts,] = useLazyQuery<SearchProductsResult>(SEARCH_PRODUCTS_QUERY);
+  const { toggleOpenSidebar } = useSidebarStore();
 
+  const [categoryDescription, setCategoryDescription] = useState<string>("");
   const [productsData, setProductsData] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(
-    Number(searchParams?.get("page")) || 1,
+    Number(searchParams?.get("page")) || 1
   );
-  const [categoryDescription, setCategoryDescription] = useState<string>("");
-  const [isSearching, setIsSearching] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Refs
+  const lastProductRef = useRef<HTMLDivElement | null>(null);
+  const prevParamsRef = useRef<string>("");
+  const currentPageRef = useRef(currentPage);
 
   // Constants
   const pageSize = 12;
-  const totalPages = Math.ceil(totalCount / pageSize);
   const sort = searchParams?.get("sort") || undefined;
 
-  // Utility functions
+  // Update URL with current page
+  const updateURL = useCallback((page: number) => {
+    const newSearchParams = new URLSearchParams(searchParams?.toString());
+    newSearchParams.set("page", page.toString());
+    router.push(`${window.location.pathname}?${newSearchParams.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
   const getSearchParams = useCallback(() => {
+    const sortParam = searchParams?.get("sort");
+
     return {
       query: searchParams?.get("query") || undefined,
       categoryName: searchParams?.get("category") || undefined,
       colorName: searchParams?.get("color") || undefined,
-      maxPrice: searchParams?.get("price")
-        ? +searchParams.get("price")!
-        : undefined,
+      maxPrice: searchParams?.get("price") ? +searchParams.get("price")! : undefined,
       choice: searchParams?.get("choice") || undefined,
       brandName: searchParams?.get("brand") || undefined,
+      sortBy: sortParam?.split(".")[0],
+      sortOrder: sortParam?.split(".")[1]
     };
   }, [searchParams]);
 
-  const sortProducts = (products: Product[], sortParam: string): Product[] => {
-    return [...products].sort((a, b) => {
-      switch (sortParam) {
-        case "price.asc":
-          return a.price - b.price;
-        case "price.desc":
-          return b.price - a.price;
-        case "name.asc":
-          return a.name.localeCompare(b.name);
-        case "name.desc":
-          return b.name.localeCompare(a.name);
-        default:
-          return 0;
-      }
-    });
-  };
 
-  // Data fetching function
-  const fetchProducts = useCallback(async () => {
-    const params = getSearchParams();
-    setIsSearching(true);
+  const fetchProducts = useCallback(async (pageToFetch: number, shouldAppend: boolean = false) => {
+    // Prevent multiple simultaneous fetches
+    if (isLoading || (!hasMore && shouldAppend)) return;
+
+    setIsLoading(true);
+    setError(null);
 
     try {
+      // Get current search parameters
+      const params = getSearchParams();
+
+      // Fetch products from the API
       const { data } = await searchProducts({
         variables: {
           input: {
             ...params,
             minPrice: 1,
-            page: currentPage,
+            page: pageToFetch,
             pageSize,
-            visibleProduct: true,
+
           },
         },
       });
+      // Extract fetched products and total count from the API response
+      const fetchedProducts = data?.searchProducts?.results?.products || [];
+      const pagination = data?.searchProducts?.pagination || {
+        currentPage: pageToFetch,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
 
-      let fetchedProducts = [
-        ...(data?.searchProducts?.results?.products || []),
-      ];
-
-      if (sort) {
-        fetchedProducts = sortProducts(fetchedProducts, sort);
+      // Update products data based on whether we're appending or replacing
+      if (shouldAppend) {
+        setProductsData((prev) => [...prev, ...fetchedProducts]);
+      } else {
+        setProductsData(fetchedProducts);
       }
-      setProductsData(fetchedProducts);
+      // Update the total count of products
       setTotalCount(data?.searchProducts?.totalCount || 0);
 
-      setCategoryDescription(
-        fetchedProducts[0]?.categories[0]?.description || "",
-      );
+      // Determine if there are more products to load
+      setHasMore(pagination.hasNextPage);
+
+
+      // Update the category description if it's the first page
+      if (fetchedProducts.length > 0 && !shouldAppend) {
+        setCategoryDescription(fetchedProducts[0]?.categories[0]?.description || "");
+      }
+
+      // Update the URL with the current page number
+      updateURL(pageToFetch);
+
+      // Update the current page state after a successful fetch
+      setCurrentPage(pageToFetch);
     } catch (error) {
+      // Handle errors during the fetch process
+      setError("Error loading products. Please try again.");
       console.error("Error fetching products:", error);
     } finally {
-      setIsSearching(false);
+      // Reset loading state
+      setIsLoading(false);
     }
-  }, [searchProducts, getSearchParams, currentPage, sort]);
+  }, [
+    searchProducts,
+    getSearchParams,
+    pageSize,
+    sort,
+    updateURL,
+    productsData.length,
+    isLoading,
+    hasMore,
+  ]);
 
-  // Effects
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
 
+  // Modify the Intersection Observer setup
   useEffect(() => {
-    const newSearchParams = new URLSearchParams(searchParams?.toString());
-    newSearchParams.set("page", currentPage.toString());
-    router.push(`${window.location.pathname}?${newSearchParams.toString()}`);
-  }, [currentPage, router, searchParams]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+        if (firstEntry?.isIntersecting && hasMore && !isLoading) {
+          const nextPage = currentPageRef.current + 1;
+          fetchProducts(nextPage, true);
+        }
+      },
+      { root: null, rootMargin: '200px', threshold: 0.1 }
+    );
 
-  // Event handlers
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    const lastProduct = lastProductRef.current;
+    if (lastProduct) {
+      observer.observe(lastProduct);
+    }
+
+    return () => {
+      if (lastProduct) {
+        observer.unobserve(lastProduct);
+      }
+    };
+  }, [hasMore, isLoading, fetchProducts]);
+  // Reset state when search params (except page) change
+  useEffect(() => {
+    const currentParams = { ...getSearchParams(), sort: searchParams?.get("sort") };
+    const paramsString = JSON.stringify(currentParams);
+
+    if (prevParamsRef.current !== paramsString) {
+      // Reset all states
+      setProductsData([]);
+      setCurrentPage(1);
+      currentPageRef.current = 1;
+      setHasMore(true);
+      setError(null);
+
+      // Fetch fresh data
+      fetchProducts(1, false);
+      prevParamsRef.current = paramsString;
+    }
+  }, [getSearchParams, fetchProducts]);
+
 
   const handleClearFilters = () => {
-    router.push("/Collections/tunisie?page=1", {
-      scroll: true,
-    });
+    router.push("/Collections/tunisie?page=1");
   };
 
-  // Render helpers
   const getGridClasses = (): string => {
     switch (view) {
       case 3:
@@ -161,7 +223,7 @@ const ProductsSection: React.FC = () => {
     switch (view) {
       case 3:
       case 2:
-        return "flex-col items-center justify-between h-[344px]";
+        return "flex-col items-center justify-between";
       case 1:
         return "flex-row h-52 gap-8 items-center justify-between pl-2";
       default:
@@ -171,37 +233,42 @@ const ProductsSection: React.FC = () => {
 
   const renderProducts = () => (
     <div className={`grid w-full gap-2 md:gap-4 ${getGridClasses()}`}>
-      {productsData.map((product) => (
+      {productsData.map((product, index) => (
         <div
           key={product.id}
-          className={`bg-white group flex relative w-full overflow-hidden border border-gray-100 shadow-md ${getProductClasses()}`}
+          className={`group flex relative w-full overflow-hidden ${getProductClasses()}`}
+          ref={index === productsData.length - 1 ? lastProductRef : null}
         >
           <ProductBox product={product} />
         </div>
       ))}
+      {isLoading && (
+        <div className="col-span-full flex justify-center py-4">
+          <div className="w-8 h-8 border-4 border-primaryColor border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
     </div>
   );
 
-  // Render component
   return (
     <div className="flex flex-col justify-between items-center h-full pb-10">
-      {productsData.length > 0 && !loading ? (
+      {productsData.length > 0 ? (
         <>
           {searchParams?.get("category") && categoryDescription !== "" && (
             <p className="bg-white hidden md:block tracking-wider text-sm md:text-[15px] leading-7 px-2 md:px-7 text-gray-800 mb-5 py-2">
               {categoryDescription}
             </p>
           )}
-          <TopBar numberOfProduct={productsData.length} />
-
+          <TopBar numberOfProduct={totalCount} />
           {renderProducts()}
+          {error && (
+            <div className="text-red-500 mt-4 text-center">
+              {error}
+            </div>
+          )}
         </>
-      ) : isSearching || loading ? (
-        <div
-          role="status "
-          className="
-        w-full h-screen absolute bg-gray-200  flex items-center justify-center"
-        >
+      ) : isLoading ? (
+        <div role="status" className="w-full h-screen absolute bg-gray-200 flex items-center justify-center">
           <svg
             aria-hidden="true"
             className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-[#c7ae91]"
@@ -236,13 +303,18 @@ const ProductsSection: React.FC = () => {
           </button>
         </div>
       )}
-      {productsData.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      )}
+
+      <button
+        type="button"
+        className="fixed left-1/2 -translate-x-1/2 bottom-[90px] 
+        bg-red-500 rounded-full w-20 h-11 
+        shadow-lg transition-transform hover:scale-105 md:hidden
+        hover:bg-red-600 z-50"
+        onClick={toggleOpenSidebar}
+        aria-label="Open filters"
+      >
+        <span className="text-white font-medium">Filters</span>
+      </button>
     </div>
   );
 };

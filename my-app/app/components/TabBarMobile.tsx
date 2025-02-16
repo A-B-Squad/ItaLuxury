@@ -1,19 +1,17 @@
 "use client";
 
 import React from "react";
-import {
-  Home,
-  ShoppingBag,
-
-  Heart,
-} from "lucide-react";
+import { Home, ShoppingBag, Heart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GoPackageDependents } from "react-icons/go";
 import { sendGTMEvent } from "@next/third-parties/google";
+import { useAuth } from "@/lib/auth/useAuth";
+import { CiUser } from "react-icons/ci";
 
 const TabBarMobile = () => {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
 
   const isActive = (path: string): boolean => {
     if (!pathname) return false;
@@ -23,7 +21,6 @@ const TabBarMobile = () => {
     return pathname.startsWith(path);
   };
 
-
   const handleNavigation = (pageName: string) => {
     sendGTMEvent({
       event: "page_view",
@@ -31,27 +28,33 @@ const TabBarMobile = () => {
       page_location: window.location.href,
       facebook_data: {
         content_name: pageName,
-        content_type: "page"
-      }
+        content_type: "page",
+      },
     });
   };
 
   return (
-    <div className="fixed  md:hidden bottom-0 left-2 right-2 z-50 ">
-      <div className="bg-[#fffffff2] rounded-full shadow-lg  overflow-hidden">
+    <div className="fixed md:hidden bottom-0  w-full z-50">
+      <div className="bg-[#fffffff2] shadow-lg py-1 overflow-hidden">
         <div
-          className={`flex justify-around items-center py-2 transition-all duration-300 `}
+          className={`flex justify-around items-center py-1 transition-all duration-300`}
         >
-          <Link href="/"
+          <Link
+            href="/"
             onClick={() => handleNavigation("Accueil")}
-            className="flex flex-col items-center">
+            className="flex flex-col items-center"
+          >
             <div
-              className={`p-2 rounded-full ${isActive("/") ? "bg-primaryColor text-white" : "text-gray-500"}`}
+              className={`p-2 rounded-full ${
+                isActive("/") ? "bg-primaryColor text-white" : "text-black"
+              }`}
             >
-              <Home size={24} />
+              <Home size={20} />
             </div>
             <span
-              className={`text-xs mt-1 ${isActive("/") ? "text-primaryColor" : "text-gray-500"}`}
+              className={`text-xs ${
+                isActive("/") ? "text-primaryColor" : "text-black"
+              }`}
             >
               Accueil
             </span>
@@ -61,44 +64,84 @@ const TabBarMobile = () => {
             href="/Collections/tunisie?page=1"
             className="flex flex-col items-center"
             onClick={() => handleNavigation("Boutique")}
-
           >
             <div
-              className={`p-2 rounded-full ${isActive("/Collections") ? "bg-primaryColor text-white" : "text-gray-500"}`}
+              className={`p-2 rounded-full ${
+                isActive("/Collections")
+                  ? "bg-primaryColor text-white"
+                  : "text-black"
+              }`}
             >
-              <ShoppingBag size={24} />
+              <ShoppingBag size={20} />
             </div>
             <span
-              className={`text-xs mt-1 ${isActive("/Collections") ? "text-primaryColor" : "text-gray-500"}`}
+              className={`text-xs ${
+                isActive("/Collections") ? "text-primaryColor" : "text-black"
+              }`}
             >
               Boutique
             </span>
           </Link>
 
-          <Link href="/FavoriteList"
+          <Link
+            href="/FavoriteList"
             onClick={() => handleNavigation("Favoris")}
-            className="flex flex-col items-center">
-            <div className="p-2 rounded-full text-gray-500">
-              <Heart size={24} />
+            className="flex flex-col items-center"
+          >
+            <div className="p-2 rounded-full text-black">
+              <Heart size={20} />
             </div>
-            <span className="text-xs mt-1 text-gray-500">Favoris</span>
+            <span className="text-xs text-black">Favoris</span>
           </Link>
-          <Link href="/TrackingPackages"
-            onClick={() => handleNavigation("Colis")}
-            className="flex flex-col items-center">
-            <div
-              className={`p-2 rounded-full ${isActive("/TrackingPackages") ? "bg-primaryColor text-white" : "text-gray-500"}`}
-            >
-              <GoPackageDependents size={24} />
-            </div>
-            <span
-              className={`text-xs mt-1 ${isActive("/TrackingPackages") ? "text-primaryColor" : "text-gray-500"}`}
-            >
-              Colis
-            </span>
-          </Link>
-        </div>
 
+          {isAuthenticated ? (
+            <Link
+              href="/TrackingPackages"
+              onClick={() => handleNavigation("Colis")}
+              className="flex flex-col items-center"
+            >
+              <div
+                className={`p-2 rounded-full ${
+                  isActive("/TrackingPackages")
+                    ? "bg-primaryColor text-white"
+                    : "text-black"
+                }`}
+              >
+                <GoPackageDependents size={20} />
+              </div>
+              <span
+                className={`text-xs ${
+                  isActive("/TrackingPackages")
+                    ? "text-primaryColor"
+                    : "text-black"
+                }`}
+              >
+                Colis
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/signin"
+              onClick={() => handleNavigation("Compte")}
+              className="flex flex-col items-center"
+            >
+              <div
+                className={`p-2 rounded-full ${
+                  isActive("/signin") ? "bg-primaryColor text-white" : "text-black"
+                }`}
+              >
+                <CiUser size={20} />
+              </div>
+              <span
+                className={`text-xs ${
+                  isActive("/signin") ? "text-primaryColor" : "text-black"
+                }`}
+              >
+                Compte
+              </span>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

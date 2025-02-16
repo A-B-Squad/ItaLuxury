@@ -4,10 +4,10 @@ import React from "react";
 
 const NoProductYet = () => {
   return (
-    <div className="pl-4 grid items-center grid-cols-2 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-3">
+    <div className="grid items-center w-full grid-cols-2 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-3">
       {[...Array(8)].map((_, index) => (
         <div key={index} className="bg-whie border rounded-md overflow-hidden">
-          <div className="h-32   bg-gray-50 animate-pulse flex items-center justify-center">
+          <div className="h-56 w-56   bg-gray-50 animate-pulse flex items-center justify-center">
             <Image
               src={"/sale.png"}
               width={100}

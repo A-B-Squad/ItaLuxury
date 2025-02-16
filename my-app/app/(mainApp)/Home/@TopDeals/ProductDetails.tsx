@@ -38,7 +38,7 @@ const ProductDetails: React.FC<ProductProps> = ({
     const { openProductDetails } = useProductDetails();
     const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
     const { openPruchaseOptions } = usePruchaseOptions();
-  const { decodedToken, isAuthenticated } = useAuth();
+    const { decodedToken, isAuthenticated } = useAuth();
 
     const {
         products: storedProducts,
@@ -76,39 +76,44 @@ const ProductDetails: React.FC<ProductProps> = ({
                 content_ids: [product.id],
                 value: price * quantity,
                 currency: "TND",
+                contents: [{
+                    id: product.id,
+                    quantity: quantity,
+                    item_price: price
+                }]
             },
         };
         const cartEventDataGTM = {
             event: "add_to_cart",
             ecommerce: {
-              currency: "TND",
-              value: price * quantity,
-              items: [{
-                item_id: product.id,
-                item_name: product.name,
-                quantity: quantity,
-                price: price
-              }]
+                currency: "TND",
+                value: price * quantity,
+                items: [{
+                    item_id: product.id,
+                    item_name: product.name,
+                    quantity: quantity,
+                    price: price
+                }]
             },
             // User data for both events
             user_data: {
-              em: [userData?.fetchUsersById.email.toLowerCase()],
-              fn: [userData?.fetchUsersById.fullName],
-              ph: [userData?.fetchUsersById?.number],
-              country: ["tn"],
-              external_id: userData?.fetchUsersById.id
+                em: [userData?.fetchUsersById.email.toLowerCase()],
+                fn: [userData?.fetchUsersById.fullName],
+                ph: [userData?.fetchUsersById?.number],
+                country: ["tn"],
+                external_id: userData?.fetchUsersById.id
             },
             // Facebook specific data
             facebook_data: {
-              content_name: product.name,
-              content_type: "product",
-              content_ids: [product.id],
-              value: price * quantity,
-              currency: "TND"
+                content_name: product.name,
+                content_type: "product",
+                content_ids: [product.id],
+                value: price * quantity,
+                currency: "TND"
             }
-          };
-          triggerEvents("AddToCart", addToCartData);
-          sendGTMEvent(cartEventDataGTM);
+        };
+        triggerEvents("AddToCart", addToCartData);
+        sendGTMEvent(cartEventDataGTM);
 
         if (isAuthenticated) {
             try {
@@ -229,7 +234,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             />
             <div className="lg:col-span-2 row-span-1 lg:row-span-1 place-self-stretch lg:mt-3 flex flex-col justify-around">
                 <Link
-                    href={`/Collections/tunisie/?productId=${product?.id}`}
+                    href={`/products/tunisie?productId=${product.id}`}
                     onClick={handleCategoryStorage}
                 >
                     <h2 className="tracking-wider hover:text-secondaryColor transition-colors">
@@ -244,7 +249,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                         </span>
                     </div>
 
-                    <ul className="text-xs md:text-sm text-gray-500 tracking-wider mt-2">
+                    <ul className="text-xs md:text-sm text-[#666] tracking-wider mt-2">
                         {product?.attributes
                             ?.slice(0, 2)
                             ?.map((attribute: any, i: number) => (

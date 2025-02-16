@@ -140,7 +140,7 @@ interface ProductData {
   Colors: {
     color: string;
     Hex: string;
-  };
+  } | null;
   brand: Brand;
   categories: {
     name: string;

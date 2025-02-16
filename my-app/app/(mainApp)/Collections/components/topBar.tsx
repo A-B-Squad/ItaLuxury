@@ -2,12 +2,10 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  BsFillGrid3X2GapFill,
-  BsFillGrid3X3GapFill,
+
   BsGrid3X3Gap,
 } from "react-icons/bs";
-import { FaFilter } from "react-icons/fa";
-import { HiViewGrid } from "react-icons/hi";
+
 import {
   Select,
   SelectContent,
@@ -19,14 +17,12 @@ import {
 
 import {
   useAllProductViewStore,
-  useSidebarStore,
 } from "../../../store/zustand";
 import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
 import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
 import { CiGrid2H, CiGrid41 } from "react-icons/ci";
 
 const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
-  const { toggleOpenSidebar } = useSidebarStore();
   const { changeProductView, view } = useAllProductViewStore();
   const [selectedFilterQueries, setSelectedFilterQueries] = useState<any>({});
 
@@ -135,15 +131,6 @@ const TopBar = ({ numberOfProduct }: { numberOfProduct: number }) => {
             </SelectGroup>
           </SelectContent>
         </Select>
-
-        <button
-          type="button"
-          className=" p-2 text-gray-400 hover:text-gray-500 sm:ml-6 md:hidden"
-          onClick={toggleOpenSidebar}
-        >
-          <span className="sr-only">Filters</span>
-          <FaFilter size={20} />
-        </button>
       </div>
     </div>
   );

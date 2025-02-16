@@ -338,7 +338,6 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           productDiscounts {
             price
             newPrice
-            
           }
         }
         categories {
@@ -348,6 +347,12 @@ export const SEARCH_PRODUCTS_QUERY = gql`
         }
       }
       totalCount
+      pagination {
+        currentPage
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
     }
   }
 `;

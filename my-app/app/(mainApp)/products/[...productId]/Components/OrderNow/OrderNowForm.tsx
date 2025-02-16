@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
+import { $Enums } from "@prisma/client";
 
 // Define interfaces
 
@@ -80,6 +81,12 @@ const OrderNow: React.FC<OrderNowProps> = ({
             ? productDetails.productDiscounts[0].newPrice * ActualQuantity
             : productDetails?.price * ActualQuantity;
 
+
+    const subtotal = Number(total || 0);
+    const isFreeDelivery = subtotal >= 499;
+    const shippingCost = isFreeDelivery ? 0 : deliveryPrice;
+
+
     // GraphQL setup
     const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
     const [isGuest, setIsGuest] = useState<boolean>(true);
@@ -113,6 +120,9 @@ const OrderNow: React.FC<OrderNowProps> = ({
             setIsGuest(true);
         }
     }, []);
+
+
+
 
     // Calculate total with discounts
     const calculateTotal = (): string => {
@@ -229,6 +239,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         ? productDetails.productDiscounts[0].newPrice
                         : productDetails.price
                 );
+
                 // Track purchase event
                 triggerEvents("Purchase", {
                     user_data: {
@@ -241,10 +252,14 @@ const OrderNow: React.FC<OrderNowProps> = ({
                     },
                     custom_data: {
                         content_name: "OrderNow",
-                        content_type: "product",
+                        content_type: "product_group",
+                        content_category: "Checkout",
                         currency: "TND",
                         value: parseFloat(calculateTotal()),
-                        contents: [{ id: productDetails.id, quantity: ActualQuantity }],
+                        contents: [{
+                            id: productDetails.id,
+                            quantity: ActualQuantity
+                        }],
                         num_items: ActualQuantity,
                     },
                 });
@@ -267,13 +282,16 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         external_id: decodedToken?.userId
                     },
                     facebook_data: {
-                        content_name: "Checkout",
-                        content_type: "product",
+                        content_name: "OrderNow",
+                        content_type: "product_group",
+                        content_category: "Checkout",
                         currency: "TND",
                         value: parseFloat(calculateTotal()),
-                        contents: [{ id: productDetails.id, quantity: ActualQuantity }],
-
-                        num_items: ActualQuantity
+                        contents: [{
+                            id: productDetails.id,
+                            quantity: ActualQuantity
+                        }],
+                        num_items: ActualQuantity,
                     }
                 });
 
@@ -610,31 +628,42 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         </div>
 
                         <div className="info md:px-4">
+                            <div className="space-y-3 border-b border-gray-200 pb-4 mb-4">
+                                <div className="flex justify-between text-base text-gray-600">
+                                    <p>Sous-total</p>
+                                    <p>{subtotal.toFixed(3)} TND</p>
+                                </div>
+
+                                <div className="flex justify-between text-base text-gray-600">
+                                    <div className="flex flex-col">
+                                        <p>Livraison</p>
+                                        {isFreeDelivery && (
+                                            <span className="text-green-600 text-sm">
+                                                Livraison gratuite à partir de 499 TND
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p>{isFreeDelivery ? (
+                                        <span className="text-green-600">Gratuite</span>
+                                    ) : (
+                                        `${shippingCost.toFixed(3)} TND`
+                                    )}</p>
+                                </div>
+
+                                {discountPercentage > 0 && (
+                                    <div className="flex justify-between text-base text-green-600">
+                                        <p>Réduction</p>
+                                        <p>-{((subtotal * discountPercentage) / 100).toFixed(3)} TND</p>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="Total py-2 flex w-full items-center justify-between">
                                 <p className="text-2xl font-medium text-gray-900">Total :</p>
                                 <p className="text-2xl font-semibold text-gray-900">
                                     {calculateTotal()} TND
                                 </p>
                             </div>
-
-                            {/* Terms and Conditions */}
-                            <p className=" text-sm text-gray-600 ">
-                                En passant à la caisse, vous acceptez nos{" "}
-                                <Link
-                                    href="/Terms-of-use"
-                                    className="text-primaryColor hover:underline"
-                                >
-                                    Termes de service
-                                </Link>{" "}
-                                et confirmez que vous avez lu notre{" "}
-                                <Link
-                                    href="/Privacy-Policy"
-                                    className="text-primaryColor hover:underline"
-                                >
-                                    Politique de confidentialité
-                                </Link>
-                                .
-                            </p>
                         </div>
 
                         <div className="submit flex flex-col  w-full items-center mt-5">

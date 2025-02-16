@@ -13,11 +13,6 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const thumbnailsRef = useRef<HTMLDivElement>(null);
 
-  interface MousePosition {
-    x: number;
-    y: number;
-  }
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
     if (!isZoomed) return;
 
@@ -32,7 +27,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     if (!thumbnailsRef.current) return;
 
     const container = thumbnailsRef.current;
-    const thumbnailWidth = 80; // This includes the gap (64px + 8px gap)
+    const thumbnailWidth = 80;
     const scrollPosition = selectedImage * thumbnailWidth;
 
     container.scrollTo({
@@ -41,11 +36,9 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     });
   };
 
-  // Handle wheel scroll on thumbnails
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (!thumbnailsRef.current) return;
     e.preventDefault();
-
     thumbnailsRef.current.scrollLeft += e.deltaY;
   };
 
@@ -63,7 +56,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
 
   if (validImages.length === 0) {
     return (
-      <div className="w-full max-w-6xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto">
         <div className="aspect-square rounded-lg bg-gray-100 flex items-center justify-center">
           <p className="text-gray-500">No images available</p>
         </div>
@@ -72,87 +65,83 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Main image container */}
-        <div className="order-1 md:order-2 flex-1">
-          <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100">
-            <div
-              className={`relative w-full h-full cursor-zoom-in ${isZoomed ? 'scale-150' : 'scale-100'
-                } transition-transform duration-300`}
-              onClick={() => setIsZoomed(!isZoomed)}
-              onMouseMove={handleMouseMove}
-              onMouseLeave={() => setIsZoomed(false)}
-              style={{
-                transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center'
-              }}
-            >
-              <Image
-                layout="fill"
-                src={validImages[selectedImage]}
-                alt={`Product image ${selectedImage + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            {/* Navigation buttons - only show if there's more than one image */}
-            {!isZoomed && validImages.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    previousImage();
-                  }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-6 h-6 text-gray-800" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextImage();
-                  }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-6 h-6 text-gray-800" />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Thumbnails - horizontal on mobile, vertical on desktop */}
-        <div className="order-2 md:order-1 md:w-24 w-full  max-w-screen-sm mx-auto">
-          <div className="relative">
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="flex flex-col-reverse gap-4">
+        {/* Thumbnails */}
+        <div className="w-full flex  ">
+          <div className="relative  w-full">
             <div
               ref={thumbnailsRef}
               onWheel={handleWheel}
-              className="flex md:flex-col justify-center gap-2 pb-2 md:pb-0 overflow-x-auto md:overflow-y-auto md:h-[500px] no-scrollbar"
+              className="flex gap-2 justify-center overflow-x-auto no-scrollbar"
             >
               {validImages.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative flex-shrink-0 w-16 md:w-20 h-16 md:h-20  overflow-hidden group `}
+                  className="relative flex-shrink-0 w-16 md:w-24 h-16 md:h-24 rounded overflow-hidden group"
                 >
                   <Image
-                    layout="fill"
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
-                    className={`w-full h-full object-cover transition-opacity duration-200 ${selectedImage === index
-                        ? 'opacity-100'
-                        : 'opacity-60 group-hover:opacity-100'
+                    layout="fill"
+                    objectFit="cover"
+                    className={`transition-opacity duration-200 ${selectedImage === index ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'
                       }`}
                   />
                 </button>
               ))}
             </div>
-            {/* Fade effect for overflow indication */}
             <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white to-transparent md:hidden pointer-events-none" />
             <div className="absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white to-transparent md:hidden pointer-events-none" />
           </div>
+        </div>
+
+        {/* Main image */}
+        <div className="relative  h-[450px] w-[300px] md:w-[450px] overflow-hidden rounded-lg bg-gray-100">
+          <div
+            className={`relative w-full h-full cursor-zoom-in ${isZoomed ? 'scale-150' : 'scale-100'
+              } transition-transform duration-300`}
+            onClick={() => setIsZoomed(!isZoomed)}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setIsZoomed(false)}
+            style={{
+              transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center'
+            }}
+          >
+            <Image
+              src={validImages[selectedImage]}
+              alt={`Product image ${selectedImage + 1}`}
+              layout="fill"
+              objectFit="contain"
+              className="w-full h-full"
+            />
+          </div>
+
+          {!isZoomed && validImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  previousImage();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-6 h-6 text-gray-800" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextImage();
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-6 h-6 text-gray-800" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

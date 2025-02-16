@@ -11,6 +11,7 @@ export const packageById = async (
       include: {
         Checkout: {
           include: {
+            Governorate: true,
             productInCheckout: {
               include: {
                 product: {

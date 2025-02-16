@@ -13,11 +13,11 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => {
 
   return (
     <Link rel="preload" href={`/products/tunisie?productId=${product.id}`}>
-      <div className="product-name pt-1 tracking-wider  hover:text-primaryColor transition-colors text-sm font-semibold ">
-        <p className="category font-normal -tracking-tighter text-xs capitalize">
+      <div className="product-name pt-1">
+        <p className="category hidden lg:block font-normal -tracking-tighter text-xs capitalize">
           {categoryNames[categoryNames.length - 1]}
         </p>
-        <p className="text-xs lg:font-semibold lg:text-sm line-clamp-2 ">
+        <p className=" font-semibold px-2 text-center text-[13px] line-clamp-2 ">
           {product.name}
         </p>
       </div>

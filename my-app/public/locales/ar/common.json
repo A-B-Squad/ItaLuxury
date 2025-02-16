@@ -1,0 +1,51 @@
+{
+  "header": {
+    "welcome": "مرحبا",
+    "connection": "تسجيل الدخول",
+    "invalid_credentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "your_account": "حسابك",
+    "new_customer": "عميل جديد؟",
+    "start_here": "ابدأ هنا",
+    "my_account": "حسابي",
+    "logout": "تسجيل خروج",
+    "wishlist": "قائمة الرغبات",
+    "my_orders": "طلباتي",
+    "compare": "مقارنة",
+    "basket": "السلة",
+    "login_required": "يرجى تسجيل الدخول"
+  },
+
+  "bottom_header": {
+    "categories": "فئاتنا",
+    "home": "الرئيسية",
+    "shop": "المتجر",
+    "promotions": "العروض",
+    "contact": "اتصل بنا",
+    "your_cart": "سلة التسوق",
+    "logout_error": "خطأ في تسجيل الخروج",
+    "try_again": "يرجى المحاولة لاحقاً",
+    "logout_success": "تم تسجيل الخروج بنجاح"
+  },
+  "contact_banner": {
+    "infoline": "خط المعلومات",
+    "delivery": "توصيل للمنزل"
+  },
+
+  "drawer": {
+    "welcome": "مرحباً",
+    "login_prompt": "مرحباً، سجل دخولك للمتابعة",
+    "login": "تسجيل الدخول إلى حسابك",
+    "logout": "تسجيل الخروج من حسابك",
+    "home": "الصفحة الرئيسية",
+    "favorites": "منتجاتي المفضلة",
+    "orders": "تتبع طلباتي",
+    "compare": "مقارنة المنتجات",
+    "contact": "اتصل بنا",
+    "all_products": "عرض جميع المنتجات",
+    "no_categories": "لا توجد فئات متاحة حالياً. يرجى العودة لاحقاً!",
+    "logout_success": "تم تسجيل الخروج بنجاح",
+    "logout_message": "إلى اللقاء في ita-luxury",
+    "logout_error": "خطأ في تسجيل الخروج",
+    "try_again": "يرجى المحاولة مرة أخرى لاحقاً"
+  }
+}

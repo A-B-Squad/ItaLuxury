@@ -22,7 +22,7 @@ enum Status {
   REFUNDED
   BACK
   CANCELLED
-  EXCHANGE
+  CONFIRMED
   TRANSFER_TO_DELIVERY_COMPANY
   PROCESSING
   PAYMENT_REFUSED
@@ -193,6 +193,7 @@ model Package {
   createdAt   DateTime  @default(now())
   delivredAt  DateTime?
   inTransitAt DateTime?
+  isConfirmedAt DateTime?
   returnedAt  DateTime?
   comments    String[]
 }

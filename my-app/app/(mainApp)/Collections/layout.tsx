@@ -44,6 +44,7 @@ export default async function Layout({ children }: LayoutProps) {
         <SideBar categories={categories} brands={brands} colors={colors} />
         <main style={{ width: "inherit" }} className="relative ">
           {children}
+          
         </main>
       </div>
     </div>
