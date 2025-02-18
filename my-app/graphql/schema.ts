@@ -9,7 +9,7 @@ enum Role {
 enum Status {
   REFUNDED
   BACK
-  EXCHANGE
+  CONFIRMED
   PROCESSING
   TRANSFER_TO_DELIVERY_COMPANY
   PAYED_AND_DELIVERED
@@ -262,8 +262,15 @@ type Moderator {
 type SearchProductsResult {
   results: SearchResults!
   totalCount: Int!
+  pagination: PaginationInfo! # Add pagination metadata
 }
 
+type PaginationInfo {
+  currentPage: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
 type SearchResults {
   products: [Product!]!
   categories: [Category!]!
@@ -420,7 +427,7 @@ type Mutation {
   cancelPackage(input: CancelPackageInput!): String!
   refundPackage(input: RefundPackageInput!): String!
   cancalPackageProduct(input: CancelProductPackageInput!): String!
-  payedOrToDeliveryPackage(packageId: ID! , paymentMethod:PaymentMethod!, status: String!): String!
+  payedOrConfirmedOrInTransitPackage(packageId: ID! , paymentMethod:PaymentMethod!, status: String!): String!
   createPackageComments(packageId: ID!, comment: [String!]!): String!
   updateStatusPayOnlinePackage(packageId:ID!,paymentStatus:Status):String!
   # Category-related mutations
@@ -693,6 +700,8 @@ input ProductSearchInput {
   choice: String
   brandName: String
   visibleProduct:Boolean
+  sortBy: String 
+  sortOrder: String 
 }
 
 input ContactUsInput {

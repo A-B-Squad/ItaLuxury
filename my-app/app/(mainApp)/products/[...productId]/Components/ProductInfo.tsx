@@ -59,7 +59,7 @@ const ProductInfo = memo(({
 
   return (
     <div className="productInfo lg:col-span-4 col-span-12 p-3 w-full">
-      <h2 className="product_name tracking-wider text-lg lg:text-2xl w-fit font-semibold">
+      <h2 className="product_name tracking-wide text-lg lg:text-2xl w-fit font-semibold">
         {productDetails?.name}
       </h2>
 
@@ -67,7 +67,7 @@ const ProductInfo = memo(({
         <div className="text-primaryColor flex items-center gap-3 tracking-wide text-2xl font-bold">
           {discount ? (
             <>
-              <p className="text-gray-400 line-through font-semibold text-lg">
+              <p className=" line-through font-semibold  tracking-wider text-[#666] text-lg">
                 {formattedPrice} TND
               </p>
               <p className="text-red-500 font-bold">
@@ -98,7 +98,7 @@ const ProductInfo = memo(({
             Description
           </h3>
           <div
-            className="product-description text-base text-[#000] tracking-wide  border-b-2 border-dashed pb-6"
+            className="product-description text-base text-[#000] tracking-wide   pb-6"
             dangerouslySetInnerHTML={productDescription}
           />
         </div>

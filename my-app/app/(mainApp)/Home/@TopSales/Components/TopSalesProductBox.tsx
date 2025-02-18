@@ -44,6 +44,10 @@ const TopSalesProductBox = ({ product }: any) => {
   } = useProductsInBasketStore();
 
   const AddToBasket = async (product: any) => {
+    const price =
+      product.productDiscounts.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price;
     triggerEvents("AddToCart", {
       user_data: {
         em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -56,14 +60,14 @@ const TopSalesProductBox = ({ product }: any) => {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-        contents: {
+
+        contents: [{
           id: product.id,
           quantity: product.actualQuantity || product.quantity,
-        },
-        value:
-          product.productDiscounts.length > 0
-            ? product.productDiscounts[0].newPrice
-            : product.price,
+          item_price: price
+        }]
+        ,
+        value: price * (product.actualQuantity || product.quantity),
         currency: "TND",
       },
     });
@@ -78,9 +82,7 @@ const TopSalesProductBox = ({ product }: any) => {
           item_id: product.id,
           item_name: product.name,
           quantity: product.actualQuantity || product.quantity,
-          price: product.productDiscounts.length > 0
-            ? product.productDiscounts[0].newPrice
-            : product.price
+          price: price
         }]
       },
       user_data: {
@@ -94,13 +96,12 @@ const TopSalesProductBox = ({ product }: any) => {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-        contents: {
+        contents: [{
           id: product.id,
-          quantity: product.actualQuantity || product.quantity
-        },
-        value: product.productDiscounts.length > 0
-          ? product.productDiscounts[0].newPrice
-          : product.price,
+          quantity: product.actualQuantity || product.quantity,
+          item_price: price
+        }],
+        value: price * (product.actualQuantity || product.quantity),
         currency: "TND"
       }
     });

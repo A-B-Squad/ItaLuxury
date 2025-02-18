@@ -11,22 +11,25 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
   onAddToBasket,
 }) => (
   <>
-    <div className="price&ColorInfo relative flex justify-between items-start pt-1">
-      <div className="prices">
+    <div className="price&ColorInfo  flex w-full justify-between items-start ">
+      <div className="prices flex flex-col lg:flex-row lg:gap-2 justify-center  w-full items-center text-center">
+
+
+        {product.productDiscounts.length > 0 && (
+          <p className="text-red-500 font-bold md:text-lg  text-sm">
+            {product.productDiscounts[0]?.newPrice.toFixed(3)} TND
+          </p>
+        )}
+
+
         <p
           className={`${product.productDiscounts.length > 0
-            ? "line-through font-medium  text-base text-gray-700"
-            : "text-primaryColor text-base font-bold md:text-lg py-1"} `}
+            ? "line-through font-normal  text-sm md:text-base text-[#666]"
+            : "text-primaryColor  font-bold md:text-lg py-1 text-base"} `}
         >
           {product.price.toFixed(3)} TND
         </p>
-        {product.productDiscounts.length > 0 && (
 
-          <p className="text-red-500 font-bold ml-1  text-lg">
-            {product.productDiscounts[0]?.newPrice.toFixed(3)} TND
-          </p>
-
-        )}
       </div>
       <div
         className="Color absolute right-1 top-0 w-fit rounded-full cursor-crosshair"
@@ -34,22 +37,23 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
       >
         {product.Colors && (
           <div
-            className="colors_available items-center mt-1 rounded-md w-6 h-6 border-black border-1   shadow-gray-400 shadow-md"
+            className="colors_available items-center mt-1 rounded-md w-5 h-5 border-black border-1   shadow-gray-400 shadow-md"
             style={{ backgroundColor: product.Colors.Hex }} />
         )}
       </div>
     </div>
-    <button
+    {/* <button
       disabled={product.inventory <= 0}
       type="button"
-      className={`${product?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} flex items-center gap-2 self-center py-2 m-auto  w-fit justify-center bg-white px-2 text-sm md:text-base hover:text-white transition hover:bg-secondaryColor`}
+      className={`${product?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} absolute  left-2/4 top-2/4 -translate-x-2/4 flex items-center gap-2 self-center py-2 m-auto  w-fit justify-center bg-white px-2 text-sm md:text-base hover:text-white transition hover:bg-secondaryColor`}
 
       onClick={() => {
         onAddToBasket(product, 1);
       }}>
       <SlBasket />
       Ajouter au panier
-    </button>
+    </button> */}
+
   </>
 );
 

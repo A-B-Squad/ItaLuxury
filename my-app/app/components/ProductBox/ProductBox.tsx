@@ -71,43 +71,62 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
 
   const AddToBasket = async (product: any, quantity: number = 1) => {
+    if (!product) return
+
     openPruchaseOptions(product);
 
-    const price =
-      product.productDiscounts.length > 0
-        ? product.productDiscounts[0].newPrice
-        : product.price;
+    const price = product.productDiscounts[0]?.newPrice ?? product.price
+
+
     const addToCartData = {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
-        country: ["tn"],
-        external_id: userData?.fetchUsersById.id,
+        user_email: [userData?.fetchUsersById.email.toLowerCase()],
+        user_fullName: [userData?.fetchUsersById.fullName],
+        user_phone: [userData?.fetchUsersById?.number],
+        user_country: ["tn"],
+        user_city: "",
+        user_id: decodedToken?.userId,
       },
       custom_data: {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-        value: price * quantity,
         currency: "TND",
+        contents: [
+          {
+            item_id: product.id,
+            reference: product.reference,
+            item_name: product.name,
+            item_category: product.categories[0]?.name,
+            item_category2: product.categories[1]?.name,
+            item_category3: product.categories[2]?.name,
+            item_variant: product?.Colors?.color,
+            item_price: product.productDiscounts?.length
+              ? product.productDiscounts[0].newPrice.toFixed(3)
+              : product.price.toFixed(3),
+            item_description: product.description,
+
+            quantity: product.actualQuantity || product.quantity,
+
+          },
+        ],
+        value: price * quantity,
+
       },
     };
+
+
     triggerEvents("AddToCart", addToCartData);
     sendGTMEvent({
       event: "add_to_cart",
       ecommerce: {
         currency: "TND",
-        value: product.productDiscounts.length > 0
-          ? product.productDiscounts[0].newPrice
-          : product.price,
+        value: price * quantity,
         items: [{
           item_id: product.id,
           item_name: product.name,
           quantity: product.actualQuantity || product.quantity,
-          price: product.productDiscounts.length > 0
-            ? product.productDiscounts[0].newPrice
-            : product.price
+          price: price
         }]
       },
       user_data: {
@@ -125,9 +144,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           id: product.id,
           quantity: product.actualQuantity || product.quantity
         },
-        value: product.productDiscounts.length > 0
-          ? product.productDiscounts[0].newPrice
-          : product.price,
+        value: price * quantity,
         currency: "TND"
       }
     });
@@ -218,39 +235,42 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
     toggleIsUpdated();
   };
 
+
   return (
-    <>
-      <div
-        className={`product-box w-full relative group  flex items-center overflow-hidden    ${view === 1 ? " justify-start h-[215px]" : "justify-center h-[344px]"}    bg-white    `}
-      >
-        {/* Product labels */}
-        <ProductLabels product={product} />
+    <div className={`
+      relative group  shadow-sm transition-all duration-300
+      transform hover:scale-105  hover:shadow-lg
+      ${view === 1 ? 'h-[180px] md:h-[200px]' : ' hover:h-[400p] h-full max-h-[396px]'}
+      w-full overflow-hidden
+      bg-white
+    `}>
+      <ProductLabels product={product} />
 
-        <div
-          className={`product flex  w-full   ${view === 1 ? " flex-row" : "flex-col  "} `}
-        >
-          {/* Product image */}
-          <ProductImage
-            product={product}
-            onAddToBasket={AddToBasket}
-            decodedToken={decodedToken}
-            view={view}
-          />
+      <div className={`
+          h-full w-full flex 
+          ${view === 1 ? 'flex-row items-center' : 'flex-col'}
+        `}>
+        <ProductImage
+          product={product}
+          onAddToBasket={AddToBasket}
+          decodedToken={decodedToken}
+          view={view}
+        />
 
-          {/* Product details */}
-          <div
-            className={`${view !== 1 ? "border-t" : ""} mt-2 px-4 lg:px-2  w-full`}
-          >
-            <ProductName product={product} />
-            {view !== 1 ? (
-              <FullViewDetails product={product} onAddToBasket={AddToBasket} />
-            ) : (
-              <CompactViewDetails product={product} />
-            )}
-          </div>
+        <div className={`
+        relative
+            flex-1 px-2
+            ${view !== 1 ? 'border-t border-gray-100' : ''}
+          `}>
+          <ProductName product={product} />
+          {view !== 1 ? (
+            <FullViewDetails product={product} onAddToBasket={AddToBasket} />
+          ) : (
+            <CompactViewDetails product={product} />
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 });
 

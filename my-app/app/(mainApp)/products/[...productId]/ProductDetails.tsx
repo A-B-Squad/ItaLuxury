@@ -5,7 +5,6 @@ import triggerEvents from "@/utlils/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import {
   ADD_DELETE_PRODUCT_FAVORITE_MUTATION,
   ADD_TO_BASKET_MUTATION,
@@ -47,12 +46,6 @@ const ProductInfo = dynamic(() => import("./Components/ProductInfo"), {
   ssr: true,
 });
 
-const SmallImageCarousel = dynamic(
-  () => import("./Components/SmallImageCarousel"),
-  {
-    ssr: true,
-  }
-);
 
 // Defer non-critical components
 const ProductDetailsDrawer = dynamic(
@@ -77,7 +70,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     [productDetails]
   );
 
-  const [bigImage, setBigImage] = useState<any>(mainImage);
   const [smallImages, setSmallImages] = useState<any>(null);
   const { decodedToken, isAuthenticated } = useAuth();
   const [discount, setDiscount] = useState<any>(null);
@@ -127,7 +119,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   useEffect(() => {
     if (productDetails?.images) {
-      setBigImage(productDetails.images[0]);
       setSmallImages(productDetails.images);
     }
   }, [productDetails]);
@@ -211,8 +202,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
     triggerEvents("PageView", {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
+        em: [userData?.fetchUsersById?.email.toLowerCase()],
+        fn: [userData?.fetchUsersById?.fullName],
         ph: [userData?.fetchUsersById?.number],
         country: ["tn"],
         ct: "",
@@ -280,9 +271,12 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         user_city: "",
         user_id: decodedToken?.userId,
       },
-      ecommerce: {
+      custom_data: {
+        content_name: product.name,
+        content_type: "product",
+        content_ids: [product.id],
         currency: "TND",
-        items: [
+        contents: [
           {
             item_id: product.id,
             reference: product.reference,
@@ -290,7 +284,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             item_category: product.categories[0]?.name,
             item_category2: product.categories[1]?.name,
             item_category3: product.categories[2]?.name,
-            item_variant: product.Colors.color,
+            item_variant: product?.Colors?.color,
             item_price: product.productDiscounts?.length
               ? product.productDiscounts[0].newPrice.toFixed(3)
               : product.price.toFixed(3),
@@ -303,6 +297,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
           },
         ],
+        value: price * (product.actualQuantity || product.quantity)
       },
     };
 
@@ -318,7 +313,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             item_category: product.categories[0]?.name,
             item_category2: product.categories[1]?.name,
             item_category3: product.categories[2]?.name,
-            item_variant: product.Colors.color,
+            item_variant: product?.Colors?.color,
             item_price: product.productDiscounts?.length
               ? product.productDiscounts[0].newPrice.toFixed(3)
               : product.price.toFixed(3),
@@ -543,12 +538,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             <Breadcumb Path={categoriesPath} />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm gap-2 ">
-              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 flex lg:flex-row-reverse flex-col  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
-                <div className="relative shadow-sm overflow-hidden   flex items-center justify-center w-full md:w-[556px] h-[400px] md:h-[556px] rounded-sm">
+              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
+                <div className="">
                   <CustomInnerZoom
-                    className="h-fit flex items-center justify-center rounded"
-                    zoomSrc={bigImage || ""}
-                    src={bigImage || ""}
+                    images={smallImages}
                   />
                   <span
                     className={`absolute top-2 right-2 p-2 ${productDetails?.inventory > 1 ? "bg-blueColor" : productDetails?.inventory === 1 ? "bg-gray-400 " : "bg-gray-400"} bg-blue text-xs font-400 text-white`}
@@ -560,11 +553,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         : "RUPTURE DE STOCK"}
                   </span>
                 </div>
-                <SmallImageCarousel
-                  images={smallImages}
-                  bigImage={bigImage}
-                  setBigImage={setBigImage}
-                />
+
               </div>
 
               <ProductInfo

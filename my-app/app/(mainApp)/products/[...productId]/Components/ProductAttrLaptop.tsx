@@ -49,29 +49,28 @@ const ProductAttrLaptop: React.FC<ProductAttrProps> = memo(({ attributes, produc
                 <div className="p-6">
                     {activeTab === 'details' ? (
                         <div>
-                            <table className="w-full text-gray-800">
-                                <tbody>
-                                    {attributes.map((attribute, index) => (
-                                        <tr
-                                            key={index}
-                                            className={`
-                                                border-b border-gray-100 
-                                                hover:bg-blue-50 
-                                                transition-colors duration-300
-                                                ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                                            `}
-                                        >
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-600 w-1/3 uppercase tracking-wider">
-                                                {attribute.name}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-900 font-normal w-2/3">
-                                                {attribute.value}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <table className="w-full text-gray-800 border-collapse border border-gray-300">
+                            <tbody>
+                                {attributes.map((attribute, index) => (
+                                    <tr
+                                        key={index}
+                                        className={`
+                                        hover:bg-blue-50
+                                        transition-colors duration-300
+                                        ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                                    `}
+                                    >
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-600 border border-gray-300">
+                                            {attribute.name}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-900 border border-gray-300">
+                                            {attribute.value}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                     ) : (
                         <div className="w-full ">
                             <RatingStarsLaptop

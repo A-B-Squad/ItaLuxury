@@ -1,3 +1,4 @@
+
 "use client";
 import {
   useBasketStore,
@@ -12,28 +13,14 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { GoAlertFill } from "react-icons/go";
-import { IoMdCloseCircleOutline } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import { SlBasket } from "react-icons/sl";
-import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 import dynamic from "next/dynamic";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
-const InnerImageZoom = dynamic(() => import("react-inner-image-zoom"), {
-  loading: () => (
-    <div className="animate-pulse bg-gray-200 w-full h-full min-h-[300px]" />
-  ),
-  ssr: false,
-});
+import CustomInnerZoom from "./CustomInnerZoom";
 
-const SmallImageCarousel = dynamic(
-  () => import("./SmallImageCarouselProductInfo"),
-  {
-    loading: () => <div className="animate-pulse bg-gray-200 w-full h-20" />,
-    ssr: false,
-  }
-);
 
 
 const ProductInfo = () => {
@@ -270,25 +257,25 @@ const ProductInfo = () => {
           onClick={closeProductDetails}
           className="absolute bg-white rounded-full p-2  hover:rotate-180 transition-all cursor-pointer -right-0 -top-0"
         />
-        <div className="details    flex flex-col justify-center items-start   lg:flex-row   ">
-          <div className="flex  relative max-w-full lg:w-2/4   justify-center items-center flex-col gap-2 text-center">
-            <div className=" relative  border-2  h-fit md:max-w-md flex items-center justify-center p-1 ">
-              <InnerImageZoom
-                className="relative  rounded object-cover"
-                zoomSrc={bigImage || ""}
-                src={bigImage || ""}
-                zoomType="hover"
-                zoomScale={1.5}
-                hideHint={true}
+        <div className="details    flex flex-col justify-center items-start gap-3   lg:flex-row   ">
+          <div className="lg:sticky flex justify-center self-center  top-0 lg:top-5 gap-3 z-50  items-center bg-white  text-center">
+            <div className="">
+              <CustomInnerZoom
+                images={productData?.images}
               />
+              <span
+                className={`absolute top-2 right-2 p-2 ${productData?.inventory > 1 ? "bg-blueColor" : productData?.inventory === 1 ? "bg-gray-400 " : "bg-gray-400"} bg-blue text-xs font-400 text-white`}
+              >
+                {productData?.inventory > 1
+                  ? "EN STOCK"
+                  : productData?.inventory === 1
+                    ? "DERNIER ARTICLE EN STOCK"
+                    : "RUPTURE DE STOCK"}
+              </span>
             </div>
 
-            <SmallImageCarousel
-              images={productData?.images}
-              bigImage={bigImage}
-              setBigImage={setBigImage}
-            />
           </div>
+
 
           <div className="productData lg:w-2/4 w-full ">
             <h2 className="product_name tracking-wider text-2xl font-semibold ">
@@ -380,7 +367,7 @@ const ProductInfo = () => {
               </div>
             </div>
             <div className="flex flex-col justify-start items-start gap-4 mt-4">
-              <p
+              {/* <p
                 className={`text-lg font-semibold flex gap-3 items-center ${productData?.inventory !== undefined && productData.inventory > 0 ? "text-green-600" : "text-red-600"}`}
               >
                 {productData?.inventory !== undefined &&
@@ -392,7 +379,7 @@ const ProductInfo = () => {
                 ) : (
                   "En Stock"
                 )}
-              </p>
+              </p> */}
 
               {quantity === productData?.inventory && (
                 <div className="flex items-center text-sm gap-3 ">

@@ -12,7 +12,7 @@ const ProductImage = ({ product }: { product: any }) => {
 
     <Link
       rel="preload"
-      href={`/Collections/tunisie/?productId=${product?.id}`}
+      href={`/products/tunisie?productId=${product.id}`}
       className="h-56 lg:h-full w-full"
     >
       <span className="absolute left-5 top-5 z-20 text-white bg-green-600 px-4 font-semibold text-sm py-1 rounded-md">

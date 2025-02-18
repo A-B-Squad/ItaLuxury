@@ -6,6 +6,7 @@ import { GoGitCompare } from "react-icons/go";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import { MdAddShoppingCart, MdSecurity } from "react-icons/md";
 import { RiSubtractFill } from "react-icons/ri";
+import { useRouter } from 'next/navigation';
 
 
 
@@ -21,10 +22,11 @@ const ActionButton = memo((
 
 
 
+    const router = useRouter();
 
 
     return (
-        <div className="ActionButton p-4 bg-white hidden lg:flex lg:flex-col  w-full shadow-lg rounded-lg col-span-3 sticky top-0 ">
+        <div className="ActionButton  p-4 bg-white hidden lg:flex lg:flex-col  w-full shadow-lg rounded-lg col-span-3 sticky top-0 ">
             <div className="flex items-start mb-4">
                 <MdSecurity size={50} className="text-gray-600" />
                 <p className="ml-3 text-[11px] text-gray-600">
@@ -65,6 +67,20 @@ const ActionButton = memo((
             </div>
 
             <div className="mt-6 flex flex-col gap-3">
+
+
+
+                <div
+                    onClick={() => {
+                        AddToBasket(productDetails)
+                        router.push('/Basket');
+                    }}
+                    className={`${productDetails?.inventory <= 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"} w-full bg-primaryColor hover:bg-primaryColor hover:opacity-85 text-white py-3 px-6  shadow-lg text-lg font-bold flex items-center justify-center gap-2`}
+                >
+                    <MdAddShoppingCart size={20} />
+                    Acheter maintenant
+                </div>
+
                 <button
                     type="button"
                     className={`${productDetails?.inventory <= 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"} w-full bg-red-600 hover:bg-red-700 text-white py-3 px-6  shadow-lg text-lg font-bold flex items-center justify-center gap-2`}
@@ -74,13 +90,7 @@ const ActionButton = memo((
                     Ajouter au panier
                 </button>
 
-                <Link
-                    href="/Basket"
-                    className={`${productDetails?.inventory <= 0 ? "cursor-not-allowed opacity-50" : "cursor-pointer"} w-full bg-primaryColor hover:bg-primaryColor hover:opacity-85 text-white py-3 px-6  shadow-lg text-lg font-bold flex items-center justify-center gap-2`}
-                >
-                    <MdAddShoppingCart size={20} />
-                    Acheter maintenant
-                </Link>
+
 
                 <button
                     onClick={handleToggleFavorite}

@@ -2,10 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ALLOWED_ORIGINS = [
-  'http://localhost:4000',
-      'http://localhost:4001',
-      'https://www.ita-luxury.com',
-      'https://admin.ita-luxury.com',
   process.env.NEXT_ALLOW_REQUEST_API_URL,
   process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
   "http://api.preprod.konnect.network",

@@ -54,7 +54,9 @@ async function fetchProductData(
   if (!process.env.NEXT_PUBLIC_API_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
   }
-
+  if (!productId) {
+    return null;
+  }
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
       method: "POST",
@@ -254,6 +256,11 @@ const ProductDetailsPage = async ({
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/\/$/, "") || "";
 
+
+  const formattedPrice = typeof productData.price === 'number'
+    ? productData.price.toFixed(2)
+    : parseFloat(productData.price).toFixed(2);
+
   const breadcrumbList = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -288,7 +295,9 @@ const ProductDetailsPage = async ({
     "@type": "Product",
     name: productData.name || "Product",
     description: productData.description?.replace(/<[^>]*>/g, "") || "",
-    image: productData.images || [],
+    image: Array.isArray(productData.images)
+      ? productData.images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`)
+      : [],
     sku: productData.reference,
     brand: {
       "@type": "Brand",
@@ -298,7 +307,7 @@ const ProductDetailsPage = async ({
     offers: {
       "@type": "Offer",
       priceCurrency: "TND",
-      price: productData.price?.toFixed(2) || "0.00",
+      price: formattedPrice,
       availability:
         (productData.inventory || 0) > 0
           ? "https://schema.org/InStock"
@@ -335,7 +344,7 @@ const ProductDetailsPage = async ({
       })
     ),
   };
-
+  console.log(productSchema, "aaaaa")
   return (
     <div className="bg-gray-50 p-2 md:py-6">
       <JsonLd<any> item={breadcrumbList} />

@@ -218,6 +218,27 @@ const Checkout: React.FC = () => {
       paymentMethod: paymentMethod,
     };
 
+
+
+
+    const totalItems = checkoutProducts.reduce(
+      (sum, product) => sum + (product?.actualQuantity || product?.quantity || 0),
+      0
+    );
+
+    // Calculate correct product value including discounts
+    const itemsWithPrices = checkoutProducts.map(product => ({
+      item_name: product.name,
+      item_category: product.categories?.[0]?.name || '',
+      id: product.id,
+      quantity: product.actualQuantity || product.quantity,
+      price: product.productDiscounts?.length > 0
+        ? Number(product.productDiscounts[0].newPrice)
+        : Number(product.price)
+    }));
+
+    // Calculate final value including delivery if applicable
+    const finalValue = Number(orderTotal);
     createCheckout({
       variables: {
         input: checkoutInput,
@@ -231,15 +252,13 @@ const Checkout: React.FC = () => {
       onCompleted: async (data) => {
         const customOrderId = data.createCheckout.customId;
         clearBasket();
+
         sendGTMEvent({
           event: "purchase",
           ecommerce: {
             currency: "TND",
-            value: checkoutTotal,
-            items: checkoutProducts.map(product => ({
-              item_id: product.id,
-              quantity: product.actualQuantity || product.quantity
-            })),
+            value: finalValue,
+            items: itemsWithPrices,
             transaction_id: customOrderId,
           },
           user_data: {
@@ -251,19 +270,16 @@ const Checkout: React.FC = () => {
             external_id: decodedToken?.userId
           },
           facebook_data: {
-            content_name: "Checkout",
-            content_type: "product",
             currency: "TND",
-            value: checkoutTotal,
-            contents: checkoutProducts.map(product => ({
-              id: product.id,
-              quantity: product.actualQuantity || product.quantity,
-            })),
-            num_items: checkoutProducts.reduce(
-              (sum, product) =>
-                sum + (product?.actualQuantity || product?.quantity || 0),
-              0
-            )
+            value: finalValue,
+            content_type: "product_group",
+            contents: itemsWithPrices,
+            content_name: "Purchase",
+            num_items: totalItems,
+            content_category: "Checkout",
+            delivery_category: checkoutInput.freeDelivery ? "free_shipping" : "shipping",
+            payment_method: paymentMethod === "CREDIT_CARD" ? "credit_card" : "cash_on_delivery",
+            transaction_id: customOrderId
           }
         });
         triggerEvents("Purchase", {
@@ -276,19 +292,16 @@ const Checkout: React.FC = () => {
             external_id: decodedToken?.userId,
           },
           custom_data: {
-            content_name: "Checkout",
-            content_type: "product",
             currency: "TND",
-            value: checkoutTotal,
-            contents: checkoutProducts.map((product) => ({
-              id: product.id,
-              quantity: product.actualQuantity || product.quantity,
-            })),
-            num_items: checkoutProducts.reduce(
-              (sum, product) =>
-                sum + (product?.actualQuantity || product?.quantity || 0),
-              0
-            ),
+            value: finalValue,
+            content_type: "product_group",
+            contents: itemsWithPrices,
+            content_name: "Purchase",
+            num_items: totalItems,
+            content_category: "Checkout",
+            delivery_category: checkoutInput.freeDelivery ? "free_shipping" : "shipping",
+            payment_method: paymentMethod === "CREDIT_CARD" ? "credit_card" : "cash_on_delivery",
+            transaction_id: customOrderId
           },
         })
 

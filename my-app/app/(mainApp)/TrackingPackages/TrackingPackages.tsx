@@ -48,7 +48,7 @@ interface Package {
 
 type Status =
   | "RETOUR"
-  | "ÉCHANGE"
+  | "COMMANDE CONFIRMÉE"
   | "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON"
   | "EN TRAITEMENT"
   | "ANNULÉ"
@@ -118,7 +118,7 @@ const TrackingPackages: React.FC = () => {
   const translateStatus = useCallback((status: string): Status => {
     const statusTranslations: { [key: string]: Status } = {
       BACK: "RETOUR",
-      EXCHANGE: "ÉCHANGE",
+      CONFIRMED: "COMMANDE CONFIRMÉE",
       TRANSFER_TO_DELIVERY_COMPANY: "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON",
       PROCESSING: "EN TRAITEMENT",
       CANCELLED: "ANNULÉ",
@@ -130,7 +130,7 @@ const TrackingPackages: React.FC = () => {
 
   const statusColors: Record<Status, string> = {
     RETOUR: "bg-blue-400",
-    ÉCHANGE: "bg-purple-400",
+    "COMMANDE CONFIRMÉE": "bg-purple-400",
     "TRANSFÉRÉ À LA SOCIÉTÉ DE LIVRAISON": "bg-green-400",
     "EN TRAITEMENT": "bg-orange-400",
     ANNULÉ: "bg-gray-400",

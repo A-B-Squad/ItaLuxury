@@ -9,10 +9,9 @@ export const productById = async (
     const product = await prisma.product.findUnique({
       where: {
         id,
-        isVisible: true,
       },
       include: {
-  
+
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         }, // Include categories related to products
