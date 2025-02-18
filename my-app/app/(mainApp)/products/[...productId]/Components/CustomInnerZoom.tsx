@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import Image from 'next/legacy/image';
 
 interface CustomInnerZoomProps {
@@ -28,25 +28,68 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     setMousePosition({ x, y });
   };
 
+  const scrollThumbnails = (direction: 'prev' | 'next') => {
+    if (!thumbnailsRef.current) return;
+
+    const container = thumbnailsRef.current;
+    const scrollAmount = 88; // Thumbnail height + gap (80px + 8px)
+    
+    // Check if we're in mobile view
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      // Horizontal scrolling for mobile
+      const newScroll = direction === 'next' 
+        ? container.scrollLeft + scrollAmount 
+        : container.scrollLeft - scrollAmount;
+      
+      container.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+      });
+    } else {
+      // Vertical scrolling for desktop
+      const newScroll = direction === 'next' 
+        ? container.scrollTop + scrollAmount 
+        : container.scrollTop - scrollAmount;
+      
+      container.scrollTo({
+        top: newScroll,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const scrollToSelectedThumbnail = () => {
     if (!thumbnailsRef.current) return;
 
     const container = thumbnailsRef.current;
-    const thumbnailWidth = 80; // This includes the gap (64px + 8px gap)
-    const scrollPosition = selectedImage * thumbnailWidth;
-
-    container.scrollTo({
-      left: scrollPosition,
-      behavior: 'smooth'
-    });
+    const thumbnailSize = 88; // Thumbnail size + gap
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      container.scrollTo({
+        left: selectedImage * thumbnailSize,
+        behavior: 'smooth'
+      });
+    } else {
+      container.scrollTo({
+        top: selectedImage * thumbnailSize,
+        behavior: 'smooth'
+      });
+    }
   };
 
-  // Handle wheel scroll on thumbnails
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (!thumbnailsRef.current) return;
     e.preventDefault();
-
-    thumbnailsRef.current.scrollLeft += e.deltaY;
+    
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      thumbnailsRef.current.scrollLeft += e.deltaY;
+    } else {
+      thumbnailsRef.current.scrollTop += e.deltaY;
+    }
   };
 
   useEffect(() => {
@@ -78,8 +121,9 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
         <div className="order-1 md:order-2 flex-1">
           <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100">
             <div
-              className={`relative w-full h-full cursor-zoom-in ${isZoomed ? 'scale-150' : 'scale-100'
-                } transition-transform duration-300`}
+              className={`relative w-full h-full cursor-zoom-in ${
+                isZoomed ? 'scale-150' : 'scale-100'
+              } transition-transform duration-300`}
               onClick={() => setIsZoomed(!isZoomed)}
               onMouseMove={handleMouseMove}
               onMouseLeave={() => setIsZoomed(false)}
@@ -95,7 +139,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
               />
             </div>
 
-            {/* Navigation buttons - only show if there's more than one image */}
+            {/* Main image navigation buttons */}
             {!isZoomed && validImages.length > 1 && (
               <>
                 <button
@@ -123,33 +167,72 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
           </div>
         </div>
 
-        {/* Thumbnails - horizontal on mobile, vertical on desktop */}
-        <div className="order-2 md:order-1 md:w-24 w-full  max-w-screen-sm mx-auto">
+        {/* Thumbnails container */}
+        <div className="order-2 md:order-1 md:w-24 w-full max-w-screen-sm mx-auto">
           <div className="relative">
+            {/* Thumbnail navigation - Mobile (horizontal) */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => scrollThumbnails('prev')}
+                className="absolute left-0 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Scroll thumbnails left"
+              >
+                <ChevronLeft className="w-4 h-4 text-gray-800" />
+              </button>
+              <button
+                onClick={() => scrollThumbnails('next')}
+                className="absolute right-0 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Scroll thumbnails right"
+              >
+                <ChevronRight className="w-4 h-4 text-gray-800" />
+              </button>
+            </div>
+
+            {/* Thumbnail navigation - Desktop (vertical) */}
+            <div className="hidden md:block">
+              <button
+                onClick={() => scrollThumbnails('prev')}
+                className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Scroll thumbnails up"
+              >
+                <ChevronUp className="w-4 h-4 text-gray-800" />
+              </button>
+              <button
+                onClick={() => scrollThumbnails('next')}
+                className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Scroll thumbnails down"
+              >
+                <ChevronDown className="w-4 h-4 text-gray-800" />
+              </button>
+            </div>
+
+            {/* Thumbnails */}
             <div
               ref={thumbnailsRef}
               onWheel={handleWheel}
-              className="flex md:flex-col justify-center gap-2 pb-2 md:pb-0 overflow-x-auto md:overflow-y-auto md:h-[500px] no-scrollbar"
+              className="flex md:flex-col justify-start gap-2 py-8 md:py-12 px-8 md:px-0 overflow-x-auto md:overflow-y-auto md:h-[500px] no-scrollbar scroll-smooth"
             >
               {validImages.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative flex-shrink-0 w-16 md:w-20 h-16 md:h-20  overflow-hidden group `}
+                  className={`relative flex-shrink-0 w-16 md:w-20 h-16 md:h-20 overflow-hidden group`}
                 >
                   <Image
                     layout="fill"
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
-                    className={`w-full h-full object-cover transition-opacity duration-200 ${selectedImage === index
+                    className={`w-full h-full object-cover transition-opacity duration-200 ${
+                      selectedImage === index
                         ? 'opacity-100'
                         : 'opacity-60 group-hover:opacity-100'
-                      }`}
+                    }`}
                   />
                 </button>
               ))}
             </div>
-            {/* Fade effect for overflow indication */}
+
+            {/* Fade effects */}
             <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white to-transparent md:hidden pointer-events-none" />
             <div className="absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white to-transparent md:hidden pointer-events-none" />
           </div>

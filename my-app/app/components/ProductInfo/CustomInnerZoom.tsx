@@ -23,11 +23,26 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     setMousePosition({ x, y });
   };
 
+  const scrollThumbnails = (direction: 'prev' | 'next') => {
+    if (!thumbnailsRef.current) return;
+
+    const container = thumbnailsRef.current;
+    const scrollAmount = window.innerWidth < 768 ? 84 : 96; // Thumbnail + gap
+    const newScroll = direction === 'next'
+      ? container.scrollLeft + scrollAmount
+      : container.scrollLeft - scrollAmount;
+
+    container.scrollTo({
+      left: newScroll,
+      behavior: 'smooth'
+    });
+  };
+
   const scrollToSelectedThumbnail = () => {
     if (!thumbnailsRef.current) return;
 
     const container = thumbnailsRef.current;
-    const thumbnailWidth = 80;
+    const thumbnailWidth = window.innerWidth < 768 ? 84 : 96;
     const scrollPosition = selectedImage * thumbnailWidth;
 
     container.scrollTo({
@@ -68,37 +83,59 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     <div className="w-full max-w-4xl mx-auto">
       <div className="flex flex-col-reverse gap-4">
         {/* Thumbnails */}
-        <div className="w-full flex  ">
-          <div className="relative  w-full">
+        <div className="w-full max-w-lg mx-auto relative">
+          {/* Thumbnail Navigation Arrows */}
+          <button
+            onClick={() => scrollThumbnails('prev')}
+            className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+            aria-label="Previous thumbnails"
+          >
+            <ChevronLeft className="w-4 h-4 text-gray-800" />
+          </button>
+          <button
+            onClick={() => scrollThumbnails('next')}
+            className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+            aria-label="Next thumbnails"
+          >
+            <ChevronRight className="w-4 h-4 text-gray-800" />
+          </button>
+
+          <div className="relative w-full">
             <div
               ref={thumbnailsRef}
               onWheel={handleWheel}
-              className="flex gap-2 justify-center overflow-x-auto no-scrollbar"
+              className="flex gap-4 justify-start overflow-x-auto no-scrollbar px-6 py-2 mx-auto"
             >
               {validImages.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className="relative flex-shrink-0 w-16 md:w-24 h-16 md:h-24 rounded overflow-hidden group"
+                  className={`relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden 
+                    ${selectedImage === index
+                      ? 'ring-2 ring-offset-2 ring-blue-500 shadow-lg'
+                      : 'ring-1 ring-gray-200'
+                    }`}
                 >
                   <Image
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
                     layout="fill"
                     objectFit="cover"
-                    className={`transition-opacity duration-200 ${selectedImage === index ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'
+                    className={`transition-opacity duration-200 ${selectedImage === index
+                        ? 'opacity-100'
+                        : 'opacity-70 hover:opacity-100'
                       }`}
                   />
                 </button>
               ))}
             </div>
-            <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white to-transparent md:hidden pointer-events-none" />
-            <div className="absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white to-transparent md:hidden pointer-events-none" />
+            <div className="absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+            <div className="absolute left-0 top-0 h-full w-12 bg-gradient-to-r from-white to-transparent pointer-events-none" />
           </div>
         </div>
 
         {/* Main image */}
-        <div className="relative  h-[450px] w-[300px] md:w-[450px] overflow-hidden rounded-lg bg-gray-100">
+        <div className="relative h-[450px] w-[300px] md:w-[450px] mx-auto overflow-hidden rounded-lg bg-gray-100">
           <div
             className={`relative w-full h-full cursor-zoom-in ${isZoomed ? 'scale-150' : 'scale-100'
               } transition-transform duration-300`}

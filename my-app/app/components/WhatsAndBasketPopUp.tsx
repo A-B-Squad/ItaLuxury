@@ -54,7 +54,7 @@ const WhatsAndBasketPopUp = () => {
   };
   return (
 
-    <div className="flex flex-col fixed bottom-6 z-[100] gap-4 right-[18px] md:right-[22px]">
+    <div className="flex flex-col fixed   bottom-20 lg:bottom-6 z-[100] gap-4 right-[18px] md:right-[22px]">
 
 
       {pathname === "/Basket" ? (

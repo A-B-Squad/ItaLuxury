@@ -13,17 +13,18 @@ import { GrContact } from "react-icons/gr";
 import { useDrawerMobileStore } from "../../../store/zustand";
 import Category from "./MainCategory";
 import { CATEGORY_QUERY, FETCH_USER_BY_ID } from "../../../../graphql/queries";
+
+import jwt from "jsonwebtoken";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import Loading from "@/app/(mainApp)/Collections/loading";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/useAuth";
 import { removeToken } from "@/lib/auth/token";
-import { useTranslation } from "react-i18next";
+
+
 
 function DrawerMobile() {
-  const { t } = useTranslation("common");
-
   const { toast } = useToast();
   const router = useRouter();
 
@@ -31,6 +32,7 @@ function DrawerMobile() {
   const { loading, error, data } = useQuery(CATEGORY_QUERY);
   const { decodedToken, isAuthenticated } = useAuth();
   const [activeCategory, setActiveCategory] = useState<string>("");
+
 
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
@@ -52,8 +54,8 @@ function DrawerMobile() {
 
       // Afficher le toast de confirmation
       toast({
-        title: t("drawer.logout_success"),
-        description: t("drawer.logout_message"),
+        title: "Déconnexion réussie",
+        description: "À bientôt sur ita-luxury",
         className: "bg-primaryColor text-white",
       });
 
@@ -64,8 +66,8 @@ function DrawerMobile() {
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
       toast({
-        title: t("drawer.logout_error"),
-        description: t("drawer.try_again"),
+        title: "Erreur de déconnexion",
+        description: "Veuillez réessayer plus tard",
         variant: "destructive",
       });
     }
@@ -96,14 +98,11 @@ function DrawerMobile() {
             className="font-bold text-lg flex items-center gap-2"
             onClick={closeCategoryDrawer}
           >
+
             <FaUser />
-            {isAuthenticated ? (
-              <p>
-                {t("drawer.welcome")} {userData?.fetchUsersById.fullName}
-              </p>
-            ) : (
-              t("drawer.login_prompt")
-            )}
+            {decodedToken?.userId
+              ? <p>Bienvenue {userData?.fetchUsersById.fullName}</p>
+              : "Bonjour, identifiez-vous pour continuer"}
           </Link>
           <IconButton
             placeholder={""}
@@ -134,26 +133,29 @@ function DrawerMobile() {
         {/* New navigation items */}
         <div className="list items-center gap-5 cursor-pointer text-base flex flex-col mt-4 px-7">
           <ul className="flex flex-col gap-5 w-full">
-            {!isAuthenticated && (
+            {!decodedToken?.userId && (
               <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
                 <Link
                   rel="preload"
                   href={`/signin`}
                   className="flex items-center gap-2 w-full"
                   onClick={closeCategoryDrawer}
+
                 >
                   <FiUser />
-                  <span>{t("drawer.login")}</span>
+                  <span>Se connecter à votre compte</span>
                 </Link>
               </li>
             )}
-            {isAuthenticated && (
+            {decodedToken?.userId && (
               <li
                 onClick={handleLogout}
                 className="logout flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+
               >
                 <IoIosLogOut />
-                <span>{t("drawer.logout")}</span>
+                <span>Déconnexion de votre compte</span>
+
               </li>
             )}
             <li className="home flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
@@ -162,9 +164,10 @@ function DrawerMobile() {
                 href={`/`}
                 className="flex items-center gap-2 w-full"
                 onClick={closeCategoryDrawer}
+
               >
                 <IoHomeOutline />
-                <span>{t("drawer.home")}</span>
+                <span>Page d'accueil</span>
               </Link>
             </li>
             <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
@@ -173,9 +176,10 @@ function DrawerMobile() {
                 href={`${isAuthenticated ? "/FavoriteList" : "/signin"}`}
                 className="flex items-center gap-2 w-full"
                 onClick={closeCategoryDrawer}
+
               >
                 <FiHeart />
-                <span>{t("drawer.favorites")}</span>
+                <span>Mes produits favoris</span>
               </Link>
             </li>
             {decodedToken?.userId && (
@@ -185,9 +189,10 @@ function DrawerMobile() {
                   href={`/TrackingPackages`}
                   className="flex items-center gap-2 w-full"
                   onClick={closeCategoryDrawer}
+
                 >
                   <GoPackageDependents />
-                  <span>{t("drawer.orders")}</span>
+                  <span>Suivre mes commandes</span>
                 </Link>
               </li>
             )}
@@ -197,9 +202,10 @@ function DrawerMobile() {
                 href={"/productComparison"}
                 className="flex items-center gap-2 w-full"
                 onClick={closeCategoryDrawer}
+
               >
                 <IoGitCompare />
-                <span>{t("drawer.compare")}</span>
+                <span>Comparer les produits</span>
               </Link>
             </li>
 
@@ -209,9 +215,10 @@ function DrawerMobile() {
                 href={"/Contact-us"}
                 className="flex items-center gap-2 w-full"
                 onClick={closeCategoryDrawer}
+
               >
                 <GrContact />
-                <span>{t("drawer.contact")}</span>
+                <span>Nous contacter</span>
               </Link>
             </li>
           </ul>
@@ -225,7 +232,10 @@ function DrawerMobile() {
             closeCategoryDrawer={closeCategoryDrawer}
           />
         ) : (
-          <p>{t("drawer.no_categories")}</p>
+          <p>
+            Aucune catégorie disponible pour le moment. Veuillez revenir plus
+            tard !
+          </p>
         )}
 
         <div
@@ -233,11 +243,14 @@ function DrawerMobile() {
           className={`flex py-3 cursor-pointer focus:text-red-200 items-center justify-between px-7 w-full border-b-2`}
         >
           <Link
-            href={"/Collections/tunisie?page=1"}
+            href={"/Collections/tunisie?page=1"
+
+            }
             className="capitalize font-bold w-full"
             onClick={closeCategoryDrawer}
+
           >
-            {t("drawer.all_products")}
+            Voir tous les produits
           </Link>
           <MdKeyboardArrowRight size={20} />
         </div>

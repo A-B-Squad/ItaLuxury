@@ -1,11 +1,7 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
 import Category from "./MainCategory";
 import { CATEGORY_QUERY } from "../../../../graphql/queries";
-interface Subcategory {
-  name: string;
-  subcategories?: Subcategory[];
-}
 
 const Dropdown = ({ setShowDropdown, showCategoryDropdown, isFixed }: any) => {
   const { error, data } = useQuery(CATEGORY_QUERY);
@@ -22,9 +18,8 @@ const Dropdown = ({ setShowDropdown, showCategoryDropdown, isFixed }: any) => {
   return (
     <div
       onMouseLeave={() => setShowDropdown(false)}
-      className={` container md:border  hidden z-[60] bg-white md:flex  left-10  md:gap-2 ${isFixed ? "fixed top-[90px]" : "absolute"} w-full max-w-[900px] md:shadow-md h-fit transition-all  ${
-        showCategoryDropdown ? "opacity-100 visible" : "opacity-0 invisible"
-      }`}
+      className={` container md:border  hidden z-[60] bg-white md:flex  left-10  md:gap-2 ${isFixed ? "fixed top-[90px]" : "absolute"} w-full max-w-[900px] md:shadow-md h-fit transition-all  ${showCategoryDropdown ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
     >
       {data?.categories.length > 0 && (
         <Category
