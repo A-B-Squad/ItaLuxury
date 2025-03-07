@@ -1,4 +1,3 @@
-import ProductInfo from "@/app/components/ProductInfo/ProductInfo";
 import keywords from "@/public/keywords";
 import { Metadata } from "next";
 import { JsonLd } from "react-schemaorg";
@@ -159,36 +158,43 @@ export async function generateMetadata({
 
   if (!productData) {
     return {
-      title: "Product Not Found | ita-luxury",
-      description: "The requested product could not be found.",
+      title: "Produit non trouvé | ita-luxury",
+      description: "Le produit demandé n'a pas pu être trouvé.",
     };
   }
-
-
 
   const rating = formatRating(productData.reviews || []);
   const cleanDescription =
     productData.categories[2]?.description?.replace(/<[^>]*>/g, "") || "";
-  const productName = productData.name || "Product";
+  const productName = productData.name || "Produit";
   const productReference = productData.reference || "";
+  const brandName = productData.Brand?.name || "";
 
-  const title = `${productName} ${rating ? `| ${rating.average}/5 ⭐ (${rating.count} reviews) ` : ""}`;
+  // Enhanced title with brand name if available
+  const title = `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `| ${rating.average}/5 ⭐ (${rating.count} avis) ` : ""}| ita-luxury`;
 
+  // Enhanced description with more product details
   const description = cleanDescription
     ? `${cleanDescription.slice(0, 120)}${rating ? ` | Note: ${rating.average}/5 (${rating.count} avis)` : ""} - ita-luxury`
-    : "Discover the latest product on ita-luxury.";
+    : `Découvrez ${productName}${brandName ? ` de ${brandName}` : ""} sur ita-luxury. Livraison rapide dans toute la Tunisie.`;
 
+  // Enhanced keywords with more product-specific terms
   const productKeywords = [
     ...keywords,
     productName,
     productReference,
+    brandName,
     productData.Colors?.color,
+    ...(productData.categories || []).map((cat: any) => cat.name),
     ...(productData.attributes || []).map(
       (attr: { name: any; value: any }) => `${attr.name} ${attr.value}`
     ),
     rating ? `${rating.average} étoiles` : "",
     "avis client",
     "évaluation produit",
+    "acheter en ligne",
+    "Tunisie",
+    "livraison rapide"
   ].filter(Boolean);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN.replace(/\/$/, "");
@@ -200,7 +206,7 @@ export async function generateMetadata({
     description,
     openGraph: {
       type: "website",
-      title: `${productName} ${rating ? `(${rating.average}/5 ⭐)(${rating.count} avis)` : ""}`,
+      title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐)(${rating.count} avis)` : ""}`,
       description,
       images: (productData.images || []).map((image: any) => ({
         url: image,
@@ -213,7 +219,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${productName} ${rating ? `(${rating.average}/5 ⭐)(${rating.count} avis)` : ""}`,
+      title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐)(${rating.count} avis)` : ""}`,
       description,
       images: productData.images || [],
       creator: "@ita_luxury",
@@ -221,11 +227,13 @@ export async function generateMetadata({
     keywords: productKeywords.join(", "),
     alternates: {
       canonical: `${baseUrl}/products/tunisie?productId=${searchParams.productId}`,
-
     },
     robots: {
       index: true,
       follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
     },
   };
 }
@@ -299,20 +307,27 @@ const ProductDetailsPage = async ({
       ? productData.images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`)
       : [],
     sku: productData.reference,
+    mpn: productData.reference,
     brand: {
       "@type": "Brand",
       name: productData.Brand?.name || "Unbranded",
     },
     color: productData.Colors?.color,
+    category: productData.categories?.[0]?.name || "",
     offers: {
       "@type": "Offer",
       priceCurrency: "TND",
       price: formattedPrice,
+      priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
       availability:
         (productData.inventory || 0) > 0
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
       url: `${baseUrl}/products/tunisie?productId=${productData.id}`,
+      seller: {
+        "@type": "Organization",
+        name: "ita-luxury"
+      }
     },
     ...(rating && {
       aggregateRating: {
@@ -344,7 +359,7 @@ const ProductDetailsPage = async ({
       })
     ),
   };
-  console.log(productSchema, "aaaaa")
+
   return (
     <div className="bg-gray-50 p-2 md:py-6">
       <JsonLd<any> item={breadcrumbList} />
@@ -353,7 +368,6 @@ const ProductDetailsPage = async ({
         productDetails={productData}
         productId={searchParams.productId}
       />
-      <ProductInfo />
     </div>
   );
 };

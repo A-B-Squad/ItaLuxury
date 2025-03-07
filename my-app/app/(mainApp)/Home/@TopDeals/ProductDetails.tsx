@@ -15,13 +15,12 @@ import ProductActions from "./ProductActions";
 import ProductImage from "./ProductImage";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
-
+import { motion } from "framer-motion";
 
 interface ProductProps {
     key: any;
     product: any;
     isFavorite: boolean;
-    setIsFavorite: (value: boolean) => void;
     basketData: any;
     userData: any;
 }
@@ -30,13 +29,12 @@ const ProductDetails: React.FC<ProductProps> = ({
     product,
     basketData,
     userData,
-    setIsFavorite,
     isFavorite,
 }) => {
     const { toast } = useToast();
     const { toggleIsUpdated } = useBasketStore();
     const { openProductDetails } = useProductDetails();
-    const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+    const [addToBasket, { loading: addingToBasket }] = useMutation(ADD_TO_BASKET_MUTATION);
     const { openPruchaseOptions } = usePruchaseOptions();
     const { decodedToken, isAuthenticated } = useAuth();
 
@@ -52,23 +50,27 @@ const ProductDetails: React.FC<ProductProps> = ({
                 (item: any) => item.Product.id === product.id
             );
         }
-        return storedProducts.find((product: any) => product.id === product.id);
-    }, [isAuthenticated, basketData, storedProducts]);
+        return storedProducts.find((p: any) => p.id === product.id);
+    }, [isAuthenticated, basketData, storedProducts, product.id]);
 
     const AddToBasket = async (product: any, quantity: number = 1) => {
+        if (addingToBasket) return;
+        
         openPruchaseOptions(product);
 
         const price =
             product.productDiscounts.length > 0
                 ? product.productDiscounts[0].newPrice
                 : product.price;
+                
+        // Analytics data
         const addToCartData = {
             user_data: {
-                em: [userData?.fetchUsersById.email.toLowerCase()],
-                fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number],
+                em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
+                fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
+                ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
                 country: ["tn"],
-                external_id: userData?.fetchUsersById.id,
+                external_id: userData?.fetchUsersById?.id || null,
             },
             custom_data: {
                 content_name: product.name,
@@ -83,6 +85,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                 }]
             },
         };
+        
         const cartEventDataGTM = {
             event: "add_to_cart",
             ecommerce: {
@@ -95,15 +98,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                     price: price
                 }]
             },
-            // User data for both events
-            user_data: {
-                em: [userData?.fetchUsersById.email.toLowerCase()],
-                fn: [userData?.fetchUsersById.fullName],
-                ph: [userData?.fetchUsersById?.number],
-                country: ["tn"],
-                external_id: userData?.fetchUsersById.id
-            },
-            // Facebook specific data
+            user_data: addToCartData.user_data,
             facebook_data: {
                 content_name: product.name,
                 content_type: "product",
@@ -112,6 +107,8 @@ const ProductDetails: React.FC<ProductProps> = ({
                 currency: "TND"
             }
         };
+        
+        // Track events
         triggerEvents("AddToCart", addToCartData);
         sendGTMEvent(cartEventDataGTM);
 
@@ -162,9 +159,6 @@ const ProductDetails: React.FC<ProductProps> = ({
                 });
             }
         } else {
-            const isProductAlreadyInBasket = storedProducts.some(
-                (p: any) => p.id === product?.id
-            );
             const filteredProduct = storedProducts.find(
                 (p: any) => p.id === product?.id
             );
@@ -181,7 +175,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                 return;
             }
 
-            if (isProductAlreadyInBasket) {
+            if (filteredProduct) {
                 increaseProductInQtBasket(product.id, quantity);
             } else {
                 addProductToBasket({
@@ -194,11 +188,12 @@ const ProductDetails: React.FC<ProductProps> = ({
             toast({
                 title: "Produit ajouté au panier",
                 description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-                className: "bg-green-600 text-white",
+                className: "bg-primaryColor text-white",
             });
         }
         toggleIsUpdated();
     };
+    
     const handleCategoryStorage = useCallback(
         (e: React.MouseEvent) => {
             if (!product?.categories?.[0]) return;
@@ -218,84 +213,100 @@ const ProductDetails: React.FC<ProductProps> = ({
         [product]
     );
 
+    // Calculate discount percentage
+    const discountData = product?.productDiscounts?.[0];
+    const discountPercentage = discountData
+        ? Math.round(((discountData.price - discountData.newPrice) / discountData.price) * 100)
+        : 0;
+
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             key={product?.id}
-            className="grid lg:grid-cols-3 border group grid-cols-1 bg-white rounded-sm px-2 h-4/5 md:h-full lg:h-80 min-h-80 w-full lg:w-11/12 grid-flow-col grid-rows-2 lg:grid-rows-1 lg:grid-flow-row place-self-center items-center gap-5 relative"
+            className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
         >
-            <ProductImage product={product} />
-            <ProductActions
-                product={product}
-                toast={toast}
-                isFavorite={isFavorite}
-                setIsFavorite={setIsFavorite}
-                openProductDetails={openProductDetails}
-                onAddToBasket={AddToBasket}
-            />
-            <div className="lg:col-span-2 row-span-1 lg:row-span-1 place-self-stretch lg:mt-3 flex flex-col justify-around">
-                <Link
-                    href={`/products/tunisie?productId=${product.id}`}
-                    onClick={handleCategoryStorage}
-                >
-                    <h2 className="tracking-wider hover:text-secondaryColor transition-colors">
-                        {product?.name}
-                    </h2>
-                    <div className="prices flex gap-3 items-center lg:mt-3">
-                        <span className="line-through text-gray-700 font-semibold text-lg">
-                            {product?.price.toFixed(3)}TND
-                        </span>
-                        <span className="text-primaryColor font-bold text-xl">
-                            {product?.productDiscounts[0]?.newPrice.toFixed(3)}TND
-                        </span>
-                    </div>
-
-                    <ul className="text-xs md:text-sm text-[#666] tracking-wider mt-2">
-                        {product?.attributes
-                            ?.slice(0, 2)
-                            ?.map((attribute: any, i: number) => (
-                                <li key={i}>
-                                    <span className="text-sm font-semibold">
-                                        {attribute.name}
-                                    </span>{" "}
-                                    :{" "}
-                                    <span className="text-sm font-light capitalize">
-                                        {attribute.value}
-                                    </span>
-                                </li>
-                            ))}
-                    </ul>
-
-                    <div
-                        className="Color relative w-fit cursor-crosshair my-3 lg:my-0"
-                        title={product?.Colors?.color}
-                    >
-                        {product.Colors && (
-                            <div
-                                className="colors_available items-center lg:mt-2 w-5 h-5 border-black border-2 rounded-sm shadow-gray-400 shadow-sm"
-                                style={{
-                                    backgroundColor: product?.Colors?.Hex,
-                                }}
-                            />
-                        )}
-                    </div>
-                </Link>
-
-                <button
-                    type="button"
-                    className="bg-primaryColor w-3/5 self-center py-2 text-white lg:mt-3 hover:bg-secondaryColor transition-colors"
-                    onClick={() => {
-                        AddToBasket(product, 1);
-                        toast({
-                            title: "Notification de Panier",
-                            description: `Le produit "${product?.name}" a été ajouté au panier.`,
-                            className: "bg-primaryColor text-white",
-                        });
-                    }}
-                >
-                    Acheter maintenant
-                </button>
+            <div className="md:w-2/5 relative">
+                <ProductImage product={product} />
             </div>
-        </div>
+            
+            <div className="p-4 md:p-6 flex flex-col justify-between md:w-3/5">
+                <div>
+                    <Link
+                        href={`/products/tunisie?productId=${product.id}`}
+                        onClick={handleCategoryStorage}
+                        className="block group"
+                    >
+                        <h2 className="text-lg font-medium text-gray-800 group-hover:text-primaryColor transition-colors duration-200 line-clamp-2">
+                            {product?.name}
+                        </h2>
+                        
+                        <div className="mt-2 flex items-center">
+                            {discountData && (
+                                <span className="line-through text-gray-500 text-sm mr-2">
+                                    {product?.price.toFixed(3)} TND
+                                </span>
+                            )}
+                            <span className="text-primaryColor font-bold text-xl">
+                                {(discountData ? discountData.newPrice : product?.price).toFixed(3)} TND
+                            </span>
+                            
+                            {discountPercentage > 0 && (
+                                <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                                    -{discountPercentage}%
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="mt-3 space-y-1">
+                            {product?.attributes
+                                ?.slice(0, 2)
+                                ?.map((attribute: any, i: number) => (
+                                    <div key={i} className="flex items-center text-sm text-gray-600">
+                                        <span className="font-medium mr-1">
+                                            {attribute.name}:
+                                        </span>
+                                        <span className="capitalize">
+                                            {attribute.value}
+                                        </span>
+                                    </div>
+                                ))}
+                        </div>
+
+                        {product.Colors && (
+                            <div className="mt-3 flex items-center">
+                                <span className="text-sm text-gray-600 mr-2">Couleur:</span>
+                                <div
+                                    className="w-5 h-5 rounded-full border border-gray-300"
+                                    style={{ backgroundColor: product?.Colors?.Hex }}
+                                    title={product?.Colors?.color}
+                                />
+                            </div>
+                        )}
+                    </Link>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-between">
+                    <button
+                        type="button"
+                        className={`px-4 py-2 bg-primaryColor text-white rounded-md hover:bg-amber-600 transition-colors duration-200 flex-grow ${addingToBasket ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        onClick={() => AddToBasket(product, 1)}
+                        disabled={addingToBasket}
+                    >
+                        {addingToBasket ? 'Ajout en cours...' : 'Acheter maintenant'}
+                    </button>
+                    
+                    <ProductActions
+                        product={product}
+                        toast={toast}
+                        isFavorite={isFavorite}
+                        openProductDetails={openProductDetails}
+                        onAddToBasket={AddToBasket}
+                    />
+                </div>
+            </div>
+        </motion.div>
     );
 };
 

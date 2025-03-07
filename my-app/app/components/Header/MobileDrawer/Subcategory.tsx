@@ -1,7 +1,6 @@
 import Link from "next/link";
 import React from "react";
 import { IoArrowBack } from "react-icons/io5";
-import prepRoute from "../../../Helpers/_prepRoute";
 import Subsubcategory from "./Subsubcategory";
 
 interface SubcategoryProps {

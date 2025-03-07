@@ -9,12 +9,13 @@ import { removeToken } from "@/lib/auth/token";
 import { useAuth } from "@/lib/auth/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
-import { FiUser } from "react-icons/fi";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { FiUser, FiHeart, FiSearch } from "react-icons/fi";
 import { HiMiniBars3CenterLeft } from "react-icons/hi2";
 import { IoIosLogOut } from "react-icons/io";
 import { IoBagHandleOutline } from "react-icons/io5";
+import { motion } from "framer-motion";
 
 function debounce<T extends (...args: any[]) => void>(
   func: T,
@@ -30,12 +31,31 @@ function debounce<T extends (...args: any[]) => void>(
 const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
+  const [activeLink, setActiveLink] = useState("");
 
   const { openCategoryDrawer } = useDrawerMobileStore();
   const { openBasketDrawer } = useDrawerBasketStore();
   const { quantityInBasket } = useProductsInBasketStore();
   const { decodedToken, isAuthenticated } = useAuth();
 
+  // Update active link whenever the pathname changes
+  useEffect(() => {
+    if (pathname && pathname === "/") setActiveLink("home");
+    else if (pathname && pathname.includes("/Collections")) {
+      // Check if it's the promotions page
+      const searchParams = new URLSearchParams(window.location.search);
+      const choice = searchParams.get("choice");
+
+      if (choice === "in-discount") {
+        setActiveLink("promo");
+      } else {
+        setActiveLink("shop");
+      }
+    }
+    else if (pathname && pathname.includes("/Contact-us")) setActiveLink("contact");
+    else setActiveLink("");
+  }, [pathname]); 
 
   const handleScroll = useCallback(() => {
     if (window.scrollY > 50) {
@@ -62,7 +82,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
       window.sessionStorage.removeItem("comparedProducts");
 
       // Rediriger vers la page d'accueil
-      await router.push("https://www.ita-luxury.com");
+      await router.push("/");
 
       // Afficher le toast de confirmation
       toast({
@@ -86,7 +106,8 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
   };
 
   // Add tracking function for navigation
-  const handleNavigation = (pageName: string) => {
+  const handleNavigation = (pageName: string, linkId: string) => {
+    setActiveLink(linkId);
     sendGTMEvent({
       event: "page_view",
       page_title: pageName,
@@ -106,124 +127,162 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
   return (
     <div
-      className={` transition-all duration-300 ${isFixed ? "fixed top-0 w-full bg-[#fffffff2] z-30 shadow-md px-14 py-2 md:px-20 md:py-4" : "container relative sm:my-3 mt-0 bg-white"}`}
+      className={`transition-all duration-300 w-full ${isFixed
+        ? "bg-white z-50"
+        : "bg-white"
+        }`}
       onMouseEnter={() => setShowDropdown(false)}
     >
       <div
-        className="BottomHeader  flex justify-between items-center py-3 "
+        className="flex justify-between items-center py-2"
         onMouseEnter={() => setShowDropdown(false)}
       >
-        <button
+        <motion.button
           type="button"
-          className="p-1 xl:hidden block  rounded-sm"
+          className="p-2 xl:hidden flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors"
           onClick={openCategoryDrawer}
+          whileTap={{ scale: 0.95 }}
         >
-          <HiMiniBars3CenterLeft className=" text-2xl cursor-pointer " />
-        </button>
+          <HiMiniBars3CenterLeft className="text-2xl" />
+        </motion.button>
 
-        <button
+        <motion.button
           type="button"
-          className="p-1 xl:flex gap-3  hidden rounded-md "
+          className="p-2 xl:flex hidden items-center gap-2 rounded-md hover:bg-gray-100 transition-colors"
           onMouseEnter={() => setShowDropdown(true)}
+          whileHover={{ backgroundColor: "rgba(0,0,0,0.05)" }}
         >
-          <HiMiniBars3CenterLeft className=" text-2xl cursor-pointer " />
-          <span className="uppercase font-semibold tracking-wider">
+          <HiMiniBars3CenterLeft className="text-2xl" />
+          <span className="font-medium tracking-wide">
             Nos Catégories
           </span>
-        </button>
+        </motion.button>
 
-        <div className="dropDown hidden md:flex">
-          <ul className="flex gap-5 ">
-            <li className=" cursor-pointer hover:text-primaryColor transition-all">
+        <nav className="hidden md:block">
+          <ul className="flex items-center gap-6">
+            <li>
               <Link
-                rel="preload"
-                href={`/`}
-                onClick={() => handleNavigation("Accueil")}
+                href="/"
+                onClick={() => handleNavigation("Accueil", "home")}
+                className={`relative py-2 px-1 font-medium transition-colors ${activeLink === "home" ? "text-primaryColor" : "text-gray-700 hover:text-primaryColor"
+                  }`}
               >
                 Accueil
+                {activeLink === "home" && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-primaryColor"
+                    layoutId="underline"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
               </Link>
             </li>
-            <li className=" cursor-pointer hover:text-primaryColor transition-all">
+            <li>
               <Link
-                rel="preload"
-                href={`/Collections/tunisie?page=1`}
-                onClick={() => handleNavigation("Boutique")}
+                href="/Collections/tunisie?page=1"
+                onClick={() => handleNavigation("Boutique", "shop")}
+                className={`relative py-2 px-1 font-medium transition-colors ${activeLink === "shop" ? "text-primaryColor" : "text-gray-700 hover:text-primaryColor"
+                  }`}
               >
                 Boutique
+                {activeLink === "shop" && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-primaryColor"
+                    layoutId="underline"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
               </Link>
             </li>
-            <li className=" cursor-pointer hover:text-primaryColor transition-all">
+            <li>
               <Link
-                rel="preload"
                 href={{
                   pathname: `/Collections/tunisie`,
-                  query: {
-                    choice: "in-discount",
-                  },
+                  query: { choice: "in-discount" },
                 }}
-                onClick={() => handleNavigation("Promotions")}
+                onClick={() => handleNavigation("Promotions", "promo")}
+                className={`relative py-2 px-1 font-medium transition-colors ${activeLink === "promo" ? "text-primaryColor" : "text-gray-700 hover:text-primaryColor"
+                  }`}
               >
                 Promotions
+                {activeLink === "promo" && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-primaryColor"
+                    layoutId="underline"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
               </Link>
             </li>
-            <li className=" cursor-pointer hover:text-primaryColor transition-all">
+            <li>
               <Link
-                rel="preload"
-                href={`/Contact-us`}
-                onClick={() => handleNavigation("Contact")}
+                href="/Contact-us"
+                onClick={() => handleNavigation("Contact", "contact")}
+                className={`relative py-2 px-1 font-medium transition-colors ${activeLink === "contact" ? "text-primaryColor" : "text-gray-700 hover:text-primaryColor"
+                  }`}
               >
                 Contact
+                {activeLink === "contact" && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-primaryColor"
+                    layoutId="underline"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                )}
               </Link>
             </li>
-            <li
-              onClick={openBasketDrawer}
-              title="Votre Panier"
-              className={`${isFixed ? "visible" : "invisible"} whishlist   gap-2 cursor-pointer hover:text-primaryColor transition-all`}
-            >
-              <div className="relative inline-flex">
-                <IoBagHandleOutline size={25} />
-                {quantityInBasket > 0 && (
-                  <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
-                    {quantityInBasket}
-                  </span>
-                )}
-              </div>
-            </li>
           </ul>
-        </div>
+        </nav>
 
-        <div className="list md:hidden items-center gap-5 cursor-pointer text-xl flex">
-          <ul className="flex  gap-5">
-            {!isAuthenticated && (
-              <li className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-                <Link rel="preload" href={`/signin`}>
-                  <FiUser />
-                </Link>
-              </li>
-            )}
-            {isAuthenticated && (
-              <li
-                onClick={handleLogout}
-                className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+        <div className="flex items-center gap-4">
+
+
+          <motion.button
+            onClick={openBasketDrawer}
+            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+            whileTap={{ scale: 0.95 }}
+          >
+            <IoBagHandleOutline className="text-xl" />
+            {quantityInBasket > 0 && (
+              <motion.span
+                className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
               >
-                <Link rel="preload" href="/Home">
-                  <IoIosLogOut />
-                </Link>
-              </li>
+                {quantityInBasket}
+              </motion.span>
             )}
+          </motion.button>
 
-            <li
-              onClick={openBasketDrawer}
-              className="whishlist flex relative items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
-            >
-              <IoBagHandleOutline size={20} />
-              {quantityInBasket >= 0 && (
-                <span className="absolute rounded-full py-1 px-1 text-xs font-medium  leading-none grid place-items-center top-4  translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
-                  {quantityInBasket}
-                </span>
-              )}
-            </li>
-          </ul>
+          <div className="md:hidden flex items-center">
+            {!isAuthenticated ? (
+              <Link href="/signin">
+                <motion.button
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FiUser className="text-xl" />
+                </motion.button>
+              </Link>
+            ) : (
+              <motion.button
+                onClick={handleLogout}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                whileTap={{ scale: 0.95 }}
+              >
+                <IoIosLogOut className="text-xl" />
+              </motion.button>
+            )}
+          </div>
         </div>
       </div>
     </div>

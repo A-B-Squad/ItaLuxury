@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, memo } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import Image from "next/legacy/image";
@@ -18,15 +18,14 @@ import triggerEvents from "@/utlils/trackEvents";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
 
-const TopSalesProductBox = ({ product }: any) => {
+const TopSalesProductBox = memo(({ product }: any) => {
   const { toast } = useToast();
   const { decodedToken, isAuthenticated } = useAuth();
-
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  
   const { data: userData } = useQuery(FETCH_USER_BY_ID, {
     variables: {
       userId: decodedToken?.userId,
@@ -34,176 +33,185 @@ const TopSalesProductBox = ({ product }: any) => {
     skip: !isAuthenticated,
   });
 
-
-
-
   const {
     products,
     addProductToBasket,
     increaseProductInQtBasket,
   } = useProductsInBasketStore();
 
-  const AddToBasket = async (product: any) => {
-    const price =
-      product.productDiscounts.length > 0
-        ? product.productDiscounts[0].newPrice
-        : product.price;
-    triggerEvents("AddToCart", {
+  // Calculate price once to avoid recalculations
+  const price = product.productDiscounts.length > 0
+    ? product.productDiscounts[0].newPrice
+    : product.price;
+  
+  const formattedPrice = price.toFixed(3);
+  const isDiscounted = product.productDiscounts.length > 0;
+  const originalPrice = isDiscounted ? product.productDiscounts[0].price.toFixed(3) : null;
+  const isOutOfStock = product.inventory <= 0;
+
+  const AddToBasket = useCallback(async () => {
+    // Analytics data
+    const analyticsData = {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
+        em: [userData?.fetchUsersById?.email?.toLowerCase()],
+        fn: [userData?.fetchUsersById?.fullName],
         ph: [userData?.fetchUsersById?.number],
         country: ["tn"],
-        external_id: userData?.fetchUsersById.email.id,
+        external_id: userData?.fetchUsersById?.id,
       },
       custom_data: {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-
         contents: [{
           id: product.id,
-          quantity: product.actualQuantity || product.quantity,
+          quantity: 1,
           item_price: price
-        }]
-        ,
-        value: price * (product.actualQuantity || product.quantity),
+        }],
+        value: price,
         currency: "TND",
       },
-    });
+    };
+
+    // Track events
+    triggerEvents("AddToCart", analyticsData);
     sendGTMEvent({
       event: "add_to_cart",
       ecommerce: {
         currency: "TND",
-        value: product.productDiscounts.length > 0
-          ? product.productDiscounts[0].newPrice
-          : product.price,
+        value: price,
         items: [{
           item_id: product.id,
           item_name: product.name,
-          quantity: product.actualQuantity || product.quantity,
+          quantity: 1,
           price: price
         }]
       },
-      user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
-        country: ["tn"],
-        external_id: userData?.fetchUsersById.email.id
-      },
+      user_data: analyticsData.user_data,
       facebook_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        contents: [{
-          id: product.id,
-          quantity: product.actualQuantity || product.quantity,
-          item_price: price
-        }],
-        value: price * (product.actualQuantity || product.quantity),
-        currency: "TND"
+        ...analyticsData.custom_data,
+        value: price,
       }
     });
 
-    if (decodedToken) {
-      addToBasket({
-        variables: {
-          input: {
-            userId: decodedToken?.userId,
-            quantity: 1,
-            productId: product.id,
+    // Add to basket based on authentication status
+    if (isAuthenticated) {
+      try {
+        await addToBasket({
+          variables: {
+            input: {
+              userId: decodedToken?.userId,
+              quantity: 1,
+              productId: product.id,
+            },
           },
-        },
-        refetchQueries: [
-          {
-            query: BASKET_QUERY,
-            variables: { userId: decodedToken?.userId },
-          },
-        ],
-      });
+          refetchQueries: [
+            {
+              query: BASKET_QUERY,
+              variables: { userId: decodedToken?.userId },
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error adding to basket:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'ajouter le produit au panier",
+          className: "bg-red-600 text-white",
+        });
+        return;
+      }
     } else {
-      const isProductAlreadyInBasket = products.some(
-        (p: any) => p.id === product?.id
-      );
-      if (!isProductAlreadyInBasket) {
+      const isProductAlreadyInBasket = products.some(p => p.id === product.id);
+      
+      if (isProductAlreadyInBasket) {
+        increaseProductInQtBasket(product.id, 1);
+      } else {
         addProductToBasket({
           ...product,
-          price:
-            product.productDiscounts.length > 0
-              ? product?.productDiscounts[0]?.newPrice
-              : product?.price,
+          price,
           actualQuantity: 1,
         });
-      } else {
-        increaseProductInQtBasket(product.id, 1);
       }
     }
+    
+    // Update basket state and show notification
     toggleIsUpdated();
-  };
+    toast({
+      title: "Notification de Panier",
+      description: `Le produit "${product?.name}" a été ajouté au panier.`,
+      className: "bg-primaryColor text-white",
+    });
+  }, [product, price, isAuthenticated, decodedToken, userData]);
+
   return (
-    <div className="flex font-medium text-gray-900 w-full relative">
+    <div className="flex font-medium text-gray-900 w-full relative group">
       <div className="w-full flex gap-5 items-center">
-        <div className="relative h-28  w-28">
-          <span className="z-50 flex flex-col gap-1 items-center justify-center group-hover:bg-[#000000ba] transition-all absolute h-full w-full top-0 left-0">
+        <div className="relative h-28 w-28 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 z-10 flex flex-col gap-1 items-center justify-center">
             <button
               type="button"
-              className={`${product.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all`}
-              disabled={product.inventory <= 0}
-              title="Ajouter au panier"
-              onClick={() => {
-                AddToBasket(product);
-                toast({
-                  title: "Notification de Panier",
-                  description: `Le produit "${product?.name}" a été ajouté au panier.`,
-                  className: "bg-primaryColor text-white",
-                });
-              }}
+              className={`transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 p-2 ${
+                isOutOfStock ? "cursor-not-allowed bg-gray-300" : "cursor-pointer hover:bg-primaryColor bg-white hover:text-white"
+              } text-black rounded-full`}
+              disabled={isOutOfStock}
+              title={isOutOfStock ? "Rupture de stock" : "Ajouter au panier"}
+              onClick={AddToBasket}
+              aria-label="Ajouter au panier"
             >
               <FaBasketShopping size={18} />
             </button>
-            <div
-              className="cursor-pointer hover:opacity-70 p-2 group-hover:opacity-100 opacity-0 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full transition-all"
-              title="aperçu rapide"
+            <button
+              className="transform translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-75 p-2 hover:bg-primaryColor bg-white text-black hover:text-white rounded-full"
+              title="Aperçu rapide"
               onClick={() => openProductDetails(product)}
+              aria-label="Aperçu rapide"
             >
               <FaRegEye size={18} />
-            </div>
-          </span>
+            </button>
+          </div>
           <Image
             src={product.images[0]}
-            alt="product"
+            alt={product.name}
             layout="fill"
             objectFit="contain"
+            className="transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
           />
+          {isOutOfStock && (
+            <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 z-20">
+              Rupture
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
+          
           <Link
-            className="hover:text-primaryColor text-base font-light transition-all  cursor-pointer tracking-wider"
+            className="hover:text-primaryColor text-base font-light transition-all cursor-pointer tracking-wider"
             title={product.name}
             href={`/products/tunisie?productId=${product.id}`}
           >
-            <p className="text-left line-clamp-2">{product.name}</p>
+            <p className="text-left line-clamp-2 leading-tight">{product.name}</p>
           </Link>
 
-          {product.productDiscounts.length === 0 ? (
+          {!isDiscounted ? (
             <div className="flex gap-2 font-bold text-lg tracking-wider text-primaryColor">
-              <span>{product?.price.toFixed(3)} DT</span>
+              <span>{formattedPrice} DT</span>
             </div>
           ) : (
             <div className="flex gap-2 tracking-wider items-center">
               <span className="text-primaryColor font-bold text-lg">
-                {product.productDiscounts[0]?.newPrice.toFixed(3)} DT
+                {formattedPrice} DT
               </span>
               <span className="line-through text-gray-700 text-base font-semibold">
-                {product.productDiscounts[0]?.price.toFixed(3)} DT
+                {originalPrice} DT
               </span>
             </div>
           )}
         </div>
       </div>
-      <div className="relative right-4 top-4 hover:text-black transition-colors">
+      <div className="absolute right-4 top-4 hover:text-black transition-colors">
         <FavoriteProduct
           isFavorite={isFavorite}
           setIsFavorite={setIsFavorite}
@@ -216,6 +224,6 @@ const TopSalesProductBox = ({ product }: any) => {
       </div>
     </div>
   );
-};
+});
 
 export default TopSalesProductBox;

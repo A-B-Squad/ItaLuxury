@@ -58,7 +58,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
       if (error) {
         toast({
           title: "Connexion",
-          description: "Invalid email or password",
+          description: "Email ou mot de passe invalide",
           className: "bg-red-800 text-white",
         });
       }
@@ -79,7 +79,6 @@ const TopHeader = ({ logo }: { logo: string }) => {
   });
 
   const updateBasketQuantity = useCallback(() => {
-
     if (decodedToken?.userId && basketData?.basketByUserId) {
       // Prepare basket products with quantity
       const basketProducts = basketData.basketByUserId.map((item: any) => ({
@@ -99,7 +98,6 @@ const TopHeader = ({ logo }: { logo: string }) => {
       setQuantityInBasket(totalQuantity);
     }
   }, [basketData, clearBasket, addMultipleProducts, setQuantityInBasket, decodedToken]);
-
 
   useEffect(() => {
     if (decodedToken?.userId) {
@@ -138,8 +136,8 @@ const TopHeader = ({ logo }: { logo: string }) => {
     SignIn({ variables: { input: data } });
   };
   return (
-    <div className="container flex md:flex-row flex-col gap-3  py-1 justify-between items-center md:border-b-2">
-      <div className="logo-container relative w-full max-w-[200px] h-20 md:h-24 transition-all duration-300 hover:opacity-95">
+    <div className="container flex md:flex-row flex-col gap-3 py-4 justify-between items-center border-b border-gray-200">
+      <div className="logo-container relative w-full max-w-[180px] h-16 md:h-20 transition-all duration-300">
         <Link href="/" className="block w-full h-full">
           <div className="relative w-full h-full">
             <Image
@@ -154,178 +152,212 @@ const TopHeader = ({ logo }: { logo: string }) => {
           </div>
         </Link>
       </div>
-      <SearchBar />
-      <div className="list md:flex items-center gap-5 relative cursor-pointer  text-md hidden ">
-        <ul className="flex items-center gap-5">
-          <li
-            className="userMenu w-max  group  "
-          >
+      
+      <div className="w-full max-w-xl">
+        <SearchBar />
+      </div>
+      
+      <div className="list md:flex items-center gap-6 relative cursor-pointer text-md hidden">
+        <ul className="flex items-center gap-6">
+          <li className="userMenu relative group">
             <div
               onClick={() => setShowMenuUserMenu((prev) => !prev)}
-              className="flex   items-center gap-2 cursor-pointer hover:text-primaryColor transition-all">
-              <FiUser />
-
-              {decodedToken?.userId ?
-                <p>
-                  {userData?.fetchUsersById.fullName}
-                </p>
-                :
-                <p>
-                  Votre Compte
-                </p>
-              }
+              className="flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+            >
+              <div className="p-2 rounded-full bg-gray-50 group-hover:bg-gray-100 transition-colors">
+                <FiUser className="text-gray-700" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-500">
+                  {isAuthenticated ? 'Bonjour,' : 'Bienvenue'}
+                </span>
+                <span className="text-sm font-medium">
+                  {isAuthenticated 
+                    ? userData?.fetchUsersById.fullName || 'Mon compte'
+                    : 'Votre Compte'
+                  }
+                </span>
+              </div>
             </div>
 
             <div
               ref={clickOutside}
-              className={` absolute w-72 h-96 border-2  px-2 py-2  z-[60]  flex  justify-start items-start flex-col  tracking-wider transition-all  ${showLogout ? "translate-y-9 visible" : "invisible translate-y-32"}border-2    bg-white  right-0 z-50`}
+              className={`absolute w-72 border shadow-lg rounded-lg py-4 px-4 z-[60] flex flex-col bg-white right-0 top-full mt-2 transition-all duration-200 ${
+                showLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2"
+              }`}
             >
               {!isAuthenticated && (
-                <form
-                  className="flex flex-col w-full "
-                  onSubmit={handleSubmit(onSubmit)}
-                >
-                  <label
-                    htmlFor="emailOrPhone"
-                    className="text-xs font-medium mb-1"
+                <>
+                  <h3 className="font-semibold text-gray-800 mb-3 text-center">Connexion</h3>
+                  <form
+                    className="flex flex-col w-full"
+                    onSubmit={handleSubmit(onSubmit)}
                   >
-                    Adresse e-mail ou numéro de téléphone
-                  </label>
-                  <input
-                    id="emailOrPhone"
-                    autoComplete="email"
+                    <div className="mb-3">
+                      <label
+                        htmlFor="emailOrPhone"
+                        className="text-xs font-medium mb-1 block text-gray-700"
+                      >
+                        Adresse e-mail ou numéro de téléphone
+                      </label>
+                      <input
+                        id="emailOrPhone"
+                        autoComplete="email"
+                        type="text"
+                        className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primaryColor focus:border-primaryColor"
+                        title="emailOrPhone"
+                        {...register("emailOrPhone", {
+                          required: "L'email ou le numéro de téléphone est requis",
+                          validate: (value) => {
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            const phoneRegex = /^[0-9]{8}$/;
+                            return (
+                              emailRegex.test(value) ||
+                              phoneRegex.test(value) ||
+                              "Format invalide"
+                            );
+                          },
+                        })}
+                      />
+                    </div>
 
-                    type="text"
-                    className="block border outline-gray-400 border-gray-300 py-2.5  text-xs w-full p-1 rounded mb-4"
-                    title="emailOrPhone"
-                    {...register("emailOrPhone", {
-                      required: "L'email ou le numéro de téléphone est requis",
-                      validate: (value) => {
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        const phoneRegex = /^[0-9]{8}$/;
-                        return (
-                          emailRegex.test(value) ||
-                          phoneRegex.test(value) ||
-                          "Format invalide"
-                        );
-                      },
-                    })}
-                  />
+                    <div className="mb-4">
+                      <label
+                        htmlFor="password"
+                        className="text-xs font-medium mb-1 block text-gray-700"
+                      >
+                        Mot de passe
+                      </label>
+                      <input
+                        id="password"
+                        type="password"
+                        autoComplete="current-password"
+                        title="Mot de passe"
+                        className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-primaryColor focus:border-primaryColor"
+                        {...register("password", {
+                          required: "Le mot de passe est requis",
+                        })}
+                      />
+                    </div>
 
-                  <label
-                    htmlFor="password"
-                    className="text-xs font-medium mb-1"
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-2.5 px-4 text-sm font-semibold rounded-md bg-primaryColor text-white hover:bg-amber-200 focus:outline-none transition-colors"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Chargement...
+                        </span>
+                      ) : (
+                        "CONNEXION"
+                      )}
+                    </button>
+                  </form>
+                  
+                  <div className="flex items-center my-4">
+                    <div className="flex-grow h-px bg-gray-200"></div>
+                    <span className="px-3 text-xs text-gray-500">ou</span>
+                    <div className="flex-grow h-px bg-gray-200"></div>
+                  </div>
+                  
+                  <Link
+                    href={"/signup"}
+                    className="w-full py-2.5 px-4 text-sm font-semibold rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 text-center transition-colors"
                   >
-                    Mot de passe
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="current-password"
-                    title="Mot de passe"
-                    className="block border border-gray-300 py-2.5 outline-gray-400   text-xs w-full p-1 rounded mb-4"
-                    {...register("password", {
-                      required: "Password is required",
-                    })}
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full text-center py-1 px-5 text-sm font-semibold  rounded-full bg-primaryColor text-white hover:bg-secondaryColor focus:outline-none my-1 transition-all"
-                  >
-                    {loading ? "Chargement..." : "CONNEXION"}
-                  </button>
-                </form>
+                    NOUVEAU CLIENT? COMMENCER ICI
+                  </Link>
+                </>
               )}
-              {!isAuthenticated && (
-                <Link
-                  rel="preload"
-                  href={"/signup"}
-                  className="w-full py-2 px-1 text-xs border-b  bg-gray-100 hover:text-primaryColor flex justify-between items-center  transition-colors"
-                >
-                  <FiUser />
-                  <p>NOUVEAU CLIENT?</p>
-                  <span className="font-semibold">COMMENCER ICI</span>
-                </Link>
+              
+              {isAuthenticated && (
+                <>
+                  <div className="flex items-center gap-3 mb-4 pb-3 border-b">
+                    <div className="w-10 h-10 rounded-full bg-primaryColor/20 flex items-center justify-center text-primaryColor">
+                      {userData?.fetchUsersById.fullName?.charAt(0) || "U"}
+                    </div>
+                    <div>
+                      <p className="font-medium">{userData?.fetchUsersById.fullName}</p>
+                      <p className="text-xs text-gray-500">{userData?.fetchUsersById.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Link
+                      href="/Account"
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <FiUser className="text-gray-600" />
+                      <span className="text-sm font-medium">Mon Compte</span>
+                    </Link>
+                    
+                    <Link
+                      href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
+                      onClick={() => {
+                        if (!decodedToken || !decodedToken.userId) {
+                          alert("Veuillez vous connecter pour voir vos commandes.");
+                        }
+                      }}
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <GoPackageDependents className="text-gray-600" />
+                      <span className="text-sm font-medium">Mes Commandes</span>
+                    </Link>
+                    
+                    <Link
+                      href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
+                      onClick={() => {
+                        if (!decodedToken || !decodedToken.userId) {
+                          alert("Veuillez vous connecter pour voir vos favoris.");
+                        }
+                      }}
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <FiHeart className="text-gray-600" />
+                      <span className="text-sm font-medium">Ma Liste D'envies</span>
+                    </Link>
+                    
+                    <Link
+                      href="/productComparison"
+                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <IoGitCompare className="text-gray-600" />
+                      <span className="text-sm font-medium">Comparer ({comparisonList.length})</span>
+                    </Link>
+                    
+                    <button
+                      onClick={() => {
+                        removeToken();
+                        window.sessionStorage.removeItem("products-in-basket");
+                        window.sessionStorage.removeItem("comparedProducts");
+                        window.location.replace("/");
+                      }}
+                      className="flex items-center gap-3 p-2 w-full text-left text-red-600 hover:bg-red-50 rounded-md transition-colors mt-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span className="text-sm font-medium">Déconnexion</span>
+                    </button>
+                  </div>
+                </>
               )}
-              {!isAuthenticated && (
-                <Link
-                  rel="preload"
-                  className="w-full py-2  text-sm border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
-                  href={"/signin"}
-                >
-                  <FiUser />
-                  <p className="font-semibold ">Mon Compte</p>
-                </Link>
-              )}
-              {decodedToken?.userId && (
-                <Link
-                  rel="preload"
-                  onClick={() => {
-                    removeToken()
-                    window.sessionStorage.removeItem("products-in-basket");
-                    window.sessionStorage.removeItem("comparedProducts");
-                    window.location.replace("/");
-
-                  }}
-                  className="w-full text-sm py-2 border-b gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
-                  href={"/"}
-                >
-                  <FiUser />
-                  <p className="font-semibold uppercase">Déconnexion</p>
-                </Link>
-              )}
-
-              <Link
-                rel="preload"
-                href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
-                onClick={() => {
-                  if (!decodedToken || !decodedToken.userId) {
-                    alert("Veuillez vous connecter pour voir vos favoris.");
-                  }
-                }}
-                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-primaryColor flex justify-start items-center  transition-colors"
-              >
-                <FiHeart />
-                <p className="font-semibold uppercase">Ma Liste D'envies</p>
-              </Link>
-              <Link
-                rel="preload"
-                href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
-                onClick={() => {
-                  if (!decodedToken || !decodedToken.userId) {
-                    alert("Veuillez vous connecter pour voir vos commandes.");
-                  }
-                }}
-                className="w-full text-sm border-b py-2 gap-2 text-center hover:text-primaryColor flex justify-start items-center  transition-colors"
-              >
-                <GoPackageDependents />
-                <p className="font-semibold uppercase">Mes Commandes</p>
-              </Link>
-
-              <Link
-                rel="preload"
-                href={`/productComparison`}
-                className=" text-sm w-full py-2 gap-2 hover:text-primaryColor flex justify-start items-center  transition-colors"
-              >
-                <IoGitCompare />
-                <p className="font-semibold uppercase">
-                  Comparer ({comparisonList.length})
-                </p>
-              </Link>
             </div>
           </li>
 
           <li
-            onClick={handleBasketClick} title="Votre Panier"
-            className="whishlist flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+            onClick={handleBasketClick} 
+            title="Votre Panier"
+            className="flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
           >
-            <div className="relative inline-flex">
-              <IoBagHandleOutline size={30} />
-
-              {quantityInBasket >= 0 && (
-                <span className="absolute rounded-full py-1 px-1 text-xs font-medium content-[''] leading-none grid place-items-center top-[4%] right-[2%] translate-x-2/4 -translate-y-2/4 bg-primaryColor text-white min-w-[20px] min-h-[20px]">
+            <div className="relative p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors">
+              <IoBagHandleOutline className="text-gray-700 text-xl" />
+              {quantityInBasket > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
                   {quantityInBasket}
                 </span>
               )}

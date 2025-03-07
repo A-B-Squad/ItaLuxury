@@ -115,7 +115,7 @@ const Home = () => {
     TAKE_14_PRODUCTS,
     {
       variables: { limit: 14, visibleProduct: true },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "cache-and-network"
     }
   );
   const { data: TopSellsSectionVisibility } = useQuery(CONTENT_VISIBILITY, {
@@ -214,10 +214,10 @@ const Home = () => {
                   />
                 </div>
 
-                  <ProductTabs
-                    data={newProducts}
-                    loadingProduct={loadingNewProducts_14}
-                  />
+                <ProductTabs
+                  data={newProducts}
+                  loadingProduct={loadingNewProducts_14}
+                />
               </div>
             </div>
 
@@ -262,10 +262,10 @@ const Home = () => {
                 </div>
               </div>
               <div className=" relative items-center gap-3  flex">
-                  <ProductTabs
-                    data={discountedProducts}
-                    loadingProduct={loadingProducts_inDiscount_14}
-                  />
+                <ProductTabs
+                  data={discountedProducts}
+                  loadingProduct={loadingProducts_inDiscount_14}
+                />
                 <div className="sideImg w-fit  hidden xl:block ">
                   <SideAds
                     adsLoaded={loadingRightAds}

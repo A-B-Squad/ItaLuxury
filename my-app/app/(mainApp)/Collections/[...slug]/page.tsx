@@ -4,7 +4,7 @@ import keywords from "@/public/keywords";
 import ProductsSection from "./productsSection";
 import Breadcumb from '@/app/components/Breadcumb';
 import { fetchGraphQLData } from "@/utlils/graphql";
-import { CATEGORIES_QUERY } from "@/graphql/queries";
+import { CATEGORIES_QUERY, COMPANY_INFO_QUERY_WITHOUT_GQL } from "@/graphql/queries";
 
 // Types
 type SearchParams = {
@@ -47,42 +47,29 @@ interface BreadcrumbItem {
 }
 
 // API Services
+
 async function fetchCompanyInfo(): Promise<CompanyInfo> {
   if (!process.env.NEXT_PUBLIC_API_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined");
   }
 
-  try {
-    const { data } = await fetch(process.env.NEXT_PUBLIC_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          query CompanyInfo {
-            companyInfo {
-              logo
-              name
-              description
-              address
-              phone
-              email
-              socialMedia {
-                facebook
-                instagram
-                twitter
-              }
-            }
-          }
-        `,
-      }),
-    }).then((res) => res.json());
 
+  try {
+    // Use the fetchGraphQLData utility for consistency
+    const data = await fetchGraphQLData(COMPANY_INFO_QUERY_WITHOUT_GQL);
     return data?.companyInfo;
   } catch (error) {
     console.error('Error fetching company info:', error);
-    throw error;
+    // Return a default object instead of throwing to improve resilience
+    return {
+      logo: '/LOGO.jpg',
+      name: 'ita-luxury',
+      description: 'Boutique en ligne en Tunisie'
+    };
   }
 }
+
+
 
 // Metadata Helpers
 function generateTitle(searchParams: SearchParams): string {
@@ -209,43 +196,34 @@ async function generateBreadcrumbPath(searchParams: SearchParams): Promise<Bread
     { href: "/", label: "Accueil" },
   ];
 
-  // If no choice or category is selected, show the boutique path
-  if (!searchParams.choice && !searchParams.category) {
-    path.push({
-      href: "/boutique",
-      label: "Boutique",
-    });
-  }
-
-  // Add choice path (in-discount or new-product)
-  if (searchParams.choice) {
-    const choiceLabels: Record<string, string> = {
-      "in-discount": "Promotions",
-      "new-product": "Nouveautés",
-    };
-
-    if (choiceLabels[searchParams.choice]) {
-      path.push({
-        href: `/Collections/tunisie?choice=${encodeURIComponent(searchParams.choice)}`,
-        label: choiceLabels[searchParams.choice],
-      });
-    }
-  }
-
-  // Add category path if present
   if (searchParams.category) {
     try {
       const { categories } = await fetchGraphQLData(CATEGORIES_QUERY);
+
+      if (!categories || categories.length === 0) {
+        throw new Error("Categories not found");
+      }
+
       const categoryPath = findCategoryPath(categories, searchParams.category);
 
-      categoryPath.forEach((category) => {
-        path.push({
-          href: `/Collections/tunisie?category=${encodeURIComponent(category.name)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
-          label: category.name,
+      // Only add categories if we found a valid path
+      if (categoryPath.length > 0) {
+        categoryPath.forEach((category) => {
+          path.push({
+            href: `/Collections/tunisie?category=${encodeURIComponent(category.name)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+            label: category.name,
+          });
         });
-      });
+      } else {
+        // Add just the requested category if path not found
+        path.push({
+          href: `/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+          label: searchParams.category,
+        });
+      }
     } catch (error) {
       console.error("Error generating breadcrumb path:", error);
+      // Add fallback breadcrumb
       path.push({
         href: `/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
         label: searchParams.category,
@@ -263,84 +241,111 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
-    throw new Error("BASE_URL_DOMAIN is not defined");
+    console.error("BASE_URL_DOMAIN is not defined");
+    // Provide a fallback instead of throwing
+    process.env.NEXT_PUBLIC_BASE_URL_DOMAIN = "https://www.ita-luxury.com";
   }
+  try {
+    const companyInfo = await fetchCompanyInfo();
+    const previousImages = (await parent).openGraph?.images || [];
+    const canonicalUrl = generateCanonicalUrl(searchParams);
+    const pageTitle = generateTitle(searchParams);
+    const pageDescription = generateDescription(searchParams, companyInfo);
+    const pageKeywords = generateKeywords(searchParams).join(", ");
 
-  const companyInfo = await fetchCompanyInfo();
-  const previousImages = (await parent).openGraph?.images || [];
-  const canonicalUrl = generateCanonicalUrl(searchParams);
-  const pageTitle = generateTitle(searchParams);
-  const pageDescription = generateDescription(searchParams, companyInfo);
-
-  return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-    title: pageTitle,
-    description: pageDescription,
-    keywords: generateKeywords(searchParams).join(", "),
-
-    openGraph: {
-      type: "website",
+    return {
+      metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
       title: pageTitle,
       description: pageDescription,
-      images: [
-        {
-          url: companyInfo?.logo || `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
-          width: 1200,
-          height: 630,
-          alt: `ita-luxury - ${pageTitle}`,
-        },
-        ...previousImages,
-      ],
-      siteName: "ita-luxury",
-      url: canonicalUrl,
-      locale: "fr_FR",
-    },
+      keywords: pageKeywords,
 
-    twitter: {
-      card: "summary_large_image",
-      title: pageTitle,
-      description: pageDescription,
-      images: [companyInfo?.logo || `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`],
-      creator: "@ita_luxury",
-      site: "@ita_luxury",
-    },
-
-    icons: {
-      icon: [{ url: "/favicon.ico" }],
-      apple: [{ url: "/favicon.ico" }],
-      other: [{ url: "/favicon.ico" }],
-    },
-
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'fr-TN': canonicalUrl,
+      openGraph: {
+        type: "website",
+        title: pageTitle,
+        description: pageDescription,
+        images: [
+          {
+            url: companyInfo?.logo || `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+            width: 1200,
+            height: 630,
+            alt: `ita-luxury - ${pageTitle}`,
+          },
+          ...previousImages,
+        ],
+        siteName: "ita-luxury",
+        url: canonicalUrl,
+        locale: "fr_FR",
       },
-    },
 
-    robots: {
-      index: true,
-      follow: true,
-      'max-snippet': -1,
-      'max-image-preview': 'large',
-      'max-video-preview': -1,
-      nocache: searchParams.choice === "in-discount",
-    },
+      twitter: {
+        card: "summary_large_image",
+        title: pageTitle,
+        description: pageDescription,
+        images: [companyInfo?.logo || `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`],
+        creator: "@ita_luxury",
+        site: "@ita_luxury",
+      },
 
-    category: searchParams.category || "All Products",
-  };
+      icons: {
+        icon: [{ url: "/favicon.ico" }],
+        apple: [{ url: "/favicon.ico" }],
+        other: [{ url: "/favicon.ico" }],
+      },
+
+      alternates: {
+        canonical: canonicalUrl,
+        languages: {
+          'fr-TN': canonicalUrl,
+        },
+      },
+
+      robots: {
+        index: true,
+        follow: true,
+        'max-snippet': -1,
+        'max-image-preview': 'large',
+        'max-video-preview': -1,
+        nocache: searchParams.choice === "in-discount",
+      },
+
+      category: searchParams.category || "All Products",
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    // Return basic metadata as fallback
+    return {
+      title: "Collections - ita-luxury",
+      description: "Découvrez notre collection de produits en Tunisie",
+    };
+  }
 }
 
 // Page Component
 export default async function AllProductsPage({ searchParams }: Props) {
-  const breadcrumbPath = await generateBreadcrumbPath(searchParams);
+  try {
+    const breadcrumbPath = await generateBreadcrumbPath(searchParams);
 
-  return (
-    <>
-      <div className="Breadcumb">
-        <Breadcumb Path={breadcrumbPath} />
+    return (
+      <>
+        <div className="Breadcumb">
+          <Breadcumb Path={breadcrumbPath} />
+        </div>
+        <ProductsSection />
+      </>
+    );
+  } catch (error) {
+    console.error("Error rendering AllProductsPage:", error);
+    return (
+      <div className="error-container p-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Une erreur s'est produite</h1>
+        <p>Nous n'avons pas pu charger les produits. Veuillez réessayer plus tard.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-primaryColor text-white rounded-md"
+        >
+          Rafraîchir la page
+        </button>
       </div>
-      <ProductsSection />
-    </>
-  );
+    );
+  }
 }

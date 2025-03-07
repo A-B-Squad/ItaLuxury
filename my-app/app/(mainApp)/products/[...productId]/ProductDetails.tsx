@@ -257,7 +257,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
   const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
 
-  const AddToBasket = async (product: any) => {
+  const AddToBasket = useCallback(async (product: any) => {
     const price =
       product.productDiscounts.length > 0
         ? product.productDiscounts[0].newPrice
@@ -439,7 +439,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       });
     }
     toggleIsUpdated();
-  };
+  }, [decodedToken, productInBasket, quantity, productDetails?.name, userData, attributes, toast, toggleIsUpdated, storedProducts, increaseProductInQtBasket, addProductToBasket]);
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productDetails.inventory) {
@@ -453,10 +453,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     }
   }, [quantity]);
 
-  const categoryNames = productDetails?.categories?.map(
-    (cat: { name: string }) => cat.name
+
+  const categoryNames = useMemo(() =>
+    productDetails?.categories?.map((cat: { name: string }) => cat.name),
+    [productDetails?.categories]
   );
-  const categoriesPath = [
+
+  const categoriesPath = useMemo(() => [
     { href: "/", label: "Accueil" },
     ...categoryNames.map((category: string | number | boolean, index: any) => ({
       href: `/Collections/tunisie?category=${encodeURIComponent(category)}`,
@@ -466,8 +469,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       href: `/products/tunisie?${productDetails.id}`,
       label: productDetails?.name,
     },
-  ];
-
+  ], [categoryNames, productDetails?.id, productDetails?.name]);
 
 
   const handleToggleFavorite = useCallback(() => {
@@ -573,10 +575,6 @@ const ProductDetails = ({ productDetails, productId }: any) => {
 
               <ActionButton
                 productDetails={productDetails}
-                attributes={attributes}
-                userId={decodedToken?.userId}
-                discount={discount}
-                productId={productId}
                 AddToBasket={AddToBasket}
                 quantity={quantity}
                 handleIncreaseQuantity={handleIncreaseQuantity}

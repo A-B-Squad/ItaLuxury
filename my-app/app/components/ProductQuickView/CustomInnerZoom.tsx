@@ -13,6 +13,12 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const thumbnailsRef = useRef<HTMLDivElement>(null);
 
+  // Reset selected image when images change
+  useEffect(() => {
+    setSelectedImage(0);
+    setIsZoomed(false);
+  }, [images]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
     if (!isZoomed) return;
 
@@ -85,20 +91,24 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
         {/* Thumbnails */}
         <div className="w-full max-w-lg mx-auto relative">
           {/* Thumbnail Navigation Arrows */}
-          <button
-            onClick={() => scrollThumbnails('prev')}
-            className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
-            aria-label="Previous thumbnails"
-          >
-            <ChevronLeft className="w-4 h-4 text-gray-800" />
-          </button>
-          <button
-            onClick={() => scrollThumbnails('next')}
-            className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
-            aria-label="Next thumbnails"
-          >
-            <ChevronRight className="w-4 h-4 text-gray-800" />
-          </button>
+          {validImages.length > 4 && (
+            <>
+              <button
+                onClick={() => scrollThumbnails('prev')}
+                className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Previous thumbnails"
+              >
+                <ChevronLeft className="w-4 h-4 text-gray-800" />
+              </button>
+              <button
+                onClick={() => scrollThumbnails('next')}
+                className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
+                aria-label="Next thumbnails"
+              >
+                <ChevronRight className="w-4 h-4 text-gray-800" />
+              </button>
+            </>
+          )}
 
           <div className="relative w-full">
             <div
@@ -112,7 +122,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
                   onClick={() => setSelectedImage(index)}
                   className={`relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden 
                     ${selectedImage === index
-                      ? 'ring-2 ring-offset-2 ring-blue-500 shadow-lg'
+                      ? 'ring-2 ring-offset-2 ring-primaryColor shadow-lg'
                       : 'ring-1 ring-gray-200'
                     }`}
                 >
@@ -129,13 +139,17 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
                 </button>
               ))}
             </div>
-            <div className="absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-            <div className="absolute left-0 top-0 h-full w-12 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+            {validImages.length > 4 && (
+              <>
+                <div className="absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+                <div className="absolute left-0 top-0 h-full w-12 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+              </>
+            )}
           </div>
         </div>
 
         {/* Main image */}
-        <div className="relative h-[450px] w-[300px] md:w-[450px] mx-auto overflow-hidden rounded-lg bg-gray-100">
+        <div className="relative h-[350px] sm:h-[400px] md:h-[450px] w-full mx-auto overflow-hidden rounded-lg bg-gray-100">
           <div
             className={`relative w-full h-full cursor-zoom-in ${isZoomed ? 'scale-150' : 'scale-100'
               } transition-transform duration-300`}
@@ -152,6 +166,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
               layout="fill"
               objectFit="contain"
               className="w-full h-full"
+              priority
             />
           </div>
 

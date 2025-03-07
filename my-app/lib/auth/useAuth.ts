@@ -25,7 +25,7 @@ export const useAuth = () => {
 
   return {
     decodedToken,
-    isAuthenticated: !!decodedToken,
+    isAuthenticated: !!decodedToken?.userId,
     isLoading,setDecodedToken
   };
 };
