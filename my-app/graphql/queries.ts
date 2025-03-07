@@ -448,6 +448,20 @@ export const GET_BRANDS = gql`
   }
 `;
 
+export const COMPANY_INFO_QUERY_WITHOUT_GQL = `
+  query CompanyInfo {
+    companyInfo {
+      id
+      phone
+      deliveringPrice
+      logo
+      facebook
+      instagram
+      location
+      email
+    }
+  }
+`;
 export const COMPANY_INFO_QUERY = gql`
   query CompanyInfo {
     companyInfo {

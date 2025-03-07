@@ -5,7 +5,7 @@ interface SellsData {
   category: CategoryInfo;
 }
 
-interface ProductInfo {
+interface ProductQuickView {
   id: string;
   name: string;
   price: number;

@@ -57,16 +57,20 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   const [selectedFilterQueries, setSelectedFilterQueries] =
     useState<FilterQueries>({});
   const [localPrice, setLocalPrice] = useState<number>(500);
+
+  const urlParams = useMemo(() => {
+    return convertStringToQueriesObject(searchParams);
+  }, [searchParams]);
+
   // Initialize filters and price from URL parameters
   useEffect(() => {
-    const paramsObj = convertStringToQueriesObject(searchParams);
-    setSelectedFilterQueries(paramsObj);
-
+    setSelectedFilterQueries(urlParams);
     const priceFromParams = searchParams?.get("price");
     if (priceFromParams) {
       setLocalPrice(+priceFromParams);
     }
-  }, [searchParams]);
+  }, [urlParams, searchParams]);
+
 
   // Handle window resize
   useEffect(() => {
@@ -78,19 +82,21 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
 
   // Helper function to build query string
   // This function handles different formatting for color, choice, and brand vs other filters
-  const buildQueryString = (queries: FilterQueries): string => {
-    return Object.entries(queries)
-      .filter(([_, values]) => values.length > 0) // Filter out empty arrays
-      .map(
-        ([key, values]) =>
-          key === "color" || key === "choice" || key === "brand"
-            ? values
-              .map((value) => `${key}=${encodeURIComponent(value)}`)
-              .join("&") // Handle special cases
-            : `${key}=${values.map(encodeURIComponent).join(",")}` // Handle general cases
-      )
-      .join("&");
-  };
+  const buildQueryString = useMemo(() => {
+    return (queries: FilterQueries): string => {
+      return Object.entries(queries)
+        .filter(([_, values]) => values.length > 0)
+        .map(
+          ([key, values]) =>
+            key === "color" || key === "choice" || key === "brand"
+              ? values
+                .map((value) => `${key}=${encodeURIComponent(value)}`)
+                .join("&")
+              : `${key}=${values.map(encodeURIComponent).join(",")}`
+        )
+        .join("&");
+    };
+  }, []);
 
   // Handle brand filter selection
   const handleSelectBrandFilterOptions = useCallback(
@@ -198,15 +204,14 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
     [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
-  const isChecked = useCallback(
-    (name: string, option: string) => {
+  const isChecked = useMemo(() => {
+    return (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
         selectedFilterQueries[name].includes(option)
       );
-    },
-    [selectedFilterQueries]
-  );
+    };
+  }, [selectedFilterQueries]);
 
   // Render helpers
   const renderChoiceFilters = () => (
@@ -229,16 +234,16 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               value={choice.id}
               checked={isChecked("choice", choice.id)}
               className={`h-3 w-3  outline-none ${isChecked("choice", choice.id)
-                  ? "bg-secondaryColor"
-                  : "bg-white"
+                ? "bg-secondaryColor"
+                : "bg-white"
                 } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
               onChange={() => handleChoiceFilterOptions(choice.id)}
             />
             <label
               htmlFor={`filtre-choix-${choice.id}`}
               className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", choice.id)
-                  ? "text-black font-semibold"
-                  : "text-gray-600"
+                ? "text-black font-semibold"
+                : "text-gray-600"
                 } group-hover:text-black group-hover:font-semibold transition-all`}
             >
               {choice.label}
@@ -271,8 +276,8 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
             </Link>
             <span
               className={`${searchParams?.get("category") === category?.id
-                  ? "bg-primaryColor"
-                  : "bg-secondaryColor"
+                ? "bg-primaryColor"
+                : "bg-secondaryColor"
                 } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
             ></span>
           </li>
@@ -532,4 +537,11 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   );
 };
 
-export default React.memo(SideBar);
+export default React.memo(SideBar, (prevProps, nextProps) => {
+  // Only re-render if the data has actually changed
+  return (
+    prevProps.colors === nextProps.colors &&
+    prevProps.brands === nextProps.brands &&
+    prevProps.categories === nextProps.categories
+  );
+});

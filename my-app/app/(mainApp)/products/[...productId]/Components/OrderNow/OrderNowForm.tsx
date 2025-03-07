@@ -1,30 +1,27 @@
 "use client";
+import { CiMail, CiPhone, CiUser, CiLocationOn, CiDeliveryTruck } from "react-icons/ci";
+import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { GiShoppingBag } from "react-icons/gi";
 import { useForm } from "react-hook-form";
 
-import { CiMail, CiPhone, CiUser } from "react-icons/ci";
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
-import { Loader2 } from "lucide-react";
 
 import {
     BASKET_QUERY,
     COMPANY_INFO_QUERY,
     FETCH_USER_BY_ID,
-    FIND_UNIQUE_COUPONS,
     GET_GOVERMENT_INFO,
 } from "@/graphql/queries";
-import Link from "next/link";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
-import { $Enums } from "@prisma/client";
+import { OrderSummary } from "./OrderSummary";
 
 // Define interfaces
-
 interface Product {
     id: string;
     reference: string;
@@ -180,7 +177,9 @@ const OrderNow: React.FC<OrderNowProps> = ({
         const userName = isGuest
             ? data.fullname
             : userData?.fetchUsersById?.fullName;
-        const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
+        const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
+        const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
+        const userPhone = isGuest ? cleanPhone1 : userData?.fetchUsersById?.number;
 
         try {
             setPaymentLoading(true);
@@ -198,7 +197,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 userId: decodedToken?.userId,
                 userName: data.fullname,
                 total: parseFloat(calculateTotal()),
-                phone: [data.phone_1, data.phone_2].filter(Boolean),
+                phone: [cleanPhone1, cleanPhone2].filter(Boolean),
                 governorateId: data.governorate,
                 address: data.address,
                 couponsId: couponsId,
@@ -311,389 +310,233 @@ const OrderNow: React.FC<OrderNowProps> = ({
         }
     };
 
-    // Coupon handling
-    const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
-    const [showInputCoupon, setShowInputCoupon] = useState<boolean>(false);
-    const [changeCouponCode, setChangeCouponCode] = useState<string>("");
 
-    const handleCouponsVerification = async () => {
-        if (changeCouponCode.length === 10) {
-            const { data: uniqueCoupons } = await uniqueCouponsData({
-                variables: { codeInput: changeCouponCode },
-            });
-
-            if (uniqueCoupons?.findUniqueCoupons) {
-                setCouponsId(uniqueCoupons.findUniqueCoupons.id);
-                setDiscountPercentage(uniqueCoupons.findUniqueCoupons.discount);
-                toast({
-                    title: "Code Promo",
-                    description: "Code promo appliqué avec succès",
-                    className: "bg-green-800 text-white",
-                });
-            } else {
-                toast({
-                    title: "Code Promo",
-                    description: "Code promo invalide ou déjà utilisé",
-                    className: "bg-red-800 text-white",
-                });
-            }
-        } else {
-            toast({
-                title: "Code Promo",
-                description: "Code promo invalide",
-                className: "bg-red-800 text-white",
-            });
-        }
-    };
-
-    const handleCouponToggle = () => {
-        setShowInputCoupon(!showInputCoupon);
-        if (showInputCoupon) {
-            setChangeCouponCode("");
-            setDiscountPercentage(0);
-            setCouponsId("");
-        }
-    };
 
     return (
-        <div className="md:hidden flex justify-center flex-col items-center w-full mt-10">
+        <div className="md:hidden w-full mt-6 mb-10">
             {paymentLoading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-5 rounded-lg flex flex-col items-center">
                         <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
                         <p className="mt-2 text-gray-700">
-                            Redirection vers la page de paiement...
+                            Traitement de votre commande...
                         </p>
                     </div>
                 </div>
             )}
 
-            <div className=" w-full p-4 pb-2 bg-white border-2 gap-">
-                <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div className="p-4 bg-primaryColor text-white">
+                    <h2 className="text-xl font-bold flex items-center">
+                        <GiShoppingBag className="mr-2" /> Acheter maintenant
+                    </h2>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="p-4">
                     {!isValid && Object.keys(errors).length > 0 && (
-                        <p className="text-red-500 mb-4">
-                            Veuillez remplir tous les champs requis correctement.
-                        </p>
-                    )}
-                    <div className="flex flex-col w-full">
-                        <div className="w-full">
-                            <h2 className="text-2xl font-bold mb-4">Acheter maintenant</h2>
-                            <div className="inputs grid md:grid-cols-2  ">
-                                <div className="fullName">
-                                    {/* Full Name Input */}
-                                    <label
-                                        htmlFor="fullname"
-                                        className="mt-4  block text-sm font-medium"
-                                    >
-                                        <CiUser className="inline-block mr-2 mb-1" /> Nom et Prénom
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="fullName"
-                                        {...register("fullname", {
-                                            required: "Ce champ est requis",
-                                        })}
-                                        className="w-full rounded-md border border-gray-200 px-4 py-3 pl-1 text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
-                                        placeholder="Nom et prénom"
-                                    />
-                                    {errors.fullname && (
-                                        <p className="text-red-500">
-                                            {errors.fullname.message as string}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="address">
-                                    {/* Address Input */}
-                                    <label
-                                        htmlFor="address"
-                                        className="mt-4  block text-sm font-medium"
-                                    >
-                                        Adresse
-                                    </label>
-                                    <textarea
-                                        id="address"
-                                        {...register("address", {
-                                            required: "L'adresse est requise",
-                                        })}
-                                        className="w-full rounded-md border border-gray-200 px-4 py-3 pl-1 text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
-                                        placeholder="Saisissez votre adresse"
-                                        rows={1}
-                                    ></textarea>
-                                    {errors.address && (
-                                        <p className="text-red-500">Ce champ est requis</p>
-                                    )}
-                                </div>
-
-                                {/* Phone 1 Input */}
-                                <div className="phone1">
-                                    <label
-                                        htmlFor="phone_1"
-                                        className="mt-4  block text-sm font-medium"
-                                    >
-                                        <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1
-                                    </label>
-                                    <div className="flex items-center">
-                                        <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
-                                            +216
-                                        </span>
-                                        <input
-                                            type="tel"
-                                            id="phone_1"
-                                            className="border border-gray-300 rounded-r-md px-4 py-2 w-full focus:outline-none "
-                                            {...register("phone_1", {
-                                                required: "Ce champ est requis",
-                                                pattern: {
-                                                    value: /^[0-9]{8}$/,
-                                                    message:
-                                                        "Le numéro de téléphone doit comporter 8 chiffres",
-                                                },
-                                            })}
-                                            placeholder="Numéro de téléphone"
-                                        />
-                                    </div>
-                                    {errors.phone_1 && (
-                                        <p className="text-red-500">
-                                            {errors.phone_1.message as string}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="phone2">
-                                    {/* Phone 2 Input (Optional) */}
-                                    <label
-                                        htmlFor="phone_2"
-                                        className="mt-4  block text-sm font-medium"
-                                    >
-                                        <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2
-                                        (optional)
-                                    </label>
-                                    <div className="flex items-center">
-                                        <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
-                                            +216
-                                        </span>
-                                        <input
-                                            type="tel"
-                                            id="phone_2"
-                                            className="border border-gray-300 rounded-r-md px-4 py-2 w-full focus:outline-none "
-                                            {...register("phone_2", {
-                                                pattern: {
-                                                    value: /^[0-9]{8}$/,
-                                                    message:
-                                                        "Le numéro de téléphone doit comporter 8 chiffres",
-                                                },
-                                            })}
-                                            placeholder="Numéro de téléphone"
-                                        />
-                                    </div>
-
-                                    {errors.phone_2 && (
-                                        <p className="text-red-500">
-                                            {errors.phone_2.message as string}
-                                        </p>
-                                    )}
-                                </div>
-                                {/* Governorate Selection */}
-                                <div className="Governorate">
-                                    <label
-                                        htmlFor="governorate"
-                                        className="mt-4  block text-sm font-medium"
-                                    >
-                                        Governorat
-                                    </label>
-                                    <select
-                                        id="governorate"
-                                        {...register("governorate", {
-                                            required: "Veuillez sélectionner un gouvernorat",
-                                        })}
-                                        className="w-full px-4 py-3 rounded-md border border-gray-200 bg-white text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
-                                    >
-                                        <option value="">Sélectionner une governorat</option>
-                                        {governmentInfo.map((government: Governorate) => (
-                                            <option key={government.id} value={government.id}>
-                                                {government.name.toUpperCase()}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.governorate && (
-                                        <p className="text-red-500">Ce champ est requis</p>
-                                    )}
-                                </div>
-                                {/* Email Input (for guest users) */}
-                                {!isLoggedIn && (
-                                    <div className="email mt-6">
-                                        <label
-                                            htmlFor="email"
-                                            className="block text-sm font-medium text-gray-700"
-                                        >
-                                            <CiMail className="inline-block mr-2 align-text-bottom" />{" "}
-                                            Email (optionnel)
-                                        </label>
-                                        <div className="mt-1 relative rounded-md shadow-sm">
-                                            <input
-                                                type="email"
-                                                id="email"
-                                                {...register("email", {
-                                                    pattern: {
-                                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                                        message: "Adresse e-mail invalide",
-                                                    },
-                                                })}
-                                                className="border border-gray-300 rounded-r-md px-4 py-2 w-full focus:outline-none "
-                                                placeholder="votre@email.com"
-                                            />
-                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <CiMail
-                                                    className="h-5 w-5 text-gray-400"
-                                                    aria-hidden="true"
-                                                />
-                                            </div>
-                                        </div>
-                                        {errors.email && (
-                                            <p className="mt-2 text-sm text-red-600" id="email-error">
-                                                {errors.email.message as string}
-                                            </p>
-                                        )}
-                                        <p
-                                            className="mt-2 text-sm text-gray-500"
-                                            id="email-description"
-                                        >
-                                            Fournir votre email nous permettra de vous envoyer des
-                                            mises à jour sur votre commande.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="DeliveryCommentmb-4">
-                                <label
-                                    htmlFor="deliveryComment"
-                                    className="block text-sm font-medium text-gray-700 "
-                                >
-                                    Commentaire pour la livraison (optionnel)
-                                </label>
-                                <textarea
-                                    id="deliveryComment"
-                                    {...register("deliveryComment")}
-                                    rows={4}
-                                    className="w-full rounded-md border border-gray-300 px-4 py-3 text-sm shadow-sm outline-none focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
-                                    placeholder="Ajoutez des instructions spéciales pour la livraison ici..."
-                                ></textarea>
-                            </div>
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p className="text-red-600 text-sm font-medium">
+                                Veuillez remplir tous les champs requis correctement.
+                            </p>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="PaymentConfermation bg-whit px-3 rounded-xl shado-lg">
-                        <h2 className="text-xl font-bold mb-6 text-gray-800">
-                            Confirmation et mode de paiement
-                        </h2>
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                            Informations personnelles
+                        </h3>
 
-                        {/* Coupon Section */}
-                        <div className="Coupons  mt-6 mb-3 md:px-4 ">
-                            <div className="flex items-center justify-between  ">
-                                <label htmlFor="coupon" className="block text-sm font-semibold">
-                                    Code promo
-                                </label>
-                                <button
-                                    type="button"
-                                    className="text-secondaryColor hover:text-blue-800 text-sm font-medium"
-                                    onClick={handleCouponToggle}
-                                >
-                                    {showInputCoupon ? "Annuler" : "Ajouter"}
-                                </button>
-                            </div>
-                            {showInputCoupon && (
-                                <div className="bg-gray-100 p-4 rounded-md">
-                                    <div className="flex items-center ">
-                                        <input
-                                            type="text"
-                                            className="flex-grow border-2 px-3 py-2 text-sm rounded-md outline-none"
-                                            maxLength={10}
-                                            value={changeCouponCode}
-                                            onChange={(e) => setChangeCouponCode(e.target.value)}
-                                            placeholder="Saisissez un code de promo"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="bg-primaryColor hover:bg-secondaryColor text-white font-medium rounded-md px-4 py-2 text-sm transition-colors duration-100"
-                                            onClick={handleCouponsVerification}
-                                        >
-                                            Appliquer
-                                        </button>
-                                    </div>
-                                    <p className="text-sm mt-2 text-gray-600">
-                                        {changeCouponCode.length}/10 caractères
-                                    </p>
-                                </div>
+                        {/* Full Name Input */}
+                        <div>
+                            <label htmlFor="fullname" className="block text-sm font-medium text-gray-700 mb-1">
+                                <CiUser className="inline-block mr-2 mb-1" /> Nom et Prénom
+                            </label>
+                            <input
+                                type="text"
+                                id="fullName"
+                                {...register("fullname", {
+                                    required: "Ce champ est requis",
+                                })}
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                placeholder="Nom et prénom"
+                            />
+                            {errors.fullname && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {errors.fullname.message as string}
+                                </p>
                             )}
                         </div>
 
-                        <div className="info md:px-4">
-                            <div className="space-y-3 border-b border-gray-200 pb-4 mb-4">
-                                <div className="flex justify-between text-base text-gray-600">
-                                    <p>Sous-total</p>
-                                    <p>{subtotal.toFixed(3)} TND</p>
-                                </div>
+                        {/* Address Input */}
+                        <div>
+                            <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                                <CiLocationOn className="inline-block mr-2 mb-1" /> Adresse
+                            </label>
+                            <textarea
+                                id="address"
+                                {...register("address", {
+                                    required: "L'adresse est requise",
+                                })}
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                placeholder="Saisissez votre adresse complète"
+                                rows={2}
+                            ></textarea>
+                            {errors.address && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    Ce champ est requis
+                                </p>
+                            )}
+                        </div>
 
-                                <div className="flex justify-between text-base text-gray-600">
-                                    <div className="flex flex-col">
-                                        <p>Livraison</p>
-                                        {isFreeDelivery && (
-                                            <span className="text-green-600 text-sm">
-                                                Livraison gratuite à partir de 499 TND
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p>{isFreeDelivery ? (
-                                        <span className="text-green-600">Gratuite</span>
-                                    ) : (
-                                        `${shippingCost.toFixed(3)} TND`
-                                    )}</p>
-                                </div>
-
-                                {discountPercentage > 0 && (
-                                    <div className="flex justify-between text-base text-green-600">
-                                        <p>Réduction</p>
-                                        <p>-{((subtotal * discountPercentage) / 100).toFixed(3)} TND</p>
-                                    </div>
-                                )}
+                        {/* Phone 1 Input */}
+                        <div>
+                            <label htmlFor="phone_1" className="block text-sm font-medium text-gray-700 mb-1">
+                                <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1
+                            </label>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2.5 border border-r-0 rounded-l-md bg-gray-50 text-gray-600 text-sm">
+                                    +216
+                                </span>
+                                <input
+                                    type="tel"
+                                    id="phone_1"
+                                    className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                    {...register("phone_1", {
+                                        required: "Ce champ est requis",
+                                        pattern: {
+                                            value: /^[0-9]{8}$/,
+                                            message: "Le numéro de téléphone doit comporter 8 chiffres",
+                                        },
+                                    })}
+                                    placeholder="Numéro de téléphone"
+                                />
                             </div>
+                            {errors.phone_1 && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {errors.phone_1.message as string}
+                                </p>
+                            )}
+                        </div>
 
-                            <div className="Total py-2 flex w-full items-center justify-between">
-                                <p className="text-2xl font-medium text-gray-900">Total :</p>
-                                <p className="text-2xl font-semibold text-gray-900">
-                                    {calculateTotal()} TND
+                        {/* Phone 2 Input */}
+                        <div>
+                            <label htmlFor="phone_2" className="block text-sm font-medium text-gray-700 mb-1">
+                                <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2
+                                <span className="text-gray-500 text-xs ml-1">(optionnel)</span>
+                            </label>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2.5 border border-r-0 rounded-l-md bg-gray-50 text-gray-600 text-sm">
+                                    +216
+                                </span>
+                                <input
+                                    type="tel"
+                                    id="phone_2"
+                                    className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                    {...register("phone_2", {
+                                        pattern: {
+                                            value: /^[0-9]{8}$/,
+                                            message: "Le numéro de téléphone doit comporter 8 chiffres",
+                                        },
+                                    })}
+                                    placeholder="Numéro de téléphone secondaire"
+                                />
+                            </div>
+                            {errors.phone_2 && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    {errors.phone_2.message as string}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Governorate Selection */}
+                        <div>
+                            <label htmlFor="governorate" className="block text-sm font-medium text-gray-700 mb-1">
+                                <CiLocationOn className="inline-block mr-2 mb-1" /> Governorat
+                            </label>
+                            <select
+                                id="governorate"
+                                {...register("governorate", {
+                                    required: "Veuillez sélectionner un gouvernorat",
+                                })}
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                            >
+                                <option value="">Sélectionner un gouvernorat</option>
+                                {governmentInfo.map((government: Governorate) => (
+                                    <option key={government.id} value={government.id}>
+                                        {government.name.toUpperCase()}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.governorate && (
+                                <p className="mt-1 text-sm text-red-600">
+                                    Ce champ est requis
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Email Input (for guest only) */}
+                        {!isLoggedIn && (
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                                    <CiMail className="inline-block mr-2 mb-1" /> Email
+                                    <span className="text-gray-500 text-xs ml-1">(optionnel)</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    {...register("email", {
+                                        pattern: {
+                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                            message: "Adresse e-mail invalide",
+                                        },
+                                    })}
+                                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                    placeholder="votre@email.com"
+                                />
+                                {errors.email && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.email.message as string}
+                                    </p>
+                                )}
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Fournir votre email nous permettra de vous envoyer des mises à jour sur votre commande.
                                 </p>
                             </div>
-                        </div>
+                        )}
 
-                        <div className="submit flex flex-col  w-full items-center mt-5">
-                            <button
-                                type="submit"
-                                disabled={
-                                    productDetails?.inventory <= 0 || isSubmitting || loading
-                                }
-                                className={`
-                                ${productDetails?.inventory <= 0 ||
-                                        isSubmitting ||
-                                        loading
-                                        ? "opacity-50 cursor-not-allowed"
-                                        : "cursor-pointer hover:bg-opacity-80"
-                                    } 
-                                min-w-[250px] w-4/5 transition-all py-4 shadow-lg 
-                                bg-primaryColor text-white text-sm font-bold
-                            `}
-                            >
-                                {loading || isSubmitting ? (
-                                    <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                                ) : (
-                                    <div className="flex items-center justify-center ">
-                                        <GiShoppingBag size={20} />
-                                        Acheter maintenant
-                                    </div>
-                                )}
-                            </button>
+                        {/* Delivery Comment */}
+                        <div>
+                            <label htmlFor="deliveryComment" className="block text-sm font-medium text-gray-700 mb-1">
+                                <CiDeliveryTruck className="inline-block mr-2 mb-1" /> Commentaire pour la livraison
+                                <span className="text-gray-500 text-xs ml-1">(optionnel)</span>
+                            </label>
+                            <textarea
+                                id="deliveryComment"
+                                {...register("deliveryComment")}
+                                rows={2}
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                placeholder="Instructions spéciales pour la livraison..."
+                            ></textarea>
                         </div>
                     </div>
+
+                    {/* Order Summary Section */}
+                    <OrderSummary
+                        productDetails={productDetails}
+                        setDiscountPercentage={setDiscountPercentage}
+                        discountPercentage={discountPercentage}
+                        calculateTotal={calculateTotal}
+                        setCouponsId={setCouponsId}
+                        ActualQuantity={ActualQuantity}
+                        subtotal={subtotal}
+                        shippingCost={shippingCost}
+                        isFreeDelivery={
+                            isFreeDelivery
+                        }
+                        loading={loading}
+                        isSubmitting={isSubmitting}
+                    />
+
                 </form>
             </div>
         </div>

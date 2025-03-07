@@ -130,7 +130,7 @@ const Signin = () => {
           // Handle and display error messages
           setErrorMessage(
             error.message === "Invalid email or password"
-              ? "Email ou mot de passe invalide"
+              ? "Aucun compte n'est associé à cet email"
               : "Une erreur s'est produite. Veuillez réessayer."
           );
         },
@@ -181,7 +181,7 @@ const Signin = () => {
 
           setErrorMessage(
             error.message === "Invalid email or password"
-              ? "Email ou mot de passe invalide"
+              ? "Aucun compte n'est associé à cet email"
               : "Une erreur s'est produite. Veuillez réessayer."
           );
         },

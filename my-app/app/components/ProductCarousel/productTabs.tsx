@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -23,11 +23,14 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
     return <NoProductYet />;
   }
 
-  // Create pairs of products for 2 rows
-  const productPairs: Product[][] = [];
-  for (let i = 0; i < data.length; i += 2) {
-    productPairs.push(data.slice(i, i + 2));
-  }
+  // Memoize product pairs to avoid recalculation on re-renders
+  const productPairs = useMemo(() => {
+    const pairs: Product[][] = [];
+    for (let i = 0; i < data.length; i += 2) {
+      pairs.push(data.slice(i, i + 2));
+    }
+    return pairs;
+  }, [data]);
 
   // Static grid for 4 or fewer products
   if (data.length <= 4) {
@@ -45,7 +48,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   }
 
   return (
-    <div className="ProductTabs relative w-full ">
+    <div className="ProductTabs relative w-full">
       <Carousel
         className="w-full"
         opts={{
@@ -74,7 +77,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
                 {pair.map((product, productIndex) => (
                   <div
                     key={`${product.id}-${productIndex}`}
-                    className="  h-full max-h-[396px] w-full bgwhite rounded-lg"
+                    className="h-full max-h-[396px] w-full bgwhite rounded-lg"
                   >
                     <ProductBox product={product} />
                   </div>
@@ -88,4 +91,4 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   );
 };
 
-export default ProductTabs;
+export default React.memo(ProductTabs);

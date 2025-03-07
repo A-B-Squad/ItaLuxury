@@ -2,7 +2,7 @@
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { useAllProductViewStore, useSidebarStore } from "@/app/store/zustand";
@@ -99,7 +99,6 @@ const ProductsSection: React.FC = () => {
             minPrice: 1,
             page: pageToFetch,
             pageSize,
-
           },
         },
       });
@@ -201,12 +200,13 @@ const ProductsSection: React.FC = () => {
     }
   }, [getSearchParams, fetchProducts]);
 
-
-  const handleClearFilters = () => {
+  // Handle clearing all filters
+  const handleClearFilters = useCallback(() => {
     router.push("/Collections/tunisie?page=1");
-  };
+  }, [router]);
 
-  const getGridClasses = (): string => {
+  // Memoize grid classes based on view
+  const gridClasses = useMemo(() => {
     switch (view) {
       case 3:
         return "grid-cols-2 lg:grid-cols-3 grid-cols-1 xl:grid-cols-4";
@@ -217,9 +217,10 @@ const ProductsSection: React.FC = () => {
       default:
         return "";
     }
-  };
+  }, [view]);
 
-  const getProductClasses = (): string => {
+  // Memoize product classes based on view
+  const productClasses = useMemo(() => {
     switch (view) {
       case 3:
       case 2:
@@ -229,14 +230,17 @@ const ProductsSection: React.FC = () => {
       default:
         return "";
     }
-  };
+  }, [view]);
+
+
+
 
   const renderProducts = () => (
-    <div className={`grid w-full gap-2 md:gap-4 ${getGridClasses()}`}>
+    <div className={`grid w-full gap-2 md:gap-4 ${gridClasses}`}>
       {productsData.map((product, index) => (
         <div
           key={product.id}
-          className={`group flex relative w-full overflow-hidden ${getProductClasses()}`}
+          className={`group flex relative w-full overflow-hidden ${productClasses}`}
           ref={index === productsData.length - 1 ? lastProductRef : null}
         >
           <ProductBox product={product} />

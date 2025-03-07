@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Loader2, Tag } from "lucide-react";
 import { FIND_UNIQUE_COUPONS } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 import { useToast } from "@/components/ui/use-toast";
+import { GiShoppingBag } from "react-icons/gi";
 interface OrderSummaryProps {
   products: Product[];
   total: string;
@@ -30,17 +31,23 @@ interface Product {
   productDiscounts?: { newPrice: number }[];
 }
 
-export const OrderSummary: React.FC<OrderSummaryProps> = ({
-  products,
+export const OrderSummary: React.FC<any> = ({
+  productDetails,
   setDiscountPercentage,
   discountPercentage,
-  deliveryPrice,
   calculateTotal,
-  total,
   setCouponsId,
-  handlePreviousStep, isLoggedIn, handleNextStep, currentStep, isValid
+  subtotal,
+  shippingCost,
+  isFreeDelivery,
+  ActualQuantity,
+  loading,
+  isSubmitting
 }) => {
   const { toast } = useToast();
+
+  // Coupon handling
+
   const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
 
   const [showInputCoupon, setShowInputCoupon] = useState<boolean>(false);
@@ -55,6 +62,11 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
       if (uniqueCoupons?.findUniqueCoupons) {
         setCouponsId(uniqueCoupons.findUniqueCoupons.id);
         setDiscountPercentage(uniqueCoupons.findUniqueCoupons.discount);
+        toast({
+          title: "Code Promo",
+          description: "Code promo appliqué avec succès",
+          className: "bg-green-800 text-white",
+        });
       } else {
         toast({
           title: "Code Promo",
@@ -70,7 +82,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
       });
     }
   };
-
   const handleCouponToggle = () => {
     setShowInputCoupon(!showInputCoupon);
     if (showInputCoupon) {
@@ -81,162 +92,208 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="p-8 bg-white h-fit overflow-hidden">
-        <p className="text-xl font-medium">Récapitulatif de la commande</p>
-        <p className="text-gray-400">Vérifiez vos articles.</p>
-        <div className="mt-8 space-y-3 divide-y-2 shadow-sm h-full max-h-[500px] overflow-y-auto px-2 py-4 sm:px-6">
-          {products.map((product: Product) => (
-            <div
-              className="flex flex-col shadow py-2 bg-white sm:flex-row"
-              key={product.id}
-            >
-              <Image
-                className="m-2 h-24 w-28 rounded-md border object-center"
-                width={112}
-                height={96}
-                objectFit="contain"
-                src={product.images[0]}
-                alt={product?.name}
-              />
-              <div className="flex w-full flex-col px-4 py-4">
-                <span className="font-semibold">{product?.name}</span>
-                <p className="mt-auto text-lg font-bold">
-                  {product.productDiscounts?.length
-                    ? product.productDiscounts[0].newPrice.toFixed(3)
-                    : product.price.toFixed(3)}{" "}
-                  TND
-                </p>
-                <p className="mt-auto text-lg font-md text-gray-400">
-                  Quantité: {product.quantity || product.actualQuantity}
-                </p>
-              </div>
-            </div>
-          ))}
+    <div className="mt-8 pt-4 border-t border-gray-200">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        Récapitulatif de la commande
+      </h3>
+
+      {/* Product Summary */}
+      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md mb-4">
+        {productDetails.images?.[0] && (
+          <img
+            src={productDetails.images[0]}
+            alt={productDetails.name}
+            className="w-16 h-16 object-contain border border-gray-200 rounded-md bg-white"
+          />
+        )}
+        <div>
+          <h4 className="font-medium text-gray-800 line-clamp-1">{productDetails.name}</h4>
+          <p className="text-sm text-gray-500">Quantité: {ActualQuantity}</p>
+          <div className="flex items-center gap-2 mt-1">
+            {productDetails.productDiscounts?.length > 0 ? (
+              <>
+                <span className="text-gray-400 line-through text-sm">
+                  {productDetails.price.toFixed(3)} TND
+                </span>
+                <span className="text-red-600 font-medium">
+                  {productDetails.productDiscounts[0].newPrice.toFixed(3)} TND
+                </span>
+              </>
+            ) : (
+              <span className="font-medium">
+                {productDetails.price.toFixed(3)} TND
+              </span>
+            )}
+          </div>
         </div>
       </div>
-      <div className="summury bg-white border p-8">
-        {/* Coupon Section */}
-        {currentStep == 2 && (
-          <div className="Coupons my-6">
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="coupon" className="block text-sm font-semibold">
-                Code promo
-              </label>
+
+      {/* Coupon Section */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <label htmlFor="coupon" className="block text-sm font-medium text-gray-700">
+            <Tag size={16} className="inline mr-2 mb-1" /> Code promo
+          </label>
+          <button
+            type="button"
+            className="text-primaryColor hover:text-secondaryColor text-sm font-medium transition-colors"
+            onClick={handleCouponToggle}
+          >
+            {showInputCoupon ? "Annuler" : "Ajouter"}
+          </button>
+        </div>
+
+        {showInputCoupon && (
+          <div className="p-3 bg-gray-50 rounded-md">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                className="flex-grow border border-gray-300 px-3 py-2 text-sm rounded-md focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                maxLength={10}
+                value={changeCouponCode}
+                onChange={(e) => setChangeCouponCode(e.target.value)}
+                placeholder="Saisissez un code promo"
+              />
               <button
                 type="button"
-                className="text-secondaryColor hover:text-blue-800 text-sm font-medium"
-                onClick={handleCouponToggle}
+                className="bg-primaryColor hover:bg-secondaryColor text-white font-medium rounded-md px-4 py-2 text-sm transition-colors"
+                onClick={handleCouponsVerification}
               >
-                {showInputCoupon ? "Annuler" : "Ajouter"}
+                Appliquer
               </button>
             </div>
-            {showInputCoupon && (
-              <div className="bg-gray-100 p-4 rounded-md">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    className="flex-grow border-2 px-3 py-2 text-sm rounded-md outline-none"
-                    maxLength={10}
-                    value={changeCouponCode}
-                    onChange={(e) => setChangeCouponCode(e.target.value)}
-                    placeholder="Saisissez un code de promo"
-                  />
-                  <button
-                    type="button"
-                    className="bg-primaryColor hover:bg-secondaryColor text-white font-medium rounded-md px-4 py-2 text-sm transition-colors duration-100"
-                    onClick={handleCouponsVerification}
-                  >
-                    Appliquer
-                  </button>
-                </div>
-                <p className="text-sm mt-2 text-gray-600">
-                  {changeCouponCode.length}/10 caractères
-                </p>
-              </div>
+            <p className="text-xs mt-2 text-gray-500">
+              {changeCouponCode.length}/10 caractères
+            </p>
+            {discountPercentage > 0 && (
+              <p className="text-green-600 text-sm mt-1 font-medium">
+                Réduction de {discountPercentage}% appliquée!
+              </p>
             )}
           </div>
         )}
+      </div>
 
 
-        {/* Terms and Conditions */}
-        <p className=" text-sm text-gray-600">
-          En passant à la caisse, vous acceptez nos{" "}
-          <Link
-            href="/Terms-of-use"
-            className="text-primaryColor hover:underline"
-          >
-            Termes de service
-          </Link>{" "}
-          et confirmez que vous avez lu notre{" "}
-          <Link
-            href="/Privacy-Policy"
-            className="text-primaryColor hover:underline"
-          >
-            Politique de confidentialité
-          </Link>
-          .
-        </p>
 
-        {/* Order Summary */}
-        <div className="mt-6 border-t border-b py-2">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-900">Sous-total</p>
-            <p className="font-semibold text-gray-900">
-              {Number(total).toFixed(3)} TND
-            </p>
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-900">Expédition</p>
-            <p className="font-semibold text-gray-900">
-              {Number(total) >= 499
-                ? "Gratuit"
-                : `${deliveryPrice.toFixed(3)} TND`}
-            </p>
-          </div>
-          {discountPercentage > 0 && (
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-900">Remise</p>
-              <p className="font-semibold text-green-600">
-                -{((Number(total) * discountPercentage) / 100).toFixed(3)} TND (
-                {discountPercentage}%)
-              </p>
-            </div>
-          )}
+
+      {/* Price Breakdown */}
+      <div className="space-y-3 border-b border-gray-200 pb-4 mb-4">
+        <div className="flex justify-between text-sm text-gray-700">
+          <p>Sous-total</p>
+          <p className="font-medium">{subtotal.toFixed(3)} TND</p>
         </div>
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-900">Total</p>
-          <p className="text-2xl font-semibold text-gray-900">
-            {calculateTotal()} TND
+
+        <div className="flex justify-between text-sm">
+          <div className="flex flex-col">
+            <p className="text-gray-700">Livraison</p>
+            {isFreeDelivery && (
+              <span className="text-green-600 text-xs">
+                Livraison gratuite à partir de 499 TND
+              </span>
+            )}
+          </div>
+          <p className={isFreeDelivery ? "text-green-600 font-medium" : "font-medium"}>
+            {isFreeDelivery ? "Gratuite" : `${shippingCost.toFixed(3)} TND`}
           </p>
         </div>
-      </div>
-      {
-        currentStep == 2 && (
-          <div className="NextStep flex items-center justify-evenly mt-2">
-            <button
-              type="button"
-              onClick={handlePreviousStep}
-              disabled={isLoggedIn}
-              className={`px-4 py-2 bg-gray-200 text-gray-800 rounded-md transition-all duration-300 ${isLoggedIn
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-gray-300"
-                }`}
-            >
-              Précédent
-            </button>
-            <button
-              type="button"
-              onClick={handleNextStep}
-              className={`px-4 py-2 bg-primaryColor text-white rounded-md hover:opacity-80 transition-all duration-300 ${!isValid ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-            >
-              Suivant
-            </button>
-          </div>
 
-        )
-      }
+        {discountPercentage > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <p>Réduction ({discountPercentage}%)</p>
+            <p className="font-medium">-{((subtotal * discountPercentage) / 100).toFixed(3)} TND</p>
+          </div>
+        )}
+      </div>
+
+      <div className="py-3 flex w-full items-center justify-between mb-4">
+        <p className="text-lg font-medium text-gray-900">Total :</p>
+        <p className="text-xl font-bold text-primaryColor">
+          {calculateTotal()} TND
+        </p>
+      </div>
+
+
+
+
+      <div className="submit flex flex-col  w-full items-center mt-5">
+        <button
+          type="submit"
+          disabled={
+            productDetails?.inventory <= 0 || isSubmitting || loading
+          }
+          className={`
+            ${productDetails?.inventory <= 0 ||
+              isSubmitting ||
+              loading
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer hover:bg-opacity-80"
+            } 
+            min-w-[250px] w-4/5 transition-all py-4 shadow-lg 
+            bg-primaryColor text-white text-sm font-bold
+        `}
+        >
+          {loading || isSubmitting ? (
+            <Loader2 className="h-5 w-5 animate-spin mx-auto" />
+          ) : (
+            <div className="flex items-center justify-center ">
+              <GiShoppingBag size={20} />
+              Acheter maintenant
+            </div>
+          )}
+        </button>
+
+        {/* Payment method info */}
+        <div className="payment-info mt-4 w-4/5 bg-gray-50 p-3 rounded-md border border-gray-200">
+          <div className="flex items-center mb-2">
+            <input
+              type="radio"
+              id="cash"
+              name="paymentMethod"
+              className="h-4 w-4 text-primaryColor"
+              checked
+              readOnly
+            />
+            <label htmlFor="cash" className="ml-2 text-sm font-medium text-gray-700">
+              Paiement à la livraison
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 ml-6">
+            Payez en espèces lors de la réception de votre commande
+          </p>
+        </div>
+
+        {/* Trust badges */}
+        <div className="trust-badges mt-4 w-4/5 bg-gray-50 p-3 rounded-md border border-gray-200">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm text-gray-700">Paiement sécurisé à la livraison</span>
+            </div>
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-5h2.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1V8a1 1 0 00-.293-.707l-3-3A1 1 0 0016 4H3z" />
+              </svg>
+              <span className="text-sm text-gray-700">Livraison rapide dans toute la Tunisie</span>
+            </div>
+            {isFreeDelivery && (
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium text-green-600">Livraison gratuite pour cette commande</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-500 text-center mt-4 w-4/5">
+          En passant commande, vous acceptez nos <Link href="/Terms-of-use" className="text-primaryColor hover:underline">conditions générales de vente</Link> et notre <Link href="/Privacy-Policy" className="text-primaryColor hover:underline">politique de confidentialité</Link>.
+        </p>
+      </div>
     </div>
   );
 };

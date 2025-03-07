@@ -52,8 +52,8 @@ const PurchaseOptions = dynamic(
   { ssr: false }
 );
 
-const ProductInfo = dynamic(
-  () => import("@/app/components/ProductInfo/ProductInfo"),
+const ProductQuickView = dynamic(
+  () => import("@/app/components/ProductQuickView/ProductQuickView"),
   { ssr: false }
 );
 
@@ -69,7 +69,7 @@ export default async function Layout({
       <DrawerMobile />
       <BasketDrawer />
       <PurchaseOptions />
-      <ProductInfo />
+      <ProductQuickView />
       <Footer />
     </div>
   );

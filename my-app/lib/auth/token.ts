@@ -4,6 +4,7 @@ import { DecodedToken } from './types';
 
 export const getToken = (): string | undefined => {
     return Cookies.get('Token');
+    
 };
 
 export const decodeToken = (token: string): DecodedToken | null => {

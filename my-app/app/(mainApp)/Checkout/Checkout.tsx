@@ -191,13 +191,17 @@ const Checkout: React.FC = () => {
     const userName = isGuest
       ? data.fullname
       : userData?.fetchUsersById?.fullName;
-    const userPhone = isGuest ? data.phone_1 : userData?.fetchUsersById?.number;
+
+    const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
+    const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
+    const userPhone = isGuest ? cleanPhone1 : userData?.fetchUsersById?.number;
+
     const orderTotal = parseFloat(calculateTotal())
     const checkoutInput = {
       userId: decodedToken?.userId,
       userName: data.fullname,
       total: orderTotal,
-      phone: [data.phone_1, data.phone_2].filter(Boolean),
+      phone: [cleanPhone1, cleanPhone2].filter(Boolean), 
       governorateId: data.governorate,
       address: data.address,
       couponsId: coupon.id,
