@@ -131,39 +131,57 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex pb-24 flex-col justify-center pt-12 sm:px-6 lg:px-8">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen flex pb-24 flex-col justify-center pt-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
-          className="mx-auto"
+          className="mx-auto h-16 w-auto"
           src="/LOGO.png"
           alt="ita-luxury"
           width={200}
           height={200}
+          priority
         />
         <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Créer un compte
-        </h1>{" "}
+        </h1>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Rejoignez-nous pour découvrir nos produits exclusifs
+        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 border border-gray-200">
           {errorMessage && (
             <div
-              className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              className="mb-4 bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded"
               role="alert"
             >
-              <span className="block sm:inline">{errorMessage}</span>
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm">{errorMessage}</p>
+                </div>
+              </div>
             </div>
           )}
 
           {emailExists ? (
-            <div>
-              <p className="text-center mb-4">
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <svg className="h-12 w-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+              </div>
+              <p className="text-center mb-4 text-gray-700">
                 Cette adresse e-mail est déjà utilisée.
               </p>
               <button
                 onClick={handleReturnToLogin}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
               >
                 Retour pour se connecter avec une autre adresse e-mail
               </button>
@@ -189,7 +207,9 @@ const Signup: React.FC = () => {
                       <input
                         id="fullName"
                         type="text"
-                        className={`block w-full pl-10 sm:text-sm py-2 border-gray-300 outline-none rounded-md ${errors.fullName ? "border-red-300" : ""}`}
+                        className={`block w-full pl-10 sm:text-sm py-2 border ${
+                          errors.fullName ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        } rounded-md shadow-sm`}
                         placeholder="Nom complet"
                         {...register("fullName", {
                           required: "Le nom complet est requis",
@@ -221,7 +241,9 @@ const Signup: React.FC = () => {
                         id="email"
                         type="email"
                         autoComplete="email"
-                        className={`block w-full pl-10 sm:text-sm border-gray-300 py-2 outline-none rounded-md ${errors.email ? "border-red-300" : ""}`}
+                        className={`block w-full pl-10 sm:text-sm py-2 border ${
+                          errors.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        } rounded-md shadow-sm`}
                         placeholder="vous@exemple.com"
                         {...register("email", {
                           required: "L'email est requis",
@@ -258,7 +280,9 @@ const Signup: React.FC = () => {
                         type={showPassword ? "text" : "password"}
                         placeholder="********"
                         autoComplete="current-password"
-                        className={`block w-full pl-10 pr-10 sm:text-sm border-gray-300 outline-none py-2 rounded-md ${errors.password ? "border-red-300" : ""}`}
+                        className={`block w-full pl-10 pr-10 sm:text-sm py-2 border ${
+                          errors.password ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        } rounded-md shadow-sm`}
                         {...register("password", {
                           required: "Le mot de passe est requis",
                           minLength: {
@@ -303,13 +327,15 @@ const Signup: React.FC = () => {
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="flex items-center">
-                    <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
+                    <span className="px-3 py-2 border border-r-0 border-gray-300 rounded-l-md bg-gray-50 text-gray-600 font-medium">
                       +216
                     </span>
                     <input
                       id="number"
                       type="tel"
-                      className={`block w-full pl-3 sm:text-sm border-gray-300 outline-none py-2 rounded-r-md ${errors.number ? "border-red-300" : ""}`}
+                      className={`block w-full pl-3 sm:text-sm py-2 border ${
+                        errors.number ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      } rounded-r-md shadow-sm`}
                       placeholder="Numéro de téléphone"
                       {...register("number", {
                         required: "Le numéro de téléphone est requis",
@@ -333,9 +359,19 @@ const Signup: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
                 >
-                  {loading ? "Création en cours..." : "Créer un compte"}
+                  {loading ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Création en cours...
+                    </div>
+                  ) : (
+                    "Créer un compte"
+                  )}
                 </button>
               </div>
             </form>
@@ -363,7 +399,7 @@ const Signup: React.FC = () => {
                 </button> */}
                 <button
                   onClick={() => handleSocialLogin(googleProvider)}
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <FaGoogle className="h-5 w-5 text-red-600" />
                   <span className="ml-2">Google</span>
@@ -373,7 +409,7 @@ const Signup: React.FC = () => {
           )}
 
           <div className="mt-6">
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-gray-600">
               En vous inscrivant, vous acceptez nos{" "}
               <Link
                 href="/Terms-of-use"

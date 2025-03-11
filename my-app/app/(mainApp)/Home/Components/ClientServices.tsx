@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useQuery } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
@@ -17,6 +17,8 @@ interface QueryResult {
 }
 
 const ClientServices: React.FC = () => {
+  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
+
   const { loading: loadingClientService1, data: client1 } = useQuery<QueryResult>(
     CLIENT_SERVICES,
     { variables: { position: "client_service_1" } }
@@ -32,36 +34,46 @@ const ClientServices: React.FC = () => {
     { variables: { position: "client_service_3" } }
   );
 
-  // Placeholder component with rounded design
+  const handleImageLoad = useCallback((index: number) => {
+    setImagesLoaded(prev => ({
+      ...prev,
+      [index]: true
+    }));
+  }, []);
+
+  // Placeholder component with enhanced design
   const renderPlaceholder = () => (
     <div className="
-      flex items-center justify-center 
+      flex flex-col items-center justify-center 
       w-full h-52 
-      rounded-md 
-      bg-gray-100 
+      rounded-lg 
+      bg-gradient-to-r from-gray-50 to-gray-100
       border border-gray-200
       shadow-sm
     ">
-      <p className="text-gray-500 font-medium">384px × 218px</p>
+      <IoImageOutline className="h-10 w-10 text-gray-300 mb-2" />
+      <p className="text-gray-400 font-medium text-sm">384px × 218px</p>
+      <p className="text-gray-400 text-xs mt-1">Image non disponible</p>
     </div>
   );
 
-  // Loading state with rounded design
+  // Loading state with enhanced design
   const renderLoading = () => (
     <div className="
-      grid animate-pulse 
+      flex flex-col items-center justify-center
       w-full h-52 
-      place-items-center 
-      rounded-md 
-      bg-gray-100 
+      rounded-lg
+      bg-gradient-to-r from-gray-100 to-gray-200
       border border-gray-200
       shadow-sm
+      animate-pulse
     ">
-      <IoImageOutline className="h-12 w-12 text-gray-400" />
+      <IoImageOutline className="h-12 w-12 text-gray-300" />
+      <p className="text-gray-400 text-sm mt-2">Chargement...</p>
     </div>
   );
 
-  // Advertisement rendering with enhanced rounded design
+  // Advertisement rendering with enhanced design
   const renderAdvertisement = (
     data: QueryResult | undefined, 
     index: number
@@ -75,33 +87,42 @@ const ClientServices: React.FC = () => {
         target="_blank"
         rel="noopener noreferrer"
         className="
+          group
           block 
-          rounded-md 
+          rounded-lg 
           overflow-hidden 
-          shadow-lg 
+          shadow-md 
           border border-gray-200 
           transition-all 
           duration-300 
           hover:shadow-xl 
-          w-[300px] 
-          h-[150px] 
-          lg:w-[384px] 
-          lg:h-[218px]
+          w-full
+          max-w-[384px]
+          h-[218px]
         "
       >
         <div className="relative w-full h-full">
+          {!imagesLoaded[index] && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <div className="animate-pulse flex flex-col items-center">
+                <IoImageOutline className="h-10 w-10 text-gray-300" />
+                <p className="text-gray-400 text-sm mt-2">Chargement...</p>
+              </div>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 z-20"></div>
           <Image
             src={ad.images[0]}
-            alt={`Client service  ${index}`}
+            alt={`Service client ${index}`}
             layout="fill"
             objectFit="cover"
             priority
             className="
-              cursor-pointer 
-              transition-opacity 
-              duration-300 
-              hover:opacity-80
+              transition-transform 
+              duration-500 
+              group-hover:scale-105
             "
+            onLoadingComplete={() => handleImageLoad(index)}
           />
         </div>
       </Link>
@@ -111,8 +132,9 @@ const ClientServices: React.FC = () => {
   return (
     <div className="
       service_client 
-      grid 
+      w-full
       py-10 
+      grid 
       grid-cols-1 
       gap-6 
       md:grid-cols-2 
@@ -121,25 +143,31 @@ const ClientServices: React.FC = () => {
       place-items-center
     ">
       {/* Client Service 1 */}
-      {loadingClientService1
-        ? renderLoading()
-        : !client1?.advertismentByPosition?.length
-          ? renderPlaceholder()
-          : renderAdvertisement(client1, 1)}
+      <div className="w-full max-w-[384px]">
+        {loadingClientService1
+          ? renderLoading()
+          : !client1?.advertismentByPosition?.length
+            ? renderPlaceholder()
+            : renderAdvertisement(client1, 1)}
+      </div>
 
       {/* Client Service 2 */}
-      {loadingClientService2
-        ? renderLoading()
-        : !client2?.advertismentByPosition?.length
-          ? renderPlaceholder()
-          : renderAdvertisement(client2, 2)}
+      <div className="w-full max-w-[384px]">
+        {loadingClientService2
+          ? renderLoading()
+          : !client2?.advertismentByPosition?.length
+            ? renderPlaceholder()
+            : renderAdvertisement(client2, 2)}
+      </div>
 
       {/* Client Service 3 */}
-      {loadingClientService3
-        ? renderLoading()
-        : !client3?.advertismentByPosition?.length
-          ? renderPlaceholder()
-          : renderAdvertisement(client3, 3)}
+      <div className="w-full max-w-[384px]">
+        {loadingClientService3
+          ? renderLoading()
+          : !client3?.advertismentByPosition?.length
+            ? renderPlaceholder()
+            : renderAdvertisement(client3, 3)}
+      </div>
     </div>
   );
 };

@@ -29,7 +29,7 @@ const FullWidthAds = ({
       {FullImageAds && !FullAdsLoaded && (
         <Link href={LinkTo} className="block">
           <div className="max-w-[1536px] mx-auto">
-            <div className="relative h-14 md:h-48 w-full">
+            <div className="relative h-24 md:h-48 w-full">
               <Image
                 src={FullImageAds}
                 alt="Advertisement"

@@ -39,33 +39,35 @@ const TimeCountDown = () => {
   const seconds = Math.floor((countdown % (1000 * 60)) / 1000);
 
   return (
-    <div className="grid grid-flow-col bg-primaryColor text-white text-center auto-cols-max">
-      <div className="flex items-center gap-2 md:p-2 p-1 rounded-box">
-        <span className="countdown font-mono text-base">
-          <span>{days}</span>
-        </span>
-        <span>Jours</span>
-      </div>
-      <div className="flex items-center gap-2 md:p-2 p-1 rounded-box">
-        <span className="countdown font-mono text-base">
-          <span>{hours}</span>
-        </span>
-        <span>Heures</span>
-      </div>
-      <div className="flex items-center gap-1 md:p-2 p-1">
-        <span className="countdown font-mono text-base">
-          <span>{minutes}</span>
-        </span>
-        <span>Minutes</span>
-      </div>
-      <div className="flex items-center gap-1 md:p-2 p-1">
-        <span className="countdown font-mono text-base">
-          <span>{seconds}</span>
-        </span>
-        <span>Secondes</span>
+    <div className="flex justify-end w-full">
+      <div className="flex space-x-2">
+        <TimeBox value={days} label="JOURS" />
+        <TimeBox value={hours} label="HEURES" />
+        <TimeBox value={minutes} label="MIN" />
+        <TimeBox value={seconds} label="SEC" />
       </div>
     </div>
   );
 };
+
+// Professional time box component
+const TimeBox = ({ 
+  value, 
+  label
+}: { 
+  value: number; 
+  label: string;
+}) => (
+  <div className="flex flex-col items-center">
+    <div className="bg-[#1e2a4a] text-white px-3 py-2 rounded text-center w-[45px] md:w-[55px]">
+      <span className="font-bold text-base md:text-xl">
+        {value.toString().padStart(2, '0')}
+      </span>
+    </div>
+    <span className="text-[10px] mt-1 font-medium text-center w-full">
+      {label}
+    </span>
+  </div>
+);
 
 export default TimeCountDown;

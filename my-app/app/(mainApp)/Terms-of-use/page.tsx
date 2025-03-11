@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
 
-const PrivacyPolicy = dynamic(() => import("./Terms-of-use"), { ssr: false });
+const TermsOfUse = dynamic(() => import("./Terms-of-use"), { ssr: false });
 
 export const metadata: Metadata = {
   title: "Conditions d'Utilisation",
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
     title: "Conditions d'Utilisation",
     description:
       "Consultez nos conditions d'utilisation pour utiliser notre site ecommerce en toute sécurité.",
-
     type: "website",
     url: "https://www.ita-luxury.com/Terms-of-use",
     images: [
@@ -27,21 +26,21 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Terms-of-use`,
-
   },
 };
-const pageTermsOfUse = () => {
+
+const PageTermsOfUse = () => {
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },
-    { href: "/Terms-of-use", label: "Conditions d'Utilisation", }
+    { href: "/Terms-of-use", label: "Conditions d'Utilisation" }
   ];
+  
   return (
     <div className="p-6">
       <Breadcumb Path={breadcrumbPaths} />
-
-      <PrivacyPolicy />;
+      <TermsOfUse />
     </div>
   );
 };
 
-export default pageTermsOfUse;
+export default PageTermsOfUse;

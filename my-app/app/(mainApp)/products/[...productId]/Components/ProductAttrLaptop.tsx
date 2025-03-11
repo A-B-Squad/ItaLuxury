@@ -24,7 +24,7 @@ const ProductAttrLaptop: React.FC<ProductAttrProps> = memo(({ attributes, produc
     if (!attributes?.length) return null;
 
     return (
-        <div className="hidden lg:block container mx-auto px-4 py-8">
+        <div className="hidden lg:block container max-w-7xl mx-auto px-4 py-8">
             <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
                 {/* Tabs */}
                 <div className="flex border-b border-gray-200 bg-gray-50">

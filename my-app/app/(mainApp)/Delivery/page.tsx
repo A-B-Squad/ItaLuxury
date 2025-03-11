@@ -11,13 +11,11 @@ export const metadata: Metadata = {
   description:
     "Découvrez nos options de livraison rapide et fiable pour tous vos achats sur ita-luxury.com.",
   keywords: keywords.join(","),
-
   openGraph: {
     title:
       "Livraison et retours - ITA Luxury | Livraison rapide et fiable en Tunisie",
     description:
       "Découvrez nos options de livraison rapide et fiable pour tous vos achats sur ita-luxury.com.",
-
     type: "website",
     url: "https://www.ita-luxury.com/Delivery",
     images: [
@@ -31,21 +29,21 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Delivery`,
-
   },
 };
-const page = () => {
+
+const DeliveryPageWrapper = () => {
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },
-    { href: "/Delivery", label: "Expéditions et retours", }
+    { href: "/Delivery", label: "Expéditions et retours" }
   ];
 
   return (
-    <div className="flex flex-col  items-center  justify-center  h-max mb-16 py-10 px-2 relative ">
+    <div className="p-6">
       <Breadcumb Path={breadcrumbPaths} />
       <DeliveryPage />
     </div>
   );
 };
 
-export default page;
+export default DeliveryPageWrapper;

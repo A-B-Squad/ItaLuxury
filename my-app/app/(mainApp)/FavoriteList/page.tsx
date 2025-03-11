@@ -2,6 +2,8 @@ import React from "react";
 import FavoriteList from "./FavoriteList";
 import { Metadata } from "next";
 import keywords from "@/public/keywords";
+import Breadcumb from "@/app/components/Breadcumb";
+
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
   !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
@@ -14,7 +16,6 @@ export const metadata: Metadata = {
   title: "Liste des favoris - ita-luxury",
   description: "Consultez votre liste de favoris sur ita-luxury.",
   keywords: keywords.join(","),
-
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/FavoriteList`,
     type: "website",
@@ -31,11 +32,21 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/FavoriteList`,
-
   },
 };
+
 const FavoriteListPage = () => {
-  return <FavoriteList />;
+  const breadcrumbPaths = [
+    { href: "/", label: "Accueil" },
+    { href: "/FavoriteList", label: "Liste des favoris" }
+  ];
+
+  return (
+    <div className="p-6">
+      <Breadcumb Path={breadcrumbPaths} />
+      <FavoriteList />
+    </div>
+  );
 };
 
 export default FavoriteListPage;
