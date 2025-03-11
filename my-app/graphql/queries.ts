@@ -78,6 +78,7 @@ export const BASKET_QUERY = gql`
         name
         price
         images
+        inventory
         productDiscounts {
           newPrice
           price

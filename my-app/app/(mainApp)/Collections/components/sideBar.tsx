@@ -460,7 +460,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
           onClose={toggleOpenSidebar}
           size={300}
           className="p-4 flex flex-col h-full z-[9999]"
-          overlayProps={{ className: "bg-black/50" }}
+          overlayProps={{ className: "fixed inset-0 bg-black/50 z-[9998]" }}
         >
           <div className="mb-6 flex items-center justify-between">
             <Typography
@@ -483,7 +483,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               <IoIosClose size={24} />
             </IconButton>
           </div>
-          <div className=" pb-16  flex-grow overflow-y-auto ">
+          <div className="pb-16 flex-grow overflow-y-auto">
             <form className="relative">
               {Object.keys(selectedFilterQueries).length > 0 && (
                 <div

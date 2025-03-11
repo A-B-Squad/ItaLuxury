@@ -531,22 +531,29 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   );
 
   return (
-    <div className="productDetails">
-      <div className="container relative  ">
+    // In the return statement, update the main container styling
+    <div className="productDetails bg-gray-50 py-6">
+      <div className="container relative  mx-auto px-4 sm:px-6">
         {!productDetails ? (
           <Loading />
         ) : (
-          <div>
+          <div className="space-y-6">
             <Breadcumb Path={categoriesPath} />
-
-            <div className="grid items-start mx-auto grid-cols-12 w-full md:w-11/12 place-items-center lg:place-content-between bg-white md:p-4 border rounded-sm gap-2 ">
-              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
-                <div className="">
+    
+            <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-between bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm gap-4">
+              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
+                <div className="relative">
                   <CustomInnerZoom
                     images={smallImages}
                   />
                   <span
-                    className={`absolute top-2 right-2 p-2 ${productDetails?.inventory > 1 ? "bg-blueColor" : productDetails?.inventory === 1 ? "bg-gray-400 " : "bg-gray-400"} bg-blue text-xs font-400 text-white`}
+                    className={`absolute top-2 right-2 p-2 rounded-md ${
+                      productDetails?.inventory > 1 
+                        ? "bg-green-600" 
+                        : productDetails?.inventory === 1 
+                          ? "bg-amber-500" 
+                          : "bg-red-500"
+                    } text-xs font-medium text-white`}
                   >
                     {productDetails?.inventory > 1
                       ? "EN STOCK"
@@ -555,9 +562,9 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                         : "RUPTURE DE STOCK"}
                   </span>
                 </div>
-
               </div>
-
+              
+              {/* Rest of the product info section */}
               <ProductInfo
                 productDetails={productDetails}
                 attributes={attributes}
@@ -572,7 +579,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 isProductInCompare={isProductInCompare}
                 addToCompare={addToCompare}
               />
-
+    
               <ActionButton
                 productDetails={productDetails}
                 AddToBasket={AddToBasket}
@@ -584,14 +591,17 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 addToCompare={addToCompare}
               />
             </div>
-            <ProductAttrLaptop attributes={attributes}
+            
+            <ProductAttrLaptop 
+              attributes={attributes}
               productId={productDetails.id}
               userId={decodedToken?.userId || ""}
               toast={toast}
             />
           </div>
         )}
-        <div className="Carousel voir aussi px-2 md:px-10 my-8 mb-[15%] ">
+        
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-6 mt-8 mb-[15%]">
           <TitleProduct title={"Produits apparentés"} />
           <div>
             <ProductTabs
@@ -600,6 +610,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             />
           </div>
         </div>
+        
         <ProductDetailsDrawer
           productId={productId}
           productDetails={productDetails}

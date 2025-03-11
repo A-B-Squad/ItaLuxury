@@ -4,6 +4,36 @@ import { getUserIpAddress } from "./getUserIpAddress";
 import { v4 as uuidv4 } from "uuid";
 import { sendGTMEvent } from "@next/third-parties/google";
 
+// Define types for better type safety
+interface UserData {
+  [key: string]: string | string[] | undefined;
+}
+
+interface CustomData {
+  [key: string]: any;
+  value?: number;
+  contents?: any[];
+}
+
+interface EventData {
+  user_data: UserData;
+  custom_data?: CustomData;
+}
+
+interface SendingData {
+  event_name: string;
+  event_id: string;
+  event_time: number;
+  action_source: string;
+  event_source_url: string;
+  user_data: UserData;
+  custom_data: CustomData;
+  original_event_data: {
+    event_name: string;
+    event_time: number;
+  };
+}
+
 function hashData(data: string | undefined): string {
   if (!data) return '';
   return crypto.createHash('sha256').update(data.toLowerCase().trim()).digest('hex');
@@ -50,10 +80,10 @@ function formatValue(value: any): number {
 }
 
 async function createSendingData(
-  values: any,
+  values: EventData,
   event_name: string,
   eventId: string
-) {
+): Promise<SendingData> {
   const userIp = await getUserIpAddress();
   const nonHashedFields = ['client_user_agent', 'client_ip_address', 'fbc', 'fbp'];
 
@@ -87,10 +117,10 @@ async function createSendingData(
     event_id: eventId,
     event_time: Math.floor(Date.now() / 1000),
     action_source: "website",
-    event_source_url: window.location.href,
+    event_source_url: typeof window !== 'undefined' ? window.location.href : '',
     user_data: {
       ...processedUserData,
-      client_user_agent: navigator.userAgent,
+      client_user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
       client_ip_address: userIp || undefined,
       fbp: fbq.getFbp(),
       fbc: fbq.getFbc(),
@@ -103,8 +133,14 @@ async function createSendingData(
   };
 }
 
-export default async function triggerEvents(eventName: string, eventData: any) {
+export default async function triggerEvents(eventName: string, eventData: EventData): Promise<SendingData | null> {
   try {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      console.warn('triggerEvents called in a non-browser environment');
+      return null;
+    }
+
     const response = await fetch("/api/facebookApi", {
       headers: {
         "Content-Type": "application/json",
@@ -119,15 +155,28 @@ export default async function triggerEvents(eventName: string, eventData: any) {
     const PIXEL_ID = data.api_id;
     const ACCESS_TOKEN = data.access_token;
 
+    if (!PIXEL_ID || !ACCESS_TOKEN) {
+      console.error('Missing Pixel ID or Access Token');
+      return null;
+    }
+
     const eventId: string = uuidv4();
     const sendData = await createSendingData(eventData, eventName, eventId);
 
     // Client-side event
-    fbq.event(eventName, sendData.custom_data, { eventID: eventId });
+    fbq.event(eventName, sendData.custom_data, eventId);
+
+    // Send to Google Tag Manager
+    try {
+      // Convert custom_data to a string representation for GTM
+      const gtmData = JSON.stringify(sendData.custom_data);
+      sendGTMEvent(eventName, gtmData);
+    } catch (gtmError) {
+      console.warn('Error sending GTM event:', gtmError);
+    }
 
     // Create FormData object
     const formData = new FormData();
-    sendGTMEvent(JSON.stringify([sendData]))
     formData.append('data', JSON.stringify([sendData]));
     formData.append('access_token', ACCESS_TOKEN);
     formData.append('test_event_code', "TEST53186");
@@ -150,7 +199,7 @@ export default async function triggerEvents(eventName: string, eventData: any) {
     return sendData;
   } catch (error) {
     console.error("Error sending Facebook Pixel event:", error);
-    throw error;
+    return null;
   }
 }
 

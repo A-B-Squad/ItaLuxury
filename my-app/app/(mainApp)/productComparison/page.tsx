@@ -2,6 +2,7 @@ import React from "react";
 import { Metadata } from "next";
 import ProductComparison from "./productComparison";
 import keywords from "@/public/keywords";
+import Breadcumb from "@/app/components/Breadcumb";
 
 export const metadata: Metadata = {
   title: "Comparaison de Produits | ita-luxury",
@@ -47,8 +48,18 @@ export const metadata: Metadata = {
   },
 };
 
-const ProductComparisonPage: React.FC = () => {
-  return <ProductComparison />;
+const ProductComparisonPage = () => {
+  const breadcrumbPaths = [
+    { href: "/", label: "Accueil" },
+    { href: "/productComparison", label: "Comparaison de Produits" }
+  ];
+
+  return (
+    <div className="p-6">
+      <Breadcumb Path={breadcrumbPaths} />
+      <ProductComparison />
+    </div>
+  );
 };
 
 export default ProductComparisonPage;

@@ -6,7 +6,6 @@ import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import keywords from "@/public/keywords";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
-import Script from "next/script";
 import React from "react";
 import "./globals.css";
 

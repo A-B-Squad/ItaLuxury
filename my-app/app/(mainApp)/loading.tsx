@@ -3,7 +3,7 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-white">
+    <div className="fixed inset-0 z-[1001] flex items-center justify-center bg-white">
       <div className="relative w-[600px] h-[200px]">
         <Image
           priority

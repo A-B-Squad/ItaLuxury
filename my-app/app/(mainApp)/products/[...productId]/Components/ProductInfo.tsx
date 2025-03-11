@@ -1,6 +1,6 @@
 import HoverButton from '@/app/components/HoverButton';
 import { useToast } from "@/components/ui/use-toast";
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react"; // Added useState and useEffect
 import { FaPlus, FaRegHeart, FaShareAlt } from "react-icons/fa";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
 import { HiOutlineBellAlert } from "react-icons/hi2";
@@ -27,10 +27,17 @@ const ProductInfo = memo(({
   addToCompare
 }: any) => {
   const { toast } = useToast();
+  // Add a local state to track the last update time
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Force component to update when productDetails changes
+  useEffect(() => {
+    setLastUpdate(Date.now());
+  }, [productDetails?.price, productDetails?.productDiscounts]);
 
   const formattedPrice = useMemo(() =>
     productDetails?.price?.toFixed(3),
-    [productDetails?.price]
+    [productDetails?.price, lastUpdate] // Add lastUpdate as dependency
   );
 
   const productDescription = useMemo(() => ({
@@ -111,24 +118,24 @@ const ProductInfo = memo(({
         </div>
       </div>
 
-      <div className="prices discount flex flex-col gap-3 mt-4">
-        <div className="flex items-center gap-3 tracking-wide text-2xl">
+      <div className="prices discount flex flex-col gap-3 mt-4" key={`price-${lastUpdate}`}>
+        <div className="flex flex-wrap items-center gap-2 tracking-wide">
           {discount ? (
-            <div className="w-full flex items-center gap-2">
-              <p className="line-through font-semibold tracking-wider text-gray-500 text-lg">
+            <div className="w-full flex flex-wrap items-center gap-2">
+              <p className="line-through font-semibold tracking-wider text-gray-500 text-sm sm:text-lg transition-all duration-300">
                 {formattedPrice} TND
               </p>
-              <p className="text-red-500 font-bold">
+              <p className="text-red-500 font-bold text-lg sm:text-2xl transition-all duration-300">
                 {discount.newPrice.toFixed(3)} TND
               </p>
-              <span className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+              <span className="text-xs sm:text-sm bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium transition-all duration-300">
                 -{Math.round((1 - discount.newPrice / productDetails.price) * 100)}%
               </span>
             </div>
           ) : (
             <>
-              <p className="font-bold text-primaryColor">{formattedPrice} TND</p>
-              <span className="text-sm text-gray-400 ml-2 font-medium">TTC</span>
+              <p className="font-bold text-primaryColor text-lg sm:text-2xl transition-all duration-300">{formattedPrice} TND</p>
+              <span className="text-xs sm:text-sm text-gray-400 font-medium transition-all duration-300">TTC</span>
             </>
           )}
         </div>

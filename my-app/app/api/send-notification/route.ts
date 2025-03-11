@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const { orderId, productsNumber, userName, orderTotal } = await request.json() as AdminNotificationData;
 
-    const publishResponse = await beamsClient.publishToInterests(['admin'], {
+    const publishResponse = await beamsClient.publishToInterests(['admin-notifications'], {
       web: {
         notification: {
           title: '📦 Nouvelle commande reçue!',

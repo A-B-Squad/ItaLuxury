@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, memo } from "react";
 import { Home, ShoppingBag, Heart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,20 +8,21 @@ import { GoPackageDependents } from "react-icons/go";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
 import { CiUser } from "react-icons/ci";
+import { motion } from "framer-motion";
 
 const TabBarMobile = () => {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
 
-  const isActive = (path: string): boolean => {
+  const isActive = useCallback((path: string): boolean => {
     if (!pathname) return false;
     if (path === "/") {
       return pathname === path;
     }
     return pathname.startsWith(path);
-  };
+  }, [pathname]);
 
-  const handleNavigation = (pageName: string) => {
+  const handleNavigation = useCallback((pageName: string) => {
     sendGTMEvent({
       event: "page_view",
       page_title: pageName,
@@ -31,120 +32,71 @@ const TabBarMobile = () => {
         content_type: "page",
       },
     });
-  };
+  }, []);
+
+  const tabItems = [
+    {
+      name: "Accueil",
+      path: "/",
+      icon: <Home size={18} />,
+    },
+    {
+      name: "Boutique",
+      path: "/Collections/tunisie?page=1",
+      icon: <ShoppingBag size={18} />,
+    },
+    {
+      name: "Favoris",
+      path: "/FavoriteList",
+      icon: <Heart size={18} />,
+    },
+    {
+      name: isAuthenticated ? "Colis" : "Compte",
+      path: isAuthenticated ? "/TrackingPackages" : "/signin",
+      icon: isAuthenticated ? <GoPackageDependents size={18} /> : <CiUser size={18} />,
+    },
+  ];
 
   return (
-    <div className="fixed md:hidden bottom-0  w-full z-50">
-      <div className="bg-[#fffffff2] shadow-lg py-1 overflow-hidden">
-        <div
-          className={`flex justify-around items-center py-1 transition-all duration-300`}
-        >
-          <Link
-            href="/"
-            onClick={() => handleNavigation("Accueil")}
-            className="flex flex-col items-center"
-          >
-            <div
-              className={`p-2 rounded-full ${
-                isActive("/") ? "bg-primaryColor text-white" : "text-black"
-              }`}
-            >
-              <Home size={20} />
-            </div>
-            <span
-              className={`text-xs ${
-                isActive("/") ? "text-primaryColor" : "text-black"
-              }`}
-            >
-              Accueil
-            </span>
-          </Link>
-
-          <Link
-            href="/Collections/tunisie?page=1"
-            className="flex flex-col items-center"
-            onClick={() => handleNavigation("Boutique")}
-          >
-            <div
-              className={`p-2 rounded-full ${
-                isActive("/Collections")
-                  ? "bg-primaryColor text-white"
-                  : "text-black"
-              }`}
-            >
-              <ShoppingBag size={20} />
-            </div>
-            <span
-              className={`text-xs ${
-                isActive("/Collections") ? "text-primaryColor" : "text-black"
-              }`}
-            >
-              Boutique
-            </span>
-          </Link>
-
-          <Link
-            href="/FavoriteList"
-            onClick={() => handleNavigation("Favoris")}
-            className="flex flex-col items-center"
-          >
-            <div className="p-2 rounded-full text-black">
-              <Heart size={20} />
-            </div>
-            <span className="text-xs text-black">Favoris</span>
-          </Link>
-
-          {isAuthenticated ? (
+    <motion.div 
+      className="fixed md:hidden bottom-0 w-full z-50"
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="bg-white/95 backdrop-blur-sm shadow-[0_-2px_10px_rgba(0,0,0,0.05)] py-2">
+        <div className="flex justify-around items-center">
+          {tabItems.map((item) => (
             <Link
-              href="/TrackingPackages"
-              onClick={() => handleNavigation("Colis")}
-              className="flex flex-col items-center"
+              key={item.path}
+              href={item.path}
+              onClick={() => handleNavigation(item.name)}
+              className="flex flex-col items-center w-1/4"
             >
-              <div
-                className={`p-2 rounded-full ${
-                  isActive("/TrackingPackages")
-                    ? "bg-primaryColor text-white"
-                    : "text-black"
+              <motion.div
+                className={`p-1.5 rounded-full ${
+                  isActive(item.path) 
+                    ? "bg-primaryColor text-white" 
+                    : "text-gray-600 hover:text-primaryColor"
                 }`}
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.2 }}
               >
-                <GoPackageDependents size={20} />
-              </div>
+                {item.icon}
+              </motion.div>
               <span
-                className={`text-xs ${
-                  isActive("/TrackingPackages")
-                    ? "text-primaryColor"
-                    : "text-black"
+                className={`text-[10px] mt-1 font-medium ${
+                  isActive(item.path) ? "text-primaryColor" : "text-gray-600"
                 }`}
               >
-                Colis
+                {item.name}
               </span>
             </Link>
-          ) : (
-            <Link
-              href="/signin"
-              onClick={() => handleNavigation("Compte")}
-              className="flex flex-col items-center"
-            >
-              <div
-                className={`p-2 rounded-full ${
-                  isActive("/signin") ? "bg-primaryColor text-white" : "text-black"
-                }`}
-              >
-                <CiUser size={20} />
-              </div>
-              <span
-                className={`text-xs ${
-                  isActive("/signin") ? "text-primaryColor" : "text-black"
-                }`}
-              >
-                Compte
-              </span>
-            </Link>
-          )}
+          ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-export default TabBarMobile;
+export default memo(TabBarMobile);

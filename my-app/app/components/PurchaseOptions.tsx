@@ -5,17 +5,17 @@ import { useQuery } from '@apollo/client';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
+import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 import { useProductsInBasketStore, usePruchaseOptions } from '../store/zustand';
 import { useAuth } from '@/lib/auth/useAuth';
 
-const PurchaseOptions: React.FC = () => {
+const PurchaseOptions = () => {
     const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
     const [totalPrice, setTotalPrice] = useState<number>(0);
     const { products: storedProducts, quantityInBasket } = useProductsInBasketStore();
     const { decodedToken, isAuthenticated } = useAuth();
     const { productData, closePruchaseOptions, isOpen } = usePruchaseOptions();
 
-    // Remove mounted state and adjust conditional rendering
     const { loading: companyInfoLoading } = useQuery(COMPANY_INFO_QUERY, {
         onCompleted: (companyData) => {
             setDeliveryPrice(companyData.companyInfo.deliveringPrice);
@@ -37,7 +37,6 @@ const PurchaseOptions: React.FC = () => {
 
     const calculateTotalPrice = useCallback(() => {
         return productsInBasket.reduce((acc: number, product: any) => {
-            // Add optional chaining and nullish coalescing to handle potential undefined values
             const productDiscounts = product.productDiscounts ?? product?.Product?.productDiscounts ?? [];
 
             const productPrice = productDiscounts.length > 0
@@ -49,6 +48,7 @@ const PurchaseOptions: React.FC = () => {
             return acc + Number(productPrice) * quantity;
         }, 0);
     }, [productsInBasket]);
+
     useEffect(() => {
         const updatedTotalPrice = calculateTotalPrice();
         setTotalPrice(updatedTotalPrice);
@@ -69,13 +69,14 @@ const PurchaseOptions: React.FC = () => {
     };
 
     if (!isOpen) return null;
-
-    // Prevent rendering if critical data is still loading
     if (companyInfoLoading || basketLoading) return null;
+
+    const freeShippingThreshold = 499;
+    const freeShippingRemaining = freeShippingThreshold - totalPrice;
 
     return (
         <div
-            className="fixed inset-0 z-[11111111] transition-all duration-300"
+            className="fixed inset-0 z-[11111111] transition-all duration-300 flex items-center justify-center"
             style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
         >
             <div
@@ -91,50 +92,53 @@ const PurchaseOptions: React.FC = () => {
                         ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
                     style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
                 >
-                    <div className="bg-primaryColor relative flex items-center justify-center p-3 text-white rounded-t">
-                        <p className="text-base sm:text-xl text-center px-8">
-                            Produit ajouté au panier avec succès
-                        </p>
+                    <div className="bg-primaryColor relative flex items-center justify-center p-4 text-white rounded-t">
+                        <div className="flex items-center gap-2">
+                            <FaCheck className="text-white" size={20} />
+                            <p className="text-base sm:text-xl text-center">
+                                Produit ajouté au panier avec succès
+                            </p>
+                        </div>
                         <button
                             onClick={handleClose}
-                            className="absolute right-2 sm:right-4 hover:rotate-90 transition-transform duration-300"
+                            className="absolute right-4 hover:rotate-90 transition-transform duration-300"
+                            aria-label="Fermer"
                         >
                             <IoCloseOutline size={24} />
                         </button>
                     </div>
 
-                    <div className="bg-white p-4 sm:p-6 rounded-b shadow-xl">
+                    <div className="bg-white p-6 rounded-b shadow-xl">
                         <div className="flex flex-col gap-6">
                             {/* Product Info Section */}
-                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row gap-6 border-b pb-6">
                                 {productData?.images[0] && (
-                                    <div className="relative w-full hidden md:block sm:w-48 h-48 sm:h-48 mx-auto sm:mx-0">
+                                    <div className="relative w-full sm:w-48 h-48 mx-auto sm:mx-0 border rounded overflow-hidden">
                                         <Image
                                             layout="fill"
                                             src={productData.images[0]}
                                             alt={productData?.name || "Product"}
-                                            className="object-cover rounded"
-                                            // placeholder="blur"
-                                            loading="lazy"
-                                            priority={false}
+                                            className="object-contain"
+                                            loading="eager"
+                                            priority={true}
                                         />
                                     </div>
                                 )}
 
-                                <div className="flex flex-col gap-3 text-center sm:text-left">
-                                    <h1 className="font-semibold text-lg">{productData?.name}</h1>
-                                    <div className="flex items-center justify-center sm:justify-start gap-3 text-primaryColor">
+                                <div className="flex flex-col gap-3 text-center sm:text-left flex-1">
+                                    <h1 className="font-semibold text-lg text-gray-800">{productData?.name}</h1>
+                                    <div className="flex items-center justify-center sm:justify-start gap-3">
                                         {productData?.productDiscounts?.[0] ? (
                                             <>
                                                 <p className="text-gray-400 line-through">
                                                     {productData?.price?.toFixed(3)} TND
                                                 </p>
-                                                <p className="text-red-500 font-bold">
+                                                <p className="text-red-500 font-bold text-lg">
                                                     {productData?.productDiscounts[0].newPrice.toFixed(3)} TND
                                                 </p>
                                             </>
                                         ) : (
-                                            <p className="font-bold text-xl">
+                                            <p className="font-bold text-lg text-primaryColor">
                                                 {productData?.price?.toFixed(3)} TND
                                                 <span className="text-sm text-gray-400 ml-2">TTC</span>
                                             </p>
@@ -144,44 +148,68 @@ const PurchaseOptions: React.FC = () => {
                                         <span className="font-semibold">Quantité : </span>
                                         {1}
                                     </p>
+
+                                    <div className="mt-auto pt-3">
+                                        <Link
+                                            href={`/products/tunisie?productId=${productData?.id}`}
+                                            className="text-primaryColor hover:underline text-sm"
+                                            onClick={handleClose}
+                                        >
+                                            Voir les détails du produit
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Order Summary Section */}
-                            <div className="border-t pt-4 space-y-4">
-                                <h2 className="text-lg sm:text-xl font-bold text-center sm:text-left">
-                                    Il y a {quantityInBasket} articles dans votre panier
-                                </h2>
-                                <div className="space-y-3 text-gray-600">
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                        <FaShoppingCart className="text-primaryColor" />
+                                        <span>Résumé du panier</span>
+                                    </h2>
+                                    <span className="bg-primaryColor text-white text-sm px-3 py-1 rounded-full">
+                                        {quantityInBasket} {quantityInBasket > 1 ? 'articles' : 'article'}
+                                    </span>
+                                </div>
+
+                                {freeShippingRemaining > 0 && (
+                                    <div className="bg-blue-50 text-blue-700 p-3 rounded-md text-sm">
+                                        Ajoutez {freeShippingRemaining.toFixed(3)} TND d'articles pour bénéficier de la livraison gratuite !
+                                    </div>
+                                )}
+
+                                <div className="space-y-3 text-gray-600 bg-gray-50 p-4 rounded-md">
                                     <div className="flex justify-between">
-                                        <span className="font-semibold">Total des produits :</span>
-                                        <span>{totalPrice.toFixed(3)} TND</span>
+                                        <span>Sous-total :</span>
+                                        <span className="font-medium">{totalPrice.toFixed(3)} TND</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="font-semibold">Expédition totale :</span>
-                                        <span>
+                                        <span>Frais de livraison :</span>
+                                        <span className={Number(totalPrice) >= 499 ? "text-green-500 font-medium" : ""}>
                                             {Number(totalPrice) >= 499
                                                 ? "Gratuit"
                                                 : `${deliveryPrice.toFixed(3)} TND`}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between text-lg text-black border-t pt-2">
-                                        <span className="font-semibold">Total :</span>
-                                        <span>{calculateTotal()} TND (TTC)</span>
+                                    <div className="flex justify-between text-lg text-black border-t pt-2 mt-2">
+                                        <span className="font-bold">Total :</span>
+                                        <span className="font-bold">{calculateTotal()} TND</span>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row gap-3 mt-6">
                                     <button
                                         onClick={handleClose}
-                                        className="w-full sm:w-auto px-6 py-3 bg-secondaryColor text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-opacity-90 transition-colors duration-300">
+                                        className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 text-sm font-medium rounded hover:bg-gray-50 transition-colors duration-300">
                                         Continuer mes achats
                                     </button>
                                     <Link
                                         href="/Basket"
                                         onClick={closePruchaseOptions}
-                                        className="w-full sm:w-auto px-6 py-3 text-center bg-primaryColor text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-opacity-90 transition-colors duration-300">
-                                        Commander
+                                        className="w-full sm:w-auto px-6 py-3 text-center bg-primaryColor text-white text-sm font-medium rounded hover:bg-opacity-90 transition-colors duration-300 flex items-center justify-center gap-2">
+                                        <FaShoppingCart size={16} />
+                                        Voir mon panier
                                     </Link>
                                 </div>
                             </div>

@@ -71,7 +71,7 @@ const Checkout: React.FC = () => {
   const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const { clearBasket } = useProductsInBasketStore();
-  const { decodedToken, setDecodedToken, isAuthenticated } = useAuth();
+  const { decodedToken, isAuthenticated } = useAuth();
 
   const {
     register,
@@ -86,7 +86,6 @@ const Checkout: React.FC = () => {
   const router = useRouter();
 
   // Notification step
-
   // Step 2: Parse URL parameters
   const { checkoutProducts, checkoutTotal } = useCheckoutStore();
 
@@ -118,27 +117,21 @@ const Checkout: React.FC = () => {
     variables: { userId: decodedToken?.userId },
     skip: !decodedToken?.userId,
   });
+  console.log(userData);
+
 
   // Step 5: Set up side effects
   useEffect(() => {
-
     if (isAuthenticated) {
-
       setIsLoggedIn(true);
       setCurrentStep(2);
       setIsGuest(false);
     } else {
-      setDecodedToken(null);
       setIsLoggedIn(false);
       setIsGuest(true);
+      setCurrentStep(1);
     }
-  }, []);
-
-
-
-
-
-
+  }, [isAuthenticated, decodedToken]);
 
 
   // Step 6: Define utility functions
@@ -197,11 +190,12 @@ const Checkout: React.FC = () => {
     const userPhone = isGuest ? cleanPhone1 : userData?.fetchUsersById?.number;
 
     const orderTotal = parseFloat(calculateTotal())
+
     const checkoutInput = {
       userId: decodedToken?.userId,
       userName: data.fullname,
       total: orderTotal,
-      phone: [cleanPhone1, cleanPhone2].filter(Boolean), 
+      phone: [cleanPhone1, cleanPhone2].filter(Boolean),
       governorateId: data.governorate,
       address: data.address,
       couponsId: coupon.id,
@@ -240,6 +234,8 @@ const Checkout: React.FC = () => {
         ? Number(product.productDiscounts[0].newPrice)
         : Number(product.price)
     }));
+    console.log(decodedToken);
+    console.log(checkoutInput);
 
     // Calculate final value including delivery if applicable
     const finalValue = Number(orderTotal);
@@ -501,12 +497,11 @@ const Checkout: React.FC = () => {
           {/* Checkout Form Section */}
           <div>
             <div className="px-4 pt-8 pb-2 bg-white border">
-              {currentStep === 1 && (
+              {currentStep === 1 && !isAuthenticated && (
                 <Step1
                   setIsLoggedIn={setIsLoggedIn}
                   setCurrentStep={setCurrentStep}
                   setIsGuest={setIsGuest}
-                  isLoggedIn={isLoggedIn}
                   showLoginForm={showLoginForm}
                   setShowLoginForm={setShowLoginForm}
                 />

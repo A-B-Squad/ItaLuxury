@@ -2,7 +2,7 @@ version: "3.8" # Docker Compose file format version
 
 services:
   db: # PostgreSQL database service
-    image: postgres:16 # Docker image for PostgreSQL version 16
+    image: postgres:18 # Docker image for PostgreSQL version 16
     ports:
       - "5432:5432" # Port mapping for accessing PostgreSQL externally
     volumes:

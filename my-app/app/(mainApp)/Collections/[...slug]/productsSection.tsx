@@ -7,7 +7,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { useAllProductViewStore, useSidebarStore } from "@/app/store/zustand";
 import ProductBox from "../../../components/ProductBox/ProductBox";
-import TopBar from "../components/topBar";
+import CollectionToolbar from "../components/CollectionToolbar";
 
 type Product = {
   id: string;
@@ -263,7 +263,7 @@ const ProductsSection: React.FC = () => {
               {categoryDescription}
             </p>
           )}
-          <TopBar numberOfProduct={totalCount} />
+          <CollectionToolbar numberOfProduct={totalCount} />
           {renderProducts()}
           {error && (
             <div className="text-red-500 mt-4 text-center">

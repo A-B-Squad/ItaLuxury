@@ -1,88 +1,98 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/legacy/image";
 
-const LeftAdsCarousel = ({
+interface Ad {
+  images: string[];
+  link: string;
+}
+
+interface LeftAdsCarouselProps {
+  AdsNextToCarousel: Ad[];
+  loadingLeftAdsCarousel: boolean;
+}
+
+const LeftAdsCarousel: React.FC<LeftAdsCarouselProps> = ({
   AdsNextToCarousel,
   loadingLeftAdsCarousel,
-}: any) => {
-  const [images, setImages] = useState([]);
+}) => {
+  const [images, setImages] = useState<string[]>([]);
+  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    if (AdsNextToCarousel) {
-      const allImages = AdsNextToCarousel.flatMap(
-        (ad: { images: string[] }) => ad.images
-      );
-
+    if (AdsNextToCarousel?.length > 0) {
+      const allImages = AdsNextToCarousel.flatMap((ad) => ad.images);
       setImages(allImages);
+      
+      // Initialize loading state for new images
+      const initialLoadState: Record<number, boolean> = {};
+      allImages.forEach((_, index) => {
+        initialLoadState[index] = false;
+      });
+      setImagesLoaded(initialLoadState);
     }
-  }, [loadingLeftAdsCarousel]);
+  }, [AdsNextToCarousel]);
+
+  const handleImageLoad = useCallback((index: number) => {
+    setImagesLoaded(prev => ({
+      ...prev,
+      [index]: true
+    }));
+  }, []);
+
+  // Loading state with improved skeleton
+  if (images.length === 0 || loadingLeftAdsCarousel) {
+    return (
+      <div className="left-Img flex xl:flex-col xl:max-w-[455px] w-full items-center justify-center gap-5 md:gap-12">
+        <div className="relative w-full max-w-[455px] h-[230px] rounded-lg overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse flex items-center justify-center">
+            <IoImageOutline className="h-12 w-12 text-gray-500" />
+          </div>
+        </div>
+        <div className="relative w-full max-w-[455px] h-[230px] rounded-lg overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse flex items-center justify-center">
+            <IoImageOutline className="h-12 w-12 text-gray-500" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      {(images.length === 0 || loadingLeftAdsCarousel) && (
-        <div className="left-Img flex xl:flex-col xl:max-w-[455px] w-full items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-gray-300 ">
-            <IoImageOutline className="h-12 w-12 text-gray-500" />
-          </div>
-          <div className="grid animate-pulse max-w-full w-[455px] h-[230px] place-items-center rounded-lg bg-gray-300 ">
-            <IoImageOutline className="h-12 w-12 text-gray-500" />
-          </div>
-        </div>
-      )}
-
-      {images.length > 0 && (
-        <div className="left-Img flex xl:flex-col xl:max-w-[455px]  w-full h-full  gap-5 md:gap-12">
+    <div className="left-Img flex xl:flex-col xl:max-w-[455px] w-full h-full gap-5 md:gap-12">
+      {images.map((image, index) => (
+        index < 2 && (
           <Link
-            className="relative group  rounded-sm border bg-white overflow-hidden w-[455px] max-h-[230px] h-full max-w-full hover:opacity-90 transition-all "
-            href={AdsNextToCarousel[0]?.link}
+            key={index}
+            className="relative group rounded-lg border bg-white overflow-hidden w-full max-w-[455px] max-h-[230px] h-full shadow-sm hover:shadow-md transition-all duration-300"
+            href={AdsNextToCarousel[index]?.link || "#"}
+            aria-label={`Promotion banner ${index + 1}`}
           >
+            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 z-10"></div>
             <span
-              className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[70px] shadow-2xl   group-hover:block z-50 absolute bg-red-600 left-0 w-80 h-6 transition-all duration-500"
+              className="hidden opacity-55 -rotate-45 top-[70px] shadow-2xl group-hover:block z-20 absolute bg-red-600 left-0 w-80 h-6 transition-all duration-500"
               style={{ animation: "slide-diagonal 1s forwards" }}
             ></span>
             <Image
               layout="responsive"
-              width={360}
-              height={208}
-              src={images[0]}
-              loading="eager"
-              priority={true}
-              style={{ padding: "50% 0 0 " }}
-              property="true"
+              width={455}
+              height={230}
+              src={image}
+              loading={index === 0 ? "eager" : "lazy"}
+              priority={index === 0}
+              alt={`Promotion banner ${index + 1}`}
               objectFit="cover"
-              alt="left-Img 0"
-              className="  transition-all"
+              className="transition-transform duration-300 group-hover:scale-105"
+              onLoadingComplete={() => handleImageLoad(index)}
             />
           </Link>
-          <Link
-            className="relative group  rounded-sm bg-white border w-[455px] max-h-[230px] h-full overflow-hidden  "
-            href={AdsNextToCarousel[1]?.link}
-          >
-            <span
-              className=" HoverBackgroundSlide hidden opacity-55  -rotate-45 top-[70px] shadow-2xl   group-hover:block z-50 absolute bg-red-600 left-0 w-80 h-6 transition-all duration-500"
-              style={{ animation: "slide-diagonal 1s forwards" }}
-            ></span>
-            <Image
-              layout="responsive"
-              width={360}
-              height={208}
-              src={images[1]}
-              loading="eager"
-              style={{ padding: "50% 0 0 " }}
-              alt="left-Img 2"
-              priority={true}
-              objectFit="cover"
-              className=" hover:opacity-50 transition-all"
-            />
-          </Link>
-        </div>
-      )}
-    </>
+        )
+      ))}
+    </div>
   );
 };
 
-export default LeftAdsCarousel;
+export default memo(LeftAdsCarousel);

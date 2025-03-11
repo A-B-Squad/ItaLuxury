@@ -34,7 +34,7 @@ const TitleProduct = dynamic(
   () => import("@/app/components/ProductCarousel/titleProduct"),
   { ssr: false }
 );
-const BestSales = dynamic(() => import("./@TopSales/BestSales"), {
+const BestSales = dynamic(() => import("./@TopSales/ToptSales"), {
   ssr: false,
 });
 
@@ -140,12 +140,24 @@ const Home = () => {
     [Products_less_20]
   );
 
+  // Add a loading state to show a better loading experience
+  const isLoading = loadingNewProducts_14 || loadingProducts_inDiscount_14 || loadingProducts_less_20;
+
   return (
     <>
       {/* <CenterAds /> */}
       <div className="Home py-7 flex min-h-screen flex-col items-center md:px-8 px-3">
-        <div className="container overflow-hidden">
-          <section className="TOP-IMG flex justify-center xl:flex-row flex-col-reverse  gap-4 items-center">
+        <div className="container mx-auto overflow-hidden ">
+          {/* Loading indicator with improved design */}
+          {isLoading && (
+            <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center md:hidden">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryColor"></div>
+              <p className="mt-4 text-gray-600 font-medium">Chargement...</p>
+            </div>
+          )}
+
+          {/* Hero section with improved spacing and alignment */}
+          <section className="TOP-IMG flex justify-center xl:flex-row flex-col-reverse gap-6 items-center mb-10">
             <LeftAdsCarousel
               loadingLeftAdsCarousel={loadingAdsNextToCarousel}
               AdsNextToCarousel={AdsNextToCarousel?.advertismentByPosition}
@@ -155,13 +167,17 @@ const Home = () => {
               centerCarouselAds={centerCarouselAds?.advertismentByPosition}
             />
           </section>
-          <Services />
 
+          {/* Services section with better spacing */}
+          <div className="mb-10 mt-8">
+            <Services />
+          </div>
 
-          <div className="view lg:px-10">
+          {/* Main content with improved spacing and visual hierarchy */}
+          <div className="view lg:px-10 space-y-16">
             {TopDealsSectionVisibility?.getSectionVisibility
               ?.visibility_status && (
-                <>
+                <div className="space-y-8">
                   <FullWidthAds
                     FullAdsLoaded={loadingFullTopDealsAds}
                     FullImageAds={
@@ -169,35 +185,42 @@ const Home = () => {
                     }
                     LinkTo={"/"}
                   />
-                  <div className="TopDeals">
-                    <div className="flex justify-between flex-col md:flex-row mb-5 gap-2 items-start">
+                  <div className="TopDeals bg-white md:p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div className="flex justify-between flex-col md:flex-row mb-8 gap-4 items-start">
                       <TitleProduct title={"Meilleures Offres du Jour"} />
-                      <div className="flex items-start flex-col md:flex-row md:pt-3">
-                        <p className="md:p-2 font-bold">
-                          Hâtez-vous ! L'offre se termine dans :
-                        </p>
+                      <div className="flex items-center flex-col md:flex-row md:bg-gradient-to-r from-amber-50 to-orange-50 md:px-5 md:py-3 md:rounded-lg md:shadow-sm border border-amber-100">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 animate-pulse mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="md:mr-3 font-bold text-gray-800 whitespace-nowrap">
+                            DERNIÈRE CHANCE ! Offres exclusives :
+                          </p>
+                        </div>
                         <TimeCountDown />
                       </div>
                     </div>
                     <TopDeals />
                   </div>
-                </>
+                </div>
               )}
-            <MainCategoriesSlide />
 
-            <div className="new-product-parent-tabs relative   flex flex-col">
-              <div className="Heading pb-8 flex items-center mb-5 justify-between ">
+            <div className="bg-gray-50 px-6 rounded-xl -mx-6">
+              <MainCategoriesSlide />
+            </div>
+
+            <div className="new-product-parent-tabs relative flex flex-col bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div className="Heading pb-16 md:pb-8 flex items-center mb-5 justify-between">
                 <TitleProduct title={"Nouveaux Produits"} />
-                <div className="flex items-center gap-1 font-medium  text-xs md:text-base hover:text-secondaryColor transition-colors">
+                <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors bg-gray-50 px-4 py-2 rounded-full">
                   <Link href={"/Collections/tunisie?choice=new-product"}>
                     Voir tous les produits
                   </Link>
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className="Carousel_new_product relative  items-center gap-3  flex ">
-
-                <div className="sideImg  xl:flex-col gap-3  w-fit hidden  xl:flex ">
+              <div className="Carousel_new_product relative items-center gap-6 flex">
+                <div className="sideImg xl:flex-col gap-6 w-fit hidden xl:flex">
                   <SideAds
                     adsLoaded={loadingClinetContactSideAds}
                     image={
@@ -228,10 +251,11 @@ const Home = () => {
               }
               LinkTo={"/Collections/tunisie?price=20"}
             />
-            <div className="Carousel_A_20DT">
-              <div className="Heading pb-8 flex mb-5 items-center justify-between">
+
+            <div className="Carousel_A_20DT bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div className="Heading pb-16 md:pb-8 flex mb-5 items-center justify-between">
                 <TitleProduct title={"L'essentiel à 20DT"} />
-                <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors">
+                <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors bg-gray-50 px-4 py-2 rounded-full">
                   <Link href={"/Collections/tunisie?price=20"}>
                     Voir tous les produits
                   </Link>
@@ -244,6 +268,7 @@ const Home = () => {
                 loadingProduct={loadingProducts_less_20}
               />
             </div>
+
             <FullWidthAds
               FullAdsLoaded={loadingFullPromotionAds}
               FullImageAds={
@@ -251,22 +276,23 @@ const Home = () => {
               }
               LinkTo={"/Collections/tunisie?choice=in-discount"}
             />
-            <div className="Promotion flex flex-col">
-              <div className="Heading pb-8 flex items-center mb-5 justify-between">
+
+            <div className="Promotion flex flex-col bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div className="Heading pb-16 md:pb-8 flex items-center mb-5 justify-between">
                 <TitleProduct title={"Promotions"} />
-                <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors">
+                <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors bg-gray-50 px-4 py-2 rounded-full">
                   <Link href={"/Collections/tunisie?choice=in-discount"}>
                     Voir tous les produits
                   </Link>
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className=" relative items-center gap-3  flex">
+              <div className="relative items-center gap-6 flex">
                 <ProductTabs
                   data={discountedProducts}
                   loadingProduct={loadingProducts_inDiscount_14}
                 />
-                <div className="sideImg w-fit  hidden xl:block ">
+                <div className="sideImg w-fit hidden xl:block">
                   <SideAds
                     adsLoaded={loadingRightAds}
                     image={rightAds?.advertismentByPosition[0]?.images[0]}
@@ -278,10 +304,13 @@ const Home = () => {
             </div>
           </div>
 
-          <ClientServices />
+          <div className="my-10 md:my-16 w-full">
+            <ClientServices />
+          </div>
+
           {TopSellsSectionVisibility?.getSectionVisibility
             ?.visibility_status && (
-              <div className="BestSeals pb-10">
+              <div className="BestSeals pb-10 bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-16">
                 <div className="Heading pb-8 flex items-center mb-5 justify-between">
                   <TitleProduct title={"Meilleures Ventes"} />
                 </div>
@@ -289,7 +318,9 @@ const Home = () => {
               </div>
             )}
 
-          <BrandsCarousel />
+          <div className="bg-gray-50 py-8 px-6 rounded-xl -mx-6 mb-8">
+            <BrandsCarousel />
+          </div>
         </div>
       </div>
     </>
