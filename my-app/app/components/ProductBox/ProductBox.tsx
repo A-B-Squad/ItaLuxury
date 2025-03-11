@@ -80,12 +80,12 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
     const addToCartData = {
       user_data: {
-        user_email: [userData?.fetchUsersById.email.toLowerCase()],
-        user_fullName: [userData?.fetchUsersById.fullName],
-        user_phone: [userData?.fetchUsersById?.number],
-        user_country: ["tn"],
-        user_city: "",
-        user_id: decodedToken?.userId,
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        ct: "",
+        external_id: decodedToken?.userId,
       },
       custom_data: {
         content_name: product.name,
@@ -94,24 +94,15 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         currency: "TND",
         contents: [
           {
-            item_id: product.id,
-            reference: product.reference,
-            item_name: product.name,
-            item_category: product.categories[0]?.name,
-            item_category2: product.categories[1]?.name,
-            item_category3: product.categories[2]?.name,
-            item_variant: product?.Colors?.color,
-            item_price: product.productDiscounts?.length
-              ? product.productDiscounts[0].newPrice.toFixed(3)
-              : product.price.toFixed(3),
-            item_description: product.description,
-
+            id: product.id,
             quantity: product.actualQuantity || product.quantity,
-
-          },
+            item_price: product.productDiscounts?.length
+              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
+              : parseFloat(product.price.toFixed(3))
+          }
         ],
         value: price * quantity,
-
+        content_category: product.categories?.[0]?.name || '',
       },
     };
 
@@ -140,10 +131,15 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-        contents: {
-          id: product.id,
-          quantity: product.actualQuantity || product.quantity
-        },
+        contents: [
+          {
+            id: product.id,
+            quantity: product.actualQuantity || product.quantity,
+            item_price: product.productDiscounts?.length
+              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
+              : parseFloat(product.price.toFixed(3))
+          }
+        ],
         value: price * quantity,
         currency: "TND"
       }

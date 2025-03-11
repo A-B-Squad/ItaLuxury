@@ -55,7 +55,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
     }
     else if (pathname && pathname.includes("/Contact-us")) setActiveLink("contact");
     else setActiveLink("");
-  }, [pathname]); 
+  }, [pathname]);
 
   const handleScroll = useCallback(() => {
     if (window.scrollY > 50) {

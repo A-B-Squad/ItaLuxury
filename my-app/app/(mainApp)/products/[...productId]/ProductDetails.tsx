@@ -147,6 +147,9 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     const finalPrice = discount?.newPrice ?? price;
     const reference = productDetails.reference;
 
+    // Use primary category (first one) for Facebook Pixel
+    const primaryCategory = categories?.[0]?.name || '';
+
     sendGTMEvent({
       event: "view_item",
       ecommerce: {
@@ -176,26 +179,16 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         content_name: name,
         content_type: "product details",
         content_ids: [id],
-        content_category: categoryNames,
-        contents: [{
-          id: id,
-          reference: reference,
-          name: name,
-          value: finalPrice,
-          quantity: 1,
-          price: price,
-          brand: brandName,
-          category: categories[0]?.name,
-          category2: categories[1]?.name,
-          category3: categories[2]?.name,
-          availability: inventory > 0 ? "in stock" : "out of stock",
-          description: description,
-          variant: colorName,
-          attributes: attributes?.map(
-            (attr: { name: string; value: string }) =>
-              attr.name + " " + attr.value
-          )
-        }]
+        content_category: primaryCategory,
+        contents: [
+          {
+            id: id,
+            quantity: 1,
+            item_price: parseFloat(price.toFixed(3))
+          }
+        ],
+        value: finalPrice,
+        currency: "TND"
       }
     });
 
@@ -215,27 +208,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         content_ids: [id],
         value: finalPrice,
         currency: "TND",
-        content_category: categoryNames,
+        content_category: primaryCategory,
         contents: [
           {
-            item_id: id,
-            reference,
-            item_name: name,
-            value: finalPrice,
+            id: id,
             quantity: 1,
-            item_price: price,
-            item_brand: brandName,
-            item_category: categories[0]?.name,
-            item_category2: categories[1]?.name,
-            item_category3: categories[2]?.name,
-            availability: inventory > 0 ? "in stock" : "out of stock",
-            item_description: description,
-            item_variant: colorName,
-            item_Att: attributes?.map(
-              (attr: { name: string; value: string }) =>
-                attr.name + " " + attr.value
-            ),
-          },
+            item_price: parseFloat(price.toFixed(3))
+          }
         ],
       },
     });
@@ -262,14 +241,18 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       product.productDiscounts.length > 0
         ? product.productDiscounts[0].newPrice
         : product.price;
+
+    // Use primary category for Facebook Pixel
+    const primaryCategory = product.categories?.[0]?.name || '';
+
     const addToCartData = {
       user_data: {
-        user_email: [userData?.fetchUsersById.email.toLowerCase()],
-        user_fullName: [userData?.fetchUsersById.fullName],
-        user_phone: [userData?.fetchUsersById?.number],
-        user_country: ["tn"],
-        user_city: "",
-        user_id: decodedToken?.userId,
+        em: [userData?.fetchUsersById.email.toLowerCase()],
+        fn: [userData?.fetchUsersById.fullName],
+        ph: [userData?.fetchUsersById?.number],
+        country: ["tn"],
+        ct: "",
+        external_id: decodedToken?.userId,
       },
       custom_data: {
         content_name: product.name,
@@ -278,26 +261,15 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         currency: "TND",
         contents: [
           {
-            item_id: product.id,
-            reference: product.reference,
-            item_name: product.name,
-            item_category: product.categories[0]?.name,
-            item_category2: product.categories[1]?.name,
-            item_category3: product.categories[2]?.name,
-            item_variant: product?.Colors?.color,
-            item_price: product.productDiscounts?.length
-              ? product.productDiscounts[0].newPrice.toFixed(3)
-              : product.price.toFixed(3),
-            item_description: product.description,
-            item_Att: attributes?.map(
-              (attr: { name: string; value: string }) =>
-                attr.name + " " + attr.value
-            ),
+            id: product.id,
             quantity: product.actualQuantity || product.quantity,
-
-          },
+            item_price: product.productDiscounts?.length
+              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
+              : parseFloat(product.price.toFixed(3))
+          }
         ],
-        value: price * (product.actualQuantity || product.quantity)
+        value: price * (product.actualQuantity || product.quantity),
+        content_category: primaryCategory,
       },
     };
 
@@ -340,16 +312,23 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-        contents: {
-          id: product.id,
-          quantity: product.actualQuantity || product.quantity
-        },
+        contents: [
+          {
+            id: product.id,
+            quantity: product.actualQuantity || product.quantity,
+            item_price: product.productDiscounts?.length
+              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
+              : parseFloat(product.price.toFixed(3))
+          }
+        ],
         value: product.productDiscounts?.length
           ? product.productDiscounts[0].newPrice * (product.actualQuantity || product.quantity)
           : product.price * (product.actualQuantity || product.quantity),
-        currency: "TND"
+        currency: "TND",
+        content_category: primaryCategory,
       }
     };
+    
     // Track Add to Cart
     triggerEvents("AddToCart", addToCartData);
     sendGTMEvent(cartEventDataGTM);
@@ -539,7 +518,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
         ) : (
           <div className="space-y-6">
             <Breadcumb Path={categoriesPath} />
-    
+
             <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-between bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm gap-4">
               <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
                 <div className="relative">
@@ -547,13 +526,12 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                     images={smallImages}
                   />
                   <span
-                    className={`absolute top-2 right-2 p-2 rounded-md ${
-                      productDetails?.inventory > 1 
-                        ? "bg-green-600" 
-                        : productDetails?.inventory === 1 
-                          ? "bg-amber-500" 
+                    className={`absolute top-2 right-2 p-2 rounded-md ${productDetails?.inventory > 1
+                        ? "bg-green-600"
+                        : productDetails?.inventory === 1
+                          ? "bg-amber-500"
                           : "bg-red-500"
-                    } text-xs font-medium text-white`}
+                      } text-xs font-medium text-white`}
                   >
                     {productDetails?.inventory > 1
                       ? "EN STOCK"
@@ -563,7 +541,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   </span>
                 </div>
               </div>
-              
+
               {/* Rest of the product info section */}
               <ProductInfo
                 productDetails={productDetails}
@@ -579,7 +557,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 isProductInCompare={isProductInCompare}
                 addToCompare={addToCompare}
               />
-    
+
               <ActionButton
                 productDetails={productDetails}
                 AddToBasket={AddToBasket}
@@ -591,8 +569,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                 addToCompare={addToCompare}
               />
             </div>
-            
-            <ProductAttrLaptop 
+
+            <ProductAttrLaptop
               attributes={attributes}
               productId={productDetails.id}
               userId={decodedToken?.userId || ""}
@@ -600,7 +578,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             />
           </div>
         )}
-        
+
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-6 mt-8 mb-[15%]">
           <TitleProduct title={"Produits apparentés"} />
           <div>
@@ -610,7 +588,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             />
           </div>
         </div>
-        
+
         <ProductDetailsDrawer
           productId={productId}
           productDetails={productDetails}
