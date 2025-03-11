@@ -1,13 +1,6 @@
 import { NextResponse } from 'next/server';
 import PushNotifications from '@pusher/push-notifications-server';
 
-interface AdminNotificationData {
-  orderId: string;
-  productsNumber: number;
-  userName: string;
-  orderTotal: number;
-}
-
 export async function POST(request: Request) {
   const beamsClient = new PushNotifications({
 
@@ -16,20 +9,25 @@ export async function POST(request: Request) {
   });
 
   try {
-    const { orderId, productsNumber, userName, orderTotal } = await request.json() as AdminNotificationData;
+    const { orderId, productsNumber, userName, orderTotal } = await request.json();
 
     const publishResponse = await beamsClient.publishToInterests(['admin-notifications'], {
       web: {
         notification: {
           title: '📦 Nouvelle commande reçue!',
           body: `🛍️ ${userName} a commandé ${productsNumber} produit(s) 💰 Total : ${orderTotal.toFixed(2)} TND.`,
-          deep_link: `https://admin.ita-luxury.com/Orders`,
+          deep_link: 'https://admin.ita-luxury.com/Orders',
         },
+        data: {
+          link: '/Orders',
+          orderId: orderId
+        }
       },
     });
 
     return NextResponse.json({ success: true, response: publishResponse });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error as string }, { status: 500 });
+    console.error('Push notification error:', error);
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
