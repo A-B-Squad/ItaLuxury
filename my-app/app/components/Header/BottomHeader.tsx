@@ -247,7 +247,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
           <motion.button
             onClick={openBasketDrawer}
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="relative p-2 rounded-full md:hidden hover:bg-gray-100 transition-colors"
             whileTap={{ scale: 0.95 }}
           >
             <IoBagHandleOutline className="text-xl" />

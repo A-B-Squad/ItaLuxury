@@ -355,7 +355,7 @@ const TopHeader = ({ logo }: { logo: string }) => {
             className="flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
           >
             <div className="relative p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors">
-              <IoBagHandleOutline className="text-gray-700 text-xl" />
+              <IoBagHandleOutline className="text-gray-700 text-2xl" />
               {quantityInBasket > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
                   {quantityInBasket}
