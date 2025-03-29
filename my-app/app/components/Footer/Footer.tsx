@@ -12,11 +12,10 @@ import { useAuth } from "@/lib/auth/useAuth";
 import { useQuery } from "@apollo/client";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import React, { useState } from "react";
-import { FaFacebookSquare, FaInstagram } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaFacebookSquare, FaInstagram, FaArrowUp } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import { MdEmail, MdLocalPhone } from "react-icons/md";
-
 
 // Reusable SocialIcon component with hover effect
 const SocialIcon = ({
@@ -33,7 +32,6 @@ const SocialIcon = ({
   </Link>
 );
 
-
 // Footer component
 const Footer = () => {
   const { toast } = useToast();
@@ -44,6 +42,14 @@ const Footer = () => {
 
   const companyInfo = companyInfoData?.companyInfo;
   const categories = categoriesData?.categories || [];
+
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const handleSubscription = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +64,8 @@ const Footer = () => {
   };
 
   return (
-    <footer className="Footer container pb-24 md:pb-0 bg-white shadow-sm pt-2 border-t-2 text-black flex flex-col items-center">
+    <footer className="Footer container pb-24 md:pb-0 bg-white shadow-sm pt-2 border-t-2 text-black flex flex-col items-center relative">
+
       <div
         className="hidden lg:flex bg-center bg-cover bg-no-repeat min-h-[200px] h-[304px] max-w-[1419px] w-full justify-center items-center"
         style={{
@@ -88,8 +95,47 @@ const Footer = () => {
           unique et original. Simplement extraordinaire !
         </p>
       </div>
+      {/* Laptop View */}
+      <div className=" w-full hidden lg:grid max-w-7xl lg:grid-cols-6 place-content-center gap-4 border-t pt-8">
+        {/* Scroll to top button */}
+        <div className="lg:col-span-6 flex justify-center mb-4">
+          <button
+            onClick={scrollToTop}
+            className="p-3 rounded-full bg-primaryColor text-white shadow-lg hover:bg-opacity-90 transition-all duration-300 flex items-center gap-2"
+            aria-label="Scroll to top"
+          >
+            <FaArrowUp /> <span>Retour en haut</span>
+          </button>
+        </div>
 
-      <div className="w-full hidden lg:grid max-w-7xl lg:grid-cols-6 place-content-center gap-4 border-t pt-8">
+        {/* Full width map for laptop view */}
+        {/* <div className="lg:col-span-6 mb-6">
+          <h6 className="font-medium text-xl mb-4">Notre Boutique</h6>
+          <div className="relative w-full h-[300px] rounded-lg overflow-hidden shadow-md">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d393.3607920290625!2d10.60973703774928!3d35.85338306229638!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12fd8a723f3aaec3%3A0x41866312c6399eab!2sBoutique%20Ita%20Sousse!5e0!3m2!1sen!2stn!4v1743255721777!5m2!1sen!2stn"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Boutique Ita Sousse Location"
+            ></iframe>
+          </div>
+          <div className="mt-2">
+            <Link
+              href="https://maps.app.goo.gl/BtPhSeEzDxVmStDBA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-primaryColor hover:underline flex items-center gap-1"
+            >
+              <IoLocationSharp size={16} />
+              Voir sur Google Maps
+            </Link>
+          </div>
+        </div> */}
+
         <div className="CompanyInfo w-full lg:col-span-2">
           <h6 className="font-medium text-xl mb-4">Informations</h6>
           <div className="leading-8">
@@ -162,7 +208,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="entreprise">
+        <div className="YourAccount">
           <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
           <div className="flex flex-col">
             <Link
@@ -214,6 +260,45 @@ const Footer = () => {
 
       {/* Mobile accordion */}
       <div className="flex flex-col lg:hidden w-full px-5 mt-4">
+        {/* Mobile scroll to top button */}
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={scrollToTop}
+            className="p-2 rounded-full bg-primaryColor text-white shadow-lg hover:bg-opacity-90 transition-all duration-300 flex items-center gap-2"
+            aria-label="Scroll to top"
+          >
+            <FaArrowUp /> <span>Retour en haut</span>
+          </button>
+        </div>
+
+        {/* Mobile map section - shown directly before accordion */}
+        {/* <div className="mb-6">
+          <h6 className="font-medium text-lg mb-2">Notre Boutique</h6>
+          <div className="relative w-full h-[200px] rounded-lg overflow-hidden">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d393.3607920290625!2d10.60973703774928!3d35.85338306229638!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12fd8a723f3aaec3%3A0x41866312c6399eab!2sBoutique%20Ita%20Sousse!5e0!3m2!1sen!2stn!4v1743255721777!5m2!1sen!2stn"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Boutique Ita Sousse Location"
+            ></iframe>
+          </div>
+          <div className="mt-2">
+            <Link
+              href="https://maps.app.goo.gl/BtPhSeEzDxVmStDBA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-primaryColor hover:underline flex items-center gap-1"
+            >
+              <IoLocationSharp size={16} />
+              Voir sur Google Maps
+            </Link>
+          </div>
+        </div> */}
+
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-lg font-medium">Informations</AccordionTrigger>

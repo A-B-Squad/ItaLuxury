@@ -1,7 +1,6 @@
 import Link from "next/link";
-import React from "react";
-import { MdOutlineArrowRight } from "react-icons/md";
-import prepRoute from "../../../Helpers/_prepRoute";
+import React, { memo } from "react";
+import { IoIosArrowForward } from "react-icons/io";
 
 interface Subcategory {
   id: string;
@@ -20,23 +19,27 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
   parentCategoryName,
 }) => {
   return (
-    <>
+    <div className="mt-1 space-y-1 pl-2 opacity-100 transform-none">
       {subsubcategories?.map((subsubcategory, subIndex) => (
-        <Link
-          href={`/Collections/tunisie/?${new URLSearchParams({
-            category: subsubcategory.name,
-
-          })}
-          `}
-          className="py-1 group text-sm cursor-pointer transition-all relative  left-[-20px] flex hover:font-bold  "
-          key={subIndex}
+        <div 
+          key={subIndex} 
+          className="transition-opacity duration-200 ease-in-out"
         >
-          <MdOutlineArrowRight className="text-xl invisible group-hover:visible transition-all" />
-          {subsubcategory.name}
-        </Link>
+          <Link
+            href={`/Collections/tunisie/?${new URLSearchParams({
+              category: subsubcategory.name,
+            })}`}
+            className="py-1.5 px-2 group text-sm text-gray-600 hover:text-primaryColor flex items-center gap-1.5 transition-all rounded-md hover:bg-gray-50"
+          >
+            <IoIosArrowForward className="text-xs opacity-0 group-hover:opacity-100 transition-opacity text-primaryColor" />
+            <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+              {subsubcategory.name}
+            </span>
+          </Link>
+        </div>
       ))}
-    </>
+    </div>
   );
 };
 
-export default Subsubcategory;
+export default memo(Subsubcategory);

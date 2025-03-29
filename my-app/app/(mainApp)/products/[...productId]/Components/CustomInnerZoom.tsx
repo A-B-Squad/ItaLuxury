@@ -276,20 +276,20 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={`relative flex-shrink-0 w-16 md:w-20 h-16 md:h-20 overflow-hidden rounded-md border-2 transition-all duration-200 ${selectedImage === index
-                      ? 'border-primaryColor shadow-md'
-                      : 'border-transparent hover:border-gray-300'
+                    ? 'border-primaryColor shadow-md'
+                    : 'border-transparent hover:border-gray-300'
                     }`}
                   aria-label={`Sélectionner l'image ${index + 1}`}
                   aria-current={selectedImage === index ? 'true' : 'false'}
                 >
                   <Image
-                    layout="fill"
                     src={image}
-                    alt={`Vignette ${index + 1}`}
-                    className={`w-full h-full object-cover transition-opacity duration-200 ${selectedImage === index
-                        ? 'opacity-100'
-                        : 'opacity-70 group-hover:opacity-100'
-                      }`}
+                    alt={`Product image ${index}`}
+                    width={600}
+                    height={600}
+                    priority={index === 0} // Only prioritize the first image
+                    quality={80} // Reduce quality slightly for faster loading
+                    className="object-contain"
                   />
                 </button>
               ))}

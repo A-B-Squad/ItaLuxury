@@ -1,25 +1,29 @@
 import Image from "next/legacy/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const ProductImage = ({ product }: { product: any }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   
-  const discountData = product?.productDiscounts?.[0];
-  const discountPercentage = discountData
-    ? Math.round(((discountData.price - discountData.newPrice) / discountData.price) * 100)
-    : null;
+  // Use useMemo to calculate these values only when product changes
+  const { discountPercentage, isNewProduct, imageUrl } = useMemo(() => {
+    const discountData = product?.productDiscounts?.[0];
+    const discountPercentage = discountData
+      ? Math.round(((discountData.price - discountData.newPrice) / discountData.price) * 100)
+      : null;
 
-  // Check if product is new (created within the last 7 days)
-  const isNewProduct = product?.createdAt && 
-    new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // Check if product is new (created within the last 7 days)
+    const isNewProduct = product?.createdAt && 
+      new Date(product.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  // Ensure we have a valid image URL
-  const imageUrl = product?.images && product.images.length > 0 && product.images[0]
-    ? product.images[0]
-    : "https://res.cloudinary.com/dc1cdbirz/image/upload/v1732014003/ita-luxury/zdiptq7s9m9ck13ljnvy.jpg";
+    // Ensure we have a valid image URL
+    const imageUrl = product?.images && product.images.length > 0 && product.images[0]
+      ? product.images[0]
+      : "https://res.cloudinary.com/dc1cdbirz/image/upload/v1732014003/ita-luxury/zdiptq7s9m9ck13ljnvy.jpg";
+      
+    return { discountPercentage, isNewProduct, imageUrl };
+  }, [product]);
 
   return (
     <Link
@@ -49,11 +53,7 @@ const ProductImage = ({ product }: { product: any }) => {
           <div className="absolute inset-0 bg-gray-100 animate-pulse"></div>
         )}
         
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.3 }}
-          className="h-full w-full"
-        >
+        <div className="h-full w-full transform transition-transform duration-300 hover:scale-105">
           <Image
             layout="fill"
             objectFit="contain"
@@ -71,7 +71,7 @@ const ProductImage = ({ product }: { product: any }) => {
             quality={85}
             unoptimized={imageError}
           />
-        </motion.div>
+        </div>
         
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
       </div>

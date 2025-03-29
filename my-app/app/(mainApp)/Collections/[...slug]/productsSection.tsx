@@ -232,92 +232,109 @@ const ProductsSection: React.FC = () => {
     }
   }, [view]);
 
+  // Enhanced loading indicator with subtle animation
+  const LoadingIndicator = () => (
+    <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+      <div className="w-16 h-16 relative">
+        <div className="absolute inset-0 border-2 border-gray-100 rounded-full"></div>
+        <div className="absolute inset-0 border-t-2 border-primaryColor rounded-full animate-spin"></div>
+        <div className="absolute inset-0 border-t-2 border-primaryColor/30 rounded-full animate-pulse"></div>
+      </div>
+      <p className="mt-6 text-gray-700 font-light tracking-wider uppercase text-sm">Chargement</p>
+    </div>
+  );
 
-
+  // Refined empty state component
+  const EmptyState = () => (
+    <div className="border bg-white shadow-sm rounded-lg p-8 py-10 text-center md:mt-24 w-full max-w-lg mx-auto flex items-center flex-col justify-center">
+      <div className="mb-4 text-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-medium text-gray-800 mb-2">Aucun produit trouvé</h3>
+      <p className="font-light tracking-wider text-gray-600 mb-6">
+        Désolé, mais aucun produit ne correspond à vos critères de recherche.
+      </p>
+      <button
+        type="button"
+        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 hover:bg-gray-100 text-gray-800 rounded-md border border-gray-200 transition-colors"
+        onClick={handleClearFilters}
+      >
+        <FaRegTrashAlt className="text-gray-500" />
+        <span>Réinitialiser les filtres</span>
+      </button>
+    </div>
+  );
 
   const renderProducts = () => (
-    <div className={`grid w-full gap-2 md:gap-4 ${gridClasses}`}>
+    <div className={`grid w-full gap-3 md:gap-6 ${gridClasses}`}>
       {productsData.map((product, index) => (
         <div
           key={product.id}
-          className={`group flex relative w-full overflow-hidden ${productClasses}`}
+          className={`group flex relative w-full overflow-hidden bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-300 ${productClasses}`}
           ref={index === productsData.length - 1 ? lastProductRef : null}
         >
           <ProductBox product={product} />
         </div>
       ))}
-      {isLoading && (
-        <div className="col-span-full flex justify-center py-4">
-          <div className="w-8 h-8 border-4 border-primaryColor border-t-transparent rounded-full animate-spin" />
+      {isLoading && productsData.length > 0 && (
+        <div className="col-span-full py-8 flex justify-center">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 rounded-full bg-gray-200 animate-pulse"></div>
+            <div className="w-4 h-4 rounded-full bg-gray-300 animate-pulse delay-150"></div>
+            <div className="w-4 h-4 rounded-full bg-gray-400 animate-pulse delay-300"></div>
+          </div>
         </div>
       )}
     </div>
   );
 
   return (
-    <div className="flex flex-col justify-between items-center h-full pb-10">
-      {productsData.length > 0 ? (
+    <div className="flex flex-col justify-between items-center h-full pb-10 w-full">
+      {isLoading && productsData.length === 0 ? (
+        <LoadingIndicator />
+      ) : productsData.length > 0 ? (
         <>
           {searchParams?.get("category") && categoryDescription !== "" && (
-            <p className="bg-white hidden md:block tracking-wider text-sm md:text-[15px] leading-7 px-2 md:px-7 text-gray-800 mb-5 py-2">
-              {categoryDescription}
-            </p>
+            <div className="bg-white hidden md:block w-full rounded-md shadow-sm mb-6 border-l-4 border-primaryColor overflow-hidden">
+              <div className="px-6 py-5">
+                <h2 className="text-lg font-medium text-gray-800 mb-2">
+                  {searchParams?.get("category")}
+                </h2>
+                <p className="tracking-wide text-base leading-relaxed text-gray-700 font-normal">
+                  {categoryDescription}
+                </p>
+              </div>
+            </div>
           )}
           <CollectionToolbar numberOfProduct={totalCount} />
-          {renderProducts()}
+          <div className="w-full mt-6">
+            {renderProducts()}
+          </div>
           {error && (
-            <div className="text-red-500 mt-4 text-center">
+            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-md mt-6 text-center max-w-md mx-auto">
               {error}
             </div>
           )}
         </>
-      ) : isLoading ? (
-        <div role="status" className="w-full h-screen absolute bg-gray-200 flex items-center justify-center">
-          <svg
-            aria-hidden="true"
-            className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-[#c7ae91]"
-            viewBox="0 0 100 101"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-              fill="currentColor"
-            />
-            <path
-              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-              fill="currentFill"
-            />
-          </svg>
-        </div>
       ) : (
-        <div className="border bg-white shadow-md p-3 py-5 text-center md:mt-36 h-36 md:h-fit flex items-center flex-col justify-center">
-          <p className="font-light tracking-wider">
-            Désolé, mais de nombreux produits ne sont pas disponibles avec cette
-            option de filtrage.
-          </p>
-          <IoMdArrowDropdown size={20} />
-          <button
-            type="button"
-            className="hover:text-primaryColor gap-2 flex items-center justify-center transition-colors"
-            onClick={handleClearFilters}
-          >
-            <FaRegTrashAlt />
-            <p>Réinitialiser les filtres</p>
-          </button>
-        </div>
+        <EmptyState />
       )}
 
       <button
         type="button"
         className="fixed left-1/2 -translate-x-1/2 bottom-[90px] 
-        bg-red-500 rounded-full w-20 h-11 
-        shadow-lg transition-transform hover:scale-105 md:hidden
-        hover:bg-red-600 z-50"
+        bg-primaryColor text-white rounded-full px-6 py-2.5
+        shadow-lg transition-all hover:shadow-xl md:hidden
+        hover:bg-primaryColor/90 z-50 flex items-center gap-2"
         onClick={toggleOpenSidebar}
         aria-label="Open filters"
       >
-        <span className="text-white font-medium">Filters</span>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        <span className="font-medium">Filtres</span>
       </button>
     </div>
   );

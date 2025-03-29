@@ -149,12 +149,15 @@ const Home = () => {
       <div className="Home py-7 flex min-h-screen flex-col items-center md:px-8 px-3">
         <div className="container mx-auto overflow-hidden ">
           {/* Loading indicator with improved design */}
-          {isLoading && (
-            <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center md:hidden">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryColor"></div>
-              <p className="mt-4 text-gray-600 font-medium">Chargement...</p>
+          {/* {isLoading && (
+            <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+              <div className="w-16 h-16 relative">
+                <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
+                <div className="absolute inset-0 border-t-2 border-primaryColor rounded-full animate-spin"></div>
+              </div>
+              <p className="mt-6 text-gray-700 font-light tracking-wider">CHARGEMENT</p>
             </div>
-          )}
+          )} */}
 
           {/* Hero section with improved spacing and alignment */}
           <section className="TOP-IMG flex justify-center xl:flex-row flex-col-reverse gap-6 items-center mb-10">

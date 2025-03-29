@@ -59,7 +59,7 @@ const TabBarMobile = () => {
 
   return (
     <motion.div 
-      className="fixed md:hidden bottom-0 w-full z-50"
+      className="fixed md:hidden bottom-0 w-full z-[999999]"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}

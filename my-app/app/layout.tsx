@@ -1,6 +1,6 @@
 import AnalyticsIntegration from "@/app/components/AnalyticsIntegration";
 import TabBarMobile from "@/app/components/TabBarMobile";
-import WhatsAndBasketPopUp from "@/app/components/WhatsAndBasketPopUp";
+import FloatingActionButtons from "./components/FloatingActionButtons";
 import { Toaster } from "@/components/ui/toaster";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import keywords from "@/public/keywords";
@@ -89,7 +89,7 @@ export default function RootLayout({
       <body>
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
-        <WhatsAndBasketPopUp />
+        <FloatingActionButtons />
         <TabBarMobile />
         {/* <TawkToScript /> */}
       </body>

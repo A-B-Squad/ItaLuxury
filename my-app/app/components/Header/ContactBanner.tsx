@@ -1,22 +1,32 @@
 import React from "react";
 import { CiDeliveryTruck, CiPhone } from "react-icons/ci";
+import { usePathname } from "next/navigation";
 
 const ContactBanner = ({ CompanyInfoData }: any) => {
   const Phone = CompanyInfoData?.companyInfo?.phone;
+  const pathname = usePathname();
+  
+  // Don't show on checkout page
+  if (pathname === "/Checkout") {
+    return null;
+  }
 
   return (
-    <div className="bg-TopBar md:hidden bg-black w-full flex justify-center  text-xs md:text-base h-10 items-center text-white">
-      <div className="flex justify-center  items-center gap-1">
-        <CiPhone size={22} />
-
-        <p className="tracking-wider">
-          INFOLINE: {Phone && Phone[0]} {Phone && Phone[1] && ` / ${Phone[1]}`}
-        </p>
+    <div className="bg-black w-full flex justify-center text-xs md:text-sm h-10 items-center text-white shadow-sm">
+      <div className="container mx-auto px-4 flex justify-center md:justify-between items-center">
+        <div className="flex justify-center items-center gap-2">
+          <CiPhone size={18} className="text-blue-500" />
+          <p className="tracking-wider font-light">
+            INFOLINE: <span className="font-medium">{Phone && Phone[0]}</span>
+            {Phone && Phone[1] && <span> / <span className="font-medium">{Phone[1]}</span></span>}
+          </p>
+        </div>
+        
+        <div className="hidden md:flex items-center gap-2">
+          <CiDeliveryTruck size={20} className="text-blue-500" />
+          <p className="uppercase font-light tracking-wide">Livraison à domicile</p>
+        </div>
       </div>
-      {/* <div className="flex items-center gap-2">
-        <CiDeliveryTruck size={25} />
-        <p className="uppercase">livraison à domicile</p>
-      </div> */}
     </div>
   );
 };
