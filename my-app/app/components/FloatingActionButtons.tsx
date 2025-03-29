@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useCallback, memo } from "react";
+import React, { useCallback, memo, useEffect, useState } from "react";
 import { SlBasket } from "react-icons/sl";
 import { useProductsInBasketStore } from "../store/zustand";
 import { usePathname } from "next/navigation";
@@ -8,12 +8,23 @@ import { GoHome } from "react-icons/go";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
 import { FaWhatsapp } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, Variants } from "framer-motion";
 
-const WhatsAndBasketPopUp = () => {
+const FloatingActionButtons = () => {
   const { quantityInBasket } = useProductsInBasketStore();
   const pathname = usePathname();
   const { decodedToken, isAuthenticated } = useAuth();
+  const prefersReducedMotion = useReducedMotion();
+  const [isVisible, setIsVisible] = useState(false);
+  
+  // Delay rendering to improve initial page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 600);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleBasketClick = useCallback(() => {
     sendGTMEvent({
@@ -32,6 +43,7 @@ const WhatsAndBasketPopUp = () => {
     });
   }, [isAuthenticated, decodedToken, quantityInBasket]);
 
+  // Other handlers remain the same
   const handleHomeClick = useCallback(() => {
     sendGTMEvent({
       event: "home_view",
@@ -54,28 +66,37 @@ const WhatsAndBasketPopUp = () => {
     });
   }, [isAuthenticated, decodedToken]);
 
-  const buttonVariants = {
-    hover: { scale: 1.05, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" },
-    tap: { scale: 0.95 }
-  };
+  // Fixed type definition for variants
+  const buttonVariants: Variants = prefersReducedMotion 
+    ? {} 
+    : {
+        hover: { scale: 1.05 },
+        tap: { scale: 0.95 }
+      };
 
-  const countVariants = {
-    initial: { scale: 0.8, opacity: 0 },
-    animate: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 500, damping: 30 } }
-  };
+  const countVariants: Variants = prefersReducedMotion
+    ? {}
+    : {
+        initial: { scale: 0.8, opacity: 0 },
+        animate: { 
+          scale: 1, 
+          opacity: 1, 
+          transition: { type: "spring", stiffness: 400, damping: 25 } 
+        }
+      };
+
+  if (!isVisible) return null;
 
   return (
-    <motion.div 
-      className="flex flex-col fixed bottom-20 lg:bottom-8 z-[1000] gap-3 right-5 md:right-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.5 }}
-    >
+    <div className="flex flex-col fixed bottom-20 lg:bottom-8 z-[1000] gap-3 right-5 md:right-6">
       {pathname === "/Basket" ? (
         <motion.div
           whileHover="hover"
           whileTap="tap"
           variants={buttonVariants}
+          initial={prefersReducedMotion ? {} : { opacity: 0.8 }}
+          animate={prefersReducedMotion ? {} : { opacity: 1 }}
+          transition={{ duration: 0.2 }}
         >
           <Link
             href="/"
@@ -91,6 +112,9 @@ const WhatsAndBasketPopUp = () => {
           whileHover="hover"
           whileTap="tap"
           variants={buttonVariants}
+          initial={prefersReducedMotion ? {} : { opacity: 0.8 }}
+          animate={prefersReducedMotion ? {} : { opacity: 1 }}
+          transition={{ duration: 0.2 }}
         >
           <Link
             href="/Basket"
@@ -106,6 +130,7 @@ const WhatsAndBasketPopUp = () => {
                 initial="initial"
                 animate="animate"
                 key={quantityInBasket}
+                layoutId="basketCount"
               >
                 {quantityInBasket}
               </motion.span>
@@ -118,6 +143,9 @@ const WhatsAndBasketPopUp = () => {
         whileHover="hover"
         whileTap="tap"
         variants={buttonVariants}
+        initial={prefersReducedMotion ? {} : { opacity: 0.8 }}
+        animate={prefersReducedMotion ? {} : { opacity: 1 }}
+        transition={{ duration: 0.2 }}
       >
         <Link
           href="https://wa.me/21623212892"
@@ -131,8 +159,8 @@ const WhatsAndBasketPopUp = () => {
           <span className="sr-only">Contact us on WhatsApp</span>
         </Link>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
-export default memo(WhatsAndBasketPopUp);
+export default memo(FloatingActionButtons);

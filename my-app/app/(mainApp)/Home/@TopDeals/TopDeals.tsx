@@ -1,14 +1,24 @@
 "use client";
 import { BASKET_QUERY, FETCH_USER_BY_ID, TOP_DEALS } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useEffect, useState } from "react";
 import ProductDetails from "./ProductDetails";
 import { useAuth } from "@/lib/auth/useAuth";
-import { motion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const TopDeals = () => {
   const { decodedToken, isAuthenticated } = useAuth();
+  const prefersReducedMotion = useReducedMotion();
+  const [isContentVisible, setIsContentVisible] = useState(false);
+
+  // Show content after initial data load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsContentVisible(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const { data: basketData, loading: basketLoading } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
@@ -77,13 +87,15 @@ const TopDeals = () => {
     ));
   }, [topDeals, basketData, userData, isLoading, renderSkeletons, checkIsFavorite]);
 
+  // CSS classes for animation without Framer Motion
+  const containerClasses = useMemo(() => {
+    const baseClasses = "container mx-auto my-8";
+    if (prefersReducedMotion || !isContentVisible) return baseClasses;
+    return `${baseClasses} animate-fadeIn`;
+  }, [prefersReducedMotion, isContentVisible]);
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto my-8"
-    >
+    <div className={containerClasses}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-800">Offres Spéciales</h2>
         <a href="/Collections/tunisie?choice=in-discount" className="text-primaryColor hover:underline text-sm font-medium">
@@ -94,7 +106,7 @@ const TopDeals = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white rounded-lg shadow-sm overflow-hidden">
         {renderProducts}
       </div>
-    </motion.div>
+    </div>
   );
 };
 

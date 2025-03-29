@@ -21,4 +21,6 @@ export const decodeToken = (token: string): DecodedToken | null => {
 
 export const removeToken = () => {
     Cookies.remove('Token', { domain: '.ita-luxury.com', path: '/' });
+    Cookies.remove('Token', { path: '/' });
+    
 };

@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { useRouter } from 'next/navigation';
 import { FaPlus, FaRegHeart } from "react-icons/fa";
 import { GoGitCompare } from "react-icons/go";
@@ -35,8 +35,12 @@ const ActionButton = memo(({
     addToCompare
 }: ActionButtonProps) => {
     const router = useRouter();
-    const isOutOfStock = productDetails?.inventory <= 0;
-    const isMaxQuantity = quantity === productDetails?.inventory;
+    
+    // Use useMemo for derived state to prevent recalculations on each render
+    const { isOutOfStock, isMaxQuantity } = useMemo(() => ({
+        isOutOfStock: productDetails?.inventory <= 0,
+        isMaxQuantity: quantity === productDetails?.inventory
+    }), [productDetails?.inventory, quantity]);
 
     const handleBuyNow = useCallback(() => {
         if (!isOutOfStock) {
@@ -44,6 +48,41 @@ const ActionButton = memo(({
             router.push('/Basket');
         }
     }, [AddToBasket, productDetails, router, isOutOfStock]);
+
+    // Memoize button classes to avoid string concatenation on each render
+    const buyNowButtonClass = useMemo(() => `w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${
+        isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primaryColor hover:bg-opacity-90 active:transform active:scale-[0.99]"
+    }`, [isOutOfStock]);
+
+    const addToCartButtonClass = useMemo(() => `w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${
+        isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 active:transform active:scale-[0.99]"
+    }`, [isOutOfStock]);
+
+    const compareButtonClass = useMemo(() => `bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-3 rounded-md flex items-center justify-center gap-2 transition-colors ${
+        isProductInCompare ? "cursor-not-allowed" : "cursor-pointer"
+    }`, [isProductInCompare]);
+
+    const decreaseButtonClass = useMemo(() => `bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700 w-10 h-10 flex items-center justify-center text-sm font-semibold ${
+        quantity === 1 || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+    }`, [quantity, isOutOfStock]);
+
+    const increaseButtonClass = useMemo(() => `w-10 h-10 flex items-center justify-center transition-colors bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold ${
+        isMaxQuantity || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+    }`, [isMaxQuantity, isOutOfStock]);
+
+    // Memoize the add to cart handler
+    const handleAddToCart = useCallback(() => {
+        if (!isOutOfStock) {
+            AddToBasket(productDetails);
+        }
+    }, [AddToBasket, productDetails, isOutOfStock]);
+
+    // Memoize the compare handler
+    const handleCompare = useCallback(() => {
+        if (!isProductInCompare) {
+            addToCompare(productDetails);
+        }
+    }, [addToCompare, productDetails, isProductInCompare]);
 
     return (
         <div className="ActionButton p-5 bg-white hidden lg:flex lg:flex-col w-full shadow-lg rounded-lg col-span-3 sticky top-4 gap-4">
@@ -64,7 +103,7 @@ const ActionButton = memo(({
                 <div className="flex items-center overflow-hidden rounded-md border border-gray-300">
                     <button
                         type="button"
-                        className={`bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700 w-10 h-10 flex items-center justify-center text-sm font-semibold ${quantity === 1 || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={decreaseButtonClass}
                         disabled={quantity === 1 || isOutOfStock}
                         onClick={handleDecreaseQuantity}
                         aria-label="Diminuer la quantité"
@@ -78,7 +117,7 @@ const ActionButton = memo(({
                     </div>
                     <button
                         type="button"
-                        className={`w-10 h-10 flex items-center justify-center transition-colors bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold ${isMaxQuantity || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={increaseButtonClass}
                         disabled={isMaxQuantity || isOutOfStock}
                         onClick={handleIncreaseQuantity}
                         aria-label="Augmenter la quantité"
@@ -93,10 +132,7 @@ const ActionButton = memo(({
                     type="button"
                     onClick={handleBuyNow}
                     disabled={isOutOfStock}
-                    className={`w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${isOutOfStock
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-primaryColor hover:bg-opacity-90 active:transform active:scale-[0.99]"
-                        }`}
+                    className={buyNowButtonClass}
                 >
                     <MdAddShoppingCart size={20} />
                     Acheter maintenant
@@ -104,12 +140,9 @@ const ActionButton = memo(({
 
                 <button
                     type="button"
-                    onClick={() => !isOutOfStock && AddToBasket(productDetails)}
+                    onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    className={`w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${isOutOfStock
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-red-600 hover:bg-red-700 active:transform active:scale-[0.99]"
-                        }`}
+                    className={addToCartButtonClass}
                 >
                     <MdAddShoppingCart size={20} />
                     Ajouter au panier
@@ -127,10 +160,9 @@ const ActionButton = memo(({
 
                     <button
                         type="button"
-                        onClick={() => !isProductInCompare && addToCompare(productDetails)}
+                        onClick={handleCompare}
                         disabled={isProductInCompare}
-                        className={`bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-3 rounded-md flex items-center justify-center gap-2 transition-colors ${isProductInCompare ? "cursor-not-allowed" : "cursor-pointer"
-                            }`}
+                        className={compareButtonClass}
                     >
                         {isProductInCompare ? (
                             <IoCheckmarkDoneOutline className="text-green-600" size={18} />
@@ -153,5 +185,6 @@ const ActionButton = memo(({
     );
 });
 
+ActionButton.displayName = 'ActionButton';
 
 export default ActionButton;

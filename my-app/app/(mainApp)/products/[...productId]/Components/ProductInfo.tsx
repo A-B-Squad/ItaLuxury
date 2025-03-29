@@ -1,6 +1,6 @@
 import HoverButton from '@/app/components/HoverButton';
 import { useToast } from "@/components/ui/use-toast";
-import { memo, useEffect, useMemo, useState } from "react"; // Added useState and useEffect
+import { memo, useEffect, useMemo, useState } from "react"; 
 import { FaPlus, FaRegHeart, FaShareAlt } from "react-icons/fa";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
 import { HiOutlineBellAlert } from "react-icons/hi2";

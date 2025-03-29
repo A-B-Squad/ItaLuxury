@@ -354,30 +354,6 @@ async function tryToSendCheckoutEmail(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const createCheckout = async (
   _: any,
   { input }: { input: CreateCheckoutInput },

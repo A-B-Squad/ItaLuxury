@@ -19,7 +19,6 @@ import {
   useBasketStore,
   useProductComparisonStore,
   useProductsInBasketStore,
-  usePruchaseOptions,
 } from "../../../store/zustand";
 
 import Loading from "./loading";

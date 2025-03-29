@@ -2,23 +2,19 @@ import QuickActionButton from "@/app/components/ProductBox/components/QuickActio
 import FavoriteProductButton from "@/app/components/ProductBox/FavoriteProductButton";
 import { useProductComparisonStore } from "@/app/store/zustand";
 import { useAuth } from "@/lib/auth/useAuth";
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import { FaRegEye } from "react-icons/fa";
-import { FaBasketShopping } from "react-icons/fa6";
 import { IoGitCompare } from "react-icons/io5";
-import { motion } from "framer-motion";
 
 interface ProductProps {
     product: any;
-    onAddToBasket: (product: any, quantity: number) => void;
     isFavorite: boolean;
     openProductDetails: (product: any) => void;
     toast: any
 }
 
-const ProductActions = ({
+const ProductActions = memo(({
     product,
-    onAddToBasket,
     toast,
     isFavorite,
     openProductDetails
@@ -46,48 +42,27 @@ const ProductActions = ({
         }
     }, [product, comparisonList, addToComparison, toast]);
 
-    // Animation variants for staggered animation
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, scale: 0.8 },
-        visible: { opacity: 1, scale: 1 }
-    };
-
     return (
-        <motion.div 
-            className="flex items-center space-x-2"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-        >
-            <motion.div variants={itemVariants}>
+        <div className="flex items-center space-x-2 opacity-100 transform-none">
+            <div className="transition-transform duration-200 hover:scale-105">
                 <QuickActionButton
                     icon={<FaRegEye className="text-sm" />}
                     onClick={() => openProductDetails(product)}
                     title="Aperçu rapide"
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700"
                 />
-            </motion.div>
+            </div>
             
-            <motion.div variants={itemVariants}>
+            <div className="transition-transform duration-200 hover:scale-105">
                 <QuickActionButton
                     icon={<IoGitCompare className="text-sm" />}
                     onClick={onAddToCompare}
                     title="Ajouter au comparatif"
                     className="bg-blue-50 hover:bg-blue-100 text-blue-700"
                 />
-            </motion.div>
+            </div>
             
-            <motion.div variants={itemVariants}>
+            <div className="transition-transform duration-200 hover:scale-105">
                 <FavoriteProductButton
                     isFavorite={isFavorite}
                     productId={product?.id}
@@ -95,9 +70,11 @@ const ProductActions = ({
                     productName={product?.name}
                     className="h-9 w-9 flex items-center justify-center rounded-full"
                 />
-            </motion.div>
-        </motion.div>
+            </div>
+        </div>
     );
-};
+});
+
+ProductActions.displayName = 'ProductActions';
 
 export default ProductActions;

@@ -15,7 +15,6 @@ import ProductActions from "./ProductActions";
 import ProductImage from "./ProductImage";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
-import { motion } from "framer-motion";
 
 interface ProductProps {
     key: any;
@@ -215,20 +214,13 @@ const ProductDetails: React.FC<ProductProps> = ({
 
     // Calculate discount percentage
     const discountData = product?.productDiscounts?.[0];
-    const discountPercentage = discountData
-        ? Math.round(((discountData.price - discountData.newPrice) / discountData.price) * 100)
-        : 0;
+
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+        <div 
             key={product?.id}
-            className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100"
+            className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 opacity-100 transform-none"
         >
-
-
             <div className="relative aspect-square w-full overflow-hidden">
                 <ProductImage product={product} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -264,7 +256,7 @@ const ProductDetails: React.FC<ProductProps> = ({
 
                             {/* Limited time offer indicator */}
                             {discountData && (
-                                <span className="ml-3 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full animate-pulse">
+                                <span className="ml-3 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">
                                     Offre limitée
                                 </span>
                             )}
@@ -346,7 +338,6 @@ const ProductDetails: React.FC<ProductProps> = ({
                             toast={toast}
                             isFavorite={isFavorite}
                             openProductDetails={openProductDetails}
-                            onAddToBasket={AddToBasket}
                         />
                     </div>
                 </div>
@@ -398,7 +389,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                     </div>
                 )}
             </div>
-        </motion.div>
+        </div>
     );
 };
 

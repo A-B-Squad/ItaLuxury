@@ -148,12 +148,16 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
 
         <motion.button
           type="button"
-          className="p-2 xl:flex hidden items-center gap-2 rounded-md hover:bg-gray-100 transition-colors"
+          className="px-4 py-2.5 xl:flex hidden items-center gap-2.5 rounded-md hover:bg-gray-50 transition-all duration-300 border border-transparent hover:border-gray-200 group"
           onMouseEnter={() => setShowDropdown(true)}
-          whileHover={{ backgroundColor: "rgba(0,0,0,0.05)" }}
+          whileHover={{ backgroundColor: "rgba(0,0,0,0.03)" }}
         >
-          <HiMiniBars3CenterLeft className="text-2xl" />
-          <span className="font-medium tracking-wide">
+          <div className="relative w-5 h-5 flex flex-col justify-center gap-[5px]">
+            <span className="w-5 h-[1.5px] bg-gray-700 group-hover:bg-primaryColor transition-all"></span>
+            <span className="w-3.5 h-[1.5px] bg-gray-700 group-hover:bg-primaryColor transition-all"></span>
+            <span className="w-4 h-[1.5px] bg-gray-700 group-hover:bg-primaryColor transition-all"></span>
+          </div>
+          <span className="font-medium tracking-wide text-sm group-hover:text-primaryColor transition-colors">
             Nos Catégories
           </span>
         </motion.button>

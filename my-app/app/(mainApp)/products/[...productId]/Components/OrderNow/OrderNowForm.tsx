@@ -403,10 +403,12 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                     className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
                                     {...register("phone_1", {
                                         required: "Ce champ est requis",
-                                        pattern: {
-                                            value: /^[0-9]{8}$/,
-                                            message: "Le numéro de téléphone doit comporter 8 chiffres",
-                                        },
+                                        validate: (value) => {
+                                            // Remove spaces for validation
+                                            const cleaned = value.replace(/\s+/g, '');
+                                            return cleaned.length === 8 && /^\d+$/.test(cleaned) || 
+                                                "Le numéro de téléphone doit comporter 8 chiffres";
+                                        }
                                     })}
                                     placeholder="Numéro de téléphone"
                                 />
@@ -433,10 +435,13 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                     id="phone_2"
                                     className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
                                     {...register("phone_2", {
-                                        pattern: {
-                                            value: /^[0-9]{8}$/,
-                                            message: "Le numéro de téléphone doit comporter 8 chiffres",
-                                        },
+                                        validate: (value) => {
+                                            if (!value) return true; // Optional field
+                                            // Remove spaces for validation
+                                            const cleaned = value.replace(/\s+/g, '');
+                                            return cleaned.length === 8 && /^\d+$/.test(cleaned) || 
+                                                "Le numéro de téléphone doit comporter 8 chiffres";
+                                        }
                                     })}
                                     placeholder="Numéro de téléphone secondaire"
                                 />
