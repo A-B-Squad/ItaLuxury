@@ -117,7 +117,7 @@ export const updateProduct = async (
           disconnect: (await prisma.product.findUnique({
             where: { id: productId },
             select: { categories: { select: { id: true } } },
-          }))?.categories.map(cat => ({ id: cat.id })) || [],
+          }))?.categories.map((cat:any) => ({ id: cat.id })) || [],
         },
       },
     });

@@ -415,7 +415,7 @@ export const createCheckout = async (
         throw new Error("User's basket is empty");
       }
 
-      productsInCheckout = userBasket.map((basket) => ({
+      productsInCheckout = userBasket.map((basket:any) => ({
         productId: basket.productId,
         productQuantity: basket.quantity,
         price: basket.Product?.price ?? 0,
@@ -425,7 +425,7 @@ export const createCheckout = async (
     }
 
     // Create checkout in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx:any) => {
 
       const newCheckout = await tx.checkout.create({
         data: {
