@@ -241,9 +241,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
-    console.error("BASE_URL_DOMAIN is not defined");
-    // Provide a fallback instead of throwing
-    process.env.NEXT_PUBLIC_BASE_URL_DOMAIN = "https://www.ita-luxury.com";
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
   }
   try {
     const companyInfo = await fetchCompanyInfo();

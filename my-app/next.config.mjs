@@ -1,13 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+
+  env: {
+    BASE_URL_DOMAIN: process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
+  },
+
   reactStrictMode: true,
   poweredByHeader: false,
-
+  output: 'standalone',
+  swcMinify: true,
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:4001/api/:path*',
+        destination: process.env.NODE_ENV === 'development'
+          ? 'http://localhost:4001/api/:path*'
+          : 'http://admin:3001/api/:path*',
       },
     ];
   },
@@ -15,7 +23,7 @@ const nextConfig = {
   async headers() {
     const developmentHosts = 'http://localhost:4000 http://localhost:4001';
     const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
-    
+
     return [
       {
         source: '/robots.txt',
@@ -184,6 +192,19 @@ const nextConfig = {
         hostname: "localhost",
         port: "4001",
         pathname: "**",
+      },
+      // Add Docker service hostnames
+      {
+        protocol: "http",
+        hostname: "client-prod",
+        port: "3000",
+        pathname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "admin",
+        port: "3001",
+        pathname: "**",
       }
     ],
     minimumCacheTTL: 60,
@@ -197,7 +218,7 @@ const nextConfig = {
       test: /firebase-messaging-sw\.js$/,
       use: 'file-loader',
     });
-    
+
     if (!dev && !isServer) {
       config.optimization.minimize = true;
     }

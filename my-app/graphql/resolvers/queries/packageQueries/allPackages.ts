@@ -36,7 +36,7 @@ export const getAllPackages = async (_: any, __: any, { prisma }: Context) => {
     });
 
     // Step 2: Identify packages to update based on the grace period
-    const packagesToUpdate = allPackages.filter((pkg) => {
+    const packagesToUpdate = allPackages.filter((pkg:any) => {
       const expirationTime = new Date(pkg.createdAt).getTime() + gracePeriodSeconds * 1000;
       return currentTime > expirationTime;
     });
@@ -44,7 +44,7 @@ export const getAllPackages = async (_: any, __: any, { prisma }: Context) => {
     // Step 3: Batch update statuses within a transaction
     if (packagesToUpdate.length > 0) {
       await prisma.$transaction(
-        packagesToUpdate.map((pkg) =>
+        packagesToUpdate.map((pkg:any) =>
           prisma.package.update({
             where: { customId: pkg.customId },
             data: { status: "PAYMENT_REFUSED" },

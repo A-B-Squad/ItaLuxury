@@ -2,21 +2,27 @@ version: "3.8" # Docker Compose file format version
 
 services:
   db: # PostgreSQL database service
-    image: postgres:18 # Docker image for PostgreSQL version 16
+    image: postgres:17 # Docker image for PostgreSQL version 16
     ports:
       - "5432:5432" # Port mapping for accessing PostgreSQL externally
     volumes:
-      - ./data/db:/var/lib/postgresql/data # Mounting volume for persisting database data
+      - postgres_data:/var/lib/postgresql/data # Using named volume instead of bind mount
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     env_file:
       - .env
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   client-dev:
     depends_on:
       - db
-    environment: # Environment variables for the PostgreSQL container
-      - POSTGRES_DB=postgres # Default database name
-      - POSTGRES_USER=${DB_USER} # Username for accessing the database (variable)
-      - POSTGRES_PASSWORD=${DB_PASSWORD} # Password for accessing the database (variable)
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -43,37 +49,23 @@ services:
           action: sync
     env_file:
       - .env
-  
+    volumes:
+      - ./:/app
+      - /app/node_modules
+
   client-prod:
     depends_on:
-      - db
-    environment: # Environment variables for the PostgreSQL container
-      - POSTGRES_DB=postgres # Default database name
-      - POSTGRES_USER=${DB_USER} # Username for accessing the database (variable)
-      - POSTGRES_PASSWORD=${DB_PASSWORD} # Password for accessing the database (variable)
+      db:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile.prod
     ports:
-      - "8080:8080"
-    develop:
-      watch:
-        - path: ./package.json
-          action: rebuild
-        - path: ./next.config.mjs
-          action: rebuild
-        - path: ./package-lock.json
-          action: rebuild
-        - path: ./.env
-          action: rebuild
-        - path: .
-          target: /graphql
-          action: sync
-        - path: .
-          target: /app
-          action: sync
-        - path: .
-          target: /componants
-          action: sync
+      - "3000:3000" # Changed to match the EXPOSE in your Dockerfile
     env_file:
       - .env
+    restart: always
+
+volumes:
+  postgres_data: 
+    driver: local

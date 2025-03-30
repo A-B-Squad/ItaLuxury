@@ -378,7 +378,7 @@ export const createCheckoutFromAdmin = async (
       discountedPrice: product.Product?.productDiscounts?.[0]?.newPrice ?? 0,
     }));
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx:any) => {
       // Create a new checkout record
       const newCheckout = await tx.checkout.create({
         data: {

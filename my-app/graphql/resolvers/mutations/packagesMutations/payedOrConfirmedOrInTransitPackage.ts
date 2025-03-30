@@ -39,7 +39,7 @@ export const payedOrConfirmedOrInTransitPackage = async (
       updateData.isConfirmedAt = new Date();
 
       // Update product inventory and sales in a transaction
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx:any) => {
         const checkoutProducts = await tx.productInCheckout.findMany({
           where: { checkoutId: existingPackage.Checkout!.id },
         });
