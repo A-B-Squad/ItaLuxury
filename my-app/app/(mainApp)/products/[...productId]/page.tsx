@@ -265,9 +265,37 @@ const ProductDetailsPage = async ({
     process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/\/$/, "") || "";
 
 
-  const formattedPrice = typeof productData.price === 'number'
-    ? productData.price.toFixed(2)
-    : parseFloat(productData.price).toFixed(2);
+  // Format prices consistently with 3 decimal places (Tunisian format)
+  const formatPriceForDisplay = (price: number | string): string => {
+    const numericPrice = typeof price === 'number' ? price : parseFloat(price);
+    return numericPrice.toFixed(3);
+  };
+
+  // Safely format date to ISO string
+  const safeFormatDate = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      // Check if date is valid before converting to ISO string
+      if (isNaN(date.getTime())) {
+        return new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
+      }
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      // Return a default date one year from now
+      return new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
+    }
+  };
+
+  const originalPrice = formatPriceForDisplay(productData.price);
+  const discountedPrice = productData.productDiscounts?.length > 0
+    ? formatPriceForDisplay(productData.productDiscounts[0].newPrice)
+    : null;
+  
+  // Get discount end date safely
+  const discountEndDate = productData.productDiscounts?.length > 0
+    ? safeFormatDate(productData.productDiscounts[0].dateOfEnd)
+    : safeFormatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toString());
 
   const breadcrumbList = {
     "@context": "https://schema.org",
@@ -298,6 +326,7 @@ const ProductDetailsPage = async ({
     ],
   };
 
+  // Add more detailed product schema with enhanced properties
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -308,6 +337,8 @@ const ProductDetailsPage = async ({
       : [],
     sku: productData.reference,
     mpn: productData.reference,
+    identifier_exists: productData.reference ? "yes" : "no",
+    gtin: productData.reference,
     brand: {
       "@type": "Brand",
       name: productData.Brand?.name || "Unbranded",
@@ -317,8 +348,9 @@ const ProductDetailsPage = async ({
     offers: {
       "@type": "Offer",
       priceCurrency: "TND",
-      price: formattedPrice,
-      priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+      price: discountedPrice || originalPrice,
+      itemCondition: "https://schema.org/NewCondition",
+      priceValidUntil: discountEndDate,
       availability:
         (productData.inventory || 0) > 0
           ? "https://schema.org/InStock"
@@ -326,8 +358,44 @@ const ProductDetailsPage = async ({
       url: `${baseUrl}/products/tunisie?productId=${productData.id}`,
       seller: {
         "@type": "Organization",
-        name: "ita-luxury"
-      }
+        name: "ita-luxury",
+        url: baseUrl
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          currency: "TND",
+          value: "8.000"
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "TN"
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY"
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 3,
+            unitCode: "DAY"
+          }
+        }
+      },
+      ...(discountedPrice && {
+        priceSpecification: {
+          "@type": "PriceSpecification",
+          price: originalPrice,
+          priceCurrency: "TND",
+          valueAddedTaxIncluded: true
+        }
+      })
     },
     ...(rating && {
       aggregateRating: {

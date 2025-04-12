@@ -76,7 +76,7 @@ const ProductComparison = () => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         contents: [{
           id: product.id,
           quantity: product.actualQuantity || product.quantity || 1,
@@ -110,7 +110,7 @@ const ProductComparison = () => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         contents: [{
           id: product.id,
           quantity: product.actualQuantity || product.quantity || 1,
@@ -154,7 +154,8 @@ const ProductComparison = () => {
       if (!isProductAlreadyInBasket) {
         addProductToBasket({
           ...product,
-          price: price,
+          price: product.price,
+          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
           actualQuantity: 1,
         });
 

@@ -42,7 +42,8 @@ const ProductDetails: React.FC<ProductProps> = ({
         addProductToBasket,
         increaseProductInQtBasket,
     } = useProductsInBasketStore();
-
+  // Calculate discount percentage
+  const discountData = product?.productDiscounts?.[0];
     const productInBasket = useMemo(() => {
         if (isAuthenticated && basketData?.basketByUserId) {
             return basketData.basketByUserId.find(
@@ -74,7 +75,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             custom_data: {
                 content_name: product.name,
                 content_type: "product",
-                content_ids: [product.id],
+                content_ids: [product.reference],
                 value: price * quantity,
                 currency: "TND",
                 contents: [{
@@ -100,8 +101,8 @@ const ProductDetails: React.FC<ProductProps> = ({
             user_data: addToCartData.user_data,
             facebook_data: {
                 content_name: product.name,
-                content_type: "product",
-                content_ids: [product.id],
+                content_type: "product",    
+                content_ids: [product.reference],
                 value: price * quantity,
                 currency: "TND"
             }
@@ -179,7 +180,8 @@ const ProductDetails: React.FC<ProductProps> = ({
             } else {
                 addProductToBasket({
                     ...product,
-                    price,
+                    price: product.price,
+                    discountedPrice: discountData ? product.productDiscounts : null,
                     actualQuantity: quantity,
                 });
             }
@@ -212,8 +214,7 @@ const ProductDetails: React.FC<ProductProps> = ({
         [product]
     );
 
-    // Calculate discount percentage
-    const discountData = product?.productDiscounts?.[0];
+  
 
 
     return (

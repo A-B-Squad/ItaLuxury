@@ -64,10 +64,7 @@ import { useAuth } from "@/lib/auth/useAuth";
 const ProductDetails = ({ productDetails, productId }: any) => {
   const { toast } = useToast();
 
-  const mainImage = useMemo(
-    () => productDetails?.images[0] || "",
-    [productDetails]
-  );
+
 
   const [smallImages, setSmallImages] = useState<any>(null);
   const { decodedToken, isAuthenticated } = useAuth();
@@ -134,17 +131,15 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       productDiscounts,
       categories,
       Brand,
-      inventory,
-      description,
       Colors,
-      attributes,
+      reference
     } = productDetails;
 
-    const discount = productDiscounts?.[0];
+    const finalPrice = productDiscounts.length > 0
+      ? productDiscounts[0].newPrice
+      : price;
     const brandName = Brand?.name || "Unknown Brand";
     const colorName = Colors?.color || "No Color";
-    const finalPrice = discount?.newPrice ?? price;
-    const reference = productDetails.reference;
 
     // Use primary category (first one) for Facebook Pixel
     const primaryCategory = categories?.[0]?.name || '';
@@ -192,7 +187,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     });
 
 
-    triggerEvents("PageView", {
+    // Replace PageView with ViewContent for Facebook Pixel
+    triggerEvents("ViewContent", {
       user_data: {
         em: [userData?.fetchUsersById?.email.toLowerCase()],
         fn: [userData?.fetchUsersById?.fullName],
@@ -203,8 +199,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       },
       custom_data: {
         content_name: name,
-        content_type: "product details",
-        content_ids: [id],
+        content_type: "product",
+        content_ids: [reference],
         value: finalPrice,
         currency: "TND",
         content_category: primaryCategory,
@@ -212,7 +208,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
           {
             id: id,
             quantity: 1,
-            item_price: parseFloat(price.toFixed(3))
+            item_price: finalPrice
           }
         ],
       },
@@ -256,15 +252,13 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         currency: "TND",
         contents: [
           {
             id: product.id,
             quantity: product.actualQuantity || product.quantity,
-            item_price: product.productDiscounts?.length
-              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
-              : parseFloat(product.price.toFixed(3))
+            item_price: price
           }
         ],
         value: price * (product.actualQuantity || product.quantity),
@@ -285,9 +279,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             item_category2: product.categories[1]?.name,
             item_category3: product.categories[2]?.name,
             item_variant: product?.Colors?.color,
-            item_price: product.productDiscounts?.length
-              ? product.productDiscounts[0].newPrice.toFixed(3)
-              : product.price.toFixed(3),
+            item_price: price,
             item_description: product.description,
             item_Att: attributes?.map(
               (attr: { name: string; value: string; }) => attr.name + " " + attr.value
@@ -295,9 +287,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             quantity: product.actualQuantity || product.quantity
           }
         ],
-        value: product.productDiscounts?.length
-          ? product.productDiscounts[0].newPrice * (product.actualQuantity || product.quantity)
-          : product.price * (product.actualQuantity || product.quantity)
+        value: price * (product.actualQuantity || product.quantity),
       },
       user_data: {
         em: [userData?.fetchUsersById.email.toLowerCase()],
@@ -310,24 +300,20 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         contents: [
           {
             id: product.id,
             quantity: product.actualQuantity || product.quantity,
-            item_price: product.productDiscounts?.length
-              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
-              : parseFloat(product.price.toFixed(3))
+            item_price: price
           }
         ],
-        value: product.productDiscounts?.length
-          ? product.productDiscounts[0].newPrice * (product.actualQuantity || product.quantity)
-          : product.price * (product.actualQuantity || product.quantity),
+        value: price,
         currency: "TND",
         content_category: primaryCategory,
       }
     };
-    
+
     // Track Add to Cart
     triggerEvents("AddToCart", addToCartData);
     sendGTMEvent(cartEventDataGTM);
@@ -405,7 +391,8 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       } else {
         addProductToBasket({
           ...product,
-          price,
+          price: product.price,
+          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
           actualQuantity: quantity,
         });
       }
@@ -526,10 +513,10 @@ const ProductDetails = ({ productDetails, productId }: any) => {
                   />
                   <span
                     className={`absolute top-2 right-2 p-2 rounded-md ${productDetails?.inventory > 1
-                        ? "bg-green-600"
-                        : productDetails?.inventory === 1
-                          ? "bg-amber-500"
-                          : "bg-red-500"
+                      ? "bg-green-600"
+                      : productDetails?.inventory === 1
+                        ? "bg-amber-500"
+                        : "bg-red-500"
                       } text-xs font-medium text-white`}
                   >
                     {productDetails?.inventory > 1

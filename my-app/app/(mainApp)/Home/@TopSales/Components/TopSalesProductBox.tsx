@@ -71,7 +71,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         contents: [{
           id: product.id,
           quantity: 1,
@@ -138,7 +138,8 @@ const TopSalesProductBox = memo(({ product }: any) => {
       } else {
         addProductToBasket({
           ...product,
-          price,
+          price: product.price,
+          discountedPrice: isDiscounted ? product.productDiscounts : null,
           actualQuantity: 1,
         });
       }
