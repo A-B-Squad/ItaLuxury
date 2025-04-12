@@ -228,7 +228,7 @@ const Checkout: React.FC = () => {
     const itemsWithPrices = checkoutProducts.map(product => ({
       item_name: product.name,
       item_category: product.categories?.[0]?.name || '',
-      id: product.id,
+      id: product.reference,
       quantity: product.actualQuantity || product.quantity,
       price: product.productDiscounts?.length > 0
         ? Number(product.productDiscounts[0].newPrice)

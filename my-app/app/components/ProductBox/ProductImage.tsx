@@ -92,6 +92,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
               src={primaryImageUrl}
               alt={product.name}
               layout="fill"
+              
               objectFit="contain"
               quality={80}
               priority={true}

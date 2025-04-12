@@ -103,7 +103,7 @@ const ProductQuickView = () => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         value: price * quantity,
         currency: "TND",
       },
@@ -132,7 +132,7 @@ const ProductQuickView = () => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         value: price * quantity,
         currency: "TND"
       }
@@ -211,7 +211,8 @@ const ProductQuickView = () => {
       } else {
         addProductToBasket({
           ...product,
-          price,
+          price: product.price,
+          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
           actualQuantity: quantity,
         });
       }

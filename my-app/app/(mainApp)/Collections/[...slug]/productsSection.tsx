@@ -35,7 +35,7 @@ const ProductsSection: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { view } = useAllProductViewStore();
-  const [searchProducts,] = useLazyQuery<SearchProductsResult>(SEARCH_PRODUCTS_QUERY);
+  const [searchProducts] = useLazyQuery<SearchProductsResult>(SEARCH_PRODUCTS_QUERY);
   const { toggleOpenSidebar } = useSidebarStore();
 
   const [categoryDescription, setCategoryDescription] = useState<string>("");
@@ -97,6 +97,7 @@ const ProductsSection: React.FC = () => {
           input: {
             ...params,
             minPrice: 1,
+            visibleProduct: true,
             page: pageToFetch,
             pageSize,
           },

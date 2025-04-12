@@ -342,31 +342,20 @@ const Basket: React.FC = () => {
             </div>
           </TableCell>
           <TableCell className="w-[30%]">
-            {product?.productDiscounts?.length > 0 &&
-              product.productDiscounts[0]?.newPrice ? (
-              <h4 className="text-md w-max font-bold text-[#333]">
-                {Number(product.productDiscounts[0].newPrice).toFixed(
-                  3
-                )}{" "}
-                TND
-              </h4>
+            {product?.productDiscounts?.length > 0 ? (
+              <>
+                <h4 className="text-md w-max font-bold text-[#333]">
+                  {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
+                </h4>
+                <h4 className="text-base w-full font-semibold text-gray-700 line-through">
+                  {Number(product.price).toFixed(3)} TND
+                </h4>
+              </>
             ) : (
               <h4 className="text-md w-max font-bold text-[#333]">
                 {Number(product.price || 0).toFixed(3)} TND
               </h4>
             )}
-            <h4
-              className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0
-                ? "text-gray-700 line-through"
-                : ""
-                }`}
-            >
-              {product?.productDiscounts?.length > 0 &&
-                Number(product.productDiscounts[0].price).toFixed(
-                  3
-                )}{" "}
-              TND
-            </h4>
           </TableCell>
           <TableCell>
             <Trash2Icon
@@ -499,7 +488,7 @@ const Basket: React.FC = () => {
                     currency: "TND",
                     value: Number(totalPrice),
                     contents: products.map(product => ({
-                      id: product.id,
+                      id: product.reference,
                       quantity: product.actualQuantity || product.quantity,
                       price: product.productDiscounts?.length > 0
                         ? Number(product.productDiscounts[0].newPrice)

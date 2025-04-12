@@ -75,8 +75,10 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
     openPruchaseOptions(product);
 
-    const price = product.productDiscounts[0]?.newPrice ?? product.price
-
+    const price =
+      product.productDiscounts.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price;
 
     const addToCartData = {
       user_data: {
@@ -90,7 +92,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         currency: "TND",
         contents: [
           {
@@ -130,7 +132,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.id],
+        content_ids: [product.reference],
         contents: [
           {
             id: product.id,
@@ -216,7 +218,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       } else {
         addProductToBasket({
           ...product,
-          price,
+          price: product.price,
+          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
           actualQuantity: quantity,
         });
       }

@@ -22,23 +22,40 @@ const updateAttributes = async (
   attributeInputs: AttributeInput[]
 ) => {
   try {
-    // First, delete all existing attributes for the product
-    await prisma.productAttribute.deleteMany({
-      where: { productId },
+    // Use a transaction to ensure atomicity of operations
+    return await prisma.$transaction(async (tx) => {
+      // First, delete all existing attributes for the product
+      await tx.productAttribute.deleteMany({
+        where: { productId },
+      });
+
+      // Filter out any empty attributes and ensure uniqueness
+      const validAttributes = attributeInputs.filter(
+        attr => attr.name.trim() !== '' && attr.value.trim() !== ''
+      );
+      
+      // Use a Map to ensure uniqueness based on name (case insensitive)
+      const uniqueAttributes = new Map();
+      
+      validAttributes.forEach(attr => {
+        const normalizedName = attr.name.trim().toLowerCase();
+        uniqueAttributes.set(normalizedName, {
+          name: attr.name.trim(),
+          value: attr.value.trim(),
+          productId: productId
+        });
+      });
+      
+      // Convert Map values to array for creation
+      const formattedAttributes = Array.from(uniqueAttributes.values());
+
+      // Create all new attributes using createMany for better performance
+      if (formattedAttributes.length > 0) {
+        await tx.productAttribute.createMany({
+          data: formattedAttributes,
+        });
+      }
     });
-
-    // Format the attributes for creation
-    const formattedAttributes = attributeInputs.map(attr => ({
-      name: attr.name.trim(),  
-      value: attr.value.trim(), 
-      productId: productId     
-    }));
-
-    // Create all new attributes in a single transaction
-    await prisma.productAttribute.createMany({
-      data: formattedAttributes,
-    });
-
   } catch (error) {
     console.error("Error updating attributes:", error);
     throw new Error("Failed to update product attributes");
