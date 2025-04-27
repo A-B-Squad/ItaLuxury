@@ -251,6 +251,9 @@ export async function generateMetadata(
     const pageDescription = generateDescription(searchParams, companyInfo);
     const pageKeywords = generateKeywords(searchParams).join(", ");
 
+    // Use the full-size LOGO.png for better social media sharing
+    const logoUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.png`;
+
     return {
       metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
       title: pageTitle,
@@ -263,7 +266,7 @@ export async function generateMetadata(
         description: pageDescription,
         images: [
           {
-            url: companyInfo?.logo || `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+            url: logoUrl,
             width: 1200,
             height: 630,
             alt: `ita-luxury - ${pageTitle}`,
@@ -279,7 +282,7 @@ export async function generateMetadata(
         card: "summary_large_image",
         title: pageTitle,
         description: pageDescription,
-        images: [companyInfo?.logo || `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`],
+        images: [logoUrl],
         creator: "@ita_luxury",
         site: "@ita_luxury",
       },

@@ -133,6 +133,12 @@ async function tryToSendCheckoutEmail(
     },
   });
 
+  // Base URL for your website
+  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
+  
+  // Logo and other image paths - using images from public folder
+  const logoUrl = `${baseUrl}/LOGO.png`;
+  const jaxDeliveryLogo = `${baseUrl}/jaxDelivery.png`;
 
   const totals = calculateTotals(checkout, deliveryPrice);
 
@@ -243,7 +249,7 @@ async function tryToSendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://www.ita-luxury.com/_next/image?url=https%3A%2F%2Fwww.ita-luxury.com%2F_next%2Fimage%3Furl%3Dhttp%253A%252F%252Fres.cloudinary.com%252Fdc1cdbirz%252Fimage%252Fupload%252Fv1727269305%252Fita-luxury%252FLOGO_hhpyix.png%26w%3D1920%26q%3D75&w=1200&q=75" alt="ita-luxury Logo" class="logo" />
+            <img src="${logoUrl}" alt="ita-luxury Logo" class="logo" />
           </div>
           <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
@@ -308,7 +314,7 @@ async function tryToSendCheckoutEmail(
           <!-- Section Livraison -->
           <div class="delivery-section">
             <div class="delivery-header">
-              <img src="https://app.jax-delivery.com/assets/img/logo.png" alt="Livraison" width="24" />
+              <img src="${jaxDeliveryLogo}" alt="Livraison" width="24" />
               <span>Livraison</span>
             </div>
             <p>Transporteur : JAX Delivery</p>

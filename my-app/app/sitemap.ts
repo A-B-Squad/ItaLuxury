@@ -1,3 +1,4 @@
+import prepRoute from "@/app/Helpers/_prepRoute";
 import { MetadataRoute } from "next";
 
 interface Product {
@@ -55,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const dynamicProductUrls = products
       .filter(product => product && product.id && product.name)
       .map((product) => ({
-        url: `${baseUrl}/products/tunisie?productId=${product.id}`,
+        url: `${baseUrl}/products/tunisie/?productId=${product.id}`,
         lastModified: new Date(),
 
       }));

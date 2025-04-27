@@ -291,7 +291,7 @@ const ProductDetailsPage = async ({
   const discountedPrice = productData.productDiscounts?.length > 0
     ? formatPriceForDisplay(productData.productDiscounts[0].newPrice)
     : null;
-  
+
   // Get discount end date safely
   const discountEndDate = productData.productDiscounts?.length > 0
     ? safeFormatDate(productData.productDiscounts[0].dateOfEnd)
@@ -337,11 +337,11 @@ const ProductDetailsPage = async ({
       : [],
     sku: productData.reference,
     mpn: productData.reference,
-    identifier_exists: productData.reference ? "yes" : "no",
-    gtin: productData.reference,
+    identifier_exists: productData.id ? "yes" : "no",
+    gtin: productData.id, 
     brand: {
       "@type": "Brand",
-      name: productData.Brand?.name || "Unbranded",
+      name: productData.Brand?.name || productData.categories?.[productData.categories.length - 1]?.name,
     },
     color: productData.Colors?.color,
     category: productData.categories?.[0]?.name || "",

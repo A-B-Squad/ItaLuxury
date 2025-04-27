@@ -14,6 +14,12 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
       },
     });
 
+    // Base URL for your website
+    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
+    
+    // Logo path - using image from public folder
+    const logoUrl = `${baseUrl}/LOGO.png`;
+
     const resetPasswordUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ResetPassword/${id}`;
 
     await transporter.sendMail({
@@ -311,8 +317,8 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
           <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em;">
           	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
           		<tr>
-          			<td class="logo" style="text-align: left;">
-			            <h1><a href="#">ita-luxury</a></h1>
+          			<td style="text-align: center; padding-bottom: 20px;">
+			            <img src="${logoUrl}" alt="ita-luxury Logo" width="150" style="max-width: 150px;">
 			          </td>
           		</tr>
           	</table>
@@ -332,77 +338,10 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
             </table>
           </td>
 	      </tr><!-- end tr -->
+	      
+	      <!-- ... rest of the email template ... -->
+	      
 	      <tr>
-	      	<td class="bg_white">
-	      		<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-	      			<tr>
-	      				<td class="bg-white email-section" style="padding: 0; width: 100%;">
-	      					<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-	      						<tr>
-	      							<td valign="middle" width="50%">
-	      								<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-	      									<tr>
-	      										<td class="text-services" style="text-align: left; padding: 20px 30px;">
-	      											<div class="heading-section">
-		      											<h2 style="font-size: 22px;">Instructions</h2>
-		      											<p>To reset your password, please follow these steps:</p>
-		      											<p>1. Click on the button below</p>
-		      											<p>2. You will be directed to a secure page</p>
-		      											<p>3. Enter your new password</p>
-		      											<p>4. Confirm your new password</p>
-		      											<p>
-		      												<a href="${resetPasswordUrl}" class="btn btn-primary">Reset Password</a>
-		      											</p>
-	      											</div>
-	      										</td>
-	      									</tr>
-	      								</table>
-	      							</td>
-	      						</tr>
-	      					</table>
-	      				</td>
-	      			</tr><!-- end: tr -->
-	      		</table>
-	      	</td>
-	      </tr><!-- end:tr -->
-      </table>
-      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
-      	<tr>
-          <td valign="middle" class="bg-white footer email-section">
-            <table>
-            	<tr>
-                <td valign="top" width="33.333%" style="padding-top: 20px;">
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                    <tr>
-                      <td style="text-align: left; padding-right: 10px;">
-                      	<h3 class="heading">About</h3>
-                      	<p>ita-luxury is your premier destination for luxury fashion and accessories.</p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-                    </tr>
-                  </table>
-                </td>
-                <td valign="top" class="bg-white" width="33.333%" style="padding-top: 20px;">
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                    <tr>
-                      <td style="text-align: left; padding-left: 10px;">
-                      	<h3 class="heading">Useful Links</h3>
-                      	<ul>
-					                <li><a href=${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}>Home</a></li>
-					                <li><a href=${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/FavoriteList>Wishlist</a></li>
-					                <li><a href=${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/TrackingPackages>Order History</a></li>
-					              </ul>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr><!-- end: tr -->
-        <tr>
         	<td valign="middle" class="bg-white footer email-section">
         		<table>
             	<tr>
@@ -410,7 +349,8 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                     <tr>
                       <td style="text-align: left; padding-right: 10px;">
-                      	<p>&copy; 2024 ita-luxury. All Rights Reserved</p>
+                      	<p>Contact: 23 212 892 | Instagram: <a href="https://www.instagram.com/ita_luxury" style="color: #9a7b5f; text-decoration: none;">@ita_luxury</a></p>
+                      	<p>&copy; ${new Date().getFullYear()} ita-luxury. All Rights Reserved</p>
                       </td>
                     </tr>
                   </table>

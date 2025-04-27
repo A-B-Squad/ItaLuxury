@@ -274,14 +274,17 @@ export const CATEGORY_QUERY = gql`
     categories {
       id
       name
+      smallImage
       subcategories {
         id
         name
         parentId
+        smallImage
         subcategories {
           id
           name
           parentId
+          smallImage
         }
       }
     }
