@@ -172,7 +172,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       facebook_data: {
         content_name: name,
         content_type: "product details",
-        content_ids: [id],
+        content_ids: [reference],
         content_category: primaryCategory,
         contents: [
           {

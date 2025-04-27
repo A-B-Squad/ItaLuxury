@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     description: "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie.",
     images: [
       {
-        url: `/LOGO.jpg`,
+        url: `/LOGO.png`,
         width: 1200,
         height: 630,
         alt: "Ita Luxury",
@@ -85,6 +85,7 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <AnalyticsIntegration />
+    
       </head>
       <body>
         <ApolloWrapper>{children}</ApolloWrapper>

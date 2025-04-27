@@ -234,8 +234,15 @@ const Checkout: React.FC = () => {
         ? Number(product.productDiscounts[0].newPrice)
         : Number(product.price)
     }));
-    console.log(decodedToken);
-    console.log(checkoutInput);
+    
+    // Format contents specifically for Facebook Pixel
+    const facebookContents = checkoutProducts.map(product => ({
+      id: product.reference || product.id, // Use reference as primary ID, fallback to product ID
+      quantity: product.actualQuantity || product.quantity,
+      item_price: product.productDiscounts?.length > 0
+        ? Number(product.productDiscounts[0].newPrice)
+        : Number(product.price)
+    }));
 
     // Calculate final value including delivery if applicable
     const finalValue = Number(orderTotal);
@@ -273,7 +280,7 @@ const Checkout: React.FC = () => {
             currency: "TND",
             value: finalValue,
             content_type: "product_group",
-            contents: itemsWithPrices,
+            contents: facebookContents, // Use the Facebook-specific format
             content_name: "Purchase",
             num_items: totalItems,
             content_category: "Checkout",
@@ -282,6 +289,7 @@ const Checkout: React.FC = () => {
             transaction_id: customOrderId
           }
         });
+        
         triggerEvents("Purchase", {
           user_data: {
             em: [userEmail.toLowerCase()],
@@ -295,7 +303,7 @@ const Checkout: React.FC = () => {
             currency: "TND",
             value: finalValue,
             content_type: "product_group",
-            contents: itemsWithPrices,
+            contents: facebookContents, // Use the Facebook-specific format here too
             content_name: "Purchase",
             num_items: totalItems,
             content_category: "Checkout",

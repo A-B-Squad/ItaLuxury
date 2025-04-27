@@ -32,6 +32,13 @@ async function sendCheckoutEmail(
     },
   });
 
+  // Base URL for your website
+  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
+  
+  // Logo and other image paths - using images from public folder
+  const logoUrl = `${baseUrl}/LOGO.png`;
+  const jaxDeliveryLogo = `${baseUrl}/jaxDelivery.png`;
+
   const totalProducts = productInCheckout.reduce(
     (
       acc: number,
@@ -59,27 +66,31 @@ async function sendCheckoutEmail(
       <head>
         <style>
           body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f2f2f2;
             margin: 0;
             padding: 0;
             color: #333;
+            line-height: 1.6;
           }
           .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background-color: #fff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           }
           .header {
             text-align: center;
-            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 30px;
           }
           .logo {
-            width: 150px;
+            max-width: 180px;
+            height: auto;
           }
           h1 {
             color: #c7ae91; /* Changed main color */
@@ -156,7 +167,7 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://www.ita-luxury.com/_next/image?url=https%3A%2F%2Fwww.ita-luxury.com%2F_next%2Fimage%3Furl%3Dhttp%253A%252F%252Fres.cloudinary.com%252Fdc1cdbirz%252Fimage%252Fupload%252Fv1727269305%252Fita-luxury%252FLOGO_hhpyix.png%26w%3D1920%26q%3D75&w=1200&q=75" alt="ita-luxury Logo" class="logo" />
+            <img src="${logoUrl}" alt="ita-luxury Logo" class="logo" />
           </div>
           <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
@@ -221,7 +232,7 @@ async function sendCheckoutEmail(
           <!-- Section Livraison -->
           <div class="delivery-section">
             <div class="delivery-header">
-              <img src="https://app.jax-delivery.com/assets/img/logo.png" alt="Livraison" width="24" />
+              <img src="${jaxDeliveryLogo}" alt="Livraison" width="24" />
               <span>Livraison</span>
             </div>
             <p>Transporteur : JAX Delivery</p>
@@ -252,7 +263,8 @@ async function sendCheckoutEmail(
           <p>Merci d'avoir choisi ita-luxury !</p>
   
           <div class="footer">
-            &copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.
+            <p>Contact: 23 212 892 | Instagram: <a href="https://www.instagram.com/ita_luxury" style="color: #9a7b5f; text-decoration: none;">@ita_luxury</a></p>
+            <p>&copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.</p>
           </div>
         </div>
       </body>
