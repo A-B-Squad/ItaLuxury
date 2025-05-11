@@ -31,6 +31,7 @@ import { brandMutations } from "./resolvers/mutations/brandMutations/brandMutati
 import { bestSellsMutations } from "./resolvers/mutations/bestSellsMutations/bestSellsMutations";
 import { apiCredentialsMutations } from "./resolvers/mutations/apiCredentialsMutations/apiCredentialsMutations";
 import { apiCredentialsQueries } from "./resolvers/queries/apiCredentialsQueries/apiCredentialsQueries";
+import { reviewMutation } from "./resolvers/mutations/reviewMutations/reviewMutations";
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -69,5 +70,6 @@ export const resolvers = {
     ...brandMutations,
     ...bestSellsMutations,
     ...apiCredentialsMutations,
+    ...reviewMutation
   },
 };

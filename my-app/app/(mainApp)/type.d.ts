@@ -20,7 +20,7 @@ interface ProductQuickView {
   baskets: BasketInfo[];
   reviews: ReviewInfo[];
   favoriteProducts: FavoriteProductInfo[];
-  attributes: ProductAttribute[];
+  technicalDetails: string;
   colors: ColorInfo[];
   brand: BrandInfo;
 }
@@ -53,10 +53,7 @@ interface BasketInfo {
   categories: CategoryInfo[];
 }
 
-interface ProductAttribute {
-  name: string;
-  value: string;
-}
+
 
 interface ProductInput {
   name: string;
@@ -67,7 +64,7 @@ interface ProductInput {
   inventory: number;
   images: string[];
   categories: string[];
-  attributes: ProductAttribute[];
+  technicalDetails: string;
   colorsId?: string;
   discounts?: ProductDiscountInput[];
   brandId?: string;

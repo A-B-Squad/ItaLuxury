@@ -413,7 +413,7 @@ const Basket: React.FC = () => {
                   {products.length} article{products.length > 1 ? "s" : ""}
                 </span>
                 <span className="font-semibold">
-                  {totalPrice ? Number(totalPrice).toFixed(3) : "0.000"} TND
+                  {totalPrice ? Number(totalPrice).toFixed(2) : "0.00"} TND
                 </span>
               </li>
               <li className="flex justify-between text-gray-600">
@@ -421,15 +421,15 @@ const Basket: React.FC = () => {
                 <span className="font-semibold">
                   {Number(totalPrice) >= 499
                     ? "Gratuit"
-                    : `${deliveryPrice.toFixed(3)} TND`}
+                    : `${deliveryPrice.toFixed(2)} TND`}
                 </span>
               </li>
               <li className="flex justify-between text-gray-800 font-bold">
                 <span>Total (TTC)</span>
                 <span>
                   {Number(totalPrice) >= 499
-                    ? Number(totalPrice).toFixed(3)
-                    : (Number(totalPrice) + deliveryPrice).toFixed(3)}{" "}
+                    ? Number(totalPrice).toFixed(2)
+                    : (Number(totalPrice) + deliveryPrice).toFixed(2)}{" "}
                   TND
                 </span>
               </li>
@@ -502,10 +502,7 @@ const Basket: React.FC = () => {
                       availability: product.inventory > 0 ? "in stock" : "out of stock",
                       item_description: product.description,
                       item_variant: product.Colors?.color,
-                      item_Att: product.attributes?.map(
-                        (attr: { name: string; value: string }) =>
-                          attr.name + " " + attr.value
-                      ),
+                      item_Att: product.technicalDetails,
                     })),
                     num_items: products.reduce(
                       (sum, product) =>

@@ -80,6 +80,7 @@ model Product {
   isVisible         Boolean             @default(true)
   reference         String
   description       String
+  technicalDetails  String?
   inventory         Int                 @default(0)
   solde             Int                 @default(0)
   broken            Int                 @default(0)
@@ -90,7 +91,6 @@ model Product {
   baskets           Basket[]
   reviews           Review[]
   favoriteProducts  FavoriteProducts[]
-  attributes        ProductAttribute[]
   ProductInCheckout ProductInCheckout[]
   Colors            Colors?             @relation(fields: [colorsId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   colorsId          String?
@@ -185,17 +185,18 @@ model ProductInCheckout {
 }
 
 model Package {
-  id          String    @id @default(uuid())
-  customId    String    @unique
-  Checkout    Checkout  @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  checkoutId  String
-  status      Status
-  createdAt   DateTime  @default(now())
-  delivredAt  DateTime?
-  inTransitAt DateTime?
-  isConfirmedAt DateTime?
-  returnedAt  DateTime?
-  comments    String[]
+  id                String    @id @default(uuid())
+  customId          String    @unique
+  Checkout          Checkout  @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  checkoutId        String
+  status            Status
+  createdAt         DateTime  @default(now())
+  delivredAt        DateTime?
+  inTransitAt       DateTime?
+  isConfirmedAt     DateTime?
+  returnedAt        DateTime?
+  comments          String[]
+  deliveryReference String?
 }
 
 model BreakedProduct {
@@ -210,10 +211,13 @@ model BreakedProduct {
 model Review {
   id        String   @id @default(uuid())
   rating    Float
+  comment   String?
+  userName  String?
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model FavoriteProducts {
@@ -222,14 +226,6 @@ model FavoriteProducts {
   User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId String?
   Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-}
-
-model ProductAttribute {
-  id        String   @id @default(uuid())
-  name      String
-  value     String
-  productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Advertisement {
@@ -283,9 +279,7 @@ model ContactUs {
 model Coupons {
   id        String     @id @default(uuid())
   code      String
-  discount  Int?       @default(0)
+  discount  Float      @default(0)
   available Boolean    @default(true)
   checkout  Checkout[]
 }
-
-

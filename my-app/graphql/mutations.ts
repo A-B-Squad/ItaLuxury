@@ -55,9 +55,15 @@ export const ADD_TO_FAVORITE_MUTATION = gql`
   }
 `;
 
-export const ADD_RATING_MUTATION = gql`
-  mutation AddRating($productId: ID!, $userId: ID!, $rating: Int!) {
-    addRating(productId: $productId, userId: $userId, rating: $rating)
+export const ADD_REVIEWS_MUTATION = gql`
+  mutation AddReview($productId: ID!, $userId: ID, $rating: Int!, $comment: String, $userName: String) {
+    AddReview(input: {
+      productId: $productId, 
+      userId: $userId, 
+      rating: $rating,
+      comment: $comment,
+      userName: $userName
+    })
   }
 `;
 export const DELETE_BASKET_BY_ID_MUTATION = gql`

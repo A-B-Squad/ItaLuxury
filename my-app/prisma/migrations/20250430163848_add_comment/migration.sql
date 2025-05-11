@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Review" ADD COLUMN     "comment" TEXT,
+ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "userName" TEXT;

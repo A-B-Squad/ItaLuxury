@@ -1,9 +1,12 @@
-import { ADD_RATING_MUTATION } from "@/graphql/mutations";
+import { ADD_REVIEWS_MUTATION } from "@/graphql/mutations";
 import { GET_REVIEW_QUERY, GET_USER_REVIEW_QUERY } from "@/graphql/queries";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { Star } from "lucide-react";
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+// Remove this import:
+// import ProductAttrLaptop from "./ProductAttrLaptop";
+import { MdOutlineStar } from "react-icons/md";
 
 interface RatingCounts {
     one: number;
@@ -15,22 +18,27 @@ interface RatingCounts {
 
 interface RatingStarsProps {
     productId: string;
-    userId: string;
+    userId?: string;
     toast: any;
+
 }
 
 interface Review {
+    id: string;
     rating: number;
+    comment?: string;
+    userId?: string;
+    userName?: string;
+    createdAt?: string;
 }
 
 const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) => {
     const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
     const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
-    const [addRating] = useMutation(ADD_RATING_MUTATION);
+    const [addRating] = useMutation(ADD_REVIEWS_MUTATION);
 
     const [serverRating, setServerRating] = useState<number>(0);
     const [hover, setHover] = useState<number | null>(null);
-    const [userReviews, setUserReviews] = useState<number>(0);
     const [reviews, setReviews] = useState<number>(0);
     const [ratings, setRatings] = useState<RatingCounts>({
         one: 0,
@@ -40,28 +48,52 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
         five: 0,
     });
     const [isRatingLoading, setIsRatingLoading] = useState<boolean>(false);
+    const [comment, setComment] = useState<string>("");
+    const [selectedRating, setSelectedRating] = useState<number | null>(null);
+    const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
+    const [reviewsWithComments, setReviewsWithComments] = useState<Review[]>([]);
 
-    const handleRatingSubmit = useCallback(async (currentIndex: number) => {
-        if (!userId) {
+    const handleRatingSubmit = useCallback(async () => {
+        if (!selectedRating) {
             return toast({
-                title: "Connectez-vous",
-                description: "Vous devez être connecté pour évaluer.",
+                title: "Sélectionnez une note",
+                description: "Veuillez sélectionner une note avant de soumettre.",
                 variant: "destructive",
             });
         }
 
         try {
             setIsRatingLoading(true);
-            await addRating({
-                variables: { productId, userId, rating: currentIndex },
-            });
 
-            await Promise.all([
-                getReviews({ variables: { productId } }),
-                getUserReviews({ variables: { productId, userId } })
-            ]);
+            // Only logged in users can submit ratings with comments
+            if (userId) {
+                await addRating({
+                    variables: {
+                        productId,
+                        userId,
+                        rating: selectedRating,
+                        comment: comment || undefined
+                    },
+                });
+            } else {
+                // Non-logged in users can only rate without comments
+                await addRating({
+                    variables: {
+                        productId,
+                        rating: selectedRating
+                    },
+                });
+            }
 
-            setServerRating(currentIndex);
+            await getReviews({ variables: { productId } });
+            if (userId) {
+                await getUserReviews({ variables: { productId, userId } });
+            }
+
+            setServerRating(selectedRating);
+            setComment("");
+            setShowCommentForm(false);
+
             toast({
                 title: "Évaluation ajoutée",
                 description: "Merci pour votre évaluation.",
@@ -76,7 +108,7 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
         } finally {
             setIsRatingLoading(false);
         }
-    }, [addRating, getReviews, getUserReviews, productId, toast, userId]);
+    }, [addRating, getReviews, getUserReviews, productId, toast, userId, selectedRating, comment]);
 
     const handleMouseEnter = useCallback((index: number) => {
         setHover(index);
@@ -85,6 +117,18 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
     const handleMouseLeave = useCallback(() => {
         setHover(null);
     }, []);
+
+    const toggleCommentForm = useCallback(() => {
+        if (!userId) {
+            toast({
+                title: "Connexion requise",
+                description: "Veuillez vous connecter pour laisser un commentaire.",
+                className: "text-white bg-red-500",
+            });
+            return;
+        }
+        setShowCommentForm(prev => !prev);
+    }, [userId, toast]);
 
     useEffect(() => {
         const fetchReviews = async () => {
@@ -96,6 +140,9 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
                 if (data?.productReview) {
                     const totalReviews = data.productReview.length;
                     setReviews(totalReviews);
+
+                    // Store reviews with comments
+                    setReviewsWithComments(data.productReview);
 
                     const ratingCounts = {
                         one: data.productReview.filter((review: Review) => review.rating === 1).length,
@@ -118,10 +165,6 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
                 const { data } = await getUserReviews({
                     variables: { productId, userId }
                 });
-
-                if (data?.productReview?.[0]) {
-                    setUserReviews(data.productReview[0].rating || 0);
-                }
             } catch (error) {
                 console.error("Error fetching user review:", error);
             }
@@ -138,105 +181,198 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
     ).toFixed(1);
 
     return (
-        <div className="flex flex-col w-full max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-6">
-            {/* Average Rating Display */}
-            <div className="flex items-center justify-center mb-6">
-                <div className="flex flex-col items-center">
-                    <div className="text-3xl font-bold text-gray-800">{averageRating}</div>
-                    <div className="flex items-center mt-1">
-                        {[...Array(5)].map((_, index) => (
-                            <Star
-                                key={`avg-${index}`}
-                                size={16}
-                                className={`${index + 1 <= Math.round(parseFloat(averageRating))
-                                        ? "fill-yellow-400 stroke-yellow-400"
-                                        : "stroke-gray-300"
-                                    }`}
-                            />
-                        ))}
-                    </div>
-                    <span className="text-xs font-medium text-gray-500 mt-1">
-                        {reviews} {reviews === 1 ? "avis" : "avis"}
-                    </span>
-                </div>
+        <div className="avis pt-2">
+
+            {/* Header */}
+            <div className="flex items-center">
+                <MdOutlineStar size={18} className="text-yellow-500 mr-2" />
+                <h2 className="text-xl font-semibold">Avis des clients</h2>
             </div>
 
-            {/* Your Rating Section */}
-            <div className="flex flex-col items-center mb-6 pb-6 border-b border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Votre évaluation</h3>
-                <div className="flex items-center space-x-1">
-                    {[...Array(5)].map((_, index) => {
-                        const currentIndex = index + 1;
-                        return (
-                            <button
-                                key={currentIndex}
-                                onClick={() => handleRatingSubmit(currentIndex)}
-                                disabled={isRatingLoading}
-                                className="relative p-1.5 bg-transparent border-none cursor-pointer focus:outline-none"
-                                aria-label={`Noter ${currentIndex} étoiles`}
-                            >
-                                <Star
-                                    size={24}
-                                    className={`transition-all duration-200 ${currentIndex <= (hover || userReviews)
+            {/* Main rating display */}
+            <div className="flex flex-col md:flex-row justify-etween items-start md:items-center px-5 mb-6 space-y-4 md:space-y-0 md:space-x-6 border-b pb-6">
+                <div className="w-full flex flex-col sm:flex-row space-x-7">
+                    {/* Left side - Average rating */}
+                    <div className="flex flex-col justify-center items-center sm:border-r px-5 mb-4 sm:mb-0">
+                        <div className="text-4xl font-bold">{averageRating}</div>
+                        <div className="flex mt-2">
+                            {[...Array(5)].map((_, index) => {
+                                // Using index + 1 to match rating values (1-5 instead of 0-4)
+                                const starValue = index + 1;
+                                return (
+                                    <Star
+                                        key={`avg-${index}`}
+                                        size={24}
+                                        className={`${starValue <= Math.floor(parseFloat(averageRating))
                                             ? "fill-yellow-400 stroke-yellow-400"
-                                            : "stroke-gray-300"
-                                        } ${isRatingLoading ? "opacity-50" : "hover:scale-110"}`}
-                                    onMouseEnter={() => handleMouseEnter(currentIndex)}
-                                    onMouseLeave={handleMouseLeave}
-                                />
-                            </button>
-                        );
-                    })}
-                </div>
-                {!userId && (
-                    <p className="text-xs text-gray-500 mt-2 italic">
-                        Connectez-vous pour évaluer ce produit
-                    </p>
-                )}
-                {isRatingLoading && (
-                    <div className="text-xs text-primaryColor mt-2">
-                        Enregistrement de votre évaluation...
-                    </div>
-                )}
-            </div>
-
-            {/* Rating Distribution */}
-            <div className="w-full">
-                <h3 className="text-sm font-medium text-gray-700 mb-4">Répartition des évaluations</h3>
-
-                <div className="space-y-2.5">
-                    {[5, 4, 3, 2, 1].map((rating) => {
-                        const ratingKey = ["one", "two", "three", "four", "five"][5 - rating] as keyof RatingCounts;
-                        const count = ratings[ratingKey];
-                        const percentage = reviews > 0 ? ((count / reviews) * 100).toFixed(0) : "0";
-
-                        return (
-                            <div className="flex items-center gap-2" key={rating}>
-                                <div className="flex items-center min-w-[40px]">
-                                    <span className="font-medium text-gray-700">{rating}</span>
-                                    <Star size={14} className="ml-1 fill-yellow-400 stroke-yellow-400" />
-                                </div>
-
-                                <div className="relative flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div
-                                        style={{ width: `${percentage}%` }}
-                                        className={`absolute h-full rounded-full transition-all duration-300 ${parseInt(percentage) > 0 ? "bg-yellow-400" : "bg-gray-200"
+                                            : starValue <= parseFloat(averageRating)
+                                                ? "fill-yellow-400/50 stroke-yellow-400"
+                                                : "stroke-gray-300"
                                             }`}
                                     />
-                                </div>
+                                );
+                            })}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">{reviews} avis</div>
+                    </div>
 
-                                <div className="min-w-[60px] text-xs text-right">
-                                    <span className="font-medium text-gray-700">{count}</span>
-                                    <span className="text-gray-500 ml-1">({percentage}%)</span>
+                    {/* Right side - Rating distribution */}
+                    <div className="flex-1 max-w-full sm:max-w-96 px-2 sm:px-0">
+                        {[5, 4, 3, 2, 1].map((rating) => {
+                            const ratingKey = ["one", "two", "three", "four", "five"][rating - 1] as keyof RatingCounts;
+                            const count = ratings[ratingKey];
+                            const percentage = reviews > 0 ? ((count / reviews) * 100) : 0;
+
+                            return (
+                                <div className="flex items-center gap-2 mb-2" key={rating}>
+                                    <div className="flex items-center min-w-[60px]">
+                                        <span className="text-sm">{rating} étoiles</span>
+                                    </div>
+                                    <div className="relative flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div
+                                            style={{ width: `${percentage}%` }}
+                                            className="absolute h-full bg-yellow-400 rounded-full"
+                                        />
+                                    </div>
+                                    <div className="min-w-[20px] text-sm text-right">
+                                        {count}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="mr-10">
+                    {/* Write review button */}
+                    <Button
+                        onClick={toggleCommentForm}
+                        className="rounded-full border w-full sm:w-auto border-gray-300 bg-white text-black hover:bg-gray-100 ml-auto "
+                    >
+                        Écrire un commentaire
+                    </Button>
+                </div>
+            </div>
+
+            {/* Comment form */}
+            {showCommentForm && (
+                <div className="mb-8 p-6 border border-gray-200 rounded-lg">
+                    <h3 className="text-lg font-medium mb-4">Votre avis</h3>
+
+                    <div className="flex items-center mb-4">
+                        <div className="mr-2 text-sm">Noter :</div>
+                        <div className="flex">
+                            {[...Array(5)].map((_, index) => {
+                                const currentIndex = index + 1;
+                                return (
+                                    <button
+                                        key={currentIndex}
+                                        onClick={() => setSelectedRating(currentIndex)}
+                                        disabled={isRatingLoading}
+                                        className="relative p-1 bg-transparent border-none cursor-pointer focus:outline-none"
+                                        aria-label={`Noter ${currentIndex} étoiles`}
+                                    >
+                                        <Star
+                                            size={24}
+                                            className={`transition-all duration-200 ${currentIndex <= (selectedRating || hover || 0)
+                                                ? "fill-yellow-400 stroke-yellow-400"
+                                                : "stroke-gray-300"
+                                                }`}
+                                            onMouseEnter={() => handleMouseEnter(currentIndex)}
+                                            onMouseLeave={handleMouseLeave}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <textarea
+                        placeholder="Partagez votre expérience avec ce produit..."
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        className="w-full resize-none min-h-[100px] p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primaryColor focus:border-transparent mb-4"
+                        disabled={isRatingLoading}
+                    />
+
+                    <div className="flex justify-end space-x-2">
+                        <Button
+                            onClick={() => setShowCommentForm(false)}
+                            variant="outline"
+                            disabled={isRatingLoading}
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            onClick={handleRatingSubmit}
+                            disabled={isRatingLoading || !selectedRating}
+                            className="bg-primaryColor hover:bg-primaryColor/90 text-white"
+                        >
+                            {isRatingLoading ? "Envoi en cours..." : "Publier"}
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {/* Reviews Section */}
+            <div className="space-y-6">
+                {reviewsWithComments.filter(review => review.comment).length > 0 ? (
+                    reviewsWithComments
+                        .filter(review => review.comment)
+                        .map(review => (
+                            <div key={review.id} className="border-b border-gray-200 pb-6 last:border-0">
+                                <div className="flex items-start">
+                                    <div className="flex-shrink-0 mr-4">
+                                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                            {review.userName ? review.userName.charAt(0).toUpperCase() : "U"}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <div className="flex space-x-3">
+                                            <div className="flex justify-between flex-col border-r-2 pr-3">
+                                                <div>
+                                                    <span className="font-semibold">
+                                                        {review.userName
+                                                            ? `${review.userName.charAt(0)}${'*'.repeat(Math.max(0, review.userName.length - 2))}${review.userName.charAt(review.userName.length - 1)}`
+                                                            : "Anonyme"}
+                                                    </span>
+                                                </div>
+                                                <span className="-ml-2 text-xs font-light text-gray-500">
+                                                    {new Date(review.createdAt || Date.now()).toLocaleDateString('fr-FR')}
+                                                </span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center mt-1">
+                                                    {[...Array(5)].map((_, index) => {
+                                                        // Using index + 1 to match rating values (1-5 instead of 0-4)
+                                                        const starValue = index + 1;
+                                                        return (
+                                                            <Star
+                                                                key={index}
+                                                                size={16}
+                                                                className={`${starValue <= review.rating
+                                                                    ? "fill-yellow-400 stroke-yellow-400"
+                                                                    : "stroke-gray-300"
+                                                                    }`}
+                                                            />
+                                                        );
+                                                    })}
+                                                </div>
+                                                <p className="text-gray-700 mt-2">{review.comment}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
+                        ))
+                ) : (
+                    <p className="text-gray-500 italic text-center py-8">
+                        Aucun avis avec commentaire pour ce produit. Soyez le premier à partager votre expérience !
+                    </p>
+                )}
             </div>
         </div>
     );
 });
-
 
 export default RatingStarsLaptop;

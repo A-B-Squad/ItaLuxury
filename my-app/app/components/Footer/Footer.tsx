@@ -443,7 +443,7 @@ const Footer = () => {
       </div>
 
       <div className="border-t py-5 text-center md:text-left md:pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors">
-        © 2024 ita-luxury.com By Ahmed Haddada
+        © {new Date().getFullYear()} ita-luxury.com By Ahmed Haddada
       </div>
     </footer>
   );

@@ -30,7 +30,6 @@ export const productsByCategory = async (
         reviews: true,
         favoriteProducts: true,
         Colors: true,
-        attributes: true,
         Brand: true,
       },
       take: takeValue,

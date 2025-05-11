@@ -71,7 +71,6 @@ export const searchProducts = async (
           baskets: true,
           reviews: true,
           favoriteProducts: true,
-          attributes: true,
           Colors: true,
           Brand: true,
         },

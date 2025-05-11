@@ -8,10 +8,12 @@ export const payedOrConfirmedOrInTransitPackage = async (
     packageId,
     status,
     paymentMethod,
+    deliveryReference,
   }: {
     packageId: string;
     paymentMethod: PaymentMethod;
     status: Status;
+    deliveryReference?: string | null;
   },
   { prisma }: Context
 ): Promise<string> => {
@@ -31,6 +33,12 @@ export const payedOrConfirmedOrInTransitPackage = async (
     const updateData: any = {
       status,
     };
+    
+    // Add  delivery reference if provided
+    if (deliveryReference) {
+      updateData.deliveryReference = deliveryReference;
+    }
+    
     if (
       status === "CONFIRMED" &&
       paymentMethod !== "CREDIT_CARD"

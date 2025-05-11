@@ -35,16 +35,7 @@ const ProductComparison = () => {
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { addProductToBasket, increaseProductInQtBasket } = useProductsInBasketStore();
 
-  // Memoize product attributes for comparison
-  const productAttributes = useMemo(() => {
-    if (comparisonList.length === 0) return [];
-
-    // Get all unique attributes from products
-    const attributes = ['Prix', 'Description'];
-
-    // Add any additional attributes you want to compare
-    return attributes;
-  }, [comparisonList]);
+ 
 
   const removeProduct = useCallback(
     (product: Product) => {
@@ -76,7 +67,7 @@ const ProductComparison = () => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         contents: [{
           id: product.id,
           quantity: product.actualQuantity || product.quantity || 1,
@@ -110,7 +101,7 @@ const ProductComparison = () => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         contents: [{
           id: product.id,
           quantity: product.actualQuantity || product.quantity || 1,

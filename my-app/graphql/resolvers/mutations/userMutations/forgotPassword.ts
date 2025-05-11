@@ -2,398 +2,224 @@ import { Context } from "../../../../pages/api/graphql";
 import nodemailer from "nodemailer";
 
 const sendResetPasswordEmail = async (email: string, id: string) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.NEXT_PUBLIC_NODEMAILER_EMAIL,
-        pass: process.env.NEXT_PUBLIC_NODEMAILER_PASS,
-      },
-    });
+	try {
+		const transporter = nodemailer.createTransport({
+			service: "gmail",
+			host: "smtp.gmail.com",
+			port: 587,
+			secure: false,
+			auth: {
+				user: process.env.NEXT_PUBLIC_NODEMAILER_EMAIL,
+				pass: process.env.NEXT_PUBLIC_NODEMAILER_PASS,
+			},
+		});
 
-    // Base URL for your website
-    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
-    
-    // Logo path - using image from public folder
-    const logoUrl = `${baseUrl}/LOGO.png`;
+		// Base URL for your website
+		const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
 
-    const resetPasswordUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ResetPassword/${id}`;
+		// Logo path - using image from public folder
+		const logoUrl = `${baseUrl}/LOGO.png`;
 
-    await transporter.sendMail({
-      from: '"ita-luxury" <no-reply@ita-luxury.com>',
-      to: email,
-      subject: "Reset your password",
-      html: `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+		const resetPasswordUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ResetPassword/${id}`;
+
+		await transporter.sendMail({
+			from: '"ita-luxury" <no-reply@ita-luxury.com>',
+			to: email,
+			subject: "Réinitialisation de votre mot de passe",
+			html: `<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="x-apple-disable-message-reformatting">
-    <title></title>
-    
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,600" rel="stylesheet" type="text/css">
-    <!--[if mso]>
+    <title>Réinitialisation de mot de passe</title>
     <style>
-        * {
-            font-family: 'Roboto', sans-serif !important;
+        /* Base styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f5f5f5;
         }
-    </style>
-    <![endif]-->
-
-    <!-- CSS Reset : BEGIN -->
-    <style>
-        html,
-        body {
-            margin: 0 auto !important;
-            padding: 0 !important;
-            height: 100% !important;
-            width: 100% !important;
-            background: #f1f1f1;
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
-
-        * {
-            -ms-text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%;
+        
+        .header {
+            background-color: #ffffff;
+            padding: 25px 0;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
         }
-
-        div[style*="margin: 16px 0"] {
-            margin: 0 !important;
+        
+        .logo {
+            max-width: 150px;
+            height: auto;
         }
-
-        table,
-        td {
-            mso-table-lspace: 0pt !important;
-            mso-table-rspace: 0pt !important;
+        
+        .content {
+            padding: 30px 40px;
+            background-color: #ffffff;
         }
-
-        table {
-            border-spacing: 0 !important;
-            border-collapse: collapse !important;
-            table-layout: fixed !important;
-            margin: 0 auto !important;
+        
+        h1 {
+            color: #c7ae91;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 15px;
         }
-
-        img {
-            -ms-interpolation-mode:bicubic;
+        
+        h2 {
+            color: #333;
+            font-size: 18px;
+            font-weight: 400;
+            margin-top: 0;
+            margin-bottom: 20px;
         }
-
-        a {
+        
+        p {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: #c7ae91;
+            color: #ffffff !important;
             text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+            transition: background-color 0.3s;
         }
-
-        *[x-apple-data-detectors],  /* iOS */
-        .unstyle-auto-detected-links *,
-        .aBn {
-            border-bottom: 0 !important;
-            cursor: default !important;
-            color: inherit !important;
-            text-decoration: none !important;
-            font-size: inherit !important;
-            font-family: inherit !important;
-            font-weight: inherit !important;
-            line-height: inherit !important;
+        
+        .button:hover {
+            background-color: #b69c7f;
         }
-
-        .a6S {
-            display: none !important;
-            opacity: 0.01 !important;
+        
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
         }
-
-        .im {
-            color: inherit !important;
+        
+        .url-note {
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #777;
+            word-break: break-all;
         }
-
-        img.g-img + div {
-            display: none !important;
+        
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px 40px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #f0f0f0;
         }
-
-        @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
-            u ~ div .email-container {
-                min-width: 320px !important;
+        
+        .social-link {
+            color: #c7ae91;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 25px 20px;
+            }
+            
+            .footer {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            h2 {
+                font-size: 16px;
             }
         }
-        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
-            u ~ div .email-container {
-                min-width: 375px !important;
-            }
-        }
-        @media only screen and (min-device-width: 414px) {
-            u ~ div .email-container {
-                min-width: 414px !important;
-            }
-        }
-
     </style>
-    <!-- CSS Reset : END -->
-
-    <!-- Progressive Enhancements : BEGIN -->
-    <style>
-
-	    .primary{
-	        background: #f17e7e;
-	    }
-	    .bg_white{
-	        background: #ffffff;
-	    }
-	    .bg-white{
-	        background: #f7fafa;
-	    }
-	    .bg_black{
-	        background: #000000;
-	    }
-	    .bg_dark{
-	        background: rgba(0,0,0,.8);
-	    }
-	    .email-section{
-	        padding:2.5em;
-	    }
-
-	    /*BUTTON*/
-	    .btn{
-	        padding: 10px 15px;
-	        display: inline-block;
-	    }
-	    .btn.btn-primary{
-	        border-radius: 5px;
-	        background: #f17e7e;
-	        color: #ffffff;
-	    }
-	    .btn.btn-white{
-	        border-radius: 5px;
-	        background: #ffffff;
-	        color: #000000;
-	    }
-	    .btn.btn-white-outline{
-	        border-radius: 5px;
-	        background: transparent;
-	        border: 1px solid #fff;
-	        color: #fff;
-	    }
-	    .btn.btn-black-outline{
-	        border-radius: 0px;
-	        background: transparent;
-	        border: 2px solid #000;
-	        color: #000;
-	        font-weight: 700;
-	    }
-	    .btn-custom{
-	        color: rgba(0,0,0,.3);
-	        text-decoration: underline;
-	    }
-
-	    h1,h2,h3,h4,h5,h6{
-	        font-family: 'Roboto', sans-serif;
-	        color: #000000;
-	        margin-top: 0;
-	        font-weight: 400;
-	    }
-
-	    body{
-	        font-family: 'Roboto', sans-serif;
-	        font-weight: 400;
-	        font-size: 15px;
-	        line-height: 1.8;
-	        color: rgba(0,0,0,.4);
-	    }
-
-	    a{
-	        color: #f17e7e;
-	    }
-
-	    table{
-	    }
-	    /*LOGO*/
-
-	    .logo h1{
-	        margin: 0;
-	    }
-	    .logo h1 a{
-	        color: #f17e7e;
-	        font-size: 24px;
-	        font-weight: 700;
-	        font-family: 'Roboto', sans-serif;
-	    }
-
-	    /*HERO*/
-	    .hero{
-	        position: relative;
-	        z-index: 0;
-	    }
-
-	    .hero .text{
-	        color: rgba(0,0,0,.3);
-	    }
-	    .hero .text h2{
-	        color: #000;
-	        font-size: 34px;
-	        margin-bottom: 15px;
-	        font-weight: 300;
-	        line-height: 1.2;
-	    }
-	    .hero .text h3{
-	        font-size: 24px;
-	        font-weight: 200;
-	    }
-	    .hero .text h2 span{
-	        font-weight: 600;
-	        color: #000;
-	    }
-
-	    /*PRODUCT*/
-	    .product-entry{
-	        display: block;
-	        position: relative;
-	        float: left;
-	        padding-top: 20px;
-	    }
-	    .product-entry .text{
-	        width: calc(100% - 125px);
-	        padding-left: 20px;
-	    }
-	    .product-entry .text h3{
-	        margin-bottom: 0;
-	        padding-bottom: 0;
-	    }
-	    .product-entry .text p{
-	        margin-top: 0;
-	    }
-	    .product-entry img, .product-entry .text{
-	        float: left;
-	    }
-
-	    ul.social{
-	        padding: 0;
-	    }
-	    ul.social li{
-	        display: inline-block;
-	        margin-right: 10px;
-	    }
-
-	    /*FOOTER*/
-
-	    .footer{
-	        border-top: 1px solid rgba(0,0,0,.05);
-	        color: rgba(0,0,0,.5);
-	    }
-	    .footer .heading{
-	        color: #000;
-	        font-size: 20px;
-	    }
-	    .footer ul{
-	        margin: 0;
-	        padding: 0;
-	    }
-	    .footer ul li{
-	        list-style: none;
-	        margin-bottom: 10px;
-	    }
-	    .footer ul li a{
-	        color: rgba(0,0,0,1);
-	    }
-
-
-	    @media screen and (max-width: 500px) {
-
-
-	    }
-
-    </style>
-
 </head>
-
-<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f1f1f1;">
-	<center style="width: 100%; background-color: #f1f1f1;">
-    <div style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
-      &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+<body>
+    <div style="padding: 20px;">
+        <div class="container">
+            <div class="header">
+                <img src="${logoUrl}" alt="ita-luxury Logo" class="logo">
+            </div>
+            
+            <div class="content">
+                <h1>Réinitialisation de votre mot de passe</h1>
+                <h2>Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte ita-luxury.</h2>
+                
+                <p>Si vous n'avez pas fait cette demande, vous pouvez ignorer cet e-mail en toute sécurité. Sinon, veuillez cliquer sur le bouton ci-dessous pour réinitialiser votre mot de passe :</p>
+                
+                <div class="button-container">
+                    <a href="${resetPasswordUrl}" class="button">Réinitialiser mon mot de passe</a>
+                </div>
+                
+                <p>Ce lien expirera dans 24 heures.</p>
+                
+                <div class="url-note">
+                    <p style="margin-top: 0; margin-bottom: 10px;">Si vous rencontrez des difficultés pour cliquer sur le bouton, copiez et collez l'URL ci-dessous dans votre navigateur web :</p>
+                    <p style="margin-bottom: 0; font-size: 13px;">${resetPasswordUrl}</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Contact : 23 212 892 | Instagram : <a href="https://www.instagram.com/ita_luxury" class="social-link">@ita_luxury</a></p>
+                <p style="margin-bottom: 0;">&copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.</p>
+            </div>
+        </div>
     </div>
-    <div style="max-width: 600px; margin: 0 auto;" class="email-container">
-    	<!-- BEGIN BODY -->
-      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
-      	<tr>
-          <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em;">
-          	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-          		<tr>
-          			<td style="text-align: center; padding-bottom: 20px;">
-			            <img src="${logoUrl}" alt="ita-luxury Logo" width="150" style="max-width: 150px;">
-			          </td>
-          		</tr>
-          	</table>
-          </td>
-	      </tr><!-- end tr -->
-				<tr>
-          <td valign="middle" class="hero bg_white" style="padding: 2em 0 2em 0;">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-            	<tr>
-            		<td style="padding: 0 2.5em; text-align: left;">
-            			<div class="text">
-            				<h2>Reset Your Password</h2>
-            				<h3>We received a request to reset your password for your ita-luxury account.</h3>
-            			</div>
-            		</td>
-            	</tr>
-            </table>
-          </td>
-	      </tr><!-- end tr -->
-	      
-	      <!-- ... rest of the email template ... -->
-	      
-	      <tr>
-        	<td valign="middle" class="bg-white footer email-section">
-        		<table>
-            	<tr>
-                <td valign="top" width="100%">
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                    <tr>
-                      <td style="text-align: left; padding-right: 10px;">
-                      	<p>Contact: 23 212 892 | Instagram: <a href="https://www.instagram.com/ita_luxury" style="color: #9a7b5f; text-decoration: none;">@ita_luxury</a></p>
-                      	<p>&copy; ${new Date().getFullYear()} ita-luxury. All Rights Reserved</p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-        	</td>
-        </tr>
-      </table>
-
-    </div>
-  </center>
 </body>
-</html>
-      `,
-    });
-  } catch (error) {
-    console.error("Failed to send reset password email:", error);
-    throw new Error("Failed to send reset password email");
-  }
+</html>`,
+		});
+	} catch (error) {
+		console.error("Failed to send reset password email:", error);
+		throw new Error("Failed to send reset password email");
+	}
 };
 
 export const forgotPassword = async (
-  _: any,
-  { email }: { email: string },
-  { prisma }: Context
+	_: any,
+	{ email }: { email: string },
+	{ prisma }: Context
 ) => {
-  try {
-    // Check if the email exists in the database
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+	try {
+		// Check if the email exists in the database
+		const user = await prisma.user.findUnique({
+			where: { email },
+		});
 
-    if (!user) {
-      throw new Error("User doesn't exist!");
-    }
+		if (!user) {
+			throw new Error("User doesn't exist!");
+		}
 
-    // Send the reset password email
-    await sendResetPasswordEmail(email, user.id);
+		// Send the reset password email
+		await sendResetPasswordEmail(email, user.id);
 
-    return "Email sent successfully";
-  } catch (error) {
-    console.error("Error in forgotPassword function:", error);
-    throw new Error("An error occurred, please try again later.");
-  }
+		return "Email sent successfully";
+	} catch (error) {
+		console.error("Error in forgotPassword function:", error);
+		throw new Error("An error occurred, please try again later.");
+	}
 };

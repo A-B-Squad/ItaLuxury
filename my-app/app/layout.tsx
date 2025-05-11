@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
 
   title: {
-    template: '%s | ITA Luxury',
-    default: 'ITA Luxury - Vente en ligne en Tunisie'
+    template: '%s | Ita Luxury',
+    default: 'Ita Luxury - Vente en ligne en Tunisie'
   },
   description: "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits.",
   icons: {

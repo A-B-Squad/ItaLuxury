@@ -221,7 +221,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
         
         <div className="text-center mt-8 text-sm text-gray-500">
           <p>Pour toute question, contactez notre service client au +216 23 212 892</p>
-          <p className="mt-2">© 2024 ITA Luxury. Tous droits réservés.</p>
+          <p className="mt-2">© {new Date().getFullYear()} ITA Luxury. Tous droits réservés.</p>
         </div>
       </div>
     </div>

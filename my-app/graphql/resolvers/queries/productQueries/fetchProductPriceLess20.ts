@@ -24,7 +24,6 @@ export const productsLessThen20 = async (
 
         reviews: true,
         favoriteProducts: true,
-        attributes: true,
         Colors: true,
         Brand: true,
       },
