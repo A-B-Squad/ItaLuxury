@@ -103,7 +103,7 @@ const ProductQuickView = () => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         value: price * quantity,
         currency: "TND",
       },
@@ -132,7 +132,7 @@ const ProductQuickView = () => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         value: price * quantity,
         currency: "TND"
       }

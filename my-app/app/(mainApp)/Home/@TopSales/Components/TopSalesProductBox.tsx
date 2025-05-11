@@ -71,7 +71,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         contents: [{
           id: product.id,
           quantity: 1,

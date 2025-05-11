@@ -112,8 +112,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                 <span className="font-semibold">{product.name}</span>
                 <p className="mt-auto text-lg font-bold">
                   {product.productDiscounts?.length
-                    ? product.productDiscounts[0].newPrice.toFixed(3)
-                    : product.price.toFixed(3)}{" "}
+                    ? product.productDiscounts[0].newPrice.toFixed(2)
+                    : product.price.toFixed(2)}{" "}
                   TND
                 </p>
                 <p className="mt-auto text-lg font-md text-gray-400">
@@ -191,7 +191,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-gray-900">Sous-total</p>
             <p className="font-semibold text-gray-900">
-              {Number(total).toFixed(3)} TND
+              {Number(total).toFixed(2)} TND
             </p>
           </div>
           <div className="flex items-center justify-between">
@@ -199,14 +199,14 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             <p className="font-semibold text-gray-900">
               {Number(total) >= 499
                 ? "Gratuit"
-                : `${deliveryPrice.toFixed(3)} TND`}
+                : `${deliveryPrice.toFixed(2)} TND`}
             </p>
           </div>
           {discountPercentage > 0 && (
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gray-900">Remise</p>
               <p className="font-semibold text-green-600">
-                -{((Number(total) * discountPercentage) / 100).toFixed(3)} TND (
+                -{((Number(total) * discountPercentage) / 100).toFixed(2)} TND (
                 {discountPercentage}%)
               </p>
             </div>

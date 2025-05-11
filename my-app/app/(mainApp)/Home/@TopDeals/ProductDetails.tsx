@@ -75,7 +75,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             custom_data: {
                 content_name: product.name,
                 content_type: "product",
-                content_ids: [product.reference],
+                content_ids: [product.id],
                 value: price * quantity,
                 currency: "TND",
                 contents: [{
@@ -102,7 +102,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             facebook_data: {
                 content_name: product.name,
                 content_type: "product",    
-                content_ids: [product.reference],
+                content_ids: [product.id],
                 value: price * quantity,
                 currency: "TND"
             }
@@ -273,21 +273,6 @@ const ProductDetails: React.FC<ProductProps> = ({
                             <span className="ml-1 text-sm text-gray-600">
                                 ({product?.reviewCount || Math.floor(Math.random() * 50) + 10} avis)
                             </span>
-                        </div>
-
-                        <div className="mt-3 grid grid-cols-2 gap-2">
-                            {product?.attributes
-                                ?.slice(0, 2)
-                                ?.map((attribute: any, i: number) => (
-                                    <div key={i} className="flex items-center text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                                        <span className="font-medium mr-1">
-                                            {attribute.name}:
-                                        </span>
-                                        <span className="capitalize">
-                                            {attribute.value}
-                                        </span>
-                                    </div>
-                                ))}
                         </div>
 
                         {product.Colors && (

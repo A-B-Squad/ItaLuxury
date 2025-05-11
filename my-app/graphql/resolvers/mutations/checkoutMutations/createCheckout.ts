@@ -370,9 +370,9 @@ async function tryToSendCheckoutEmail(
                     <div><strong>${item.product.name}</strong></div>
                     <div style="color: #888; font-size: 13px;">Réf: ${item.product.reference}</div>
                   </td>
-                  <td>${item.price.toFixed(3)} TND</td>
+                  <td>${item.price.toFixed(2)} TND</td>
                   <td>${item.productQuantity}</td>
-                  <td><strong>${(item.discountedPrice || (item.price * item.productQuantity)).toFixed(3)} TND</strong></td>
+                  <td><strong>${(item.discountedPrice || (item.price * item.productQuantity)).toFixed(2)} TND</strong></td>
                 </tr>
               `).join("")}
             </tbody>
@@ -381,25 +381,25 @@ async function tryToSendCheckoutEmail(
           <table class="totals-table">
             <tr>
               <td class="label">Sous-total:</td>
-              <td class="value">${totals.totalProducts.toFixed(3)} TND</td>
+              <td class="value">${totals.totalProducts.toFixed(2)} TND</td>
             </tr>
             ${totals.couponDiscount > 0 ? `
               <tr>
                 <td class="label">Coupon (${totals.couponDiscount}%):</td>
-                <td class="value">-${totals.discountAmount.toFixed(3)} TND</td>
+                <td class="value">-${totals.discountAmount.toFixed(2)} TND</td>
               </tr>
               <tr>
                 <td class="label">Sous-total après réduction:</td>
-                <td class="value">${totals.totalAfterDiscount.toFixed(3)} TND</td>
+                <td class="value">${totals.totalAfterDiscount.toFixed(2)} TND</td>
               </tr>
             ` : ''}
             <tr>
               <td class="label">Frais de livraison:</td>
-              <td class="value">${totals.deliveryCost.toFixed(3)} TND</td>
+              <td class="value">${totals.deliveryCost.toFixed(2)} TND</td>
             </tr>
             <tr class="grand-total">
               <td class="label">Total:</td>
-              <td class="value">${totals.totalToPay.toFixed(3)} TND</td>
+              <td class="value">${totals.totalToPay.toFixed(2)} TND</td>
             </tr>
           </table>
           

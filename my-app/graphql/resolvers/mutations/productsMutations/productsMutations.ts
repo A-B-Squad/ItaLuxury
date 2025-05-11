@@ -5,16 +5,17 @@ import { addDeleteProductToFavorite } from "./addDeleteProductToFavorite";
 import { sellProduct } from "./sellProduct";
 import { undoSellProduct } from "./undoSellProduct";
 import { deleteProductDiscount } from "./deleteProductDiscount";
-import { addRating } from "./addRating";
 import { addProductInventory } from "./addProductInventory";
+import { AddReview } from "./addReview";
+
 
 export const productsMutations = {
   createProduct,
   updateProduct,
   deleteProduct,
   addDeleteProductToFavorite,
-  deleteProductDiscount, 
-  undoSellProduct, 
+  deleteProductDiscount,
+  undoSellProduct,
   sellProduct,
-  addRating,addProductInventory
+  AddReview, addProductInventory
 };

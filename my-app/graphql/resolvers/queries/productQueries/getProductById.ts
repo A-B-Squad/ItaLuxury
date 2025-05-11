@@ -19,7 +19,6 @@ export const productById = async (
         baskets: true, // Include baskets related to the product
         reviews: true, // Include reviews related to the product
         favoriteProducts: true, // Include favorite products related to the product
-        attributes: true, // Include attributes related to the product
         Colors: true,
         Brand: true,
       },

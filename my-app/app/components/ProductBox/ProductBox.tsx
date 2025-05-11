@@ -92,7 +92,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         currency: "TND",
         contents: [
           {
@@ -132,7 +132,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         contents: [
           {
             id: product.id,

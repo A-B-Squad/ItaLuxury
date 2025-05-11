@@ -14,7 +14,6 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
             productDiscounts: true,
             
             Colors: true,
-            attributes: true,
             categories: {
               include: {
                 subcategories: {

@@ -72,8 +72,6 @@ const productDetailsDrawer = ({
             <h3 className=" tracking-wider font-normal text-sm  capitalize text-primaryColor">
               Quantité:{" "}
             </h3>
-
-
             <div className="flex items-center gap-2 di rounded border border-gray-300">
               <button
                 type="button"

@@ -1,7 +1,7 @@
 import keywords from "@/public/keywords";
 import { Metadata } from "next";
 import { JsonLd } from "react-schemaorg";
-import ProductDetails from "./ProductDetails";
+import ProductDetailsSection from "./ProductDetailsSection";
 import { formatRating } from "@/app/Helpers/_formatRating";
 
 interface Review {
@@ -18,10 +18,7 @@ interface ProductData {
   description: string;
   inventory: number;
   images: string[];
-  attributes: Array<{
-    name: string;
-    value: string;
-  }>;
+  technicalDetails: string
   reviews: Review[];
   Colors?: {
     color: string;
@@ -106,11 +103,7 @@ async function fetchProductData(
                 color
                 Hex
               }
-              attributes {
-                id
-                name
-                value
-              }
+             technicalDetails
               reviews {
                 rating
                 userId
@@ -169,6 +162,7 @@ export async function generateMetadata({
   const productName = productData.name || "Produit";
   const productReference = productData.reference || "";
   const brandName = productData.Brand?.name || "";
+  const technicalDetails = productData.technicalDetails || "";
 
   // Enhanced title with brand name if available
   const title = `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `| ${rating.average}/5 ⭐ (${rating.count} avis) ` : ""}| ita-luxury`;
@@ -186,9 +180,7 @@ export async function generateMetadata({
     brandName,
     productData.Colors?.color,
     ...(productData.categories || []).map((cat: any) => cat.name),
-    ...(productData.attributes || []).map(
-      (attr: { name: any; value: any }) => `${attr.name} ${attr.value}`
-    ),
+    technicalDetails,
     rating ? `${rating.average} étoiles` : "",
     "avis client",
     "évaluation produit",
@@ -206,7 +198,7 @@ export async function generateMetadata({
     description,
     openGraph: {
       type: "website",
-      title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐)(${rating.count} avis)` : ""}`,
+      title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐) avis)` : ""}`,
       description,
       images: (productData.images || []).map((image: any) => ({
         url: image,
@@ -335,10 +327,10 @@ const ProductDetailsPage = async ({
     image: Array.isArray(productData.images)
       ? productData.images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`)
       : [],
-    sku: productData.reference,
-    mpn: productData.reference,
+    sku: productData.id,
+    mpn: productData.id,
     identifier_exists: productData.id ? "yes" : "no",
-    gtin: productData.id, 
+    gtin: productData.id,
     brand: {
       "@type": "Brand",
       name: productData.Brand?.name || productData.categories?.[productData.categories.length - 1]?.name,
@@ -404,6 +396,7 @@ const ProductDetailsPage = async ({
         bestRating: rating.best,
         reviewCount: rating.count,
         worstRating: 0,
+
       },
     }),
     review: (productData.reviews || []).map((review: { rating: any }) => ({
@@ -419,20 +412,14 @@ const ProductDetailsPage = async ({
         worstRating: 0,
       },
     })),
-    additionalProperty: (productData.attributes || []).map(
-      (attr: { name: any; value: any }) => ({
-        "@type": "PropertyValue",
-        name: attr.name,
-        value: attr.value,
-      })
-    ),
+    additionalProperty: productData.technicalDetails,
   };
 
   return (
     <div className="bg-gray-50 p-2 md:py-6">
       <JsonLd<any> item={breadcrumbList} />
       <JsonLd<any> item={productSchema} />
-      <ProductDetails
+      <ProductDetailsSection
         productDetails={productData}
         productId={searchParams.productId}
       />

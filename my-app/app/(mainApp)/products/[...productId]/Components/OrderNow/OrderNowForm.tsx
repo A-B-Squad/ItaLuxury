@@ -136,7 +136,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
         }
 
         const finalTotal = discountedSubtotal + shippingCost;
-        return finalTotal.toFixed(3);
+        return finalTotal.toFixed(2);
     };
 
     const sendNotification = async (

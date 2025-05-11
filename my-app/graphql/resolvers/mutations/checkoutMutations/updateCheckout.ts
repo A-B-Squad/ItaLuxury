@@ -2,6 +2,7 @@ import { Context } from "@/pages/api/graphql";
 import nodemailer from "nodemailer";
 
 interface UpdateCheckoutInput {
+  orderStatus?: string
   checkoutId: string;
   total?: number;
   manualDiscount: GLfloat;
@@ -34,7 +35,7 @@ async function sendCheckoutEmail(
 
   // Base URL for your website
   const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
-  
+
   // Logo and other image paths - using images from public folder
   const logoUrl = `${baseUrl}/LOGO.png`;
   const jaxDeliveryLogo = `${baseUrl}/jaxDelivery.png`;
@@ -287,12 +288,16 @@ export const updateCheckout = async (
       productInCheckout,
       manualDiscount,
       freeDelivery,
+      orderStatus
     } = input;
 
     // Fetch the existing checkout
     const existingCheckout = await prisma.checkout.findUnique({
       where: { id: checkoutId },
-      include: { productInCheckout: true },
+      include: {
+        productInCheckout: true,
+        package: true
+      },
     });
 
     if (!existingCheckout) {
@@ -312,6 +317,23 @@ export const updateCheckout = async (
 
     // Handle product updates
     if (productInCheckout) {
+      // Only adjust inventory if the order status is CONFIRMED
+      if (orderStatus === "CONFIRMED" && existingCheckout.productInCheckout && existingCheckout.productInCheckout.length > 0) {
+        // First, adjust inventory and sales for existing products before deleting them
+        await prisma.$transaction(async (tx: any) => {
+          for (const existingProduct of existingCheckout.productInCheckout) {
+            // Restore inventory and sales counts for products being removed or updated
+            await tx.product.update({
+              where: { id: existingProduct.productId },
+              data: {
+                inventory: { increment: existingProduct.productQuantity },
+                solde: { decrement: existingProduct.productQuantity },
+              },
+            });
+          }
+        });
+      }
+
       // Delete existing productInCheckout entries
       await prisma.productInCheckout.deleteMany({
         where: { checkoutId },
@@ -326,7 +348,23 @@ export const updateCheckout = async (
           discountedPrice: product.discountedPrice,
         })),
       };
+
+      // Only update inventory for new products if the order status is CONFIRMED
+      if (orderStatus === "CONFIRMED") {
+        await prisma.$transaction(async (tx: any) => {
+          for (const newProduct of productInCheckout) {
+            await tx.product.update({
+              where: { id: newProduct.productId },
+              data: {
+                inventory: { decrement: newProduct.productQuantity },
+                solde: { increment: newProduct.productQuantity },
+              },
+            });
+          }
+        });
+      }
     }
+
 
     // Perform the update
     const updatedCheckout = await prisma.checkout.update({

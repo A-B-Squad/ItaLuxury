@@ -56,12 +56,13 @@ const ProductDetailsDrawer = dynamic(
 
 import CustomInnerZoom from "./Components/CustomInnerZoom";
 import ActionButton from "./Components/ActionButton";
-import ProductAttrLaptop from "./Components/ProductAttrLaptop";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
+import RatingStarsLaptop from "./Components/RatingStarsLaptop";
+import ProductDetailsContainer from "./Components/ProductDetailsContainer";
 
 
-const ProductDetails = ({ productDetails, productId }: any) => {
+const ProductDetailsSection = ({ productDetails, productId }: any) => {
   const { toast } = useToast();
 
 
@@ -69,7 +70,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   const [smallImages, setSmallImages] = useState<any>(null);
   const { decodedToken, isAuthenticated } = useAuth();
   const [discount, setDiscount] = useState<any>(null);
-  const [attributes, setAttributes] = useState<any>(null);
+  const [technicalDetails, setTechnicalDetails] = useState<any>(null);
 
   const [quantity, setQuantity] = useState<number>(1);
 
@@ -172,7 +173,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       facebook_data: {
         content_name: name,
         content_type: "product details",
-        content_ids: [reference],
+        content_ids: [id],
         content_category: primaryCategory,
         contents: [
           {
@@ -200,7 +201,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       custom_data: {
         content_name: name,
         content_type: "product",
-        content_ids: [reference],
+        content_ids: [id],
         value: finalPrice,
         currency: "TND",
         content_category: primaryCategory,
@@ -215,7 +216,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
     });
 
     setDiscount(productDetails.productDiscounts[0]);
-    setAttributes(productDetails.attributes);
+    setTechnicalDetails(productDetails.technicalDetails);
   }, [productId]);
 
   const productInBasket = useMemo(() => {
@@ -252,7 +253,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       custom_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         currency: "TND",
         contents: [
           {
@@ -281,9 +282,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
             item_variant: product?.Colors?.color,
             item_price: price,
             item_description: product.description,
-            item_Att: attributes?.map(
-              (attr: { name: string; value: string; }) => attr.name + " " + attr.value
-            ),
+            item_Att: technicalDetails,
             quantity: product.actualQuantity || product.quantity
           }
         ],
@@ -300,7 +299,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       facebook_data: {
         content_name: product.name,
         content_type: "product",
-        content_ids: [product.reference],
+        content_ids: [product.id],
         contents: [
           {
             id: product.id,
@@ -404,7 +403,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
       });
     }
     toggleIsUpdated();
-  }, [decodedToken, productInBasket, quantity, productDetails?.name, userData, attributes, toast, toggleIsUpdated, storedProducts, increaseProductInQtBasket, addProductToBasket]);
+  }, [decodedToken, productInBasket, quantity, productDetails?.name, userData, technicalDetails, toast, toggleIsUpdated, storedProducts, increaseProductInQtBasket, addProductToBasket]);
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productDetails.inventory) {
@@ -531,7 +530,7 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               {/* Rest of the product info section */}
               <ProductInfo
                 productDetails={productDetails}
-                attributes={attributes}
+                technicalDetails={technicalDetails}
                 userId={decodedToken?.userId}
                 discount={discount}
                 productId={productId}
@@ -556,18 +555,20 @@ const ProductDetails = ({ productDetails, productId }: any) => {
               />
             </div>
 
-            <ProductAttrLaptop
-              attributes={attributes}
-              productId={productDetails.id}
-              userId={decodedToken?.userId || ""}
-              toast={toast}
-            />
           </div>
         )}
 
+
+        <ProductDetailsContainer
+          productId={productId}
+          userId={decodedToken?.userId}
+          toast={toast}
+          technicalDetails={technicalDetails}
+        />
+
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-6 mt-8 mb-[15%]">
           <TitleProduct title={"Produits apparentés"} />
-          <div>
+          <div className="py-2">
             <ProductTabs
               data={Products_10_by_category?.productsByCategory}
               loadingProduct={loadingProductByCategiry}
@@ -589,4 +590,4 @@ const ProductDetails = ({ productDetails, productId }: any) => {
   );
 };
 
-export default ProductDetails;
+export default ProductDetailsSection;

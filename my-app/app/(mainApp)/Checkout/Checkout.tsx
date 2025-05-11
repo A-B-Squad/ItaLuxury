@@ -144,7 +144,7 @@ const Checkout: React.FC = () => {
       subtotal -= (subtotal * discountPercentage) / 100;
     }
 
-    return (subtotal + shippingCost).toFixed(3);
+    return (subtotal + shippingCost).toFixed(2);
   }, [checkoutTotal, deliveryPrice, discountPercentage]);
 
 
@@ -234,10 +234,10 @@ const Checkout: React.FC = () => {
         ? Number(product.productDiscounts[0].newPrice)
         : Number(product.price)
     }));
-    
+
     // Format contents specifically for Facebook Pixel
     const facebookContents = checkoutProducts.map(product => ({
-      id: product.reference || product.id, // Use reference as primary ID, fallback to product ID
+      id: product.id || product.reference,
       quantity: product.actualQuantity || product.quantity,
       item_price: product.productDiscounts?.length > 0
         ? Number(product.productDiscounts[0].newPrice)
@@ -289,7 +289,7 @@ const Checkout: React.FC = () => {
             transaction_id: customOrderId
           }
         });
-        
+
         triggerEvents("Purchase", {
           user_data: {
             em: [userEmail.toLowerCase()],
@@ -303,8 +303,9 @@ const Checkout: React.FC = () => {
             currency: "TND",
             value: finalValue,
             content_type: "product_group",
-            contents: facebookContents, // Use the Facebook-specific format here too
+            contents: facebookContents,
             content_name: "Purchase",
+            content_ids: checkoutProducts.map(product => product.id),
             num_items: totalItems,
             content_category: "Checkout",
             delivery_category: checkoutInput.freeDelivery ? "free_shipping" : "shipping",
@@ -620,7 +621,7 @@ const Checkout: React.FC = () => {
                             validate: (value) => {
                               // Remove spaces for validation
                               const cleaned = value.replace(/\s+/g, '');
-                              return cleaned.length === 8 && /^\d+$/.test(cleaned) || 
+                              return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                                 "Le numéro de téléphone doit comporter 8 chiffres";
                             }
                           })}
@@ -655,7 +656,7 @@ const Checkout: React.FC = () => {
                               if (!value) return true; // Optional field
                               // Remove spaces for validation
                               const cleaned = value.replace(/\s+/g, '');
-                              return cleaned.length === 8 && /^\d+$/.test(cleaned) || 
+                              return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                                 "Le numéro de téléphone doit comporter 8 chiffres";
                             }
                           })}

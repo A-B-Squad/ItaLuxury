@@ -89,7 +89,7 @@ type Product {
   baskets: [Basket!]
   reviews: [Review!]
   favoriteProducts: [FavoriteProducts!]
-  attributes: [ProductAttribute!]!
+  technicalDetails:String
   Colors: Colors
   Brand: Brand
 
@@ -193,16 +193,19 @@ type Package {
   delivredAt:String
   inTransitAt:String
   returnedAt:String
+  deliveryReference:String
 }
 
-# Review and favorite-related types
 type Review {
   id: ID!
   rating: Float!
-  userId: ID!
-  user: User!
+  userId: ID
+  comment:String
+  userName:String
+  user: User
   productId: ID!
   product: Product!
+  createdAt:String
 }
 
 type FavoriteProducts {
@@ -213,14 +216,6 @@ type FavoriteProducts {
   Product: Product!
 }
 
-# Other types
-type ProductAttribute {
-  id: ID!
-  name: String!
-  value: String!
-  productId: ID!
-  product: Product!
-}
 
 type Advertisement {
   id: ID!
@@ -262,7 +257,7 @@ type Moderator {
 type SearchProductsResult {
   results: SearchResults!
   totalCount: Int!
-  pagination: PaginationInfo! # Add pagination metadata
+  pagination: PaginationInfo! 
 }
 
 type PaginationInfo {
@@ -270,6 +265,10 @@ type PaginationInfo {
   totalPages: Int!
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
+}
+type PackagePaginationResult {
+  packages: [Package!]!
+  pagination: PaginationInfo!
 }
 type SearchResults {
   products: [Product!]!
@@ -300,7 +299,7 @@ type ContactUs {
 type Coupons {
   id: String
   code: String
-  discount: Int
+  discount: Float
   available: Boolean
   checkout: [Checkout!]
 }
@@ -360,8 +359,7 @@ type Query {
   advertismentByPosition(position: String!): [Advertisement]!
   packageById(packageId: ID!): Package!
   packageByUserId(userId: ID!): [Package]!
-  getAllPackages: [Package!]
-  companyInfo: CompanyInfo!
+  getAllPackages(page: Int, pageSize: Int, searchTerm: String, dateFrom: String, dateTo: String): PackagePaginationResult!  companyInfo: CompanyInfo!
   allContactUs: [ContactUs!]
 
 
@@ -399,7 +397,11 @@ type Mutation {
   createProduct(input: ProductInput!): String!
   updateProduct(productId: ID!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
-  addRating(productId: ID!, userId: ID!, rating: Int!): String!
+ 
+  
+
+  AddReview(input: AddReviewInput!): String!
+  deleteReview(reviewId: ID!): Boolean
   addProductInventory(productId: ID!, inventory: Int!): String!
   undoSellProduct(productId: ID!, quantityReturned: Int!): Product!
   sellProduct(productId: ID!, quantitySold: Int!): Product
@@ -427,7 +429,7 @@ type Mutation {
   cancelPackage(input: CancelPackageInput!): String!
   refundPackage(input: RefundPackageInput!): String!
   cancalPackageProduct(input: CancelProductPackageInput!): String!
-  payedOrConfirmedOrInTransitPackage(packageId: ID! , paymentMethod:PaymentMethod!, status: String!): String!
+  payedOrConfirmedOrInTransitPackage(packageId: ID! , paymentMethod:PaymentMethod!, status: String!,deliveryReference:String): String!
   createPackageComments(packageId: ID!, comment: [String!]!): String!
   updateStatusPayOnlinePackage(packageId:ID!,paymentStatus:Status):String!
   # Category-related mutations
@@ -487,17 +489,26 @@ input ProductInput {
   isVisible: Boolean!
   reference: String!
   description: String!
+  technicalDetails: String
   inventory: Int!
   images: [String!]!
   categories: [ID!]!
-  attributeInputs: [ProductAttributeInput!]
   discount: [CreateProductDiscountInput]
   colorsId: ID
   brandId: ID
 
 }
 
+
+input AddReviewInput {
+  productId: ID!
+  userId: ID
+  rating: Int!
+  comment: String
+  userName: String
+  }
 input UpdateCheckoutInput {
+  orderStatus:String
   checkoutId: ID!
   total: Float!
   manualDiscount: Float
@@ -529,10 +540,6 @@ input ProductInCheckoutInput {
   discountedPrice: Float
 }
 
-input ProductAttributeInput {
-  name: String!
-  value: String!
-}
 
 input CreateCategoryInput {
   name: String!
@@ -720,6 +727,8 @@ input advertisementInput {
 
 input CreateCouponInput {
   code: String!
-  discount: Int!
+  discount: Float!
 }
-`;
+
+
+`

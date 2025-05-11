@@ -28,11 +28,7 @@ export const PRODUCT_BY_ID_QUERY = gql`
         Hex
       }
 
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
     }
   }
 `;
@@ -51,11 +47,16 @@ export const FETCH_USER_BY_ID = gql`
   }
 `;
 export const GET_REVIEW_QUERY = gql`
-  query ProductReview($productId: ID!) {
+   query ProductReview($productId: ID!) {
     productReview(productId: $productId) {
       id
       rating
+      comment
       userId
+      user {
+        fullName
+      }
+      userName
     }
   }
 `;
@@ -64,6 +65,7 @@ export const GET_USER_REVIEW_QUERY = gql`
     productReview(productId: $productId, userId: $userId) {
       id
       rating
+      comment
     }
   }
 `;
@@ -130,11 +132,7 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
         color
         Hex
       }
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
       productDiscounts {
         price
         newPrice
@@ -202,10 +200,7 @@ export const TOP_DEALS = gql`
         createdAt
         inventory
         images
-        attributes {
-          name
-          value
-        }
+        technicalDetails
         categories {
           id
           name
@@ -584,11 +579,7 @@ export const TAKE_14_PRODUCTS = gql`
         color
         Hex
       }
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
       productDiscounts {
         price
         newPrice
@@ -623,11 +614,7 @@ export const TAKE_14_PRODUCTS_IN_DISCOUNT = gql`
           }
         }
       }
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
       Colors {
         id
         color

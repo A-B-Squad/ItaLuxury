@@ -2,65 +2,12 @@ import { PrismaClient } from "@prisma/client";
 import { Context } from "@/pages/api/graphql";
 import moment from "moment";
 
-interface AttributeInput {
-  name: string;
-  value: string;
-}
 
 interface DiscountInput {
   newPrice: GLfloat;
   dateOfEnd: string;
   dateOfStart: string;
 }
-
-
-
-
-const updateAttributes = async (
-  prisma: PrismaClient,
-  productId: string,
-  attributeInputs: AttributeInput[]
-) => {
-  try {
-    // Use a transaction to ensure atomicity of operations
-    return await prisma.$transaction(async (tx) => {
-      // First, delete all existing attributes for the product
-      await tx.productAttribute.deleteMany({
-        where: { productId },
-      });
-
-      // Filter out any empty attributes and ensure uniqueness
-      const validAttributes = attributeInputs.filter(
-        attr => attr.name.trim() !== '' && attr.value.trim() !== ''
-      );
-      
-      // Use a Map to ensure uniqueness based on name (case insensitive)
-      const uniqueAttributes = new Map();
-      
-      validAttributes.forEach(attr => {
-        const normalizedName = attr.name.trim().toLowerCase();
-        uniqueAttributes.set(normalizedName, {
-          name: attr.name.trim(),
-          value: attr.value.trim(),
-          productId: productId
-        });
-      });
-      
-      // Convert Map values to array for creation
-      const formattedAttributes = Array.from(uniqueAttributes.values());
-
-      // Create all new attributes using createMany for better performance
-      if (formattedAttributes.length > 0) {
-        await tx.productAttribute.createMany({
-          data: formattedAttributes,
-        });
-      }
-    });
-  } catch (error) {
-    console.error("Error updating attributes:", error);
-    throw new Error("Failed to update product attributes");
-  }
-};
 
 
 const updateDiscounts = async (
@@ -120,7 +67,7 @@ export const updateProduct = async (
       inventory,
       images,
       categories,
-      attributeInputs,
+      technicalDetails,
       colorsId,
       discount,
       brandId,
@@ -134,7 +81,7 @@ export const updateProduct = async (
           disconnect: (await prisma.product.findUnique({
             where: { id: productId },
             select: { categories: { select: { id: true } } },
-          }))?.categories.map((cat:any) => ({ id: cat.id })) || [],
+          }))?.categories.map((cat: any) => ({ id: cat.id })) || [],
         },
       },
     });
@@ -151,23 +98,19 @@ export const updateProduct = async (
         reference,
         description,
         inventory,
-        colorsId,
+        colorsId, technicalDetails,
         images,
         categories: {
           connect: categories?.map((categoryId) => ({ id: categoryId })) || [],
         },
       },
       include: {
-        attributes: true,
         categories: true,
         productDiscounts: true,
       },
     });
 
-    // Update attributes
-    if (attributeInputs) {
-      await updateAttributes(prisma, productId, attributeInputs);
-    }
+
 
     // Update discounts
     if (discount) {

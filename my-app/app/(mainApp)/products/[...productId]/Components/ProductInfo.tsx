@@ -1,6 +1,6 @@
 import HoverButton from '@/app/components/HoverButton';
 import { useToast } from "@/components/ui/use-toast";
-import { memo, useEffect, useMemo, useState } from "react"; 
+import { memo, useEffect, useMemo, useState } from "react";
 import { FaPlus, FaRegHeart, FaShareAlt } from "react-icons/fa";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
 import { HiOutlineBellAlert } from "react-icons/hi2";
@@ -10,14 +10,11 @@ import { RiSubtractFill } from "react-icons/ri";
 import DiscountCountDown from "./DiscountCountDown";
 import OrderNow from "./OrderNow/OrderNowForm";
 import ProductAttrMobile from "./ProductAttrMobile";
-import RatingStarsMobile from "./RatingStarsMobile";
 
 const ProductInfo = memo(({
   productDetails,
-  attributes,
-  userId,
+  technicalDetails,
   discount,
-  productId,
   AddToBasket,
   quantity,
   handleIncreaseQuantity,
@@ -27,17 +24,15 @@ const ProductInfo = memo(({
   addToCompare
 }: any) => {
   const { toast } = useToast();
-  // Add a local state to track the last update time
   const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-  // Force component to update when productDetails changes
   useEffect(() => {
     setLastUpdate(Date.now());
   }, [productDetails?.price, productDetails?.productDiscounts]);
 
   const formattedPrice = useMemo(() =>
     productDetails?.price?.toFixed(3),
-    [productDetails?.price, lastUpdate] // Add lastUpdate as dependency
+    [productDetails?.price, lastUpdate]
   );
 
   const productDescription = useMemo(() => ({
@@ -66,12 +61,12 @@ const ProductInfo = memo(({
         text: `Découvrez ${productDetails?.name} sur Ita Luxury`,
         url: window.location.href,
       })
-      .then(() => toast({
-        title: "Partagé avec succès",
-        description: "Merci d'avoir partagé ce produit",
-        className: "bg-primaryColor text-white",
-      }))
-      .catch(console.error);
+        .then(() => toast({
+          title: "Partagé avec succès",
+          description: "Merci d'avoir partagé ce produit",
+          className: "bg-primaryColor text-white",
+        }))
+        .catch(console.error);
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast({
@@ -88,7 +83,7 @@ const ProductInfo = memo(({
         <h2 className="product_name tracking-wide text-lg lg:text-2xl w-fit font-semibold text-gray-800 border-b border-gray-200 pb-2">
           {productDetails?.name}
         </h2>
-        
+
         {/* Product action buttons at top */}
         <div className="flex items-center gap-1">
           <HoverButton
@@ -96,7 +91,7 @@ const ProductInfo = memo(({
             icon={<FaShareAlt />}
             onClick={handleShare}
           />
-          
+
           <HoverButton
             title={isProductInCompare ? "Déjà dans le comparateur" : "Ajouter au comparateur"}
             icon={
@@ -109,7 +104,7 @@ const ProductInfo = memo(({
             onClick={() => addToCompare(productDetails)}
             disabled={isProductInCompare}
           />
-          
+
           <HoverButton
             title="Ajouter aux favoris"
             icon={<FaRegHeart />}
@@ -189,7 +184,7 @@ const ProductInfo = memo(({
         </div>
       </div>
 
-      <div className="user_interaction flex flex-col gap-3 mt-6 border-t border-gray-200 pt-4">
+      <div className="user_interaction flex flex-col gap- mt-6 border-t border-gray-200 pt-4">
         {isMaxQuantity && (
           <div className="flex items-center text-sm gap-3 bg-red-50 p-3 rounded-md">
             <GoAlertFill color="red" size={20} />
@@ -237,12 +232,12 @@ const ProductInfo = memo(({
           </div>
         </div>
 
-        <ProductAttrMobile attributes={attributes} />
-        <RatingStarsMobile productId={productId} userId={userId} toast={toast} />
+        <ProductAttrMobile technicalDetails={technicalDetails} />
+        {/* <RatingStarsMobile productId={productId} userId={userId} toast={toast} /> */}
 
         <OrderNow ActualQuantity={quantity} productDetails={productDetails} />
 
-        <div className="addToBasket flex lg:hidden items-center mt-6 gap-3 md:gap-4">
+        <div className="addToBasket flex lg:hidden items-center  gap-3 md:gap-4">
           <button
             type="button"
             disabled={isOutOfStock}
