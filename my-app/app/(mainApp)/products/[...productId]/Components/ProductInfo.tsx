@@ -1,7 +1,7 @@
 import HoverButton from '@/app/components/HoverButton';
 import { useToast } from "@/components/ui/use-toast";
 import { memo, useEffect, useMemo, useState } from "react";
-import { FaPlus, FaRegHeart, FaShareAlt } from "react-icons/fa";
+import { FaPlus, FaRegHeart, FaShareAlt, FaStar, FaStarHalfAlt, FaRegStar, FaWhatsapp } from "react-icons/fa";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
 import { HiOutlineBellAlert } from "react-icons/hi2";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
@@ -10,6 +10,52 @@ import { RiSubtractFill } from "react-icons/ri";
 import DiscountCountDown from "./DiscountCountDown";
 import OrderNow from "./OrderNow/OrderNowForm";
 import ProductAttrMobile from "./ProductAttrMobile";
+import { GET_REVIEW_QUERY } from '@/graphql/queries';
+import { useLazyQuery } from '@apollo/client';
+import { useAuth } from '@/lib/auth/useAuth';
+import triggerEvents from '@/utlils/trackEvents';
+import { sendGTMEvent } from '@next/third-parties/google';
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  userId: string;
+  productId: string;
+  createdAt: string;
+}
+
+interface RatingCounts {
+  one: number;
+  two: number;
+  three: number;
+  four: number;
+  five: number;
+}
+
+// Star rating component with proper typing
+const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: number }) => {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+
+  for (let i = 1; i <= 5; i++) {
+    if (i <= fullStars) {
+      stars.push(<FaStar key={i} className="text-yellow-400" />);
+    } else if (i === fullStars + 1 && hasHalfStar) {
+      stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
+    } else {
+      stars.push(<FaRegStar key={i} className="text-yellow-400" />);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <div className="flex">{stars}</div>
+      <span className="text-sm text-gray-500">({reviewCount})</span>
+    </div>
+  );
+};
 
 const ProductInfo = memo(({
   productDetails,
@@ -25,10 +71,122 @@ const ProductInfo = memo(({
 }: any) => {
   const { toast } = useToast();
   const [lastUpdate, setLastUpdate] = useState(Date.now());
+  const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
+  const [reviews, setReviews] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const { decodedToken } = useAuth();
 
   useEffect(() => {
     setLastUpdate(Date.now());
   }, [productDetails?.price, productDetails?.productDiscounts]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const { data } = await getReviews({
+          variables: { productId: productDetails.id }
+        });
+
+        if (data?.productReview) {
+          const totalReviews = data.productReview.length;
+          setReviews(totalReviews);
+
+          // Calculate average rating
+          const totalRating = data.productReview.reduce((sum: number, review: Review) => sum + review.rating, 0);
+          const avgRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+          setAverageRating(avgRating);
+
+
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
+    if (productDetails?.id) {
+      fetchReviews();
+    }
+  }, [getReviews, productDetails?.id]);
+
+
+  // Function to track WhatsApp purchase
+  const trackWhatsAppPurchase = () => {
+    // Get user data from localStorage or use default values
+    const userName = localStorage.getItem('userName') || 'Unknown';
+    const userEmail = localStorage.getItem('userEmail') || 'unknown@example.com';
+    const userPhone = localStorage.getItem('userPhone') || '';
+    const governorate = localStorage.getItem('userGovernorate') || 'Tunis';
+
+    // Calculate total price
+    const totalPrice = discount ? discount.newPrice : productDetails.price;
+
+    // Generate a simple order ID for tracking
+    const orderId = `WA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    // Track purchase event for Facebook Pixel
+    triggerEvents("Purchase", {
+      user_data: {
+        em: [userEmail.toLowerCase()],
+        fn: [userName],
+        ph: [userPhone],
+        country: ["tn"],
+        ct: governorate,
+        external_id: decodedToken?.userId,
+      },
+      custom_data: {
+        content_name: "WhatsAppOrder",
+        content_type: "product_group",
+        content_category: "Checkout",
+        currency: "TND",
+        value: parseFloat(totalPrice),
+        contents: [{
+          id: productDetails.id,
+          quantity: quantity
+        }],
+        num_items: quantity,
+      },
+    });
+
+    // Track purchase event for Google Tag Manager
+    sendGTMEvent({
+      event: "purchase",
+      ecommerce: {
+        currency: "TND",
+        value: parseFloat(totalPrice),
+        items: [
+          { id: productDetails.id, quantity: quantity }
+        ],
+        transaction_id: orderId,
+      },
+      user_data: {
+        em: [userEmail.toLowerCase()],
+        fn: [userName],
+        ph: [userPhone],
+        country: ["tn"],
+        ct: governorate,
+        external_id: decodedToken?.userId
+      },
+      facebook_data: {
+        content_name: "WhatsAppOrder",
+        content_type: "product_group",
+        content_category: "Checkout",
+        currency: "TND",
+        value: parseFloat(totalPrice),
+        contents: [{
+          id: productDetails.id,
+          quantity: quantity
+        }],
+        num_items: quantity,
+      }
+    });
+
+    // Show success toast
+    toast({
+      title: "Commande initiée",
+      description: "Votre commande WhatsApp a été enregistrée",
+      className: "bg-green-500 text-white",
+    });
+  };
 
   const formattedPrice = useMemo(() =>
     productDetails?.price?.toFixed(3),
@@ -79,10 +237,17 @@ const ProductInfo = memo(({
 
   return (
     <div className="productInfo lg:col-span-4 col-span-12 p-3 md:p-5 w-full bg-white rounded-lg shadow-sm">
-      <div className="flex justify-between items-center">
-        <h2 className="product_name tracking-wide text-lg lg:text-2xl w-fit font-semibold text-gray-800 border-b border-gray-200 pb-2">
+      <div className="flex flex-col justify-betwee border-b border-gray-200 pb-2">
+        <h2 className="product_name tracking-wide text-lg w-fit font-semibold text-gray-800">
           {productDetails?.name}
         </h2>
+
+        {/* Star Rating Display - only show if there are reviews */}
+        {reviews > 0 && (
+          <div className="mt-1 mb-2">
+            <StarRating rating={averageRating} reviewCount={reviews} />
+          </div>
+        )}
 
         {/* Product action buttons at top */}
         <div className="flex items-center gap-1">
@@ -232,46 +397,53 @@ const ProductInfo = memo(({
           </div>
         </div>
 
-        <ProductAttrMobile technicalDetails={technicalDetails} />
-        {/* <RatingStarsMobile productId={productId} userId={userId} toast={toast} /> */}
+
+        {/* WhatsApp Order Button at the top */}
+        <div className="lg:hidden whatsapp-order mt-4 mb-2">
+          <a
+            href={`https://wa.me/+21623212892?text=Je veux commander cet article: ${productDetails?.name} - ${window.location.href}`}
+            target="_blank"
+            onClick={() => {
+              trackWhatsAppPurchase();
+            }}
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md font-semibold transition-all duration-300"
+          >
+            <FaWhatsapp size={20} />
+            Commander via WhatsApp
+          </a>
+        </div>
+
+        {/* Add to Cart button only */}
+        <div className="lg:hidden action-buttons flex flex-col gap-3 mt-2">
+          <div className="w-full">
+            <button
+              type="button"
+              disabled={isOutOfStock}
+              className={`w-full transition-all py-3 rounded-md shadow-md flex items-center justify-center gap-2 ${isOutOfStock
+                ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                : "bg-red-500 hover:bg-opacity-90 text-white"
+                } text-sm font-bold`}
+              onClick={() => !isOutOfStock && AddToBasket(productDetails)}
+            >
+              <MdAddShoppingCart size={20} />
+              {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
+            </button>
+          </div>
+        </div>
+
+        {/* OU separator */}
+        <div className="lg:hidden flex items-center my-3">
+          <div className="flex-grow h-px bg-gray-200"></div>
+          <span className="mx-4 text-gray-500 font-medium">OU</span>
+          <div className="flex-grow h-px bg-gray-200"></div>
+        </div>
 
         <OrderNow ActualQuantity={quantity} productDetails={productDetails} />
 
-        <div className="addToBasket flex lg:hidden items-center  gap-3 md:gap-4">
-          <button
-            type="button"
-            disabled={isOutOfStock}
-            className={`min-w-[250px] w-4/5 transition-all py-4 rounded-md shadow-md flex items-center justify-center gap-2 ${isOutOfStock
-              ? "bg-gray-300 cursor-not-allowed text-gray-500"
-              : "bg-secondaryColor hover:bg-opacity-90 text-white"
-              } text-sm font-bold`}
-            onClick={() => !isOutOfStock && AddToBasket(productDetails)}
-          >
-            <MdAddShoppingCart size={20} />
-            {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
-          </button>
 
-          <div className="flex items-center gap-1">
-            <HoverButton
-              title="Ajouter aux favoris"
-              icon={<FaRegHeart />}
-              onClick={handleToggleFavorite}
-            />
+        <ProductAttrMobile technicalDetails={technicalDetails} />
 
-            <HoverButton
-              title={isProductInCompare ? "Déjà dans le comparateur" : "Ajouter au comparateur"}
-              icon={
-                isProductInCompare ? (
-                  <IoCheckmarkDoneOutline size={22} className="text-green-600" />
-                ) : (
-                  <GoGitCompare className="font-bold" />
-                )
-              }
-              onClick={() => addToCompare(productDetails)}
-              disabled={isProductInCompare}
-            />
-          </div>
-        </div>
       </div>
     </div>
   );

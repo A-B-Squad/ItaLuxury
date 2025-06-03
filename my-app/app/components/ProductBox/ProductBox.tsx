@@ -1,6 +1,6 @@
 import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
@@ -11,14 +11,14 @@ import {
   useProductsInBasketStore,
   usePruchaseOptions,
 } from "@/app/store/zustand";
+import { useAuth } from "@/lib/auth/useAuth";
 import triggerEvents from "@/utlils/trackEvents";
+import { sendGTMEvent } from "@next/third-parties/google";
 import CompactViewDetails from "./CompactViewDetails";
 import FullViewDetails from "./FullViewDetails";
 import ProductImage from "./ProductImage";
 import ProductLabels from "./ProductLabels";
 import ProductName from "./ProductName";
-import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
 
 
 interface ProductBoxProps {
@@ -237,16 +237,16 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
   return (
     <div className={`
-      relative group  shadow-sm transition-all duration-300
+      relative group   transition-all duration-300
       transform hover:scale-105  hover:shadow-lg
-      ${view === 1 ? 'h-[180px] md:h-[200px]' : ' hover:h-[400p] h-full max-h-[396px]'}
+      ${view === 1 ? 'h-[180px] md:h-[200px]' : '  h-full max-h-[396px]]'}
       w-full overflow-hidden
       bg-white
     `}>
       <ProductLabels product={product} />
 
       <div className={`
-          h-full w-full flex 
+          h-full w-full flex  
           ${view === 1 ? 'flex-row items-center' : 'flex-col'}
         `}>
         <ProductImage
@@ -263,7 +263,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
           `}>
           <ProductName product={product} />
           {view !== 1 ? (
-            <FullViewDetails product={product} onAddToBasket={AddToBasket} />
+            <FullViewDetails product={product} />
           ) : (
             <CompactViewDetails product={product} />
           )}

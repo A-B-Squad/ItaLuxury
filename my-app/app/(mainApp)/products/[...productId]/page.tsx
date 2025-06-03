@@ -416,7 +416,7 @@ const ProductDetailsPage = async ({
   };
 
   return (
-    <div className="bg-gray-50 p-2 md:py-6">
+    <div className="bg-gray-50 md:p-2 md:py-6">
       <JsonLd<any> item={breadcrumbList} />
       <JsonLd<any> item={productSchema} />
       <ProductDetailsSection

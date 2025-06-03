@@ -19,7 +19,7 @@ const ProductAttrMobile: React.FC<ProductAttrProps> = memo(({ technicalDetails }
                 </div>
                 <div className="bg-white px-4 py-3">
                     <div
-                        className="prose max-w-none text-gray-800 text-md font-medium leading-relaxed"
+                        className="prose max-w-none text-gray-800 text-md font-medium leading-loose"
                         dangerouslySetInnerHTML={{ __html: technicalDetails }}
                     />
                 </div>

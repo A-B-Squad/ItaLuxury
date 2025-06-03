@@ -359,7 +359,8 @@ type Query {
   advertismentByPosition(position: String!): [Advertisement]!
   packageById(packageId: ID!): Package!
   packageByUserId(userId: ID!): [Package]!
-  getAllPackages(page: Int, pageSize: Int, searchTerm: String, dateFrom: String, dateTo: String): PackagePaginationResult!  companyInfo: CompanyInfo!
+  getAllPackages(page: Int, pageSize: Int, searchTerm: String, dateFrom: String, dateTo: String, statusFilter: [String]): PackagePaginationResult!
+  companyInfo: CompanyInfo!
   allContactUs: [ContactUs!]
 
 

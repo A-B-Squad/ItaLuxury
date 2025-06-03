@@ -1,11 +1,9 @@
+import { Button } from "@/components/ui/button";
 import { ADD_REVIEWS_MUTATION } from "@/graphql/mutations";
 import { GET_REVIEW_QUERY, GET_USER_REVIEW_QUERY } from "@/graphql/queries";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { Star } from "lucide-react";
-import React, { useEffect, useState, useCallback, memo } from "react";
-import { Button } from "@/components/ui/button";
-// Remove this import:
-// import ProductAttrLaptop from "./ProductAttrLaptop";
+import { memo, useCallback, useEffect, useState } from "react";
 import { MdOutlineStar } from "react-icons/md";
 
 interface RatingCounts {
@@ -32,7 +30,7 @@ interface Review {
     createdAt?: string;
 }
 
-const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) => {
+const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
     const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
     const [getUserReviews] = useLazyQuery(GET_USER_REVIEW_QUERY);
     const [addRating] = useMutation(ADD_REVIEWS_MUTATION);
@@ -175,10 +173,11 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
     }, [getReviews, getUserReviews, productId, userId, serverRating]);
 
     // Calculate average rating
-    const averageRating = (
-        (ratings.one * 1 + ratings.two * 2 + ratings.three * 3 + ratings.four * 4 + ratings.five * 5) /
-        (reviews || 1)
-    ).toFixed(1);
+    const averageRating = reviews === 0
+        ? "0.0"
+        : ((ratings.one * 1 + ratings.two * 2 + ratings.three * 3 + ratings.four * 4 + ratings.five * 5) /
+            (reviews || 1)
+        ).toFixed(1);
 
     return (
         <div className="avis pt-2">
@@ -194,52 +193,77 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
                 <div className="w-full flex flex-col sm:flex-row space-x-7">
                     {/* Left side - Average rating */}
                     <div className="flex flex-col justify-center items-center sm:border-r px-5 mb-4 sm:mb-0">
-                        <div className="text-4xl font-bold">{averageRating}</div>
-                        <div className="flex mt-2">
-                            {[...Array(5)].map((_, index) => {
-                                // Using index + 1 to match rating values (1-5 instead of 0-4)
-                                const starValue = index + 1;
-                                return (
-                                    <Star
-                                        key={`avg-${index}`}
-                                        size={24}
-                                        className={`${starValue <= Math.floor(parseFloat(averageRating))
-                                            ? "fill-yellow-400 stroke-yellow-400"
-                                            : starValue <= parseFloat(averageRating)
-                                                ? "fill-yellow-400/50 stroke-yellow-400"
-                                                : "stroke-gray-300"
-                                            }`}
-                                    />
-                                );
-                            })}
-                        </div>
-                        <div className="text-sm text-gray-600 mt-1">{reviews} avis</div>
+                        {reviews === 0 ? (
+                            <>
+                                <div className="text-xl font-medium text-gray-600">Nouveau produit</div>
+                                <div className="flex mt-2">
+                                    {[...Array(5)].map((_, index) => (
+                                        <Star
+                                            key={`avg-${index}`}
+                                            size={24}
+                                            className="stroke-gray-300"
+                                        />
+                                    ))}
+                                </div>
+                                <div className="text-sm text-gray-600 mt-1">En attente d'avis</div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-4xl font-bold">{averageRating}</div>
+                                <div className="flex mt-2">
+                                    {[...Array(5)].map((_, index) => {
+                                        const starValue = index + 1;
+                                        return (
+                                            <Star
+                                                key={`avg-${index}`}
+                                                size={24}
+                                                className={`${starValue <= Math.floor(parseFloat(averageRating))
+                                                    ? "fill-yellow-400 stroke-yellow-400"
+                                                    : starValue <= parseFloat(averageRating)
+                                                        ? "fill-yellow-400/50 stroke-yellow-400"
+                                                        : "stroke-gray-300"
+                                                    }`}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                                <div className="text-sm text-gray-600 mt-1">{reviews} avis</div>
+                            </>
+                        )}
                     </div>
 
                     {/* Right side - Rating distribution */}
                     <div className="flex-1 max-w-full sm:max-w-96 px-2 sm:px-0">
-                        {[5, 4, 3, 2, 1].map((rating) => {
-                            const ratingKey = ["one", "two", "three", "four", "five"][rating - 1] as keyof RatingCounts;
-                            const count = ratings[ratingKey];
-                            const percentage = reviews > 0 ? ((count / reviews) * 100) : 0;
+                        {reviews === 0 ? (
+                            <div className="flex flex-col justify-center h-full">
+                                <p className="text-gray-600 text-sm mb-2">Soyez le premier à évaluer ce produit</p>
+                                <p className="text-gray-500 text-xs">Votre avis aide les autres clients à prendre des décisions d'achat éclairées.</p>
+                            </div>
+                        ) : (
+                            [...Array(5)].map((_, i) => {
+                                const rating = 5 - i;
+                                const ratingKey = ["one", "two", "three", "four", "five"][rating - 1] as keyof RatingCounts;
+                                const count = ratings[ratingKey];
+                                const percentage = reviews > 0 ? ((count / reviews) * 100) : 0;
 
-                            return (
-                                <div className="flex items-center gap-2 mb-2" key={rating}>
-                                    <div className="flex items-center min-w-[60px]">
-                                        <span className="text-sm">{rating} étoiles</span>
+                                return (
+                                    <div className="flex items-center gap-2 mb-2" key={rating}>
+                                        <div className="flex items-center min-w-[60px]">
+                                            <span className="text-sm">{rating} étoiles</span>
+                                        </div>
+                                        <div className="relative flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div
+                                                style={{ width: `${percentage}%` }}
+                                                className="absolute h-full bg-yellow-400 rounded-full"
+                                            />
+                                        </div>
+                                        <div className="min-w-[20px] text-sm text-right">
+                                            {count}
+                                        </div>
                                     </div>
-                                    <div className="relative flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                        <div
-                                            style={{ width: `${percentage}%` }}
-                                            className="absolute h-full bg-yellow-400 rounded-full"
-                                        />
-                                    </div>
-                                    <div className="min-w-[20px] text-sm text-right">
-                                        {count}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })
+                        )}
                     </div>
                 </div>
                 <div className="mr-10">
@@ -248,7 +272,7 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
                         onClick={toggleCommentForm}
                         className="rounded-full border w-full sm:w-auto border-gray-300 bg-white text-black hover:bg-gray-100 ml-auto "
                     >
-                        Écrire un commentaire
+                        {reviews === 0 ? "Soyez le premier à évaluer" : "Écrire un commentaire"}
                     </Button>
                 </div>
             </div>
@@ -375,4 +399,4 @@ const RatingStarsLaptop = memo(({ productId, userId, toast }: RatingStarsProps) 
     );
 });
 
-export default RatingStarsLaptop;
+export default RatingStars;

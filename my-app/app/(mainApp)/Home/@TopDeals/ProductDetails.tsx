@@ -220,14 +220,13 @@ const ProductDetails: React.FC<ProductProps> = ({
     return (
         <div 
             key={product?.id}
-            className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 opacity-100 transform-none"
+            className="flex flex-col lg:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 opacity-100 transform-none"
         >
-            <div className="relative aspect-square w-full overflow-hidden">
+            <div className="relative  w-full bg-white overflow-hidden">
                 <ProductImage product={product} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
 
-            <div className="p-4 md:p-6 flex flex-col justify-between md:w-3/5 relative">
+            <div className="p-4 lg:p-6 flex flex-col justify-between lg:w-3/5 relative">
                 {/* Hot deal badge for special products */}
                 {product?.isHot && (
                     <div className="absolute -top-3 right-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md transform rotate-2">

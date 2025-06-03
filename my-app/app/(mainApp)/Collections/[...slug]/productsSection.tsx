@@ -1,11 +1,10 @@
 "use client";
+import { useAllProductViewStore, useSidebarStore } from "@/app/store/zustand";
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { IoMdArrowDropdown } from "react-icons/io";
-import { useAllProductViewStore, useSidebarStore } from "@/app/store/zustand";
 import ProductBox from "../../../components/ProductBox/ProductBox";
 import CollectionToolbar from "../components/CollectionToolbar";
 

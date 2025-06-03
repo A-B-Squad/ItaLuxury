@@ -1,9 +1,8 @@
-import prepRoute from "@/app/Helpers/_prepRoute";
 import Image from "next/legacy/image";
 import Link from "next/link";
-import React, { useCallback, useMemo, useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import QuickActionButton from "./components/QuickActionButton";
-import { FaRegEye } from "react-icons/fa";
+import { FaChevronDown, FaRegEye } from "react-icons/fa";
 import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import FavoriteProductButton from "./FavoriteProductButton";
@@ -74,16 +73,32 @@ const ProductImage: React.FC<ProductImageProps> = ({
     setIsImageLoaded(true);
   }, []);
 
+  const [showActions, setShowActions] = useState(false);
+
+  const toggleActionButtons = useCallback(() => {
+    setShowActions(prev => !prev);
+  }, []);
+
   return (
     <div className={`
       relative w-full group
-      ${view === 1 ? 'max-w-[160px]' : ''}
+      ${view === 1 ? 'max-w-[200px]' : ''}
     `}>
+
+      {/* Toggle button for action buttons */}
+      <button
+        onClick={toggleActionButtons}
+        className={`absolute  ${product.productDiscounts.length > 0 && product.inventory !== 0 ? "top-9" : "top-4"}  right-[18px] z-40 bg-white hover:bg-secondaryColor text-black rounded-full w-7 h-7 flex items-center justify-center transition-all duration-300 shadow-md`}
+        aria-label="Toggle action buttons"
+      >
+        <FaChevronDown width={15} className={`transition-transform duration-300 ${showActions ? 'rotate-180' : ''}`} />
+      </button>
+
       <Link
         href={`/products/tunisie?productId=${product.id}`}
-        className="block w-full h-40 md:h-[268px]"
+        className="block w-full h-56 md:h-[268px]"
       >
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full bg-gray-50">
           {!isImageLoaded && (
             <div className="absolute inset-0 bg-gray-50 animate-pulse" />
           )}
@@ -92,12 +107,13 @@ const ProductImage: React.FC<ProductImageProps> = ({
               src={primaryImageUrl}
               alt={product.name}
               layout="fill"
-              
-              objectFit="contain"
+              objectFit="cover"
               quality={80}
               priority={true}
+              width={800}
+              height={800}
               onLoad={handleImageLoad}
-              className={`p-2 transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
           )}
           {hasSecondImage && (
@@ -105,28 +121,32 @@ const ProductImage: React.FC<ProductImageProps> = ({
               src={secondaryImageUrl}
               alt={`${product.name} - hover`}
               layout="fill"
-              objectFit="contain"
+              objectFit="cover"
               quality={80}
-              className="absolute inset-0 p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
+              width={800}
+              height={800}
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
             />
           )}
         </div>
       </Link>
 
       <ul
-        className={`plus_button absolute h-fit flex ${view === 1
+        className={`plus_button absolute h-fit flex flex-col ${view === 1
           ? "right-0 top-2/4 -translate-y-2/4 flex-col"
-          : "bottom-0 left-2/4 -translate-x-2/4"
-          } items-center justify-center lg:opacity-0 lg:group-hover:opacity-100 z-30 gap-2`}
+          : "right-4 top-16"
+          } items-center justify-center ${showActions || view === 1 ? 'opacity-100' : 'lg:opacity-0'
+          } ${view === 1 || !showActions ? 'invisible' : 'visible'
+          }  z-30 gap-2 transition-all duration-300`}
       >
         <QuickActionButton
-          icon={<FaRegEye color="white" className="text-xs md:text-base" />}
+          icon={<FaRegEye color="black" className="text-xs md:text-base" />}
           onClick={() => openProductDetails(product)}
           title="aperçu rapide"
         />
         <QuickActionButton
           icon={
-            <FaBasketShopping color="white" className="text-xs md:text-base" />
+            <FaBasketShopping color="black" className="text-xs md:text-base" />
           }
           onClick={() => onAddToBasket(product, 1)}
           title="Ajouter au panier"
@@ -134,7 +154,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
           isAddToCart={true}
         />
         <QuickActionButton
-          icon={<IoGitCompare color="white" className="text-xs md:text-base" />}
+          icon={<IoGitCompare color="black" className="text-xs md:text-base" />}
           onClick={onAddToCompare}
           title="Ajouter au comparatif"
         />

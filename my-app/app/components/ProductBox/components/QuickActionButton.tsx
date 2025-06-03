@@ -36,9 +36,9 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({
                     type="button"
                     disabled={disabled}
                     aria-label={title}
-                    className={`flex items-center justify-center h-9 w-9 rounded-full transition-all duration-300 
+                    className={`flex items-center border justify-center h-8 w-8 rounded-full transition-all duration-300 
                     shadow-sm hover:shadow-md ${disabled ? "opacity-50" : ""} 
-                    ${className || "bg-primaryColor hover:bg-secondaryColor text-white"}`}
+                    ${className || "bg-white hover:bg-secondaryColor text-black"}`}
                 >
                     {icon}
                 </button>
