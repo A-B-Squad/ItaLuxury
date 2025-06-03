@@ -3,18 +3,14 @@ import { SlBasket } from "react-icons/sl";
 
 interface FullViewDetailsProps {
   product: Product;
-  onAddToBasket: (product: any, quantity: number) => void;
 }
 
 const FullViewDetails: React.FC<FullViewDetailsProps> = ({
   product,
-  onAddToBasket,
 }) => (
   <>
     <div className="price&ColorInfo  flex w-full justify-between items-start ">
       <div className="prices flex flex-col lg:flex-row lg:gap-2 justify-center  w-full items-center text-center">
-
-
         {product.productDiscounts.length > 0 && (
           <p className="text-red-500 font-bold md:text-lg  text-sm">
             {product.productDiscounts[0]?.newPrice.toFixed(3)} TND

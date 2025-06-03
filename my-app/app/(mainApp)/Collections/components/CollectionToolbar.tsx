@@ -61,8 +61,8 @@ const CollectionToolbar: React.FC<TopBarProps> = ({ numberOfProduct }) => {
 
   return (
     <motion.div
-      className="container sticky  top-1 z-50 w-full bg-white/95 backdrop-blur-sm border-t border-b border-gray-200 shadow-sm"
-      initial={{ opacity: 0, y: -10 }}
+    className="container w-full bg-white border-t border-b border-gray-200 shadow-sm"
+    initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
@@ -100,6 +100,7 @@ const CollectionToolbar: React.FC<TopBarProps> = ({ numberOfProduct }) => {
           </div>
 
           <Select
+          
             onValueChange={handleSortChange}
             defaultValue={selectedFilterQueries.sort}
           >

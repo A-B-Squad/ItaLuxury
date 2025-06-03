@@ -102,7 +102,7 @@ export const BASKET_QUERY = gql`
   }
 `;
 
-export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
+export const TAKE_16_PRODUCTS_BY_CATEGORY = gql`
   query productsByCategory($categoryName: String!, $limit: Int!) {
     productsByCategory(categoryName: $categoryName, limit: $limit) {
       id

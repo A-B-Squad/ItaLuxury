@@ -1,26 +1,11 @@
-import React, { useState } from "react";
-import Image from "next/legacy/image";
-import Link from "next/link";
-import { Check, Loader2, Tag } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { FIND_UNIQUE_COUPONS } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
-import { useToast } from "@/components/ui/use-toast";
+import { Check, Loader2, Tag } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
 import { GiShoppingBag } from "react-icons/gi";
-interface OrderSummaryProps {
-  products: Product[];
-  total: string;
-  discountPercentage: number;
-  setDiscountPercentage: (percentage: number) => void;
-  deliveryPrice: number;
-  calculateTotal: () => string;
-  setCouponsId: (id: string) => void;
-  handlePreviousStep: any
-  isLoggedIn: any
-  handleNextStep: any
-  currentStep: number
-  isValid: boolean
 
-}
 interface Product {
   id: string;
   name: string;
@@ -57,7 +42,7 @@ export const OrderSummary: React.FC<any> = ({
   const handleCouponsVerification = async () => {
     try {
       setIsValidatingCoupon(true);
-      
+
       // Allow any coupon length, not just 10 characters
       if (changeCouponCode.trim()) {
         const { data: uniqueCoupons } = await uniqueCouponsData({
@@ -151,8 +136,8 @@ export const OrderSummary: React.FC<any> = ({
           <button
             type="button"
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${showInputCoupon
-                ? "bg-red-100 text-red-600 hover:bg-red-200"
-                : "bg-primaryColor text-white hover:bg-secondaryColor shadow-sm hover:shadow"
+              ? "bg-red-100 text-red-600 hover:bg-red-200"
+              : "bg-primaryColor text-white hover:bg-secondaryColor shadow-sm hover:shadow"
               }`}
             onClick={handleCouponToggle}
             aria-expanded={showInputCoupon}

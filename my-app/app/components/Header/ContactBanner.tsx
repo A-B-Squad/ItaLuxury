@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 const ContactBanner = ({ CompanyInfoData }: any) => {
   const Phone = CompanyInfoData?.companyInfo?.phone;
   const pathname = usePathname();
-  
+
   // Don't show on checkout page
   if (pathname === "/Checkout") {
     return null;
@@ -21,10 +21,10 @@ const ContactBanner = ({ CompanyInfoData }: any) => {
             {Phone && Phone[1] && <span> / <span className="font-medium">{Phone[1]}</span></span>}
           </p>
         </div>
-        
+
         <div className="hidden md:flex items-center gap-2">
           <CiDeliveryTruck size={20} className="text-blue-500" />
-          <p className="uppercase font-light tracking-wide">Livraison à domicile</p>
+          <p className="uppercase font-light tracking-wide">Livraison à domicile <span className="text-blue-400 font-medium">24h-48h</span></p>
         </div>
       </div>
     </div>

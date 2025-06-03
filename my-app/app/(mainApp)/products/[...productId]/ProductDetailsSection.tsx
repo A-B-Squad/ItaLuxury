@@ -12,7 +12,7 @@ import {
 import {
   BASKET_QUERY,
   FETCH_USER_BY_ID,
-  TAKE_10_PRODUCTS_BY_CATEGORY,
+  TAKE_16_PRODUCTS_BY_CATEGORY,
 } from "../../../../graphql/queries";
 import Breadcumb from "../../../components/Breadcumb";
 import {
@@ -54,11 +54,10 @@ const ProductDetailsDrawer = dynamic(
   }
 );
 
-import CustomInnerZoom from "./Components/CustomInnerZoom";
-import ActionButton from "./Components/ActionButton";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
-import RatingStarsLaptop from "./Components/RatingStarsLaptop";
+import { sendGTMEvent } from "@next/third-parties/google";
+import ActionButton from "./Components/ActionButton";
+import CustomInnerZoom from "./Components/CustomInnerZoom";
 import ProductDetailsContainer from "./Components/ProductDetailsContainer";
 
 
@@ -78,9 +77,9 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
 
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
-    useQuery(TAKE_10_PRODUCTS_BY_CATEGORY, {
+    useQuery(TAKE_16_PRODUCTS_BY_CATEGORY, {
       variables: {
-        limit: 10,
+        limit: 16,
         categoryName: productDetails?.categories[1]?.name,
       },
     });
@@ -497,7 +496,7 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
   return (
     // In the return statement, update the main container styling
     <div className="productDetails bg-gray-50 py-6">
-      <div className="container relative  mx-auto px-4 sm:px-6">
+      <div className="container relative  mx-auto md:px-4 ">
         {!productDetails ? (
           <Loading />
         ) : (
@@ -538,9 +537,7 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
                 quantity={quantity}
                 handleIncreaseQuantity={handleIncreaseQuantity}
                 handleDecreaseQuantity={handleDecreaseQuantity}
-                handleToggleFavorite={handleToggleFavorite}
-                isProductInCompare={isProductInCompare}
-                addToCompare={addToCompare}
+
               />
 
               <ActionButton

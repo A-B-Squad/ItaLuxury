@@ -36,14 +36,14 @@ const FavoriteProductButton: React.FC<FavoriteProductButtonProps> = ({
           type="button"
           aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
           className={`flex items-center justify-center rounded-full transition-all duration-300 
-          shadow-sm hover:shadow-md bg-primaryColor hover:bg-secondaryColor ${className || "p-2"}`}
+          shadow-sm hover:shadow-md bg-white hover:bg-secondaryColor ${className || "p-2"}`}
         >
           <FavoriteProduct
             isFavorite={isFavorite}
             setIsFavorite={setIsFavorite}
             productId={productId}
             userId={userId}
-            heartColor="white"
+            heartColor="black"
             heartSize={16}
             productName={productName}
           />

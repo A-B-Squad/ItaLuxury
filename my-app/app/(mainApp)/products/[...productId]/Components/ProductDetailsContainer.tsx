@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import RatingStarsLaptop from "./RatingStarsLaptop";
+import RatingStars from "./RatingStars";
 import ProductAttrLaptop from "./ProductAttrLaptop";
 
 interface ProductDetailsContainerProps {
@@ -26,7 +26,7 @@ const ProductDetailsContainer = memo(({
             )}
 
             {/* Ratings Section */}
-            <RatingStarsLaptop
+            <RatingStars
                 productId={productId}
                 userId={userId}
                 toast={toast}

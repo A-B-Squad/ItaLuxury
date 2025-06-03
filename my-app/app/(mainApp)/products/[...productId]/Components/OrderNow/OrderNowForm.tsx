@@ -1,15 +1,15 @@
 "use client";
-import { CiMail, CiPhone, CiUser, CiLocationOn, CiDeliveryTruck } from "react-icons/ci";
-import { Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
-import { GiShoppingBag } from "react-icons/gi";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { CiDeliveryTruck, CiLocationOn, CiMail, CiPhone, CiUser } from "react-icons/ci";
+import { GiShoppingBag } from "react-icons/gi";
 
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/trackEvents";
 import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
+import triggerEvents from "@/utlils/trackEvents";
 
 import {
     BASKET_QUERY,
@@ -17,8 +17,8 @@ import {
     FETCH_USER_BY_ID,
     GET_GOVERMENT_INFO,
 } from "@/graphql/queries";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/lib/auth/useAuth";
+import { sendGTMEvent } from "@next/third-parties/google";
 import { OrderSummary } from "./OrderSummary";
 
 // Define interfaces
@@ -313,7 +313,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
 
     return (
-        <div className="md:hidden w-full mt-6 mb-10">
+        <div className="lg:hidden w-full mt-6 mb-10">
             {paymentLoading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-5 rounded-lg flex flex-col items-center">
@@ -349,7 +349,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {/* Full Name Input */}
                         <div>
                             <label htmlFor="fullname" className="block text-sm font-medium text-gray-700 mb-1">
-                                <CiUser className="inline-block mr-2 mb-1" /> Nom et Prénom
+                                <CiUser className="inline-block mr-2 mb-1" /> Nom et Prénom <span className="text-gray-500 text-xs">(الاسم واللقب)</span>
                             </label>
                             <input
                                 type="text"
@@ -370,7 +370,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {/* Address Input */}
                         <div>
                             <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                                <CiLocationOn className="inline-block mr-2 mb-1" /> Adresse
+                                <CiLocationOn className="inline-block mr-2 mb-1" /> Adresse <span className="text-gray-500 text-xs">(العنوان)</span>
                             </label>
                             <textarea
                                 id="address"
@@ -391,7 +391,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {/* Phone 1 Input */}
                         <div>
                             <label htmlFor="phone_1" className="block text-sm font-medium text-gray-700 mb-1">
-                                <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1
+                                <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1 <span className="text-gray-500 text-xs">(الهاتف 1)</span>
                             </label>
                             <div className="flex items-center">
                                 <span className="px-3 py-2.5 border border-r-0 rounded-l-md bg-gray-50 text-gray-600 text-sm">
@@ -406,7 +406,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                         validate: (value) => {
                                             // Remove spaces for validation
                                             const cleaned = value.replace(/\s+/g, '');
-                                            return cleaned.length === 8 && /^\d+$/.test(cleaned) || 
+                                            return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                                                 "Le numéro de téléphone doit comporter 8 chiffres";
                                         }
                                     })}
@@ -423,7 +423,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {/* Phone 2 Input */}
                         <div>
                             <label htmlFor="phone_2" className="block text-sm font-medium text-gray-700 mb-1">
-                                <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2
+                                <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2 <span className="text-gray-500 text-xs">(الهاتف 2)</span>
                                 <span className="text-gray-500 text-xs ml-1">(optionnel)</span>
                             </label>
                             <div className="flex items-center">
@@ -439,7 +439,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                             if (!value) return true; // Optional field
                                             // Remove spaces for validation
                                             const cleaned = value.replace(/\s+/g, '');
-                                            return cleaned.length === 8 && /^\d+$/.test(cleaned) || 
+                                            return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                                                 "Le numéro de téléphone doit comporter 8 chiffres";
                                         }
                                     })}
@@ -456,7 +456,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {/* Governorate Selection */}
                         <div>
                             <label htmlFor="governorate" className="block text-sm font-medium text-gray-700 mb-1">
-                                <CiLocationOn className="inline-block mr-2 mb-1" /> Governorat
+                                <CiLocationOn className="inline-block mr-2 mb-1" /> Governorat <span className="text-gray-500 text-xs">(الولاية)</span>
                             </label>
                             <select
                                 id="governorate"
@@ -483,7 +483,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {!isLoggedIn && (
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                    <CiMail className="inline-block mr-2 mb-1" /> Email
+                                    <CiMail className="inline-block mr-2 mb-1" /> Email <span className="text-gray-500 text-xs">(البريد الإلكتروني)</span>
                                     <span className="text-gray-500 text-xs ml-1">(optionnel)</span>
                                 </label>
                                 <input
@@ -512,7 +512,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                         {/* Delivery Comment */}
                         <div>
                             <label htmlFor="deliveryComment" className="block text-sm font-medium text-gray-700 mb-1">
-                                <CiDeliveryTruck className="inline-block mr-2 mb-1" /> Commentaire pour la livraison
+                                <CiDeliveryTruck className="inline-block mr-2 mb-1" /> Commentaire pour la livraison <span className="text-gray-500 text-xs">(ملاحظات للتوصيل)</span>
                                 <span className="text-gray-500 text-xs ml-1">(optionnel)</span>
                             </label>
                             <textarea

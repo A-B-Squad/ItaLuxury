@@ -2,18 +2,17 @@ import { Context } from "@apollo/client";
 
 export const getAllPackages = async (
   _: any,
-  { page, pageSize, searchTerm, dateFrom, dateTo }: {
+  { page, pageSize, searchTerm, dateFrom, dateTo, statusFilter }: {
     page?: number;
     pageSize?: number;
     searchTerm?: string;
     dateFrom?: string;
-    dateTo?: string;
+    dateTo?: string;  
+    statusFilter?: string | string[];
   },
   { prisma }: Context
 ) => {
   try {
-    // Validate orderBy field to prevent injection
-
     let whereClause: any = {};
 
     // Add search conditions if searchTerm is provided
@@ -31,6 +30,15 @@ export const getAllPackages = async (
           }
         }
       ];
+    }
+
+    // Add status filter if provided - handle both string and array of strings
+    if (statusFilter) {
+      if (Array.isArray(statusFilter)) {
+        whereClause.status = { in: statusFilter };
+      } else {
+        whereClause.status = statusFilter;
+      }
     }
 
     // Add date range filtering if provided
