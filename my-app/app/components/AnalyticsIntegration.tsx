@@ -1,36 +1,11 @@
 "use client";
 import { GoogleTagManager } from '@next/third-parties/google';
 import Script from 'next/script';
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useFacebookData } from '../hooks/useFacebookData';
 
 const AnalyticsIntegration = () => {
-  const [fbData, setFbData] = useState({
-    domainVerification: null,
-    api_id: null,
-  });
-
-  useEffect(() => {
-    const fetchFacebookData = async () => {
-      try {
-        const response = await fetch("/api/facebookApi", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setFbData(data);
-      } catch (error) {
-        console.error("Error fetching Facebook data:", error);
-      }
-    };
-
-    fetchFacebookData();
-  }, []);
+  const fbData = useFacebookData();
 
   return (
     <>
@@ -74,6 +49,9 @@ const AnalyticsIntegration = () => {
           }
         `}
       </Script>
+
+
+
     </>
   );
 };

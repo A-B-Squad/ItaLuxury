@@ -36,18 +36,28 @@ enum Cause {
   REFUND
 }
 
+enum PointType {
+  EARNED // Points earned from purchases (5% of total)
+  EXPIRED // Points that have expired
+  ADJUSTMENT // Manual adjustments
+  ADMIN_ADDED // Points manually added by admin
+}
+
 model User {
-  id               String             @id @default(uuid())
-  fullName         String
-  email            String             @unique
-  password         String
-  role             Role
-  number           String
-  baskets          Basket[]
-  reviews          Review[]
-  favoriteProducts FavoriteProducts[]
-  checkout         Checkout[]
-  ContactUs        ContactUs[]
+  id                String             @id @default(uuid())
+  fullName          String
+  email             String             @unique
+  password          String
+  role              Role
+  number            String
+  points            Int                @default(0)
+  baskets           Basket[]
+  reviews           Review[]
+  favoriteProducts  FavoriteProducts[]
+  checkout          Checkout[]
+  ContactUs         ContactUs[]
+  pointTransactions PointTransaction[]
+  Voucher           Voucher[]
 }
 
 model Admin {
@@ -62,7 +72,7 @@ model Admin {
 model Category {
   id            String      @id @default(uuid())
   name          String      @unique
-  parent        Category?   @relation("Subcategories", fields: [parentId], references: [id], onDelete: Cascade)
+  parent        Category?   @relation("Subcategories", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   parentId      String? // ID of the parent category
   products      Product[] // Products associated with this category
   subcategories Category[]  @relation("Subcategories") // One-to-Many self-relation
@@ -85,7 +95,6 @@ model Product {
   solde             Int                 @default(0)
   broken            Int                 @default(0)
   images            String[]
-  createdAt         DateTime            @default(now())
   categories        Category[]
   productDiscounts  ProductDiscount[]
   baskets           Basket[]
@@ -99,6 +108,8 @@ model Product {
   Brand             Brand?              @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   brandId           String?
   BreakedProduct    BreakedProduct[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
 }
 
 model BestSales {
@@ -144,7 +155,7 @@ model Basket {
 model Checkout {
   id                String              @id @default(uuid())
   userName          String
-  User              User?               @relation(fields: [userId], references: [id])
+  User              User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId            String?
   Governorate       Governorate?        @relation(fields: [governorateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   governorateId     String?
@@ -154,6 +165,8 @@ model Checkout {
   address           String
   package           Package[]
   total             Float
+  pointsEarned      Int?                 @default(0)
+  pointsUsed        Int?                @default(0)
   createdAt         DateTime            @default(now())
   Coupons           Coupons?            @relation(fields: [couponsId], references: [id])
   couponsId         String?
@@ -162,6 +175,8 @@ model Checkout {
   guestEmail        String?
   deliveryComment   String?
   paymentMethod     PaymentMethod
+  pointTransactions PointTransaction[]
+  Voucher           Voucher[]
 }
 
 model ApiCredentials {
@@ -204,7 +219,7 @@ model BreakedProduct {
   cause     String   @default("BROKEN")
   createdAt DateTime @default(now())
   quantity  Int      @default(0)
-  Product   Product? @relation(fields: [productId], references: [id])
+  Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 
@@ -214,9 +229,9 @@ model Review {
   comment   String?
   userName  String?
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt DateTime @default(now())
 }
 
@@ -282,4 +297,41 @@ model Coupons {
   discount  Float      @default(0)
   available Boolean    @default(true)
   checkout  Checkout[]
+}
+
+model PointTransaction {
+  id          String    @id @default(uuid())
+  amount      Int
+  type        PointType
+  description String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  checkout    Checkout? @relation(fields: [checkoutId], references: [id], onDelete: SetNull)
+  checkoutId  String?
+}
+
+model Voucher {
+  id         String    @id @default(uuid())
+  code       String    @unique
+  amount     Float     @default(100.0) // 100 TND voucher
+  isUsed     Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime
+  usedAt     DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  checkout   Checkout? @relation(fields: [checkoutId], references: [id])
+  checkoutId String?
+}
+
+model PointSetting {
+  id                 String   @id @default(uuid())
+  conversionRate     Float    @default(0.05) // 5% of purchase amount as points
+  redemptionRate     Float    @default(0.01) // Value of 1 point in TND
+  minimumPointsToUse Int      @default(100) // Minimum points required for redemption
+  loyaltyThreshold   Int      @default(10000) // Points needed for loyalty reward
+  loyaltyRewardValue Float    @default(100.0) // Value of loyalty reward in TND
+  isActive           Boolean  @default(true)
+  updatedAt          DateTime @updatedAt
 }

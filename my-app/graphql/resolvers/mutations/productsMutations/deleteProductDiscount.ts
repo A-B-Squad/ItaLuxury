@@ -10,6 +10,12 @@ export const deleteProductDiscount = async (
     await prisma.productDiscount.delete({
       where: { productId },
     });
+    await prisma.product.update({
+      where: { id: productId },
+      data: {
+        updatedAt: new Date(),
+      }
+    });
     return "Product  Discount deleted successfully.";
   } catch (error) {
     console.error("Error deleting Discount product:", error);

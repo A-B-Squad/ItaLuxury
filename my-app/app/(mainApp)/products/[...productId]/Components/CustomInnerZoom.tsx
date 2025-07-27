@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ZoomIn, ZoomOut } from 'lucide-react';
 import Image from 'next/legacy/image';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 interface CustomInnerZoomProps {
   images: string[];
@@ -154,7 +154,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
         {/* Main image container */}
         <div className="order-1 md:order-2 flex-1">
           <div
-            className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100 border border-gray-200"
+            className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100  border-gray-200"
             ref={mainImageRef}
             tabIndex={0}
             aria-label={`Image ${selectedImage + 1} of ${validImages.length}. Press space to zoom, arrow keys to navigate.`}

@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import AuthForm from "./AuthForm";
 import { useAuth } from "@/lib/auth/useAuth";
+import React, { useEffect } from "react";
 import { FaUserAlt, FaUserSecret } from "react-icons/fa";
+import AuthForm from "./AuthForm";
 
 interface Step1Props {
   setIsGuest: (isGuest: boolean) => void;

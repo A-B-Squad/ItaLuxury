@@ -4,6 +4,8 @@ export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
   try {
     const users = await prisma.user.findMany({
       include: {
+        pointTransactions: true,
+        Voucher: true,
         reviews: {
           include: {
             product: true,
@@ -11,9 +13,16 @@ export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
         },
         ContactUs: true,
         checkout: {
+
           include: {
             package: true,
             Governorate: true,
+            productInCheckout:{
+              include:{
+                product:true
+              }
+            }
+
           },
         },
       },

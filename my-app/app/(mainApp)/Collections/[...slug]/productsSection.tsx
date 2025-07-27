@@ -302,9 +302,10 @@ const ProductsSection: React.FC = () => {
                 <h2 className="text-lg font-medium text-gray-800 mb-2">
                   {searchParams?.get("category")}
                 </h2>
-                <p className="tracking-wide text-base leading-relaxed text-gray-700 font-normal">
+                <p className="text-[17px] leading-[1.8] text-gray-800 font-light tracking-normal">
                   {categoryDescription}
                 </p>
+
               </div>
             </div>
           )}

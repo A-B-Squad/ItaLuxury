@@ -133,3 +133,15 @@ export const RESET_PASSWORD_MUTATION = gql`
     resetPassword(password: $password, id: $resetPasswordId)
   }
 `;
+
+export const CREATE_POINT_TRANSACTION = gql`
+  mutation CreatePointTransaction($input: PointTransactionInput!) {
+    createPointTransaction(input: $input) {
+      id
+      amount
+      type
+      description
+      createdAt
+    }
+  }
+`;

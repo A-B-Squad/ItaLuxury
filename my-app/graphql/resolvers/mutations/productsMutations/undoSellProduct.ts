@@ -23,6 +23,8 @@ export const undoSellProduct = async (
       data: {
         inventory: { increment: quantityReturned },
         solde: { decrement: quantityReturned },
+        updatedAt: new Date(), 
+
       },
     });
 

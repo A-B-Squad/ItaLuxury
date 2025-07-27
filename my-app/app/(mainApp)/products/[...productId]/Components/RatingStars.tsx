@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ADD_REVIEWS_MUTATION } from "@/graphql/mutations";
 import { GET_REVIEW_QUERY, GET_USER_REVIEW_QUERY } from "@/graphql/queries";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { Star } from "lucide-react";
+import { Star, ChevronDown, ChevronUp } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
 import { MdOutlineStar } from "react-icons/md";
 
@@ -18,7 +18,6 @@ interface RatingStarsProps {
     productId: string;
     userId?: string;
     toast: any;
-
 }
 
 interface Review {
@@ -50,6 +49,10 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
     const [selectedRating, setSelectedRating] = useState<number | null>(null);
     const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
     const [reviewsWithComments, setReviewsWithComments] = useState<Review[]>([]);
+    
+    // New state for pagination
+    const [showAllComments, setShowAllComments] = useState<boolean>(false);
+    const INITIAL_COMMENTS_COUNT = 2;
 
     const handleRatingSubmit = useCallback(async () => {
         if (!selectedRating) {
@@ -128,6 +131,11 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
         setShowCommentForm(prev => !prev);
     }, [userId, toast]);
 
+    // New function to toggle show all comments
+    const toggleShowAllComments = useCallback(() => {
+        setShowAllComments(prev => !prev);
+    }, []);
+
     useEffect(() => {
         const fetchReviews = async () => {
             try {
@@ -178,6 +186,13 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
         : ((ratings.one * 1 + ratings.two * 2 + ratings.three * 3 + ratings.four * 4 + ratings.five * 5) /
             (reviews || 1)
         ).toFixed(1);
+
+    // Filter reviews with comments and determine which ones to show
+    const reviewsWithCommentsFiltered = reviewsWithComments.filter(review => review.comment);
+    const displayedReviews = showAllComments 
+        ? reviewsWithCommentsFiltered 
+        : reviewsWithCommentsFiltered.slice(0, INITIAL_COMMENTS_COUNT);
+    const hasMoreComments = reviewsWithCommentsFiltered.length > INITIAL_COMMENTS_COUNT;
 
     return (
         <div className="avis pt-2">
@@ -339,10 +354,9 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
 
             {/* Reviews Section */}
             <div className="space-y-6">
-                {reviewsWithComments.filter(review => review.comment).length > 0 ? (
-                    reviewsWithComments
-                        .filter(review => review.comment)
-                        .map(review => (
+                {displayedReviews.length > 0 ? (
+                    <>
+                        {displayedReviews.map(review => (
                             <div key={review.id} className="border-b border-gray-200 pb-6 last:border-0">
                                 <div className="flex items-start">
                                     <div className="flex-shrink-0 mr-4">
@@ -368,7 +382,6 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
                                             <div className="flex flex-col">
                                                 <div className="flex items-center mt-1">
                                                     {[...Array(5)].map((_, index) => {
-                                                        // Using index + 1 to match rating values (1-5 instead of 0-4)
                                                         const starValue = index + 1;
                                                         return (
                                                             <Star
@@ -388,7 +401,31 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
                                     </div>
                                 </div>
                             </div>
-                        ))
+                        ))}
+                        
+                        {/* Show More/Less Button */}
+                        {hasMoreComments && (
+                            <div className="flex justify-center pt-4">
+                                <Button
+                                    onClick={toggleShowAllComments}
+                                    variant="outline"
+                                    className="flex items-center gap-2 border-gray-300 hover:bg-gray-50"
+                                >
+                                    {showAllComments ? (
+                                        <>
+                                            <ChevronUp size={16} />
+                                            Voir moins
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ChevronDown size={16} />
+                                            Voir plus ({reviewsWithCommentsFiltered.length - INITIAL_COMMENTS_COUNT} autres avis)
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <p className="text-gray-500 italic text-center py-8">
                         Aucun avis avec commentaire pour ce produit. Soyez le premier à partager votre expérience !

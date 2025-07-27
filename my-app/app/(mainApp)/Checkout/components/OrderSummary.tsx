@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import Image from "next/legacy/image";
-import Link from "next/link";
-import { Check } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { FIND_UNIQUE_COUPONS } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
-import { useToast } from "@/components/ui/use-toast";
+import Image from "next/legacy/image";
+import Link from "next/link";
+import React, { useState } from "react";
 interface OrderSummaryProps {
   products: Product[];
   total: number;

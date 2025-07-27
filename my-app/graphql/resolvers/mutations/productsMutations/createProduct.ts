@@ -23,6 +23,11 @@ export const createProduct = async (
       brandId,
     } = input;
 
+    // Filter and validate categories
+    const validCategories = categories?.filter(id =>
+      id && typeof id === 'string' && id.trim() !== ''
+    ) || [];
+
     // Creating a new product using prisma  
     const productCreate = await prisma.product.create({
       data: {
@@ -31,15 +36,18 @@ export const createProduct = async (
         purchasePrice,
         isVisible,
         reference,
-        description, 
+        description,
         technicalDetails,
         inventory,
         images,
         colorsId,
         brandId,
-        categories: {
-          connect: categories.map((categoryId) => ({ id: categoryId })),
-        },
+        updatedAt: new Date(), 
+        ...(validCategories.length > 0 && {
+          categories: {
+            connect: validCategories.map((categoryId) => ({ id: categoryId })),
+          },
+        }),
       },
       include: {
         Colors: true,

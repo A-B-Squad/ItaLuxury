@@ -2,13 +2,11 @@ import { PrismaClient } from "@prisma/client";
 import { Context } from "@/pages/api/graphql";
 import moment from "moment";
 
-
 interface DiscountInput {
   newPrice: GLfloat;
   dateOfEnd: string;
   dateOfStart: string;
 }
-
 
 const updateDiscounts = async (
   prisma: PrismaClient,
@@ -73,18 +71,18 @@ export const updateProduct = async (
       brandId,
     } = input;
 
-    // Disconnect all categories
-    await prisma.product.update({
+    // Filter and validate categories - Remove empty strings, null, and undefined
+    const validCategories = categories?.filter(id =>
+      id && typeof id === 'string' && id.trim() !== ''
+    ) || [];
+
+    // Get current categories to disconnect
+    const currentProduct = await prisma.product.findUnique({
       where: { id: productId },
-      data: {
-        categories: {
-          disconnect: (await prisma.product.findUnique({
-            where: { id: productId },
-            select: { categories: { select: { id: true } } },
-          }))?.categories.map((cat: any) => ({ id: cat.id })) || [],
-        },
-      },
+      select: { categories: { select: { id: true } } },
     });
+
+    const currentCategoryIds = currentProduct?.categories.map((cat: any) => cat.id) || [];
 
     // Update the product with the provided data
     await prisma.product.update({
@@ -98,10 +96,17 @@ export const updateProduct = async (
         reference,
         description,
         inventory,
-        colorsId, technicalDetails,
+        colorsId,
+        technicalDetails,
         images,
+        updatedAt: new Date().toISOString(),
         categories: {
-          connect: categories?.map((categoryId) => ({ id: categoryId })) || [],
+          // First disconnect all current categories
+          disconnect: currentCategoryIds.map((id: string) => ({ id })),
+          // Then connect the new valid categories
+          ...(validCategories.length > 0 && {
+            connect: validCategories.map((categoryId) => ({ id: categoryId })),
+          }),
         },
       },
       include: {
@@ -110,18 +115,19 @@ export const updateProduct = async (
       },
     });
 
-
-
-    // Update discounts
-    if (discount) {
+    // Handle discounts
+    if (discount && discount.length > 0) {
+      // Update discounts if provided
       await updateDiscounts(prisma, productId, price, discount);
     } else {
-      const existingDiscounts = await prisma.productDiscount.findFirst({
-        where: { productId, price },
+      // Remove all existing discounts if no discount is provided
+      const existingDiscounts = await prisma.productDiscount.findMany({
+        where: { productId },
       });
-      if (existingDiscounts) {
-        await prisma.productDiscount.delete({
-          where: { productId, price },
+
+      if (existingDiscounts.length > 0) {
+        await prisma.productDiscount.deleteMany({
+          where: { productId },
         });
       }
     }
@@ -131,7 +137,13 @@ export const updateProduct = async (
     if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
       throw new Error(`Le nom du produit "${input.name}" existe déjà`);
     }
+
+    // Handle foreign key constraint errors for categories
+    if (error.code === 'P2025') {
+      throw new Error('Une ou plusieurs catégories sélectionnées n\'existent pas');
+    }
+
     console.error("Error updating product:", error);
-    throw error;
+    throw new Error("Échec de la mise à jour du produit. Veuillez réessayer.");
   }
 };

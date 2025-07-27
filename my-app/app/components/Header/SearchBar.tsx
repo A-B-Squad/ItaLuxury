@@ -386,10 +386,10 @@ const SearchBar = () => {
       <div className="md:hidden">
         <button
           onClick={toggleMobileSearch}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className=" rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Open search"
         >
-          <CiSearch className="text-gray-700 w-6 h-6" />
+          <CiSearch className="text-gray-700 text-xl" />
         </button>
       </div>
 

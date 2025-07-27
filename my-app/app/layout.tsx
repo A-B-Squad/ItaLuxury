@@ -48,33 +48,7 @@ export const metadata: Metadata = {
   },
 };
 
-// function TawkToScript() {
-//   return (
-//     <Script strategy="lazyOnload">
-//       {`
-//         var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-//         Tawk_API.customStyle = {
-// 		visibility : {
-//       mobile : {
-// 				position : 'br',
-// 				xOffset : '10px',
-// 				yOffset : "98px"
-// 			},
-		
-// 		}
-// 	};
-//         (function(){
-//         var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-//         s1.async=true;
-//         s1.src='https://embed.tawk.to/6703c5c402d78d1a30ed99bf/1i9jbp1qk';
-//         s1.charset='UTF-8';
-//         s1.setAttribute('crossorigin','*');
-//         s0.parentNode.insertBefore(s1,s0);
-//         })();
-//       `}
-//     </Script>
-//   );
-// }
+
 
 export default function RootLayout({
   children,
@@ -85,14 +59,12 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <AnalyticsIntegration />
-    
       </head>
       <body>
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
         <FloatingActionButtons />
         <TabBarMobile />
-        {/* <TawkToScript /> */}
       </body>
     </html>
   );

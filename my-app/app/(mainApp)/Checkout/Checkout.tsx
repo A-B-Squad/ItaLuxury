@@ -10,24 +10,25 @@ import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/trackEvents";
 import Loading from "./loading";
 
-import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
+import { CREATE_CHECKOUT_MUTATION, CREATE_POINT_TRANSACTION } from "@/graphql/mutations";
 import {
   BASKET_QUERY,
   COMPANY_INFO_QUERY,
   FETCH_USER_BY_ID,
   GET_GOVERMENT_INFO,
+  GET_POINT_SETTINGS
 } from "../../../graphql/queries";
 
 import {
   useCheckoutStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
+import { useAuth } from "@/lib/auth/useAuth";
+import { sendGTMEvent } from "@next/third-parties/google";
 import { Loader2 } from "lucide-react";
 import { OrderSummary } from "./components/OrderSummary";
 import Step1 from "./components/Step1/Step1";
 import { StepIndicator } from "./components/StepIndicator";
-import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
 
 // Define interfaces
 
@@ -72,6 +73,8 @@ const Checkout: React.FC = () => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const { clearBasket } = useProductsInBasketStore();
   const { decodedToken, isAuthenticated } = useAuth();
+  const [createPointTransaction] = useMutation(CREATE_POINT_TRANSACTION);
+  const { data: pointSettingsData } = useQuery(GET_POINT_SETTINGS);
 
   const {
     register,
@@ -216,9 +219,6 @@ const Checkout: React.FC = () => {
       paymentMethod: paymentMethod,
     };
 
-
-
-
     const totalItems = checkoutProducts.reduce(
       (sum, product) => sum + (product?.actualQuantity || product?.quantity || 0),
       0
@@ -313,6 +313,33 @@ const Checkout: React.FC = () => {
             transaction_id: customOrderId
           },
         })
+
+        if (isLoggedIn && decodedToken?.userId) {
+          try {
+            const pointSettings = pointSettingsData?.getPointSettings;
+            if (pointSettings && pointSettings.isActive) {
+              // Calculate points based on the conversion rate from settings
+              const pointsEarned = Math.floor(checkoutTotal * pointSettings.conversionRate);
+
+              // Create point transaction if points are earned
+              if (pointsEarned > 0) {
+                await createPointTransaction({
+                  variables: {
+                    input: {
+                      userId: decodedToken.userId,
+                      amount: pointsEarned,
+                      type: "EARNED",
+                      description: `Points gagnés pour la commande ${customOrderId} (${pointSettings.conversionRate * 100}% de ${checkoutTotal} TND)`,
+                      checkoutId: data.createCheckout.id
+                    }
+                  }
+                });
+              }
+            }
+          } catch (error) {
+            console.error("Error creating points transaction:", error);
+          }
+        }
 
         if (paymentMethod === "CREDIT_CARD") {
           sendGTMEvent({
@@ -449,7 +476,7 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const handleNextStep = async () => {
+  const handleNextStep = useCallback(async () => {
     const isValid = await trigger();
     if (isValid) {
       setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length));
@@ -460,15 +487,16 @@ const Checkout: React.FC = () => {
     } else {
       console.log("Form is invalid:", errors);
     }
-  };
+  }, []);
 
-  const handlePreviousStep = () => {
+
+  const handlePreviousStep = useCallback(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
     setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
-  };
+  }, []);
 
   // Step 8: Render component
   if (checkoutProducts.length === 0) {
@@ -534,7 +562,7 @@ const Checkout: React.FC = () => {
                         className="mt-4 mb-2 block text-sm font-medium"
                       >
                         <CiUser className="inline-block mr-2 mb-1" /> Nom et
-                        Prénom
+                        Prénom <span className="text-gray-500 text-xs">(الاسم واللقب)</span>
                       </label>
                       <input
                         type="text"
@@ -543,7 +571,7 @@ const Checkout: React.FC = () => {
                           required: "Ce champ est requis",
                         })}
                         className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
-                        placeholder="Nom et prénom"
+                        placeholder="Nom et prénom / الاسم واللقب"
                       />
                       {errors.fullname && (
                         <p className="text-red-500">
@@ -559,7 +587,7 @@ const Checkout: React.FC = () => {
                             className="block text-sm font-medium text-gray-700"
                           >
                             <CiMail className="inline-block mr-2 align-text-bottom" />{" "}
-                            Email (optionnel)
+                            Email (optionnel) <span className="text-gray-500 text-xs">(البريد الإلكتروني)</span>
                           </label>
                           <div className="mt-1 relative rounded-md shadow-sm">
                             <input
@@ -573,7 +601,7 @@ const Checkout: React.FC = () => {
                                 },
                               })}
                               className="border border-gray-300 rounded-r-md px-4 py-2 w-full focus:outline-none "
-                              placeholder="votre@email.com"
+                              placeholder="votre@email.com / بريدك الإلكتروني"
                             />
                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                               <CiMail
@@ -606,7 +634,7 @@ const Checkout: React.FC = () => {
                         className="mt-4 mb-2 block text-sm font-medium"
                       >
                         <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
-                        1
+                        1 <span className="text-gray-500 text-xs">(رقم الهاتف)</span>
                       </label>
                       <div className="flex items-center">
                         <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
@@ -625,7 +653,7 @@ const Checkout: React.FC = () => {
                                 "Le numéro de téléphone doit comporter 8 chiffres";
                             }
                           })}
-                          placeholder="Numéro de téléphone"
+                          placeholder="Numéro de téléphone / رقم الهاتف"
                         />
                       </div>
 
@@ -641,7 +669,7 @@ const Checkout: React.FC = () => {
                         className="mt-4 mb-2 block text-sm font-medium"
                       >
                         <CiPhone className="inline-block mr-2 mb-1" /> Téléphone
-                        2 (optional)
+                        2 (optional) <span className="text-gray-500 text-xs">(رقم هاتف إضافي)</span>
                       </label>
                       <div className="flex items-center">
                         <span className="px-3 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600">
@@ -660,7 +688,7 @@ const Checkout: React.FC = () => {
                                 "Le numéro de téléphone doit comporter 8 chiffres";
                             }
                           })}
-                          placeholder="Numéro de téléphone"
+                          placeholder="Numéro de téléphone / رقم هاتف إضافي"
                         />
                       </div>
 
@@ -675,7 +703,7 @@ const Checkout: React.FC = () => {
                         htmlFor="governorate"
                         className="mt-4 mb-2 block text-sm font-medium"
                       >
-                        Governorat
+                        Governorat <span className="text-gray-500 text-xs">(الولاية)</span>
                       </label>
                       <select
                         id="governorate"
@@ -684,7 +712,7 @@ const Checkout: React.FC = () => {
                         })}
                         className="w-full px-4 py-3 rounded-md border border-gray-200 bg-white text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
                       >
-                        <option value="">Sélectionner une governorat</option>
+                        <option value="">Sélectionner une governorat / اختر الولاية</option>
                         {governmentInfo.map((government: Governorate) => (
                           <option key={government.id} value={government.id}>
                             {government.name.toUpperCase()}
@@ -700,7 +728,7 @@ const Checkout: React.FC = () => {
                         htmlFor="address"
                         className="mt-4 mb-2 block text-sm font-medium"
                       >
-                        Adresse
+                        Adresse <span className="text-gray-500 text-xs">(العنوان)</span>
                       </label>
                       <textarea
                         id="address"
@@ -708,7 +736,7 @@ const Checkout: React.FC = () => {
                           required: "L'adresse est requise",
                         })}
                         className="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-mabg-primaryColor focus:ring-mabg-primaryColor"
-                        placeholder="Saisissez votre adresse"
+                        placeholder="Saisissez votre adresse / أدخل عنوانك"
                         rows={3}
                       ></textarea>
                       {errors.address && (
@@ -718,16 +746,16 @@ const Checkout: React.FC = () => {
                       <div className="mb-8">
                         <label
                           htmlFor="deliveryComment"
-                          className="block text-sm font-medium text-gray-700 mb-2"
+                          className="block text-sm font-medium text-gray-700"
                         >
-                          Commentaire pour la livraison (optionnel)
+                          Commentaire pour la livraison (optionnel) <span className="text-gray-500 text-xs">(ملاحظات للتوصيل)</span>
                         </label>
                         <textarea
                           id="deliveryComment"
                           {...register("deliveryComment")}
                           rows={4}
                           className="w-full rounded-md border border-gray-300 px-4 py-3 text-sm shadow-sm outline-none focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
-                          placeholder="Ajoutez des instructions spéciales pour la livraison ici..."
+                          placeholder="Ajoutez des instructions spéciales pour la livraison ici... / أضف تعليمات خاصة للتوصيل هنا"
                         ></textarea>
                       </div>
                     </div>

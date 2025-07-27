@@ -38,14 +38,38 @@ export const GET_PRODUCT_IMAGES_QUERY = gql`
   }
 `;
 export const FETCH_USER_BY_ID = gql`
-  query FetchUsersById($userId: ID!) {
-    fetchUsersById(userId: $userId) {
-      email
-      number
-      fullName
+ query FetchUsersById($userId: ID!) {
+  fetchUsersById(userId: $userId) {
+    email
+    number
+    fullName
+    Voucher {
+      id
+      code
+      amount
+      isUsed
+      createdAt
+      expiresAt
+      usedAt
+      userId
+      checkoutId
     }
+    pointTransactions {
+      id
+      amount
+      type
+      description
+      createdAt
+      userId
+      checkoutId
+    }
+    number
+    points
   }
+}
+
 `;
+
 export const GET_REVIEW_QUERY = gql`
    query ProductReview($productId: ID!) {
     productReview(productId: $productId) {
@@ -666,6 +690,19 @@ export const FIND_UNIQUE_COUPONS = gql`
     findUniqueCoupons(codeInput: $codeInput) {
       id
       discount
+    }
+  }
+`;
+export const GET_POINT_SETTINGS = gql`
+  query GetPointSettings {
+    getPointSettings {
+      id
+      conversionRate
+      redemptionRate
+      minimumPointsToUse
+      loyaltyThreshold
+      loyaltyRewardValue
+      isActive
     }
   }
 `;
