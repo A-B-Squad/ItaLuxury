@@ -1,18 +1,17 @@
-# Ita-Luxury
 🛍️ ITA Luxury – Client Side (E-commerce Frontend)
 This is the client-facing interface of the ITA Luxury platform — a modern, performant, and elegant e-commerce experience built with Next.js.
 
 🌟 Highlights
-Built with Next.js for fast performance and SEO optimization
+⚡ Built with Next.js for fast performance and SEO optimization
 
-Seamless Online Checkout integrated with Konnect Payment Gateway
+💳 Seamless Online Checkout integrated with Konnect Payment Gateway
 
-Real-time Package Tracking with delivery partner APIs
+📦 Real-time Package Tracking with delivery partner APIs
 
-Responsive UI/UX continuously improved for mobile and desktop users
+📱 Responsive UI/UX, continuously improved for mobile and desktop users
 
 📁 Client Structure Overview
-Module/Folder	Description
+Module / File	Description
 Account/	Manage user account, orders, and settings
 Basket/	Shopping basket functionality
 Checkout/	Checkout page with Konnect payment integration
@@ -33,17 +32,17 @@ page.tsx	Main entry point for the app
 type.d.ts	Shared TypeScript types
 
 🧠 Recent Improvements
-✅ Most product-related pages (e.g., Account, Basket, Home, Checkout, products/[...productId]) have been recently updated for:
+✅ Most product-related pages — such as Account, Basket, Home, Checkout, and products/[...productId] — have been recently updated for:
 
-Better UI/UX
+Improved UI/UX
 
-Improved mobile experience
+Better mobile experience
 
 Faster page loading
 
 💳 Payment & Delivery
-Integrated Konnect for online payments
+✅ Integrated Konnect for secure online payments
 
-Users can track their packages in real-time
+🚚 Users can track packages in real-time
 
-Delivery costs and statuses are dynamically handled through API
+🔁 Delivery costs and statuses are dynamically handled through API
