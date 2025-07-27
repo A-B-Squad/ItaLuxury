@@ -29,6 +29,8 @@ export const sellProduct = async (
       data: {
         inventory: { decrement: quantitySold },
         solde: { increment: quantitySold },
+        updatedAt: new Date(), 
+
       },
     });
 

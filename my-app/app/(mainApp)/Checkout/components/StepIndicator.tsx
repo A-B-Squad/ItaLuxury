@@ -1,5 +1,5 @@
-import React from "react";
 import { Check } from "lucide-react";
+import React from "react";
 
 interface Steps {
   id: number;

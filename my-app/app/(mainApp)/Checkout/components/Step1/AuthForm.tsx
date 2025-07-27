@@ -1,29 +1,29 @@
+import { useProductsInBasketStore } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import {
   ADD_MULTIPLE_TO_BASKET_MUTATION,
   SIGNIN_MUTATION,
   SIGNUP_MUTATION,
 } from "@/graphql/mutations";
+import {
+  auth,
+  facebookProvider,
+  googleProvider,
+} from "@/lib/fireBase/firebase";
 import { useMutation } from "@apollo/client";
+import { signInWithPopup } from "firebase/auth";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   FaEnvelope,
   FaEye,
   FaEyeSlash,
+  FaFacebook,
+  FaGoogle,
   FaLock,
   FaPhone,
   FaUser,
-  FaFacebook,
-  FaGoogle,
 } from "react-icons/fa";
-import { signInWithPopup } from "firebase/auth";
-import {
-  googleProvider,
-  facebookProvider,
-  auth,
-} from "@/lib/fireBase/firebase";
-import { useProductsInBasketStore } from "@/app/store/zustand";
 
 interface AuthFormProps {
   setCurrentStep: (step: number) => void;

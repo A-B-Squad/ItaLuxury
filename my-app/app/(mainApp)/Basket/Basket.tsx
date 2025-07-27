@@ -515,8 +515,7 @@ const Basket: React.FC = () => {
               href={"/Checkout"}
               className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
             >
-              Procéder au paiement
-            </Link>
+              Confirmer le paiement            </Link>
           </div>
         )}
       </div>

@@ -8,7 +8,7 @@ import { CiDeliveryTruck, CiLocationOn, CiMail, CiPhone, CiUser } from "react-ic
 import { GiShoppingBag } from "react-icons/gi";
 
 import { useToast } from "@/components/ui/use-toast";
-import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
+import { CREATE_CHECKOUT_MUTATION, CREATE_POINT_TRANSACTION } from "@/graphql/mutations";
 import triggerEvents from "@/utlils/trackEvents";
 
 import {
@@ -16,6 +16,7 @@ import {
     COMPANY_INFO_QUERY,
     FETCH_USER_BY_ID,
     GET_GOVERMENT_INFO,
+    GET_POINT_SETTINGS,
 } from "@/graphql/queries";
 import { useAuth } from "@/lib/auth/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
@@ -59,12 +60,14 @@ const OrderNow: React.FC<OrderNowProps> = ({
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isGuest, setIsGuest] = useState<boolean>(true);
+    const [createPointTransaction] = useMutation(CREATE_POINT_TRANSACTION);
+    const { data: pointSettingsData } = useQuery(GET_POINT_SETTINGS);
 
     const {
         register,
         handleSubmit,
         formState: { errors, isValid },
-        trigger,
     } = useForm({
         mode: "onChange",
     });
@@ -86,25 +89,26 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
     // GraphQL setup
     const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
-    const [isGuest, setIsGuest] = useState<boolean>(true);
 
     // Fetch initial data
-    useQuery(COMPANY_INFO_QUERY, {
-        onCompleted: (companyData) => {
-            setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-        },
-    });
-
-    useQuery(GET_GOVERMENT_INFO, {
-        onCompleted: (data) => {
-            setGovernmentInfo(data.allGovernorate);
-        },
-    });
-
+    const { data: companyData } = useQuery(COMPANY_INFO_QUERY);
+    const { data: governmentData } = useQuery(GET_GOVERMENT_INFO);
     const { data: userData } = useQuery(FETCH_USER_BY_ID, {
         variables: { userId: decodedToken?.userId },
         skip: !isAuthenticated,
     });
+
+    useEffect(() => {
+        if (companyData?.companyInfo) {
+            setDeliveryPrice(companyData.companyInfo.deliveringPrice);
+        }
+    }, [companyData]);
+
+    useEffect(() => {
+        if (governmentData?.allGovernorate) {
+            setGovernmentInfo(governmentData.allGovernorate);
+        }
+    }, [governmentData]);
 
     // Authentication check
     useEffect(() => {
@@ -116,10 +120,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
             setIsLoggedIn(false);
             setIsGuest(true);
         }
-    }, []);
-
-
-
+    }, [isAuthenticated, setDecodedToken]);
 
     // Calculate total with discounts
     const calculateTotal = (): string => {
@@ -169,6 +170,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
         }
     };
     // Form submission handler
+
     const onSubmit = async (data: any) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
@@ -190,6 +192,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
                     description: "Veuillez remplir tous les champs requis correctement.",
                     variant: "destructive",
                 });
+                setIsSubmitting(false);
+                setPaymentLoading(false);
                 return;
             }
 
@@ -217,7 +221,19 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 paymentMethod: "CASH_ON_DELIVERY",
             };
 
-            const response = await createCheckout({
+            // Store tracking data before making the API call
+            const trackingData = {
+                userEmail: userEmail?.toLowerCase() || '',
+                userName: userName || '',
+                userPhone: userPhone || '',
+                governorateId: data.governorate,
+                userId: decodedToken?.userId,
+                productId: productDetails.id,
+                quantity: ActualQuantity,
+                totalValue: parseFloat(calculateTotal()),
+            };
+
+            const { data: checkoutData } = await createCheckout({
                 variables: { input: checkoutInput },
                 refetchQueries: [
                     {
@@ -227,75 +243,102 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 ],
             });
 
-            if (response.data) {
-                const orderId = response.data.createCheckout.customId;
-                sendNotification(
-                    orderId,
-                    1,
-                    userName,
-                    productDetails?.productDiscounts &&
-                        productDetails.productDiscounts.length > 0
-                        ? productDetails.productDiscounts[0].newPrice
-                        : productDetails.price
-                );
+            // Get the order ID from the response
+            const customOrderId = checkoutData.createCheckout.customId;
 
-                // Track purchase event
-                triggerEvents("Purchase", {
-                    user_data: {
-                        em: [userEmail.toLowerCase()],
-                        fn: [userName],
-                        ph: [userPhone],
-                        country: ["tn"],
-                        ct: checkoutInput.governorateId,
-                        external_id: decodedToken?.userId,
-                    },
-                    custom_data: {
-                        content_name: "OrderNow",
-                        content_type: "product_group",
-                        content_category: "Checkout",
-                        currency: "TND",
-                        value: parseFloat(calculateTotal()),
-                        contents: [{
-                            id: productDetails.id,
-                            quantity: ActualQuantity
-                        }],
-                        num_items: ActualQuantity,
-                    },
-                });
-                sendGTMEvent({
-                    event: "purchase",
-                    ecommerce: {
-                        currency: "TND",
-                        value: parseFloat(calculateTotal()),
-                        items: [
-                            { id: productDetails.id, quantity: ActualQuantity }
-                        ],
-                        transaction_id: orderId,
-                    },
-                    user_data: {
-                        em: [userEmail.toLowerCase()],
-                        fn: [userName],
-                        ph: [userPhone],
-                        country: ["tn"],
-                        ct: checkoutInput.governorateId,
-                        external_id: decodedToken?.userId
-                    },
-                    facebook_data: {
-                        content_name: "OrderNow",
-                        content_type: "product_group",
-                        content_category: "Checkout",
-                        currency: "TND",
-                        value: parseFloat(calculateTotal()),
-                        contents: [{
-                            id: productDetails.id,
-                            quantity: ActualQuantity
-                        }],
-                        num_items: ActualQuantity,
+            // Handle points transaction
+            if (isLoggedIn && decodedToken?.userId) {
+                try {
+                    const pointSettings = pointSettingsData?.getPointSettings;
+                    if (pointSettings && pointSettings.isActive) {
+                        const pointsEarned = Math.floor(total * pointSettings.conversionRate);
+                        if (pointsEarned > 0) {
+                            await createPointTransaction({
+                                variables: {
+                                    input: {
+                                        userId: decodedToken.userId,
+                                        amount: pointsEarned,
+                                        type: "EARNED",
+                                        description: `Points gagnés pour la commande ${customOrderId} (${pointSettings.conversionRate * 100}% de ${total} TND)`,
+                                        checkoutId: checkoutData.createCheckout.id
+                                    }
+                                }
+                            });
+                        }
                     }
-                });
-
-                router.replace(`/Checkout/EndCheckout?packageId=${orderId}`);
+                } catch (error) {
+                    console.error("Error creating points transaction:", error);
+                }
             }
+
+            // Send notification
+            await sendNotification(
+                customOrderId,
+                1,
+                userName,
+                productDetails?.productDiscounts?.length > 0
+                    ? productDetails.productDiscounts[0].newPrice
+                    : productDetails.price
+            );
+
+            // Track events
+            triggerEvents("Purchase", {
+                user_data: {
+                    em: [trackingData.userEmail],
+                    fn: [trackingData.userName],
+                    ph: [trackingData.userPhone],
+                    country: ["tn"],
+                    ct: trackingData.governorateId,
+                    external_id: trackingData.userId,
+                },
+                custom_data: {
+                    content_name: "OrderNow",
+                    content_type: "product_group",
+                    content_category: "Checkout",
+                    currency: "TND",
+                    value: trackingData.totalValue,
+                    contents: [{
+                        id: trackingData.productId,
+                        quantity: trackingData.quantity
+                    }],
+                    num_items: trackingData.quantity,
+                },
+            });
+
+            sendGTMEvent({
+                event: "purchase",
+                ecommerce: {
+                    currency: "TND",
+                    value: trackingData.totalValue,
+                    items: [
+                        { id: trackingData.productId, quantity: trackingData.quantity }
+                    ],
+                    transaction_id: customOrderId,
+                },
+                user_data: {
+                    em: [trackingData.userEmail],
+                    fn: [trackingData.userName],
+                    ph: [trackingData.userPhone],
+                    country: ["tn"],
+                    ct: trackingData.governorateId,
+                    external_id: trackingData.userId
+                },
+                facebook_data: {
+                    content_name: "OrderNow",
+                    content_type: "product_group",
+                    content_category: "Checkout",
+                    currency: "TND",
+                    value: trackingData.totalValue,
+                    contents: [{
+                        id: trackingData.productId,
+                        quantity: trackingData.quantity
+                    }],
+                    num_items: trackingData.quantity,
+                }
+            });
+            // Navigate to success page
+            await router.replace(`/Checkout/EndCheckout?packageId=${customOrderId}`);
+
         } catch (error) {
             console.error("Checkout error:", error);
             toast({
@@ -310,12 +353,10 @@ const OrderNow: React.FC<OrderNowProps> = ({
         }
     };
 
-
-
     return (
-        <div className="lg:hidden w-full mt-6 mb-10">
+        <div className="lg:hidden w-full mt-6 mb-10 relative z-[999992]">
             {paymentLoading && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
                     <div className="bg-white p-5 rounded-lg flex flex-col items-center">
                         <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
                         <p className="mt-2 text-gray-700">
@@ -325,8 +366,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 </div>
             )}
 
-            <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-                <div className="p-4 bg-primaryColor text-white">
+            <div className="w-full bg-white  border-gray-200  overflow-hidden relative z-[9999]">
+                <div className="p-4 border-primaryColor border-b-2  ">
                     <h2 className="text-xl font-bold flex items-center">
                         <GiShoppingBag className="mr-2" /> Acheter maintenant
                     </h2>
@@ -357,7 +398,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 {...register("fullname", {
                                     required: "Ce champ est requis",
                                 })}
-                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                                 placeholder="Nom et prénom"
                             />
                             {errors.fullname && (
@@ -377,7 +418,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 {...register("address", {
                                     required: "L'adresse est requise",
                                 })}
-                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                                 placeholder="Saisissez votre adresse complète"
                                 rows={2}
                             ></textarea>
@@ -400,7 +441,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 <input
                                     type="tel"
                                     id="phone_1"
-                                    className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                    className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                                     {...register("phone_1", {
                                         required: "Ce champ est requis",
                                         validate: (value) => {
@@ -433,7 +474,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 <input
                                     type="tel"
                                     id="phone_2"
-                                    className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                    className="w-full border border-gray-300 rounded-r-md px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                                     {...register("phone_2", {
                                         validate: (value) => {
                                             if (!value) return true; // Optional field
@@ -463,7 +504,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 {...register("governorate", {
                                     required: "Veuillez sélectionner un gouvernorat",
                                 })}
-                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                             >
                                 <option value="">Sélectionner un gouvernorat</option>
                                 {governmentInfo.map((government: Governorate) => (
@@ -495,7 +536,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                             message: "Adresse e-mail invalide",
                                         },
                                     })}
-                                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                                     placeholder="votre@email.com"
                                 />
                                 {errors.email && (
@@ -519,7 +560,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
                                 id="deliveryComment"
                                 {...register("deliveryComment")}
                                 rows={2}
-                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor"
+                                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 shadow-sm focus:border-primaryColor focus:ring-1 focus:ring-primaryColor relative z-[9999]"
                                 placeholder="Instructions spéciales pour la livraison..."
                             ></textarea>
                         </div>

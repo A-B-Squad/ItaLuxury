@@ -7,12 +7,14 @@ export const addProductInventory = async (
   { prisma }: Context
 ) => {
   try {
-    const product = await prisma.product.update({
+   await prisma.product.update({
       where: { id: productId },
       data: {
         inventory: {
           increment: inventory,
         },
+        updatedAt: new Date(), 
+
       },
     });
     return "product inventory update";

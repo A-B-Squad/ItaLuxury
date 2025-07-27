@@ -51,15 +51,15 @@ const TabBarMobile = () => {
       icon: <Heart size={18} />,
     },
     {
-      name: isAuthenticated ? "Colis" : "Compte",
-      path: isAuthenticated ? "/TrackingPackages" : "/signin",
-      icon: isAuthenticated ? <GoPackageDependents size={18} /> : <CiUser size={18} />,
+      name: "Colis",
+      path: "/TrackingPackages",
+      icon: <GoPackageDependents size={18} />,
     },
   ];
 
   return (
     <motion.div 
-      className="fixed md:hidden bottom-0 w-full z-[999999]"
+      className="fixed md:hidden bottom-0 w-full z-[999991]"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}

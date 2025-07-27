@@ -14,6 +14,5 @@ export const deleteProduct = async (
   } catch (error) {
     console.error("Error deleting product:", error);
     return error;
-    return new Error("Failed to delete product.");
   }
 };

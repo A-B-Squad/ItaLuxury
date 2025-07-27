@@ -212,7 +212,7 @@ const Footer = () => {
           <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
           <div className="flex flex-col">
             <Link
-              href={isAuthenticated ? `/TrackingPackages` : "/signin"}
+              href={`/TrackingPackages` }
               className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
             >
               Mes Commandes
@@ -383,7 +383,7 @@ const Footer = () => {
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 <Link
-                  href={isAuthenticated ? `/TrackingPackages` : "/signin"}
+                  href={`/TrackingPackages` }
                   className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700"
                 >
                   Mes Commandes

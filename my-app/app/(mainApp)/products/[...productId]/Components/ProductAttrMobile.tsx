@@ -12,14 +12,22 @@ const ProductAttrMobile: React.FC<ProductAttrProps> = memo(({ technicalDetails }
 
     return (
         <div className="my-6 block lg:hidden w-full">
-            <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                <div className="text-base font-medium text-primaryColor w-full py-3 px-4 bg-gray-50 flex items-center gap-2">
-                    <IoDocumentTextOutline className="text-xl" />
+            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
+                {/* Header with better contrast and spacing */}
+                <div className="text-lg font-semibold text-slate-800 w-full py-4 px-5 bg-slate-50/80 flex items-center gap-3 border-b border-gray-100">
+                    <IoDocumentTextOutline className="text-xl text-slate-600" />
                     <span>Spécifications Techniques</span>
                 </div>
-                <div className="bg-white px-4 py-3">
+
+                {/* Content area optimized for reading */}
+                <div className="bg-white px-5 py-6">
                     <div
-                        className="prose max-w-none text-gray-800 text-md font-medium leading-loose"
+                        className="prose max-w-none text-slate-700 text-base leading-relaxed tracking-wide"
+                        style={{
+                            lineHeight: '1.7',
+                            fontSize: '16px',
+                            fontWeight: '400',
+                        }}
                         dangerouslySetInnerHTML={{ __html: technicalDetails }}
                     />
                 </div>
@@ -27,5 +35,7 @@ const ProductAttrMobile: React.FC<ProductAttrProps> = memo(({ technicalDetails }
         </div>
     );
 });
+
+ProductAttrMobile.displayName = 'ProductAttrMobile';
 
 export default ProductAttrMobile;

@@ -75,7 +75,22 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
 
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
+  //  this near other useState declarations
+  const [showQuantityMessage, setShowQuantityMessage] = useState(false);
 
+  // Add this useEffect to handle scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= 4000) {
+        setShowQuantityMessage(true);
+      } else {
+        setShowQuantityMessage(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_16_PRODUCTS_BY_CATEGORY, {
       variables: {
@@ -321,12 +336,17 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
           ? productInBasket.quantity || productInBasket.actualQuantity
           : 0;
 
+
+
+        // Modify the toast message condition
         if (currentBasketQuantity + quantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-            className: "bg-red-600 text-white",
-          });
+          if (showQuantityMessage) {
+            toast({
+              title: "Quantité non disponible",
+              description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+              className: "bg-red-600 text-white",
+            });
+          }
           return;
         }
 

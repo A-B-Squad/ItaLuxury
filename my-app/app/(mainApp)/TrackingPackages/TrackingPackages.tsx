@@ -21,7 +21,6 @@ import "moment/locale/fr";
 import { useAuth } from "@/lib/auth/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiSearch, FiPackage, FiClock, FiInfo } from "react-icons/fi";
-// Remove the Badge import and create a custom Badge component
 
 interface Product {
   product: any;
@@ -93,15 +92,14 @@ const TrackingPackages: React.FC = () => {
   );
 
   useEffect(() => {
-    
+
     const fetchData = async () => {
       if (isAuthenticated) {
         try {
           const { data } = await PackageByUserId({
             variables: { userId: decodedToken?.userId },
           });
-          console.log(decodedToken);
-          console.log(data);
+
 
           if (data && data.packageByUserId) {
             setPackages(data.packageByUserId);
@@ -117,14 +115,15 @@ const TrackingPackages: React.FC = () => {
     }
   }, [PackageByUserId, searchPerformed, isAuthenticated, decodedToken]);
 
+  // Modified to handle package search for non-authenticated users
   useEffect(() => {
     if (searchInput.length && packageById) {
       if (packageById.packageById) {
         setPackages([packageById.packageById]);
+        setSearchPerformed(true);
       } else {
         setPackages([]);
       }
-      setSearchPerformed(true);
     }
   }, [packageById, searchInput]);
 

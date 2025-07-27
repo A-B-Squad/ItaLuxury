@@ -115,7 +115,7 @@ function DrawerMobile() {
       icon: <GoPackageDependents />,
       text: 'Suivre mes commandes',
       href: '/TrackingPackages',
-      show: !!decodedToken?.userId,
+      show: true,
       onClick: closeCategoryDrawer
     },
     {

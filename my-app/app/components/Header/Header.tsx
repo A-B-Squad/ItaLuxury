@@ -118,13 +118,12 @@ const Header = () => {
         }}
         transition={{
           duration: 0.3,
-          ease: [0.1, 0.9, 0.2, 1] // Custom ease curve for smoother animation
+          ease: [0.1, 0.9, 0.2, 1] 
         }}
       >
         <div className="container mx-auto px-4 lg:px-8">
-          <nav className="flex flex-col py-3 md:py-0 relative w-full">
-            <TopHeader logo={CompanyInfoData?.companyInfo?.logo} />
-            <div className="h-px w-full bg-gray-100 my-2 md:block hidden"></div>
+          <nav className="flex flex-col  relative w-full">
+            <TopHeader />
             <BottomHeader
               isFixed={isFixed}
               setIsFixed={setIsFixed}

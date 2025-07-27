@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { FaCheckCircle, FaTimesCircle, FaHome, FaShoppingBag } from "react-icons/fa";
-import { useMutation } from "@apollo/client";
-import { UPDATE_STATUS_PAYMENT_ONLINE_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
-import Link from "next/link";
+import { UPDATE_STATUS_PAYMENT_ONLINE_MUTATION } from "@/graphql/mutations";
+import { useMutation } from "@apollo/client";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { FaCheckCircle, FaHome, FaShoppingBag, FaTimesCircle } from "react-icons/fa";
 
 interface SearchParams {
   packageId: string;
@@ -19,7 +19,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
 }) => {
   const { packageId, email, status } = searchParams;
   const router = useRouter();
-  const [updatePaymentStatus, { loading }] = useMutation(
+  const [updatePaymentStatus] = useMutation(
     UPDATE_STATUS_PAYMENT_ONLINE_MUTATION,
   );
   const { toast } = useToast();
