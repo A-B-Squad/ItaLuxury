@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 
 const RightAdsCarousel = ({
   AdsNextToCarousel,

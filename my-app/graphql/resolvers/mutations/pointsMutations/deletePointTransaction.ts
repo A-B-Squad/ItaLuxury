@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 
 export const deletePointTransaction = async (
@@ -22,8 +22,7 @@ export const deletePointTransaction = async (
         const pointsToReverse = transaction.amount;
         const user = transaction.user;
 
-        await prisma.$transaction(async (tx) => {
-            // Reverse the points based on the transaction type
+        await prisma.$transaction(async (tx: typeof prisma) => {            // Reverse the points based on the transaction type
             let pointsUpdate = user.points;
             if (transaction.type === "EARNED" || transaction.type === "ADMIN_ADDED") {
                 pointsUpdate = Math.max(0, user.points - pointsToReverse);

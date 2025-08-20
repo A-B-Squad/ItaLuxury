@@ -1,4 +1,4 @@
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import React, { useEffect } from "react";
 import { FaUserAlt, FaUserSecret } from "react-icons/fa";
 import AuthForm from "./AuthForm";
@@ -42,10 +42,10 @@ const Step1: React.FC<Step1Props> = ({
   return (
     <div className="mb-8 max-w-3xl mx-auto opacity-100 transition-opacity duration-300 ease-in-out">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">Informations personnelles</h2>
-      
+
       <div className="mb-6">
         <p className="text-gray-600 mb-6">Choisissez comment vous souhaitez continuer votre commande:</p>
-        
+
         <div className="grid md:grid-cols-2 gap-4 mb-8">
           <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
             <div className="p-5 bg-gray-50 border-b">
@@ -66,7 +66,7 @@ const Step1: React.FC<Step1Props> = ({
               </button>
             </div>
           </div>
-          
+
           <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
             <div className="p-5 bg-primaryColor bg-opacity-10 border-b">
               <div className="flex items-center justify-center mb-3">
@@ -87,7 +87,7 @@ const Step1: React.FC<Step1Props> = ({
             </div>
           </div>
         </div>
-        
+
         {showLoginForm && (
           <div className="transition-all duration-300 ease-in-out overflow-hidden">
             <AuthForm

@@ -8,13 +8,12 @@ import {
 import React, { useMemo } from "react";
 import ProductBox from "../ProductBox/ProductBox";
 import NoProductYet from "./NoProductYet";
+import { ProductData } from "@/app/types";
 
-interface Product {
-  id: string;
-}
+
 
 interface ProductTabsProps {
-  data: Product[];
+  data: ProductData[];
   loadingProduct: boolean;
 }
 
@@ -25,7 +24,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   const productPairs = useMemo(() => {
     if (!data || data.length === 0) return [];
 
-    const pairs: Product[][] = [];
+    const pairs: ProductData[][] = [];
     for (let i = 0; i < data.length; i += 2) {
       pairs.push(data.slice(i, i + 2));
     }

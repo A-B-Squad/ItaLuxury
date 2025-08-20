@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const deleteTopDeals = async (
     // Defining an async function called deleteTopDeals
@@ -7,7 +7,7 @@ export const deleteTopDeals = async (
     { prisma }: Context // Destructuring the third argument into prisma
 ) => {
     try {
-      
+
         const deleteTopDeals = await prisma.topDeals.delete({
             where: {
                 productId

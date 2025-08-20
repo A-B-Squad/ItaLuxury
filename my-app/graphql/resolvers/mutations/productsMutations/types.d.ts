@@ -35,6 +35,7 @@ interface ProductInput {
   colorsId?: string;
   discount?: ProductDiscountInput[];
   brandId?: string;
+  groupProductVariantId?: string;
 }
 
 

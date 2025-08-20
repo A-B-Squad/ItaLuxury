@@ -1,9 +1,9 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const companyInfo = async (_: any, __: any, { prisma }: Context) => {
   try {
     const info = await prisma.companyInfo.findFirst();
-  
+
     return info;
   } catch (error) {
     // Handle errors

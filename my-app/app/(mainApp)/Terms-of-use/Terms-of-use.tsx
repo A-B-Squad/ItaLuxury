@@ -1,18 +1,17 @@
 "use client";
 import SideAds from "@/app/components/adverstissment/sideAds";
-import { ADVERTISSMENT_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
+import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
 import React, { useMemo } from "react";
 
-export default function TermsOfUse() {
-  const { data: companyInfoData, loading: companyInfoLoading } = useQuery(COMPANY_INFO_QUERY);
+export default function TermsOfUse({ companyData }: any) {
+  const companyEmail: string = companyData?.email ?? "Non disponible";
+  const companyPhone = companyData?.phone ?? [];
   const { data: clientContactSideAds, loading: loadingClientContactSideAds } =
     useQuery(ADVERTISSMENT_QUERY, {
       variables: { position: "clinetContactSideAds" },
     });
 
-  // Memoize company info to prevent unnecessary re-renders
-  const companyInfo = useMemo(() => companyInfoData?.companyInfo, [companyInfoData]);
 
   // Memoize ad data
   const adData = useMemo(() => ({
@@ -108,18 +107,15 @@ export default function TermsOfUse() {
               d'utilisation, veuillez nous contacter à l'adresse suivante :
             </p>
             <ul className="space-y-2 text-gray-700">
-              {companyInfoLoading ? (
-                <div className="animate-pulse h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-              ) : (
-                <>
-                  <li className="flex items-center">
-                    <span className="font-medium mr-2">Email:</span> {companyInfo?.email}
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium mr-2">Téléphone:</span> {companyInfo?.phone}
-                  </li>
-                </>
-              )}
+              <li className="flex items-center">
+                <span className="font-medium mr-2">Email:</span> {companyEmail}
+              </li>
+              <li className="flex items-center">
+                <span className="font-medium mr-2">Téléphone:</span>
+                {companyPhone.length > 0
+                  ? `(+216) ${companyPhone[0]}${companyPhone[1] ? ` / (+216) ${companyPhone[1]}` : ""}`
+                  : "Non disponible"}
+              </li>
             </ul>
           </section>
         </div>

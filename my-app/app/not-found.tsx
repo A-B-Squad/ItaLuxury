@@ -1,6 +1,6 @@
 "use client";
-import "./globals.css";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import React from "react";
 import Header from "./components/Header/Header";
 import { Metadata } from "next";
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -40,7 +40,7 @@ function NotFound() {
       <div className="flex flex-col items-center justify-center w-full h-screen bg-white  ">
         <Image
           alt="404"
-          src="/404.png"
+          src="/images/ui/404.webp"
           priority={true}
           objectFit="contain"
           width={400}

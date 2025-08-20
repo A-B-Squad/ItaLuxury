@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ZoomIn, ZoomOut } from 'lucide-react';
-import Image from 'next/legacy/image';
+import Image from 'next/image'
+
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 interface CustomInnerZoomProps {
@@ -287,8 +288,8 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
                     alt={`Product image ${index}`}
                     width={600}
                     height={600}
-                    priority={index === 0} // Only prioritize the first image
-                    quality={80} // Reduce quality slightly for faster loading
+                    priority={index === 0} 
+                    quality={80} 
                     className="object-contain"
                   />
                 </button>

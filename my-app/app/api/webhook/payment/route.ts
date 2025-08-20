@@ -1,3 +1,4 @@
+import { sendPurchaseNotifications } from "@/utlils/sendPurchaseNotifications";
 import { NextRequest, NextResponse } from "next/server";
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;
@@ -5,17 +6,20 @@ const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const packageId = searchParams.get("packageId");
+    const orderId = searchParams.get("orderId");
     const status = searchParams.get("status");
+    const userName = searchParams.get("userName");
+    const itemCount = searchParams.get("itemCount");
+    const orderTotal = searchParams.get("orderTotal");
 
-    if (!packageId || !status || !GRAPHQL_ENDPOINT) {
+    if (!orderId || !status || !GRAPHQL_ENDPOINT) {
       return NextResponse.json(
-        { error: "Missing packageId or status" },
+        { error: "Missing orderId or status" },
         { status: 400 }
       );
     }
 
-    // Your existing GraphQL mutation logic here
+    // GraphQL mutation logic here
     const mutation = `
       mutation UpdateStatusPayOnlinePackage($packageId: ID!, $paymentStatus: Status) {
         updateStatusPayOnlinePackage(
@@ -34,7 +38,7 @@ export async function GET(request: NextRequest) {
       body: JSON.stringify({
         query: mutation,
         variables: {
-          packageId: packageId,
+          packageId: orderId,
           paymentStatus: status,
         },
       }),
@@ -50,10 +54,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+
+    if (status === "PAYED_NOT_DELIVERED") {
+      await sendPurchaseNotifications(
+        orderId,
+        Number(itemCount),
+        userName || "Client",
+        Number(orderTotal)
+      );
+    }
+
     return NextResponse.json(
       {
         message: "Payment status updated successfully",
-        packageId: packageId,
+        packageId: orderId,
         status: status,
       },
       { status: 200 }

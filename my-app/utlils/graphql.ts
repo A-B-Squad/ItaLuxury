@@ -1,4 +1,3 @@
-// utils/graphql.ts
 
 export async function fetchGraphQLData(query: string, variables = {}) {
   if (!process.env.NEXT_PUBLIC_API_URL) {

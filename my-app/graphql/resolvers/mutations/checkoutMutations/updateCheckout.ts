@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 
 interface UpdateCheckoutInput {
@@ -37,8 +37,8 @@ async function sendCheckoutEmail(
   const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
 
   // Logo and other image paths - using images from public folder
-  const logoUrl = `${baseUrl}/LOGO.png`;
-  const jaxDeliveryLogo = `${baseUrl}/jaxDelivery.png`;
+  const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
+  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.png`;
 
   const totalProducts = productInCheckout.reduce(
     (

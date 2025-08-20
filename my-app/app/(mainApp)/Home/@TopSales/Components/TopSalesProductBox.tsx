@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useCallback, memo } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import Image from "next/legacy/image";
+import { BASKET_QUERY } from "@/graphql/queries";
+import Image from "next/image";
+
 import Link from "next/link";
 import { FaBasketShopping } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa";
@@ -14,12 +15,13 @@ import {
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/trackEvents";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { motion } from "framer-motion";
 
-const TopSalesProductBox = memo(({ product }: any) => {
+const TopSalesProductBox = memo(({ product,userData }: any) => {
   const { toast } = useToast();
   const { decodedToken, isAuthenticated } = useAuth();
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
@@ -27,13 +29,6 @@ const TopSalesProductBox = memo(({ product }: any) => {
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState(false);
-  
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
 
   const {
     products,
@@ -45,12 +40,12 @@ const TopSalesProductBox = memo(({ product }: any) => {
   const price = product.productDiscounts.length > 0
     ? product.productDiscounts[0].newPrice
     : product.price;
-  
+
   const formattedPrice = price.toFixed(3);
   const isDiscounted = product.productDiscounts.length > 0;
   const originalPrice = isDiscounted ? product.productDiscounts[0].price.toFixed(3) : null;
   const isOutOfStock = product.inventory <= 0;
-  
+
   // Calculate discount percentage if applicable
   const discountPercentage = isDiscounted
     ? Math.round(((product.productDiscounts[0].price - product.productDiscounts[0].newPrice) / product.productDiscounts[0].price) * 100)
@@ -58,15 +53,15 @@ const TopSalesProductBox = memo(({ product }: any) => {
 
   const AddToBasket = useCallback(async () => {
     if (isOutOfStock) return;
-    
+
     // Analytics data
     const analyticsData = {
       user_data: {
-        em: [userData?.fetchUsersById?.email?.toLowerCase()],
-        fn: [userData?.fetchUsersById?.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email?.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
-        external_id: userData?.fetchUsersById?.id,
+        external_id: userData?.id,
       },
       custom_data: {
         content_name: product.name,
@@ -118,6 +113,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
             {
               query: BASKET_QUERY,
               variables: { userId: decodedToken?.userId },
+
             },
           ],
         });
@@ -132,7 +128,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
       }
     } else {
       const isProductAlreadyInBasket = products.some(p => p.id === product.id);
-      
+
       if (isProductAlreadyInBasket) {
         increaseProductInQtBasket(product.id, 1);
       } else {
@@ -144,7 +140,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
         });
       }
     }
-    
+
     // Update basket state and show notification
     toggleIsUpdated();
     toast({
@@ -155,7 +151,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
   }, [product, price, isAuthenticated, decodedToken, userData, isOutOfStock]);
 
   return (
-    <motion.div 
+    <motion.div
       className="flex font-medium text-gray-900 w-full relative group bg-white rounded-lg p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
       whileHover={{ y: -5 }}
       onHoverStart={() => setIsHovered(true)}
@@ -168,7 +164,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
               -{discountPercentage}%
             </div>
           )}
-          
+
           {isOutOfStock && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
               <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -176,9 +172,9 @@ const TopSalesProductBox = memo(({ product }: any) => {
               </span>
             </div>
           )}
-          
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 z-10" />
-          
+
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -187,8 +183,8 @@ const TopSalesProductBox = memo(({ product }: any) => {
             className="transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
-          
-          <motion.div 
+
+          <motion.div
             className="absolute bottom-0 left-0 right-0 flex justify-center gap-2 p-1 z-20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
@@ -196,11 +192,10 @@ const TopSalesProductBox = memo(({ product }: any) => {
           >
             <button
               type="button"
-              className={`p-2 rounded-full shadow-md ${
-                isOutOfStock 
-                  ? "bg-gray-300 cursor-not-allowed" 
-                  : "bg-white text-gray-800 hover:bg-primaryColor hover:text-white"
-              } transition-colors duration-200`}
+              className={`p-2 rounded-full shadow-md ${isOutOfStock
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-white text-gray-800 hover:bg-primaryColor hover:text-white"
+                } transition-colors duration-200`}
               disabled={isOutOfStock}
               onClick={AddToBasket}
               aria-label="Ajouter au panier"
@@ -253,7 +248,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
               </span>
             </div>
           )}
-          
+
           {/* Free shipping indicator */}
           {price >= 499 && (
             <div className="mt-1">
@@ -267,7 +262,7 @@ const TopSalesProductBox = memo(({ product }: any) => {
           )}
         </div>
       </div>
-      
+
       <div className="absolute right-3 top-3">
         <FavoriteProduct
           isFavorite={isFavorite}

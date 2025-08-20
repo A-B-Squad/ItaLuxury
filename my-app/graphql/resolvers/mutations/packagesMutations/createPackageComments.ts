@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const createPackageComments = async (
   _: any,
@@ -17,7 +17,7 @@ export const createPackageComments = async (
     await prisma.package.update({
       where: { id: packageId },
       data: {
-        comments: { set: comment }, 
+        comments: { set: comment },
       },
     });
 

@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useCallback, memo } from "react";
-import { Home, ShoppingBag, Heart } from "lucide-react";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { motion } from "framer-motion";
+import { Heart, Home, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { memo, useCallback } from "react";
 import { GoPackageDependents } from "react-icons/go";
-import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
-import { CiUser } from "react-icons/ci";
-import { motion } from "framer-motion";
 
 const TabBarMobile = () => {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
 
   const isActive = useCallback((path: string): boolean => {
     if (!pathname) return false;
@@ -58,7 +55,7 @@ const TabBarMobile = () => {
   ];
 
   return (
-    <motion.div 
+    <motion.div
       className="fixed md:hidden bottom-0 w-full z-[999991]"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
@@ -74,20 +71,18 @@ const TabBarMobile = () => {
               className="flex flex-col items-center w-1/4"
             >
               <motion.div
-                className={`p-1.5 rounded-full ${
-                  isActive(item.path) 
-                    ? "bg-primaryColor text-white" 
-                    : "text-gray-600 hover:text-primaryColor"
-                }`}
+                className={`p-1.5 rounded-full ${isActive(item.path)
+                  ? "bg-primaryColor text-white"
+                  : "text-gray-600 hover:text-primaryColor"
+                  }`}
                 whileTap={{ scale: 0.9 }}
                 transition={{ duration: 0.2 }}
               >
                 {item.icon}
               </motion.div>
               <span
-                className={`text-[10px] mt-1 font-medium ${
-                  isActive(item.path) ? "text-primaryColor" : "text-gray-600"
-                }`}
+                className={`text-[10px] mt-1 font-medium ${isActive(item.path) ? "text-primaryColor" : "text-gray-600"
+                  }`}
               >
                 {item.name}
               </span>

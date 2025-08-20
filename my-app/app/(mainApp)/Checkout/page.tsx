@@ -1,7 +1,11 @@
 import React from "react";
 import { Metadata } from "next";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import dynamic from "next/dynamic";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
+import { getUser } from "@/utlils/getUser";
+import { getCompanyInfo } from "@/utlils/getCompanyInfo";
 
 const Checkout = dynamic(() => import("./Checkout"), { ssr: false });
 
@@ -25,7 +29,7 @@ export const metadata: Metadata = {
     description: "Procédez au paiement de votre commande sur ita-luxury.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -38,8 +42,14 @@ export const metadata: Metadata = {
   robots: "noindex, nofollow",
 };
 
-const CheckoutPage = () => {
-  return <Checkout />;
+const CheckoutPage = async() => {
+  const cookieStore = cookies()
+  const token = cookieStore.get('Token')?.value
+  const decodedUser = token ? decodeToken(token) : null;
+  const userData = await getUser(decodedUser?.userId);
+  const companyData = await getCompanyInfo();
+
+  return <Checkout userData={userData} companyData={companyData} />;
 };
 
 export default CheckoutPage;

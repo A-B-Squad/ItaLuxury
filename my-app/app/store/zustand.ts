@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { ProductData } from "../types";
 
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
@@ -122,40 +123,7 @@ export const useBasketStore = create<BasketStore>((set) => ({
   toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
 }));
 
-interface ProductData {
-  id: string;
-  name: string;
-  price: number;
-  isVisible: boolean;
-  images: string[];
-  reference: string;
-  description: string;
-  inventory: number;
-  quantity: number;
-  basketId: string;
-  productDiscounts: {
-    newPrice: number;
-    price: number;
-  }[];
-  Colors: {
-    color: string;
-    Hex: string;
-  } | null;
-  brand: Brand;
-  categories: {
-    name: string;
-    id: string;
-    subcategories: {
-      name: string;
-      id: string;
-      subcategories: {
-        name: string;
-        id: string;
-      }[];
-    }[];
-  }[];
-  [key: string]: any;
-}
+
 
 type State = {
   products: ProductData[];
@@ -192,7 +160,6 @@ export const useProductsInBasketStore = create<ProductsInBasketStore>()(
           quantityInBasket: state.products.length + 1,
         }));
       },
-      // In your Zustand store
       addMultipleProducts: (products: ProductData[]) => {
         set((state) => ({
           products: products,
@@ -349,3 +316,5 @@ export const useSideBarFilterWithStore = create<SideBarFilterStore>((set) => ({
       return { filter: rest };
     }),
 }));
+
+

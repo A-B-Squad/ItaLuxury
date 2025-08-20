@@ -1,47 +1,73 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
-import Link from "next/link";
 import Image from "next/image";
-import "../../globals.css";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
+import { useAuth } from "@/app/hooks/useAuth";
+import { useProductsInBasketStore } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import {
   ADD_MULTIPLE_TO_BASKET_MUTATION,
   SIGNIN_MUTATION,
 } from "@/graphql/mutations";
-import { useForm } from "react-hook-form";
 import {
-  FaEnvelope,
-  FaLock,
+  auth,
+  facebookProvider,
+  googleProvider,
+} from "@/lib/fireBase/firebase";
+import { setToken } from "@/utlils/tokens/token";
+import { signInWithPopup, UserCredential } from "firebase/auth";
+import { useForm, SubmitHandler } from "react-hook-form";
+import {
   FaEye,
   FaEyeSlash,
-  FaUser,
-  FaFacebook,
   FaGoogle,
+  FaLock,
+  FaUser
 } from "react-icons/fa";
-import { useProductsInBasketStore } from "@/app/store/zustand";
-import { signInWithPopup } from "firebase/auth";
-import {
-  googleProvider,
-  facebookProvider,
-  auth,
-} from "@/lib/fireBase/firebase";
+
+// Types 
+interface SigninFormData {
+  emailOrPhone: string;
+  password: string;
+}
+
+interface SigninResponse {
+  signIn: {
+    token: string;
+    userId: string
+  };
+}
+
+
+
+interface BasketProduct {
+  productId: string;
+  quantity: number;
+}
+
+interface AddToBasketInput {
+  userId: string;
+  products: BasketProduct[];
+}
 
 // Step 2: Define the Signin component
-const Signin = () => {
+const Signin: React.FC = () => {
   // Step 3: Set up hooks and state
   const { toast } = useToast();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const { updateToken } = useAuth();
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<SigninFormData>();
   const { products } = useProductsInBasketStore();
 
   const [addMultiProductToBasket] = useMutation(
@@ -49,142 +75,73 @@ const Signin = () => {
   );
 
   // Step 4: Set up the signin mutation
-  const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION);
+  const [SignIn, { loading }] = useMutation<SigninResponse>(SIGNIN_MUTATION, {
+    onCompleted: (data: SigninResponse) => {
+      setToken(data.signIn.token);
+      updateToken(data.signIn.token);
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue sur ita-luxury",
+        className: "bg-primaryColor text-white",
+      });
+
+      const productsFormat: BasketProduct[] = products.map((product) => {
+        return {
+          productId: product.id,
+          quantity: product.actualQuantity,
+        };
+      });
+      addMultiProductToBasket({
+        variables: {
+          input: {
+            userId: data.signIn.userId,
+            products: productsFormat,
+          } as AddToBasketInput,
+        },
+      });
+
+      router.replace("/");
+    },
+    onError: (error) => {
+      // Handle and display error messages
+      setErrorMessage(
+        error.message === "Invalid email or password"
+          ? "Aucun compte n'est associé à cet email"
+          : "Une erreur s'est produite. Veuillez réessayer."
+      );
+    },
+  });
 
   // Step 5: Define form submission handler
-  const onSubmit = (data: any) => {
+  const onSubmit: SubmitHandler<SigninFormData> = (data: SigninFormData): void => {
     SignIn({
       variables: { input: data },
 
-      onCompleted: (data) => {
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur ita-luxury",
-          className: "bg-primaryColor text-white",
-        });
-
-        const productsFormat = products.map((product) => {
-          return {
-            productId: product.id,
-            quantity: product.actualQuantity,
-          };
-        });
-
-        addMultiProductToBasket({
-          variables: {
-            input: {
-              userId: data.signIn.user.id,
-              products: productsFormat,
-            },
-          },
-        });
-
-        router.replace("/");
-      },
-      onError: (error) => {
-        // Handle and display error messages
-        setErrorMessage(
-          error.message === "Invalid email or password"
-            ? "Email ou mot de passe invalide"
-            : "Une erreur s'est produite. Veuillez réessayer."
-        );
-      },
     });
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (): Promise<void> => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result: UserCredential = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
       // Proceed with your existing sign-in logic
       SignIn({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
-        onCompleted: (data) => {
-          // Show success toast and redirect to home page
-          toast({
-            title: "Connexion réussie",
-            description: "Bienvenue sur ita-luxury",
-            className: "bg-primaryColor text-white",
-          });
-
-          const productsFormat = products.map((product) => {
-            return {
-              productId: product.id,
-              quantity: product.actualQuantity,
-            };
-          });
-
-          addMultiProductToBasket({
-            variables: {
-              input: {
-                userId: data.signIn.user.id,
-                products: productsFormat,
-              },
-            },
-          });
-
-          router.replace("/");
-        },
-        onError: (error) => {
-          // Handle and display error messages
-          setErrorMessage(
-            error.message === "Invalid email or password"
-              ? "Aucun compte n'est associé à cet email"
-              : "Une erreur s'est produite. Veuillez réessayer."
-          );
-        },
       });
     } catch (error) {
       console.log(error);
-
       setErrorMessage("Échec de la connexion avec Google.");
     }
   };
 
-  const handleFacebookLogin = async () => {
+  const handleFacebookLogin = async (): Promise<void> => {
     try {
-      const result = await signInWithPopup(auth, facebookProvider);
+      const result: UserCredential = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
       // Proceed with your existing sign-in logic
       SignIn({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
-        onCompleted: (data) => {
-          // Show success toast and redirect to home page
-          toast({
-            title: "Connexion réussie",
-            description: "Bienvenue sur ita-luxury",
-            className: "bg-primaryColor text-white",
-          });
-
-          const productsFormat = products.map((product) => {
-            return {
-              productId: product.id,
-              quantity: product.actualQuantity,
-            };
-          });
-
-          addMultiProductToBasket({
-            variables: {
-              input: {
-                userId: data.signIn.user.id,
-                products: productsFormat,
-              },
-            },
-          });
-
-          router.replace("/");
-        },
-        onError: (error) => {
-          // Handle and display error messages
-          console.log(error);
-
-          setErrorMessage(
-            error.message === "Invalid email or password"
-              ? "Aucun compte n'est associé à cet email"
-              : "Une erreur s'est produite. Veuillez réessayer."
-          );
-        },
       });
     } catch (error) {
       setErrorMessage("Échec de la connexion avec Facebook.");
@@ -192,7 +149,7 @@ const Signin = () => {
   };
 
   // Step 6: Define password visibility toggle function
-  const togglePasswordVisibility = () => {
+  const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword);
   };
 
@@ -203,7 +160,7 @@ const Signin = () => {
         <div className="flex justify-center">
           <Image
             className="h-16 w-auto"
-            src="/LOGO.png"
+            src="/images/logos/LOGO.png"
             alt="ita-luxury"
             width={200}
             height={200}
@@ -260,13 +217,12 @@ const Signin = () => {
                   id="emailOrPhone"
                   type="text"
                   autoComplete="email"
-                  className={`block w-full pl-10 sm:text-sm py-2 border ${
-                    errors.emailOrPhone ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                  } rounded-md shadow-sm`}
+                  className={`block w-full pl-10 sm:text-sm py-2 border ${errors.emailOrPhone ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    } rounded-md shadow-sm`}
                   placeholder="vous@exemple.com ou 12345678"
                   {...register("emailOrPhone", {
                     required: "L'email ou le numéro de téléphone est requis",
-                    validate: (value) => {
+                    validate: (value: string) => {
                       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                       const phoneRegex = /^[0-9]{8}$/;
                       return (
@@ -308,9 +264,8 @@ const Signin = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="********"
                   autoComplete="current-password"
-                  className={`block w-full pl-10 pr-10 sm:text-sm py-2 border ${
-                    errors.password ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                  } rounded-md shadow-sm`}
+                  className={`block w-full pl-10 pr-10 sm:text-sm py-2 border ${errors.password ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    } rounded-md shadow-sm`}
                   {...register("password", {
                     required: "Le mot de passe est requis",
                   })}
@@ -388,13 +343,6 @@ const Signin = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-3">
-              {/* <button
-                onClick={handleFacebookLogin}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-              >
-                <FaFacebook className="h-5 w-5 text-blue-600" />
-                <span className="ml-2">Facebook</span>
-              </button> */}
               <button
                 onClick={handleGoogleLogin}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200"

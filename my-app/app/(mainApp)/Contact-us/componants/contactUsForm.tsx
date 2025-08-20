@@ -5,11 +5,9 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { CldUploadWidget } from "next-cloudinary";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 
 // Define interfaces for type safety
-
-
 interface FormData {
   email: string;
   message: string;

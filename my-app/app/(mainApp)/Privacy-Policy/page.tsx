@@ -1,4 +1,5 @@
 import Breadcumb from "@/app/components/Breadcumb";
+import { getCompanyInfo } from "@/utlils/getCompanyInfo";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
       "Consultez notre politique de confidentialité pour comprendre comment nous traitons vos données personnelles.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -29,16 +30,18 @@ export const metadata: Metadata = {
   },
 };
 
-const PagePrivacyPolicy = () => {
+const PagePrivacyPolicy = async () => {
+  const companyData = await getCompanyInfo();
+
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },
     { href: "/Privacy-Policy", label: "Politique de Confidentialité" }
   ];
-  
+
   return (
     <div className="p-6">
       <Breadcumb Path={breadcrumbPaths} />
-      <PrivacyPolicy />
+      <PrivacyPolicy companyData={companyData} />
     </div>
   );
 };

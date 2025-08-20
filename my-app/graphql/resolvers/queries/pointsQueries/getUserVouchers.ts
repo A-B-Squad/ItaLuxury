@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const getUserVouchers = async (
   _: any,
@@ -15,7 +15,7 @@ export const getUserVouchers = async (
     }
 
     const whereClause: any = { userId };
-    
+
     // Only include unused vouchers if includeUsed is false
     if (!includeUsed) {
       whereClause.isUsed = false;

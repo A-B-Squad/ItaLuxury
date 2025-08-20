@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import RatingStars from "./RatingStars";
 import ProductAttrLaptop from "./ProductAttrLaptop";
 
@@ -9,13 +9,12 @@ interface ProductDetailsContainerProps {
     technicalDetails: string;
 }
 
-const ProductDetailsContainer = memo(({
+const ProductDetailsContainer = ({
     productId,
     userId,
     toast,
     technicalDetails
 }: ProductDetailsContainerProps) => {
-    // Check if there are any technical details to display
     const hasDetails = technicalDetails && technicalDetails.trim().length > 0;
 
     return (
@@ -33,8 +32,7 @@ const ProductDetailsContainer = memo(({
             />
         </div>
     );
-});
+};
 
-ProductDetailsContainer.displayName = "ProductDetailsContainer";
 
 export default ProductDetailsContainer;

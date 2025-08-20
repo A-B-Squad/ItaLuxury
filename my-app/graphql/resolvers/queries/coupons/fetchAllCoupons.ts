@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 export const fetchAllCoupons = async (
   _: any,
   { page, pageSize }: any,
@@ -7,7 +7,7 @@ export const fetchAllCoupons = async (
   try {
     // Calculate skip based on page and pageSize
     const skip = (page - 1) * pageSize;
-    
+
     // Get paginated coupons
     const coupons = await prisma.coupons.findMany({
       include: {
@@ -18,10 +18,10 @@ export const fetchAllCoupons = async (
       take: pageSize,
       skip,
     });
-    
+
     // Get total count
     const totalCount = await prisma.coupons.count();
-    
+
     return {
       coupons,
       totalCount

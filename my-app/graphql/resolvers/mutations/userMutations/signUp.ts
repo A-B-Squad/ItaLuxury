@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Context } from "../../../../pages/api/graphql";
+import { Context } from "@apollo/client";
 
 function generateProfessionalId(length: number) {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -79,7 +79,7 @@ export const signUp = async (
 
 
   return {
-    user: newUser,
+    userId: newUser.id,
     token,
   };
 };

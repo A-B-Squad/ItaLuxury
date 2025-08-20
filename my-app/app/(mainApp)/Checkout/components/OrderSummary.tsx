@@ -1,24 +1,25 @@
 import { useToast } from "@/components/ui/use-toast";
 import { FIND_UNIQUE_COUPONS } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import React, { useState } from "react";
 interface OrderSummaryProps {
-  products: Product[];
+  checkoutProducts: ProductInCheckout[];
   total: number;
   discountPercentage: number;
   setDiscountPercentage: (percentage: number) => void;
   deliveryPrice: number;
   calculateTotal: () => string;
   setCoupon: (coupon: { id: string; couponCode: string }) => void;
-  handlePreviousStep: any;
-  isLoggedIn: any;
-  handleNextStep: any;
+  handlePreviousStep: () => void;
+  isLoggedIn: boolean;
+  handleNextStep: () => void;
   currentStep: number;
   isValid: boolean;
 }
-interface Product {
+interface ProductInCheckout {
   id: string;
   name: string;
   images: string[];
@@ -29,7 +30,7 @@ interface Product {
 }
 
 export const OrderSummary: React.FC<OrderSummaryProps> = ({
-  products,
+  checkoutProducts,
   setDiscountPercentage,
   discountPercentage,
   deliveryPrice,
@@ -94,7 +95,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
         <p className="text-xl font-medium">Récapitulatif de la commande</p>
         <p className="text-gray-400">Vérifiez vos articles.</p>
         <div className="mt-8 space-y-3 divide-y-2 shadow-sm h-full max-h-[500px] overflow-y-auto px-2 py-4 sm:px-6">
-          {products.map((product: Product) => (
+          {checkoutProducts.map((product: ProductInCheckout) => (
             <div
               className="flex flex-col shadow py-2 bg-white sm:flex-row"
               key={product.id}

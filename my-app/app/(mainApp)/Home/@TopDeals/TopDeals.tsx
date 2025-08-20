@@ -1,13 +1,14 @@
 "use client";
-import { BASKET_QUERY, FETCH_USER_BY_ID, TOP_DEALS } from "@/graphql/queries";
+import { BASKET_QUERY, TOP_DEALS } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import ProductDetails from "./ProductDetails";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { useReducedMotion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
-const TopDeals = () => {
+const TopDeals = ({ userData }: any) => {
   const { decodedToken, isAuthenticated } = useAuth();
   const prefersReducedMotion = useReducedMotion();
   const [isContentVisible, setIsContentVisible] = useState(false);
@@ -26,13 +27,7 @@ const TopDeals = () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-    fetchPolicy: "cache-first"
-  });
+
 
   const { data: topDeals, loading: dealsLoading } = useQuery(TOP_DEALS, {
     fetchPolicy: "cache-first",
@@ -42,8 +37,8 @@ const TopDeals = () => {
 
   // Memoized check for favorite status
   const checkIsFavorite = useCallback((productId: string) => {
-    if (!isAuthenticated || !userData?.fetchUsersById?.favorites) return false;
-    return userData.fetchUsersById.favorites.some(
+    if (!isAuthenticated || !userData?.favorites) return false;
+    return userData.favorites.some(
       (fav: any) => fav.productId === productId
     );
   }, [userData, isAuthenticated]);
@@ -98,11 +93,11 @@ const TopDeals = () => {
     <div className={containerClasses}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-800">Offres Spéciales</h2>
-        <a href="/Collections/tunisie?choice=in-discount" className="text-primaryColor hover:underline text-sm font-medium">
+        <Link href="/Collections/tunisie?choice=in-discount" className="text-primaryColor hover:underline text-sm font-medium">
           Voir tout
-        </a>
+        </Link>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white rounded-lg shadow-sm overflow-hidden">
         {renderProducts}
       </div>

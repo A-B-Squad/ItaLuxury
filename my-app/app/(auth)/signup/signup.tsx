@@ -10,7 +10,6 @@ import {
   ADD_MULTIPLE_TO_BASKET_MUTATION,
   SIGNUP_MUTATION,
 } from "@/graphql/mutations";
-import "../../globals.css";
 
 import {
   FaUser,
@@ -29,6 +28,8 @@ import {
   facebookProvider,
   auth,
 } from "@/lib/fireBase/firebase";
+import { setToken } from "@/utlils/tokens/token";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface SignupFormData {
   fullName: string;
@@ -36,11 +37,17 @@ interface SignupFormData {
   number: string;
   password: string;
 }
+interface SignupResponse {
+  signUp: {
+    token: string;
+    userId: string
+  };
+}
 
 const Signup: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-
+  const { updateToken } = useAuth();
   const [socialSignupData, setSocialSignupData] = useState<any>(null);
   const [showPhoneInput, setShowPhoneInput] = useState<boolean>(false);
   const [emailExists, setEmailExists] = useState<boolean>(false);
@@ -57,8 +64,11 @@ const Signup: React.FC = () => {
     ADD_MULTIPLE_TO_BASKET_MUTATION
   );
 
-  const [signUp, { loading }] = useMutation(SIGNUP_MUTATION, {
-    onCompleted: (data) => {
+  const [signUp, { loading }] = useMutation<SignupResponse>(SIGNUP_MUTATION, {
+
+    onCompleted: (data: SignupResponse) => {
+      setToken(data.signUp.token);
+      updateToken(data.signUp.token);
       const productsFormat = products.map((product) => ({
         productId: product.id,
         quantity: product.actualQuantity,
@@ -67,7 +77,7 @@ const Signup: React.FC = () => {
       addMultiProductToBasket({
         variables: {
           input: {
-            userId: data.signUp.user.id,
+            userId: data.signUp.userId,
             products: productsFormat,
           },
         },
@@ -106,7 +116,6 @@ const Signup: React.FC = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
       setSocialSignupData({
         fullName: user.displayName,
         email: user.email,
@@ -135,7 +144,7 @@ const Signup: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Image
           className="mx-auto h-16 w-auto"
-          src="/LOGO.png"
+          src="/images/logos/LOGO.png"
           alt="ita-luxury"
           width={200}
           height={200}
@@ -207,9 +216,8 @@ const Signup: React.FC = () => {
                       <input
                         id="fullName"
                         type="text"
-                        className={`block w-full pl-10 sm:text-sm py-2 border ${
-                          errors.fullName ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                        } rounded-md shadow-sm`}
+                        className={`block w-full pl-10 sm:text-sm py-2 border ${errors.fullName ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                          } rounded-md shadow-sm`}
                         placeholder="Nom complet"
                         {...register("fullName", {
                           required: "Le nom complet est requis",
@@ -241,9 +249,8 @@ const Signup: React.FC = () => {
                         id="email"
                         type="email"
                         autoComplete="email"
-                        className={`block w-full pl-10 sm:text-sm py-2 border ${
-                          errors.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                        } rounded-md shadow-sm`}
+                        className={`block w-full pl-10 sm:text-sm py-2 border ${errors.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                          } rounded-md shadow-sm`}
                         placeholder="vous@exemple.com"
                         {...register("email", {
                           required: "L'email est requis",
@@ -280,9 +287,8 @@ const Signup: React.FC = () => {
                         type={showPassword ? "text" : "password"}
                         placeholder="********"
                         autoComplete="current-password"
-                        className={`block w-full pl-10 pr-10 sm:text-sm py-2 border ${
-                          errors.password ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                        } rounded-md shadow-sm`}
+                        className={`block w-full pl-10 pr-10 sm:text-sm py-2 border ${errors.password ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                          } rounded-md shadow-sm`}
                         {...register("password", {
                           required: "Le mot de passe est requis",
                           minLength: {
@@ -333,9 +339,8 @@ const Signup: React.FC = () => {
                     <input
                       id="number"
                       type="tel"
-                      className={`block w-full pl-3 sm:text-sm py-2 border ${
-                        errors.number ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                      } rounded-r-md shadow-sm`}
+                      className={`block w-full pl-3 sm:text-sm py-2 border ${errors.number ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                        } rounded-r-md shadow-sm`}
                       placeholder="Numéro de téléphone"
                       {...register("number", {
                         required: "Le numéro de téléphone est requis",

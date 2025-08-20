@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 interface ResetPointsInput {
   userId: string;
@@ -23,7 +23,7 @@ export const resetUserPoints = async (
     }
 
     // Reset the user's points
-    const updatedUser = await prisma.$transaction(async (tx) => {
+    const updatedUser = await prisma.$transaction(async (tx: typeof prisma) => {
       // Create a point transaction for the reset
       if (user.points > 0) {
         await tx.pointTransaction.create({

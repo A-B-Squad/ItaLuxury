@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 import { FORGOT_PASSWORD_MUTATION } from "@/graphql/mutations";
 import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 import Link from "next/link";
 import { FaEnvelope, FaArrowLeft } from "react-icons/fa";
-import "../../globals.css";
 
 const ForgotPassword = () => {
   const [isError, setIsError] = useState(false);
@@ -16,20 +14,19 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [ForgotPassword, { loading }] = useMutation(FORGOT_PASSWORD_MUTATION);
-  const router = useRouter();
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
     setIsError(false);
-    
+
     if (!email || !email.includes('@')) {
       setIsError(true);
       setErrorMessage("Veuillez saisir une adresse e-mail valide");
       return;
     }
-    
+
     ForgotPassword({
       variables: {
         email,
@@ -56,7 +53,7 @@ const ForgotPassword = () => {
         <div className="flex justify-center">
           <Image
             className="h-16 w-auto"
-            src="/LOGO.png"
+            src="/images/logos/LOGO.png"
             alt="ita-luxury"
             width={200}
             height={200}
@@ -67,8 +64,8 @@ const ForgotPassword = () => {
           Mot de passe oublié
         </h1>
         <p className="mt-2 text-center text-sm text-gray-600">
-          {!isSubmitted 
-            ? "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation" 
+          {!isSubmitted
+            ? "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation"
             : "Vérifiez votre boîte de réception pour le lien de réinitialisation"}
         </p>
       </div>

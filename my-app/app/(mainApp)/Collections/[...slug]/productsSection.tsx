@@ -80,7 +80,7 @@ const ProductsSection: React.FC = () => {
 
 
   const fetchProducts = useCallback(async (pageToFetch: number, shouldAppend: boolean = false) => {
-    // Prevent multiple simultaneous fetches
+
     if (isLoading || (!hasMore && shouldAppend)) return;
 
     setIsLoading(true);
@@ -89,7 +89,6 @@ const ProductsSection: React.FC = () => {
     try {
       // Get current search parameters
       const params = getSearchParams();
-
       // Fetch products from the API
       const { data } = await searchProducts({
         variables: {
@@ -181,7 +180,9 @@ const ProductsSection: React.FC = () => {
       }
     };
   }, [hasMore, isLoading, fetchProducts]);
-  // Reset state when search params (except page) change
+  
+
+
   useEffect(() => {
     const currentParams = { ...getSearchParams(), sort: searchParams?.get("sort") };
     const paramsString = JSON.stringify(currentParams);

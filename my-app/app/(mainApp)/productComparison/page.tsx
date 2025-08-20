@@ -1,8 +1,11 @@
 import React from "react";
 import { Metadata } from "next";
 import ProductComparison from "./productComparison";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import Breadcumb from "@/app/components/Breadcumb";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
+import { getUser } from "@/utlils/getUser";
 
 export const metadata: Metadata = {
   title: "Comparaison de Produits | ita-luxury",
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com/productComparison",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "Comparaison de Produits ita-luxury",
@@ -36,7 +39,7 @@ export const metadata: Metadata = {
       "Comparez facilement les produits sur ita-luxury. Trouvez le meilleur choix pour vous.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "Comparaison de Produits ita-luxury",
@@ -48,7 +51,11 @@ export const metadata: Metadata = {
   },
 };
 
-const ProductComparisonPage = () => {
+const ProductComparisonPage = async () => {
+  const cookieStore = cookies()
+  const token = cookieStore.get('Token')?.value
+  const decodedUser = token ? decodeToken(token) : null;
+  const userData = await getUser(decodedUser?.userId);
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },
     { href: "/productComparison", label: "Comparaison de Produits" }
@@ -57,7 +64,7 @@ const ProductComparisonPage = () => {
   return (
     <div className="p-6">
       <Breadcumb Path={breadcrumbPaths} />
-      <ProductComparison />
+      <ProductComparison userData={userData} />
     </div>
   );
 };

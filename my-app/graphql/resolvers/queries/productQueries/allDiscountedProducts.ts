@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 type ProductDiscountOrderByWithRelationInput = {
   product?: {
     createdAt?: "asc" | "desc";

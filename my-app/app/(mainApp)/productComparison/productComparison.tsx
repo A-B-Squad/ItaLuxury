@@ -1,10 +1,12 @@
 "use client";
 import { useMutation, useQuery } from "@apollo/client";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { MdCompareArrows } from "react-icons/md";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
+import Image from "next/image";
+
 import {
   useBasketStore,
   useProductComparisonStore,
@@ -13,29 +15,22 @@ import {
 } from "@/app/store/zustand";
 import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "../../../graphql/queries";
-import triggerEvents from "../../../utlils/trackEvents";
+import { BASKET_QUERY } from "../../../graphql/queries";
+import triggerEvents from "@/utlils/events/trackEvents";
 import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 
-const ProductComparison = () => {
+const ProductComparison = ({ userData }: any) => {
   const { comparisonList, removeFromComparison } = useProductComparisonStore();
   const { openBasketDrawer } = useDrawerBasketStore();
   const { toast } = useToast();
   const { decodedToken, isAuthenticated } = useAuth();
 
   const [addToBasket, { loading: addingToBasket }] = useMutation(ADD_TO_BASKET_MUTATION);
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
+
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { addProductToBasket, increaseProductInQtBasket } = useProductsInBasketStore();
-
- 
 
   const removeProduct = useCallback(
     (product: Product) => {
@@ -58,11 +53,11 @@ const ProductComparison = () => {
     // Track Add to Cart event
     triggerEvents("AddToCart", {
       user_data: {
-        em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-        fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-        ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+        em: userData?.email ? [userData.email.toLowerCase()] : [],
+        fn: userData?.fullName ? [userData.fullName] : [],
+        ph: userData?.number ? [userData.number] : [],
         country: ["tn"],
-        external_id: userData?.fetchUsersById?.id,
+        external_id: userData?.id,
       },
       custom_data: {
         content_name: product.name,
@@ -92,11 +87,11 @@ const ProductComparison = () => {
         }]
       },
       user_data: {
-        em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-        fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-        ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+        em: userData?.email ? [userData.email.toLowerCase()] : [],
+        fn: userData?.fullName ? [userData.fullName] : [],
+        ph: userData?.number ? [userData.number] : [],
         country: ["tn"],
-        external_id: userData?.fetchUsersById?.id
+        external_id: userData?.id
       },
       facebook_data: {
         content_name: product.name,
@@ -184,7 +179,7 @@ const ProductComparison = () => {
                 Ajoutez des produits à comparer pour voir leurs caractéristiques côte à côte.
               </p>
               <Link
-                href="/products"
+                href="/Collections/tunisie?page=1"
                 className="mt-2 px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-opacity-90 transition-all"
               >
                 Découvrir nos produits
@@ -225,10 +220,12 @@ const ProductComparison = () => {
                       className="relative mb-3 flex h-40 w-full overflow-hidden rounded-lg"
                       href={`/products/tunisie?productId=${product.id}`}
                     >
-                      <img
+                      <Image
                         className="object-contain w-full h-full"
                         src={product.images[0]}
                         alt={product.name}
+                        width={40}
+                        height={40}
                       />
                     </Link>
 
@@ -252,8 +249,8 @@ const ProductComparison = () => {
                     <button
                       disabled={product.inventory <= 0 || addingToBasket}
                       className={`w-full flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white transition-all ${product.inventory <= 0
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-secondaryColor hover:bg-opacity-90 cursor-pointer"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-secondaryColor hover:bg-opacity-90 cursor-pointer"
                         }`}
                       onClick={() => AddToBasket(product)}
                     >

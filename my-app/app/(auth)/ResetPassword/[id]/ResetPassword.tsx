@@ -31,14 +31,14 @@ const ResetPassword = () => {
   const handleSubmit = () => {
     // Reset error state
     setIsError(false);
-    
+
     // Validate password
     if (!password || password.length < 8) {
       setIsError(true);
       setErrorMessage("Le mot de passe doit comporter au moins 8 caractères");
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setIsError(true);
       setErrorMessage(
@@ -46,7 +46,7 @@ const ResetPassword = () => {
       );
       return;
     }
-    
+
     resetPassword({
       variables: {
         password,
@@ -74,7 +74,7 @@ const ResetPassword = () => {
         <div className="flex justify-center">
           <Image
             className="h-16 w-auto"
-            src="/LOGO.png"
+            src="/images/logos/LOGO.png"
             alt="ita-luxury"
             width={200}
             height={200}

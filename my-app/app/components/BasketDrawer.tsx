@@ -7,14 +7,16 @@ import {
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import { useAuth } from "@/lib/auth/useAuth";
-import triggerEvents from "@/utlils/trackEvents";
+import { BASKET_QUERY } from "@/graphql/queries";
+import { useAuth } from "@/app/hooks/useAuth";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { useMutation, useQuery } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import { sendGTMEvent } from "@next/third-parties/google";
 
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { CiTrash } from "react-icons/ci";
@@ -23,36 +25,11 @@ import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 import { FaArrowRight } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { ProductData } from '../types/product';
 
-// Product interface
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  inventory: number;
-  images: string[];
-  quantity: number;
-  basketId: string;
-  productDiscounts: {
-    newPrice: number;
-  }[];
-  categories: {
-    name: string;
-    id: string;
-    subcategories: {
-      name: string;
-      id: string;
-      subcategories: {
-        name: string;
-        id: string;
-      }[];
-    }[];
-  }[];
-  [key: string]: any;
-}
 
-const BasketDrawer: React.FC = () => {
+const BasketDrawer = ({ userData }: any) => {
   const { toast } = useToast();
   const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore();
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
@@ -82,13 +59,7 @@ const BasketDrawer: React.FC = () => {
     }
   });
 
-  // Fetch user data
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
+
 
   // Mutations
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
@@ -109,7 +80,7 @@ const BasketDrawer: React.FC = () => {
 
   // Calculate total price
   const totalPrice = useMemo(() => {
-    return productsInBasket.reduce((acc: number, curr: Product) => {
+    return productsInBasket.reduce((acc: number, curr: ProductData) => {
       const price = curr.productDiscounts?.length
         ? curr.productDiscounts[0].newPrice
         : curr.price;
@@ -235,11 +206,11 @@ const BasketDrawer: React.FC = () => {
       // Analytics events
       triggerEvents("InitiateCheckout", {
         user_data: {
-          em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-          fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-          ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+          em: userData?.email ? [userData.email.toLowerCase()] : [],
+          fn: userData?.fullName ? [userData.fullName] : [],
+          ph: userData?.number ? [userData.number] : [],
           country: ["tn"],
-          external_id: userData?.fetchUsersById?.id,
+          external_id: userData?.id,
         },
         custom_data: {
           content_name: "InitiateCheckout",
@@ -269,11 +240,11 @@ const BasketDrawer: React.FC = () => {
           }))
         },
         user_data: {
-          em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-          fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-          ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+          em: userData?.email ? [userData.email.toLowerCase()] : [],
+          fn: userData?.fullName ? [userData.fullName] : [],
+          ph: userData?.number ? [userData.number] : [],
           country: ["tn"],
-          external_id: userData?.fetchUsersById?.id
+          external_id: userData?.id
         },
         facebook_data: {
           content_name: "InitiateCheckout",
@@ -299,7 +270,7 @@ const BasketDrawer: React.FC = () => {
   // Render product list
   const renderProductList = () => (
     <ul role="list" className="divide-y divide-gray-200">
-      {productsInBasket.map((product: Product, index: number) => (
+      {productsInBasket.map((product: ProductData, index: number) => (
         <motion.li
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

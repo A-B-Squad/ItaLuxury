@@ -1,11 +1,11 @@
 "use client"
 import HoverButton from '@/app/components/HoverButton';
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from '@/app/hooks/useAuth';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { GET_REVIEW_QUERY } from '@/graphql/queries';
-import { useAuth } from '@/lib/auth/useAuth';
+import triggerEvents from '@/utlils/events/trackEvents';
 import { getUserIpAddress } from '@/utlils/getUserIpAddress';
-import triggerEvents from '@/utlils/trackEvents';
 import { useLazyQuery } from '@apollo/client';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { memo, useEffect, useMemo, useState } from "react";
@@ -16,8 +16,10 @@ import { IoCheckmarkDoneOutline } from "react-icons/io5";
 import { MdAddShoppingCart, MdOutlineInfo } from "react-icons/md";
 import { RiSubtractFill } from "react-icons/ri";
 import DiscountCountDown from "./DiscountCountDown";
-import OrderNow from "./OrderNow/OrderNowForm";
+import OrderNowForm from "./OrderNow/OrderNowForm";
 import ProductAttrMobile from "./ProductAttrMobile";
+import { GiShoppingBag } from 'react-icons/gi';
+import ColorVariants from './ColorVariants';
 
 interface Review {
   id: string;
@@ -28,13 +30,6 @@ interface Review {
   createdAt: string;
 }
 
-interface RatingCounts {
-  one: number;
-  two: number;
-  three: number;
-  four: number;
-  five: number;
-}
 
 // Star rating component with proper typing
 const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: number }) => {
@@ -70,10 +65,9 @@ const ProductInfo = memo(({
   handleDecreaseQuantity,
   handleToggleFavorite,
   isProductInCompare,
-  addToCompare
+  addToCompare, userData, companyData
 }: any) => {
   const { toast } = useToast();
-  const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
   const [reviews, setReviews] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
@@ -81,9 +75,6 @@ const ProductInfo = memo(({
   const [whatsappButtonDisabled, setWhatsappButtonDisabled] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
 
-  useEffect(() => {
-    setLastUpdate(Date.now());
-  }, [productDetails?.price, productDetails?.productDiscounts]);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -283,7 +274,7 @@ const ProductInfo = memo(({
 
   // Handle WhatsApp button click
   const handleClick = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default link behavior
+    e.preventDefault();
 
     if (whatsappButtonDisabled) {
       toast({
@@ -297,15 +288,13 @@ const ProductInfo = memo(({
     const success = await trackWhatsAppPurchase();
 
     if (success && typeof window !== 'undefined') {
-      // For iOS, we need to use window.location.href instead of window.open
-      // This is more reliable on mobile Safari
       window.location.href = getWhatsAppUrl();
     }
   };
 
   const formattedPrice = useMemo(() =>
     productDetails?.price?.toFixed(3),
-    [productDetails?.price, lastUpdate]
+    [productDetails?.price, productDetails?.productDiscounts]
   );
 
   const productDescription = useMemo(() => ({
@@ -401,7 +390,7 @@ const ProductInfo = memo(({
         </div>
       </div>
 
-      <div className="prices discount flex flex-col gap-3 mt-4" key={`price-${lastUpdate}`}>
+      <div className="prices discount flex flex-col gap-3 mt-4" >
         <div className="flex flex-wrap items-center gap-2 tracking-wide">
           {discount ? (
             <div className="w-full flex flex-wrap items-center gap-2">
@@ -447,7 +436,11 @@ const ProductInfo = memo(({
             </span>
           )}
         </div>
-
+        <ColorVariants
+          currentProductId={productDetails?.id}
+          groupProductVariant={productDetails?.GroupProductVariant}
+          currentColors={productDetails?.Colors}
+        />
         <div className="Description mt-8">
           <div className="flex items-center justify-between ">
             <h3 className="text-xl md:text-2xl font-semibold text-slate-800 capitalize border-b-2 border-slate-200  tracking-wide">
@@ -547,12 +540,14 @@ const ProductInfo = memo(({
         </div>
 
 
-        <div className="lg:hidden action-buttons bg-white flex flex-col gap-3 mt-2">
-          <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
+        <div className="lg:hidden action-buttons  bg-white flex flex-col gap-3 mt-2">
+          <Dialog
+            open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
             <DialogTrigger asChild>
               <button
                 type="button"
                 disabled={isOutOfStock}
+                onClick={() => !isOutOfStock && AddToBasket(productDetails)}
                 className={`w-full py-3 px-4 rounded-lg font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-sm ${isOutOfStock
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
                   : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -562,10 +557,15 @@ const ProductInfo = memo(({
                 {isOutOfStock ? "Indisponible" : "Acheter Rapidement"}
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] bg-white overflow-y-auto">
-              <OrderNow
+            <DialogContent className="sm:max-w-[600px] z-[9999] max-h-[90vh] bg-white overflow-y-auto">
+              <DialogTitle className="p-4 text-xl font-bold flex items-center border-primaryColor border-b-2  ">
+                <GiShoppingBag className="mr-2" /> Acheter maintenant
+              </DialogTitle>
+              <OrderNowForm
                 ActualQuantity={quantity}
                 productDetails={productDetails}
+                userData={userData}
+                companyData={companyData}
               />
             </DialogContent>
           </Dialog>
@@ -588,6 +588,21 @@ const ProductInfo = memo(({
       </div>
     </div>
   );
-});
+
+
+
+}
+  , (prevProps, nextProps) => {
+
+    return (
+      prevProps.productDetails?.id === nextProps.productDetails?.id &&
+      prevProps.productDetails?.price === nextProps.productDetails?.price &&
+      prevProps.productDetails?.inventory === nextProps.productDetails?.inventory &&
+      prevProps.technicalDetails === nextProps.technicalDetails &&
+      prevProps.discount?.newPrice === nextProps.discount?.newPrice &&
+      prevProps.quantity === nextProps.quantity
+    );
+  },
+);
 
 export default ProductInfo;

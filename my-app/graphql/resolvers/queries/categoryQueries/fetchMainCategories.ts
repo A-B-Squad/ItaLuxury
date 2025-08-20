@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const fetchMainCategories = async (_: any, __: any, { prisma }: Context
 ) => {
@@ -7,7 +7,7 @@ export const fetchMainCategories = async (_: any, __: any, { prisma }: Context
             where: { parentId: null },
 
             include: {
-                subcategories: true 
+                subcategories: true
             }
         });
 

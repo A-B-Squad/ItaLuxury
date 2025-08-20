@@ -28,7 +28,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
           <Link
             className="py-2 block text-primaryColor font-medium hover:text-primaryColor/80 transition-all border-b border-gray-100 mb-2"
             data-parentcategory={subcategory.parentId}
-            href={`/Collections/tunisie/?${new URLSearchParams({
+            href={`/Collections/tunisie?${new URLSearchParams({
               category: subcategory.name,
             })}`}
           >

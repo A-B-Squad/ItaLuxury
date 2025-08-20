@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 // Function to check if a date is before or equal to the current date
 const isDateBeforeOrEqual = (date: number | Date) => {

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const updatePackage = async (
   _: any,
@@ -8,7 +8,7 @@ export const updatePackage = async (
   try {
     const { packageId, status } = input;
 
-  
+
     await prisma.package.update({
       where: {
         id: packageId,

@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import Subcategory from "./Subcategory";
 import Link from "next/link";
-import prepRoute from "../../../Helpers/_prepRoute";
 import { IoIosArrowForward } from "react-icons/io";
 
 interface CategoryProps {
@@ -39,7 +38,7 @@ const Category: React.FC<CategoryProps> = ({
           {data?.categories?.map((category: Category, index: number) => (
             <div data-parentcategory={category.name} key={index}>
               <Link
-                href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                href={`/Collections/tunisie?${new URLSearchParams(
                   {
                     category: category.name,
                   }
@@ -50,6 +49,8 @@ const Category: React.FC<CategoryProps> = ({
                     ? "bg-gray-50 text-primaryColor font-medium"
                     : "text-gray-700 font-normal"
                 }`}
+               
+               
                 data-category={category.name}
               >
                 <span className="truncate">{category.name}</span>

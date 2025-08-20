@@ -1,7 +1,8 @@
 "use client";
 import { MAIN_CATEGORY_QUERY } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -53,7 +54,7 @@ const MainCategoriesSlide = () => {
                         <Image
                           src={category.smallImage}
                           layout="fill"
-                          alt=""
+                          alt={category.name}
                           objectFit="cover"
                           className="opacity-90"
                         />
@@ -66,7 +67,11 @@ const MainCategoriesSlide = () => {
                     <h3 className="text-2xl md:text-4xl font-light md:text-gray-800 text-white mb-3 md:mb-4">{category.name}</h3>
                     <p className="md:text-gray-600 text-white/90 text-sm md:text-base mb-6 md:mb-8 max-w-xs">Découvrez notre collection exclusive de produits {category.name.toLowerCase()}</p>
                     <Link
-                      href={`/Collections/tunisie?category=${category.name}`}
+                      href={`/Collections/tunisie?${new URLSearchParams(
+                        {
+                          category: category.name,
+                        }
+                      )}`}
                       className="inline-block bg-white/90 md:bg-white border border-gray-300 hover:border-primaryColor text-gray-800 px-5 py-2 md:px-6 md:py-3 rounded-md md:rounded-none w-max transition-all duration-300 hover:bg-primaryColor hover:text-white"
                     >
                       Découvrir

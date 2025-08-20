@@ -1,7 +1,7 @@
 import React from "react";
 import FavoriteList from "./FavoriteList";
 import { Metadata } from "next";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import Breadcumb from "@/app/components/Breadcumb";
 
 if (
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     description: "Consultez votre liste de favoris sur ita-luxury.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",

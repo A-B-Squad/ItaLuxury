@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const cancalPackageProduct = async (
   _: any,
@@ -36,7 +36,7 @@ export const cancalPackageProduct = async (
           },
         });
       }
-  
+
 
       return "Package Cancled successfully";
     }

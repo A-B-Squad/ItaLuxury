@@ -6,7 +6,7 @@ import { useProductsInBasketStore } from "../store/zustand";
 import { usePathname } from "next/navigation";
 import { GoHome } from "react-icons/go";
 import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { FaWhatsapp } from "react-icons/fa";
 import { motion, useReducedMotion, Variants } from "framer-motion";
 
@@ -16,13 +16,13 @@ const FloatingActionButtons = () => {
   const { decodedToken, isAuthenticated } = useAuth();
   const prefersReducedMotion = useReducedMotion();
   const [isVisible, setIsVisible] = useState(false);
-  
+
   // Delay rendering to improve initial page load
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 600);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -67,23 +67,23 @@ const FloatingActionButtons = () => {
   }, [isAuthenticated, decodedToken]);
 
   // Fixed type definition for variants
-  const buttonVariants: Variants = prefersReducedMotion 
-    ? {} 
+  const buttonVariants: Variants = prefersReducedMotion
+    ? {}
     : {
-        hover: { scale: 1.05 },
-        tap: { scale: 0.95 }
-      };
+      hover: { scale: 1.05 },
+      tap: { scale: 0.95 }
+    };
 
   const countVariants: Variants = prefersReducedMotion
     ? {}
     : {
-        initial: { scale: 0.8, opacity: 0 },
-        animate: { 
-          scale: 1, 
-          opacity: 1, 
-          transition: { type: "spring", stiffness: 400, damping: 25 } 
-        }
-      };
+      initial: { scale: 0.8, opacity: 0 },
+      animate: {
+        scale: 1,
+        opacity: 1,
+        transition: { type: "spring", stiffness: 400, damping: 25 }
+      }
+    };
 
   if (!isVisible) return null;
 
@@ -124,7 +124,7 @@ const FloatingActionButtons = () => {
           >
             <SlBasket size={22} style={{ transform: "scaleX(-1)" }} color="white" />
             {quantityInBasket > 0 && (
-              <motion.span 
+              <motion.span
                 className="absolute -right-2 -top-1 bg-[#bf1212] text-white text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full"
                 variants={countVariants}
                 initial="initial"
@@ -138,7 +138,7 @@ const FloatingActionButtons = () => {
           </Link>
         </motion.div>
       )}
-      
+
       <motion.div
         whileHover="hover"
         whileTap="tap"

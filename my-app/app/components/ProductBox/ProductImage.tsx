@@ -1,4 +1,5 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { useState, useCallback, useMemo } from "react";
 import QuickActionButton from "./components/QuickActionButton";
@@ -106,7 +107,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
             <Image
               src={primaryImageUrl}
               alt={product.name}
-              layout="fill"
               objectFit="cover"
               quality={80}
               priority={true}
@@ -120,7 +120,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
             <Image
               src={secondaryImageUrl}
               alt={`${product.name} - hover`}
-              layout="fill"
               objectFit="cover"
               quality={80}
               width={800}

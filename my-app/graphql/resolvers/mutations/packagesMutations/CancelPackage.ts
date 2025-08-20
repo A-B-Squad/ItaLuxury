@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 interface CancelPackageInput {
   packageId: string;
@@ -27,10 +27,10 @@ export const cancelPackage = async (
 
     // Check if package exists and is in a cancellable state
     if (
-      !findPackage || 
-      (findPackage.status !== "PROCESSING" && 
-       findPackage.status !== "CONFIRMED" && 
-       findPackage.status !== "TRANSFER_TO_DELIVERY_COMPANY")
+      !findPackage ||
+      (findPackage.status !== "PROCESSING" &&
+        findPackage.status !== "CONFIRMED" &&
+        findPackage.status !== "TRANSFER_TO_DELIVERY_COMPANY")
     ) {
       throw new Error("Package not found or not in a cancellable state");
     }
@@ -38,50 +38,50 @@ export const cancelPackage = async (
     const products = findPackage.Checkout?.productInCheckout;
 
     if (products && products.length > 0) {
-  for (const product of products) {
-    const brokenProduct = brokenProducts.find(
-      (bp) => bp.productId === product.productId
-    );
-    const brokenQuantity = brokenProduct ? brokenProduct.quantity : 0;
-    const notBrokenQuantity = product.productQuantity - brokenQuantity;
+      for (const product of products) {
+        const brokenProduct = brokenProducts.find(
+          (bp) => bp.productId === product.productId
+        );
+        const brokenQuantity = brokenProduct ? brokenProduct.quantity : 0;
+        const notBrokenQuantity = product.productQuantity - brokenQuantity;
 
-    const updateData: any = {
-      broken: { increment: brokenQuantity },
-    };
+        const updateData: any = {
+          broken: { increment: brokenQuantity },
+        };
 
-    if (findPackage.status === "TRANSFER_TO_DELIVERY_COMPANY"  || findPackage.status === "CONFIRMED") {
-      updateData.solde = { decrement: product.productQuantity };
-      updateData.inventory = { increment: notBrokenQuantity };
+        if (findPackage.status === "TRANSFER_TO_DELIVERY_COMPANY" || findPackage.status === "CONFIRMED") {
+          updateData.solde = { decrement: product.productQuantity };
+          updateData.inventory = { increment: notBrokenQuantity };
+        }
+
+        await prisma.product.update({
+          where: { id: product.productId },
+          data: updateData,
+        });
+
+        if (brokenQuantity > 0) {
+          await prisma.breakedProduct.create({
+            data: {
+              productId: product.productId,
+              quantity: brokenQuantity,
+              cause: cause,
+            },
+          });
+        }
+      }
     }
 
-    await prisma.product.update({
-      where: { id: product.productId },
-      data: updateData,
+    await prisma.package.update({
+      where: { id: packageId },
+      data: {
+        status: "CANCELLED",
+        returnedAt: new Date(),
+      },
     });
 
-    if (brokenQuantity > 0) {
-      await prisma.breakedProduct.create({
-        data: {
-          productId: product.productId,
-          quantity: brokenQuantity,
-          cause: cause,
-        },
-      });
-    }
-  }
-}
-
-await prisma.package.update({
-  where: { id: packageId },
-  data: {
-    status: "CANCELLED",
-    returnedAt: new Date(),
-  },
-});
-
-return "Package cancelled successfully";
+    return "Package cancelled successfully";
   } catch (error) {
-  console.log(error);
-  throw new Error("An error occurred while cancelling the package.");
-}
+    console.log(error);
+    throw new Error("An error occurred while cancelling the package.");
+  }
 };

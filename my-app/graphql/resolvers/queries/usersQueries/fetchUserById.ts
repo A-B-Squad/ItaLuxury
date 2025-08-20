@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const fetchUsersById = async (_: any, { userId }: { userId: string }, { prisma }: Context) => {
     try {

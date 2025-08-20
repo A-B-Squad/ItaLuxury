@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 interface AdvertisementInput {
   id: string;
@@ -31,8 +31,8 @@ export const createLeftNextToCarouselAds = async (
     });
 
     // 2. Compare input data with existing data
-    const newDataIds: AdvertisementData[] = filteredInput.map((item:any) => ({ link: item.link, position: item.position }));
-    const existingDataIds: AdvertisementData[] = existingData.map((item:any) => ({ link: item.link, position: item.position }));
+    const newDataIds: AdvertisementData[] = filteredInput.map((item: any) => ({ link: item.link, position: item.position }));
+    const existingDataIds: AdvertisementData[] = existingData.map((item: any) => ({ link: item.link, position: item.position }));
 
     // 3. Update existing data with input data
     for (const item of filteredInput) {

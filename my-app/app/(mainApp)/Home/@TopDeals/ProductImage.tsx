@@ -1,4 +1,5 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { useState, useMemo } from "react";
 
@@ -47,33 +48,33 @@ const ProductImage = ({ product }: { product: any }) => {
         </div>
       )}
 
-        <div className="relative h-52 md:h-60 lg:h-full w-full  rounded-md overflow-hidden group cursor-pointer">
-          {isLoading && (
-            <div className="absolute inset-0 bg-gray-100 animate-pulse"></div>
-          )}
+      <div className="relative h-52 md:h-60 lg:h-full w-full  rounded-md overflow-hidden group cursor-pointer">
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-100 animate-pulse"></div>
+        )}
 
-          <div className="h-full w-full transform transition-transform duration-300 hover:scale-105">
-            <Image
-              layout="fill"
-              objectFit="contain"
-              className={`h-full w-full transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"
-                }`}
-              src={imageUrl}
-              alt={product?.name || "Product image"}
-              onLoadingComplete={() => setIsLoading(false)}
-              onError={() => {
-                setImageError(true);
-                setIsLoading(false);
-              }}
-              priority
-              quality={85}
-              unoptimized={imageError}
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-            />
-          </div>
-
-          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+        <div className="h-full w-full transform transition-transform duration-300 hover:scale-105">
+          <Image
+            layout="fill"
+            objectFit="contain"
+            className={`h-full w-full transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"
+              }`}
+            src={imageUrl}
+            alt={product?.name || "Product image"}
+            onLoadingComplete={() => setIsLoading(false)}
+            onError={() => {
+              setImageError(true);
+              setIsLoading(false);
+            }}
+            priority
+            quality={85}
+            unoptimized={imageError}
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+          />
         </div>
+
+        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+      </div>
     </Link>
   );
 };

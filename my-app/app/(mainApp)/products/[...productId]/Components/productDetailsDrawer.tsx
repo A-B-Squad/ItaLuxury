@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { RiSubtractFill } from "react-icons/ri";
@@ -37,10 +38,12 @@ const productDetailsDrawer = ({
     <div className="hidden md:flex ">
       {isBottom && !!productDetails && (
         <div className="fixed z-50 bottom-0 left-0 right-0 gap-8 bg-white p-4 h-[20%] border-t-2 flex items-center justify-center">
-          <img
+          <Image
             src={productDetails.images[0]}
-            className="max-h-full"
+            className="max-h-full cursor-pointer"
             alt="product image"
+            width={100}
+            height={100}
           />
 
           <div className="items-center ">

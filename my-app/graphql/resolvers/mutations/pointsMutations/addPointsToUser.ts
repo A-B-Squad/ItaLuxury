@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import { PointType } from "@prisma/client";
 
 interface AddPointsInput {
@@ -18,7 +18,7 @@ export const addPointsToUser = async (
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
-    
+
     console.log({ userId, points, description, PointType });
 
     if (!user) {
@@ -26,7 +26,7 @@ export const addPointsToUser = async (
     }
 
     // Add points to the user
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: typeof prisma) => {
       // Create a point transaction
       const pointTransaction = await tx.pointTransaction.create({
         data: {
