@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const findUniqueCoupons = async (_: any, { codeInput }: { codeInput: string }, { prisma }: Context) => {
     try {

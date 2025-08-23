@@ -19,7 +19,6 @@ interface SignInAdminInput {
 interface SignInInput {
   emailOrPhone:string
   password: string;
-  role: Role;
 }
 
 interface User {
@@ -30,7 +29,7 @@ interface User {
 
 interface AuthPayload {
   token: string;
-  user: User;
+  userId: User;
 }
 
 interface CreateModeratorInput {

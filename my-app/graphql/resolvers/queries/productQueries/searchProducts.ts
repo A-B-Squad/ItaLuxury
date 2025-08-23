@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 interface ProductSearchInput {
   query?: string;
@@ -73,6 +73,17 @@ export const searchProducts = async (
           favoriteProducts: true,
           Colors: true,
           Brand: true,
+          ProductInCheckout:
+          {
+            include: {
+              checkout: {
+                include: {
+                  package: { select: { status: true } },
+                  Governorate: { select: { name: true } }
+                }
+              }
+            }
+          }
         },
         distinct: ["id"],
         orderBy,

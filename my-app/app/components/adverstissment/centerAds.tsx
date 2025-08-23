@@ -2,7 +2,8 @@
 
 import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
@@ -87,7 +88,7 @@ const CenterAds: React.FC = () => {
           >
             <Image
               layout="fill"
-              objectFit="contain"
+              style={{ objectFit: "contain" }}
               quality={100}
               priority
               src={advertisement.images[0]}

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 type PaymentMethod = "CREDIT_CARD" | "CASH_ON_DELIVERY";
 type Status = "PAYED_AND_DELIVERED" | "TRANSFER_TO_DELIVERY_COMPANY" | "CONFIRMED";
 
@@ -33,12 +33,11 @@ export const payedOrConfirmedOrInTransitPackage = async (
     const updateData: any = {
       status,
     };
-    
-    // Add  delivery reference if provided
+
     if (deliveryReference) {
       updateData.deliveryReference = deliveryReference;
     }
-    
+
     if (
       status === "CONFIRMED" &&
       paymentMethod !== "CREDIT_CARD"
@@ -47,7 +46,7 @@ export const payedOrConfirmedOrInTransitPackage = async (
       updateData.isConfirmedAt = new Date();
 
       // Update product inventory and sales in a transaction
-      await prisma.$transaction(async (tx:any) => {
+      await prisma.$transaction(async (tx: any) => {
         const checkoutProducts = await tx.productInCheckout.findMany({
           where: { checkoutId: existingPackage.Checkout!.id },
         });

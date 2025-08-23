@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import * as fbq from "./pixel";
-import { getUserIpAddress } from "./getUserIpAddress";
+import { getUserIpAddress } from "../getUserIpAddress";
 import { v4 as uuidv4 } from "uuid";
 import { sendGTMEvent } from "@next/third-parties/google";
 

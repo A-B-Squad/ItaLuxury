@@ -1,3 +1,4 @@
+import { useAuth } from "@/app/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_DELETE_PRODUCT_FAVORITE_MUTATION } from "@/graphql/mutations";
 import { GET_FAVORITE_STATUS } from "@/graphql/queries";
@@ -8,7 +9,6 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 const FavoriteProduct = ({
   productName,
   productId,
-  userId,
   isFavorite,
   setIsFavorite,
   heartColor,
@@ -16,19 +16,20 @@ const FavoriteProduct = ({
 }: {
   productName: string;
   productId: string;
-  userId: string | undefined;
   isFavorite: boolean;
   setIsFavorite: any;
   heartColor: string;
   heartSize: number;
 }) => {
+  const { decodedToken, isAuthenticated } = useAuth();
+
   const { data: favoriteData, refetch: refetchFavorite } = useQuery(
     GET_FAVORITE_STATUS,
     {
       variables: {
-        userId: userId,
+        userId: decodedToken?.userId,
       },
-      skip: !userId,
+      skip: !isAuthenticated,
     },
   );
 
@@ -53,7 +54,7 @@ const FavoriteProduct = ({
   const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
 
   const handleToggleFavorite = () => {
-    if (!userId) {
+    if (!isAuthenticated) {
       toast({
         title: "Produit ajouté aux favoris",
         description:
@@ -66,7 +67,7 @@ const FavoriteProduct = ({
     addToFavorite({
       variables: {
         input: {
-          userId: userId,
+          userId: decodedToken?.userId,
           productId: productId,
         },
       },

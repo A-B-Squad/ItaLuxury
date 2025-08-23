@@ -1,7 +1,7 @@
 import QuickActionButton from "@/app/components/ProductBox/components/QuickActionButton";
 import FavoriteProductButton from "@/app/components/ProductBox/FavoriteProductButton";
 import { useProductComparisonStore } from "@/app/store/zustand";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { useCallback, memo } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { IoGitCompare } from "react-icons/io5";
@@ -52,7 +52,7 @@ const ProductActions = memo(({
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700"
                 />
             </div>
-            
+
             <div className="transition-transform duration-200 hover:scale-105">
                 <QuickActionButton
                     icon={<IoGitCompare className="text-sm" />}
@@ -61,7 +61,7 @@ const ProductActions = memo(({
                     className="bg-blue-50 hover:bg-blue-100 text-blue-700"
                 />
             </div>
-            
+
             <div className="transition-transform duration-200 hover:scale-105">
                 <FavoriteProductButton
                     isFavorite={isFavorite}

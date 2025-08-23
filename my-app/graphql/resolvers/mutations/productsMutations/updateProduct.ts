@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import moment from "moment";
 
 interface DiscountInput {
@@ -24,6 +24,7 @@ const updateDiscounts = async (
 
     const discountData = {
       newPrice: discountInput.newPrice,
+      price: price,
       dateOfEnd: dateOfEnd.toDate(),
       dateOfStart: dateOfStart.toDate(),
     };
@@ -41,7 +42,6 @@ const updateDiscounts = async (
       await prisma.productDiscount.create({
         data: {
           productId,
-          price,
           ...discountData,
         },
       });
@@ -69,6 +69,7 @@ export const updateProduct = async (
       colorsId,
       discount,
       brandId,
+      groupProductVariantId
     } = input;
 
     // Filter and validate categories - Remove empty strings, null, and undefined
@@ -108,6 +109,7 @@ export const updateProduct = async (
             connect: validCategories.map((categoryId) => ({ id: categoryId })),
           }),
         },
+        groupProductVariantId
       },
       include: {
         categories: true,

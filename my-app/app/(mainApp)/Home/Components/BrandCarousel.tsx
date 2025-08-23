@@ -1,7 +1,8 @@
 import React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import Marquee from "react-fast-marquee";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import { useQuery } from "@apollo/client";
 import { GET_BRANDS } from "@/graphql/queries";
 import { IoImageOutline } from "react-icons/io5";

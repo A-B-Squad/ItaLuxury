@@ -1,8 +1,11 @@
 import React from "react";
 import FavoriteList from "./FavoriteList";
 import { Metadata } from "next";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import Breadcumb from "@/app/components/Breadcumb";
+import { getUser } from "@/utlils/getUser";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -23,7 +26,7 @@ export const metadata: Metadata = {
     description: "Consultez votre liste de favoris sur ita-luxury.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -35,7 +38,11 @@ export const metadata: Metadata = {
   },
 };
 
-const FavoriteListPage = () => {
+const FavoriteListPage = async () => {
+  const cookieStore = cookies()
+  const token = cookieStore.get('Token')?.value
+  const decodedUser = token ? decodeToken(token) : null;
+  const userData = await getUser(decodedUser?.userId);
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },
     { href: "/FavoriteList", label: "Liste des favoris" }
@@ -44,7 +51,7 @@ const FavoriteListPage = () => {
   return (
     <div className="p-6">
       <Breadcumb Path={breadcrumbPaths} />
-      <FavoriteList />
+      <FavoriteList userData={userData} />
     </div>
   );
 };

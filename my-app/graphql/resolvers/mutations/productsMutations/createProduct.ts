@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import moment from "moment";
 
 export const createProduct = async (
@@ -21,6 +21,7 @@ export const createProduct = async (
       colorsId,
       discount,
       brandId,
+      groupProductVariantId
     } = input;
 
     // Filter and validate categories
@@ -42,7 +43,8 @@ export const createProduct = async (
         images,
         colorsId,
         brandId,
-        updatedAt: new Date(), 
+        groupProductVariantId,
+        updatedAt: new Date(),
         ...(validCategories.length > 0 && {
           categories: {
             connect: validCategories.map((categoryId) => ({ id: categoryId })),

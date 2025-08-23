@@ -20,7 +20,7 @@ interface Subcategory {
 const Subcategory: React.FC<SubcategoryProps> = ({
   subcategories,
   backToMainCategory,
-  parentCategoryName, closeCategoryDrawer
+  closeCategoryDrawer
 }) => {
   return (
     <>
@@ -37,7 +37,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
           <div key={subIndex} className="h-fit cursor-pointer">
             <Link
               onClick={closeCategoryDrawer}
-              href={`/Collections/tunisie/?${new URLSearchParams({
+              href={`/Collections/tunisie?${new URLSearchParams({
                 category: subcategory.name,
               })}
   `} className="py-1 pl-5 font-bold text-primaryColor hover:font-bold w-full block transition-colors group border-b-2 cursor-pointer"
@@ -50,9 +50,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
               subcategory.subcategories.length > 0 && (
                 <Subsubcategory
                   subsubcategories={subcategory.subcategories}
-                  parentCategoryName={parentCategoryName}
                   closeCategoryDrawer={closeCategoryDrawer}
-                  parentSubCategoryName={subcategory.name}
                 />
               )}
           </div>

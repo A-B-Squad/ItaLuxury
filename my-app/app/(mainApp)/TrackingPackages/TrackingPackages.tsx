@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useQuery, useLazyQuery } from "@apollo/client";
 import {
-  COMPANY_INFO_QUERY,
   GET_PACKAGES_BY_ID,
   GET_PACKAGES_BY_USER_ID,
 } from "../../../graphql/queries";
@@ -18,7 +17,7 @@ import {
 import Loading from "./loading";
 import moment from "moment-timezone";
 import "moment/locale/fr";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiSearch, FiPackage, FiClock, FiInfo } from "react-icons/fi";
 
@@ -66,22 +65,18 @@ const Badge = ({ children, className }: { children: React.ReactNode, className?:
   );
 };
 
-const TrackingPackages: React.FC = () => {
+const TrackingPackages = ({ companyData }: any) => {
   const [searchInput, setSearchInput] = useState("");
   const [packages, setPackages] = useState<Package[]>([]);
   const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [openPackageId, setOpenPackageId] = useState<string | null>(null);
-  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
   const { decodedToken, isAuthenticated } = useAuth();
+  const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
 
   const [PackageByUserId, { loading: loadingUserPackages }] = useLazyQuery(GET_PACKAGES_BY_USER_ID);
 
-  const { loading: loadingCompanyInfo } = useQuery(COMPANY_INFO_QUERY, {
-    onCompleted: (companyData) => {
-      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-    },
-  });
+
 
   const { loading: loadingPackageById, data: packageById } = useQuery(
     GET_PACKAGES_BY_ID,
@@ -180,10 +175,6 @@ const TrackingPackages: React.FC = () => {
     setSearchInput(e.target.value);
   }, []);
 
-  const isLoading = useMemo(() =>
-    loadingPackageById || loadingUserPackages || loadingCompanyInfo,
-    [loadingPackageById, loadingUserPackages, loadingCompanyInfo]
-  );
 
   if (!isAuthenticated) {
     return (
@@ -226,7 +217,7 @@ const TrackingPackages: React.FC = () => {
       </div>
 
       <div className="package-list py-8 px-4 container mx-auto">
-        {isLoading ? (
+        {Loading ? (
           <Loading />
         ) : filteredPackages.length > 0 ? (
           <motion.div

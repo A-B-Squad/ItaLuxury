@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import bcrypt from "bcryptjs";
 
 export const createModerator = async (
@@ -37,7 +37,7 @@ export const createModerator = async (
   } catch (error) {
     // Handle errors
     console.log(error);
-    
+
     console.error("Error creating moderator:", error);
     return new Error("An error occurred while creating the moderator");
   }

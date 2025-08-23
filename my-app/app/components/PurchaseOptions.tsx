@@ -1,27 +1,23 @@
 "use client"
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BASKET_QUERY, COMPANY_INFO_QUERY } from '@/graphql/queries';
+import { BASKET_QUERY } from '@/graphql/queries';
 import { useQuery } from '@apollo/client';
-import Image from 'next/legacy/image';
+import Image from 'next/image'
+
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 import { useProductsInBasketStore, usePruchaseOptions } from '../store/zustand';
-import { useAuth } from '@/lib/auth/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
-const PurchaseOptions = () => {
-    const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+const PurchaseOptions = ({ companyData }: any) => {
     const [totalPrice, setTotalPrice] = useState<number>(0);
     const { products: storedProducts, quantityInBasket } = useProductsInBasketStore();
     const { decodedToken, isAuthenticated } = useAuth();
     const { productData, closePruchaseOptions, isOpen } = usePruchaseOptions();
+    const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
 
-    const { loading: companyInfoLoading } = useQuery(COMPANY_INFO_QUERY, {
-        onCompleted: (companyData) => {
-            setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-        },
-        skip: !isOpen
-    });
+
 
     const { data: basketData, loading: basketLoading } = useQuery(BASKET_QUERY, {
         variables: { userId: decodedToken?.userId },
@@ -69,7 +65,7 @@ const PurchaseOptions = () => {
     };
 
     if (!isOpen) return null;
-    if (companyInfoLoading || basketLoading) return null;
+    if (basketLoading) return null;
 
     const freeShippingThreshold = 499;
     const freeShippingRemaining = freeShippingThreshold - totalPrice;
@@ -118,7 +114,7 @@ const PurchaseOptions = () => {
                                             layout="fill"
                                             src={productData.images[0]}
                                             alt={productData?.name || "Product"}
-                                            className="object-contain"
+                                            style={{ objectFit: "contain" }}
                                             loading="eager"
                                             priority={true}
                                         />

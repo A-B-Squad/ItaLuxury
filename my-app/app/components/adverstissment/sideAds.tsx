@@ -2,8 +2,10 @@
 
 import React, { useState, memo } from "react";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import { IoImageOutline } from "react-icons/io5";
+import styles from "./index.module.css";
 
 interface SideAdsProps {
   image: string;
@@ -47,7 +49,7 @@ const SideAds: React.FC<SideAdsProps> = ({ image, link, adsLoaded, adsPositon })
       >
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 z-10"></div>
         <span
-          className="HoverBackgroundSlide hidden opacity-55 -rotate-45 top-[100px] shadow-xl group-hover:block z-20 absolute left-0 w-[2000px] h-6 transition-all duration-500"
+          className={`${styles.HoverBackgroundSlide} hidden opacity-55 -rotate-45 top-[100px] shadow-xl group-hover:block z-20 absolute left-0 w-[2000px] h-6 transition-all duration-500`}
           style={{ animation: "slide-diagonal 1.2s forwards" }}
         ></span>
         {!imageLoaded && (
@@ -57,7 +59,7 @@ const SideAds: React.FC<SideAdsProps> = ({ image, link, adsLoaded, adsPositon })
         )}
         <Image
           priority={true}
-          objectFit="contain"
+          style={{ objectFit: "contain" }}
           src={image}
           layout="fill"
           alt={`${adsPositon} promotion`}

@@ -4,10 +4,11 @@ import {
   useDrawerMobileStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { motion } from "framer-motion";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,7 +29,7 @@ function debounce<T extends (...args: any[]) => void>(
   };
 }
 
-const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
+const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed, userData }: any) => {
 
   const pathname = usePathname();
   const [activeLink, setActiveLink] = useState("");
@@ -139,9 +140,9 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               <Link href="/" className="mobile-logo-link flex-shrink-0">
                 <div className="mobile-logo-container relative w-24 h-10">
                   <Image
-                    src={"/LOGO.png"}
+                    src={"/images/logos/LOGO.png"}
                     layout="fill"
-                    objectFit="contain"
+                    style={{ objectFit: "contain" }}
                     quality={100}
                     priority={true}
                     alt="ita-luxury"
@@ -209,6 +210,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                     setShowUserMenu={setShowUserMenu}
                     userMenuRef={userMenuRef}
                     isMobile={true}
+                    userData={userData}
                   />
                 </div>
               )}
@@ -334,7 +336,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                   </motion.button>
                 </Link>
               ) : (
-                <UserAvatar showUserMenu={showUserMenu} setShowUserMenu={setShowUserMenu} userMenuRef={userMenuRef} isMobile={false} />
+                <UserAvatar showUserMenu={showUserMenu} setShowUserMenu={setShowUserMenu} userMenuRef={userMenuRef} isMobile={false} userData={userData} />
               )}
             </div>
           </div>

@@ -1,22 +1,23 @@
 import React, { ChangeEvent, useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import {
-  FETCH_USER_BY_ID,
+
   SEARCH_PRODUCTS_QUERY,
 } from "../../../graphql/queries";
 import { CiSearch } from "react-icons/ci";
 import { IoCloseOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import { useRouter, usePathname } from "next/navigation";
-import prepRoute from "../../Helpers/_prepRoute";
-import triggerEvents from "@/utlils/trackEvents";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { normalizeText } from "@/app/Helpers/_normalizeText";
 import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { debounce } from "lodash";
 
-const SearchBar = () => {
+const SearchBar = ({ userData }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -29,26 +30,22 @@ const SearchBar = () => {
   const mobileInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: { userId: decodedToken?.userId },
-    skip: !isAuthenticated,
-    fetchPolicy: "cache-first"
-  });
+
 
   // Memoize user data for analytics
   const analyticsUserData = useMemo(() => ({
-    em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-    fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-    ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+    em: userData?.email ? [userData.email.toLowerCase()] : [],
+    fn: userData?.fullName ? [userData.fullName] : [],
+    ph: userData?.number ? [userData.number] : [],
     country: ["tn"],
-    external_id: userData?.fetchUsersById?.id || null
+    external_id: userData?.id || null
   }), [userData]);
 
   // Handle outside clicks to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Only apply this logic on desktop/laptop devices
-      if (window.innerWidth >= 768) { // 768px is the standard md breakpoint in Tailwind
+      if (window.innerWidth >= 768) {
         if (
           dropdownRef.current &&
           !dropdownRef.current.contains(event.target as Node) &&
@@ -291,7 +288,7 @@ const SearchBar = () => {
                     {searchResults.categories.map((category: any) => (
                       <Link
                         key={category.id}
-                        href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                        href={`/Collections/tunisie?${new URLSearchParams(
                           { category: category.name }
                         )}`}
                         onClick={() => handleCategoryClick(category)}
@@ -325,7 +322,7 @@ const SearchBar = () => {
                             <Image
                               layout="fill"
                               src={product.images[0]}
-                              objectFit="contain"
+                              style={{ objectFit: "contain" }}
                               className="group-hover:scale-105 transition-transform duration-200"
                               quality={85}
                               alt={product.name}
@@ -462,7 +459,7 @@ const SearchBar = () => {
                       {searchResults.categories.map((category: any) => (
                         <Link
                           key={category.id}
-                          href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                          href={`/Collections/tunisie?${new URLSearchParams(
                             { category: category.name }
                           )}`}
                           onClick={() => {
@@ -502,7 +499,7 @@ const SearchBar = () => {
                               <Image
                                 layout="fill"
                                 src={product.images[0]}
-                                objectFit="contain"
+                                style={{ objectFit: "contain" }}
                                 className="group-hover:scale-105 transition-transform duration-200"
                                 quality={85}
                                 alt={product.name}

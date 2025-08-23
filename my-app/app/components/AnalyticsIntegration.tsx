@@ -28,7 +28,8 @@ const AnalyticsIntegration = () => {
 
       {/* Pusher Beams for notifications */}
       <Script
-        src="https://js.pusher.com/beams/1.0.0/push-notifications-cdn.js"
+        src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"
+
         strategy="beforeInteractive"
       />
 

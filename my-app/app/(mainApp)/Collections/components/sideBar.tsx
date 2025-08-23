@@ -1,7 +1,6 @@
 "use client";
 
 import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
-import prepRoute from "@/app/Helpers/_prepRoute";
 import { useSidebarStore } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
@@ -47,7 +46,6 @@ interface FilterQueries {
   [key: string]: string[];
 }
 
-// Component
 const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -229,16 +227,16 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               value={choice.id}
               checked={isChecked("choice", choice.id)}
               className={`h-3 w-3  outline-none ${isChecked("choice", choice.id)
-                  ? "bg-secondaryColor"
-                  : "bg-white"
+                ? "bg-secondaryColor"
+                : "bg-white"
                 } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
               onChange={() => handleChoiceFilterOptions(choice.id)}
             />
             <label
               htmlFor={`filtre-choix-${choice.id}`}
               className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", choice.id)
-                  ? "text-black font-semibold"
-                  : "text-gray-600"
+                ? "text-black font-semibold"
+                : "text-gray-600"
                 } group-hover:text-black group-hover:font-semibold transition-all`}
             >
               {choice.label}
@@ -260,10 +258,11 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
               } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
           >
             <Link
-              href={`/Collections/tunisie/?${new URLSearchParams({
-                category: category.name,
-              })}
-              `}
+              href={`/Collections/tunisie?${new URLSearchParams(
+                {
+                  category: category.name,
+                }
+              )}`}
               className="w-full h-full"
               onClick={() => handleCategoryClick(category.id)}
             >
@@ -271,8 +270,8 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
             </Link>
             <span
               className={`${searchParams?.get("category") === category?.id
-                  ? "bg-primaryColor"
-                  : "bg-secondaryColor"
+                ? "bg-primaryColor"
+                : "bg-secondaryColor"
                 } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
             ></span>
           </li>

@@ -224,9 +224,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     id="emailOrPhone"
                     type="text"
                     autoComplete="email"
-                    className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
-                      errors.emailOrPhone ? "border-red-300" : ""
-                    }`}
+                    className={`block w-full pl-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${errors.emailOrPhone ? "border-red-300" : ""
+                      }`}
                     placeholder="vous@exemple.com ou 12345678"
                     {...register("emailOrPhone", {
                       required: "L'email ou le numéro de téléphone est requis",
@@ -271,9 +270,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     type={showPassword ? "text" : "password"}
                     placeholder="********"
                     autoComplete="current-password"
-                    className={`block w-full pl-10 	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
-                      errors.password ? "border-red-300" : ""
-                    }`}
+                    className={`block w-full pl-10 	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${errors.password ? "border-red-300" : ""
+                      }`}
                     {...register("password", {
                       required: "Le mot de passe est requis",
                     })}
@@ -418,9 +416,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     type={showPassword ? "text" : "password"}
                     placeholder="********"
                     autoComplete="current-password"
-                    className={`block w-full pl-10 	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${
-                      errors.password ? "border-red-300" : ""
-                    }`}
+                    className={`block w-full pl-10 	 pr-10 sm:text-sm outline-none py-2 border-gray-300 rounded-md ${errors.password ? "border-red-300" : ""
+                      }`}
                     {...register("password", {
                       required: "Le mot de passe est requis",
                     })}

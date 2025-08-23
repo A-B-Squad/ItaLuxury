@@ -8,9 +8,9 @@ import { HiX } from "react-icons/hi";
 import { FaHeart } from "react-icons/fa";
 import ProductBox from "../../components/ProductBox/ProductBox";
 import { ADD_DELETE_PRODUCT_FAVORITE_MUTATION } from "@/graphql/mutations";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 
-const FavoriteList = () => {
+const FavoriteList = ({ userData }: any) => {
   const [productsData, setProductsData] = useState<Product[]>([]);
   const { decodedToken, isAuthenticated } = useAuth();
 
@@ -113,7 +113,7 @@ const FavoriteList = () => {
                     key={product.id}
                     className="relative group bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden transition-all hover:shadow-lg"
                   >
-                    <ProductBox product={product} />
+                    <ProductBox userData={userData} product={product} />
                     <button
                       onClick={() => handleRemoveFromFavorites(product.id)}
                       disabled={removingProduct}

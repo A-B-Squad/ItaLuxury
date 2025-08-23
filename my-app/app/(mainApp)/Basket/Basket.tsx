@@ -1,16 +1,11 @@
 "use client";
-import { useMutation, useQuery } from "@apollo/client";
-import Image from "next/legacy/image";
-import Link from "next/link";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { HiPlus } from "react-icons/hi2";
-import { RiSubtractLine } from "react-icons/ri";
-
+import { useAuth } from "@/app/hooks/useAuth";
 import {
   useBasketStore,
   useCheckoutStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
+import { ProductData } from "@/app/types";
 import {
   Table,
   TableBody,
@@ -21,8 +16,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/trackEvents";
+import triggerEvents from "@/utlils/events/trackEvents";
+import { useMutation, useQuery } from "@apollo/client";
+import { sendGTMEvent } from "@next/third-parties/google";
 import { Trash2Icon } from "lucide-react";
+import Image from "next/image";
+
+import Link from "next/link";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { FiArrowLeft, FiShoppingBag } from "react-icons/fi";
+import { HiPlus } from "react-icons/hi2";
+import { RiSubtractLine } from "react-icons/ri";
 import {
   DECREASE_QUANTITY_MUTATION,
   DELETE_BASKET_BY_ID_MUTATION,
@@ -30,49 +34,16 @@ import {
 } from "../../../graphql/mutations";
 import {
   BASKET_QUERY,
-  COMPANY_INFO_QUERY,
-  FETCH_USER_BY_ID,
 } from "../../../graphql/queries";
-import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
-import { FiArrowLeft, FiShoppingBag } from "react-icons/fi";
-
-// Interface definitions
 
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  images: string[];
-  quantity: number;
-  basketId: string;
-  productDiscounts: {
-    newPrice: number;
-    price: number;
-  }[];
-  categories: {
-    name: string;
-    id: string;
-    subcategories: {
-      name: string;
-      id: string;
-      subcategories: {
-        name: string;
-        id: string;
-      }[];
-    }[];
-  }[];
-  [key: string]: any;
-}
 
-const Basket: React.FC = () => {
-  // State declarations
+const Basket = ({ userData, companyData }: any) => {
   const { decodedToken, isAuthenticated } = useAuth();
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+  const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
   const {
     products: storedProducts,
     removeProductFromBasket,
@@ -138,18 +109,8 @@ const Basket: React.FC = () => {
   });
 
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
 
-  useQuery(COMPANY_INFO_QUERY, {
-    onCompleted: (companyData) => {
-      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-    },
-  });
+
 
   const handleQuantityChange = useCallback(
     (productId: string, change: number) => {
@@ -295,7 +256,7 @@ const Basket: React.FC = () => {
                   "https://via.placeholder.com/150"
                 }
                 layout="fill"
-                objectFit="contain"
+                style={{ objectFit: "contain" }}
               />
             </div>
             <div className="ml-4">
@@ -452,11 +413,11 @@ const Basket: React.FC = () => {
                     }))
                   },
                   user_data: {
-                    em: [userData?.fetchUsersById.email.toLowerCase()],
-                    fn: [userData?.fetchUsersById.fullName],
-                    ph: [userData?.fetchUsersById?.number],
+                    em: [userData.email.toLowerCase()],
+                    fn: [userData.fullName],
+                    ph: [userData?.number],
                     country: ["tn"],
-                    external_id: userData?.fetchUsersById.id
+                    external_id: userData.id
                   },
                   facebook_data: {
                     content_name: "InitiateCheckout",
@@ -476,11 +437,11 @@ const Basket: React.FC = () => {
                 });
                 triggerEvents("InitiateCheckout", {
                   user_data: {
-                    em: [userData?.fetchUsersById.email.toLowerCase()],
-                    fn: [userData?.fetchUsersById.fullName],
-                    ph: [userData?.fetchUsersById?.number],
+                    em: [userData.email.toLowerCase()],
+                    fn: [userData.fullName],
+                    ph: [userData?.number],
                     country: ["tn"],
-                    external_id: userData?.fetchUsersById.id,
+                    external_id: userData.id,
                   },
                   custom_data: {
                     content_name: "InitiateCheckout",
@@ -488,7 +449,7 @@ const Basket: React.FC = () => {
                     currency: "TND",
                     value: Number(totalPrice),
                     contents: products.map(product => ({
-                      id: product.reference,
+                      id: product.id,
                       quantity: product.actualQuantity || product.quantity,
                       price: product.productDiscounts?.length > 0
                         ? Number(product.productDiscounts[0].newPrice)

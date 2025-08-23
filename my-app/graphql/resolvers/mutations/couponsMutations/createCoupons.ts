@@ -1,13 +1,13 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 // Resolver for creating a coupon
 export const createCoupons = async (
-    _: any,
+  _: any,
   { input }: any,
   { prisma }: Context
 ) => {
   const { code, discount } = input;
-  
+
   const parsedDiscount = Number(discount);
 
   // Vérification stricte
@@ -20,7 +20,7 @@ export const createCoupons = async (
         code,
         discount: parsedDiscount,
         available: true,
-      },  
+      },
     });
     return "coupons created";
   } catch (error) {

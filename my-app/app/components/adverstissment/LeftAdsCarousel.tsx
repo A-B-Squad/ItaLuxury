@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 
 interface Ad {
   images: string[];
@@ -26,7 +27,7 @@ const LeftAdsCarousel: React.FC<LeftAdsCarouselProps> = ({
     if (AdsNextToCarousel?.length > 0) {
       const allImages = AdsNextToCarousel.flatMap((ad) => ad.images);
       setImages(allImages);
-      
+
       // Initialize loading state for new images
       const initialLoadState: Record<number, boolean> = {};
       allImages.forEach((_, index) => {
@@ -73,13 +74,13 @@ const LeftAdsCarousel: React.FC<LeftAdsCarouselProps> = ({
           >
             {/* Overlay effect on hover */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-            
+
             {/* Shine effect on hover */}
-            <div 
+            <div
               className="absolute -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine"
               aria-hidden="true"
             ></div>
-            
+
             <Image
               layout="responsive"
               width={455}
@@ -88,11 +89,11 @@ const LeftAdsCarousel: React.FC<LeftAdsCarouselProps> = ({
               loading={index === 0 ? "eager" : "lazy"}
               priority={index === 0}
               alt={`Promotion banner ${index + 1}`}
-              objectFit="cover"
+              style={{ objectFit: "cover" }}
               className="transition-transform duration-700 group-hover:scale-110"
               onLoadingComplete={() => handleImageLoad(index)}
             />
-            
+
             {/* Optional: Add a subtle call to action on hover */}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20">
               <p className="text-white text-sm font-medium">Découvrir</p>

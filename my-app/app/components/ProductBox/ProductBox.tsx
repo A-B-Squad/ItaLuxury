@@ -1,4 +1,4 @@
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
+import { BASKET_QUERY } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useMemo } from "react";
 
@@ -11,8 +11,9 @@ import {
   useProductsInBasketStore,
   usePruchaseOptions,
 } from "@/app/store/zustand";
-import { useAuth } from "@/lib/auth/useAuth";
-import triggerEvents from "@/utlils/trackEvents";
+import { useAuth } from "@/app/hooks/useAuth";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { sendGTMEvent } from "@next/third-parties/google";
 import CompactViewDetails from "./CompactViewDetails";
 import FullViewDetails from "./FullViewDetails";
@@ -23,9 +24,10 @@ import ProductName from "./ProductName";
 
 interface ProductBoxProps {
   product: any;
+  userData: any
 }
 
-const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
+const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product, userData }) => {
   const { toast } = useToast();
   const { view, changeProductView } = useAllProductViewStore();
   const { decodedToken, isAuthenticated } = useAuth();
@@ -44,12 +46,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
   } = useProductsInBasketStore();
   const { openPruchaseOptions } = usePruchaseOptions();
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
+
 
   useEffect(() => {
     if (window.location.pathname !== "/Collections/tunisie") {
@@ -82,9 +79,9 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
 
     const addToCartData = {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData.email.toLowerCase()],
+        fn: [userData.fullName],
+        ph: [userData?.number],
         country: ["tn"],
         ct: "",
         external_id: decodedToken?.userId,
@@ -123,11 +120,11 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         }]
       },
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData.email.toLowerCase()],
+        fn: [userData.fullName],
+        ph: [userData?.number],
         country: ["tn"],
-        external_id: userData?.fetchUsersById.email.id
+        external_id: userData.email.id
       },
       facebook_data: {
         content_name: product.name,
@@ -252,7 +249,6 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product }) => {
         <ProductImage
           product={product}
           onAddToBasket={AddToBasket}
-          decodedToken={decodedToken}
           view={view}
         />
 

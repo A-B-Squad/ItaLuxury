@@ -3,7 +3,6 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
 import Subcategory from "./Subcategory";
 import Link from "next/link";
-import prepRoute from "../../../Helpers/_prepRoute";
 
 interface CategoryProps {
   data: {
@@ -70,7 +69,7 @@ const Category: React.FC<CategoryProps> = ({
             <Link
               className="capitalize font-medium w-full"
               onClick={closeCategoryDrawer}
-              href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams({
+              href={`/Collections/tunisie?${new URLSearchParams({
                 category: category.name,
               })}`}
               aria-label={`Catégorie ${category.name}`}

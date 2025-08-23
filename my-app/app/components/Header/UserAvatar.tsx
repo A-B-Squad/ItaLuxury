@@ -1,11 +1,9 @@
 "use client";
+import { useAuth } from "@/app/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
-import { FETCH_USER_BY_ID } from "@/graphql/queries";
-import { removeToken } from "@/lib/auth/token";
-import { useAuth } from "@/lib/auth/useAuth";
 import { useQuery } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/legacy/image";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiUser } from "react-icons/fi";
@@ -13,27 +11,18 @@ import { IoIosLogOut } from "react-icons/io";
 import { MdPointOfSale } from "react-icons/md";
 
 
-
-const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = false }: { showUserMenu: boolean, setShowUserMenu: any, userMenuRef: any, isMobile?: boolean }) => {
+const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = false, userData }: { showUserMenu: boolean, setShowUserMenu: any, userMenuRef: any, isMobile?: boolean, userData: any }) => {
     const { toast } = useToast();
     const router = useRouter();
-    const { decodedToken, isAuthenticated } = useAuth();
+    const {  logout } = useAuth();
 
-    const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-        variables: {
-            userId: decodedToken?.userId,
-        },
-        skip: !isAuthenticated,
-    });
-    const userPoints = userData?.fetchUsersById?.points || 0;
-    const userImage = userData?.fetchUsersById?.image;
-    const userName = userData?.fetchUsersById?.name || userData?.fetchUsersById?.email;
+    const userPoints = userData?.points || 0;
+    const userName = userData?.name || userData?.email;
 
     const handleLogout = async () => {
         try {
-            removeToken()
-            window.sessionStorage.removeItem("products-in-basket");
-            window.sessionStorage.removeItem("comparedProducts");
+            logout()
+
 
             await router.push("/");
 
@@ -71,19 +60,10 @@ const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = fal
 
                 {/* User Avatar */}
                 <div className={`relative ${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-full overflow-hidden border-2 border-gray-200 hover:border-primaryColor transition-colors bg-gray-100`}>
-                    {userImage ? (
-                        <Image
-                            src={userImage}
-                            layout="fill"
-                            objectFit="cover"
-                            alt={userName || "User"}
-                            className="transition-transform duration-300 hover:scale-110"
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-primaryColor/10 flex items-center justify-center">
-                            <FiUser className={`${isMobile ? 'text-lg' : 'text-xl'} text-primaryColor`} />
-                        </div>
-                    )}
+
+                    <div className="w-full h-full bg-primaryColor/10 flex items-center justify-center">
+                        <FiUser className={`${isMobile ? 'text-lg' : 'text-xl'} text-primaryColor`} />
+                    </div>
                 </div>
             </motion.div>
 
@@ -101,18 +81,10 @@ const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = fal
                         <div className="px-4 py-3 bg-gradient-to-r from-primaryColor/5 to-primaryColor/10 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0">
-                                    {userImage ? (
-                                        <Image
-                                            src={userImage}
-                                            layout="fill"
-                                            objectFit="cover"
-                                            alt={userName || "User"}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-primaryColor/10 flex items-center justify-center">
-                                            <FiUser className="text-sm text-primaryColor" />
-                                        </div>
-                                    )}
+
+                                    <div className="w-full h-full bg-primaryColor/10 flex items-center justify-center">
+                                        <FiUser className="text-sm text-primaryColor" />
+                                    </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-900 truncate">
@@ -138,9 +110,6 @@ const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = fal
                                 <FiUser className="text-base text-gray-500" />
                                 Mon Compte
                             </Link>
-
-
-
                             <Link
                                 href="/Account"
                                 className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"

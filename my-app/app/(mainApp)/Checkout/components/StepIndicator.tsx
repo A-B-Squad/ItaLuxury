@@ -21,28 +21,25 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
         <React.Fragment key={step.id}>
           <div className="flex items-center sm:flex-col sm:items-center mb-4 md:px-2 sm:mb-0 w-full sm:w-auto">
             <div
-              className={`w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full ${
-                step.id <= currentStep
+              className={`w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full ${step.id <= currentStep
                   ? "bg-primaryColor text-white"
                   : "bg-gray-300 text-gray-600"
-              }`}
+                }`}
             >
               {step.id < currentStep ? <Check className="w-5 h-5" /> : step.id}
             </div>
             <div className="ml-3 sm:ml-0 sm:mt-2 text-sm font-medium">{step.name}</div>
             {index < steps.length - 1 && (
               <div
-                className={`hidden sm:block flex-1 w-full h-0.5 sm:w-16 sm:mx-2 ${
-                  step.id < currentStep ? "bg-primaryColor" : "bg-gray-300"
-                }`}
+                className={`hidden sm:block flex-1 w-full h-0.5 sm:w-16 sm:mx-2 ${step.id < currentStep ? "bg-primaryColor" : "bg-gray-300"
+                  }`}
               />
             )}
           </div>
           {index < steps.length - 1 && (
             <div
-              className={`sm:hidden flex-1 w-0.5 h-4 mx-4 ${
-                step.id < currentStep ? "bg-primaryColor" : "bg-gray-300"
-              }`}
+              className={`sm:hidden flex-1 w-0.5 h-4 mx-4 ${step.id < currentStep ? "bg-primaryColor" : "bg-gray-300"
+                }`}
             />
           )}
         </React.Fragment>

@@ -1,5 +1,6 @@
 "use client";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import React from "react";
 
 const NoProductYet = () => {
@@ -9,9 +10,10 @@ const NoProductYet = () => {
         <div key={index} className="bg-whie border rounded-md overflow-hidden">
           <div className="h-56 w-56   bg-gray-50 animate-pulse flex items-center justify-center">
             <Image
-              src={"/sale.png"}
+              src={"/images/ui/sale.webp"}
               width={100}
               height={100}
+              alt="Product"
             />
 
           </div>

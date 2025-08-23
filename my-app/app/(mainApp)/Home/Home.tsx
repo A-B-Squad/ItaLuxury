@@ -34,7 +34,7 @@ const TitleProduct = dynamic(
   () => import("@/app/components/ProductCarousel/titleProduct"),
   { ssr: false }
 );
-const BestSales = dynamic(() => import("./@TopSales/ToptSales"), {
+const TopSales = dynamic(() => import("./@TopSales/ToptSales"), {
   ssr: false,
 });
 
@@ -65,7 +65,7 @@ const MainCategoriesSlide = dynamic(
   { ssr: false }
 );
 
-const Home = () => {
+const Home = ({userData}:any) => {
   const { data: leftAds, loading: loadingLeftAds } = useQuery(
     ADVERTISSMENT_QUERY,
     { variables: { position: "SideNewProduct" } }
@@ -203,7 +203,7 @@ const Home = () => {
                         <TimeCountDown />
                       </div>
                     </div>
-                    <TopDeals />
+                    <TopDeals userData={userData} />
                   </div>
                 </div>
               )}
@@ -317,7 +317,7 @@ const Home = () => {
                 <div className="Heading pb-8 flex items-center mb-5 justify-between">
                   <TitleProduct title={"Meilleures Ventes"} />
                 </div>
-                <BestSales />
+                <TopSales userData={userData} />
               </div>
             )}
 

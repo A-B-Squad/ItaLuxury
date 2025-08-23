@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FiCheck, FiClock, FiGift, FiHeart, FiTrendingUp, FiUser, FiX } from "react-icons/fi";
 import SearchBar from "./SearchBar";
-
+import { PointTransaction, Voucher } from "@/app/types";
 import { formatDate } from "@/app/Helpers/_formatDate";
 import { useOutsideClick } from "@/app/Helpers/_outsideClick";
 import {
@@ -13,42 +13,20 @@ import {
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import { removeToken } from "@/lib/auth/token";
-import { useAuth } from "@/lib/auth/useAuth";
+import { BASKET_QUERY } from "@/graphql/queries";
+import { useAuth } from "@/app/hooks/useAuth";
 import { useMutation, useQuery } from "@apollo/client";
 import { sendGTMEvent } from "@next/third-parties/google";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import { useForm } from "react-hook-form";
 import { GoPackageDependents } from "react-icons/go";
 import { IoBagHandleOutline, IoGitCompare } from "react-icons/io5";
 import { MdPointOfSale } from "react-icons/md";
 
 
-interface Voucher {
-  id: string;
-  code: string;
-  amount: number;
-  isUsed: boolean;
-  createdAt: string;
-  expiresAt: string;
-  usedAt: string | null;
-  userId: string;
-  checkoutId: string | null;
-}
-
-interface PointTransaction {
-  id: string;
-  amount: number;
-  type: string;
-  description: string;
-  createdAt: string;
-  userId: string;
-  checkoutId: string | null;
-}
-
-const TopHeader = () => {
-  const { decodedToken, isAuthenticated } = useAuth();
+const TopHeader = ({ userData }: any) => {
+  const { decodedToken, isAuthenticated, logout } = useAuth();
   const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'account' | 'points' | 'vouchers' | 'transactions'>('account');
   const { openBasketDrawer } = useDrawerBasketStore();
@@ -91,12 +69,6 @@ const TopHeader = () => {
     },
   });
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
 
   const { data: basketData, refetch: refetchBasket } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
@@ -179,8 +151,8 @@ const TopHeader = () => {
   };
 
   const renderPointsSection = () => {
-    const userPoints = userData?.fetchUsersById?.points || 0;
-    const transactions = userData?.fetchUsersById?.pointTransactions || [];
+    const userPoints = userData?.points || 0;
+    const transactions = userData?.pointTransactions || [];
 
     return (
       <div className="p-4">
@@ -202,7 +174,7 @@ const TopHeader = () => {
                     <p className="text-xs text-gray-500">{formatDate(transaction.createdAt)}</p>
                   </div>
                 </div>
-                <div className={`text-sm font-semibold ${getTransactionColor( transaction.amount)}`}>
+                <div className={`text-sm font-semibold ${getTransactionColor(transaction.amount)}`}>
                   {transaction.amount > 0 ? '+' : ''}{formatAmount(transaction.amount)} pts
                 </div>
               </div>
@@ -216,7 +188,7 @@ const TopHeader = () => {
   };
 
   const renderVouchersSection = () => {
-    const vouchers = userData?.fetchUsersById?.Voucher || [];
+    const vouchers = userData?.Voucher || [];
     const activeVouchers = vouchers.filter((v: Voucher) => !v.isUsed);
     const usedVouchers = vouchers.filter((v: Voucher) => v.isUsed);
 
@@ -283,7 +255,7 @@ const TopHeader = () => {
   };
 
   const renderTransactionsSection = () => {
-    const transactions = userData?.fetchUsersById?.pointTransactions || [];
+    const transactions = userData?.pointTransactions || [];
     const sortedTransactions = [...transactions].sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt));
 
     return (
@@ -305,7 +277,7 @@ const TopHeader = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-gray-800">{transaction.description}</p>
-                    <span className={`text-sm font-semibold ${getTransactionColor( transaction.amount)}`}>
+                    <span className={`text-sm font-semibold ${getTransactionColor(transaction.amount)}`}>
                       {transaction.amount > 0 ? '+' : ''}{formatAmount(transaction.amount)} pts
                     </span>
                   </div>
@@ -333,11 +305,11 @@ const TopHeader = () => {
         <Link href="/" className="block w-full h-full">
           <div className="relative w-full h-full">
             <Image
-              src={"/LOGO.png"}
-              layout="fill"
-              objectFit="contain"
+              src={"/images/logos/LOGO.png"}
+              style={{ objectFit: "contain" }}
               quality={100}
               priority={true}
+              fill
               alt="ita-luxury"
               className="transition-transform duration-300 transform-gpu hover:scale-[1.02]"
             />
@@ -365,7 +337,7 @@ const TopHeader = () => {
                 </span>
                 <span className="text-sm font-medium">
                   {isAuthenticated
-                    ? userData?.fetchUsersById?.fullName || 'Mon compte'
+                    ? userData?.fullName || 'Mon compte'
                     : 'Votre Compte'
                   }
                 </span>
@@ -379,7 +351,7 @@ const TopHeader = () => {
                   >
                     <MdPointOfSale className="text-lg text-primaryColor" />
                     <span className="font-semibold text-primaryColor text-sm">
-                      {userData?.fetchUsersById?.points || 0} points
+                      {userData?.points || 0} points
                     </span>
                   </Link>
                 </div>
@@ -469,13 +441,21 @@ const TopHeader = () => {
                     <span className="px-3 text-xs text-gray-500">ou</span>
                     <div className="flex-grow h-px bg-gray-200"></div>
                   </div>
+                  <div className="auth-buttons-container flex gap-2 items-center justify-center">
+                    <Link
+                      href={"/signin"}
+                      className="w-full py-2.5 px-4 text-sm font-semibold rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 text-center transition-colors"
+                    >
+                      LOGIN
+                    </Link>
+                    <Link
+                      href={"/signup"}
+                      className="w-full py-2.5 px-4 text-sm font-semibold rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 text-center transition-colors"
+                    >
+                      NEW CLIENT? SIGN UP
+                    </Link>
+                  </div>
 
-                  <Link
-                    href={"/signup"}
-                    className="w-full py-2.5 px-4 text-sm font-semibold rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 text-center transition-colors"
-                  >
-                    NOUVEAU CLIENT? COMMENCER ICI
-                  </Link>
                 </div>
               )}
 
@@ -483,11 +463,11 @@ const TopHeader = () => {
                 <>
                   <div className="flex items-center gap-3 mb-4 p-4 pb-0">
                     <div className="w-10 h-10 rounded-full bg-primaryColor/20 flex items-center justify-center text-primaryColor">
-                      {userData?.fetchUsersById?.fullName?.charAt(0) || "U"}
+                      {userData?.fullName?.charAt(0) || "U"}
                     </div>
                     <div>
-                      <p className="font-medium">{userData?.fetchUsersById?.fullName}</p>
-                      <p className="text-xs text-gray-500">{userData?.fetchUsersById?.email}</p>
+                      <p className="font-medium">{userData?.fullName}</p>
+                      <p className="text-xs text-gray-500">{userData?.email}</p>
                     </div>
                   </div>
 
@@ -579,7 +559,7 @@ const TopHeader = () => {
 
                         <button
                           onClick={() => {
-                            removeToken();
+                            logout();
                             window.sessionStorage.removeItem("products-in-basket");
                             window.sessionStorage.removeItem("comparedProducts");
                             window.location.replace("/");

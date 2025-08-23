@@ -1,30 +1,43 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
-  env: {
-    BASE_URL_DOMAIN: process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
-  },
-
   reactStrictMode: true,
   poweredByHeader: false,
-  output: 'standalone',
-  swcMinify: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'development'
-          ? 'http://localhost:4001/api/:path*'
-          : 'http://admin:3001/api/:path*',
-      },
-    ];
+
+
+  // Add webpack optimization for CSS
+  webpack: (config, { dev, isServer }) => {
+    // Optimize CSS in production
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            styles: {
+              name: 'styles',
+              test: /\.(css|scss|sass)$/,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
+      };
+    }
+    return config;
   },
+
 
   async headers() {
     const developmentHosts = 'http://localhost:4000 http://localhost:4001';
     const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
 
     return [
+
+      {
+        source: '/sitemap.xml',
+        headers: [{ key: 'Content-Type', value: 'text/xml' }],
+      },
       {
         source: '/robots.txt',
         headers: [{ key: 'Content-Type', value: 'text/plain' }],
@@ -32,6 +45,51 @@ const nextConfig = {
       {
         source: '/google4773007d2b4f68e3.html',
         headers: [{ key: 'Content-Type', value: 'text/html' }],
+      },
+      {
+        source: '/css/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: "/(.*).(js|css|png|jpg|svg|ico|woff2)$",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/firebase/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400', // 1 day
+          },
+        ],
+      },
+      {
+        source: '/js/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=2592000', // 30 days
+          },
+        ],
       },
       {
         source: '/:path*',
@@ -158,7 +216,6 @@ const nextConfig = {
     ];
   },
 
-  // Rest of the config remains unchanged
   images: {
     remotePatterns: [
       {
@@ -192,38 +249,11 @@ const nextConfig = {
         hostname: "localhost",
         port: "4001",
         pathname: "**",
-      },
-      // Add Docker service hostnames
-      {
-        protocol: "http",
-        hostname: "client-prod",
-        port: "3000",
-        pathname: "**",
-      },
-      {
-        protocol: "http",
-        hostname: "admin",
-        port: "3001",
-        pathname: "**",
       }
     ],
     minimumCacheTTL: 60,
-    domains: ['res.cloudinary.com', "via.placeholder.com", 'localhost'],
   },
-
   compress: true,
-
-  webpack: (config, { dev, isServer }) => {
-    config.module.rules.push({
-      test: /firebase-messaging-sw\.js$/,
-      use: 'file-loader',
-    });
-
-    if (!dev && !isServer) {
-      config.optimization.minimize = true;
-    }
-    return config;
-  },
 };
 
 export default nextConfig;

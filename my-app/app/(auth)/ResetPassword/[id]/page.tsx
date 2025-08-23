@@ -1,7 +1,7 @@
 import React from "react";
 import ResetPassword from "./ResetPassword";
 import { Metadata } from "next";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || "https://www.ita-luxury.com"),
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     description: "Réinitialisez votre mot de passe sur ita-luxury pour continuer vos achats en toute sécurité.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || "https://www.ita-luxury.com"}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || "https://www.ita-luxury.com"}/images/logos/LOGO.jpg`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",

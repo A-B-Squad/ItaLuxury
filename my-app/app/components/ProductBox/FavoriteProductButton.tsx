@@ -5,7 +5,6 @@ interface FavoriteProductButtonProps {
   isFavorite: boolean;
   setIsFavorite?: (value: boolean) => void;
   productId: string;
-  userId?: string;
   productName: string;
   className?: string;
 }
@@ -14,7 +13,6 @@ const FavoriteProductButton: React.FC<FavoriteProductButtonProps> = ({
   isFavorite,
   setIsFavorite = () => {},
   productId,
-  userId,
   productName,
   className = "",
 }) => {
@@ -42,7 +40,6 @@ const FavoriteProductButton: React.FC<FavoriteProductButtonProps> = ({
             isFavorite={isFavorite}
             setIsFavorite={setIsFavorite}
             productId={productId}
-            userId={userId}
             heartColor="black"
             heartSize={16}
             productName={productName}

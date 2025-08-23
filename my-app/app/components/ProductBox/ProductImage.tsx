@@ -1,4 +1,5 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { useState, useCallback, useMemo } from "react";
 import QuickActionButton from "./components/QuickActionButton";
@@ -18,7 +19,6 @@ interface DecodedToken extends JwtPayload {
 }
 interface ProductImageProps {
   product: Product;
-  decodedToken: DecodedToken | null;
   onAddToBasket: (product: any, quantity: number) => void;
   view: number;
 }
@@ -26,7 +26,6 @@ interface ProductImageProps {
 const ProductImage: React.FC<ProductImageProps> = ({
   product,
   onAddToBasket,
-  decodedToken,
   view,
 }) => {
   const { toast } = useToast();
@@ -80,7 +79,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
   }, []);
 
   return (
-    <div className={`
+    <div className={` overflow-hidden
       relative w-full group
       ${view === 1 ? 'max-w-[200px]' : ''}
     `}>
@@ -106,8 +105,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
             <Image
               src={primaryImageUrl}
               alt={product.name}
-              layout="fill"
-              objectFit="cover"
+              style={{ objectFit: "cover" }}
               quality={80}
               priority={true}
               width={800}
@@ -120,8 +118,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
             <Image
               src={secondaryImageUrl}
               alt={`${product.name} - hover`}
-              layout="fill"
-              objectFit="cover"
+              style={{ objectFit: "cover" }}
               quality={80}
               width={800}
               height={800}
@@ -162,7 +159,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
           isFavorite={isFavorite}
           setIsFavorite={setIsFavorite}
           productId={product?.id}
-          userId={decodedToken?.userId}
           productName={product?.name}
         />
       </ul>

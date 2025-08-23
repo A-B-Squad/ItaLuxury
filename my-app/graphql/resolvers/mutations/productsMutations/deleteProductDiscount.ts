@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 // Resolver for deleting a product
 export const deleteProductDiscount = async (

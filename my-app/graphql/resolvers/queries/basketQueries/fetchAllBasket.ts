@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const fetchAllBasket = async (_: any, __: any, { prisma }: Context) => {
   try {

@@ -15,8 +15,7 @@ interface SubsubcategoryProps {
 
 const Subsubcategory: React.FC<SubsubcategoryProps> = ({
   subsubcategories,
-  parentSubCategoryName,
-  parentCategoryName,
+
 }) => {
   return (
     <div className="mt-1 space-y-1 pl-2 opacity-100 transform-none">
@@ -26,7 +25,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
           className="transition-opacity duration-200 ease-in-out"
         >
           <Link
-            href={`/Collections/tunisie/?${new URLSearchParams({
+            href={`/Collections/tunisie?${new URLSearchParams({
               category: subsubcategory.name,
             })}`}
             className="py-1.5 px-2 group text-sm text-gray-600 hover:text-primaryColor flex items-center gap-1.5 transition-all rounded-md hover:bg-gray-50"

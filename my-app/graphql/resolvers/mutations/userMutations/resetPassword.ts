@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { Context } from "../../../../pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 
 // Function to send password reset confirmation email
@@ -20,7 +20,7 @@ const sendPasswordResetConfirmationEmail = async (email: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
 
     // Logo path - using image from public folder
-    const logoUrl = `${baseUrl}/LOGO.png`;
+    const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
 
     await transporter.sendMail({
       from: '"ita-luxury" <no-reply@ita-luxury.com>',

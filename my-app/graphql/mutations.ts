@@ -3,13 +3,14 @@ import { gql } from "@apollo/client";
 export const SIGNIN_MUTATION = gql`
   mutation SignIn($input: SignInInput!) {
     signIn(input: $input) {
+      userId
       token
-      user {
-        id
-        fullName
-        email
-      }
     }
+  }
+`;
+export const REFRESH_TOKEN_MUTATION = gql`
+  mutation RefreshToken($Token: String!) {
+    refreshToken(Token: $Token)
   }
 `;
 export const CONTACT_US_MUTATION = gql`
@@ -20,11 +21,7 @@ export const CONTACT_US_MUTATION = gql`
 export const SIGNUP_MUTATION = gql`
   mutation SignUp($input: SignUpInput!) {
     signUp(input: $input) {
-      user {
-        id
-        fullName
-        email
-      }
+      userId
       token
     }
   }
@@ -94,15 +91,9 @@ export const DECREASE_QUANTITY_MUTATION = gql`
 `;
 
 export const ADD_DELETE_PRODUCT_FAVORITE_MUTATION = gql`
-  mutation AddDeleteProductToFavorite(
-    $input: AddDeleteProductToFavoriteInput!
-  ) {
-    addDeleteProductToFavorite(input: $input) {
-      id
-      userId
-      productId
-    }
-  }
+mutation AddDeleteProductToFavorite($input: AddDeleteProductToFavoriteInput!) {
+  addDeleteProductToFavorite(input: $input)
+}
 `;
 export const UPDATE_STATUS_PAYMENT_ONLINE_MUTATION = gql`
   mutation UpdateStatusPayOnlinePackage($packageId: ID!, $paymentStatus: Status) {

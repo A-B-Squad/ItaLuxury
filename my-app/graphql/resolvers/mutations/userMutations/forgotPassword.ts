@@ -1,32 +1,32 @@
-import { Context } from "../../../../pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 
 const sendResetPasswordEmail = async (email: string, id: string) => {
-	try {
-		const transporter = nodemailer.createTransport({
-			service: "gmail",
-			host: "smtp.gmail.com",
-			port: 587,
-			secure: false,
-			auth: {
-				user: process.env.NEXT_PUBLIC_NODEMAILER_EMAIL,
-				pass: process.env.NEXT_PUBLIC_NODEMAILER_PASS,
-			},
-		});
+    try {
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.NEXT_PUBLIC_NODEMAILER_EMAIL,
+                pass: process.env.NEXT_PUBLIC_NODEMAILER_PASS,
+            },
+        });
 
-		// Base URL for your website
-		const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
+        // Base URL for your website
+        const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
 
-		// Logo path - using image from public folder
-		const logoUrl = `${baseUrl}/LOGO.png`;
+        // Logo path - using image from public folder
+        const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
 
-		const resetPasswordUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ResetPassword/${id}`;
+        const resetPasswordUrl = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ResetPassword/${id}`;
 
-		await transporter.sendMail({
-			from: '"ita-luxury" <no-reply@ita-luxury.com>',
-			to: email,
-			subject: "Réinitialisation de votre mot de passe",
-			html: `<!DOCTYPE html>
+        await transporter.sendMail({
+            from: '"ita-luxury" <no-reply@ita-luxury.com>',
+            to: email,
+            subject: "Réinitialisation de votre mot de passe",
+            html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8">
@@ -192,34 +192,34 @@ const sendResetPasswordEmail = async (email: string, id: string) => {
     </div>
 </body>
 </html>`,
-		});
-	} catch (error) {
-		console.error("Failed to send reset password email:", error);
-		throw new Error("Failed to send reset password email");
-	}
+        });
+    } catch (error) {
+        console.error("Failed to send reset password email:", error);
+        throw new Error("Failed to send reset password email");
+    }
 };
 
 export const forgotPassword = async (
-	_: any,
-	{ email }: { email: string },
-	{ prisma }: Context
+    _: any,
+    { email }: { email: string },
+    { prisma }: Context
 ) => {
-	try {
-		// Check if the email exists in the database
-		const user = await prisma.user.findUnique({
-			where: { email },
-		});
+    try {
+        // Check if the email exists in the database
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
 
-		if (!user) {
-			throw new Error("User doesn't exist!");
-		}
+        if (!user) {
+            throw new Error("User doesn't exist!");
+        }
 
-		// Send the reset password email
-		await sendResetPasswordEmail(email, user.id);
+        // Send the reset password email
+        await sendResetPasswordEmail(email, user.id);
 
-		return "Email sent successfully";
-	} catch (error) {
-		console.error("Error in forgotPassword function:", error);
-		throw new Error("An error occurred, please try again later.");
-	}
+        return "Email sent successfully";
+    } catch (error) {
+        console.error("Error in forgotPassword function:", error);
+        throw new Error("An error occurred, please try again later.");
+    }
 };

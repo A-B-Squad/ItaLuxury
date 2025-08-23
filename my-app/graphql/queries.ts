@@ -1,43 +1,14 @@
 import { gql } from "@apollo/client";
 
 
-export const PRODUCT_BY_ID_QUERY = gql`
-  query ProductById($productByIdId: ID!) {
-    productById(id: $productByIdId) {
-      id
-      name
-      price
-      isVisible
-      reference
-      description
-      inventory
-      solde
-      images
-      createdAt
-      productDiscounts {
-        id
-        price
-        newPrice
-        dateOfEnd
-        dateOfStart
-      }
-      Colors {
-        id
-        id
-        color
-        Hex
-      }
 
-      technicalDetails
-    }
-  }
-`;
 export const GET_PRODUCT_IMAGES_QUERY = gql`
   query Query($productId: String!, $colorId: String!) {
     getProductImages(productId: $productId, colorId: $colorId)
   }
 `;
-export const FETCH_USER_BY_ID = gql`
+
+export const FETCH_USER_BY_ID = `
  query FetchUsersById($userId: ID!) {
   fetchUsersById(userId: $userId) {
     email
@@ -471,7 +442,7 @@ export const GET_BRANDS = gql`
   }
 `;
 
-export const COMPANY_INFO_QUERY_WITHOUT_GQL = `
+export const COMPANY_INFO_QUERY = `
   query CompanyInfo {
     companyInfo {
       id
@@ -485,20 +456,7 @@ export const COMPANY_INFO_QUERY_WITHOUT_GQL = `
     }
   }
 `;
-export const COMPANY_INFO_QUERY = gql`
-  query CompanyInfo {
-    companyInfo {
-      id
-      phone
-      deliveringPrice
-      logo
-      facebook
-      instagram
-      location
-      email
-    }
-  }
-`;
+
 export const GET_PACKAGES_BY_USER_ID = gql`
   query PackageByUserId($userId: ID!) {
     packageByUserId(userId: $userId) {
@@ -663,8 +621,70 @@ export const COLORS_QUERY = `
     }
   }
 }
-
 `;
+
+export const GET_PRODUCTS_BY_ID = `
+ query ProductById($productByIdId: ID!) {
+    productById(id: $productByIdId) {
+      id
+      name
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      images
+      createdAt
+      categories {
+        id
+        name
+        description
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      productDiscounts {
+        id
+        price
+        newPrice
+        dateOfEnd
+        dateOfStart
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      technicalDetails
+      reviews {
+        rating
+        userId
+      }
+      Brand {
+        name
+      }
+      GroupProductVariant {
+        id
+        groupProductName
+        Products {
+          id
+          name
+          Colors {
+            Hex
+          }
+        }
+      }
+    }
+  }`
+
 export const PACKAGE_QUERY = gql`
   query GetAllPackages {
     getAllPackages {

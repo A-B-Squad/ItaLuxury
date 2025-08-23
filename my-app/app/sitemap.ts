@@ -17,15 +17,15 @@ interface Category {
   parentId?: string;
 }
 
-// Define the type for a single sitemap entry as expected by Next.js
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN;
+  // Ensure consistent HTTPS base URL
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/^http:/, 'https:') || 'https://www.ita-luxury.com';
   const currentDate = new Date();
 
-  // Define priority and change frequency for different types of pages
-  const staticPages: SitemapEntry[] = [ // Explicitly type the array elements
+  // Static pages with consistent URL structure (REMOVED trailing slashes)
+  const staticPages: SitemapEntry[] = [
     { url: `${baseUrl}`, lastModified: currentDate, changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/signin`, lastModified: currentDate, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/signup`, lastModified: currentDate, changeFrequency: 'monthly', priority: 0.5 },
@@ -42,68 +42,96 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    // Fetch products
+    // Fetch products with better error handling
     const productsApiUrl = `${baseUrl}/api/products`;
-    const productsResponse = await fetch(productsApiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      next: { revalidate: 3600 }
-    });
+    let products: Product[] = [];
+    
+    try {
+      const productsResponse = await fetch(productsApiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Sitemap Generator',
+        },
+        next: { revalidate: 3600 }
+        // Removed AbortSignal.timeout for compatibility
+      });
 
-    if (!productsResponse.ok) {
-      console.error(`Failed to fetch products: ${productsResponse.status} ${productsResponse.statusText}`);
-      return staticPages;
+      if (productsResponse.ok) {
+        const productsData = await productsResponse.json();
+        if (Array.isArray(productsData)) {
+          products = productsData;
+        }
+      } else {
+        console.warn(`Products API returned ${productsResponse.status}: ${productsResponse.statusText}`);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch products for sitemap:', error);
     }
 
-    const products: Product[] = await productsResponse.json();
-
-    if (!Array.isArray(products)) {
-      console.error('Invalid product data received');
-      return staticPages;
-    }
-
-    // Fetch categories
+    // Fetch categories with better error handling
     const categoriesApiUrl = `${baseUrl}/api/categories`;
-    const categoriesResponse = await fetch(categoriesApiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      next: { revalidate: 3600 }
-    });
-
     let categories: Category[] = [];
-    if (categoriesResponse.ok) {
-      categories = await categoriesResponse.json();
+    
+    try {
+      const categoriesResponse = await fetch(categoriesApiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Sitemap Generator',
+        },
+        next: { revalidate: 3600 }
+        // Removed AbortSignal.timeout for compatibility
+      });
+
+      if (categoriesResponse.ok) {
+        const categoriesData = await categoriesResponse.json();
+        if (Array.isArray(categoriesData)) {
+          categories = categoriesData;
+        }
+      } else {
+        console.warn(`Categories API returned ${categoriesResponse.status}: ${categoriesResponse.statusText}`);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch categories for sitemap:', error);
     }
 
-    // Generate product URLs with proper priority
+    // Generate product URLs with consistent structure
     const dynamicProductUrls: SitemapEntry[] = products
-      .filter(product => product && product.id && product.name)
+      .filter(product => product?.id && product?.name)
       .map((product) => {
-        const priority = 0.8;
-
+        const productUrl = `${baseUrl}/products/tunisie?productId=${product.id}`;
+        
         return {
-          url: `${baseUrl}/products/tunisie/?productId=${product.id}`,
+          url: productUrl,
           lastModified: product.updatedAt ? new Date(product.updatedAt) : currentDate,
-          changeFrequency: 'weekly',
-          priority
+          changeFrequency: 'weekly' as const,
+          priority: 0.8
         };
       });
 
-    // Generate category URLs
-    const categoryUrls: SitemapEntry[] = categories // Explicitly type the array elements
-      .filter(category => category && category.id && category.name)
-      .map((category) => ({
-        url: `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(category.name)}`,
-        lastModified: currentDate,
-        changeFrequency: 'weekly',
-        priority: 0.8
-      }));
+    // Generate category URLs with consistent structure
+    const categoryUrls: SitemapEntry[] = categories
+      .filter(category => category?.id && category?.name)
+      .map((category) => {
+        const categoryUrl = `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(category.name)}`;
+        
+        return {
+          url: categoryUrl,
+          lastModified: currentDate,
+          changeFrequency: 'weekly' as const,
+          priority: 0.8
+        };
+      });
 
-    return [...staticPages, ...dynamicProductUrls, ...categoryUrls];
+    // Combine all URLs and ensure no duplicates
+    const allUrls = [...staticPages, ...dynamicProductUrls, ...categoryUrls];
+    const uniqueUrls = allUrls.filter((url, index, self) => 
+      index === self.findIndex(u => u.url === url.url)
+    );
+
+    console.log(`Generated sitemap with ${uniqueUrls.length} URLs`);
+    return uniqueUrls;
 
   } catch (error) {
     console.error('Error generating sitemap:', error);
@@ -112,4 +140,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 3600;

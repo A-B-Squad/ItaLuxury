@@ -3,17 +3,15 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import BottomHeader from "./BottomHeader";
 import Dropdown from "./CategoryDropdown/Dropdown";
 import TopHeader from "./TopHeader";
-import { useQuery } from "@apollo/client";
-import { COMPANY_INFO_QUERY } from "@/graphql/queries";
 import ContactBanner from "./ContactBanner";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { debounce } from "lodash";
 import { usePathname } from "next/navigation";
 
-const Header = () => {
+const Header = ({ userData, companyData }: any) => {
   const [showCategoryDropdown, setShowDropdown] = useState<boolean>(false);
   const [isFixed, setIsFixed] = useState<boolean>(false);
-  const { data: CompanyInfoData } = useQuery(COMPANY_INFO_QUERY);
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -28,7 +26,7 @@ const Header = () => {
   // Check if device is mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // Standard breakpoint for mobile
+      setIsMobile(window.innerWidth < 768); 
     };
 
     checkMobile();
@@ -96,14 +94,13 @@ const Header = () => {
     };
   }, [handleScroll]);
 
-  // If we're on the checkout page on mobile, don't render the header
   if (isCheckoutPage && isMobile) {
     return null;
   }
 
   return (
-    <>
-      <ContactBanner CompanyInfoData={CompanyInfoData} />
+    <div>
+      <ContactBanner companyData={companyData} />
 
       <motion.header
         ref={headerRef}
@@ -118,16 +115,17 @@ const Header = () => {
         }}
         transition={{
           duration: 0.3,
-          ease: [0.1, 0.9, 0.2, 1] 
+          ease: [0.1, 0.9, 0.2, 1]
         }}
       >
         <div className="container mx-auto px-4 lg:px-8">
           <nav className="flex flex-col  relative w-full">
-            <TopHeader />
+            <TopHeader userData={userData} />
             <BottomHeader
               isFixed={isFixed}
               setIsFixed={setIsFixed}
               setShowDropdown={setShowDropdown}
+              userData={userData}
             />
           </nav>
           <AnimatePresence>
@@ -146,7 +144,7 @@ const Header = () => {
       {isHeaderFixed && (
         <div style={{ height: `${headerHeight.current}px` }} aria-hidden="true" />
       )}
-    </>
+    </div>
   );
 };
 

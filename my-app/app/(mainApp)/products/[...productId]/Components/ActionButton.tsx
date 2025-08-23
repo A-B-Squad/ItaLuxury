@@ -35,8 +35,7 @@ const ActionButton = memo(({
     addToCompare
 }: ActionButtonProps) => {
     const router = useRouter();
-    
-    // Use useMemo for derived state to prevent recalculations on each render
+
     const { isOutOfStock, isMaxQuantity } = useMemo(() => ({
         isOutOfStock: productDetails?.inventory <= 0,
         isMaxQuantity: quantity === productDetails?.inventory
@@ -49,35 +48,27 @@ const ActionButton = memo(({
         }
     }, [AddToBasket, productDetails, router, isOutOfStock]);
 
-    // Memoize button classes to avoid string concatenation on each render
-    const buyNowButtonClass = useMemo(() => `w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${
-        isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primaryColor hover:bg-opacity-90 active:transform active:scale-[0.99]"
-    }`, [isOutOfStock]);
+    const buyNowButtonClass = useMemo(() => `w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primaryColor hover:bg-opacity-90 active:transform active:scale-[0.99]"
+        }`, [isOutOfStock]);
 
-    const addToCartButtonClass = useMemo(() => `w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${
-        isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 active:transform active:scale-[0.99]"
-    }`, [isOutOfStock]);
+    const addToCartButtonClass = useMemo(() => `w-full py-3 px-6 rounded-md shadow-md text-white font-bold text-base flex items-center justify-center gap-2 transition-all ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 active:transform active:scale-[0.99]"
+        }`, [isOutOfStock]);
 
-    const compareButtonClass = useMemo(() => `bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-3 rounded-md flex items-center justify-center gap-2 transition-colors ${
-        isProductInCompare ? "cursor-not-allowed" : "cursor-pointer"
-    }`, [isProductInCompare]);
+    const compareButtonClass = useMemo(() => `bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-3 rounded-md flex items-center justify-center gap-2 transition-colors ${isProductInCompare ? "cursor-not-allowed" : "cursor-pointer"
+        }`, [isProductInCompare]);
 
-    const decreaseButtonClass = useMemo(() => `bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700 w-10 h-10 flex items-center justify-center text-sm font-semibold ${
-        quantity === 1 || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-    }`, [quantity, isOutOfStock]);
+    const decreaseButtonClass = useMemo(() => `bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700 w-10 h-10 flex items-center justify-center text-sm font-semibold ${quantity === 1 || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+        }`, [quantity, isOutOfStock]);
 
-    const increaseButtonClass = useMemo(() => `w-10 h-10 flex items-center justify-center transition-colors bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold ${
-        isMaxQuantity || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-    }`, [isMaxQuantity, isOutOfStock]);
+    const increaseButtonClass = useMemo(() => `w-10 h-10 flex items-center justify-center transition-colors bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold ${isMaxQuantity || isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+        }`, [isMaxQuantity, isOutOfStock]);
 
-    // Memoize the add to cart handler
     const handleAddToCart = useCallback(() => {
         if (!isOutOfStock) {
             AddToBasket(productDetails);
         }
     }, [AddToBasket, productDetails, isOutOfStock]);
 
-    // Memoize the compare handler
     const handleCompare = useCallback(() => {
         if (!isProductInCompare) {
             addToCompare(productDetails);
@@ -86,19 +77,16 @@ const ActionButton = memo(({
 
     return (
         <div className="ActionButton p-5 bg-white hidden lg:flex lg:flex-col w-full shadow-lg rounded-lg col-span-3 sticky top-4 gap-4">
-            <div className="flex items-start p-4 bg-blue-50 rounded-lg">
-                <MdSecurity size={40} className="text-blue-600 flex-shrink-0" />
+            <div className="flex items-center p-4 bg-blue-50 rounded-lg">
+                <MdSecurity size={24} className="text-blue-600 flex-shrink-0" />
                 <div className="ml-3">
-                    <h4 className="text-sm font-semibold text-blue-800 mb-1">Sécurité et vie privée</h4>
-                    <p className="text-xs text-gray-700 leading-relaxed">
-                        <span className="block mb-1">• Paiements sûrs: Nous ne partageons pas vos données personnelles avec des tiers.</span>
-                        <span className="block">• Informations personnelles sécurisées: Protection de votre vie privée garantie.</span>
-                    </p>
+                    <h4 className="text-sm font-semibold text-blue-800">Paiement sécurisé</h4>
+                    <p className="text-xs text-gray-600">Protection des données garantie</p>
                 </div>
             </div>
 
             <div className="Quantity flex items-center space-x-3 mt-2">
-                <h3 className="tracking-wider font-semibold text-base text-gray-700">Quantité:</h3>
+                <h3 className="font-semibold text-base text-gray-700">Quantité:</h3>
 
                 <div className="flex items-center overflow-hidden rounded-md border border-gray-300">
                     <button
@@ -106,13 +94,11 @@ const ActionButton = memo(({
                         className={decreaseButtonClass}
                         disabled={quantity === 1 || isOutOfStock}
                         onClick={handleDecreaseQuantity}
-                        aria-label="Diminuer la quantité"
+                        aria-label="Diminuer"
                     >
                         <RiSubtractFill size={18} />
                     </button>
-                    <div
-                        className="bg-white px-4 py-2 h-10 flex items-center justify-center font-semibold text-gray-800 text-md border-x border-gray-300 min-w-[40px]"
-                    >
+                    <div className="bg-white px-4 py-2 h-10 flex items-center justify-center font-semibold text-gray-800 text-md border-x border-gray-300 min-w-[40px]">
                         {quantity}
                     </div>
                     <button
@@ -120,7 +106,7 @@ const ActionButton = memo(({
                         className={increaseButtonClass}
                         disabled={isMaxQuantity || isOutOfStock}
                         onClick={handleIncreaseQuantity}
-                        aria-label="Augmenter la quantité"
+                        aria-label="Augmenter"
                     >
                         <FaPlus size={14} />
                     </button>
@@ -177,7 +163,7 @@ const ActionButton = memo(({
             {isOutOfStock && (
                 <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600 font-medium text-center">
-                        Ce produit est actuellement en rupture de stock
+                        Produit en rupture de stock
                     </p>
                 </div>
             )}
