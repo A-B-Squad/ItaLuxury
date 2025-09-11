@@ -7,7 +7,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/app/hooks/useAuth";
 
-// Define interfaces for type safety
+//interfaces for type safety
 interface FormData {
   email: string;
   message: string;
@@ -15,8 +15,7 @@ interface FormData {
   text: string;
 }
 
-// Main ContactUsForm component
-const ContactUsForm: React.FC = () => {
+const ContactUsForm = () => {
   // Step 1: Set up hooks and state
   const { toast } = useToast();
   const {
@@ -71,8 +70,6 @@ const ContactUsForm: React.FC = () => {
 
 
   // Step 3: Handle file upload
-
-
   const handleFileInputChange = (event: any) => {
     const file = event.info;
     if (file) {
@@ -173,15 +170,17 @@ const ContactUsForm: React.FC = () => {
                   widget.close();
                 }}
               >
-                {({ open }) => (
-                  <button
-                    type="button"
-                    className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-primaryColor shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
-                    onClick={() => open()}
-                  >
-                    choisir un image
-                  </button>
-                )}
+                {({ open }) => {
+                  return (
+                    <button
+                      type="button"
+                      className="uppercase text-xs h-full flex items-center px-2 text-center text-white bg-primaryColor shadow-md hover:bg-mediumBeige transition-colors cursor-pointer"
+                      onClick={() => open()}
+                    >
+                      choisir un image
+                    </button>
+                  );
+                }}
               </CldUploadWidget>
             </div>
           </div>

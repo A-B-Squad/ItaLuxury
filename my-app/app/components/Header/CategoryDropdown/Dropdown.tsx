@@ -29,10 +29,11 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   // Improved dropdown position classes for better scroll behavior
   const positionClasses = useMemo(() => {
-    if (isFixed) {
-      return "fixed top-[185px] left-0 right-0";
-    }
-    return "absolute top-full left-0 right-0";
+    // if (isFixed) {
+    //   return "fixed top-[185px] left-0 right-0";
+    // }
+    // return "absolute top-full left-0 right-0";
+    return "top-[185px] left-0 right-0";
   }, [isFixed]);
 
   if (error) {
@@ -82,6 +83,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                     data={data}
                     activeCategory={activeCategory}
                     setActiveCategory={setActiveCategory}
+                    setShowDropdown={setShowDropdown}
                   />
                 </div>
               ) : (

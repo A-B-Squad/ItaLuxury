@@ -16,7 +16,7 @@ interface BreadcrumbProps {
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ Path }) => {
   return (
-    <nav aria-label="Breadcrumb" className="w-full py-4">
+    <nav aria-label="Breadcrumb" className="w-full  -z-0 py-4">
       <motion.ol
         className="flex flex-wrap items-center justify-center gap-1 text-sm tracking-wide"
         initial={{ opacity: 0, y: -5 }}

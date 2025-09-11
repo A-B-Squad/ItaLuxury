@@ -22,6 +22,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import CustomInnerZoom from "./CustomInnerZoom";
 import { AnimatePresence } from "framer-motion";
 import { createPortal } from 'react-dom';
+import { ProductData } from "@/app/types";
 
 
 
@@ -62,13 +63,13 @@ const ProductQuickView = ({ userData }: any) => {
   const productsInBasket = useMemo(() => {
     if (isAuthenticated && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
-        (item: any) => item.Product.id === productData?.id
+        (item: ProductData) => item.Product.id === productData?.id
       );
     }
     return storedProducts.find(
-      (product: any) => product.id === productData?.id
+      (product: ProductData) => product.id === productData?.id
     );
-  }, [isAuthenticated, basketData, storedProducts]);
+  }, [isAuthenticated, basketData, storedProducts, productData?.id]);
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productData?.inventory) {
@@ -89,8 +90,8 @@ const ProductQuickView = ({ userData }: any) => {
         : product.price;
     const addToCartData = {
       user_data: {
-        em: [userData.email.toLowerCase()],
-        fn: [userData.fullName],
+        em: [userData?.email?.toLowerCase()],
+        fn: [userData?.fullName],
         ph: [userData?.number],
         country: ["tn"],
         external_id: userData.id,
@@ -117,8 +118,8 @@ const ProductQuickView = ({ userData }: any) => {
       },
       // User data for both events
       user_data: {
-        em: [userData.email.toLowerCase()],
-        fn: [userData.fullName],
+        em: [userData?.email?.toLowerCase()],
+        fn: [userData?.fullName],
         ph: [userData?.number],
         country: ["tn"],
         external_id: userData.id

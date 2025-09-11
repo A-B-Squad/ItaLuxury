@@ -2,7 +2,7 @@ import QuickActionButton from "@/app/components/ProductBox/components/QuickActio
 import FavoriteProductButton from "@/app/components/ProductBox/FavoriteProductButton";
 import { useProductComparisonStore } from "@/app/store/zustand";
 import { useAuth } from "@/app/hooks/useAuth";
-import { useCallback, memo } from "react";
+import React, { useCallback } from "react";
 import { FaRegEye } from "react-icons/fa";
 import { IoGitCompare } from "react-icons/io5";
 
@@ -13,7 +13,7 @@ interface ProductProps {
     toast: any
 }
 
-const ProductActions = memo(({
+const ProductActions = ({
     product,
     toast,
     isFavorite,
@@ -66,15 +66,13 @@ const ProductActions = memo(({
                 <FavoriteProductButton
                     isFavorite={isFavorite}
                     productId={product?.id}
-                    userId={decodedToken?.userId}
                     productName={product?.name}
                     className="h-9 w-9 flex items-center justify-center rounded-full"
                 />
             </div>
         </div>
     );
-});
+};
 
-ProductActions.displayName = 'ProductActions';
 
-export default ProductActions;
+export default React.memo(ProductActions);

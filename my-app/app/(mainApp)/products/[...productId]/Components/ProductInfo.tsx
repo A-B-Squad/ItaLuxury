@@ -344,9 +344,19 @@ const ProductInfo = memo(({
   return (
     <div className="productInfo lg:col-span-4 col-span-12 p-3 md:p-5 w-full bg-white rounded-lg shadow-sm">
       <div className="flex flex-col justify-betwee border-b border-gray-200 pb-2">
-        <h2 className="product_name tracking-wide text-lg w-fit font-semibold text-gray-800">
-          {productDetails?.name}
-        </h2>
+        <div className="product-header ">
+          <h1 className="product_name text-2xl  font-bold text-gray-900 leading-tight tracking-tight mb-2">
+            {productDetails?.name}
+          </h1>
+
+          {productDetails?.reference && (
+            <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">
+              SKU: {productDetails.reference}
+            </p>
+          )}
+
+
+        </div>
 
         {/* Star Rating Display - only show if there are reviews */}
         {reviews > 0 && (
@@ -391,7 +401,7 @@ const ProductInfo = memo(({
       </div>
 
       <div className="prices discount flex flex-col gap-3 mt-4">
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center w-max gap-3">
           {discount ? (
             <>
               <span className="text-2xl font-bold text-red-600">
@@ -437,7 +447,7 @@ const ProductInfo = memo(({
         </div>
       </div>
 
-      <div className="user_interaction flex flex-col gap- mt-6 border-t border-gray-200 pt-4">
+      <div className="user_interaction flex flex-col  gap-2 mt-1   pt-1">
         {isMaxQuantity && (
           <div className="flex items-center text-sm gap-3 bg-red-50 border border-red-200 p-3 rounded-lg">
             <GoAlertFill color="#DC2626" size={20} />
@@ -488,24 +498,20 @@ const ProductInfo = memo(({
           </div>
         </div>
 
-
-        {/* WhatsApp Order Button at the top */}
-        <div className="lg:hidden whatsapp-order mt-4 mb-2">
-          <a
-            href={getWhatsAppUrl()}
-            onClick={handleClick}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200 shadow-sm ${whatsappButtonDisabled
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none border border-gray-200"
-              : "bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              }`}
-          >
-            <FaWhatsapp size={20} />
-            {whatsappButtonDisabled ? "Patientez..." : "Commander via WhatsApp"}
-          </a>
-        </div>
-
-
         <div className="lg:hidden action-buttons  bg-white flex flex-col gap-3 mt-2">
+          <button
+            type="button"
+            disabled={isOutOfStock}
+            className={`w-full py-3 px-4 rounded-lg font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-sm ${isOutOfStock
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+              : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              }`}
+            onClick={() => !isOutOfStock && AddToBasket(productDetails)}
+          >
+            <MdAddShoppingCart size={20} />
+            {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
+          </button>
+
           <Dialog
             open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
             <DialogTrigger asChild>
@@ -515,7 +521,7 @@ const ProductInfo = memo(({
                 onClick={() => !isOutOfStock && AddToBasket(productDetails)}
                 className={`w-full py-3 px-4 rounded-lg font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-sm ${isOutOfStock
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                  : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  : "bg-gradient-to-r from-primaryColor to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   }`}
               >
                 {!isOutOfStock && <FaBolt size={18} />}
@@ -535,27 +541,30 @@ const ProductInfo = memo(({
             </DialogContent>
           </Dialog>
 
-          <button
-            type="button"
-            disabled={isOutOfStock}
-            className={`w-full py-3 px-4 rounded-lg font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-sm ${isOutOfStock
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-              : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              }`}
-            onClick={() => !isOutOfStock && AddToBasket(productDetails)}
-          >
-            <MdAddShoppingCart size={20} />
-            {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
-          </button>
+
         </div>
+        {/* WhatsApp Order Button at the top */}
+        <div className="lg:hidden whatsapp-order mt-4 mb-2">
+          <a
+            href={getWhatsAppUrl()}
+            onClick={handleClick}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200 shadow-sm ${whatsappButtonDisabled
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none border border-gray-200"
+              : "bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              }`}
+          >
+            <FaWhatsapp size={20} />
+            {whatsappButtonDisabled ? "Patientez..." : "Commander via WhatsApp"}
+          </a>
+        </div>
+
+
+
 
         <ProductAttrMobile technicalDetails={technicalDetails} />
       </div>
     </div>
   );
-
-
-
 }
   , (prevProps, nextProps) => {
 
@@ -563,6 +572,8 @@ const ProductInfo = memo(({
       prevProps.productDetails?.id === nextProps.productDetails?.id &&
       prevProps.productDetails?.price === nextProps.productDetails?.price &&
       prevProps.productDetails?.inventory === nextProps.productDetails?.inventory &&
+      prevProps.productDetails?.description === nextProps.productDetails?.description && 
+      prevProps.productDetails?.name === nextProps.productDetails?.name && 
       prevProps.technicalDetails === nextProps.technicalDetails &&
       prevProps.discount?.newPrice === nextProps.discount?.newPrice &&
       prevProps.quantity === nextProps.quantity

@@ -1,7 +1,6 @@
 "use client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
-import { useQuery } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
 
 import Link from "next/link";
@@ -22,8 +21,6 @@ const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = fal
     const handleLogout = async () => {
         try {
             logout()
-
-
             await router.push("/");
 
             toast({

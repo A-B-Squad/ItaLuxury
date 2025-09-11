@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: "Procédez au paiement de votre commande sur ita-luxury.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   robots: "noindex, nofollow",
 };
 
-const CheckoutPage = async() => {
+const CheckoutPage = async () => {
   const cookieStore = cookies()
   const token = cookieStore.get('Token')?.value
   const decodedUser = token ? decodeToken(token) : null;

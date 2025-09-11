@@ -196,26 +196,6 @@ const ProductDetails: React.FC<ProductProps> = ({
         toggleIsUpdated();
     };
 
-    const handleCategoryStorage = useCallback(
-        (e: React.MouseEvent) => {
-            if (!product?.categories?.[0]) return;
-            const categories = [
-                product.categories[0].name,
-                product.categories[1]?.name,
-                product.categories[2]?.name,
-                product.name,
-            ].filter(Boolean);
-
-            try {
-                localStorage.setItem("productCategories", JSON.stringify(categories));
-            } catch (error) {
-                console.error("Error storing categories in localStorage:", error);
-            }
-        },
-        [product]
-    );
-
-
 
 
     return (
@@ -238,7 +218,6 @@ const ProductDetails: React.FC<ProductProps> = ({
                 <div>
                     <Link
                         href={`/products/tunisie?productId=${product.id}`}
-                        onClick={handleCategoryStorage}
                         className="block group"
                     >
                         <h2 className="text-xl font-semibold text-gray-800 group-hover:text-primaryColor transition-colors duration-200 line-clamp-2">

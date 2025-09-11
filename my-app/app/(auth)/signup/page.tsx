@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Inscrivez-vous sur ita-luxury pour découvrir notre collection exclusive de produits de luxe et bénéficier d'offres personnalisées.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Inscription",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: "Créer un compte | ita-luxury",
     description:
       "Inscrivez-vous sur ita-luxury pour découvrir notre collection exclusive de produits de luxe et bénéficier d'offres personnalisées.",
-    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`],
+    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`],
   },
   alternates: {
     canonical: "https://www.ita-luxury.com/signup",

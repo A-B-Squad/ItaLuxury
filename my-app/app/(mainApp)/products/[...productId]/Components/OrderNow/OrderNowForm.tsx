@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/app/hooks/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { OrderSummary } from "./OrderSummary";
+import { useProductsInBasketStore } from "@/app/store/zustand";
 
 
 // Define interfaces
@@ -53,6 +54,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
     const [isGuest, setIsGuest] = useState<boolean>(true);
     const [createPointTransaction] = useMutation(CREATE_POINT_TRANSACTION);
     const { data: pointSettingsData } = useQuery(GET_POINT_SETTINGS);
+    const { clearBasket } = useProductsInBasketStore();
 
     const {
         register,
@@ -82,9 +84,6 @@ const OrderNow: React.FC<OrderNowProps> = ({
 
     // Fetch initial data
     const { data: governmentData } = useQuery(GET_GOVERMENT_INFO);
-
-
-
 
     useEffect(() => {
         if (governmentData?.allGovernorate) {
@@ -215,14 +214,19 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 totalValue: parseFloat(calculateTotal()),
             };
 
+       
+
             const { data: checkoutData } = await createCheckout({
                 variables: { input: checkoutInput },
                 refetchQueries: [
-                    {
-                        query: BASKET_QUERY,
-                        variables: { userId: decodedToken?.userId },
-                    },
-                ],
+                    ...(decodedToken?.userId
+                        ? [{ query: BASKET_QUERY, variables: { userId: decodedToken.userId } }]
+                        : []
+                    )]
+                ,
+                onCompleted: (() => {
+                    clearBasket();
+                })
             });
 
             // Get the order ID from the response

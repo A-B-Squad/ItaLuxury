@@ -1,56 +1,65 @@
 import React from "react";
-import { SlBasket } from "react-icons/sl";
+import { SlBasketLoaded } from "react-icons/sl";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  productDiscounts: Array<{
+    newPrice: number;
+  }>;
+
+}
 
 interface FullViewDetailsProps {
   product: Product;
+  onAddToBasket: (product: Product, quantity: number) => void;
 }
 
 const FullViewDetails: React.FC<FullViewDetailsProps> = ({
   product,
-}) => (
-  <>
-    <div className="price&ColorInfo  flex w-full justify-between items-start ">
-      <div className="prices flex flex-col lg:flex-row lg:gap-2 justify-center  w-full items-center text-center">
-        {product.productDiscounts.length > 0 && (
-          <p className="text-red-500 font-bold md:text-lg  text-sm">
-            {product.productDiscounts[0]?.newPrice.toFixed(3)} TND
-          </p>
+  onAddToBasket
+}) => {
+  const hasDiscount = product.productDiscounts.length > 0;
+  const discountPrice = hasDiscount ? product.productDiscounts[0]?.newPrice : null;
+
+  return (
+    <div className="  flex w-full justify-between items-start ">
+      {/* Price Section */}
+      <div className="PriceSection flex-1">
+        {hasDiscount && discountPrice ? (
+          <div className="flex flex-col  sm:items-center gap-1">
+            <span className=" text-lg md:text-xl font-bold text-red-500">
+              {discountPrice.toFixed(3)} TND
+            </span>
+            <span className="text-base font-medium line-through text-gray-400">
+              {product.price.toFixed(3)} TND
+            </span>
+          </div>
+        ) : (
+          <span className="md:text-xl font-bold text-gray-900">
+            {product.price.toFixed(3)} TND
+          </span>
         )}
-
-
-        <p
-          className={`${product.productDiscounts.length > 0
-            ? "line-through font-normal  text-sm md:text-base text-[#666]"
-            : "text-primaryColor  font-bold md:text-lg py-1 text-base"} `}
-        >
-          {product.price.toFixed(3)} TND
-        </p>
-
       </div>
-      <div
-        className="Color absolute right-1 top-0 w-fit rounded-full cursor-crosshair"
-        title={product.Colors?.color}
+
+      {/* Actions Section */}
+
+
+      {/* Add to Cart Button */}
+      <button
+        onClick={() => onAddToBasket(product, 1)}
+        className="flex items-center justify-center w-9 h-9 bg-gray-100 hover:bg-blue-50 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        aria-label={`Add ${product.name} to basket`}
+        title="Add to basket"
       >
-        {product.Colors && (
-          <div
-            className="colors_available items-center mt-1 rounded-md w-5 h-5 border-black border-1   shadow-gray-400 shadow-md"
-            style={{ backgroundColor: product.Colors.Hex }} />
-        )}
-      </div>
+        <SlBasketLoaded
+          size={16}
+          className="text-gray-600 group-hover:text-blue-600 transition-colors duration-200"
+        />
+      </button>
     </div>
-    {/* <button
-      disabled={product.inventory <= 0}
-      type="button"
-      className={`${product?.inventory <= 0 ? "cursor-not-allowed" : "cursor-pointer"} absolute  left-2/4 top-2/4 -translate-x-2/4 flex items-center gap-2 self-center py-2 m-auto  w-fit justify-center bg-white px-2 text-sm md:text-base hover:text-white transition hover:bg-secondaryColor`}
-
-      onClick={() => {
-        onAddToBasket(product, 1);
-      }}>
-      <SlBasket />
-      Ajouter au panier
-    </button> */}
-
-  </>
-);
+  );
+};
 
 export default FullViewDetails;

@@ -212,6 +212,9 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
     }
   }, [productId]);
 
+
+
+
   const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
@@ -494,7 +497,7 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
             <Breadcumb Path={categoriesPath} />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-between bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm gap-4">
-              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
+              <div className="lg:sticky top-0 lg:top-5 gap-3  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
                 <div className="relative">
                   <CustomInnerZoom
                     images={smallImages}
@@ -554,12 +557,14 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
           technicalDetails={technicalDetails}
         />
 
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-6 mt-8 mb-[15%]">
+        <div className="bg-white border border-gray-200 rounded-lg  shadow-sm px-4 py-6 mt-8 ">
           <TitleProduct title={"Produits apparentés"} />
           <div className="py-2">
             <ProductTabs
               data={Products_10_by_category?.productsByCategory}
               loadingProduct={loadingProductByCategiry}
+              userData={userData}
+              className={"basis-1/2 md:basis-1/5 lg:basis-1/5"}
             />
           </div>
         </div>

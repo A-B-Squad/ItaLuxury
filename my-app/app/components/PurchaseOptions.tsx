@@ -111,11 +111,12 @@ const PurchaseOptions = ({ companyData }: any) => {
                                 {productData?.images[0] && (
                                     <div className="relative w-full sm:w-48 h-48 mx-auto sm:mx-0 border rounded overflow-hidden">
                                         <Image
-                                            layout="fill"
+                                            fill={true}
                                             src={productData.images[0]}
                                             alt={productData?.name || "Product"}
                                             style={{ objectFit: "contain" }}
                                             loading="eager"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             priority={true}
                                         />
                                     </div>

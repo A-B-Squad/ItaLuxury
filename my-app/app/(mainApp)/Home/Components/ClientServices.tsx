@@ -115,7 +115,8 @@ const ClientServices: React.FC = () => {
           <Image
             src={ad.images[0]}
             alt={`Service client ${index}`}
-            layout="fill"
+            fill={true}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             style={{ objectFit: "cover" }}
             priority
             className="
@@ -123,7 +124,7 @@ const ClientServices: React.FC = () => {
               duration-500 
               group-hover:scale-105
             "
-            onLoadingComplete={() => handleImageLoad(index)}
+            onLoad={() => handleImageLoad(index)}
           />
         </div>
       </Link>

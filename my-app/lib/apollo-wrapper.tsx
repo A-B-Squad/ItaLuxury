@@ -9,9 +9,9 @@ import {
   SSRMultipartLink,
 } from "@apollo/experimental-nextjs-app-support/ssr";
 
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
   if (graphQLErrors) {
-    for (let err of graphQLErrors) {
+    for (const err of graphQLErrors) {
       console.error("❌ GraphQL Error:", operation);
       console.error("❌ GraphQL Error in:", operation.operationName);
       console.error("Variables:", operation.variables);

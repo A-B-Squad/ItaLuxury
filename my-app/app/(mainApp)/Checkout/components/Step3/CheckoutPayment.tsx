@@ -33,7 +33,7 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
             width={60}
             height={60}
             style={{ objectFit: "contain" }}
-            src="/images/delivery/jax-delivery.png"
+            src="/images/delivery/jax-delivery.webp"
             alt="JAX Delivery Logo"
           />
         </div>

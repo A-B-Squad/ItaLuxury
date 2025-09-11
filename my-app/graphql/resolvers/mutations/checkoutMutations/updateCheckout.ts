@@ -38,7 +38,7 @@ async function sendCheckoutEmail(
 
   // Logo and other image paths - using images from public folder
   const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
-  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.png`;
+  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.webp`;
 
   const totalProducts = productInCheckout.reduce(
     (

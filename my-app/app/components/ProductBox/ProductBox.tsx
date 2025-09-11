@@ -1,10 +1,8 @@
 import { BASKET_QUERY } from "@/graphql/queries";
 import { useMutation, useQuery } from "@apollo/client";
-import React, { useEffect, useMemo } from "react";
-
+import React, { useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-
 import {
   useAllProductViewStore,
   useBasketStore,
@@ -13,7 +11,6 @@ import {
 } from "@/app/store/zustand";
 import { useAuth } from "@/app/hooks/useAuth";
 import triggerEvents from "@/utlils/events/trackEvents";
-
 import { sendGTMEvent } from "@next/third-parties/google";
 import CompactViewDetails from "./CompactViewDetails";
 import FullViewDetails from "./FullViewDetails";
@@ -21,13 +18,12 @@ import ProductImage from "./ProductImage";
 import ProductLabels from "./ProductLabels";
 import ProductName from "./ProductName";
 
-
 interface ProductBoxProps {
   product: any;
-  userData: any
+  userData: any;
 }
 
-const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product, userData }) => {
+const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
   const { toast } = useToast();
   const { view, changeProductView } = useAllProductViewStore();
   const { decodedToken, isAuthenticated } = useAuth();
@@ -46,227 +42,293 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(({ product, userData })
   } = useProductsInBasketStore();
   const { openPruchaseOptions } = usePruchaseOptions();
 
-
-
+  // Set view based on route
   useEffect(() => {
     if (window.location.pathname !== "/Collections/tunisie") {
       changeProductView(3);
     }
-  }, [window.location]);
+  }, [changeProductView]);
 
-
+  // Find product in basket
   const productInBasket = useMemo(() => {
     if (isAuthenticated && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
         (item: any) => item.Product.id === product.id
       );
     }
-    return storedProducts.find((product: any) => product.id === product.id);
+    return storedProducts.find((p: any) => p.id === product.id);
   }, [isAuthenticated, basketData, storedProducts, product.id]);
 
+  // Get current price
+  const currentPrice = useMemo(() => {
+    return product.productDiscounts.length > 0
+      ? product.productDiscounts[0].newPrice
+      : product.price;
+  }, [product.productDiscounts, product.price]);
 
+  // Create tracking data
+  const createTrackingData = useCallback((quantity: number) => {
+    const price = currentPrice;
 
-
-  const AddToBasket = async (product: any, quantity: number = 1) => {
-    if (!product) return
-
-    openPruchaseOptions(product);
-
-    const price =
-      product.productDiscounts.length > 0
-        ? product.productDiscounts[0].newPrice
-        : product.price;
-
-    const addToCartData = {
-      user_data: {
-        em: [userData.email.toLowerCase()],
-        fn: [userData.fullName],
-        ph: [userData?.number],
-        country: ["tn"],
-        ct: "",
-        external_id: decodedToken?.userId,
-      },
-      custom_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        currency: "TND",
-        contents: [
-          {
+    return {
+      addToCartData: {
+        user_data: {
+          em: [userData?.email?.toLowerCase()],
+          fn: [userData?.fullName],
+          ph: [userData?.number],
+          country: ["tn"],
+          ct: "",
+          external_id: decodedToken?.userId,
+        },
+        custom_data: {
+          content_name: product.name,
+          content_type: "product",
+          content_ids: [product.id],
+          currency: "TND",
+          contents: [{
             id: product.id,
             quantity: product.actualQuantity || product.quantity,
-            item_price: product.productDiscounts?.length
-              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
-              : parseFloat(product.price.toFixed(3))
-          }
-        ],
-        value: price * quantity,
-        content_category: product.categories?.[0]?.name || '',
+            item_price: parseFloat(price.toFixed(3))
+          }],
+          value: price * quantity,
+          content_category: product.categories?.[0]?.name || '',
+        },
       },
-    };
-
-
-    triggerEvents("AddToCart", addToCartData);
-    sendGTMEvent({
-      event: "add_to_cart",
-      ecommerce: {
-        currency: "TND",
-        value: price * quantity,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          quantity: product.actualQuantity || product.quantity,
-          price: price
-        }]
-      },
-      user_data: {
-        em: [userData.email.toLowerCase()],
-        fn: [userData.fullName],
-        ph: [userData?.number],
-        country: ["tn"],
-        external_id: userData.email.id
-      },
-      facebook_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        contents: [
-          {
+      gtmData: {
+        event: "add_to_cart",
+        ecommerce: {
+          currency: "TND",
+          value: price * quantity,
+          items: [{
+            item_id: product.id,
+            item_name: product.name,
+            quantity: product.actualQuantity || product.quantity,
+            price: price
+          }]
+        },
+        user_data: {
+          em: [userData?.email?.toLowerCase()],
+          fn: [userData?.fullName],
+          ph: [userData?.number],
+          country: ["tn"],
+          external_id: userData?.id
+        },
+        facebook_data: {
+          content_name: product.name,
+          content_type: "product",
+          content_ids: [product.id],
+          contents: [{
             id: product.id,
             quantity: product.actualQuantity || product.quantity,
-            item_price: product.productDiscounts?.length
-              ? parseFloat(product.productDiscounts[0].newPrice.toFixed(3))
-              : parseFloat(product.price.toFixed(3))
-          }
-        ],
-        value: price * quantity,
-        currency: "TND"
-      }
-    });
-
-    if (isAuthenticated) {
-      try {
-        const currentBasketQuantity = productInBasket
-          ? productInBasket.quantity || productInBasket.actualQuantity
-          : 0;
-
-        if (currentBasketQuantity + quantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-            className: "bg-red-600 text-white",
-          });
-          return;
+            item_price: parseFloat(price.toFixed(3))
+          }],
+          value: price * quantity,
+          currency: "TND"
         }
-
-        await addToBasket({
-          variables: {
-            input: {
-              userId: decodedToken?.userId,
-              quantity,
-              productId: product.id,
-            },
-          },
-          refetchQueries: [
-            {
-              query: BASKET_QUERY,
-              variables: { userId: decodedToken?.userId },
-            },
-          ],
-          onCompleted: () => {
-            toast({
-              title: "Produit ajouté au panier",
-              description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-              className: "bg-primaryColor text-white",
-            });
-          },
-        });
-      } catch (error) {
-        console.error("Error adding to basket:", error);
-        toast({
-          title: "Erreur",
-          description:
-            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
-          className: "bg-red-600 text-white",
-        });
       }
-    } else {
-      const isProductAlreadyInBasket = storedProducts.some(
-        (p: any) => p.id === product?.id
-      );
-      const filteredProduct = storedProducts.find(
-        (p: any) => p.id === product?.id
-      );
+    };
+  }, [currentPrice, userData, decodedToken?.userId, product]);
 
-      if (
-        filteredProduct &&
-        filteredProduct.actualQuantity + quantity > product.inventory
-      ) {
-        toast({
-          title: "Quantité non disponible",
-          description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-          className: "bg-red-600 text-white",
-        });
-        return;
-      }
+  // Check inventory availability
+  const checkInventory = useCallback((quantity: number) => {
+    const currentBasketQuantity = productInBasket
+      ? productInBasket.quantity || productInBasket.actualQuantity
+      : 0;
 
-      if (isProductAlreadyInBasket) {
-        increaseProductInQtBasket(product.id, quantity);
-      } else {
-        addProductToBasket({
-          ...product,
-          price: product.price,
-          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
-          actualQuantity: quantity,
-        });
-      }
-
+    if (currentBasketQuantity + quantity > product.inventory) {
       toast({
-        title: "Produit ajouté au panier",
-        description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-        className: "bg-green-600 text-white",
+        title: "Quantité non disponible",
+        description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+        variant: "destructive",
       });
-
+      return false;
     }
-    toggleIsUpdated();
-  };
+    return true;
+  }, [productInBasket, product.inventory, toast]);
 
+  // Handle authenticated user basket
+  const handleAuthenticatedBasket = useCallback(async (quantity: number) => {
+    try {
+      await addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [{
+          query: BASKET_QUERY,
+          variables: { userId: decodedToken?.userId },
+        }],
+        onCompleted: () => {
+          toast({
+            title: "Produit ajouté au panier",
+            description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+            className: "bg-green-600 text-white border-green-600",
+          });
+        },
+      });
+    } catch (error) {
+      console.error("Error adding to basket:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
+  }, [addToBasket, decodedToken?.userId, product.id, product.name, toast]);
+
+  // Handle guest basket
+  const handleGuestBasket = useCallback((quantity: number) => {
+    const existingProduct = storedProducts.find((p: any) => p.id === product.id);
+
+    if (existingProduct && existingProduct.actualQuantity + quantity > product.inventory) {
+      toast({
+        title: "Quantité non disponible",
+        description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (existingProduct) {
+      increaseProductInQtBasket(product.id, quantity);
+    } else {
+      addProductToBasket({
+        ...product,
+        price: product.price,
+        discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
+        actualQuantity: quantity,
+      });
+    }
+
+    toast({
+      title: "Produit ajouté au panier",
+      description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
+      className: "bg-green-600 text-white border-green-600",
+    });
+  }, [storedProducts, product, toast, increaseProductInQtBasket, addProductToBasket]);
+
+  // Main add to basket function
+  const AddToBasket = useCallback(async (productToAdd: any, quantity: number = 1) => {
+    if (!productToAdd) return;
+
+    // Open purchase options modal
+    openPruchaseOptions(productToAdd);
+
+    // Check inventory
+    if (!checkInventory(quantity)) return;
+
+    // Create and send tracking events
+    const { addToCartData, gtmData } = createTrackingData(quantity);
+    triggerEvents("AddToCart", addToCartData);
+    sendGTMEvent(gtmData);
+
+    // Handle basket addition based on auth status
+    if (isAuthenticated) {
+      await handleAuthenticatedBasket(quantity);
+    } else {
+      handleGuestBasket(quantity);
+    }
+
+    // Update basket state
+    toggleIsUpdated();
+  }, [
+    openPruchaseOptions,
+    checkInventory,
+    createTrackingData,
+    isAuthenticated,
+    handleAuthenticatedBasket,
+    handleGuestBasket,
+    toggleIsUpdated
+  ]);
+
+  // View-specific styling with CONSISTENT HEIGHTS
+  const containerStyles = useMemo(() => {
+    const baseStyles = "relative group bg-white transition-all duration-300 ease-out";
+    const hoverStyles = "hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]";
+
+    if (view === 1) {
+      // Compact horizontal view - fixed height
+      return `${baseStyles} ${hoverStyles} h-40 md:h-48 rounded-xl overflow-hidden`;
+    }
+
+    // Full vertical view - fixed minimum height for consistency
+    return `${baseStyles} ${hoverStyles} h-full md] rounded-2xl overflow-hidden border border-gray-100`;
+  }, [view]);
+
+  const contentStyles = useMemo(() => {
+    if (view === 1) {
+      return "h-full flex flex-row items-center";
+    }
+    // Full height flex column for consistent layout
+    return "flex flex-col h-full";
+  }, [view]);
+
+  const detailsStyles = useMemo(() => {
+    if (view === 1) {
+      return "flex-1 p-4 flex flex-col justify-center";
+    }
+
+    // Use flex-1 to fill remaining space and justify-between for consistent spacing
+    return "flex-1 p-2 flex flex-col justify-between";
+  }, [view]);
+
+  // Image container styles for consistent aspect ratio
+  const imageContainerStyles = useMemo(() => {
+    if (view === 1) {
+      return "w-32 md:w-40 h-full flex-shrink-0";
+    }
+    // Fixed aspect ratio for product images
+    return "aspect-square w-full flex-shrink-0 overflow-hidden";
+  }, [view]);
 
   return (
-    <div className={`
-      relative group   transition-all duration-300
-      transform hover:scale-105  hover:shadow-lg
-      ${view === 1 ? 'h-[180px] md:h-[200px]' : '  h-full max-h-[396px]]'}
-      w-full overflow-hidden
-      bg-white
-    `}>
-      <ProductLabels product={product} />
+    <div className={containerStyles}>
+      <div className={contentStyles}>
+        {/* Product Image with consistent sizing */}
+        <div className={imageContainerStyles}>
+          <ProductLabels product={product} />
+          <ProductImage
+            product={product}
+            onAddToBasket={AddToBasket}
+            view={view}
+          />          
+        </div>
 
-      <div className={`
-          h-full w-full flex  
-          ${view === 1 ? 'flex-row items-center' : 'flex-col'}
-        `}>
-        <ProductImage
-          product={product}
-          onAddToBasket={AddToBasket}
-          view={view}
-        />
-
-        <div className={`
-        relative
-            flex-1 px-2
-            ${view !== 1 ? 'border-t border-gray-100' : ''}
-          `}>
-          <ProductName product={product} />
+        {/* Product Details with consistent layout */}
+        <div className={detailsStyles}>
           {view !== 1 ? (
-            <FullViewDetails product={product} />
+            <div className="flex flex-col flex1">
+              {/* Product Name - fixed height area */}
+              <div className="min-h-[3rem] mb-3">
+                <ProductName product={product} />
+              </div>
+
+              {/* Details section - takes remaining space */}
+              <div className="flex-1 flex flex-col justify-end">
+                <FullViewDetails
+                  product={product}
+                  onAddToBasket={AddToBasket}
+                />
+              </div>
+            </div>
           ) : (
-            <CompactViewDetails product={product} />
+            <div className="flex flex-col justify-center h-full">
+              <ProductName product={product} />
+              <div className="mt-2">
+                <CompactViewDetails
+                  product={product}
+                // onAddToBasket={AddToBasket} 
+                />
+              </div>
+            </div>
           )}
         </div>
       </div>
     </div>
   );
-});
+};
 
-export default ProductBox;
+export default React.memo(ProductBox);

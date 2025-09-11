@@ -160,11 +160,13 @@ export const useProductsInBasketStore = create<ProductsInBasketStore>()(
           quantityInBasket: state.products.length + 1,
         }));
       },
+      
       addMultipleProducts: (products: ProductData[]) => {
-        set((state) => ({
+        set(() => ({
           products: products,
         }));
       },
+      
       increaseProductInQtBasket: (productId: string, quantity: number) => {
         set((state) => {
           const updatedProducts = state.products.map((product) =>
@@ -240,7 +242,7 @@ export const useProductsInBasketStore = create<ProductsInBasketStore>()(
     }),
     {
       name: "products-in-basket",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage), 
     }
   )
 );
@@ -259,7 +261,7 @@ export const useProductComparisonStore = create<ProductComparisonState>()(
       addToComparison: (productToCompare) => {
         const currentItems = get().comparisonList;
 
-        set((state) => ({
+        set(() => ({
           comparisonList: [...currentItems, productToCompare]
         }));
       },

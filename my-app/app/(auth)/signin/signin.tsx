@@ -139,7 +139,6 @@ const Signin: React.FC = () => {
     try {
       const result: UserCredential = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
-      // Proceed with your existing sign-in logic
       SignIn({
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
       });

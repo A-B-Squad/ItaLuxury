@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, memo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 interface TimeRemaining {
   days: number;
@@ -18,7 +18,7 @@ interface DiscountProps {
   };
 }
 
-const DiscountCountDown = memo(({ discount }: DiscountProps) => {
+const DiscountCountDown = ({ discount }: DiscountProps) => {
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining>({
     days: 0,
     hours: 0,
@@ -66,7 +66,7 @@ const DiscountCountDown = memo(({ discount }: DiscountProps) => {
       minutes,
       seconds,
       isExpired: false,
-      show: days <= 2 
+      show: days <= 2
     };
   }, [discount?.dateOfEnd]);
 
@@ -94,8 +94,7 @@ const DiscountCountDown = memo(({ discount }: DiscountProps) => {
       </div>
     </div>
   );
-});
+};
 
-DiscountCountDown.displayName = 'DiscountCountDown';
+export default React.memo(DiscountCountDown);
 
-export default DiscountCountDown;

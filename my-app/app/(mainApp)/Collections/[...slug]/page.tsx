@@ -9,9 +9,12 @@ import generateCanonicalUrl from "@/app/(mainApp)/Collections/Helpers/Metadata/_
 import generateDescription from "@/app/(mainApp)/Collections/Helpers/Metadata/_generateDescription";
 import generateKeywords from "@/app/(mainApp)/Collections/Helpers/Metadata/_generateKeywords";
 import generateBreadcrumbPath from "@/app/Helpers/_generateBreadcrumbPath";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
+import { getUser } from "@/utlils/getUser";
 
 type Props = {
-  params: {};
+  params: object;
   searchParams: SearchParamsProductSearch;
 };
 
@@ -104,13 +107,14 @@ export async function generateMetadata(
 export default async function AllProductsPage({ searchParams }: Props) {
   try {
     const breadcrumbPath = await generateBreadcrumbPath(searchParams);
-
+    const cookieStore = cookies()
+    const token = cookieStore.get('Token')?.value
+    const decodedUser = token ? decodeToken(token) : null;
+    const userData = await getUser(decodedUser?.userId);
     return (
       <>
-        <div className="Breadcumb">
-          <Breadcumb Path={breadcrumbPath} />
-        </div>
-        <ProductsSection />
+        <Breadcumb Path={breadcrumbPath} />
+        <ProductsSection userData={userData} />
       </>
     );
   } catch (error) {

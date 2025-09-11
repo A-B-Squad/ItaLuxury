@@ -18,7 +18,7 @@ export const metadata: Metadata = {
       "Consultez notre politique de confidentialité pour comprendre comment nous traitons vos données personnelles.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",

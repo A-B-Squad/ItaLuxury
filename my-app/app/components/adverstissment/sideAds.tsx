@@ -61,10 +61,11 @@ const SideAds: React.FC<SideAdsProps> = ({ image, link, adsLoaded, adsPositon })
           priority={true}
           style={{ objectFit: "contain" }}
           src={image}
-          layout="fill"
+          fill={true}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           alt={`${adsPositon} promotion`}
           className="transition-transform duration-300 group-hover:scale-105"
-          onLoadingComplete={() => setImageLoaded(true)}
+          onLoad={() => setImageLoaded(true)}
         />
       </Link>
     );

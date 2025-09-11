@@ -3,37 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
-
-  // Add webpack optimization for CSS
-  webpack: (config, { dev, isServer }) => {
-    // Optimize CSS in production
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          ...config.optimization.splitChunks,
-          cacheGroups: {
-            ...config.optimization.splitChunks.cacheGroups,
-            styles: {
-              name: 'styles',
-              test: /\.(css|scss|sass)$/,
-              chunks: 'all',
-              enforce: true,
-            },
-          },
-        },
-      };
-    }
-    return config;
-  },
-
-
   async headers() {
     const developmentHosts = 'http://localhost:4000 http://localhost:4001';
     const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
 
     return [
-
       {
         source: '/sitemap.xml',
         headers: [{ key: 'Content-Type', value: 'text/xml' }],
@@ -153,7 +127,9 @@ const nextConfig = {
                 https://static.cloudflareinsights.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com;
+                https://embeddable-explorer.cdn.apollographql.com
+                https://upload-widget.cloudinary.com
+                https://api.cloudinary.com;
               style-src 'self' 'unsafe-inline'
                 https://fonts.googleapis.com
                 https://embed.tawk.to
@@ -161,14 +137,17 @@ const nextConfig = {
                 https://www.googletagmanager.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com;
+                https://embeddable-explorer.cdn.apollographql.com
+                https://upload-widget.cloudinary.com;
               img-src 'self' data: https: http: blob:
-                https://apollo-server-landing-page.cdn.apollographql.com;
+                https://apollo-server-landing-page.cdn.apollographql.com
+                https://res.cloudinary.com;
               font-src 'self' data:
                 https://fonts.gstatic.com
                 https://js.pusher.com
                 https://fonts.googleapis.com
-                https://embed.tawk.to;
+                https://embed.tawk.to
+                https://upload-widget.cloudinary.com;
               connect-src 'self' https: wss:
                 ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : productionHosts}
                 https://apis.google.com
@@ -187,9 +166,13 @@ const nextConfig = {
                 https://static.cloudflareinsights.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com;
+                https://embeddable-explorer.cdn.apollographql.com
+                https://api.cloudinary.com
+                https://upload-widget.cloudinary.com
+                https://res.cloudinary.com;
               frame-src 'self' https:
                 https://accounts.google.com
+                https://upload-widget.cloudinary.com
                 ${process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts};
               manifest-src 'self'
                 https://apollo-server-landing-page.cdn.apollographql.com;
@@ -209,7 +192,7 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), sync-xhr=(), autoplay=(), display-capture=(), encrypted-media=(), fullscreen=(), picture-in-picture=()',
+            value: 'camera=(self), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), sync-xhr=(), autoplay=(), display-capture=(), encrypted-media=(), fullscreen=(), picture-in-picture=()',
           },
         ],
       },
@@ -253,6 +236,7 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
+
   compress: true,
 };
 

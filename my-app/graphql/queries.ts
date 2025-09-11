@@ -479,23 +479,27 @@ export const GET_PACKAGES_BY_USER_ID = gql`
   }
 `;
 export const GET_PACKAGES_BY_ID = gql`
-  query PackageById($packageId: ID!) {
-    packageById(packageId: $packageId) {
-      id
-      customId
-      Checkout {
-        productInCheckout {
-          productId
-          product {
-            name
-          }
+query PackageById($packageId: ID!) {
+  packageById(packageId: $packageId) {
+    id
+    customId
+    Checkout {
+      total
+      freeDelivery
+      productInCheckout {
+        productId
+        productQuantity
+        product {
+          name
         }
-        total
       }
-      status
-      createdAt
+      total
     }
+    status
+    createdAt
   }
+}
+
 `;
 
 export const ALL_BRANDS = `

@@ -5,7 +5,6 @@ import {
   useCheckoutStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
-import { ProductData } from "@/app/types";
 import {
   Table,
   TableBody,
@@ -36,12 +35,36 @@ import {
   BASKET_QUERY,
 } from "../../../graphql/queries";
 
-
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[];
+  quantity: number;
+  basketId: string;
+  productDiscounts: {
+    newPrice: number;
+    price: number;
+  }[];
+  categories: {
+    name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
+  }[];
+  [key: string]: any;
+}
 
 const Basket = ({ userData, companyData }: any) => {
   const { decodedToken, isAuthenticated } = useAuth();
 
-  const [products, setProducts] = useState<ProductData[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
   const {
@@ -110,8 +133,6 @@ const Basket = ({ userData, companyData }: any) => {
 
 
 
-
-
   const handleQuantityChange = useCallback(
     (productId: string, change: number) => {
 
@@ -171,7 +192,7 @@ const Basket = ({ userData, companyData }: any) => {
         increaseProductInQtBasket(productId, 1);
       }
     },
-    [decodedToken, increaseQuantity, handleQuantityChange]
+    [decodedToken, increaseQuantity, handleQuantityChange,increaseProductInQtBasket,toggleIsUpdated]
   );
 
   const handleDecreaseQuantity = useCallback(
@@ -250,12 +271,12 @@ const Basket = ({ userData, companyData }: any) => {
             <div className="w-24 h-24 relative">
               <Image
                 alt={product.name}
-                loading="lazy"
                 src={
                   product.images?.[0] ||
                   "https://via.placeholder.com/150"
                 }
-                layout="fill"
+                fill={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 style={{ objectFit: "contain" }}
               />
             </div>
@@ -413,11 +434,11 @@ const Basket = ({ userData, companyData }: any) => {
                     }))
                   },
                   user_data: {
-                    em: [userData.email.toLowerCase()],
-                    fn: [userData.fullName],
+                    em: [userData?.email.toLowerCase()],
+                    fn: [userData?.fullName],
                     ph: [userData?.number],
                     country: ["tn"],
-                    external_id: userData.id
+                    external_id: userData?.id
                   },
                   facebook_data: {
                     content_name: "InitiateCheckout",
@@ -437,8 +458,8 @@ const Basket = ({ userData, companyData }: any) => {
                 });
                 triggerEvents("InitiateCheckout", {
                   user_data: {
-                    em: [userData.email.toLowerCase()],
-                    fn: [userData.fullName],
+                    em: [userData?.email.toLowerCase()],
+                    fn: [userData?.fullName],
                     ph: [userData?.number],
                     country: ["tn"],
                     external_id: userData.id,

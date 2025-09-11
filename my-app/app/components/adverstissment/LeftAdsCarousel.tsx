@@ -82,7 +82,6 @@ const LeftAdsCarousel: React.FC<LeftAdsCarouselProps> = ({
             ></div>
 
             <Image
-              layout="responsive"
               width={455}
               height={230}
               src={image}
@@ -91,7 +90,7 @@ const LeftAdsCarousel: React.FC<LeftAdsCarouselProps> = ({
               alt={`Promotion banner ${index + 1}`}
               style={{ objectFit: "cover" }}
               className="transition-transform duration-700 group-hover:scale-110"
-              onLoadingComplete={() => handleImageLoad(index)}
+              onLoad={() => handleImageLoad(index)}
             />
 
             {/* Optional: Add a subtle call to action on hover */}

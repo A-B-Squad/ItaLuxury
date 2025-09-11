@@ -69,7 +69,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
       <div className="w-full max-w-3xl">
         <div className="text-center mb-6">
           <Image
-            src="/images/logos/LOGO.jpg"
+            src="/images/logos/LOGO.png"
             alt="ITA Luxury Logo"
             width={120}
             height={60}

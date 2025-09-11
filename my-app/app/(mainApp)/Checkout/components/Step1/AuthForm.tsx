@@ -127,7 +127,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           },
         });
       }
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Authentication Error",
         description: "An error occurred during authentication",
@@ -173,13 +173,12 @@ const AuthForm: React.FC<AuthFormProps> = ({
           window.location.reload();
         },
         onError: (error) => {
-          console.log(error);
           setErrorMessage(
             `Error logging in with ${provider === googleProvider ? "Google" : "Facebook"}`,
           );
         },
       });
-    } catch (error) {
+    } catch (err) {
       setErrorMessage(
         `Failed to login with ${provider === googleProvider ? "Google" : "Facebook"}.`,
       );

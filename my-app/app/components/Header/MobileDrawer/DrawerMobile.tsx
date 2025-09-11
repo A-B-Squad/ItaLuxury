@@ -144,9 +144,10 @@ function DrawerMobile({ userData }: any) {
       onClose={closeCategoryDrawer}
       placement="left"
       size={350}
-      className="2xl:hidden overflow-y-auto"
+      className="2xl:hidden overflow-y-auto pb-24 z-[99999999]"
       onPointerEnterCapture={undefined}
       onPointerLeaveCapture={undefined}
+      
     >
       <div className="px-2 py-3 flex items-center justify-between text-white bg-primaryColor">
         <Link
@@ -218,18 +219,20 @@ function DrawerMobile({ userData }: any) {
       </div>
 
       {/* Categories */}
-      {data?.categories?.length > 0 ? (
-        <Category
-          data={data}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-          closeCategoryDrawer={closeCategoryDrawer}
-        />
-      ) : (
-        <p className="px-7 py-4 text-gray-600">
-          Aucune catégorie disponible pour le moment. Veuillez revenir plus tard !
-        </p>
-      )}
+      {
+        data?.categories?.length > 0 ? (
+          <Category
+            data={data}
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+            closeCategoryDrawer={closeCategoryDrawer}
+          />
+        ) : (
+          <p className="px-7 py-4 text-gray-600">
+            Aucune catégorie disponible pour le moment. Veuillez revenir plus tard !
+          </p>
+        )
+      }
 
       {/* View all products link */}
       <div
@@ -244,7 +247,7 @@ function DrawerMobile({ userData }: any) {
         </Link>
         <MdKeyboardArrowRight size={20} />
       </div>
-    </Drawer>
+    </Drawer >
   );
 }
 

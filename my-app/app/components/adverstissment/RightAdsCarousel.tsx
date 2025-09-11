@@ -41,7 +41,6 @@ const RightAdsCarousel = ({
             href={AdsNextToCarousel[0]?.link}
           >
             <Image
-              layout="responsive"
               width={360}
               height={208}
               style={{ objectFit: "contain" }}
@@ -57,7 +56,6 @@ const RightAdsCarousel = ({
             href={AdsNextToCarousel[1]?.link}
           >
             <Image
-              layout="responsive"
               width={360}
               height={208}
               src={images[1]}

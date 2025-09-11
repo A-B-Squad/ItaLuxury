@@ -27,7 +27,7 @@ export const metadata: Metadata = {
       "Finalisez votre achat en ligne avec ita-luxury. Profitez des meilleures offres et promotions sur nos produits de qualité en Tunisie.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -45,7 +45,7 @@ const AccountPage = async () => {
   const token = cookieStore.get('Token')?.value
   const decodedUser = token ? decodeToken(token) : null;
   const userData = await getUser(decodedUser?.userId);
-  return <Account userData={userData}/>;
+  return <Account userData={userData} />;
 };
 
 export default AccountPage;

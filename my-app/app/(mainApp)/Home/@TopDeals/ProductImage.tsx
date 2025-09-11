@@ -53,15 +53,15 @@ const ProductImage = ({ product }: { product: any }) => {
           <div className="absolute inset-0 bg-gray-100 animate-pulse"></div>
         )}
 
-        <div className="h-full w-full transform transition-transform duration-300 hover:scale-105">
+        <div className="h-full w-full transform relative transition-transform duration-300 hover:scale-105">
           <Image
-            layout="fill"
+            fill={true}
             style={{ objectFit: "contain" }}
             className={`h-full w-full transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"
               }`}
             src={imageUrl}
             alt={product?.name || "Product image"}
-            onLoadingComplete={() => setIsLoading(false)}
+            onLoad={() => setIsLoading(false)}
             onError={() => {
               setImageError(true);
               setIsLoading(false);

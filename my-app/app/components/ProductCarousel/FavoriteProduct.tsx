@@ -1,4 +1,5 @@
 import { useAuth } from "@/app/hooks/useAuth";
+import { ProductData } from "@/app/types";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_DELETE_PRODUCT_FAVORITE_MUTATION } from "@/graphql/mutations";
 import { GET_FAVORITE_STATUS } from "@/graphql/queries";
@@ -39,7 +40,7 @@ const FavoriteProduct = ({
     if (favoriteData && favoriteData.favoriteProducts.length > 0) {
       if (
         favoriteData.favoriteProducts.some(
-          (fav: any) => fav.productId === productId,
+          (fav: ProductData) => fav.productId === productId,
         )
       ) {
         setIsFavorite(true);
@@ -49,7 +50,7 @@ const FavoriteProduct = ({
     } else {
       setIsFavorite(false);
     }
-  }, [favoriteData]);
+  }, [favoriteData, productId]);
 
   const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
 

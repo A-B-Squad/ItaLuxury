@@ -130,7 +130,8 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
                   <Image
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
-                    layout="fill"
+                    fill={true}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{ objectFit: "cover" }}
                     className={`transition-opacity duration-200 ${selectedImage === index
                       ? 'opacity-100'
@@ -164,7 +165,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
             <Image
               src={validImages[selectedImage]}
               alt={`Product image ${selectedImage + 1}`}
-              layout="fill"
+              fill={true}
               style={{ objectFit: "contain" }}
               className="w-full h-full"
               priority

@@ -21,7 +21,7 @@ import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
 import { motion } from "framer-motion";
 
-const TopSalesProductBox = memo(({ product, userData }: any) => {
+const TopSalesProductBox = ({ product, userData }: any) => {
   const { toast } = useToast();
   const { decodedToken, isAuthenticated } = useAuth();
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
@@ -178,10 +178,10 @@ const TopSalesProductBox = memo(({ product, userData }: any) => {
           <Image
             src={product.images[0]}
             alt={product.name}
-            layout="fill"
+            fill={true}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             style={{ objectFit: "contain" }}
             className="transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
           />
 
           <motion.div
@@ -270,14 +270,12 @@ const TopSalesProductBox = memo(({ product, userData }: any) => {
           heartSize={20}
           heartColor={"gray"}
           productId={product?.id}
-          userId={decodedToken?.userId}
           productName={product?.name}
         />
       </div>
     </motion.div>
   );
-});
+};
 
-TopSalesProductBox.displayName = 'TopSalesProductBox';
+export default React.memo(TopSalesProductBox);
 
-export default TopSalesProductBox;

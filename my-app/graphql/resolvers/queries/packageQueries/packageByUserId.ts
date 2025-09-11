@@ -13,7 +13,11 @@ export const packageByUserId = async (
           include: {
             productInCheckout: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    productDiscounts: true
+                  },
+                },
               },
             },
             User: true,

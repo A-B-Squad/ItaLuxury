@@ -5,89 +5,149 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import ProductBox from "../ProductBox/ProductBox";
 import NoProductYet from "./NoProductYet";
 import { ProductData } from "@/app/types";
 
-
-
 interface ProductTabsProps {
   data: ProductData[];
   loadingProduct: boolean;
+  userData: any;
+  className?: string;
+  title?: string;
+  itemsPerSlide?: number;
 }
 
-const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
 
 
-  // Always call useMemo regardless of conditions to maintain hook order
-  const productPairs = useMemo(() => {
+const ProductTabs: React.FC<ProductTabsProps> = ({
+  data,
+  userData,
+  className,
+  title,
+  itemsPerSlide = 2
+}) => {
+
+  // Memoized product grouping based on itemsPerSlide
+  const productGroups = useMemo(() => {
     if (!data || data.length === 0) return [];
 
-    const pairs: ProductData[][] = [];
-    for (let i = 0; i < data.length; i += 2) {
-      pairs.push(data.slice(i, i + 2));
+    const groups: ProductData[][] = [];
+    for (let i = 0; i < data.length; i += itemsPerSlide) {
+      groups.push(data.slice(i, i + itemsPerSlide));
     }
-    return pairs;
-  }, [data]);
+    return groups;
+  }, [data, itemsPerSlide]);
 
-  // Early return after all hooks are called
-  if (!data || data.length === 0 || loadingProduct) {
+  // Responsive grid classes
+  const gridClasses = useMemo(() => {
+    const baseClasses = "grid gap-4 md:gap-6 w-full";
+    switch (itemsPerSlide) {
+      case 1:
+        return `${baseClasses} grid-cols-1`;
+      case 2:
+        return `${baseClasses}  grid-cols-2 md:grid-cols-3 lg:grid-cols-4`;
+      case 3:
+        return `${baseClasses} grid-cols-2 md:grid-cols-3`;
+      case 4:
+      default:
+        return `${baseClasses} grid-cols-2 md:grid-cols-3 lg:grid-cols-4`;
+    }
+  }, [itemsPerSlide]);
+
+  // Memoized carousel configuration
+  const carouselOptions = useMemo(() => ({
+    align: "start" as const,
+    containScroll: "trimSnaps" as const,
+    dragFree: true,
+    skipSnaps: false,
+  }), []);
+
+  // Handle product rendering for carousel items
+  const renderCarouselProducts = useCallback((products: ProductData[], groupIndex: number) => (
+    <div className="flex flex-col gap-4 md:gap-6 h-full">
+      {products.map((product, productIndex) => (
+        <div
+          key={`${product.id}-${groupIndex}-${productIndex}`}
+          className="bg-white rounded-2xl overflow-hidden border border-gray-100 
+                    hover:border-gray-200 hover:shadow-lg transition-all duration-300 
+                    hover:-translate-y-1 group"
+        >
+          <ProductBox userData={userData} product={product} />
+        </div>
+      ))}
+    </div>
+  ), [userData]);
+
+  // Handle static grid products
+  const renderGridProducts = useCallback(() => (
+    <div className={gridClasses}>
+      {data.map((product) => (
+        <div
+          key={product.id}
+          className="bg-white rounded-2xl overflow-hidden border border-gray-100 
+                     hover:border-gray-200 hover:shadow-lg transition-all duration-300 
+                     hover:-translate-y-1 group"
+        >
+          <ProductBox userData={userData} product={product} />
+        </div>
+      ))}
+    </div>
+  ), [data, userData, gridClasses]);
+
+
+
+  if (!data || data.length === 0) {
     return <NoProductYet />;
   }
 
-  // Static grid for 4 or fewer products
-  if (data.length <= 4) {
+  // Static grid for small datasets
+  const shouldUseCarousel = data.length > 8 || (data.length > 4 && itemsPerSlide === 2);
+
+  if (!shouldUseCarousel) {
     return (
-      <div className="w-full">
-        <div className="grid grid-cols-2 gap-4 h-full md:grid-cols-3 lg:grid-cols-4">
-          {data.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg">
-              <ProductBox product={product} />
-            </div>
-          ))}
-        </div>
+      <div className="w-full space-y-6">
+        {title && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          </div>
+        )}
+        {renderGridProducts()}
       </div>
     );
   }
 
-
+  // Carousel layout for larger datasets
   return (
-    <div className="ProductTabs relative w-full">
+    <div className="w-full space-y-6">
+      {title && (
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <div className="flex items-center gap-2">
+            <CarouselPrevious className="relative h-10 w-10 rounded-full border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md" />
+            <CarouselNext className="relative h-10 w-10 rounded-full border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md" />
+          </div>
+        </div>
+      )}
+
       <Carousel
-        className="w-full"
-        opts={{
-          align: "start",
-          containScroll: "trimSnaps"
-        }}
+        className={`w-full ${className}`}
+        opts={carouselOptions}
       >
-        <div className="flex items-center justify-end gap-2 absolute -top-16 md:-top-9 xl:-top-16 right-0">
-          <CarouselPrevious
-            className="relative h-9 w-9 rounded-full border bg-white 
-                        shadow-sm hover:bg-gray-50 transition-colors"
-          />
-          <CarouselNext
-            className="relative h-9 w-9 rounded-full border bg-white 
-                        shadow-sm hover:bg-gray-50 transition-colors"
-          />
+        <div className="flex items-center justify-end gap-2 absolute -top-12 right-0 z-10">
+          <CarouselPrevious className="relative h-10 w-10 rounded-full border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md" />
+          <CarouselNext className="relative h-10 w-10 rounded-full border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md" />
         </div>
 
-        <CarouselContent className="-ml-4">
-          {productPairs.map((pair, index) => (
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {productGroups.map((productGroup, groupIndex) => (
             <CarouselItem
-              key={index}
-              className="pl-3 basis-1/2 md:basis-1/3 lg:basis-1/4"
+              key={`group-${groupIndex}`}
+
+              className={`pl-2 md:pl-4  basis-1/2 md:basis-1/3 lg:basis-1/4 ${className}`}
             >
-              <div className="flex flex-col gap-4">
-                {pair.map((product, productIndex) => (
-                  <div
-                    key={`${product.id}-${productIndex}`}
-                    className="h-full max-h-[396px] w-full bgwhite rounded-lg"
-                  >
-                    <ProductBox product={product} />
-                  </div>
-                ))}
-              </div>
+              {renderCarouselProducts(productGroup, groupIndex)}
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -96,4 +156,20 @@ const ProductTabs: React.FC<ProductTabsProps> = ({ data, loadingProduct }) => {
   );
 };
 
-export default React.memo(ProductTabs);
+// Enhanced memo comparison for better performance
+const areEqual = (prevProps: ProductTabsProps, nextProps: ProductTabsProps) => {
+  return (
+    prevProps.loadingProduct === nextProps.loadingProduct &&
+    prevProps.data?.length === nextProps.data?.length &&
+    prevProps.userData?.id === nextProps.userData?.id &&
+    prevProps.className === nextProps.className &&
+    prevProps.title === nextProps.title &&
+    prevProps.itemsPerSlide === nextProps.itemsPerSlide &&
+    (prevProps.data?.length === 0 ||
+      prevProps.data?.every((product, index) =>
+        product.id === nextProps.data?.[index]?.id
+      ))
+  );
+};
+
+export default React.memo(ProductTabs, areEqual);

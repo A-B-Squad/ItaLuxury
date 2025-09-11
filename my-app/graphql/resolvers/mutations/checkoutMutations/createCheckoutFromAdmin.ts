@@ -138,7 +138,7 @@ async function tryToSendCheckoutEmail(
 
   // Logo and other image paths - using images from public folder
   const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
-  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.png`;
+  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.webp`;
 
   const totals = calculateTotals(checkout, deliveryPrice);
 

@@ -3,8 +3,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "../../../components/ui/carousel";
 import React from "react";
 import { IoImageOutline } from "react-icons/io5";
@@ -14,7 +12,7 @@ const Loading = () => {
     <div className="flex overflow-hidden w-full ">
       <Carousel className="carousel w-full flex items-center transition-all duration-500 ease-in-out">
         <CarouselContent className="h-full gap-5 px-3 ">
-          {[0, 1, 2, 3, 4].map((product: any, index: any) => (
+          {[0, 1, 2, 3, 4].map((_: unknown, index: number) => (
             <CarouselItem
               key={index}
               className="carousel-item  transition-all relative pb-3 flex overflow-hidden flex-col justify-between items-center border shadow-xl basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"

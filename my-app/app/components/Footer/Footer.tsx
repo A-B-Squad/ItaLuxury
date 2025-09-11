@@ -95,16 +95,7 @@ const Footer = ({ companyData }: any) => {
       </div>
       {/* Laptop View */}
       <div className=" w-full hidden lg:grid max-w-7xl lg:grid-cols-6 place-content-center gap-4 border-t pt-8">
-        {/* Scroll to top button */}
-        <div className="lg:col-span-6 flex justify-center mb-4">
-          <button
-            onClick={scrollToTop}
-            className="p-3 rounded-full bg-primaryColor text-white shadow-lg hover:bg-opacity-90 transition-all duration-300 flex items-center gap-2"
-            aria-label="Scroll to top"
-          >
-            <FaArrowUp /> <span>Retour en haut</span>
-          </button>
-        </div>
+
 
         {/* Full width map for laptop view */}
         {/* <div className="lg:col-span-6 mb-6">
@@ -116,7 +107,6 @@ const Footer = ({ companyData }: any) => {
               height="100%"
               style={{ border: 0 }}
               allowFullScreen={false}
-              loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Boutique Ita Sousse Location"
             ></iframe>
@@ -257,16 +247,7 @@ const Footer = ({ companyData }: any) => {
 
       {/* Mobile accordion */}
       <div className="flex flex-col lg:hidden w-full px-5 mt-4">
-        {/* Mobile scroll to top button */}
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={scrollToTop}
-            className="p-2 rounded-full bg-primaryColor text-white shadow-lg hover:bg-opacity-90 transition-all duration-300 flex items-center gap-2"
-            aria-label="Scroll to top"
-          >
-            <FaArrowUp /> <span>Retour en haut</span>
-          </button>
-        </div>
+       
 
         {/* Mobile map section - shown directly before accordion */}
         {/* <div className="mb-6">
@@ -278,7 +259,6 @@ const Footer = ({ companyData }: any) => {
               height="100%"
               style={{ border: 0 }}
               allowFullScreen={false}
-              loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Boutique Ita Sousse Location"
             ></iframe>

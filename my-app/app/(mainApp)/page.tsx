@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
       "Découvrez notre sélection de produits de qualité et nos offres exclusives. Livraison rapide partout en Tunisie.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function HomePage  () {
+export default async function HomePage() {
   const cookieStore = cookies()
   const token = cookieStore.get('Token')?.value
   const decodedUser = token ? decodeToken(token) : null;
@@ -68,7 +68,7 @@ export default async function HomePage  () {
           "@type": "Organization",
           name: "ita-luxury",
           url: "https://www.ita-luxury.com",
-          logo: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+          logo: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
           sameAs: [
             "https://www.facebook.com/itaaluxury",
             "https://www.instagram.com/ita_luxury/",

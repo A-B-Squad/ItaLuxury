@@ -26,9 +26,32 @@ import { RiSubtractLine } from "react-icons/ri";
 import { FaArrowRight } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
 import { motion } from "framer-motion";
-import { ProductData } from '../types/product';
 
-
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  inventory: number;
+  images: string[];
+  quantity: number;
+  basketId: string;
+  productDiscounts: {
+    newPrice: number;
+  }[];
+  categories: {
+    name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
+  }[];
+  [key: string]: any;
+}
 const BasketDrawer = ({ userData }: any) => {
   const { toast } = useToast();
   const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore();
@@ -80,7 +103,7 @@ const BasketDrawer = ({ userData }: any) => {
 
   // Calculate total price
   const totalPrice = useMemo(() => {
-    return productsInBasket.reduce((acc: number, curr: ProductData) => {
+    return productsInBasket.reduce((acc: number, curr: Product) => {
       const price = curr.productDiscounts?.length
         ? curr.productDiscounts[0].newPrice
         : curr.price;
@@ -270,7 +293,7 @@ const BasketDrawer = ({ userData }: any) => {
   // Render product list
   const renderProductList = () => (
     <ul role="list" className="divide-y divide-gray-200">
-      {productsInBasket.map((product: ProductData, index: number) => (
+      {productsInBasket.map((product: Product, index: number) => (
         <motion.li
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -290,8 +313,9 @@ const BasketDrawer = ({ userData }: any) => {
             className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-50 group"
           >
             <Image
-              layout="fill"
+              fill={true}
               style={{ objectFit: "contain" }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               src={
                 (product.images &&
                   product.images.length > 0 &&
@@ -425,12 +449,12 @@ const BasketDrawer = ({ userData }: any) => {
       open={isOpen}
       onClose={closeBasketDrawer}
       overlay={true}
-      className="p-4 h-full z-[9999]"
+      className="p-4 h-full z-[999991]"
       size={400}
       overlayProps={{ className: "fixed inset-0 bg-black/50 z-[9998]" }}
       placeholder={""}
-      onPointerEnterCapture={""}
-      onPointerLeaveCapture={""}
+      onPointerEnterCapture={undefined}
+      onPointerLeaveCapture={undefined}
     >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between pb-4 border-b">
@@ -438,8 +462,8 @@ const BasketDrawer = ({ userData }: any) => {
             variant="h5"
             className="font-medium text-gray-900"
             placeholder={""}
-            onPointerEnterCapture={""}
-            onPointerLeaveCapture={""}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           >
             Mon Panier ({productsInBasket.length})
           </Typography>
@@ -449,8 +473,8 @@ const BasketDrawer = ({ userData }: any) => {
             onClick={closeBasketDrawer}
             className="rounded-full hover:bg-gray-100"
             placeholder={""}
-            onPointerEnterCapture={""}
-            onPointerLeaveCapture={""}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

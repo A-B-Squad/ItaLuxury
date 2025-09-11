@@ -55,6 +55,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   const [selectedFilterQueries, setSelectedFilterQueries] =
     useState<FilterQueries>({});
   const [localPrice, setLocalPrice] = useState<number>(500);
+
   // Initialize filters and price from URL parameters
   useEffect(() => {
     const paramsObj = convertStringToQueriesObject(searchParams);
@@ -75,17 +76,16 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   }, []);
 
   // Helper function to build query string
-  // This function handles different formatting for color, choice, and brand vs other filters
   const buildQueryString = (queries: FilterQueries): string => {
     return Object.entries(queries)
-      .filter(([_, values]) => values.length > 0) // Filter out empty arrays
+      .filter(([_, values]) => values.length > 0)
       .map(
         ([key, values]) =>
           key === "color" || key === "choice" || key === "brand"
             ? values
               .map((value) => `${key}=${encodeURIComponent(value)}`)
-              .join("&") // Handle special cases
-            : `${key}=${values.map(encodeURIComponent).join(",")}` // Handle general cases
+              .join("&")
+            : `${key}=${values.map(encodeURIComponent).join(",")}`
       )
       .join("&");
   };
@@ -137,8 +137,9 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       router.push(newUrl, { scroll: true });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar, buildQueryString]
+    [selectedFilterQueries, router, toggleOpenSidebar,]
   );
+
   const handleColorSelection = useCallback(
     (colorName: string) => {
       const updatedQueries = { ...selectedFilterQueries, color: [colorName] };
@@ -180,6 +181,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       className: "bg-primaryColor text-white",
     });
   }, [router, toggleOpenSidebar, toast]);
+
   const handleCategoryClick = useCallback(
     (categoryId: string) => {
       const updatedQueries = {
@@ -383,6 +385,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       )
       : brands;
   }, [brands, selectedFilterQueries.category]);
+
   const BrandFilters = memo(() => {
     return (
       <div className="border-b pl-5 border-gray-200 py-6">
@@ -447,32 +450,32 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
     <>
       {isMobile ? (
         <Drawer
-          placeholder={""}
-          onPointerEnterCapture={""}
-          onPointerLeaveCapture={""}
+          placeholder={undefined}
           open={isOpenSideBard}
           onClose={toggleOpenSidebar}
           size={300}
-          className="p-4 flex flex-col h-full z-[99999]"
+          className="p-4 flex top-0 flex-col h-full pb-28 pt-10 z-[9999]"
           overlayProps={{ className: "bg-black/50" }}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
         >
           <div className="mb-6 flex items-center justify-between">
             <Typography
-              placeholder={""}
-              onPointerEnterCapture={""}
-              onPointerLeaveCapture={""}
+              placeholder={undefined}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
               variant="h5"
               color="blue-gray"
             >
               FILTRER
             </Typography>
             <IconButton
-              placeholder={""}
-              onPointerEnterCapture={""}
-              onPointerLeaveCapture={""}
+              placeholder={undefined}
               variant="text"
               color="blue-gray"
               onClick={toggleOpenSidebar}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
             >
               <IoIosClose size={24} />
             </IconButton>

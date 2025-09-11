@@ -46,8 +46,8 @@ const AdsCarousel: React.FC<AdsCarouselProps> = ({
   return (
     <div className="relative w-full rounded-2xl overflow-hidden shadow-lg group">
       <Carousel
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
+        onPointerEnterCapture={undefined}
+        onPointerLeaveCapture={undefined}
         autoplay
         loop
         autoplayDelay={5000}

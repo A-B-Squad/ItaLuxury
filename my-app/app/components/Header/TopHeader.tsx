@@ -76,6 +76,8 @@ const TopHeader = ({ userData }: any) => {
     fetchPolicy: "network-only",
   });
 
+
+  
   const updateBasketQuantity = useCallback(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       const basketProducts = basketData.basketByUserId.map((item: any) => ({
@@ -306,10 +308,11 @@ const TopHeader = ({ userData }: any) => {
           <div className="relative w-full h-full">
             <Image
               src={"/images/logos/LOGO.png"}
+              width={150}
+              height={150}
               style={{ objectFit: "contain" }}
               quality={100}
               priority={true}
-              fill
               alt="ita-luxury"
               className="transition-transform duration-300 transform-gpu hover:scale-[1.02]"
             />

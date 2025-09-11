@@ -87,7 +87,8 @@ const CenterAds: React.FC = () => {
             rel="noopener noreferrer"
           >
             <Image
-              layout="fill"
+              fill={true}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               style={{ objectFit: "contain" }}
               quality={100}
               priority

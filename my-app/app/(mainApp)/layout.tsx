@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     description: "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits.",
     images: [
       {
-        url: `${baseUrl}/images/logos/LOGO.jpg`,
+        url: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne de confiance en Tunisie",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vente en ligne en Tunisie | ita-luxury",
     description: "Découvrez nos offres exclusives et produits de qualité avec livraison rapide partout en Tunisie.",
-    images: [`${baseUrl}/images/logos/LOGO.jpg`],
+    images: [`${baseUrl}/images/logos/LOGO-WHITE-BG.webp`],
     creator: "@ita_luxury",
     site: "@ita_luxury",
   },
@@ -92,12 +92,12 @@ const combinedSchema = [
     logo: {
       "@type": "ImageObject",
       "@id": `${baseUrl}/#logo`,
-      url: `${baseUrl}/images/logos/LOGO.jpg`,
+      url: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
       width: 500,
       height: 500,
       caption: "Logo ita-luxury",
     },
-    image: `${baseUrl}/images/logos/LOGO.jpg`,
+    image: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
     description: "Boutique en ligne de confiance en Tunisie proposant des produits de qualité avec livraison rapide dans tout le pays.",
 
     address: {
@@ -119,7 +119,7 @@ const combinedSchema = [
         hoursAvailable: [
           {
             "@type": "OpeningHoursSpecification",
-            dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], // ✅ corrigé
+            dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             opens: "09:00",
             closes: "21:00",
             validFrom: "2025-01-01",

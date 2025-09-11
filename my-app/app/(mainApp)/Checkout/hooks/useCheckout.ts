@@ -30,19 +30,23 @@ export const useCheckout = (
 
     const [createCheckoutMutation, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
 
+
+
+
+
+
+
     const createCheckout = (checkoutInput: any, extra: ExtraCheckoutProps) => {
         createCheckoutMutation({
             variables: { input: checkoutInput },
             refetchQueries: [
-                {
-                    query: BASKET_QUERY,
-                    variables: { userId: decodedToken?.userId },
-                },
-            ],
+                ...(decodedToken?.userId
+                    ? [{ query: BASKET_QUERY, variables: { userId: decodedToken.userId } }]
+                    : []
+                )],
             onCompleted: async (data) => {
                 const customOrderId = data.createCheckout.customId;
                 clearBasket();
-
                 const finalValue = Number(extra.calculateTotal());
                 const totalItems = checkoutProducts.reduce(
                     (sum, product) => sum + (product?.actualQuantity || product?.quantity || 0),

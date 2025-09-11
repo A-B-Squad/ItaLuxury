@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     description: "Réinitialisez votre mot de passe sur ita-luxury pour continuer vos achats en toute sécurité.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || "https://www.ita-luxury.com"}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || "https://www.ita-luxury.com"}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",

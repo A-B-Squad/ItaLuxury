@@ -466,7 +466,7 @@ type Query {
   allDeals: [TopDeals!]!
   allGovernorate: [Governorate!]!
   advertismentByPosition(position: String!): [Advertisement!]!
-  packageById(packageId: ID!): Package!
+  packageById(packageId: ID!): Package
   packageByUserId(userId: ID!): [Package!]!
   getAllPackages(page: Int, pageSize: Int, searchTerm: String, dateFrom: String, dateTo: String, statusFilter: [String]): PackagePaginationResult!
   companyInfo: CompanyInfo!

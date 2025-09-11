@@ -37,10 +37,10 @@ enum Cause {
 }
 
 enum PointType {
-  EARNED // Points earned from purchases (5% of total)
-  EXPIRED // Points that have expired
-  ADJUSTMENT // Manual adjustments
-  ADMIN_ADDED // Points manually added by admin
+  EARNED 
+  EXPIRED 
+  ADJUSTMENT
+  ADMIN_ADDED 
 }
 
 model User {

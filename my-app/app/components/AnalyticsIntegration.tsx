@@ -41,7 +41,7 @@ const AnalyticsIntegration = () => {
             });
             
             beamsClient.start()
-              .then(() => beamsClient.addDeviceInterest('hello'))
+              .then(() => beamsClient.addDeviceInterest('client'))
               .then(() => beamsClient.getDeviceInterests())
               .then((interests) => console.log("Current interests:", interests))
               .catch((error) => console.error("Pusher Beams error:", error));

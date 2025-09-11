@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Connexion",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: "Connexion à votre compte | ita-luxury",
     description:
       "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
-    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO.jpg`],
+    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`],
   },
   alternates: {
     canonical: "https://www.ita-luxury.com/signin",
