@@ -3,27 +3,25 @@ import { gql } from "@apollo/client";
 export const SIGNIN_MUTATION = gql`
   mutation SignIn($input: SignInInput!) {
     signIn(input: $input) {
+      userId
       token
-      user {
-        fullName
-        email
-      }
     }
   }
 `;
+export const REFRESH_TOKEN_MUTATION = gql`
+  mutation RefreshToken($Token: String!) {
+    refreshToken(Token: $Token)
+  }
+`;
 export const CONTACT_US_MUTATION = gql`
-mutation CreateContactUs($input: ContactUsInput!) {
-  createContactUs(input: $input)
-}
+  mutation CreateContactUs($input: ContactUsInput!) {
+    createContactUs(input: $input)
+  }
 `;
 export const SIGNUP_MUTATION = gql`
   mutation SignUp($input: SignUpInput!) {
     signUp(input: $input) {
-      user {
-        id
-        fullName
-        email
-      }
+      userId
       token
     }
   }
@@ -39,9 +37,9 @@ export const ADD_TO_BASKET_MUTATION = gql`
   }
 `;
 export const ADD_MULTIPLE_TO_BASKET_MUTATION = gql`
-mutation Mutation($input: AddMultipleToBasketInput!) {
-  addMultipleToBasket(input: $input)
-}
+  mutation Mutation($input: AddMultipleToBasketInput!) {
+    addMultipleToBasket(input: $input)
+  }
 `;
 
 export const ADD_TO_FAVORITE_MUTATION = gql`
@@ -54,9 +52,15 @@ export const ADD_TO_FAVORITE_MUTATION = gql`
   }
 `;
 
-export const ADD_RATING_MUTATION = gql`
-  mutation AddRating($productId: ID!, $userId: ID!, $rating: Int!) {
-    addRating(productId: $productId, userId: $userId, rating: $rating)
+export const ADD_REVIEWS_MUTATION = gql`
+  mutation AddReview($productId: ID!, $userId: ID, $rating: Int!, $comment: String, $userName: String) {
+    AddReview(input: {
+      productId: $productId, 
+      userId: $userId, 
+      rating: $rating,
+      comment: $comment,
+      userName: $userName
+    })
   }
 `;
 export const DELETE_BASKET_BY_ID_MUTATION = gql`
@@ -85,10 +89,28 @@ export const DECREASE_QUANTITY_MUTATION = gql`
     }
   }
 `;
-export const CREATE_CHECKOUT_MUTATION = gql`
- mutation CreateCheckout($input: CreateCheckoutInput!) {
-  createCheckout(input: $input)
+
+export const ADD_DELETE_PRODUCT_FAVORITE_MUTATION = gql`
+mutation AddDeleteProductToFavorite($input: AddDeleteProductToFavoriteInput!) {
+  addDeleteProductToFavorite(input: $input)
 }
+`;
+export const UPDATE_STATUS_PAYMENT_ONLINE_MUTATION = gql`
+  mutation UpdateStatusPayOnlinePackage($packageId: ID!, $paymentStatus: Status) {
+    updateStatusPayOnlinePackage(
+      packageId: $packageId
+      paymentStatus: $paymentStatus
+    )
+  }
+`;
+
+export const CREATE_CHECKOUT_MUTATION = gql`
+  mutation CreateCheckout($input: CreateCheckoutInput!) {
+    createCheckout(input: $input) {
+      customId
+      orderId
+    }
+  }
 `;
 
 export const FORGOT_PASSWORD_MUTATION = gql`
@@ -100,5 +122,17 @@ export const FORGOT_PASSWORD_MUTATION = gql`
 export const RESET_PASSWORD_MUTATION = gql`
   mutation ResetPassword($password: String, $resetPasswordId: String) {
     resetPassword(password: $password, id: $resetPasswordId)
+  }
+`;
+
+export const CREATE_POINT_TRANSACTION = gql`
+  mutation CreatePointTransaction($input: PointTransactionInput!) {
+    createPointTransaction(input: $input) {
+      id
+      amount
+      type
+      description
+      createdAt
+    }
   }
 `;

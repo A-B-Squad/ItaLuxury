@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const productsByCategory = async (
   _: any,
@@ -30,7 +30,6 @@ export const productsByCategory = async (
         reviews: true,
         favoriteProducts: true,
         Colors: true,
-        attributes: true,
         Brand: true,
       },
       take: takeValue,

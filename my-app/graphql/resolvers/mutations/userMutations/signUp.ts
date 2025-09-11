@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
-import { Context } from "../../../../pages/api/graphql";
+import { Context } from "@apollo/client";
 
 function generateProfessionalId(length: number) {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -20,11 +19,19 @@ export const signUp = async (
   const { fullName, email, password, number } = input;
 
   // Check if the email is already in use
-  const existingUser = await prisma.user.findUnique({
+  const existingUserByEmail = await prisma.user.findUnique({
     where: { email },
   });
-  if (existingUser) {
+  if (existingUserByEmail) {
     return new Error("Email address is already in use");
+  }
+
+  // Check if the number is already in use
+  const existingUserByNumber = await prisma.user.findFirst({
+    where: { number },
+  });
+  if (existingUserByNumber) {
+    return new Error("Phone number is already in use");
   }
 
   // Hash password
@@ -37,7 +44,7 @@ export const signUp = async (
   while (!isUnique) {
     professionalId = generateProfessionalId(6);
     const existingProfessionalId = await prisma.user.findUnique({
-      where: { id:professionalId },
+      where: { id: professionalId },
     });
     if (!existingProfessionalId) {
       isUnique = true;
@@ -47,7 +54,7 @@ export const signUp = async (
   // Create new user
   const newUser = await prisma.user.create({
     data: {
-      id:professionalId,
+      id: professionalId,
       fullName,
       email,
       password: hashedPassword,
@@ -58,10 +65,21 @@ export const signUp = async (
 
   // Generate JWT token
   const token = jwt.sign({ userId: newUser.id }, jwtSecret);
-  res.setHeader("Set-Cookie", `Token=${token}; Path=/; SameSite=Strict; Secure`);
+
+  // Determine the domain and secure settings based on environment
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
+  const secureFlag = isDevelopment ? '' : 'Secure;';
+
+  // Set the cookie with environment-specific settings
+  res.setHeader(
+    "Set-Cookie",
+    `Token=${token}; Path=/; Domain=${domain}; SameSite=Strict; ${secureFlag} `
+  );
+
 
   return {
-    user: newUser,
+    userId: newUser.id,
     token,
   };
 };

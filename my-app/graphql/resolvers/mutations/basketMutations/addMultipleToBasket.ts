@@ -1,7 +1,5 @@
-import { Context } from "@/pages/api/graphql";
-import { PrismaClient, Basket } from '@prisma/client';
+import { Context } from "@apollo/client";
 
-const prisma = new PrismaClient();
 
 interface ProductInputQuantity {
   productId: string;
@@ -13,6 +11,12 @@ interface AddMultipleToBasketInput {
   products: ProductInputQuantity[];
 }
 
+type Basket = {
+  id: string;
+  userId: string | null;
+  quantity: number;
+  productId: string;
+}
 export const addMultipleToBasket = async (
   _: any,
   { input }: { input: AddMultipleToBasketInput },
@@ -27,9 +31,9 @@ export const addMultipleToBasket = async (
     for (const { productId, quantity } of products) {
       // Check if the product is already in the user's basket
       const existingBasket = await prisma.basket.findFirst({
-        where: {   
-            userId,
-            productId,
+        where: {
+          userId,
+          productId,
         },
       });
 

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const categoryById = async (
   _: any,
@@ -11,8 +11,9 @@ export const categoryById = async (
         id: categoryId,
       },
       include: {
-        products: true, // Include products related to the category
-        subcategories: true, // Include subcategories related to the category
+        products: true,
+        subcategories: true,
+
       },
     });
 

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const allNewProducts = async (
   _: any,
@@ -11,32 +11,23 @@ export const allNewProducts = async (
     const products = await prisma.product.findMany({
       where: {
         isVisible: visibleProduct || true,
-       
+
       },
       include: {
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         },
-        productDiscounts: {
-          include: {
-            Discount: true,
-          },
-        },
+        productDiscounts: true,
         baskets: true,
         reviews: true,
         favoriteProducts: true,
-        attributes: true,
         Colors: true,
-        SameProducts: {
-          include: {
-            Product: true
-          },
-        },
+
         Brand: true,
       },
       take: takeValue,
       orderBy: {
-        createdAt: 'desc', 
+        createdAt: 'desc',
       },
     });
 

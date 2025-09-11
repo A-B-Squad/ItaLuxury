@@ -1,0 +1,51 @@
+import React from "react";
+import { Metadata } from "next";
+import keywords from "@/public/scripts/keywords";
+import Account from "./Account";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
+import { getUser } from "@/utlils/getUser";
+
+if (
+  !process.env.NEXT_PUBLIC_API_URL ||
+  !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
+) {
+  throw new Error("NEXT_PUBLIC_API_URL or BASE_URL_DOMAIN is not defined");
+}
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
+  title: "Profile | ita-luxury - Votre boutique en ligne en Tunisie",
+  description:
+    "Finalisez votre achat en ligne avec ita-luxury. Profitez des meilleures offres et promotions sur nos produits de qualité en Tunisie.",
+  keywords: keywords.join(","),
+  openGraph: {
+    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Account`,
+    type: "website",
+    title: "Profile | ita-luxury - Votre boutique en ligne en Tunisie",
+    description:
+      "Finalisez votre achat en ligne avec ita-luxury. Profitez des meilleures offres et promotions sur nos produits de qualité en Tunisie.",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
+        width: 1200,
+        height: 630,
+        alt: "ita-luxury",
+      },
+    ],
+  },
+  alternates: {
+    canonical: "https://www.ita-luxury.com/Account",
+  },
+  robots: "index, follow",
+};
+
+const AccountPage = async () => {
+  const cookieStore = cookies()
+  const token = cookieStore.get('Token')?.value
+  const decodedUser = token ? decodeToken(token) : null;
+  const userData = await getUser(decodedUser?.userId);
+  return <Account userData={userData} />;
+};
+
+export default AccountPage;

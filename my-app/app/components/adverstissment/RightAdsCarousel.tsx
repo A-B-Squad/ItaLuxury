@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 
 const RightAdsCarousel = ({
   AdsNextToCarousel,
@@ -23,7 +24,7 @@ const RightAdsCarousel = ({
   return (
     <>
       {(images.length === 0 || loadingRightAdsCarousel) && (
-        <div className="right-ads flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
+        <div className="right-Img flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
           <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
             <IoImageOutline className="h-12 w-12 text-gray-500" />
           </div>
@@ -34,20 +35,19 @@ const RightAdsCarousel = ({
       )}
 
       {images.length > 0 && (
-        <div className="right-ads flex lg:flex-col  gap-5 md:gap-12">
+        <div className="right-Img flex lg:flex-col  gap-5 md:gap-12">
           <Link
             className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
             href={AdsNextToCarousel[0]?.link}
           >
             <Image
-              layout="responsive"
               width={360}
               height={208}
-              objectFit="contain"
+              style={{ objectFit: "contain" }}
               src={images[0]}
               loading="eager"
               property="true"
-              alt="right-ads 0"
+              alt="right-Img 0"
               className="rounded-xl hover:opacity-50 transition-all"
             />
           </Link>
@@ -56,13 +56,12 @@ const RightAdsCarousel = ({
             href={AdsNextToCarousel[1]?.link}
           >
             <Image
-              layout="responsive"
               width={360}
               height={208}
               src={images[1]}
-              objectFit="contain"
+              style={{ objectFit: "contain" }}
               loading="eager"
-              alt="right-ads 2"
+              alt="right-Img 2"
               className="rounded-xl hover:opacity-50 transition-all"
             />
           </Link>

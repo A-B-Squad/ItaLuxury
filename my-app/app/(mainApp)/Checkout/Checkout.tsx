@@ -1,495 +1,268 @@
 "use client";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { CiPhone, CiUser } from "react-icons/ci";
+import { CREATE_POINT_TRANSACTION } from "@/graphql/mutations";
+import { useMutation, useQuery } from "@apollo/client";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { CREATE_CHECKOUT_MUTATION } from "../../../graphql/mutations";
-
-import Image from "next/legacy/image";
 import {
-  FIND_UNIQUE_COUPONS,
-  BASKET_QUERY,
   GET_GOVERMENT_INFO,
-  FETCH_USER_BY_ID,
-  COMPANY_INFO_QUERY,
+  GET_POINT_SETTINGS
 } from "../../../graphql/queries";
-import { useSearchParams } from "next/navigation";
 import Loading from "./loading";
-import { useToast } from "@/components/ui/use-toast";
-import { useBasketStore } from "@/app/store/zustand";
-import { trackEvent } from "@/app/Helpers/_trackEvents";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
+import { useAuth } from "@/app/hooks/useAuth";
+import {
+  useCheckoutStore
+} from "@/app/store/zustand";
+import { Loader2 } from "lucide-react";
+import { OrderSummary } from "./components/OrderSummary";
+import Step1 from "./components/Step1/Step1";
+import CheckoutForm from "./components/Step2/CheckoutForm";
+import { StepIndicator } from "./components/StepIndicator";
+import { useCheckout } from "./hooks/useCheckout";
+
+// Define interfaces
+interface Governorate {
+  id: string;
+  name: string;
 }
 
-const Checkout = () => {
-  // State declarations
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [GovermentInfo, setGovermentInfo] = useState([]);
+interface Step {
+  id: number;
+  name: string;
+}
+
+interface CouponState {
+  id: string;
+  couponCode: string;
+}
+const Checkout = ({ userData, companyData }: any) => {
+  // Step 1: Initialize state and hooks
+  const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
+  const [coupon, setCoupon] = useState<CouponState>({ id: "", couponCode: "" });
+  const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [paymentMethod, setPaymentMethod] = useState<
+    "CASH_ON_DELIVERY" | "CREDIT_CARD"
+  >("CASH_ON_DELIVERY");
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  const { decodedToken, isAuthenticated } = useAuth();
+
+  const [createPointTransaction] = useMutation(CREATE_POINT_TRANSACTION);
+  const { data: pointSettingsData } = useQuery(GET_POINT_SETTINGS);
+  const { createCheckout, loading } = useCheckout(decodedToken, setSubmitLoading);
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const { toggleIsUpdated } = useBasketStore((state) => ({
-    isUpdated: state.isUpdated,
-    toggleIsUpdated: state.toggleIsUpdated,
-  }));
-  const router = useRouter();
-  const total = searchParams?.get("total") || "0";
-  const products = JSON.parse(searchParams?.get("products") || "[]");
-  const [showInputCoupon, setShowInputCoupon] = useState<Boolean>(false);
-  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
-  const [couponsId, setCouponsId] = useState<String>("");
-  const [changeCouponCode, setChangeCouponCode] = useState<string>("");
-  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
-
-  const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
-  useQuery(COMPANY_INFO_QUERY, {
-    onCompleted: (companyData) => {
-      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-    },
+    formState: { errors, isValid },
+    trigger,
+  } = useForm({
+    mode: "onChange",
   });
-  // Decode the JWT token on component mount
-  useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
-    }
-  }, []);
 
-  // Mutation to create a new checkout
-  const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
+  const { checkoutProducts, checkoutTotal } = useCheckoutStore();
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !decodedToken?.userId,
-  });
-  // Query to get the government information
+  const [isGuest, setIsGuest] = useState<boolean>(false);
+
+  const steps: Step[] = [
+    { id: 1, name: "Informations personnelles" },
+    { id: 2, name: "Adresses" },
+    { id: 3, name: "Mode De Livraison" },
+    { id: 4, name: "Paiement" },
+  ];
+
+
   useQuery(GET_GOVERMENT_INFO, {
     onCompleted: (data) => {
-      setGovermentInfo(data.allGovernorate);
+      setGovernmentInfo(data.allGovernorate);
     },
   });
 
-  const calculateTotal = () => {
-    let subtotal = Number(total);
+
+  // Step 5: Set up side effects
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsLoggedIn(true);
+      setCurrentStep(2);
+      setIsGuest(false);
+    } else {
+      setIsLoggedIn(false);
+      setIsGuest(true);
+      setCurrentStep(1);
+    }
+  }, [isAuthenticated, decodedToken]);
+
+
+  // Step 6: Define utility functions
+  const calculateTotal = useCallback(() => {
+    let subtotal = Number(checkoutTotal);
     const shippingCost = subtotal >= 499 ? 0 : deliveryPrice;
 
-    // Apply discount if available
     if (discountPercentage > 0) {
       subtotal -= (subtotal * discountPercentage) / 100;
     }
 
-    // Add shipping cost
-    const finalTotal = subtotal + shippingCost;
+    return (subtotal + shippingCost).toFixed(2);
+  }, [checkoutTotal, deliveryPrice, discountPercentage]);
 
-    return finalTotal.toFixed(3);
-  };
 
-  // Handle form submission
-  const onSubmit = (data: any) => {
-    if (!decodedToken) return;
 
-    // Validate phone number
-    const phoneRegex = /^[0-9]*$/;
-    if (!phoneRegex.test(data.phone_1)) {
-      console.error("Invalid phone number");
-      return;
-    }
+  // Step 7: Define event handlers
+  const onSubmit = async (data: any) => {
+    const userEmail = isGuest ? data.email : userData?.email;
+    const userName = isGuest
+      ? data.fullname
+      : userData?.fullName;
+    const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
+    const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
+    const userPhone = isGuest ? cleanPhone1 : userData?.number;
+    const orderTotal = parseFloat(calculateTotal())
 
-    // Create the checkout mutation
-    createCheckout({
-      variables: {
-        input: {
-          userId: decodedToken.userId,
-          userName: data.fullname,
-          total: parseFloat(calculateTotal()),
-          phone: [Number(data.phone_1), Number(data.phone_2)],
-          governorateId: data.governorate,
-          address: data.address,
-          couponsId: couponsId,
-          freeDelivery: Number(total) >= 499 ? true : false,
-        },
-      },
-      refetchQueries: [
-        {
-          query: BASKET_QUERY,
-          variables: { userId: decodedToken?.userId },
-        },
-      ],
-      onCompleted: (data) => {
-        // toggleIsUpdated();
-        const customId = data.createCheckout;
-        // Track the end of checkout event
-        trackEvent("Purchase", {
-          em: userData?.fetchUsersById.email.toLowerCase(),
-          fn: userData?.fetchUsersById.fullName,
-          ph: userData?.fetchUsersById.number[0],
-          country: "tn",
-          ct: data.governorate,
-          external_id: decodedToken.userId,
-          total: parseFloat(calculateTotal()),
-          products,
-          customId,
-        });
+    const checkoutInput = {
+      userId: decodedToken?.userId,
+      userName: data.fullname,
+      total: orderTotal,
+      phone: [cleanPhone1, cleanPhone2].filter(Boolean),
+      governorateId: data.governorate,
+      address: data.address,
+      couponsId: coupon.id,
+      freeDelivery: Number(checkoutTotal) >= 499,
+      isGuest: isGuest,
+      products: checkoutProducts.map((product) => ({
+        productId: product.id,
+        productQuantity: product.actualQuantity || product.quantity,
+        price: product.price,
 
-        window.history.pushState(null, "", "/Checkout/EndCheckout");
-        // Redirect to home page
-        router.replace(`/Checkout/EndCheckout?packageId=${customId}`);
+        discountedPrice:
+          product.productDiscounts && product.productDiscounts.length > 0
+            ? product.productDiscounts[0].newPrice
+            : 0,
+      })),
+      guestEmail: userEmail,
+      deliveryComment: data.deliveryComment,
+      paymentMethod: paymentMethod,
+    };
 
-        // Disable back navigation
-        window.history.forward();
-      },
+    await createCheckout(checkoutInput, {
+      userEmail,
+      userName,
+      userPhone,
+      isGuest,
+      paymentMethod,
+      calculateTotal
     });
+
+
   };
 
-  // Handle coupon verification
-  const handleCouponsVerification = async () => {
-    if (changeCouponCode.length === 30) {
-      const { data: uniqueCoupons } = await uniqueCouponsData({
-        variables: {
-          codeInput: changeCouponCode,
-        },
-      });
 
-      if (uniqueCoupons && uniqueCoupons.findUniqueCoupons) {
-        const couponsId = uniqueCoupons.findUniqueCoupons.id;
-        const validCoupon = uniqueCoupons.findUniqueCoupons.discount;
-        setCouponsId(couponsId);
-        setDiscountPercentage(validCoupon);
-      } else {
-        toast({
-          title: "Code Promo",
-          description: "Code promo invalide ou déjà utilisé",
-          className: "bg-red-800 text-white",
-        });
-      }
+
+  const handleNextStep = useCallback(async () => {
+    const isValid = await trigger();
+    if (isValid) {
+      setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length));
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     } else {
-      toast({
-        title: "Code Promo",
-        description: "Code promo invalide ",
-        className: "bg-red-800 text-white",
-      });
+      console.log("Form is invalid:", errors);
     }
-  };
+  }, []);
 
-  const handleCouponToggle = () => {
-    setShowInputCoupon(!showInputCoupon);
-    if (showInputCoupon) {
-      // If we're hiding the input (i.e., clicking "Annuler")
-      setChangeCouponCode("");
-      setDiscountPercentage(0);
-      setCouponsId("");
-    }
-  };
+
+  const handlePreviousStep = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
+  }, []);
+
+  // Step 8: Render component
+  if (checkoutProducts.length === 0) {
+    return <Loading />;
+  }
 
   return (
     <>
-      {products.length === 0 ? (
-        <Loading />
-      ) : (
-        <div className="flex justify-center items-center w-full my-10">
-          <div className=" container grid sm:px-10  w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32 ">
-            <div className="flex flex-col gap-1">
-              <div className="p-8 bg-white h-fit overflow-hidden ">
-                <p className="text-xl font-medium">
-                  Récapitulatif de la commande
-                </p>
-                <p className="text-gray-400">Vérifiez vos articles.</p>
-                <div className="mt-8 space-y-3 divide-y-2 shadow-sm  h-full max-h-[500px] overflow-y-auto  px-2 py-4 sm:px-6">
-                  {products.map((product: any) => (
-                    <div
-                      className="flex flex-col shadow py-2 bg-white sm:flex-row"
-                      key={product.id}
-                    >
-                      <Image
-                        className="m-2 h-24 w-28 rounded-md border  object-center"
-                        width={112}
-                        height={96}
-                        objectFit="contain"
-                        src={product.images[0]}
-                        alt={product.name}
-                      />
-                      <div className="flex w-full flex-col px-4 py-4">
-                        <span className="font-semibold">{product.name}</span>
-                        <p className="mt-auto text-lg font-bold">
-                          {product.productDiscounts?.length
-                            ? product.productDiscounts[0].newPrice.toFixed(3)
-                            : product.price.toFixed(3)}{" "}
-                          TND
-                        </p>
+      <div className="flex justify-center flex-col items-center w-full my-10">
+        <StepIndicator steps={steps} currentStep={currentStep} />
 
-                        <p className="mt-auto text-lg font-md text-gray-400">
-                          Quantité: {product.quantity || product.actualQuantity}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center justify-center mt-8 bg-white p-4 rounded-lg shadow-sm">
-                <div className="flex items-center gap-2">
-                  <Image
-                    width={50}
-                    height={50}
-                    objectFit="contain"
-                    src="https://app.jax-delivery.com/assets/img/logo.png"
-                    alt="JAX Delivery Logo"
-                  />
-                  <p className="text-lg font-semibold text-gray-900">
-                    JAX Delivery
-                  </p>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Paiement comptant à la livraison (Cash on delivery)
+        <div className="container grid sm:px-10 w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32">
+          {loading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+                <p className="mt-2 text-gray-700">
+                  Redirection vers la page de paiement...
                 </p>
               </div>
             </div>
+          )}
 
-            <div className="px-4 pt-8 bg-white border ">
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <label
-                  htmlFor="fullname"
-                  className="mt-4 mb-2 block text-sm font-medium"
-                >
-                  <CiUser className="inline-block mr-2 mb-1" /> Nom et Prénom
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  {...register("fullname", { required: true })}
-                  className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Nom et prénom"
+          {submitLoading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+                <p className="mt-2 text-gray-700">
+                  Redirection vers la page de Confirmation...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Checkout Form Section */}
+          <div>
+            <div className="px-4 pt-8 pb-2 bg-white border">
+              {currentStep === 1 && !isAuthenticated && (
+                <Step1
+                  setIsLoggedIn={setIsLoggedIn}
+                  setCurrentStep={setCurrentStep}
+                  setIsGuest={setIsGuest}
+                  showLoginForm={showLoginForm}
+                  setShowLoginForm={setShowLoginForm}
                 />
-                {errors.fullname && (
-                  <p className="text-red-500">Ce champ est requis</p>
-                )}
-
-                <label
-                  htmlFor="phone"
-                  className="mt-4 mb-2 block text-sm font-medium"
-                >
-                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 1
-                </label>
-                <input
-                  type="text"
-                  id="phone_1"
-                  {...register("phone_1", {
-                    required: true,
-                    pattern: /^[0-9]{8}$/,
-                  })}
-                  className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="+216 12 345 678"
-                />
-                {errors.phone && (
-                  <p className="text-red-500">
-                    Le numéro de téléphone doit comporter 8 chiffres
-                  </p>
-                )}
-                <label
-                  htmlFor="phone"
-                  className="mt-4 mb-2 block text-sm font-medium"
-                >
-                  <CiPhone className="inline-block mr-2 mb-1" /> Téléphone 2
-                  (optional)
-                </label>
-                <input
-                  type="text"
-                  id="phone_2"
-                  {...register("phone_2", {
-                    pattern: /^[0-9]{8}$/,
-                  })}
-                  className="w-full rounded-md border border-gray-200 px-4 py-3 pl-11 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="+216 12 345 678"
-                />
-                {errors.phone && (
-                  <p className="text-red-500">
-                    Le numéro de téléphone doit comporter 8 chiffres
-                  </p>
-                )}
-
-                <label
-                  htmlFor="governorate"
-                  className="mt-4 mb-2 block text-sm font-medium"
-                >
-                  Governorat
-                </label>
-                <select
-                  id="governorate"
-                  {...register("governorate")}
-                  className="w-full px-2 outline-none py-2 text-gray-700 bg-gray-200 rounded"
-                >
-                  <option value="">Sélectionner une governorat</option>
-                  {GovermentInfo.map(
-                    (goverment: { id: string; name: string }) => (
-                      <option key={goverment.id} value={goverment.id}>
-                        {goverment.name.toUpperCase()}
-                      </option>
-                    ),
-                  )}{" "}
-                </select>
-
-                <label
-                  htmlFor="address"
-                  className="mt-4 mb-2 block text-sm font-medium"
-                >
-                  Adresse
-                </label>
-                <textarea
-                  id="address"
-                  {...register("address")}
-                  className="w-full rounded-md border border-gray-200 px-4 py-3 text-sm uppercase shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Saisissez votre adresse"
-                ></textarea>
-                <div className="Coupons flex flex-col gap-3  ">
-                  <div className="flex gap-1 items-center ">
-                    <label
-                      htmlFor="address"
-                      className=" block text-sm font-semibold"
-                    >
-                      Code promo
-                    </label>
-                    <button
-                      type="button"
-                      className="text-blue-800 font-semibold text-sm"
-                      onClick={handleCouponToggle}
-                    >
-                      {showInputCoupon ? "Annuler" : "Afficher"}
-                    </button>
-                  </div>
-                  {showInputCoupon && (
-                    <div className="bg-gray-100  w-fit px-8 py-6  flex flex-col gap-3">
-                      <div className="inputs flex items-start  gap-2 ">
-                        <div className="flex flex-col ">
-                          <input
-                            type="text"
-                            className="border-2 px-3 py-2 text-sm w-72 outline-none "
-                            maxLength={30}
-                            value={changeCouponCode}
-                            onChange={(e) => {
-                              if (e.target.value.length <= 30) {
-                                setChangeCouponCode(e.target.value);
-                              }
-                            }}
-                            placeholder="Saisissez un code de promo"
-                          />
-                          <p className="text-sm ml-5 mt-2">
-                            {changeCouponCode.length}/30
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          className="bg-blue-800 hover:bg-blue-500 transition-all font-semibold rounded-md text-white px-3 py-2 text-sm"
-                          onClick={handleCouponsVerification}
-                        >
-                          Appliquer
-                        </button>
-                      </div>
-                      <p className="font-normal text-sm leading-6">
-                        En passant à la caisse, vous acceptez nos{" "}
-                        <span className="text-blue-800 font-semibold">
-                          Termes de service
-                        </span>{" "}
-                        et confirmez que vous avez lu nos{" "}
-                        <span className="text-blue-800 font-semibold">
-                          Politique de confidentialité.
-                        </span>{" "}
-                        Vous pouvez annuler les paiements récurrents à tout
-                        moment.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-6 border-t border-b py-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-900">
-                      Sous-total
-                    </p>
-                    <p className="font-semibold text-gray-900">
-                      {Number(total).toFixed(3)} TND
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-900">
-                      Expédition
-                    </p>
-                    <p className="font-semibold text-gray-900">
-                      {Number(total) >= 499
-                        ? "Gratuit"
-                        : `${deliveryPrice.toFixed(3)} TND`}
-                    </p>
-                  </div>
-                  {discountPercentage > 0 && (
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900">
-                        Remise
-                      </p>
-                      <p className="font-semibold text-primaryColor">
-                        -
-                        {((Number(total) * discountPercentage) / 100).toFixed(
-                          3,
-                        )}{" "}
-                        TND ({discountPercentage}%)
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-6 flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">Total</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {calculateTotal()} TND
-                  </p>
-                </div>
-                <button
-                  type="submit"
-                  className={`mt-4 mb-8 w-full rounded-md bg-primaryColor px-6 py-3 font-medium text-white ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <svg
-                        className="animate-spin h-5 w-5 mr-3 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Chargement...
-                    </div>
-                  ) : (
-                    "Passer la commande"
-                  )}
-                </button>
-              </form>
+              )}
+              <CheckoutForm
+                currentStep={currentStep}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                isValid={isValid}
+                errors={errors}
+                register={register}
+                isLoggedIn={isLoggedIn}
+                governmentInfo={governmentInfo}
+                handlePreviousStep={handlePreviousStep}
+                loading={loading}
+                paymentLoading={loading}
+                submitLoading={submitLoading}
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+              />
             </div>
           </div>
+
+          {/* Order Summary Section */}
+          <OrderSummary
+            checkoutProducts={checkoutProducts}
+            setDiscountPercentage={setDiscountPercentage}
+            discountPercentage={discountPercentage}
+            setCoupon={setCoupon}
+            deliveryPrice={deliveryPrice}
+            total={checkoutTotal}
+            calculateTotal={calculateTotal}
+            handlePreviousStep={handlePreviousStep}
+            isLoggedIn={isLoggedIn}
+            handleNextStep={handleNextStep}
+            currentStep={currentStep}
+            isValid={isValid}
+          />
         </div>
-      )}
+      </div>
     </>
   );
 };

@@ -1,96 +1,66 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import { IoHome } from "react-icons/io5";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { motion } from "framer-motion";
 
-const Breadcumb = ({ pageName, pageLink }: any) => {
-  const params = useSearchParams();
-  const position = params?.getAll("collection") ?? [];
-  const categorys = params?.getAll("collection") ?? [];
-  const section = params?.get("section") ?? "";
+interface BreadcrumbItem {
+  href?: string;
+  label: string;
+}
 
+interface BreadcrumbProps {
+  Path: BreadcrumbItem[];
+}
+
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ Path }) => {
   return (
-    <div className="flex gap-2 justify-center   py-5  justify-self-center w-full flex-wrap items-center  md:text-sm text-base   tracking-[2px]   ">
-      <div className="hover:text-primaryColor  transition-all  flex items-center gap-1">
-        <IoHome />
-        <Link rel="preload" href={"/"}>
-          Accueil
-        </Link>
-      </div>
+    <nav aria-label="Breadcrumb" className="w-full  -z-0 py-4">
+      <motion.ol
+        className="flex flex-wrap items-center justify-center gap-1 text-sm tracking-wide"
+        initial={{ opacity: 0, y: -5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {Path.map((item, index) => (
+          <li
+            key={index}
+            className="flex items-center"
+          >
+            {index > 0 && (
+              <MdOutlineKeyboardArrowRight
+                size={16}
+                className="mx-1 text-gray-400"
+                aria-hidden="true"
+              />
+            )}
 
-      {pageName && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className=" text-primaryColor  transition-all flex items-center gap-2">
-            <Link rel="preload" href={`/${pageLink}`}>
-              {pageName}
-            </Link>
-          </div>
-        </>
-      )}
+            {item.href && index !== Path.length - 1 ? (
+              <Link
+                href={item.href}
 
-      {section && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className=" text-primaryColor  transition-all flex items-center gap-2">
-            <p>{section}</p>
-          </div>
-        </>
-      )}
-
-      {position[0] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
-            <Link
-              rel="preload"
-              href={`/Collections/tunisie?category=${position[1]}`}
-            >
-              {position[0]}
-            </Link>
-          </div>
-        </>
-      )}
-
-      {position[2] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
-            <Link
-              rel="preload"
-              href={`/Collections/tunisie?category=${position[3]}`}
-            >
-              {position[2]}
-            </Link>
-          </div>
-        </>
-      )}
-
-      {position[4] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="hover:text-primaryColor  transition-all flex items-center gap-2">
-            <Link
-              rel="preload"
-              href={`/Collections/tunisie?category=${position[5]}`}
-            >
-              {position[4]}
-            </Link>
-          </div>
-        </>
-      )}
-
-      {position[6] && (
-        <>
-          <span className="text-gray-500">/</span>
-          <div className="text-primaryColor transition-all flex items-center gap-2">
-            <p>{position[6]} </p>
-          </div>
-        </>
-      )}
-    </div>
+                className={`
+                  flex items-center hover:text-primaryColor transition-colors duration-200
+                  ${index === 0 ? 'font-medium' : 'font-normal'}
+                `}
+              >
+                {index === 0 && <IoHome className="mr-1.5" size={14} />}
+                <span>{item.label}</span>
+              </Link>
+            ) : (
+              <span
+                className="font-medium text-primaryColor"
+                aria-current="page"
+              >
+                {item.label}
+              </span>
+            )}
+          </li>
+        ))}
+      </motion.ol>
+    </nav>
   );
 };
 
-export default Breadcumb;
+export default memo(Breadcrumb);

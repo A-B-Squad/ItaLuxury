@@ -1,11 +1,10 @@
 "use client";
-import { useMutation, useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
-import { FaRegTrashAlt } from "react-icons/fa";
-
+import { useAuth } from "@/app/hooks/useAuth";
+import {
+  useBasketStore,
+  useCheckoutStore,
+  useProductsInBasketStore,
+} from "@/app/store/zustand";
 import {
   Table,
   TableBody,
@@ -15,25 +14,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
+import triggerEvents from "@/utlils/events/trackEvents";
+import { useMutation, useQuery } from "@apollo/client";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { Trash2Icon } from "lucide-react";
+import Image from "next/image";
+
+import Link from "next/link";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { FiArrowLeft, FiShoppingBag } from "react-icons/fi";
+import { HiPlus } from "react-icons/hi2";
+import { RiSubtractLine } from "react-icons/ri";
 import {
   DECREASE_QUANTITY_MUTATION,
   DELETE_BASKET_BY_ID_MUTATION,
   INCREASE_QUANTITY_MUTATION,
 } from "../../../graphql/mutations";
-import { BASKET_QUERY, COMPANY_INFO_QUERY } from "../../../graphql/queries";
-import Image from "next/legacy/image";
-import { useToast } from "@/components/ui/use-toast";
-import prepRoute from "@/app/Helpers/_prepRoute";
-import { HiPlus } from "react-icons/hi2";
-import { RiSubtractLine } from "react-icons/ri";
-import { useBasketStore } from "@/app/store/zustand";
-
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
+import {
+  BASKET_QUERY,
+} from "../../../graphql/queries";
 
 interface Product {
-  [x: string]: any;
   id: string;
   name: string;
   price: number;
@@ -42,62 +44,77 @@ interface Product {
   basketId: string;
   productDiscounts: {
     newPrice: number;
+    price: number;
   }[];
+  categories: {
+    name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
+  }[];
+  [key: string]: any;
 }
 
-const Basket = () => {
-  // Toast for notifications
-  const { toast } = useToast();
-  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+const Basket = ({ userData, companyData }: any) => {
+  const { decodedToken, isAuthenticated } = useAuth();
 
-  // State to store decoded token
-  const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  // State to store products in the basket
   const [products, setProducts] = useState<Product[]>([]);
-  // State to store total price of products in the basket
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  // Zustand store function to toggle update status
+  const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
+  const {
+    products: storedProducts,
+    removeProductFromBasket,
+    setQuantityInBasket,
+    increaseProductInQtBasket,
+    decreaseProductInQtBasket,
+  } = useProductsInBasketStore();
+  const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore();
+
+  // Hooks
+  const { toast } = useToast();
   const { toggleIsUpdated } = useBasketStore((state) => ({
     isUpdated: state.isUpdated,
     toggleIsUpdated: state.toggleIsUpdated,
   }));
 
-  // Function to calculate total price of products in the basket
+  // Helper functions
   const calculateTotalPrice = useCallback(() => {
     return products.reduce((acc, product) => {
       const productPrice =
         product.productDiscounts?.length > 0
           ? product.productDiscounts[0].newPrice
           : product.price;
-      return acc + Number(productPrice) * product.quantity;
+      const quantity = product.quantity || product.actualQuantity || 0;
+      return acc + Number(productPrice) * quantity;
     }, 0);
   }, [products]);
 
-  useQuery(COMPANY_INFO_QUERY, {
-    onCompleted: (companyData) => {
-      setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-    },
-  });
+  // Memoize the total price value
+  const memoizedTotalPrice = useMemo(() => calculateTotalPrice(), [products, calculateTotalPrice]);
 
-  // Effect to decode the JWT token from cookies and set the decoded token state
   useEffect(() => {
-    const token = Cookies.get("Token");
-    if (token) {
-      const decoded = jwt.decode(token) as DecodedToken;
-      setDecodedToken(decoded);
+    if (!isAuthenticated) {
+      setProducts(storedProducts);
     }
-  }, []);
-  // Effect to update total price when products change
+  }, [storedProducts, isAuthenticated]);
+
   useEffect(() => {
-    setTotalPrice(calculateTotalPrice());
-  }, [products, calculateTotalPrice]);
+    setTotalPrice(memoizedTotalPrice);
+  }, [memoizedTotalPrice]);
 
-  // Query to fetch basket data
-
-  const { loading, error } = useQuery(BASKET_QUERY, {
+  // Optimize query with proper fetch policy
+  const { refetch } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
+    skip: !isAuthenticated,
+    fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      const fetchedProducts = data.basketByUserId.map((basket: any) => ({
+      const fetchedProducts = data.basketByUserId?.map((basket: any) => ({
         ...basket.Product,
         quantity: basket.quantity,
         basketId: basket.id,
@@ -114,66 +131,234 @@ const Basket = () => {
     },
   });
 
-  // Mutation to increase product quantity
-  const [increaseQuantity] = useMutation(INCREASE_QUANTITY_MUTATION, {
-    onCompleted: ({ increaseQuantity }) => {
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.basketId === increaseQuantity.id
-            ? { ...product, quantity: increaseQuantity.quantity }
-            : product,
-        ),
+
+
+  const handleQuantityChange = useCallback(
+    (productId: string, change: number) => {
+
+      const updatedProducts = storedProducts.map((product) => {
+        if (product.id === productId) {
+          const newQuantity = Math.max(
+            1,
+            (product.actualQuantity ?? product.quantity) + change
+          );
+          return { ...product, actualQuantity: newQuantity };
+        }
+        return product;
+      });
+      const quantityInBasket = updatedProducts.reduce(
+        (total, product) =>
+          total + (product.actualQuantity ?? product.quantity),
+        0
+      )
+      setProducts(updatedProducts);
+      setQuantityInBasket(
+        quantityInBasket
       );
-      toggleIsUpdated();
     },
-    onError: (error) => {
-      if (error.message === "Not enough inventory") {
-        toast({
-          title: "Notification de Stock",
-          description: `Le produit est en rupture de stock.`,
-          className: "bg-red-500 text-white",
+    [storedProducts, setQuantityInBasket]
+  );
+
+  // Mutations
+  const [increaseQuantity] = useMutation(INCREASE_QUANTITY_MUTATION);
+  const [decreaseQuantity] = useMutation(DECREASE_QUANTITY_MUTATION);
+
+  const handleIncreaseQuantity = useCallback(
+    (productId: string, basketId?: string) => {
+      if (decodedToken?.userId && basketId) {
+        increaseQuantity({
+          variables: { basketId },
+          onCompleted: ({ increaseQuantity }) => {
+            setProducts((prevProducts) =>
+              prevProducts.map((product) =>
+                product.basketId === increaseQuantity.id
+                  ? { ...product, quantity: increaseQuantity.quantity }
+                  : product
+              )
+            );
+            toggleIsUpdated();
+          },
+          onError: (error) => {
+            if (error.message === "Not enough inventory") {
+              toast({
+                title: "Notification de Stock",
+                description: `Le produit est en rupture de stock.`,
+                className: "bg-red-500 text-white",
+              });
+            }
+          },
         });
+      } else {
+        increaseProductInQtBasket(productId, 1);
       }
     },
-  });
+    [decodedToken, increaseQuantity, handleQuantityChange,increaseProductInQtBasket,toggleIsUpdated]
+  );
 
-  // Mutation to decrease product quantity
-  const [decreaseQuantity] = useMutation(DECREASE_QUANTITY_MUTATION, {
-    onCompleted: ({ decreaseQuantity }) => {
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.basketId === decreaseQuantity.id
-            ? { ...product, quantity: decreaseQuantity.quantity }
-            : product,
-        ),
-      );
-      toggleIsUpdated();
+  const handleDecreaseQuantity = useCallback(
+    (productId: string, basketId?: string) => {
+      if (decodedToken?.userId && basketId) {
+        decreaseQuantity({
+          variables: { basketId },
+          onCompleted: ({ decreaseQuantity }) => {
+            setProducts((prevProducts) =>
+              prevProducts.map((product) =>
+                product.basketId === decreaseQuantity.id
+                  ? { ...product, quantity: decreaseQuantity.quantity }
+                  : product
+              )
+            );
+            toggleIsUpdated();
+          },
+        });
+      } else {
+        decreaseProductInQtBasket(productId);
+      }
     },
-  });
+    [decodedToken, decreaseQuantity, handleQuantityChange]
+  );
 
-  // Mutation to delete product from basket
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
 
-  // Function to handle product removal from basket
+  // Event handlers
   const handleRemoveProduct = useCallback(
-    (basketId: string) => {
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.basketId !== basketId),
-      );
-      deleteBasketById({ variables: { basketId } });
-      toggleIsUpdated();
-      toast({
-        title: "Notification de Panier",
-        description: `Le produit a été retiré du panier.`,
-        className: "bg-primaryColor text-white",
-      });
+    async (productId: string, basketId?: string) => {
+      if (decodedToken?.userId && basketId) {
+        try {
+          setProducts((prevProducts) =>
+            prevProducts.filter((product) => product.basketId !== basketId)
+          );
+          await deleteBasketById({
+            variables: { basketId },
+          });
+          refetch();
+          toggleIsUpdated();
+        } catch (error) {
+          console.error("Failed to delete basket item:", error);
+        }
+      } else {
+        removeProductFromBasket(productId);
+      }
     },
-    [deleteBasketById, toast, toggleIsUpdated],
+    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
   );
+
+  // Memoize the empty basket component
+  const EmptyBasket = useMemo(() => (
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+      <div className="bg-gray-100 p-6 rounded-full mb-6">
+        <FiShoppingBag size={60} className="text-gray-400" />
+      </div>
+      <h2 className="text-2xl font-bold text-gray-800 mb-2">Votre panier est vide</h2>
+      <p className="text-gray-600 mb-8 max-w-md">
+        Découvrez nos produits et ajoutez-les à votre panier pour commencer vos achats.
+      </p>
+      <Link
+        href="/Collections/tunisie?page=1"
+        className="flex items-center justify-center gap-2 bg-primaryColor hover:bg-amber-200 text-white font-semibold py-3 px-6 rounded-md transition-colors"
+      >
+        <FiArrowLeft />
+        Continuer mes achats
+      </Link>
+    </div>
+  ), []);
+  // Memoize the product list rendering
+  const productList = useMemo(() => (
+    <TableBody>
+      {(products?.length > 0 ? products : []).map((product) => (
+        <TableRow key={product.id}>
+          <TableCell className="flex items-center">
+            <div className="w-24 h-24 relative">
+              <Image
+                alt={product.name}
+                src={
+                  product.images?.[0] ||
+                  "https://via.placeholder.com/150"
+                }
+                fill={true}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: "contain" }}
+              />
+            </div>
+            <div className="ml-4">
+              <Link
+                href={`/products/tunisie?productId=${product.id}`}
+                className="font-semibold text-sm text-gray-800"
+              >
+                {product.name}
+              </Link>
+              <p className="text-xs text-gray-500">
+                {product.categories
+                  ?.map((category) => category.name)
+                  .join(", ") || "No categories"}
+              </p>
+            </div>
+          </TableCell>
+          <TableCell>
+            <div className="flex divide-x border w-max">
+              <button
+                type="button"
+                className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
+                onClick={() =>
+                  handleDecreaseQuantity(product.id, product.basketId)
+                }
+                disabled={
+                  (product.quantity || product.actualQuantity) === 1
+                }
+              >
+                <RiSubtractLine />
+              </button>
+              <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
+                {product.quantity || product.actualQuantity}
+              </span>
+              <button
+                type="button"
+                className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
+                disabled={product.actualQuantity === product?.inventory}
+                onClick={() =>
+                  handleIncreaseQuantity(product.id, product?.basketId)
+                }
+              >
+                <HiPlus />
+              </button>
+            </div>
+          </TableCell>
+          <TableCell className="w-[30%]">
+            {product?.productDiscounts?.length > 0 ? (
+              <>
+                <h4 className="text-md w-max font-bold text-[#333]">
+                  {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
+                </h4>
+                <h4 className="text-base w-full font-semibold text-gray-700 line-through">
+                  {Number(product.price).toFixed(3)} TND
+                </h4>
+              </>
+            ) : (
+              <h4 className="text-md w-max font-bold text-[#333]">
+                {Number(product.price || 0).toFixed(3)} TND
+              </h4>
+            )}
+          </TableCell>
+          <TableCell>
+            <Trash2Icon
+              size={23}
+              className="cursor-pointer"
+              color="red"
+              onClick={() => {
+                handleRemoveProduct(product.id, product?.basketId);
+              }}
+            />
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  ), [products, handleDecreaseQuantity, handleIncreaseQuantity, handleRemoveProduct]);
+
   return (
-    <div className="">
-      <div className="grid lg:grid-cols-3 gap-5 h-max my-8 py-5">
-        <div className="lg:col-span-2 p-10 bg-white overflow-x-auto shadow-xl">
+    <div className="container mx-auto px-4 lg:px-8 py-8">
+      <div className="grid lg:grid-cols-3 grid-cols-1 gap-5">
+        {/* Product list */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
           <div className="flex justify-between items-center border-b p-6">
             <h2 className="text-2xl font-bold text-gray-800">Panier</h2>
             <h3 className="text-xl font-semibold text-gray-600">
@@ -181,171 +366,140 @@ const Basket = () => {
             </h3>
           </div>
 
-          <Table>
-            <TableCaption>Bienvenue sur notre site.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-base">Description</TableHead>
-                <TableHead className="text-base">Quantité</TableHead>
-                <TableHead className="text-base">Prix</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium  flex items-center gap-7">
-                    {" "}
-                    <Image
-                      width={150}
-                      height={150}
-                      alt={product.name}
-                      src={product.images[0]}
-                      objectFit="contain"
-                    />
-                    <div>
-                      <Link
-                        rel="preload"
-                        href={{
-                          pathname: `/products/tunisie/${prepRoute(product?.name)}`,
-                          query: {
-                            productId: product?.id,
-                            collection: [
-                              product?.categories[0]?.name,
-                              product?.categories[0]?.id,
-                              product?.categories[0]?.subcategories[0]?.name,
-                              product?.categories[0]?.subcategories[0]?.id,
-                              product?.categories[0]?.subcategories[0]
-                                ?.subcategories[0]?.name,
-                              product?.categories[0]?.subcategories[0]
-                                ?.subcategories[0]?.id,
-                              product?.name,
-                            ],
-                          },
-                        }}
-                        className="text-md font-bold hover:text-primaryColor text-[#333]"
-                      >
-                        {product.name}
-                      </Link>
-                      <button
-                        type="button"
-                        className="mt-4 font-semibold text-red-400 text-sm flex items-center justify-center gap-1 cursor-pointer"
-                        onClick={() => {
-                          handleRemoveProduct(product.basketId);
-                          toast({
-                            title: "Notification de Panier",
-                            description: `Le produit "${product?.name}" a été retiré du panier.`,
-                            className: "bg-primaryColor text-white",
-                          });
-                        }}
-                      >
-                        <FaRegTrashAlt />
-                        Retirer
-                      </button>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex divide-x border w-max">
-                      <button
-                        type="button"
-                        className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
-                        onClick={() => {
-                          decreaseQuantity({
-                            variables: { basketId: product.basketId },
-                          });
-                        }}
-                        disabled={product.quantity === 1}
-                      >
-                        <RiSubtractLine />
-                      </button>
-                      <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
-                        {product.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
-                        onClick={() => {
-                          increaseQuantity({
-                            variables: { basketId: product.basketId },
-                          });
-                        }}
-                      >
-                        <HiPlus />
-                      </button>
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="">
-                    {product?.productDiscounts?.length > 0 && (
-                      <h4 className="text-md w-max font-bold text-[#333]">
-                        {product.productDiscounts[0].newPrice.toFixed(3)} TND
-                      </h4>
-                    )}
-                    <h4
-                      className={`text-base w-full font-semibold text-[#333] ${product?.productDiscounts?.length > 0 ? " text-gray-700 line-through" : ""}`}
-                    >
-                      {product.price.toFixed(3)} TND
-                    </h4>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="bg-white shadow-xl rounded-lg p-6">
-          <h3 className="text-xl font-bold text-gray-800 border-b pb-4 mb-6">
-            Récapitulatif de la commande
-          </h3>
-          <ul className="space-y-4 mb-6">
-            <li className="flex justify-between text-gray-600">
-              <span>
-                {products.length} article{products.length > 1 ? "s" : ""}
-              </span>
-              <span className="font-semibold">
-                {Number(totalPrice).toFixed(3)} TND
-              </span>
-            </li>
-            <li className="flex justify-between text-gray-600">
-              <span>Livraison</span>
-              <span className="font-semibold">
-                {Number(totalPrice) >= 499
-                  ? "Gratuit"
-                  : `${deliveryPrice.toFixed(3)} TND`}
-              </span>
-            </li>
-            <li className="flex justify-between text-gray-800 font-bold">
-              <span>Total (TTC)</span>
-              <span>
-                {Number(totalPrice) >= 499
-                  ? Number(totalPrice).toFixed(3)
-                  : (Number(totalPrice) + deliveryPrice).toFixed(3)}{" "}
-                TND
-              </span>
-            </li>
-          </ul>
-
-          {products.length > 0 ? (
-            <Link
-              href={{
-                pathname: "/Checkout",
-                query: {
-                  products: JSON.stringify(products),
-                  total: Number(totalPrice).toFixed(3),
-                },
-              }}
-              className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
-            >
-              Procéder au paiement
-            </Link>
+          {products.length === 0 ? (
+            EmptyBasket
           ) : (
-            <button
-              disabled
-              className="block w-full text-center py-3 px-4 bg-gray-400 text-white font-semibold rounded cursor-not-allowed"
-            >
-              Procéder au paiement
-            </button>
+            <Table>
+              <TableCaption>Bienvenue sur notre site.</TableCaption>
+              <TableHeader>
+                <TableRow className="w-full ">
+                  <TableHead className="text-base">Description</TableHead>
+                  <TableHead className="text-base">Quantité</TableHead>
+                  <TableHead className="text-base">Prix</TableHead>
+                </TableRow>
+              </TableHeader>
+              {productList}
+            </Table>
           )}
         </div>
+
+        {/* Order summary - only render if products exist */}
+        {products.length > 0 && (
+          <div className="bg-white h-fit sticky top-24 shadow-xl rounded-lg p-6">
+            <h3 className="text-xl font-bold text-gray-800 border-b pb-4 mb-6">
+              Récapitulatif de la commande
+            </h3>
+            <ul className="space-y-4 mb-6">
+              <li className="flex justify-between text-gray-600">
+                <span>
+                  {products.length} article{products.length > 1 ? "s" : ""}
+                </span>
+                <span className="font-semibold">
+                  {totalPrice ? Number(totalPrice).toFixed(2) : "0.00"} TND
+                </span>
+              </li>
+              <li className="flex justify-between text-gray-600">
+                <span>Livraison</span>
+                <span className="font-semibold">
+                  {Number(totalPrice) >= 499
+                    ? "Gratuit"
+                    : `${deliveryPrice.toFixed(2)} TND`}
+                </span>
+              </li>
+              <li className="flex justify-between text-gray-800 font-bold">
+                <span>Total (TTC)</span>
+                <span>
+                  {Number(totalPrice) >= 499
+                    ? Number(totalPrice).toFixed(2)
+                    : (Number(totalPrice) + deliveryPrice).toFixed(2)}{" "}
+                  TND
+                </span>
+              </li>
+            </ul>
+
+
+            <Link
+              onClick={() => {
+                setCheckoutProducts(products);
+                setCheckoutTotal(Number(totalPrice));
+                // Track InitiateCheckout
+                sendGTMEvent({
+                  event: "begin_checkout",
+                  ecommerce: {
+                    currency: "TND",
+                    value: totalPrice,
+                    items: products.map(product => ({
+                      item_id: product.id,
+                      quantity: product.actualQuantity || product.quantity
+                    }))
+                  },
+                  user_data: {
+                    em: [userData?.email.toLowerCase()],
+                    fn: [userData?.fullName],
+                    ph: [userData?.number],
+                    country: ["tn"],
+                    external_id: userData?.id
+                  },
+                  facebook_data: {
+                    content_name: "InitiateCheckout",
+                    content_type: "product",
+                    currency: "TND",
+                    value: totalPrice,
+                    contents: products.map(product => ({
+                      id: product.id,
+                      quantity: product.actualQuantity || product.quantity,
+                    })),
+                    num_items: products.reduce(
+                      (sum, product) =>
+                        sum + (product?.actualQuantity || product?.quantity || 0),
+                      0
+                    )
+                  }
+                });
+                triggerEvents("InitiateCheckout", {
+                  user_data: {
+                    em: [userData?.email.toLowerCase()],
+                    fn: [userData?.fullName],
+                    ph: [userData?.number],
+                    country: ["tn"],
+                    external_id: userData.id,
+                  },
+                  custom_data: {
+                    content_name: "InitiateCheckout",
+                    content_type: "product_group",
+                    currency: "TND",
+                    value: Number(totalPrice),
+                    contents: products.map(product => ({
+                      id: product.id,
+                      quantity: product.actualQuantity || product.quantity,
+                      price: product.productDiscounts?.length > 0
+                        ? Number(product.productDiscounts[0].newPrice)
+                        : Number(product.price)
+                      ,
+                      item_name: product.name,
+                      item_brand: product.Brand?.name,
+                      item_category: product.categories[0]?.name,
+                      item_category2: product.categories[1]?.name,
+                      item_category3: product.categories[2]?.name,
+                      availability: product.inventory > 0 ? "in stock" : "out of stock",
+                      item_description: product.description,
+                      item_variant: product.Colors?.color,
+                      item_Att: product.technicalDetails,
+                    })),
+                    num_items: products.reduce(
+                      (sum, product) =>
+                        sum + (product?.actualQuantity || product?.quantity || 0),
+                      0
+                    ),
+                  },
+                });
+              }}
+              href={"/Checkout"}
+              className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
+            >
+              Confirmer le paiement            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

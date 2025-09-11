@@ -1,20 +1,21 @@
 "use client";
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-} from "react";
+
+import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
+import { useSidebarStore } from "@/app/store/zustand";
+import { useToast } from "@/components/ui/use-toast";
+import { Drawer, IconButton, Typography } from "@material-tailwind/react";
+import { debounce } from "lodash";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { IoIosClose } from "react-icons/io";
-import { useToast } from "@/components/ui/use-toast";
-import { useSidebarStore } from "@/app/store/zustand";
-import { convertStringToQueriesObject } from "@/app/Helpers/_convertStringToQueriesObject";
-import { debounce } from "lodash";
-import prepRoute from "@/app/Helpers/_prepRoute";
-import { convertValidStringQueries } from "@/app/Helpers/_convertValidStringQueries";
 
 // Types
 interface SideBarProps {
@@ -27,6 +28,7 @@ interface Color {
   id: string;
   Hex: string;
   color: string;
+  Product: any[];
 }
 
 interface Brand {
@@ -44,122 +46,125 @@ interface FilterQueries {
   [key: string]: string[];
 }
 
-// Component
-const SideBar = ({ colors, brands, categories }: SideBarProps) => {
-  // Hooks
+const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isOpenSideBard, toggleOpenSidebar } = useSidebarStore();
-
-  // State
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const [selectedFilterQueries, setSelectedFilterQueries] =
     useState<FilterQueries>({});
-  const [localPrice, setLocalPrice] = useState(500);
+  const [localPrice, setLocalPrice] = useState<number>(500);
 
-  // Effects
+  // Initialize filters and price from URL parameters
   useEffect(() => {
     const paramsObj = convertStringToQueriesObject(searchParams);
     setSelectedFilterQueries(paramsObj);
+
     const priceFromParams = searchParams?.get("price");
     if (priceFromParams) {
       setLocalPrice(+priceFromParams);
     }
   }, [searchParams]);
 
-  // Callbacks
-  const handleSelectFilterOptions = useCallback(
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Helper function to build query string
+  const buildQueryString = (queries: FilterQueries): string => {
+    return Object.entries(queries)
+      .filter(([_, values]) => values.length > 0)
+      .map(
+        ([key, values]) =>
+          key === "color" || key === "choice" || key === "brand"
+            ? values
+              .map((value) => `${key}=${encodeURIComponent(value)}`)
+              .join("&")
+            : `${key}=${values.map(encodeURIComponent).join(",")}`
+      )
+      .join("&");
+  };
+
+  // Handle brand filter selection
+  const handleSelectBrandFilterOptions = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value, checked } = e.target;
       const updatedQueries = { ...selectedFilterQueries };
-      delete updatedQueries["query"];
 
       if (name === "brand") {
         updatedQueries["brand"] = checked ? [value] : [];
       } else {
-        if (checked) {
-          updatedQueries[name] = updatedQueries[name]
-            ? [...updatedQueries[name], value]
-            : [value];
-        } else {
-          updatedQueries[name] = updatedQueries[name].filter(
-            (query) => query !== value,
-          );
-          if (updatedQueries[name].length === 0) {
-            delete updatedQueries[name];
-          }
+        updatedQueries[name] = checked
+          ? [...(updatedQueries[name] || []), value]
+          : (updatedQueries[name] || []).filter((query) => query !== value);
+
+        if (updatedQueries[name]?.length === 0) {
+          delete updatedQueries[name];
         }
       }
 
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}&page=1`,
-        {
-          scroll: true,
-        },
-      );
+      router.push(`/Collections/tunisie?${buildQueryString(updatedQueries)}`, {
+        scroll: true,
+      });
     },
-    [selectedFilterQueries, router],
+    [selectedFilterQueries, router]
   );
 
   const handleChoiceFilterOptions = useCallback(
     (value: string) => {
-      const updatedQueries = { ...selectedFilterQueries };
-      if (value === "in-discount") {
-        delete updatedQueries["new_product"];
-        updatedQueries["choice"] = [value];
-      } else if (value === "new-product") {
-        delete updatedQueries["en_promo"];
-        updatedQueries["choice"] = [value];
-      }
+      const updatedQueries: { [key: string]: string[] } = {
+        ...selectedFilterQueries,
+      };
+
+      // Update the 'choice' parameter as an array
+      updatedQueries["choice"] = [value];
+
+      // Remove unnecessary parameters
+      delete updatedQueries["page"];
 
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        {
-          scroll: true,
-        },
-      );
+
+      // Build the query string
+      const queryString = buildQueryString(updatedQueries);
+      const newUrl = `/Collections/tunisie?${queryString}`;
+
+      router.push(newUrl, { scroll: true });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar,]
   );
 
   const handleColorSelection = useCallback(
-    (colorId: string) => {
-      const updatedQueries = { ...selectedFilterQueries, color: [colorId] };
+    (colorName: string) => {
+      const updatedQueries = { ...selectedFilterQueries, color: [colorName] };
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        {
-          scroll: true,
-        },
-      );
+      router.push(`/Collections/tunisie?${buildQueryString(updatedQueries)}`, {
+        scroll: true,
+      });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
+  // Debounced price update
   const debouncedUpdateUrl = useRef(
     debounce((price: number) => {
       router.push(`/Collections/tunisie?price=${price}`, { scroll: false });
-    }, 300),
+    }, 300)
   ).current;
-
-  useEffect(() => {
-    // Initialize localPrice from URL on component mount
-    const priceFromParams = searchParams?.get("price");
-    if (priceFromParams) {
-      setLocalPrice(+priceFromParams);
-    }
-  }, []);
 
   const handlePriceChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newPrice = Number(e.target.value);
       setLocalPrice(newPrice);
     },
-    [],
+    []
   );
 
   const handlePriceChangeEnd = useCallback(() => {
@@ -185,25 +190,22 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
       };
 
       setSelectedFilterQueries(updatedQueries);
-      router.push(
-        `/Collections/tunisie?${convertValidStringQueries(updatedQueries)}`,
-        {
-          scroll: false,
-        },
-      );
+      router.push(`/Collections/tunisie?${buildQueryString(updatedQueries)}`, {
+        scroll: false,
+      });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, router, toggleOpenSidebar],
+    [selectedFilterQueries, router, toggleOpenSidebar]
   );
 
   const isChecked = useCallback(
     (name: string, option: string) => {
       return Boolean(
         selectedFilterQueries[name] &&
-          selectedFilterQueries[name].includes(option.toLowerCase()),
+        selectedFilterQueries[name].includes(option)
       );
     },
-    [selectedFilterQueries],
+    [selectedFilterQueries]
   );
 
   // Render helpers
@@ -217,25 +219,27 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         ].map((choice) => (
           <div key={choice.id} className="flex items-center group">
             <input
+              style={{
+                WebkitAppearance: "none",
+                appearance: "none",
+              }}
               id={`filtre-choix-${choice.id}`}
               name="choice"
               type="radio"
               value={choice.id}
               checked={isChecked("choice", choice.id)}
-              className={`h-3 w-3 appearance-none outline-none ${
-                isChecked("choice", choice.id)
-                  ? "bg-secondaryColor"
-                  : "bg-white"
-              } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
+              className={`h-3 w-3  outline-none ${isChecked("choice", choice.id)
+                ? "bg-secondaryColor"
+                : "bg-white"
+                } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
               onChange={() => handleChoiceFilterOptions(choice.id)}
             />
             <label
               htmlFor={`filtre-choix-${choice.id}`}
-              className={`ml-3 text-sm tracking-widest cursor-pointer ${
-                isChecked("choice", choice.id)
-                  ? "text-black font-semibold"
-                  : "text-gray-600"
-              } group-hover:text-black group-hover:font-semibold transition-all`}
+              className={`ml-3 text-sm tracking-widest cursor-pointer ${isChecked("choice", choice.id)
+                ? "text-black font-semibold"
+                : "text-gray-600"
+                } group-hover:text-black group-hover:font-semibold transition-all`}
             >
               {choice.label}
             </label>
@@ -252,29 +256,25 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
         {categories?.map((category) => (
           <li
             key={category.id}
-            className={`${
-              searchParams?.get("category") === category?.id ? "font-bold" : ""
-            } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
+            className={`${searchParams?.get("category") === category?.id ? "font-bold" : ""
+              } hover:text-black hover:font-bold relative cursor-pointer h-full w-full group transition-all flex items-center justify-between py-2`}
           >
             <Link
-              href={{
-                pathname: `/Collections/tunisie/${prepRoute(category.name)}/?category=${category.id}`,
-
-                query: {
-                  collection: [category.name, category.id],
-                },
-              }}
+              href={`/Collections/tunisie?${new URLSearchParams(
+                {
+                  category: category.name,
+                }
+              )}`}
               className="w-full h-full"
               onClick={() => handleCategoryClick(category.id)}
             >
               {category.name}
             </Link>
             <span
-              className={`${
-                searchParams?.get("category") === category?.id
-                  ? "bg-primaryColor"
-                  : "bg-secondaryColor"
-              } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
+              className={`${searchParams?.get("category") === category?.id
+                ? "bg-primaryColor"
+                : "bg-secondaryColor"
+                } h-full w-[5px] absolute right-0 group-hover:bg-primaryColor rounded-lg border transition-all`}
             ></span>
           </li>
         ))}
@@ -291,12 +291,16 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
             Prix range
           </label>
           <input
+            style={{
+              WebkitAppearance: "none",
+              appearance: "none",
+            }}
             id="price-range-input"
             type="range"
             min="1"
             max="3000"
             value={localPrice}
-            className="w-full h-full max-h-6 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            className="w-full h-full max-h-6 bg-gray-200 rounded-lg  cursor-pointer"
             onChange={handlePriceChange}
             onMouseUp={handlePriceChangeEnd}
             onTouchEnd={handlePriceChangeEnd}
@@ -316,9 +320,8 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
           <span className="text-gray-400">à :</span>
           <input
             type="number"
-            className={`w-20  border max-h-6 text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${
-              localPrice !== 500 ? "text-black" : "text-gray-400"
-            }`}
+            className={`w-20  border max-h-6 text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${localPrice !== 500 ? "text-black" : "text-gray-400"
+              }`}
             value={localPrice}
             onChange={handlePriceChange}
             onBlur={handlePriceChangeEnd}
@@ -336,114 +339,198 @@ const SideBar = ({ colors, brands, categories }: SideBarProps) => {
       <h3 className="font-normal tracking-widest text-sm mb-6">COULEURS</h3>
       <div className="overflow-y-auto max-h-60">
         <div className="flex items-center flex-wrap px-3 w-full gap-3">
-          {colors?.map((color) => (
-            <div key={color.id} className="flex items-center">
-              <input
-                id={`filtre-color-${color.id}`}
-                name="color"
-                type="checkbox"
-                value={color.id}
-                checked={isChecked("color", color.id)}
-                style={{
-                  WebkitAppearance: "none",
-                  MozAppearance: "none",
-                  appearance: "none",
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  outline: "none",
-                  background: color.Hex,
-                  border: isChecked("color", color.id)
-                    ? "2px solid black"
-                    : "2px solid gray",
-                  transition: "border-color 0.3s",
-                }}
-                title={color.color}
-                className="color-checkbox cursor-pointer shadow-md shadow-white"
-                onChange={() => handleColorSelection(color.id)}
-              />
-            </div>
-          ))}
+          {colors
+            ?.filter((color) => color.Product?.length > 0)
+            .map((color) => (
+              <div key={color.id} className="flex items-center">
+                <input
+                  id={`filtre-color-${color.color}`}
+                  name="color"
+                  type="checkbox"
+                  value={color.id}
+                  checked={isChecked("color", color.color)}
+                  style={{
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    appearance: "none",
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    outline: "none",
+                    background: color.Hex,
+                    border: isChecked("color", color.color)
+                      ? "2px solid black"
+                      : "2px solid gray",
+                    transition: "border-color 0.3s",
+                  }}
+                  title={color.color}
+                  className="color-checkbox cursor-pointer shadow-md shadow-white"
+                  onChange={() => handleColorSelection(color.color)}
+                />
+              </div>
+            ))}
         </div>
       </div>
     </div>
   );
 
-  const renderBrandFilters = () => (
-    <div className="border-b pl-5 border-gray-200 py-6">
-      <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
-      <div className="overflow-y-auto max-h-60" id="filter-section-1">
-        <div className="space-y-4">
-          {brands?.map((brand) => (
-            <div key={brand.id} className="flex items-center">
-              <input
-                id={`filtre-brand-${brand.id}`}
-                name="brand"
-                type="radio"
-                value={brand.id}
-                checked={isChecked("brand", brand.id)}
-                className={`h-3 w-3 appearance-none outline-none ${
-                  isChecked("brand", brand.id)
-                    ? "bg-secondaryColor"
-                    : "bg-white"
-                } rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all hover:shadow-primaryColor hover:shadow-lg cursor-pointer group text-primaryColor`}
-                onChange={handleSelectFilterOptions}
-              />
-              <div className="flex items-center justify-between w-full">
-                <label
-                  htmlFor={`filtre-brand-${brand.id}`}
-                  className="ml-3 text-sm tracking-wider text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
-                >
-                  {brand.name}
-                </label>
-                <span className="text-gray-600 mr-3">
-                  ({brand?.product?.length})
-                </span>
-              </div>
-            </div>
-          ))}
+  const filteredBrands = useMemo(() => {
+    return selectedFilterQueries.category?.length
+      ? brands.filter((brand) =>
+        brand.product.some((product) =>
+          product.categories.some((category: { name: string }) =>
+            selectedFilterQueries.category.includes(category.name)
+          )
+        )
+      )
+      : brands;
+  }, [brands, selectedFilterQueries.category]);
+
+  const BrandFilters = memo(() => {
+    return (
+      <div className="border-b pl-5 border-gray-200 py-6">
+        <h3 className="font-normal tracking-widest text-sm mb-6">MARKES</h3>
+        <div className="overflow-y-auto max-h-60" id="filter-section-1">
+          <div className="space-y-4">
+            {filteredBrands?.map(
+              (brand: {
+                id: React.Key;
+                name: string;
+                product: string | any[];
+              }) => {
+                return (
+                  <div key={brand.id} className="flex items-center">
+                    <input
+                      id={`filtre-brand-${brand.id}`}
+                      name="brand"
+                      type="radio"
+                      value={brand.name}
+                      checked={isChecked("brand", brand.name)}
+                      className={`h-3 w-3 outline-none ${isChecked("brand", brand.name) ? "bg-secondaryColor" : "bg-white"} rounded-sm h-5 w-5 border-gray-300 border hover:bg-lightBeige transition-all  hover:shadow-lg cursor-pointer group text-primaryColor`}
+                      onChange={handleSelectBrandFilterOptions}
+                      aria-label={`Filter by ${brand.name}`}
+                    />
+                    <div className="flex items-center justify-between w-full">
+                      <label
+                        htmlFor={`filtre-brand-${brand.id}`}
+                        className="ml-3 text-sm tracking-wider text-gray-600 cursor-pointer group-hover:text-black group-hover:font-semibold hover:font-semibold transition-all"
+                      >
+                        {brand.name}
+                      </label>
+                      <span className="text-gray-600 mr-3">
+                        ({brand?.product?.length})
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  });
+
+  const renderBrandFilters = () => {
+    return <BrandFilters />;
+  };
 
   // Main render
+  const renderDrawerContent = () => (
+    <>
+      {renderChoiceFilters()}
+      {renderCategories()}
+      {renderPriceFilter()}
+      {renderColorFilters()}
+      {renderBrandFilters()}
+    </>
+  );
+
   return (
-    <section
-      aria-labelledby="products-heading"
-      className={`  overflow-y-auto z-30 h-re     
-         w-96 relative  h-auto
-        transition-all bg-white shadow-md  ${
-          isOpenSideBard ? "relative" : "hidden md:block"
-        }`}
-    >
-      <form className="relative pt-5 ">
-        <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
-          FILTRER
-        </h3>
-
-        {Object.keys(selectedFilterQueries).length > 0 && (
-          <div
-            onClick={handleClearFilters}
-            className="flex items-center justify-center transition-all hover:text-red-700 cursor-pointer"
-          >
-            <button
-              type="button"
-              className="flex border rounded-md gap-2 items-center py-1 shadow px-2"
+    <>
+      {isMobile ? (
+        <Drawer
+          placeholder={undefined}
+          open={isOpenSideBard}
+          onClose={toggleOpenSidebar}
+          size={300}
+          className="p-4 flex top-0 flex-col h-full pb-28 pt-10 z-[9999]"
+          overlayProps={{ className: "bg-black/50" }}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+        >
+          <div className="mb-6 flex items-center justify-between">
+            <Typography
+              placeholder={undefined}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              variant="h5"
+              color="blue-gray"
             >
-              <IoIosClose size={25} />
-              Effacer Filters
-            </button>
+              FILTRER
+            </Typography>
+            <IconButton
+              placeholder={undefined}
+              variant="text"
+              color="blue-gray"
+              onClick={toggleOpenSidebar}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+            >
+              <IoIosClose size={24} />
+            </IconButton>
           </div>
-        )}
+          <div className=" pb-16  flex-grow overflow-y-auto ">
+            <form className="relative">
+              {Object.keys(selectedFilterQueries).length > 0 && (
+                <div
+                  onClick={handleClearFilters}
+                  className="flex items-center justify-center transition-all overflow-y-auto hover:text-red-700 cursor-pointer mb-4"
+                >
+                  <button
+                    type="button"
+                    className="flex border rounded-md gap-2 items-center py-1 shadow px-2"
+                  >
+                    <IoIosClose size={25} />
+                    Effacer Filters
+                  </button>
+                </div>
+              )}
 
-        {renderChoiceFilters()}
-        {renderCategories()}
-        {renderPriceFilter()}
-        {renderColorFilters()}
-        {renderBrandFilters()}
-      </form>
-    </section>
+              {renderDrawerContent()}
+            </form>
+          </div>
+        </Drawer>
+      ) : (
+        <section
+          aria-labelledby="products-heading"
+          className="overflow-y-auto z-50 w-80 h-fit py-5 transition-all bg-white shadow-md relative top-16"
+        >
+          <form className="relative pt-5">
+            <h3 className="font-semibold tracking-widest pl-5 text-lg pb-2">
+              FILTRER
+            </h3>
+
+            {Object.keys(selectedFilterQueries).length > 0 && (
+              <div
+                onClick={handleClearFilters}
+                className="flex items-center justify-center transition-all hover:text-red-700 cursor-pointer"
+              >
+                <button
+                  type="button"
+                  className="flex border rounded-md gap-2 items-center py-1 shadow px-2"
+                >
+                  <IoIosClose size={25} />
+                  Effacer Filters
+                </button>
+              </div>
+            )}
+
+            {renderDrawerContent()}
+          </form>
+        </section>
+      )}
+    </>
   );
 };
 

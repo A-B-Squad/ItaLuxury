@@ -1,6 +1,5 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import moment from "moment";
-import { Prisma } from "@prisma/client";
 
 export const createProduct = async (
   _: any,
@@ -18,76 +17,39 @@ export const createProduct = async (
       inventory,
       images,
       categories,
-      attributeInputs,
+      technicalDetails,
       colorsId,
       discount,
       brandId,
-      sameProductId,
+      groupProductVariantId
     } = input;
 
-    // Prepare the data for product creation
-    const productData: Prisma.ProductCreateInput = {
-      name,
-      price,
-      purchasePrice,
-      isVisible,
-      reference,
-      description,
-      inventory,
-      images,
-      categories: {
-        connect: categories.map((categoryId) => ({ id: categoryId })),
-      },
-      attributes: {
-        create: attributeInputs,
-      },
-    };
+    // Filter and validate categories
+    const validCategories = categories?.filter(id =>
+      id && typeof id === 'string' && id.trim() !== ''
+    ) || [];
 
-    // Conditionally add relations only if they are provided
-    if (colorsId) {
-      productData.Colors = { connect: { id: colorsId } };
-    }
-    if (brandId) {
-      productData.Brand = { connect: { id: brandId } };
-    }
-
-    // Handle same product logic
-    let parentProductId = null;
-    if (sameProductId) {
-      const selectedProduct = await prisma.product.findUnique({
-        where: { id: sameProductId },
-        include: { SameProducts: true },
-      });
-
-      if (selectedProduct) {
-        if (selectedProduct.SameProducts.length > 0) {
-          // If the selected product is already linked to others, find the parent
-          const parentProduct = await prisma.product.findFirst({
-            where: {
-              SameProducts: {
-                some: { sameProductId: selectedProduct.id },
-              },
-            },
-          });
-          parentProductId = parentProduct?.id || selectedProduct.id;
-        } else {
-          // If the selected product is not linked to others, it becomes the parent
-          parentProductId = selectedProduct.id;
-        }
-      }
-    }
-
-    // Creating a new product using prisma
+    // Creating a new product using prisma  
     const productCreate = await prisma.product.create({
       data: {
-        ...productData,
-        SameProducts: parentProductId
-          ? {
-              create: {
-                sameProductId: parentProductId,
-              },
-            }
-          : undefined,
+        name,
+        price,
+        purchasePrice,
+        isVisible,
+        reference,
+        description,
+        technicalDetails,
+        inventory,
+        images,
+        colorsId,
+        brandId,
+        groupProductVariantId,
+        updatedAt: new Date(),
+        ...(validCategories.length > 0 && {
+          categories: {
+            connect: validCategories.map((categoryId) => ({ id: categoryId })),
+          },
+        }),
       },
       include: {
         Colors: true,
@@ -95,36 +57,18 @@ export const createProduct = async (
       },
     });
 
-    // If this is a parent product, create a SameProducts entry for itself
-    if (!parentProductId) {
-      await prisma.sameProducts.create({
-        data: {
-          productId: productCreate.id,
-          sameProductId: productCreate.id,
-        },
-      });
-    }
-
-    // Handle discounts
+    // If discount is provided  
     if (discount) {
       for (const discountInput of discount) {
-        const dateOfEnd = moment(
-          discountInput.dateOfEnd,
-          "DD/MM/YYYY HH:mm",
-          true
-        );
-        const dateOfStart = moment(
-          discountInput.dateOfStart,
-          "DD/MM/YYYY HH:mm",
-          true
-        );
+        const dateOfEnd = moment(discountInput.dateOfEnd, 'DD/MM/YYYY HH:mm', true);
+        const dateOfStart = moment(discountInput.dateOfStart, 'DD/MM/YYYY HH:mm', true);
 
+        // Check for valid dates  
         if (!dateOfEnd.isValid() || !dateOfStart.isValid()) {
-          throw new Error(
-            `Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`
-          );
+          throw new Error(`Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`);
         }
 
+        // Avoiding duplicate discounts by checking for an existing discount  
         const existingDiscount = await prisma.productDiscount.findFirst({
           where: {
             productId: productCreate.id,
@@ -133,12 +77,12 @@ export const createProduct = async (
         });
 
         if (existingDiscount) {
-          console.warn(
-            `Discount for this product and price already exists: ${price}`
-          );
-          continue;
+          // Optionally, update or skip, based on your logic, here we will just log a notice and skip  
+          console.warn(`Discount for this product and price already exists: ${price}`);
+          continue; // Skip creating this discount as it already exists  
         }
 
+        // Creating a new product discount  
         await prisma.productDiscount.create({
           data: {
             productId: productCreate.id,
@@ -146,7 +90,6 @@ export const createProduct = async (
             price,
             dateOfEnd: dateOfEnd.toDate(),
             dateOfStart: dateOfStart.toDate(),
-            discountId: discountInput.discountId || null,
           },
         });
       }
@@ -154,6 +97,10 @@ export const createProduct = async (
 
     return "Product created successfully";
   } catch (error: any) {
+    // Handle errors gracefully  
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      throw new Error(`Le nom du produit "${input.name}" existe déjà`);
+    }
     console.error("Error creating product:", error.message);
     return { error: "Failed to create product. Please try again." };
   }

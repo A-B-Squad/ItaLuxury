@@ -1,33 +1,37 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const allDeals = async (_: any, __: any, { prisma }: Context) => {
   try {
-    const products = await prisma.topDeals.findMany({
-      include: {
-        product: {
-          include: {
-            productDiscounts: {
-              include: { Discount: true },
-            },
-            Colors: true,
-            attributes: true,
-            categories: {
-              include: {
-                subcategories: {
-                  include: { subcategories: true },
+    const products = await prisma.topDeals.findMany(
+
+
+
+      {
+        include: {
+          product: {
+
+            include: {
+              productDiscounts: true,
+
+              Colors: true,
+              categories: {
+                include: {
+                  subcategories: {
+                    include: { subcategories: true },
+                  },
                 },
               },
             },
           },
         },
-      },
-    });
+      });
 
     // Flag to check if there is any product with a discount
     let hasDiscount = false;
 
     for (let index = 0; index < products.length; index++) {
       const product = products[index];
+
       if (product.product && product.product.productDiscounts.length > 0) {
         hasDiscount = true;
         break; // No need to check further once we found a discount
@@ -39,7 +43,7 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
       // First, find the ID of the "topDeals" section
       const section = await prisma.content_visibility.findFirst({
         where: {
-          section: "topDeals",
+          section: "TOP DEAL",
         },
       });
 

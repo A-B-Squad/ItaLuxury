@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { ProductData } from "../types";
 
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
@@ -18,34 +19,67 @@ type BasketStore = {
   toggleIsUpdated: () => void;
 };
 
-interface ProductData {
+interface ProductDetailsData {
   id: string;
   name: string;
   price: number;
+  isVisible: boolean;
+  images: string[];
   reference: string;
   description: string;
-  createdAt: Date;
   inventory: number;
-  images: string[];
-  categories: {
-    name: string;
+  productDiscounts: {
+    newPrice: number;
+    price: number;
   }[];
   Colors: {
     color: string;
     Hex: string;
   };
-  productDiscounts: {
-    price: number;
-    newPrice: number;
-    Discount: {
-      percentage: number;
-    };
+  brand: Brand;
+  categories: {
+    name: string;
+    id: string;
+    subcategories: {
+      name: string;
+      id: string;
+      subcategories: {
+        name: string;
+        id: string;
+      }[];
+    }[];
   }[];
+  [key: string]: any;
 }
+
+interface CheckoutState {
+  checkoutProducts: ProductDetailsData[];
+  checkoutTotal: number;
+  setCheckoutProducts: (products: any) => void;
+  setCheckoutTotal: (total: number) => void;
+  clearCheckout: () => void;
+}
+
+export const useCheckoutStore = create<CheckoutState>()(
+  persist(
+    (set) => ({
+      checkoutProducts: [],
+      checkoutTotal: 0,
+      setCheckoutProducts: (products) => set({ checkoutProducts: products }),
+      setCheckoutTotal: (total) => set({ checkoutTotal: total }),
+      clearCheckout: () => set({ checkoutProducts: [], checkoutTotal: 0 }),
+    }),
+    {
+      name: "checkout-storage",
+      storage: createJSONStorage(() => sessionStorage),
+    }
+  )
+);
+
 type UseProductDetails = {
   isOpen: boolean;
-  productData: ProductData | any;
-  openProductDetails: (productData: ProductData) => void;
+  productData: ProductDetailsData | any;
+  openProductDetails: (productData: ProductDetailsData) => void;
   closeProductDetails: () => void;
 };
 
@@ -56,12 +90,26 @@ export const useProductDetails = create<UseProductDetails>((set) => ({
   closeProductDetails: () => set({ isOpen: false, productData: null }),
 }));
 
+type UsePruchaseOptions = {
+  isOpen: boolean;
+  productData: ProductDetailsData | any;
+  openPruchaseOptions: (productData: ProductDetailsData) => void;
+  closePruchaseOptions: () => void;
+};
+
+export const usePruchaseOptions = create<UsePruchaseOptions>((set) => ({
+  isOpen: false,
+  productData: null,
+  openPruchaseOptions: (productData) => set({ isOpen: true, productData }),
+  closePruchaseOptions: () => set({ isOpen: false, productData: null }),
+}));
+
 export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
   (set) => ({
     isOpen: false,
     openCategoryDrawer: () => set({ isOpen: true }),
     closeCategoryDrawer: () => set({ isOpen: false }),
-  }),
+  })
 );
 
 export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
@@ -75,90 +123,159 @@ export const useBasketStore = create<BasketStore>((set) => ({
   toggleIsUpdated: () => set((state) => ({ isUpdated: !state.isUpdated })),
 }));
 
-const comparedProductsStore = <ComparedProductsStore>(set: any, get: any) => ({
-  products: [],
-  addProductToCompare: (product: any) => {
-    const currentProducts = get().products;
-    // Check if the product already exists in the products array
-    const isProductInStore = currentProducts.some(
-      (p: any) => p.id === product.id,
-    );
-    if (!isProductInStore) {
-      set((state: any) => ({ products: [...state.products, product] }));
-    }
-  },
-  removeProductFromCompare: (productId: any) =>
-    set((state: any) => ({
-      products: state.products.filter(
-        (product: any) => product.id !== productId,
-      ),
-    })),
-});
 
-// Define the Product type
-interface Product {
-  [x: string]: number;
 
-  price: number;
-}
-
-// Define the ProductsInBasketStore type
-interface ProductsInBasketStore {
-  products: Product[];
+type State = {
+  products: ProductData[];
   quantityInBasket: number;
+};
+
+type Actions = {
   setQuantityInBasket: (quantity: number) => void;
-  addProductToBasket: (product: Product) => void;
+  addProductToBasket: (product: ProductData) => void;
+  addMultipleProducts: (product: ProductData[]) => void;
   removeProductFromBasket: (productId: string) => void;
+  increaseProductInQtBasket: (productId: string, quantity: number) => void;
+  decreaseProductInQtBasket: (productId: string) => void;
   clearBasket: () => void;
+};
+
+type ProductsInBasketStore = State & Actions;
+
+export const useProductsInBasketStore = create<ProductsInBasketStore>()(
+  persist(
+    (set) => ({
+      products: [],
+      quantityInBasket: 0,
+
+      setQuantityInBasket: (quantity: number) => {
+        set(() => ({
+          quantityInBasket: quantity,
+        }));
+      },
+
+      addProductToBasket: (product: ProductData) => {
+        set((state) => ({
+          products: [...state.products, product],
+          quantityInBasket: state.products.length + 1,
+        }));
+      },
+      
+      addMultipleProducts: (products: ProductData[]) => {
+        set(() => ({
+          products: products,
+        }));
+      },
+      
+      increaseProductInQtBasket: (productId: string, quantity: number) => {
+        set((state) => {
+          const updatedProducts = state.products.map((product) =>
+            product.id === productId
+              ? {
+                ...product,
+                actualQuantity: (product.actualQuantity || 0) + quantity,
+              }
+              : product
+          );
+
+          const updatedQuantityInBasket = updatedProducts.reduce(
+            (sum, product) => sum + (product.actualQuantity || 0),
+            0
+          );
+
+          return {
+            products: updatedProducts,
+            quantityInBasket: updatedQuantityInBasket,
+          };
+        });
+      },
+
+      decreaseProductInQtBasket: (productId: string) => {
+        set((state) => {
+          const updatedProducts = state.products
+            .map((product) =>
+              product.id === productId && (product.actualQuantity || 0) > 0
+                ? {
+                  ...product,
+                  actualQuantity: (product.actualQuantity || 0) - 1,
+                }
+                : product
+            )
+            .filter((product) => (product.actualQuantity || 0) > 0);
+
+          const updatedQuantityInBasket = updatedProducts.reduce(
+            (sum, product) => sum + (product.actualQuantity || 0),
+            0
+          );
+
+          return {
+            products: updatedProducts,
+            quantityInBasket: updatedQuantityInBasket,
+          };
+        });
+      },
+
+      removeProductFromBasket: (productId: string) => {
+        set((state) => {
+          const updatedProducts = state.products.filter(
+            (product) => product.id !== productId
+          );
+
+          const updatedQuantityInBasket = updatedProducts.reduce(
+            (sum, product) => sum + (product.actualQuantity || 0),
+            0
+          );
+
+          return {
+            products: updatedProducts,
+            quantityInBasket: updatedQuantityInBasket,
+          };
+        });
+      },
+
+      clearBasket: () => {
+        set(() => ({
+          products: [],
+          quantityInBasket: 0,
+        }));
+      },
+    }),
+    {
+      name: "products-in-basket",
+      storage: createJSONStorage(() => localStorage), 
+    }
+  )
+);
+
+interface ProductComparisonState {
+  comparisonList: Product[];
+  addToComparison: (product: Product) => void;
+  removeFromComparison: (productId: string | number) => void;
 }
 
-// Define the set type
-type SetState = (
-  update: (state: ProductsInBasketStore) => Partial<ProductsInBasketStore>,
-) => void;
 
-// Define the store creation function
-const productsInBasketStore = (set: SetState): ProductsInBasketStore => ({
-  products: [],
-  quantityInBasket: 0,
-  setQuantityInBasket: (quantity: number) => {
-    set((state) => ({
-      quantityInBasket: quantity,
-    }));
-  },
-  addProductToBasket: (product: Product) => {
-    set((state) => ({
-      products: [...state.products, product],
-    }));
-  },
-  removeProductFromBasket: (productId: string) => {
-    set((state) => ({
-      products: state.products.filter(
-        (product: any) => product.id !== productId,
-      ),
-    }));
-  },
-  clearBasket: () => {
-    set((state) => ({
-      products: [],
-    }));
-  },
-});
+export const useProductComparisonStore = create<ProductComparisonState>()(
+  persist(
+    (set, get) => ({
+      comparisonList: [],
+      addToComparison: (productToCompare) => {
+        const currentItems = get().comparisonList;
 
-export const useProductsInBasketStore = create(
-  persist(productsInBasketStore, {
-    name: "productsInBasket",
-    storage: createJSONStorage(() => sessionStorage),
-  }),
+        set(() => ({
+          comparisonList: [...currentItems, productToCompare]
+        }));
+      },
+      removeFromComparison: (productId) =>
+        set((state) => ({
+          comparisonList: state.comparisonList.filter(item => item.id !== productId)
+        })),
+    }),
+    {
+      name: "productComparison",
+      storage: createJSONStorage(() => sessionStorage),
+    }
+  )
 );
-
-export const useComparedProductsStore = create(
-  persist(comparedProductsStore, {
-    name: "comparedProducts",
-    storage: createJSONStorage(() => sessionStorage),
-  }),
-);
-
 type SidebarStore = {
   isOpenSideBard: boolean;
   toggleOpenSidebar: () => void;
@@ -201,3 +318,5 @@ export const useSideBarFilterWithStore = create<SideBarFilterStore>((set) => ({
       return { filter: rest };
     }),
 }));
+
+

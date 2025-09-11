@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const getBestSells = async (
   _: any,
@@ -18,11 +18,7 @@ export const getBestSells = async (
                   }
                 }
               }
-            }, productDiscounts: {
-              include: {
-                Discount: true
-              }
-            }
+            }, productDiscounts: true,
           }
         },
         Category: true

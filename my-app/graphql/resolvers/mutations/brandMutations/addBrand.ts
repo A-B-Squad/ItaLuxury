@@ -1,12 +1,11 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const addBrand = async (
   _: any,
   {
     name,
     logo,
-    categoryId,
-  }: { name: string; logo: string; categoryId: string },
+  }: { name: string; logo: string; },
   { prisma }: Context
 ) => {
   try {
@@ -14,7 +13,6 @@ export const addBrand = async (
       data: {
         name,
         logo,
-        categoryId,
       },
     });
     return "Brand added successfully";

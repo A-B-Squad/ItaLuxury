@@ -1,21 +1,19 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
-export const addProductToTopDeals = async ( 
+export const addProductToTopDeals = async (
     _: any,
     { productId }: { productId: string },
     { prisma }: Context
 ) => {
     try {
-        const createdTopDeal = await prisma.topDeals.create({
+        await prisma.topDeals.create({
             data: {
                 productId
             },
             include: {
                 product: {
                     include: {
-                        productDiscounts: {
-                            include: { Discount: true }
-                        }, Colors: true, attributes: true, categories: true
+                        productDiscounts: true, Colors: true, categories: true
                     }
                 }
             }

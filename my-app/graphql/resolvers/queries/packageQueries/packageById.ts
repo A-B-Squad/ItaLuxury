@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const packageById = async (
   _: any,
@@ -11,15 +11,12 @@ export const packageById = async (
       include: {
         Checkout: {
           include: {
+            Governorate: true,
             productInCheckout: {
               include: {
                 product: {
                   include: {
-                    productDiscounts: {
-                      include: {
-                        Discount: true,
-                      },
-                    },
+                    productDiscounts: true
                   },
                 },
               },

@@ -13,7 +13,7 @@ interface Product {
   baskets: Basket[];
   reviews: Review[];
   favoriteProducts: FavoriteProducts[];
-  attributes: ProductAttribute[];
+  technicalDetails: string;
   Colors: {
     color
     Hex
@@ -31,17 +31,14 @@ interface ProductInput {
   inventory: number;
   images: string[];
   categories: string[];
-  attributeInputs: ProductAttributeInput[];
+  technicalDetails: string;
   colorsId?: string;
   discount?: ProductDiscountInput[];
   brandId?: string;
-  sameProductId?: string;
+  groupProductVariantId?: string;
 }
 
-interface ProductAttributeInput {
-  name: string;
-  value: string;
-}
+
 
 interface ProductDiscountInput {
   discountId: string;
@@ -51,7 +48,7 @@ interface ProductDiscountInput {
   newPrice: Float;
 }
 
-interface AddProductToFavoriteInput {
+interface AddDeleteProductToFavorite{
   userId: string;
   productId: string;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { ApolloLink, HttpLink } from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import {
   ApolloNextAppProvider,
   NextSSRApolloClient,
@@ -8,12 +9,24 @@ import {
   SSRMultipartLink,
 } from "@apollo/experimental-nextjs-app-support/ssr";
 
-function makeClient() {
+const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+  if (graphQLErrors) {
+    for (const err of graphQLErrors) {
+      console.error("❌ GraphQL Error:", operation);
+      console.error("❌ GraphQL Error in:", operation.operationName);
+      console.error("Variables:", operation.variables);
+      console.error(err.message);
+    }
+  }
+  if (networkError) {
+    console.error("❌ Network error:", networkError);
+  }
+});
 
+function makeClient() {
   const httpLink = new HttpLink({
     uri: `${process.env.NEXT_PUBLIC_API_URL}`,
-    credentials:'include',
-    
+    credentials: "include",
   });
 
   return new NextSSRApolloClient({
@@ -24,16 +37,13 @@ function makeClient() {
             new SSRMultipartLink({
               stripDefer: true,
             }),
+            errorLink,
             httpLink,
           ])
-        : httpLink,
+        : ApolloLink.from([errorLink, httpLink]),
   });
 }
 
 export function ApolloWrapper({ children }: React.PropsWithChildren) {
-  return (
-    <ApolloNextAppProvider makeClient={makeClient}>
-      {children}
-    </ApolloNextAppProvider>
-  );
+  return <ApolloNextAppProvider makeClient={makeClient}>{children}</ApolloNextAppProvider>;
 }

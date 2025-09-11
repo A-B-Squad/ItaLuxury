@@ -1,7 +1,8 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 
 interface UpdateCheckoutInput {
+  orderStatus?: string
   checkoutId: string;
   total?: number;
   manualDiscount: GLfloat;
@@ -16,9 +17,10 @@ interface UpdateCheckoutInput {
 
 async function sendCheckoutEmail(
   checkout: any,
-  products: any[],
+  productInCheckout: any[],
   customId: string,
-  deliveryPrice: any
+  deliveryPrice: any,
+  Email: string
 ) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -31,26 +33,33 @@ async function sendCheckoutEmail(
     },
   });
 
-  const totalProducts = checkout.productInCheckout.reduce(
+  // Base URL for your website
+  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
+
+  // Logo and other image paths - using images from public folder
+  const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
+  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.webp`;
+
+  const totalProducts = productInCheckout.reduce(
     (
       acc: number,
       item: { discountedPrice: any; price: any; productQuantity: number }
     ) =>
       acc +
       (item.discountedPrice ? item.discountedPrice : item.price) *
-        item.productQuantity,
+      item.productQuantity,
     0
   );
 
   const couponDiscount = checkout.Coupons?.discount || 0;
   const discountAmount = (totalProducts * couponDiscount) / 100;
   const totalAfterDiscount = totalProducts - discountAmount;
-  const deliveryCost = checkout.freeDelivery ? deliveryPrice : 0.0;
+  const deliveryCost = checkout.freeDelivery ? 0.0 : deliveryPrice;
   const totalToPay = checkout.total;
 
   const mailOptions = {
-    from: '"MaisonNg" <no-reply@maisonng.com>',
-    to: checkout.User.email,
+    from: '"ita-luxury" <no-reply@ita-luxury.com>',
+    to: Email,
     subject: "Mise à jour de votre commande",
     html: `
       <!DOCTYPE html>
@@ -58,27 +67,31 @@ async function sendCheckoutEmail(
       <head>
         <style>
           body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f2f2f2;
             margin: 0;
             padding: 0;
             color: #333;
+            line-height: 1.6;
           }
           .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background-color: #fff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           }
           .header {
             text-align: center;
-            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 30px;
           }
           .logo {
-            width: 150px;
+            max-width: 180px;
+            height: auto;
           }
           h1 {
             color: #c7ae91; /* Changed main color */
@@ -155,9 +168,9 @@ async function sendCheckoutEmail(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://res.cloudinary.com/dc1cdbirz/image/upload/v1717932064/MaisonNg/WhatsApp_Image_2024-04-28_at_1.46.58_PM_popu0q.jpg" alt="MaisonNg Logo" class="logo" />
+            <img src="${logoUrl}" alt="ita-luxury Logo" class="logo" />
           </div>
-          <h1>MaisonNg</h1>
+          <h1>ita-luxury</h1>
           <p>Bonjour ${checkout.userName},</p>
         <p>Votre commande a été mise à jour. Voici les nouveaux détails :</p>
           
@@ -173,13 +186,13 @@ async function sendCheckoutEmail(
                 <th>Prix total</th>
               </tr>
               ${checkout.productInCheckout
-                .map(
-                  (item: {
-                    product: { reference: any; name: any };
-                    price: number;
-                    discountedPrice: number;
-                    productQuantity: number;
-                  }) => `
+        .map(
+          (item: {
+            product: { reference: any; name: any };
+            price: number;
+            discountedPrice: number;
+            productQuantity: number;
+          }) => `
                 <tr>
                   <td>${item.product.reference}</td>
                   <td>${item.product.name}</td>
@@ -188,8 +201,8 @@ async function sendCheckoutEmail(
                   <td>${(item.discountedPrice ? item.discountedPrice : item.price * item.productQuantity).toFixed(3)} TND</td>
                 </tr>
               `
-                )
-                .join("")}
+        )
+        .join("")}
               <tr class="totals-row">
                 <td colspan="4" class="label">Total des produits</td>
                 <td>${totalProducts.toFixed(3)} TND</td>
@@ -220,7 +233,7 @@ async function sendCheckoutEmail(
           <!-- Section Livraison -->
           <div class="delivery-section">
             <div class="delivery-header">
-              <img src="https://app.jax-delivery.com/assets/img/logo.png" alt="Livraison" width="24" />
+              <img src="${jaxDeliveryLogo}" alt="Livraison" width="24" />
               <span>Livraison</span>
             </div>
             <p>Transporteur : JAX Delivery</p>
@@ -248,10 +261,11 @@ async function sendCheckoutEmail(
             </div>
           </div>
   
-          <p>Merci d'avoir choisi MaisonNg !</p>
+          <p>Merci d'avoir choisi ita-luxury !</p>
   
           <div class="footer">
-            &copy; ${new Date().getFullYear()} MaisonNg. Tous droits réservés.
+            <p>Contact: 23 212 892 | Instagram: <a href="https://www.instagram.com/ita_luxury" style="color: #9a7b5f; text-decoration: none;">@ita_luxury</a></p>
+            <p>&copy; ${new Date().getFullYear()} ita-luxury. Tous droits réservés.</p>
           </div>
         </div>
       </body>
@@ -274,12 +288,16 @@ export const updateCheckout = async (
       productInCheckout,
       manualDiscount,
       freeDelivery,
+      orderStatus
     } = input;
 
     // Fetch the existing checkout
     const existingCheckout = await prisma.checkout.findUnique({
       where: { id: checkoutId },
-      include: { productInCheckout: true },
+      include: {
+        productInCheckout: true,
+        package: true
+      },
     });
 
     if (!existingCheckout) {
@@ -293,10 +311,29 @@ export const updateCheckout = async (
     if (manualDiscount !== undefined)
       updateData.manualDiscount = manualDiscount;
     if (freeDelivery !== undefined) updateData.freeDelivery = freeDelivery;
+
     const companyInfo = await prisma.companyInfo.findFirst();
     const deliveryPrice = companyInfo?.deliveringPrice;
+
     // Handle product updates
     if (productInCheckout) {
+      // Only adjust inventory if the order status is CONFIRMED
+      if (orderStatus === "CONFIRMED" && existingCheckout.productInCheckout && existingCheckout.productInCheckout.length > 0) {
+        // First, adjust inventory and sales for existing products before deleting them
+        await prisma.$transaction(async (tx: any) => {
+          for (const existingProduct of existingCheckout.productInCheckout) {
+            // Restore inventory and sales counts for products being removed or updated
+            await tx.product.update({
+              where: { id: existingProduct.productId },
+              data: {
+                inventory: { increment: existingProduct.productQuantity },
+                solde: { decrement: existingProduct.productQuantity },
+              },
+            });
+          }
+        });
+      }
+
       // Delete existing productInCheckout entries
       await prisma.productInCheckout.deleteMany({
         where: { checkoutId },
@@ -311,7 +348,23 @@ export const updateCheckout = async (
           discountedPrice: product.discountedPrice,
         })),
       };
+
+      // Only update inventory for new products if the order status is CONFIRMED
+      if (orderStatus === "CONFIRMED") {
+        await prisma.$transaction(async (tx: any) => {
+          for (const newProduct of productInCheckout) {
+            await tx.product.update({
+              where: { id: newProduct.productId },
+              data: {
+                inventory: { decrement: newProduct.productQuantity },
+                solde: { increment: newProduct.productQuantity },
+              },
+            });
+          }
+        });
+      }
     }
+
 
     // Perform the update
     const updatedCheckout = await prisma.checkout.update({
@@ -331,15 +384,25 @@ export const updateCheckout = async (
     });
 
     if (updatedCheckout) {
-      await sendCheckoutEmail(
-        updatedCheckout,
-        updatedCheckout.productInCheckout,
-        updatedCheckout.package[0]?.customId,
-        deliveryPrice
-      );
+      const emailToUse = updatedCheckout.isGuest
+        ? updatedCheckout.guestEmail
+        : updatedCheckout.User?.email;
+
+      if (emailToUse) {
+        await sendCheckoutEmail(
+          updatedCheckout,
+          updatedCheckout.productInCheckout,
+          updatedCheckout.package[0]?.customId,
+          deliveryPrice, emailToUse
+        );
+      } else {
+        console.log(
+          "No valid email address found. Skipping email send for updated checkout."
+        );
+      }
     }
 
-    return "updated Checkout";
+    return "Updated Checkout";
   } catch (error) {
     console.error("Error updating checkout:", error);
     throw error;

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const addToBasket = async (
   _: any,
@@ -37,7 +37,7 @@ export const addToBasket = async (
       return { ...basket, product, user };
     } else {
       // If the product is already in the basket, update the quantity
-      const updatedBasket = await prisma.basket.updateMany({
+      await prisma.basket.updateMany({
         where: {
           userId: userId,
           productId: productId

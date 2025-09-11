@@ -1,130 +1,54 @@
 import { PrismaClient } from "@prisma/client";
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import moment from "moment";
-
-interface AttributeInput {
-  name: string;
-  value: string;
-}
 
 interface DiscountInput {
   newPrice: GLfloat;
   dateOfEnd: string;
   dateOfStart: string;
-  discountId?: string;
 }
 
-const updateAttributes = async (
+const updateDiscounts = async (
   prisma: PrismaClient,
   productId: string,
-  attributeInputs: AttributeInput[]
+  price: number,
+  discountInputs: DiscountInput[]
 ) => {
-  const existingAttributes = await prisma.productAttribute.findMany({
-    where: { productId },
-  });
+  for (const discountInput of discountInputs) {
+    const dateOfEnd = moment(discountInput.dateOfEnd, 'DD/MM/YYYY HH:mm', true);
+    const dateOfStart = moment(discountInput.dateOfStart, 'DD/MM/YYYY HH:mm', true);
 
-  const attributesToCreate: AttributeInput[] = [];
-  const attributesToUpdate: { id: string; data: { value: string } }[] = [];
-  const attributesToDelete: string[] = [];
+    if (!dateOfEnd.isValid() || !dateOfStart.isValid()) {
+      throw new Error(`Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`);
+    }
 
-  attributeInputs?.forEach((attribute) => {
-    const existingAttribute = existingAttributes.find(
-      (attr) => attr.name.trim() === attribute.name.trim()
-    );
-    if (existingAttribute) {
-      attributesToUpdate.push({
-        id: existingAttribute.id,
-        data: { value: attribute.value },
+    const discountData = {
+      newPrice: discountInput.newPrice,
+      price: price,
+      dateOfEnd: dateOfEnd.toDate(),
+      dateOfStart: dateOfStart.toDate(),
+    };
+
+    const existingDiscount = await prisma.productDiscount.findFirst({
+      where: { productId },
+    });
+
+    if (existingDiscount) {
+      await prisma.productDiscount.update({
+        where: { id: existingDiscount.id },
+        data: discountData,
       });
     } else {
-      attributesToCreate.push({
-        name: attribute.name,
-        value: attribute.value,
+      await prisma.productDiscount.create({
+        data: {
+          productId,
+          ...discountData,
+        },
       });
     }
-  });
-
-  // Identify attributes to delete
-  existingAttributes.forEach((existingAttribute) => {
-    const isStillPresent = attributeInputs.find(
-      (attr) => attr.name.trim() === existingAttribute.name.trim()
-    );
-    if (!isStillPresent) {
-      attributesToDelete.push(existingAttribute.id);
-    }
-  });
-
-  // Update existing attributes
-  for (const attribute of attributesToUpdate) {
-    await prisma.productAttribute.update({
-      where: { id: attribute.id },
-      data: attribute.data,
-    });
-  }
-
-  // Create new attributes
-  if (attributesToCreate.length > 0) {
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        attributes: {
-          create: attributesToCreate,
-        },
-      },
-    });
-  }
-
-  // Delete attributes that no longer exist in attributeInputs
-  for (const id of attributesToDelete) {
-    await prisma.productAttribute.delete({
-      where: { id },
-    });
   }
 };
 
-const updateDiscounts = async (  
-  prisma: PrismaClient,  
-  productId: string,  
-  price: number,  
-  discountInputs: DiscountInput[]  
-) => {  
-  for (const discountInput of discountInputs) {  
-    const dateOfEnd = moment(discountInput.dateOfEnd, 'DD/MM/YYYY HH:mm', true);  
-    const dateOfStart = moment(discountInput.dateOfStart, 'DD/MM/YYYY HH:mm', true);  
-
-    if (!dateOfEnd.isValid() || !dateOfStart.isValid()) {  
-      throw new Error(`Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`);  
-    }  
-
-    const discountData = {  
-      newPrice: discountInput.newPrice,  
-      dateOfEnd: dateOfEnd.toDate(),  
-      dateOfStart: dateOfStart.toDate(),  
-      discountId: discountInput.discountId || null,  
-    };  
-
-    const existingDiscount = await prisma.productDiscount.findFirst({  
-      where: { productId },  
-    });  
-
-    // Avoiding the `unique constraint` error by properly handling existing discounts  
-    if (existingDiscount) {  
-      await prisma.productDiscount.update({  
-        where: { id: existingDiscount.id }, // Update only the existing discount by ID  
-        data: discountData,  
-      });  
-    } else {  
-      // You can consider checking if a discount with the same price exists for any other product  
-      await prisma.productDiscount.create({  
-        data: {  
-          productId,  
-          price,  
-          ...discountData,  
-        },  
-      });  
-    }  
-  }  
-};
 export const updateProduct = async (
   _: any,
   { productId, input }: { productId: string; input: ProductInput },
@@ -141,11 +65,25 @@ export const updateProduct = async (
       inventory,
       images,
       categories,
-      attributeInputs,
+      technicalDetails,
       colorsId,
       discount,
       brandId,
+      groupProductVariantId
     } = input;
+
+    // Filter and validate categories - Remove empty strings, null, and undefined
+    const validCategories = categories?.filter(id =>
+      id && typeof id === 'string' && id.trim() !== ''
+    ) || [];
+
+    // Get current categories to disconnect
+    const currentProduct = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { categories: { select: { id: true } } },
+    });
+
+    const currentCategoryIds = currentProduct?.categories.map((cat: any) => cat.id) || [];
 
     // Update the product with the provided data
     await prisma.product.update({
@@ -160,40 +98,54 @@ export const updateProduct = async (
         description,
         inventory,
         colorsId,
+        technicalDetails,
         images,
+        updatedAt: new Date().toISOString(),
         categories: {
-          connect: categories?.map((categoryId) => ({ id: categoryId })),
+          // First disconnect all current categories
+          disconnect: currentCategoryIds.map((id: string) => ({ id })),
+          // Then connect the new valid categories
+          ...(validCategories.length > 0 && {
+            connect: validCategories.map((categoryId) => ({ id: categoryId })),
+          }),
         },
+        groupProductVariantId
       },
       include: {
-        attributes: true,
         categories: true,
         productDiscounts: true,
       },
     });
 
-    // Update attributes
-    if (attributeInputs) {
-      await updateAttributes(prisma, productId, attributeInputs);
-    }
-
-    // Update discounts
-    if (discount) {
+    // Handle discounts
+    if (discount && discount.length > 0) {
+      // Update discounts if provided
       await updateDiscounts(prisma, productId, price, discount);
     } else {
-      const existingDiscounts = await prisma.productDiscount.findFirst({
-        where: { productId, price },
+      // Remove all existing discounts if no discount is provided
+      const existingDiscounts = await prisma.productDiscount.findMany({
+        where: { productId },
       });
-      if (existingDiscounts) {
-        await prisma.productDiscount.delete({
-          where: { productId, price },
+
+      if (existingDiscounts.length > 0) {
+        await prisma.productDiscount.deleteMany({
+          where: { productId },
         });
       }
     }
 
     return "Product updated successfully";
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      throw new Error(`Le nom du produit "${input.name}" existe déjà`);
+    }
+
+    // Handle foreign key constraint errors for categories
+    if (error.code === 'P2025') {
+      throw new Error('Une ou plusieurs catégories sélectionnées n\'existent pas');
+    }
+
     console.error("Error updating product:", error);
-    return `Failed to update product: ${error}`;
+    throw new Error("Échec de la mise à jour du produit. Veuillez réessayer.");
   }
 };

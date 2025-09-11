@@ -1,12 +1,12 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const addColor = async (
   _: any,
-  { color, Hex }:any,
+  { color, Hex }: any,
   { prisma }: Context
 ) => {
   console.log(Hex);
-  
+
   try {
     await prisma.colors.create({
       data: {

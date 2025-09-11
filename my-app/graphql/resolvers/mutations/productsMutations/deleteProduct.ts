@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 // Resolver for deleting a product
 export const deleteProduct = async (
@@ -14,6 +14,5 @@ export const deleteProduct = async (
   } catch (error) {
     console.error("Error deleting product:", error);
     return error;
-    return new Error("Failed to delete product.");
   }
 };

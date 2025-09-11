@@ -1,11 +1,11 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 interface updateCustomerCheckoutInput {
   checkoutId: string;
   userName: string;
   userId: string;
   governorateId: string;
-  phone: number[];
+  phone: string[];
   address: string;
   freeDelivery: boolean;
 }

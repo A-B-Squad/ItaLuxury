@@ -1,7 +1,8 @@
 import React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import Marquee from "react-fast-marquee";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import { useQuery } from "@apollo/client";
 import { GET_BRANDS } from "@/graphql/queries";
 import { IoImageOutline } from "react-icons/io5";
@@ -11,7 +12,7 @@ export const BrandsCarousel = () => {
 
   return (
     <>
-      <div className="h-40 flex items-center mt-10 w-full overflow-hidden z-20 bg-[#ffffffcc] shadow-md">
+      <div className="h-40 flex items-center mt-10 relative w-full overflow-hidden z-20 bg-[#ffffffcc] shadow-md">
         <Marquee
           gradient
           gradientColor="hsl(var(--widget))"
@@ -25,12 +26,12 @@ export const BrandsCarousel = () => {
               <Slot className="w-24 bg-red-500 h-24">
                 <>
                   {brand.logo && (
-                    <img
-                      width={400}
-                      height={400}
+                    <Image
+                      width={120}
+                      height={120}
                       src={brand.logo}
-                      alt=""
-                      className="object-contain w-24 h-24"
+                      alt={`brand ${index}`}
+                      className="object-contain "
                     />
                   )}
 

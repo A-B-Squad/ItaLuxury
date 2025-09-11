@@ -1,7 +1,7 @@
 export const convertStringToQueriesObject = (
   searchParams: URLSearchParams | null,
 ) => {
-  let selectedQueries: Record<string, string[]> = {};
+  const selectedQueries: Record<string, string[]> = {};
 
   if (searchParams) {
     searchParams.forEach((values, key) => {

@@ -1,15 +1,19 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 // Resolver for deleting a coupons
 export const deleteCoupons = async (
   _: any,
-  { couponsId }: { couponsId: string },
+  { couponsIds }: { couponsIds: string[] },
   { prisma }: Context
 ) => {
-  
+
   try {
-    await prisma.coupons.delete({
-      where: { id: couponsId },
+    await prisma.coupons.deleteMany({
+      where: {
+        id: {
+          in: couponsIds,
+        },
+      },
     });
     return "coupons deleted";
   } catch (error) {

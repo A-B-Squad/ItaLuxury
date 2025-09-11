@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const createClientService = async (
   _: any,
@@ -38,7 +38,7 @@ export const createClientService = async (
     for (const item of filteredInput) {
       if (
         existingDataIds.some(
-          (existingItem) =>
+          (existingItem: { link: string; position: string; }) =>
             existingItem.link === item.link &&
             existingItem.position === item.position
         )

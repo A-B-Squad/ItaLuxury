@@ -1,8 +1,19 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
+interface AdvertisementInput {
+    id: string;
+    images: string[];
+    position: string;
+    link: string | null;
+}
+
+interface AdvertisementData {
+    link: string | null;
+    position: string;
+}
 
 export const createSideAdvertisement = async (
     _: any,
-    { input }: { input: any },
+    { input }: { input: AdvertisementInput[] },
     { prisma }: Context
 ) => {
     try {
@@ -28,12 +39,12 @@ export const createSideAdvertisement = async (
 
 
         // 2. Compare input data with existing data
-        const newDataIds = filteredInput.map((item: any) => ({ link: item.link, position: item.position }));
-        const existingDataIds = existingData.map((item: any) => ({ link: item.link, position: item.position }));
+        const newDataIds: AdvertisementData[] = filteredInput.map((item: any) => ({ link: item.link, position: item.position }));
+        const existingDataIds: AdvertisementData[] = existingData.map((item: any) => ({ link: item.link, position: item.position }));
 
         // 3. Update existing data with input data
         for (const item of filteredInput) {
-            if (existingDataIds.some(existingItem => existingItem.link === item.link && existingItem.position === item.position)) {
+            if (existingDataIds.some((existingItem) => existingItem.link === item.link && existingItem.position === item.position)) {
                 await prisma.advertisement.updateMany({
                     where: { link: item.link, position: item.position },
                     data: item
@@ -45,6 +56,7 @@ export const createSideAdvertisement = async (
                 });
             }
         }
+
 
         // 5. Delete data from the database that is not included in the input
         for (const item of existingData) {

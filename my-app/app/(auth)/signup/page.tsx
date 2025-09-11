@@ -1,7 +1,7 @@
 import React from "react";
 import Signup from "./signup";
+import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
-import keywords from "@/public/keywords";
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -12,30 +12,45 @@ if (
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Inscription - MaisonNg",
+  title: "Créer un compte | ita-luxury",
   description:
-    "Inscrivez-vous à MaisonNg pour créer un compte et commencer à faire des achats en ligne.",
-  keywords: keywords,
-
+    "Inscrivez-vous sur ita-luxury pour découvrir notre collection exclusive de produits de luxe et bénéficier d'offres personnalisées.",
+  keywords: keywords.join(","),
   openGraph: {
     url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/signup`,
     type: "website",
-    title: "Inscription - MaisonNg",
+    title: "Créer un compte | ita-luxury",
     description:
-      "Inscrivez-vous à MaisonNg pour créer un compte et commencer à faire des achats en ligne.",
+      "Inscrivez-vous sur ita-luxury pour découvrir notre collection exclusive de produits de luxe et bénéficier d'offres personnalisées.",
     images: [
       {
-        url: "/my-app/app/public/images/logo.jpeg",
-        width: 800,
-        height: 600,
-        alt: "Maison Ng",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
+        width: 1200,
+        height: 630,
+        alt: "ita-luxury - Inscription",
       },
     ],
+    siteName: "ita-luxury",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Créer un compte | ita-luxury",
+    description:
+      "Inscrivez-vous sur ita-luxury pour découvrir notre collection exclusive de produits de luxe et bénéficier d'offres personnalisées.",
+    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`],
+  },
+  alternates: {
+    canonical: "https://www.ita-luxury.com/signup",
+    languages: {
+      'fr-FR': 'https://www.ita-luxury.com/signup',
+    },
   },
 };
 
-const Page = () => {
-  return <Signup />;
-};
-
-export default Page;
+export default function SignupPage() {
+  return (
+    <>
+      <Signup />
+    </>
+  );
+}

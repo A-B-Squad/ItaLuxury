@@ -1,11 +1,14 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const fetchBrands = async (_: any, __: any, { prisma }: Context) => {
   try {
     const Brands = await prisma.brand.findMany({
       include: {
-        Category: true,
-        product: true,
+        product: {
+          include: {
+            categories: true
+          }
+        },
       },
     });
     return Brands;

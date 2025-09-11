@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const productsLessThen20 = async (
   _: any,
@@ -19,20 +19,11 @@ export const productsLessThen20 = async (
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         }, // Include categories related to products
-        productDiscounts: {
-          include: {
-            Discount: true,
-          },
-        },
+        productDiscounts: true,
         baskets: true,
-        SameProducts: {
-          include: {
-            Product: true,
-          },
-        },
+
         reviews: true,
         favoriteProducts: true,
-        attributes: true,
         Colors: true,
         Brand: true,
       },

@@ -25,11 +25,16 @@ import { contactUsQueries } from "./resolvers/queries/contactUsQueries/contactUs
 import { usersQueries } from "./resolvers/queries/usersQueries/usersQueries";
 import { couponsQueries } from "./resolvers/queries/coupons/couponsQueries";
 import { advertismentMutations } from "./resolvers/mutations/advertisementMutations/advertismentMutations";
-import { discountsQueries } from "./resolvers/queries/discountsQueries/discountsQueries";
 import { couponsMutations } from "./resolvers/mutations/couponsMutations/couponsMutations";
 import { colorMutations } from "./resolvers/mutations/colorsMutations/colorsMutations";
 import { brandMutations } from "./resolvers/mutations/brandMutations/brandMutations";
 import { bestSellsMutations } from "./resolvers/mutations/bestSellsMutations/bestSellsMutations";
+import { apiCredentialsMutations } from "./resolvers/mutations/apiCredentialsMutations/apiCredentialsMutations";
+import { apiCredentialsQueries } from "./resolvers/queries/apiCredentialsQueries/apiCredentialsQueries";
+import { reviewMutation } from "./resolvers/mutations/reviewMutations/reviewMutations";
+import { pointsMutations } from "./resolvers/mutations/pointsMutations/pointsMutations";
+import { pointsQueries } from "./resolvers/queries/pointsQueries/pointsQueries";
+
 export const resolvers = {
   Query: {
     ...productQueries,
@@ -47,7 +52,8 @@ export const resolvers = {
     ...contactUsQueries,
     ...usersQueries,
     ...couponsQueries,
-    ...discountsQueries,
+    ...apiCredentialsQueries,
+    ...pointsQueries, 
   },
 
   Mutation: {
@@ -67,5 +73,8 @@ export const resolvers = {
     ...colorMutations,
     ...brandMutations,
     ...bestSellsMutations,
+    ...apiCredentialsMutations,
+    ...reviewMutation,
+    ...pointsMutations,
   },
 };

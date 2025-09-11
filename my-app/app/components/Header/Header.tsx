@@ -1,61 +1,57 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import BottomHeader from "./BottomHeader";
 import Dropdown from "./CategoryDropdown/Dropdown";
+import ContactBanner from "./ContactBanner";
 import TopHeader from "./TopHeader";
-import { useQuery } from "@apollo/client";
-import { COMPANY_INFO_QUERY } from "@/graphql/queries";
-import Contact from "./ContactBanner";
 
-const Header = () => {
-  const [showCategoryDropdown, setShowDropdown] = useState<Boolean>(false);
+import { AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
+
+const Header = ({ userData, companyData }: any) => {
+  const [showCategoryDropdown, setShowDropdown] = useState<boolean>(false);
   const [isFixed, setIsFixed] = useState<boolean>(false);
-  const { data: CompanyInfoData } = useQuery(COMPANY_INFO_QUERY);
 
-  // Add state to track if the header should be fixed
-  const [isHeaderFixed, setIsHeaderFixed] = useState(false);
+  const pathname = usePathname();
 
-  // Add event listener to handle scroll
-  const handleScroll = () => {
-    // Get the current scroll position
-    const scrollPosition = window.scrollY;
+  // Check if current page is checkout
+  const isCheckoutPage = pathname === "/Checkout";
 
-    // Set the header to fixed position when scrolling down
-    setIsHeaderFixed(scrollPosition > 0);
-  };
 
-  // Attach scroll event listener when component mounts
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    // Clean up event listener when component unmounts
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  if (isCheckoutPage) {
+    return null;
+  }
 
   return (
     <>
-      <Contact CompanyInfoData={CompanyInfoData} />
+      <ContactBanner companyData={companyData} />
 
       <div
-        className={`header  relative  flex justify-center shadow-md bg-white  px-10 md:px-14 ${isHeaderFixed ? "fixed top-0 left-0 right-0 z-[100]" : "relative"}`}
+        className={`header w-full sticy top-0  bg-white z-[999]`}
       >
-        <div className="container relative">
-          <nav className=" flex flex-col relative w-full items-center justify-center">
-            <TopHeader logo={CompanyInfoData?.companyInfo?.logo} />
+        <div className="container mx-auto px-4 lg:px-8">
+          <nav className="flex flex-col  relative w-full">
+            <TopHeader  />
             <BottomHeader
               isFixed={isFixed}
               setIsFixed={setIsFixed}
               setShowDropdown={setShowDropdown}
+              userData={userData}
             />
           </nav>
-          <Dropdown
-            setShowDropdown={setShowDropdown}
-            showCategoryDropdown={showCategoryDropdown}
-            isFixed={isFixed}
-          />
+          <AnimatePresence>
+            {showCategoryDropdown && (
+              <Dropdown
+                setShowDropdown={setShowDropdown}
+                showCategoryDropdown={showCategoryDropdown}
+                isFixed={isFixed}
+              />
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+
     </>
   );
 };

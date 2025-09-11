@@ -1,6 +1,5 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import bcrypt from "bcryptjs";
-import { Authorization } from './authorization';
 
 export const createModerator = async (
   _: any,
@@ -15,11 +14,9 @@ export const createModerator = async (
       where: { fullName },
     });
 
-    console.log(existingAdmin);
 
     // Check if the user invoking the mutation is authorized
 
-    const authorizationResult = await Authorization(_, { adminId }, prisma);
     if (existingAdmin) {
       return new Error("Email address is already in use");
     }
@@ -40,7 +37,7 @@ export const createModerator = async (
   } catch (error) {
     // Handle errors
     console.log(error);
-    
+
     console.error("Error creating moderator:", error);
     return new Error("An error occurred while creating the moderator");
   }

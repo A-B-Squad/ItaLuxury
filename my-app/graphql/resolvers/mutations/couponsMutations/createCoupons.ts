@@ -1,24 +1,30 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
-// Resolver for deleting a coupons
+// Resolver for creating a coupon
 export const createCoupons = async (
-    _: any,
+  _: any,
   { input }: any,
   { prisma }: Context
 ) => {
   const { code, discount } = input;
-  
+
+  const parsedDiscount = Number(discount);
+
+  // Vérification stricte
+  if (isNaN(parsedDiscount) || parsedDiscount <= 0) {
+    throw new Error("Valeur de réduction invalide");
+  }
   try {
     await prisma.coupons.create({
       data: {
         code,
-        discount,
+        discount: parsedDiscount,
         available: true,
       },
     });
     return "coupons created";
   } catch (error) {
-    console.error("Error deleting coupons:", error);
+    console.error("Error creating coupon:", error);
     return error;
   }
 };

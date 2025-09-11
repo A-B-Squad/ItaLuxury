@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 interface CancelPackageInput {
   packageId: string;
@@ -12,6 +12,7 @@ export const cancelPackage = async (
   { prisma }: Context
 ) => {
   const { packageId, cause, brokenProducts } = input;
+
   try {
     const findPackage = await prisma.package.findFirst({
       where: { id: packageId },
@@ -24,9 +25,11 @@ export const cancelPackage = async (
       },
     });
 
+    // Check if package exists and is in a cancellable state
     if (
       !findPackage ||
       (findPackage.status !== "PROCESSING" &&
+        findPackage.status !== "CONFIRMED" &&
         findPackage.status !== "TRANSFER_TO_DELIVERY_COMPANY")
     ) {
       throw new Error("Package not found or not in a cancellable state");
@@ -46,7 +49,7 @@ export const cancelPackage = async (
           broken: { increment: brokenQuantity },
         };
 
-        if (findPackage.status === "TRANSFER_TO_DELIVERY_COMPANY") {
+        if (findPackage.status === "TRANSFER_TO_DELIVERY_COMPANY" || findPackage.status === "CONFIRMED") {
           updateData.solde = { decrement: product.productQuantity };
           updateData.inventory = { increment: notBrokenQuantity };
         }

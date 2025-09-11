@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const fetchUsersById = async (_: any, { userId }: { userId: string }, { prisma }: Context) => {
     try {
@@ -10,12 +10,20 @@ export const fetchUsersById = async (_: any, { userId }: { userId: string }, { p
                 }
                 ,
                 include: {
+                    pointTransactions: true,
+                    Voucher: true,
+                    reviews: {
+                        include: {
+                            product: true,
+                        },
+                    },
+                    baskets: true,
                     checkout: {
                         include: {
                             package: true,
                             Governorate: true,
                             Coupons: true,
-                            productInCheckout:true
+                            productInCheckout: true
                         }
                     }
                 },

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const getSectionVisibility = async (
   _: any,
@@ -7,9 +7,8 @@ export const getSectionVisibility = async (
 ): Promise<any> => {
   try {
     const sectionVisibility = await prisma.content_visibility.findFirst({
-      where: {section},
+      where: { section },
     });
-    console.log(sectionVisibility);
 
     if (!sectionVisibility) {
       throw new Error(`Sections${section}  not found`);

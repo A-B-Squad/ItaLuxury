@@ -1,67 +1,57 @@
 import { gql } from "@apollo/client";
 
-export const USER_QUERIES = gql`
-  query FetchUsersById($userId: ID!) {
-    fetchUsersById(userId: $userId) {
-      fullName
-    }
-  }
-`;
-export const PRODUCT_BY_ID_QUERY = gql`
-  query ProductById($productByIdId: ID!) {
-    productById(id: $productByIdId) {
-      id
-      name
-      price
-      isVisible
-      reference
-      description
-      inventory
-      solde
-      images
-      createdAt
-      productDiscounts {
-        id
-        price
-        newPrice
-        dateOfEnd
-        dateOfStart
-      }
-      Colors {
-        id
-        id
-        color
-        Hex
-      }
 
-      attributes {
-        id
-        name
-        value
-      }
-    }
-  }
-`;
+
 export const GET_PRODUCT_IMAGES_QUERY = gql`
   query Query($productId: String!, $colorId: String!) {
     getProductImages(productId: $productId, colorId: $colorId)
   }
 `;
-export const FETCH_USER_BY_ID = gql`
-query FetchUsersById($userId: ID!) {
+
+export const FETCH_USER_BY_ID = `
+ query FetchUsersById($userId: ID!) {
   fetchUsersById(userId: $userId) {
     email
     number
-     fullName
+    fullName
+    Voucher {
+      id
+      code
+      amount
+      isUsed
+      createdAt
+      expiresAt
+      usedAt
+      userId
+      checkoutId
+    }
+    pointTransactions {
+      id
+      amount
+      type
+      description
+      createdAt
+      userId
+      checkoutId
+    }
+    number
+    points
   }
 }
+
 `;
+
 export const GET_REVIEW_QUERY = gql`
-  query ProductReview($productId: ID!) {
+   query ProductReview($productId: ID!) {
     productReview(productId: $productId) {
       id
       rating
+      comment
       userId
+      user {
+        fullName
+      }
+      userName
     }
   }
 `;
@@ -70,6 +60,7 @@ export const GET_USER_REVIEW_QUERY = gql`
     productReview(productId: $productId, userId: $userId) {
       id
       rating
+      comment
     }
   }
 `;
@@ -84,8 +75,10 @@ export const BASKET_QUERY = gql`
         name
         price
         images
+        inventory
         productDiscounts {
           newPrice
+          price
         }
         categories {
           id
@@ -104,7 +97,7 @@ export const BASKET_QUERY = gql`
   }
 `;
 
-export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
+export const TAKE_16_PRODUCTS_BY_CATEGORY = gql`
   query productsByCategory($categoryName: String!, $limit: Int!) {
     productsByCategory(categoryName: $categoryName, limit: $limit) {
       id
@@ -134,22 +127,16 @@ export const TAKE_10_PRODUCTS_BY_CATEGORY = gql`
         color
         Hex
       }
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
 `;
-export const TAKE_10_PRODUCTS_PRICE_20 = gql`
+export const TAKE_14_PRODUCTS_PRICE_20 = gql`
   query ProductsLessThen20($limit: Int!) {
     productsLessThen20(limit: $limit) {
       id
@@ -182,9 +169,7 @@ export const TAKE_10_PRODUCTS_PRICE_20 = gql`
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
@@ -210,10 +195,7 @@ export const TOP_DEALS = gql`
         createdAt
         inventory
         images
-        attributes {
-          name
-          value
-        }
+        technicalDetails
         categories {
           id
           name
@@ -237,9 +219,7 @@ export const TOP_DEALS = gql`
           price
           newPrice
           dateOfEnd
-          Discount {
-            percentage
-          }
+          
         }
       }
     }
@@ -284,14 +264,17 @@ export const CATEGORY_QUERY = gql`
     categories {
       id
       name
+      smallImage
       subcategories {
         id
         name
         parentId
+        smallImage
         subcategories {
           id
           name
           parentId
+          smallImage
         }
       }
     }
@@ -349,25 +332,32 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           productDiscounts {
             price
             newPrice
-            Discount {
-              percentage
-            }
           }
         }
         categories {
           id
           name
+          description
         }
       }
       totalCount
+      pagination {
+        currentPage
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
     }
   }
 `;
+
+
 
 export const FAVORITE_PRODUCTS_QUERY = gql`
   query FavoriteProducts($userId: ID!) {
     favoriteProducts(userId: $userId) {
       Product {
+        id
         name
         price
         isVisible
@@ -380,12 +370,15 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
         categories {
           id
           name
+          description
           subcategories {
             id
             name
+            parentId
             subcategories {
               id
               name
+              parentId
             }
           }
         }
@@ -411,14 +404,12 @@ export const BEST_SALES_QUERY = gql`
         productDiscounts {
           newPrice
           price
-          Discount {
-            id
-            percentage
-          }
+         
         }
         categories {
           id
           name
+          description
           subcategories {
             id
             name
@@ -430,10 +421,6 @@ export const BEST_SALES_QUERY = gql`
             }
           }
         }
-      }
-      Category {
-        id
-        name
       }
     }
   }
@@ -455,7 +442,7 @@ export const GET_BRANDS = gql`
   }
 `;
 
-export const COMPANY_INFO_QUERY = gql`
+export const COMPANY_INFO_QUERY = `
   query CompanyInfo {
     companyInfo {
       id
@@ -469,6 +456,7 @@ export const COMPANY_INFO_QUERY = gql`
     }
   }
 `;
+
 export const GET_PACKAGES_BY_USER_ID = gql`
   query PackageByUserId($userId: ID!) {
     packageByUserId(userId: $userId) {
@@ -491,42 +479,44 @@ export const GET_PACKAGES_BY_USER_ID = gql`
   }
 `;
 export const GET_PACKAGES_BY_ID = gql`
-  query PackageById($packageId: ID!) {
-    packageById(packageId: $packageId) {
-      id
-      customId
-      Checkout {
-        productInCheckout {
-          productId
-          product {
-            name
-          }
+query PackageById($packageId: ID!) {
+  packageById(packageId: $packageId) {
+    id
+    customId
+    Checkout {
+      total
+      freeDelivery
+      productInCheckout {
+        productId
+        productQuantity
+        product {
+          name
         }
-        total
       }
-      status
-      createdAt
+      total
     }
+    status
+    createdAt
   }
+}
+
 `;
 
 export const ALL_BRANDS = `
-  query FetchBrands {
-    fetchBrands {
+ query FetchBrands {
+  fetchBrands {
+    id
+    name
+    logo
+    product {
       id
-      name
-      logo
-      Category{
-      id 
-      name
-              parentId
-      }
-      categoryId
-      product {
-        id
+      categories {
+        name
       }
     }
   }
+}
+
 `;
 export const GET_GOVERMENT_INFO = gql`
   query AllGovernorate {
@@ -544,9 +534,9 @@ export const CONTENT_VISIBILITY = gql`
     }
   }
 `;
-export const TAKE_10_PRODUCTS = gql`
-query AllNewProducts($limit: Int, $visibleProduct: Boolean) {
-  allNewProducts(limit: $limit, visibleProduct: $visibleProduct) {
+export const TAKE_14_PRODUCTS = gql`
+  query AllNewProducts($limit: Int, $visibleProduct: Boolean) {
+    allNewProducts(limit: $limit, visibleProduct: $visibleProduct) {
       id
       name
       price
@@ -558,6 +548,7 @@ query AllNewProducts($limit: Int, $visibleProduct: Boolean) {
       categories {
         id
         name
+        description
         subcategories {
           id
           name
@@ -574,22 +565,16 @@ query AllNewProducts($limit: Int, $visibleProduct: Boolean) {
         color
         Hex
       }
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
 `;
-export const TAKE_10_PRODUCTS_IN_DISCOUNT = gql`
+export const TAKE_14_PRODUCTS_IN_DISCOUNT = gql`
   query ProductsDiscounts($limit: Int) {
     productsDiscounts(limit: $limit) {
       id
@@ -603,6 +588,7 @@ export const TAKE_10_PRODUCTS_IN_DISCOUNT = gql`
       categories {
         id
         name
+        description
         subcategories {
           id
           name
@@ -614,11 +600,7 @@ export const TAKE_10_PRODUCTS_IN_DISCOUNT = gql`
           }
         }
       }
-      attributes {
-        id
-        name
-        value
-      }
+      technicalDetails
       Colors {
         id
         color
@@ -627,22 +609,86 @@ export const TAKE_10_PRODUCTS_IN_DISCOUNT = gql`
       productDiscounts {
         price
         newPrice
-        Discount {
-          percentage
-        }
+       
       }
     }
   }
 `;
 export const COLORS_QUERY = `
  query Colors {
-    colors {
+  colors {
+    id
+    color
+    Hex
+    Product {
       id
-      color
-      Hex
     }
   }
+}
 `;
+
+export const GET_PRODUCTS_BY_ID = `
+ query ProductById($productByIdId: ID!) {
+    productById(id: $productByIdId) {
+      id
+      name
+      price
+      isVisible
+      reference
+      description
+      inventory
+      solde
+      images
+      createdAt
+      categories {
+        id
+        name
+        description
+        subcategories {
+          id
+          name
+          parentId
+          subcategories {
+            id
+            name
+            parentId
+          }
+        }
+      }
+      productDiscounts {
+        id
+        price
+        newPrice
+        dateOfEnd
+        dateOfStart
+      }
+      Colors {
+        id
+        color
+        Hex
+      }
+      technicalDetails
+      reviews {
+        rating
+        userId
+      }
+      Brand {
+        name
+      }
+      GroupProductVariant {
+        id
+        groupProductName
+        Products {
+          id
+          name
+          Colors {
+            Hex
+          }
+        }
+      }
+    }
+  }`
+
 export const PACKAGE_QUERY = gql`
   query GetAllPackages {
     getAllPackages {
@@ -668,6 +714,19 @@ export const FIND_UNIQUE_COUPONS = gql`
     findUniqueCoupons(codeInput: $codeInput) {
       id
       discount
+    }
+  }
+`;
+export const GET_POINT_SETTINGS = gql`
+  query GetPointSettings {
+    getPointSettings {
+      id
+      conversionRate
+      redemptionRate
+      minimumPointsToUse
+      loyaltyThreshold
+      loyaltyRewardValue
+      isActive
     }
   }
 `;
