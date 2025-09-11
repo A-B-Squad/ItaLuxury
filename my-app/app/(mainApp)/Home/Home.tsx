@@ -140,6 +140,8 @@ const Home = ({ userData }: any) => {
     [Products_less_20]
   );
 
+  // Add a loading state to show a better loading experience
+  const isLoading = loadingNewProducts_14 || loadingProducts_inDiscount_14 || loadingProducts_less_20;
 
   return (
     <>
@@ -175,7 +177,7 @@ const Home = ({ userData }: any) => {
           </div>
 
           {/* Main content with improved spacing and visual hierarchy */}
-          <div className="view lg:px-10 space-y-10">
+          <div className="view lg:px-10 space-y-16">
             {TopDealsSectionVisibility?.getSectionVisibility
               ?.visibility_status && (
                 <div className="space-y-8">
