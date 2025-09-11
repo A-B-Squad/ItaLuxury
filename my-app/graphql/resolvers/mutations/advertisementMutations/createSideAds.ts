@@ -1,16 +1,16 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 interface AdvertisementInput {
     id: string;
     images: string[];
     position: string;
     link: string | null;
-  }
-  
-  interface AdvertisementData {
+}
+
+interface AdvertisementData {
     link: string | null;
     position: string;
-  }
-  
+}
+
 export const createSideAdvertisement = async (
     _: any,
     { input }: { input: AdvertisementInput[] },
@@ -38,25 +38,25 @@ export const createSideAdvertisement = async (
         });
 
 
-         // 2. Compare input data with existing data
-    const newDataIds: AdvertisementData[] = filteredInput.map((item:any) => ({ link: item.link, position: item.position }));
-    const existingDataIds: AdvertisementData[] = existingData.map((item:any) => ({ link: item.link, position: item.position }));
+        // 2. Compare input data with existing data
+        const newDataIds: AdvertisementData[] = filteredInput.map((item: any) => ({ link: item.link, position: item.position }));
+        const existingDataIds: AdvertisementData[] = existingData.map((item: any) => ({ link: item.link, position: item.position }));
 
         // 3. Update existing data with input data
         for (const item of filteredInput) {
             if (existingDataIds.some((existingItem) => existingItem.link === item.link && existingItem.position === item.position)) {
-              await prisma.advertisement.updateMany({
-                where: { link: item.link, position: item.position },
-                data: item
-              });
+                await prisma.advertisement.updateMany({
+                    where: { link: item.link, position: item.position },
+                    data: item
+                });
             } else {
-              // 4. Create new data if it doesn't exist in the database
-              await prisma.advertisement.create({
-                data: item
-              });
+                // 4. Create new data if it doesn't exist in the database
+                await prisma.advertisement.create({
+                    data: item
+                });
             }
-          }
-      
+        }
+
 
         // 5. Delete data from the database that is not included in the input
         for (const item of existingData) {

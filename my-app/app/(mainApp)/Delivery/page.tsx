@@ -1,6 +1,5 @@
-import SideAds from "@/app/components/adverstissment/sideAds";
 import Breadcumb from "@/app/components/Breadcumb";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
 import React from "react";
 import DeliveryPage from "./DeliveryPage";
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com/Delivery",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "Delivery ita-luxury",

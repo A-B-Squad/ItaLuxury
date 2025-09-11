@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 
 export const createContactUs = async (
@@ -34,9 +34,9 @@ export const createContactUs = async (
 
     // Base URL for your website
     const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
-    
+
     // Logo path - using image from public folder
-    const logoUrl = `${baseUrl}/LOGO.png`;
+    const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
 
     // Define the email content
     const mailOptions = {

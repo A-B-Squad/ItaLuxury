@@ -1,19 +1,18 @@
 "use client";
 import { useQuery } from "@apollo/client";
 import React, { useMemo } from "react";
-import { ADVERTISSMENT_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
+import { ADVERTISSMENT_QUERY } from "@/graphql/queries";
 import SideAds from "@/app/components/adverstissment/sideAds";
 
-export default function PrivacyPolicy() {
-  const { data: companyInfoData, loading: companyInfoLoading } = useQuery(COMPANY_INFO_QUERY);
+export default function PrivacyPolicy({ companyData }: any) {
+  const companyEmail: string = companyData?.email ?? "Non disponible";
+  const companyPhone = companyData?.phone ?? [];
+
   const { data: clientContactSideAds, loading: loadingClientContactSideAds } =
     useQuery(ADVERTISSMENT_QUERY, {
       variables: { position: "clinetContactSideAds" },
     });
 
-  // Memoize company info to prevent unnecessary re-renders
-  const companyInfo = useMemo(() => companyInfoData?.companyInfo, [companyInfoData]);
-  
   // Memoize ad data
   const adData = useMemo(() => ({
     image: clientContactSideAds?.advertismentByPosition[0]?.images[0],
@@ -37,7 +36,7 @@ export default function PrivacyPolicy() {
             Politique de Confidentialité
           </h1>
         </header>
-        
+
         <div className="space-y-8">
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
@@ -56,7 +55,7 @@ export default function PrivacyPolicy() {
               </p>
             </div>
           </section>
-          
+
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">2</span>
@@ -67,7 +66,7 @@ export default function PrivacyPolicy() {
               énoncées dans la présente politique de confidentialité.
             </p>
           </section>
-          
+
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">3</span>
@@ -78,7 +77,7 @@ export default function PrivacyPolicy() {
               circonstances prévues par la loi.
             </p>
           </section>
-          
+
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">4</span>
@@ -90,7 +89,7 @@ export default function PrivacyPolicy() {
               stockage électronique n'est sécurisée à 100%.
             </p>
           </section>
-          
+
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">5</span>
@@ -104,7 +103,7 @@ export default function PrivacyPolicy() {
               tout site tiers.
             </p>
           </section>
-          
+
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">6</span>
@@ -116,29 +115,30 @@ export default function PrivacyPolicy() {
               prendront effet dès leur publication sur cette page.
             </p>
           </section>
-          
+
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">7</span>
+              <span className="w-8 h-8 bg-primaryColor text-white rounded-full flex items-center justify-center mr-2 text-sm">
+                7
+              </span>
               Nous Contacter
             </h2>
             <ul className="space-y-2 text-gray-700">
-              {companyInfoLoading ? (
-                <div className="animate-pulse h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-              ) : (
-                <>
-                  <li className="flex items-center">
-                    <span className="font-medium mr-2">Email:</span> {companyInfo?.email}
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium mr-2">Téléphone:</span> {companyInfo?.phone}
-                  </li>
-                </>
-              )}
+              <li className="flex items-center">
+                <span className="font-medium mr-2">Email:</span> {companyEmail}
+              </li>
+              <li className="flex items-center">
+                <span className="font-medium mr-2">Téléphone:</span>
+                {companyPhone.length > 0
+                  ? `(+216) ${companyPhone[0]}${companyPhone[1] ? ` / (+216) ${companyPhone[1]}` : ""}`
+                  : "Non disponible"}
+              </li>
             </ul>
+
           </section>
-        </div>
-      </main>
-    </div>
+
+        </div >
+      </main >
+    </div >
   );
 }

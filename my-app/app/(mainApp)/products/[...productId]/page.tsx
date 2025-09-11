@@ -1,142 +1,26 @@
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
 import { JsonLd } from "react-schemaorg";
 import ProductDetailsSection from "./ProductDetailsSection";
 import { formatRating } from "@/app/Helpers/_formatRating";
+import { fetchGraphQLData } from "@/utlils/graphql";
+import { GET_PRODUCTS_BY_ID } from "@/graphql/queries";
+import { getUser } from "@/utlils/getUser";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
+import { getCompanyInfo } from "@/utlils/getCompanyInfo";
 
-interface Review {
-  rating: number;
-  userId: string;
-}
 
-interface ProductData {
-  [x: string]: any;
-  id: string;
-  name: string;
-  price: number;
-  reference: string;
-  description: string;
-  inventory: number;
-  images: string[];
-  technicalDetails: string
-  reviews: Review[];
-  Colors?: {
-    color: string;
-    Hex: string;
-  };
-  Brand?: {
-    name: string;
-  };
-  categories: Array<{
-    id: string;
-    name: string;
-    description: string;
-    subcategories?: Array<{
-      id: string;
-      name: string;
-      parentId: string;
-      subcategories?: Array<{
-        id: string;
-        name: string;
-        parentId: string;
-      }>;
-    }>;
-  }>;
-}
-
-async function fetchProductData(
-  productId: string
-): Promise<ProductData | null> {
-  if (!process.env.NEXT_PUBLIC_API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
-  }
-  if (!productId) {
-    return null;
-  }
+async function fetchProductDetails(productId: string) {
   try {
-    const response = await fetch(process.env.NEXT_PUBLIC_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      next: {
-        revalidate: 3600
-      },
-      body: JSON.stringify({
-        query: `
-         query ProductById($productByIdId: ID!) {
-            productById(id: $productByIdId) {
-              id
-              name
-              price
-              isVisible
-              reference
-              description
-              inventory
-              solde
-              images
-              createdAt
-              categories {
-                id
-                name
-                description
-                subcategories {
-                  id
-                  name
-                  parentId
-                  subcategories {
-                    id
-                    name
-                    parentId
-                  }
-                }
-              }
-              productDiscounts {
-                id
-                price
-                newPrice
-                dateOfEnd
-                dateOfStart
-              }
-              Colors {
-                id
-                color
-                Hex
-              }
-             technicalDetails
-              reviews {
-                rating
-                userId
-              }
-              Brand {
-                name
-              }
-            }
-         }
-        `,
-        variables: {
-          productByIdId: productId,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const { data, errors } = await response.json();
-
-    if (errors) {
-      console.error("GraphQL errors:", errors);
-      return null;
-    }
-
-    return data?.productById || null;
+    const data = await fetchGraphQLData(GET_PRODUCTS_BY_ID, { productByIdId: productId });
+    return data.productById || null;
   } catch (error) {
-    console.error("Error fetching product data:", error);
+    console.error('Error fetching product details:', error);
     return null;
   }
 }
+
 
 export async function generateMetadata({
   searchParams,
@@ -147,7 +31,7 @@ export async function generateMetadata({
     throw new Error("BASE_URL_DOMAIN is not defined");
   }
 
-  const productData = await fetchProductData(searchParams.productId);
+  const productData = await fetchProductDetails(searchParams.productId);
 
   if (!productData) {
     return {
@@ -164,15 +48,15 @@ export async function generateMetadata({
   const brandName = productData.Brand?.name || "";
   const technicalDetails = productData.technicalDetails || "";
 
-  // Enhanced title with brand name if available
+  //  title with brand name if available
   const title = `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `| ${rating.average}/5 ⭐ (${rating.count} avis) ` : ""}| ita-luxury`;
 
-  // Enhanced description with more product details
+  //  description with more product details
   const description = cleanDescription
     ? `${cleanDescription.slice(0, 120)}${rating ? ` | Note: ${rating.average}/5 (${rating.count} avis)` : ""} - ita-luxury`
     : `Découvrez ${productName}${brandName ? ` de ${brandName}` : ""} sur ita-luxury. Livraison rapide dans toute la Tunisie.`;
 
-  // Enhanced keywords with more product-specific terms
+  //  keywords with more product-specific terms
   const productKeywords = [
     ...keywords,
     productName,
@@ -192,29 +76,41 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN.replace(/\/$/, "");
   const productUrl = `${baseUrl}/products/tunisie?productId=${productData.id}`;
 
+  // Process images to ensure they're absolute URLs and properly formatted
+  const processedImages = (productData.images || [])
+    .filter((img: string) => img && img.trim() !== '')
+    .map((image: string) => {
+      // Ensure absolute URL
+      const absoluteUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
+      return {
+        url: absoluteUrl,
+        width: 1200,
+        height: 630,
+        alt: `${productName} - ${productReference} ${rating ? `- Note: ${rating.average}/5` : ""} - ita-luxury`,
+      };
+    })
+    .slice(0, 6);
+
   return {
     metadataBase: new URL(baseUrl),
     title,
     description,
     openGraph: {
       type: "website",
-      title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐) avis)` : ""}`,
+      title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐)` : ""}`,
       description,
-      images: (productData.images || []).map((image: any) => ({
-        url: image,
-        width: 1200,
-        height: 630,
-        alt: `${productName} - ${productReference} ${rating ? `- Note: ${rating.average}/5` : ""}`,
-      })),
+      images: processedImages,
       url: productUrl,
       siteName: "ita-luxury",
+      locale: "fr_TN",
     },
     twitter: {
       card: "summary_large_image",
       title: `${productName} ${brandName ? `- ${brandName} ` : ""}${rating ? `(${rating.average}/5 ⭐)(${rating.count} avis)` : ""}`,
       description,
-      images: productData.images || [],
+      images: processedImages.map((img: { url: string; }) => img.url),
       creator: "@ita_luxury",
+      site: "@ita_luxury",
     },
     keywords: productKeywords.join(", "),
     alternates: {
@@ -235,8 +131,13 @@ const ProductDetailsPage = async ({
 }: {
   searchParams: { productId: string };
 }) => {
-  const productData = await fetchProductData(searchParams.productId);
-
+  const cookieStore = cookies()
+  const token = cookieStore.get('Token')?.value
+  const decodedUser = token ? decodeToken(token) : null;
+  const userData = await getUser(decodedUser?.userId);
+  const productData = await fetchProductDetails(searchParams.productId);
+  const companyData = await getCompanyInfo();
+ 
   if (!productData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -256,7 +157,6 @@ const ProductDetailsPage = async ({
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/\/$/, "") || "";
 
-
   // Format prices consistently with 3 decimal places (Tunisian format)
   const formatPriceForDisplay = (price: number | string): string => {
     const numericPrice = typeof price === 'number' ? price : parseFloat(price);
@@ -267,14 +167,12 @@ const ProductDetailsPage = async ({
   const safeFormatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      // Check if date is valid before converting to ISO string
       if (isNaN(date.getTime())) {
         return new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
       }
       return date.toISOString().split('T')[0];
     } catch (error) {
       console.error("Error formatting date:", error);
-      // Return a default date one year from now
       return new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
     }
   };
@@ -284,10 +182,18 @@ const ProductDetailsPage = async ({
     ? formatPriceForDisplay(productData.productDiscounts[0].newPrice)
     : null;
 
-  // Get discount end date safely
   const discountEndDate = productData.productDiscounts?.length > 0
     ? safeFormatDate(productData.productDiscounts[0].dateOfEnd)
     : safeFormatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toString());
+
+  // Process images for schema - ensure they're absolute URLs and high quality
+  const processedImagesForSchema = (productData.images || [])
+    .filter((img: string) => img && img.trim() !== '')
+    .map((image: string) => {
+      const absoluteUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
+      return absoluteUrl;
+    })
+    .slice(0, 10);
 
   const breadcrumbList = {
     "@context": "https://schema.org",
@@ -296,7 +202,7 @@ const ProductDetailsPage = async ({
       {
         "@type": "ListItem",
         position: 1,
-        name: "Home",
+        name: "Accueil",
         item: baseUrl,
       },
       ...(productData.categories?.[0]?.name
@@ -318,40 +224,59 @@ const ProductDetailsPage = async ({
     ],
   };
 
-  // Add more detailed product schema with enhanced properties
+  //  product schema with all Google requirements
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: productData.name || "Product",
-    description: productData.description?.replace(/<[^>]*>/g, "") || "",
-    image: Array.isArray(productData.images)
-      ? productData.images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`)
-      : [],
-    sku: productData.id,
-    mpn: productData.id,
-    identifier_exists: productData.id ? "yes" : "no",
+    description: productData.description?.replace(/<[^>]*>/g, "").trim() || `Découvrez ${productData.name} sur ita-luxury`,
+    image: processedImagesForSchema,
+    sku: productData.reference || productData.id,
+    mpn: productData.reference || productData.id,
     gtin: productData.id,
+    productID: productData.id,
+    url: `${baseUrl}/products/tunisie?productId=${productData.id}`,
     brand: {
       "@type": "Brand",
-      name: productData.Brand?.name || productData.categories?.[productData.categories.length - 1]?.name,
+      name: productData.Brand?.name || "ita-luxury",
+      url: baseUrl
     },
-    color: productData.Colors?.color,
-    category: productData.categories?.[0]?.name || "",
+    manufacturer: {
+      "@type": "Organization",
+      name: productData.Brand?.name || "ita-luxury",
+      url: baseUrl
+    },
+    ...(productData.Colors?.color && {
+      color: productData.Colors.color
+    }),
+    category: productData.categories
+      ?.map((cat: any) => cat.name)
+      .join(" > ") || "Produits",
     offers: {
       "@type": "Offer",
       priceCurrency: "TND",
       price: discountedPrice || originalPrice,
+      lowPrice: discountedPrice || originalPrice,
+      highPrice: originalPrice,
       itemCondition: "https://schema.org/NewCondition",
       priceValidUntil: discountEndDate,
-      availability:
-        (productData.inventory || 0) > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+      availability: (productData.inventory || 0) > 0
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      inventoryLevel: productData.inventory || 0,
       url: `${baseUrl}/products/tunisie?productId=${productData.id}`,
       seller: {
         "@type": "Organization",
         name: "ita-luxury",
-        url: baseUrl
+        url: baseUrl,
+        logo: `${baseUrl}/logo.png`,
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: "+216-23-212-892",
+          contactType: "Customer Service",
+          areaServed: "TN",
+          availableLanguage: ["French", "Arabic"]
+        }
       },
       shippingDetails: {
         "@type": "OfferShippingDetails",
@@ -362,7 +287,8 @@ const ProductDetailsPage = async ({
         },
         shippingDestination: {
           "@type": "DefinedRegion",
-          addressCountry: "TN"
+          addressCountry: "TN",
+          addressRegion: "Toute la Tunisie"
         },
         deliveryTime: {
           "@type": "ShippingDeliveryTime",
@@ -381,38 +307,51 @@ const ProductDetailsPage = async ({
         }
       },
       ...(discountedPrice && {
-        priceSpecification: {
-          "@type": "PriceSpecification",
+        priceSpecification: [{
+          "@type": "UnitPriceSpecification",
           price: originalPrice,
           priceCurrency: "TND",
-          valueAddedTaxIncluded: true
-        }
+          valueAddedTaxIncluded: true,
+          validFrom: new Date().toISOString().split('T')[0]
+        }]
       })
     },
-    ...(rating && {
+    ...(rating && rating.count > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: rating.average,
-        bestRating: rating.best,
+        bestRating: 5,
+        worstRating: 1,
         reviewCount: rating.count,
-        worstRating: 0,
-
+        ratingCount: rating.count
       },
     }),
-    review: (productData.reviews || []).map((review: { rating: any }) => ({
-      "@type": "Review",
-      author: {
-        "@type": "Person",
-        name: "client",
-      },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: review.rating,
-        bestRating: 5,
-        worstRating: 0,
-      },
-    })),
-    additionalProperty: productData.technicalDetails,
+    ...(productData.reviews && productData.reviews.length > 0 && {
+      review: productData.reviews.slice(0, 5).map((review: { rating: any }, index: number) => ({
+        "@type": "Review",
+        author: {
+          "@type": "Person",
+          name: `Client ${index + 1}`,
+        },
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: review.rating,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        reviewBody: `Avis client sur ${productData.name}`,
+        datePublished: new Date().toISOString().split('T')[0]
+      }))
+    }),
+    ...(productData.technicalDetails && {
+      additionalProperty: [
+        {
+          "@type": "PropertyValue",
+          name: "Caractéristiques techniques",
+          value: productData.technicalDetails
+        }
+      ]
+    })
   };
 
   return (
@@ -420,8 +359,10 @@ const ProductDetailsPage = async ({
       <JsonLd<any> item={breadcrumbList} />
       <JsonLd<any> item={productSchema} />
       <ProductDetailsSection
+        userData={userData}
         productDetails={productData}
         productId={searchParams.productId}
+        companyData={companyData}
       />
     </div>
   );

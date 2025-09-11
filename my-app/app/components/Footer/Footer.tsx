@@ -1,5 +1,5 @@
 "use client";
-import prepRoute from "@/app/Helpers/_prepRoute";
+import { useAuth } from "@/app/hooks/useAuth";
 import {
   Accordion,
   AccordionContent,
@@ -7,17 +7,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
-import { CATEGORY_QUERY, COMPANY_INFO_QUERY } from "@/graphql/queries";
-import { useAuth } from "@/lib/auth/useAuth";
+import { CATEGORY_QUERY } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
-import { FaFacebookSquare, FaInstagram, FaArrowUp } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaArrowUp, FaFacebookSquare, FaInstagram } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import { MdEmail, MdLocalPhone } from "react-icons/md";
 
-// Reusable SocialIcon component with hover effect
+//  SocialIcon component with hover effect
 const SocialIcon = ({
   icon: Icon,
   navLink,
@@ -32,15 +32,13 @@ const SocialIcon = ({
   </Link>
 );
 
-// Footer component
-const Footer = () => {
+const Footer = ({ companyData }: any) => {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
-  const { data: companyInfoData } = useQuery(COMPANY_INFO_QUERY);
   const { data: categoriesData } = useQuery(CATEGORY_QUERY);
   const { isAuthenticated } = useAuth();
 
-  const companyInfo = companyInfoData?.companyInfo;
+  const companyInfo = companyData;
   const categories = categoriesData?.categories || [];
 
 
@@ -69,7 +67,7 @@ const Footer = () => {
       <div
         className="hidden lg:flex bg-center bg-cover bg-no-repeat min-h-[200px] h-[304px] max-w-[1419px] w-full justify-center items-center"
         style={{
-          backgroundImage: `url('/footerImage.jpg')`,
+          backgroundImage: `url('/images/ui/footer-image.webp')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
@@ -83,7 +81,7 @@ const Footer = () => {
             width={180}
             height={180}
             alt="ita-luxury"
-            objectFit="contain"
+            style={{ objectFit: "contain" }}
             priority
           />
         )}
@@ -97,16 +95,7 @@ const Footer = () => {
       </div>
       {/* Laptop View */}
       <div className=" w-full hidden lg:grid max-w-7xl lg:grid-cols-6 place-content-center gap-4 border-t pt-8">
-        {/* Scroll to top button */}
-        <div className="lg:col-span-6 flex justify-center mb-4">
-          <button
-            onClick={scrollToTop}
-            className="p-3 rounded-full bg-primaryColor text-white shadow-lg hover:bg-opacity-90 transition-all duration-300 flex items-center gap-2"
-            aria-label="Scroll to top"
-          >
-            <FaArrowUp /> <span>Retour en haut</span>
-          </button>
-        </div>
+
 
         {/* Full width map for laptop view */}
         {/* <div className="lg:col-span-6 mb-6">
@@ -118,7 +107,6 @@ const Footer = () => {
               height="100%"
               style={{ border: 0 }}
               allowFullScreen={false}
-              loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Boutique Ita Sousse Location"
             ></iframe>
@@ -162,10 +150,9 @@ const Footer = () => {
               (category: { name: string; id: string }, subIndex: number) => (
                 <li key={subIndex}>
                   <Link
-                    href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                    href={`/Collections/tunisie?${new URLSearchParams(
                       {
                         category: category.name,
-                        categories: category.name,
                       }
                     )}`}
                     className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm block"
@@ -212,7 +199,7 @@ const Footer = () => {
           <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
           <div className="flex flex-col">
             <Link
-              href={`/TrackingPackages` }
+              href={`/TrackingPackages`}
               className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
             >
               Mes Commandes
@@ -260,16 +247,7 @@ const Footer = () => {
 
       {/* Mobile accordion */}
       <div className="flex flex-col lg:hidden w-full px-5 mt-4">
-        {/* Mobile scroll to top button */}
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={scrollToTop}
-            className="p-2 rounded-full bg-primaryColor text-white shadow-lg hover:bg-opacity-90 transition-all duration-300 flex items-center gap-2"
-            aria-label="Scroll to top"
-          >
-            <FaArrowUp /> <span>Retour en haut</span>
-          </button>
-        </div>
+       
 
         {/* Mobile map section - shown directly before accordion */}
         {/* <div className="mb-6">
@@ -281,7 +259,6 @@ const Footer = () => {
               height="100%"
               style={{ border: 0 }}
               allowFullScreen={false}
-              loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Boutique Ita Sousse Location"
             ></iframe>
@@ -330,10 +307,9 @@ const Footer = () => {
                 {categories.map((category: { name: string; id: string }) => (
                   <li key={category?.id}>
                     <Link
-                      href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                      href={`/Collections/tunisie?${new URLSearchParams(
                         {
                           category: category.name,
-                          categories: category.name,
                         }
                       )}`}
                       className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 block"
@@ -383,7 +359,7 @@ const Footer = () => {
             <AccordionContent>
               <div className="flex flex-col space-y-2">
                 <Link
-                  href={`/TrackingPackages` }
+                  href={`/TrackingPackages`}
                   className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700"
                 >
                   Mes Commandes
@@ -434,11 +410,11 @@ const Footer = () => {
       <div className="mt-8 flex gap-4">
         <SocialIcon
           icon={FaFacebookSquare}
-          navLink={companyInfo?.facebook || "#"}
+          navLink={companyInfo?.facebook || "/"}
         />
         <SocialIcon
           icon={FaInstagram}
-          navLink={companyInfo?.instagram || "#"}
+          navLink={companyInfo?.instagram || "/"}
         />
       </div>
 

@@ -39,7 +39,7 @@ async function fetchData() {
 export default async function Layout({ children }: LayoutProps) {
   const { categories, brands, colors } = await fetchData();
   return (
-    <div className="relative flex w-full flex-col z-[999]">
+    <div className="relative flex w-full flex-col -z-0">
       <div className="container gap-3 px-4 flex md:flex-row items-center md:items-start flex-col-reverse relative w-full h-full">
         <SideBar categories={categories} brands={brands} colors={colors} />
         <main style={{ width: "inherit" }} className="relative">

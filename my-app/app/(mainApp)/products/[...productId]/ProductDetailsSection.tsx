@@ -1,7 +1,7 @@
 "use client";
 
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/trackEvents";
+import triggerEvents from "@/utlils/events/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -11,7 +11,6 @@ import {
 } from "../../../../graphql/mutations";
 import {
   BASKET_QUERY,
-  FETCH_USER_BY_ID,
   TAKE_16_PRODUCTS_BY_CATEGORY,
 } from "../../../../graphql/queries";
 import Breadcumb from "../../../components/Breadcumb";
@@ -40,11 +39,6 @@ const TitleProduct = dynamic(
   }
 );
 
-// Pre-fetch critical components
-const ProductInfo = dynamic(() => import("./Components/ProductInfo"), {
-  ssr: true,
-});
-
 
 // Defer non-critical components
 const ProductDetailsDrawer = dynamic(
@@ -54,31 +48,29 @@ const ProductDetailsDrawer = dynamic(
   }
 );
 
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
 import ActionButton from "./Components/ActionButton";
 import CustomInnerZoom from "./Components/CustomInnerZoom";
 import ProductDetailsContainer from "./Components/ProductDetailsContainer";
+import ProductInfo from "./Components/ProductInfo";
 
 
-const ProductDetailsSection = ({ productDetails, productId }: any) => {
+const ProductDetailsSection = ({ productDetails, productId, userData }: any) => {
   const { toast } = useToast();
-
-
 
   const [smallImages, setSmallImages] = useState<any>(null);
   const { decodedToken, isAuthenticated } = useAuth();
   const [discount, setDiscount] = useState<any>(null);
   const [technicalDetails, setTechnicalDetails] = useState<any>(null);
-
+  const [showQuantityMessage, setShowQuantityMessage] = useState(false);
   const [quantity, setQuantity] = useState<number>(1);
 
 
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-  //  this near other useState declarations
-  const [showQuantityMessage, setShowQuantityMessage] = useState(false);
 
-  // Add this useEffect to handle scroll
+
+  // useEffect to handle scroll
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY >= 4000) {
@@ -91,6 +83,7 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_16_PRODUCTS_BY_CATEGORY, {
       variables: {
@@ -103,13 +96,6 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
 
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
-    skip: !isAuthenticated,
-  });
-
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
     skip: !isAuthenticated,
   });
 
@@ -128,11 +114,6 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
     increaseProductInQtBasket,
   } = useProductsInBasketStore();
 
-  useEffect(() => {
-    if (productDetails?.images) {
-      setSmallImages(productDetails.images);
-    }
-  }, [productDetails]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -147,7 +128,6 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
       categories,
       Brand,
       Colors,
-      reference
     } = productDetails;
 
     const finalPrice = productDiscounts.length > 0
@@ -155,8 +135,6 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
       : price;
     const brandName = Brand?.name || "Unknown Brand";
     const colorName = Colors?.color || "No Color";
-
-    // Use primary category (first one) for Facebook Pixel
     const primaryCategory = categories?.[0]?.name || '';
 
     sendGTMEvent({
@@ -177,9 +155,9 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
         }]
       },
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
         ct: "",
         external_id: decodedToken?.userId
@@ -201,13 +179,11 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
       }
     });
 
-
-    // Replace PageView with ViewContent for Facebook Pixel
     triggerEvents("ViewContent", {
       user_data: {
-        em: [userData?.fetchUsersById?.email.toLowerCase()],
-        fn: [userData?.fetchUsersById?.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
         ct: "",
         external_id: decodedToken?.userId,
@@ -231,7 +207,13 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
 
     setDiscount(productDetails.productDiscounts[0]);
     setTechnicalDetails(productDetails.technicalDetails);
+    if (productDetails?.images) {
+      setSmallImages(productDetails.images);
+    }
   }, [productId]);
+
+
+
 
   const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
@@ -252,14 +234,13 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
         ? product.productDiscounts[0].newPrice
         : product.price;
 
-    // Use primary category for Facebook Pixel
     const primaryCategory = product.categories?.[0]?.name || '';
 
-    const addToCartData = {
+    const cartEventDataFacebook = {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
         ct: "",
         external_id: decodedToken?.userId,
@@ -303,9 +284,9 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
         value: price * (product.actualQuantity || product.quantity),
       },
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
         ct: "",
         external_id: decodedToken?.userId
@@ -326,9 +307,8 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
         content_category: primaryCategory,
       }
     };
-
     // Track Add to Cart
-    triggerEvents("AddToCart", addToCartData);
+    triggerEvents("AddToCart", cartEventDataFacebook);
     sendGTMEvent(cartEventDataGTM);
     if (decodedToken) {
       try {
@@ -350,7 +330,6 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
           return;
         }
 
-        // If everything is okay, proceed with adding to basket
         await addToBasket({
           variables: {
             input: {
@@ -365,14 +344,7 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
               variables: { userId: decodedToken?.userId },
             },
           ],
-          onCompleted: () => {
-            toast({
-              title: "Produit ajouté au panier",
-              description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-              className: "bg-primaryColor text-white",
-            });
 
-          },
         });
       } catch (error) {
         console.error("Error adding to basket:", error);
@@ -444,12 +416,14 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
 
   const categoriesPath = useMemo(() => [
     { href: "/", label: "Accueil" },
-    ...categoryNames.map((category: string | number | boolean, index: any) => ({
-      href: `/Collections/tunisie?category=${encodeURIComponent(category)}`,
-      label: category,
+    ...categoryNames.map((category: string) => ({
+      href: `/Collections/tunisie?${new URLSearchParams({
+        category: category,
+      })}`,
+      label: String(category),
     })),
     {
-      href: `/products/tunisie?${productDetails.id}`,
+      href: `/products/tunisie?productId=${productDetails.id}`,
       label: productDetails?.name,
     },
   ], [categoryNames, productDetails?.id, productDetails?.name]);
@@ -514,7 +488,6 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
   );
 
   return (
-    // In the return statement, update the main container styling
     <div className="productDetails bg-gray-50 py-6">
       <div className="container relative  mx-auto md:px-4 ">
         {!productDetails ? (
@@ -524,7 +497,7 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
             <Breadcumb Path={categoriesPath} />
 
             <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-between bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm gap-4">
-              <div className="lg:sticky top-0 lg:top-5 gap-3 z-50 items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
+              <div className="lg:sticky top-0 lg:top-5 gap-3  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
                 <div className="relative">
                   <CustomInnerZoom
                     images={smallImages}
@@ -546,8 +519,9 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
                 </div>
               </div>
 
-              {/* Rest of the product info section */}
+              {/*  product info section */}
               <ProductInfo
+                userData={userData}
                 productDetails={productDetails}
                 technicalDetails={technicalDetails}
                 userId={decodedToken?.userId}
@@ -583,12 +557,14 @@ const ProductDetailsSection = ({ productDetails, productId }: any) => {
           technicalDetails={technicalDetails}
         />
 
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-6 mt-8 mb-[15%]">
+        <div className="bg-white border border-gray-200 rounded-lg  shadow-sm px-4 py-6 mt-8 ">
           <TitleProduct title={"Produits apparentés"} />
           <div className="py-2">
             <ProductTabs
               data={Products_10_by_category?.productsByCategory}
               loadingProduct={loadingProductByCategiry}
+              userData={userData}
+              className={"basis-1/2 md:basis-1/5 lg:basis-1/5"}
             />
           </div>
         </div>

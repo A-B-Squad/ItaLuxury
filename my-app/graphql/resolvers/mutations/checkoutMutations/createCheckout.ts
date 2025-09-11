@@ -1,5 +1,5 @@
 
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 import { CreateCheckoutInput } from "../categoryMutations/types";
 
@@ -110,7 +110,7 @@ async function tryToSendCheckoutEmail(
   deliveryPrice: number
 ): Promise<void> {
   const recipientEmail = checkout.isGuest ? checkout.guestEmail : checkout.User?.email;
-  
+
   // Skip if no email is provided or configuration is missing
   if (!recipientEmail || !process.env.NEXT_PUBLIC_NODEMAILER_EMAIL || !process.env.NEXT_PUBLIC_NODEMAILER_PASS) {
     return;
@@ -134,14 +134,14 @@ async function tryToSendCheckoutEmail(
   });
 
   const totals = calculateTotals(checkout, deliveryPrice);
-  
+
   // Base URL for your website
   const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
-  
+
   // Logo and other image paths - using images from public folder
-  const logoUrl = `${baseUrl}/LOGO.png`;
-  const jaxDeliveryLogo = `${baseUrl}/jaxDelivery.png`;
-  
+  const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
+  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.webp`;
+
   const mailOptions = {
     from: '"Ita Luxury" <no-reply@ita-luxury.com>',
     to: recipientEmail,
@@ -364,7 +364,7 @@ async function tryToSendCheckoutEmail(
             </thead>
             <tbody>
               ${checkout.productInCheckout
-      .map((item: any) => `
+        .map((item: any) => `
                 <tr>
                   <td class="product-name">
                     <div><strong>${item.product.name}</strong></div>

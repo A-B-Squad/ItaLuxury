@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ZoomIn, ZoomOut } from 'lucide-react';
-import Image from 'next/legacy/image';
+import Image from 'next/image'
+
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 interface CustomInnerZoomProps {
@@ -88,16 +89,30 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
     }
   }, [selectedImage]);
 
-  // Handle wheel event for thumbnail scrolling
+  // Handle wheel event for thumbnail scrolling - FIXED VERSION
   const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
     if (!thumbnailsRef.current) return;
-    e.preventDefault();
-
+    
+    // Only prevent default if we can actually scroll in the intended direction
+    const container = thumbnailsRef.current;
     const isMobile = window.innerWidth < 768;
+    
     if (isMobile) {
-      thumbnailsRef.current.scrollLeft += e.deltaY;
+      const canScrollLeft = container.scrollLeft > 0;
+      const canScrollRight = container.scrollLeft < container.scrollWidth - container.clientWidth;
+      
+      if ((e.deltaY < 0 && canScrollLeft) || (e.deltaY > 0 && canScrollRight)) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaY;
+      }
     } else {
-      thumbnailsRef.current.scrollTop += e.deltaY;
+      const canScrollUp = container.scrollTop > 0;
+      const canScrollDown = container.scrollTop < container.scrollHeight - container.clientHeight;
+      
+      if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
+        e.preventDefault();
+        container.scrollTop += e.deltaY;
+      }
     }
   }, []);
 
@@ -137,6 +152,41 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
     scrollToSelectedThumbnail();
   }, [selectedImage, scrollToSelectedThumbnail]);
 
+  // Set up wheel event listener with non-passive option - ALTERNATIVE APPROACH
+  useEffect(() => {
+    const thumbnailContainer = thumbnailsRef.current;
+    if (!thumbnailContainer) return;
+
+    const wheelHandler = (e: WheelEvent) => {
+      const isMobile = window.innerWidth < 768;
+      
+      if (isMobile) {
+        const canScrollLeft = thumbnailContainer.scrollLeft > 0;
+        const canScrollRight = thumbnailContainer.scrollLeft < thumbnailContainer.scrollWidth - thumbnailContainer.clientWidth;
+        
+        if ((e.deltaY < 0 && canScrollLeft) || (e.deltaY > 0 && canScrollRight)) {
+          e.preventDefault();
+          thumbnailContainer.scrollLeft += e.deltaY;
+        }
+      } else {
+        const canScrollUp = thumbnailContainer.scrollTop > 0;
+        const canScrollDown = thumbnailContainer.scrollTop < thumbnailContainer.scrollHeight - thumbnailContainer.clientHeight;
+        
+        if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
+          e.preventDefault();
+          thumbnailContainer.scrollTop += e.deltaY;
+        }
+      }
+    };
+
+    // Add event listener with non-passive option
+    thumbnailContainer.addEventListener('wheel', wheelHandler, { passive: false });
+
+    return () => {
+      thumbnailContainer.removeEventListener('wheel', wheelHandler);
+    };
+  }, []);
+
   // Handle empty images array
   if (validImages.length === 0) {
     return (
@@ -170,9 +220,10 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
               }}
             >
               <Image
-                layout="fill"
+                fill={true}
                 src={validImages[selectedImage]}
                 alt={`${alt} ${selectedImage + 1}`}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="w-full h-full object-contain"
                 priority={selectedImage === 0}
                 quality={90}
@@ -267,7 +318,6 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
             {/* Thumbnails */}
             <div
               ref={thumbnailsRef}
-              onWheel={handleWheel}
               className="flex md:flex-col justify-start gap-2 py-8 md:py-12 px-8 md:px-0 overflow-x-auto md:overflow-y-auto md:h-[500px] no-scrollbar scroll-smooth"
               aria-label="Vignettes de produit"
             >
@@ -287,9 +337,9 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
                     alt={`Product image ${index}`}
                     width={600}
                     height={600}
-                    priority={index === 0} // Only prioritize the first image
-                    quality={80} // Reduce quality slightly for faster loading
-                    className="object-contain"
+                    priority={index === 0}
+                    quality={80}
+                    style={{ objectFit: "contain" }}
                   />
                 </button>
               ))}

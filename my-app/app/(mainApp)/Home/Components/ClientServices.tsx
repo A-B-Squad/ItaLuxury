@@ -4,7 +4,8 @@ import React, { useState, useCallback } from "react";
 import { useQuery } from "@apollo/client";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import { CLIENT_SERVICES } from "@/graphql/queries";
 
 interface Advertisement {
@@ -75,7 +76,7 @@ const ClientServices: React.FC = () => {
 
   // Advertisement rendering with enhanced design
   const renderAdvertisement = (
-    data: QueryResult | undefined, 
+    data: QueryResult | undefined,
     index: number
   ) => {
     if (!data?.advertismentByPosition?.[0]) return null;
@@ -114,15 +115,16 @@ const ClientServices: React.FC = () => {
           <Image
             src={ad.images[0]}
             alt={`Service client ${index}`}
-            layout="fill"
-            objectFit="cover"
+            fill={true}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{ objectFit: "cover" }}
             priority
             className="
               transition-transform 
               duration-500 
               group-hover:scale-105
             "
-            onLoadingComplete={() => handleImageLoad(index)}
+            onLoad={() => handleImageLoad(index)}
           />
         </div>
       </Link>

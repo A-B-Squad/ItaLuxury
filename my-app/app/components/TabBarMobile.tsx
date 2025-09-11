@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useCallback, memo } from "react";
-import { Home, ShoppingBag, Heart } from "lucide-react";
+import { sendGTMEvent } from "@next/third-parties/google";
+import { motion } from "framer-motion";
+import { Heart, Home, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { memo, useCallback } from "react";
 import { GoPackageDependents } from "react-icons/go";
-import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
-import { CiUser } from "react-icons/ci";
-import { motion } from "framer-motion";
 
 const TabBarMobile = () => {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
 
   const isActive = useCallback((path: string): boolean => {
     if (!pathname) return false;
@@ -38,64 +35,74 @@ const TabBarMobile = () => {
     {
       name: "Accueil",
       path: "/",
-      icon: <Home size={18} />,
+      icon: <Home size={20} />,
     },
     {
       name: "Boutique",
       path: "/Collections/tunisie?page=1",
-      icon: <ShoppingBag size={18} />,
+      icon: <ShoppingBag size={20} />,
     },
     {
       name: "Favoris",
       path: "/FavoriteList",
-      icon: <Heart size={18} />,
+      icon: <Heart size={20} />,
     },
     {
       name: "Colis",
       path: "/TrackingPackages",
-      icon: <GoPackageDependents size={18} />,
+      icon: <GoPackageDependents size={20} />,
     },
   ];
 
   return (
-    <motion.div 
-      className="fixed md:hidden bottom-0 w-full z-[999991]"
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="bg-white/95 backdrop-blur-sm shadow-[0_-2px_10px_rgba(0,0,0,0.05)] py-2">
-        <div className="flex justify-around items-center">
-          {tabItems.map((item) => (
-            <Link
-              key={item.path}
-              href={item.path}
-              onClick={() => handleNavigation(item.name)}
-              className="flex flex-col items-center w-1/4"
-            >
-              <motion.div
-                className={`p-1.5 rounded-full ${
-                  isActive(item.path) 
-                    ? "bg-primaryColor text-white" 
-                    : "text-gray-600 hover:text-primaryColor"
-                }`}
-                whileTap={{ scale: 0.9 }}
-                transition={{ duration: 0.2 }}
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white md:hidden">
+      <motion.div
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white/98 backdrop-blur-md border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+      >
+        <div className="safe-area-inset-bottom">
+          <div className="flex justify-around items-center px-2 ">
+            {tabItems.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                onClick={() => handleNavigation(item.name)}
+                className="flex flex-col items-center justify-center flex-1 py-2"
               >
-                {item.icon}
-              </motion.div>
-              <span
-                className={`text-[10px] mt-1 font-medium ${
-                  isActive(item.path) ? "text-primaryColor" : "text-gray-600"
-                }`}
-              >
-                {item.name}
-              </span>
-            </Link>
-          ))}
+                <motion.div
+                  className={`flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200 ${
+                    isActive(item.path)
+                      ? "bg-primaryColor text-white shadow-lg shadow-primaryColor/25"
+                      : "text-gray-500 hover:text-primaryColor hover:bg-gray-50"
+                  }`}
+                  whileTap={{ scale: 0.88 }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.15, type: "spring", stiffness: 400 }}
+                >
+                  {item.icon}
+                </motion.div>
+                <motion.span
+                  className={`text-xs mt-1.5 font-medium transition-colors duration-200 ${
+                    isActive(item.path) 
+                      ? "text-primaryColor" 
+                      : "text-gray-500"
+                  }`}
+                  initial={false}
+                  animate={{
+                    scale: isActive(item.path) ? 1.05 : 1,
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.name}
+                </motion.span>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 

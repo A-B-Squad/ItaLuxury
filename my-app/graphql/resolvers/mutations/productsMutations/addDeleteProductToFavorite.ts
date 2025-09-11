@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const addDeleteProductToFavorite = async (
   _: any,
@@ -7,38 +7,56 @@ export const addDeleteProductToFavorite = async (
 ) => {
   try {
     const { userId, productId } = input;
+
     // Check if the user and product exist
     const userExists = await prisma.user.findUnique({
       where: { id: userId },
     });
+
     const productExists = await prisma.product.findUnique({
       where: { id: productId },
     });
 
-    const alreadyFavoriteProduct = await prisma.favoriteProducts.findFirst({ where: { userId: userId, productId: productId } })
-
     if (!userExists) {
-      return new Error(`User with ID ${userId} does not exist.`);
+      return `User with ID ${userId} does not exist.`
     }
 
     if (!productExists) {
-      return new Error(`Product with ID ${productId} does not exist.`);
-    }
-    if (alreadyFavoriteProduct) {
-      const deleteFromFavorite = await prisma.favoriteProducts.deleteMany({ where: { userId: userId, productId: productId } })
-    } else {
+      return `Product with ID ${productId} does not exist.`
 
-      const favoriteProduct = await prisma.favoriteProducts.create({
+    }
+
+    const alreadyFavoriteProduct = await prisma.favoriteProducts.findFirst({
+      where: { userId: userId, productId: productId }
+    });
+
+    if (alreadyFavoriteProduct) {
+      // Delete from favorites
+      await prisma.favoriteProducts.deleteMany({
+        where: { userId: userId, productId: productId }
+      });
+
+      return "Product removed from favorites successfully."
+    } else {
+      // Add to favorites
+      await prisma.favoriteProducts.create({
         data: {
           userId,
           productId,
         },
       });
-      return favoriteProduct;
+
+      return "Product added to favorites successfully."
+
     }
 
   } catch (error: any) {
-    console.error("Error adding product to favorite:", error);
-    return `Failed to add product to favorite: ${error}.`;
+    console.error("Error managing product favorite:", error);
+    return {
+      success: false,
+      message: `Failed to manage product favorite: ${error.message}`,
+      action: null,
+      data: null
+    };
   }
 };

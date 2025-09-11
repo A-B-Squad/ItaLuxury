@@ -5,6 +5,8 @@ import Subsubcategory from "./Subsubcategory";
 interface SubcategoryProps {
   subcategories: Subcategory[];
   parentCategoryName: string;
+  setShowDropdown: (show: boolean) => void;
+
 }
 
 interface Subcategory {
@@ -17,6 +19,7 @@ interface Subcategory {
 const Subcategory: React.FC<SubcategoryProps> = ({
   subcategories,
   parentCategoryName,
+  setShowDropdown
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-100 transform-none">
@@ -28,7 +31,8 @@ const Subcategory: React.FC<SubcategoryProps> = ({
           <Link
             className="py-2 block text-primaryColor font-medium hover:text-primaryColor/80 transition-all border-b border-gray-100 mb-2"
             data-parentcategory={subcategory.parentId}
-            href={`/Collections/tunisie/?${new URLSearchParams({
+            onClick={() => setShowDropdown(false)}
+            href={`/Collections/tunisie?${new URLSearchParams({
               category: subcategory.name,
             })}`}
           >
@@ -40,6 +44,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
               parentCategoryName={parentCategoryName}
               parentSubCategoryName={subcategory.name}
               subsubcategories={subcategory.subcategories}
+              setShowDropdown={setShowDropdown}
             />
           )}
         </div>

@@ -34,7 +34,7 @@ const TitleProduct = dynamic(
   () => import("@/app/components/ProductCarousel/titleProduct"),
   { ssr: false }
 );
-const BestSales = dynamic(() => import("./@TopSales/ToptSales"), {
+const TopSales = dynamic(() => import("./@TopSales/ToptSales"), {
   ssr: false,
 });
 
@@ -65,7 +65,7 @@ const MainCategoriesSlide = dynamic(
   { ssr: false }
 );
 
-const Home = () => {
+const Home = ({ userData }: any) => {
   const { data: leftAds, loading: loadingLeftAds } = useQuery(
     ADVERTISSMENT_QUERY,
     { variables: { position: "SideNewProduct" } }
@@ -188,10 +188,10 @@ const Home = () => {
                     }
                     LinkTo={"/"}
                   />
-                  <div className="TopDeals bg-white md:p-6 rounded-xl shadow-sm border border-gray-100">
+                  <div className="TopDeals bg-white md:p-6 p-4 rounded-xl shadow-sm border border-gray-100">
                     <div className="flex justify-between flex-col md:flex-row mb-8 gap-4 items-start">
                       <TitleProduct title={"Meilleures Offres du Jour"} />
-                      <div className="flex items-center flex-col md:flex-row md:bg-gradient-to-r from-amber-50 to-orange-50 md:px-5 md:py-3 md:rounded-lg md:shadow-sm border border-amber-100">
+                      <div className="flex gap-1 items-center flex-col md:flex-row md:bg-gradient-to-r from-amber-50 to-orange-50 md:px-5 md:py-3 md:rounded-lg ">
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 animate-pulse mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -203,7 +203,7 @@ const Home = () => {
                         <TimeCountDown />
                       </div>
                     </div>
-                    <TopDeals />
+                    <TopDeals userData={userData} />
                   </div>
                 </div>
               )}
@@ -222,8 +222,8 @@ const Home = () => {
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className="Carousel_new_product relative items-center gap-6 flex">
-                <div className="sideImg xl:flex-col gap-6 w-fit hidden xl:flex">
+              <div className="Carousel_new_product relative items-start gap-6 flex">
+                <div className="sideImg 2xl:flex-col gap-6 w-fit hidden 2xl:flex">
                   <SideAds
                     adsLoaded={loadingClinetContactSideAds}
                     image={
@@ -241,8 +241,10 @@ const Home = () => {
                 </div>
 
                 <ProductTabs
+                  userData={userData}
                   data={newProducts}
                   loadingProduct={loadingNewProducts_14}
+                  className={"basis-1/2 md:basis-1/3 lg:basis-1/4 "}
                 />
               </div>
             </div>
@@ -267,8 +269,11 @@ const Home = () => {
               </div>
 
               <ProductTabs
+                userData={userData}
                 data={productsLessThan20}
                 loadingProduct={loadingProducts_less_20}
+                className={"basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6"}
+
               />
             </div>
 
@@ -290,12 +295,14 @@ const Home = () => {
                   <MdKeyboardArrowRight />
                 </div>
               </div>
-              <div className="relative items-center gap-6 flex">
+              <div className="relative items-start gap-6 flex">
                 <ProductTabs
+                  userData={userData}
                   data={discountedProducts}
                   loadingProduct={loadingProducts_inDiscount_14}
+                  className={"basis-1/2 md:basis-1/3 lg:basis-1/4 2xl:basis-1/5"}
                 />
-                <div className="sideImg w-fit hidden xl:block">
+                <div className="sideImg w-fit hidden 2xl:block">
                   <SideAds
                     adsLoaded={loadingRightAds}
                     image={rightAds?.advertismentByPosition[0]?.images[0]}
@@ -317,7 +324,7 @@ const Home = () => {
                 <div className="Heading pb-8 flex items-center mb-5 justify-between">
                   <TitleProduct title={"Meilleures Ventes"} />
                 </div>
-                <BestSales />
+                <TopSales userData={userData} />
               </div>
             )}
 

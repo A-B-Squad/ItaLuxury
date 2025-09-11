@@ -2,7 +2,8 @@ import React from "react";
 import TrackingPackages from "./TrackingPackages";
 
 import { Metadata } from "next";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
+import { getCompanyInfo } from "@/utlils/getCompanyInfo";
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
       "Suivez vos colis en temps réel avec ita-luxury pour une expérience d'achat optimale.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -39,8 +40,10 @@ export const metadata: Metadata = {
   },
 };
 
-const TrackingPackagesPage = () => {
-  return <TrackingPackages />;
+const TrackingPackagesPage = async () => {
+  const companyData = await getCompanyInfo();
+
+  return <TrackingPackages companyData={companyData} />;
 };
 
 export default TrackingPackagesPage;

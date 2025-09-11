@@ -7,14 +7,15 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
-import triggerEvents from "@/utlils/trackEvents";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import ProductActions from "./ProductActions";
 import ProductImage from "./ProductImage";
 import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface ProductProps {
     key: any;
@@ -42,8 +43,8 @@ const ProductDetails: React.FC<ProductProps> = ({
         addProductToBasket,
         increaseProductInQtBasket,
     } = useProductsInBasketStore();
-  // Calculate discount percentage
-  const discountData = product?.productDiscounts?.[0];
+    // Calculate discount percentage
+    const discountData = product?.productDiscounts?.[0];
     const productInBasket = useMemo(() => {
         if (isAuthenticated && basketData?.basketByUserId) {
             return basketData.basketByUserId.find(
@@ -66,11 +67,11 @@ const ProductDetails: React.FC<ProductProps> = ({
         // Analytics data
         const addToCartData = {
             user_data: {
-                em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-                fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-                ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+                em: userData?.email ? [userData.email.toLowerCase()] : [],
+                fn: userData?.fullName ? [userData.fullName] : [],
+                ph: userData?.number ? [userData.number] : [],
                 country: ["tn"],
-                external_id: userData?.fetchUsersById?.id || null,
+                external_id: userData?.id || null,
             },
             custom_data: {
                 content_name: product.name,
@@ -101,7 +102,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             user_data: addToCartData.user_data,
             facebook_data: {
                 content_name: product.name,
-                content_type: "product",    
+                content_type: "product",
                 content_ids: [product.id],
                 value: price * quantity,
                 currency: "TND"
@@ -195,30 +196,10 @@ const ProductDetails: React.FC<ProductProps> = ({
         toggleIsUpdated();
     };
 
-    const handleCategoryStorage = useCallback(
-        (e: React.MouseEvent) => {
-            if (!product?.categories?.[0]) return;
-            const categories = [
-                product.categories[0].name,
-                product.categories[1]?.name,
-                product.categories[2]?.name,
-                product.name,
-            ].filter(Boolean);
-
-            try {
-                localStorage.setItem("productCategories", JSON.stringify(categories));
-            } catch (error) {
-                console.error("Error storing categories in localStorage:", error);
-            }
-        },
-        [product]
-    );
-
-  
 
 
     return (
-        <div 
+        <div
             key={product?.id}
             className="flex flex-col lg:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 opacity-100 transform-none"
         >
@@ -237,7 +218,6 @@ const ProductDetails: React.FC<ProductProps> = ({
                 <div>
                     <Link
                         href={`/products/tunisie?productId=${product.id}`}
-                        onClick={handleCategoryStorage}
                         className="block group"
                     >
                         <h2 className="text-xl font-semibold text-gray-800 group-hover:text-primaryColor transition-colors duration-200 line-clamp-2">

@@ -9,34 +9,21 @@ import { GiShoppingBag } from "react-icons/gi";
 
 import { useToast } from "@/components/ui/use-toast";
 import { CREATE_CHECKOUT_MUTATION, CREATE_POINT_TRANSACTION } from "@/graphql/mutations";
-import triggerEvents from "@/utlils/trackEvents";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 
 import {
     BASKET_QUERY,
-    COMPANY_INFO_QUERY,
-    FETCH_USER_BY_ID,
     GET_GOVERMENT_INFO,
     GET_POINT_SETTINGS,
 } from "@/graphql/queries";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { OrderSummary } from "./OrderSummary";
+import { useProductsInBasketStore } from "@/app/store/zustand";
+
 
 // Define interfaces
-interface Product {
-    id: string;
-    reference: string;
-    name: string;
-    images: string[];
-    price: number;
-    inventory: number;
-    quantity: number;
-    actualQuantity: number;
-    productDiscounts: Array<{ newPrice: number }>;
-    Colors: { color: string };
-    categories: Array<{ name: string }>;
-}
-
 interface Governorate {
     id: string;
     name: string;
@@ -45,24 +32,29 @@ interface Governorate {
 interface OrderNowProps {
     productDetails: Product;
     ActualQuantity: number;
+    userData: any
+    companyData: any
 }
 
 const OrderNow: React.FC<OrderNowProps> = ({
     productDetails,
     ActualQuantity,
+    userData,
+    companyData
 }) => {
     // State management
     const { decodedToken, setDecodedToken, isAuthenticated } = useAuth();
     const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
     const [discountPercentage, setDiscountPercentage] = useState<number>(0);
     const [couponsId, setCouponsId] = useState<string>("");
-    const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+    const deliveryPrice: number = companyData?.deliveringPrice ?? 8;
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isGuest, setIsGuest] = useState<boolean>(true);
     const [createPointTransaction] = useMutation(CREATE_POINT_TRANSACTION);
     const { data: pointSettingsData } = useQuery(GET_POINT_SETTINGS);
+    const { clearBasket } = useProductsInBasketStore();
 
     const {
         register,
@@ -91,18 +83,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
     const [createCheckout, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
 
     // Fetch initial data
-    const { data: companyData } = useQuery(COMPANY_INFO_QUERY);
     const { data: governmentData } = useQuery(GET_GOVERMENT_INFO);
-    const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-        variables: { userId: decodedToken?.userId },
-        skip: !isAuthenticated,
-    });
-
-    useEffect(() => {
-        if (companyData?.companyInfo) {
-            setDeliveryPrice(companyData.companyInfo.deliveringPrice);
-        }
-    }, [companyData]);
 
     useEffect(() => {
         if (governmentData?.allGovernorate) {
@@ -175,13 +156,13 @@ const OrderNow: React.FC<OrderNowProps> = ({
         if (isSubmitting) return;
         setIsSubmitting(true);
 
-        const userEmail = isGuest ? data.email : userData?.fetchUsersById?.email;
+        const userEmail = isGuest ? data.email : userData?.email;
         const userName = isGuest
             ? data.fullname
-            : userData?.fetchUsersById?.fullName;
+            : userData?.fullName;
         const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
         const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
-        const userPhone = isGuest ? cleanPhone1 : userData?.fetchUsersById?.number;
+        const userPhone = isGuest ? cleanPhone1 : userData?.number;
 
         try {
             setPaymentLoading(true);
@@ -233,14 +214,19 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 totalValue: parseFloat(calculateTotal()),
             };
 
+       
+
             const { data: checkoutData } = await createCheckout({
                 variables: { input: checkoutInput },
                 refetchQueries: [
-                    {
-                        query: BASKET_QUERY,
-                        variables: { userId: decodedToken?.userId },
-                    },
-                ],
+                    ...(decodedToken?.userId
+                        ? [{ query: BASKET_QUERY, variables: { userId: decodedToken.userId } }]
+                        : []
+                    )]
+                ,
+                onCompleted: (() => {
+                    clearBasket();
+                })
             });
 
             // Get the order ID from the response
@@ -354,7 +340,7 @@ const OrderNow: React.FC<OrderNowProps> = ({
     };
 
     return (
-        <div className="lg:hidden w-full mt-6 mb-10 relative z-[999992]">
+        <div className="lg:hidden w-full mt-6 mb-10 relative z-[9999999]">
             {paymentLoading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
                     <div className="bg-white p-5 rounded-lg flex flex-col items-center">
@@ -366,12 +352,8 @@ const OrderNow: React.FC<OrderNowProps> = ({
                 </div>
             )}
 
-            <div className="w-full bg-white  border-gray-200  overflow-hidden relative z-[9999]">
-                <div className="p-4 border-primaryColor border-b-2  ">
-                    <h2 className="text-xl font-bold flex items-center">
-                        <GiShoppingBag className="mr-2" /> Acheter maintenant
-                    </h2>
-                </div>
+            <div className="w-full bg-white  border-gray-200  overflow-hidden relative z-[9999999]">
+
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-4">
                     {!isValid && Object.keys(errors).length > 0 && (

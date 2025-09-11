@@ -7,14 +7,16 @@ import {
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import { useAuth } from "@/lib/auth/useAuth";
-import triggerEvents from "@/utlils/trackEvents";
+import { BASKET_QUERY } from "@/graphql/queries";
+import { useAuth } from "@/app/hooks/useAuth";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { useMutation, useQuery } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
 import { sendGTMEvent } from "@next/third-parties/google";
 
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { CiTrash } from "react-icons/ci";
@@ -23,9 +25,8 @@ import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 import { RiSubtractLine } from "react-icons/ri";
 import { FaArrowRight } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
-// Product interface
 interface Product {
   id: string;
   name: string;
@@ -51,8 +52,7 @@ interface Product {
   }[];
   [key: string]: any;
 }
-
-const BasketDrawer: React.FC = () => {
+const BasketDrawer = ({ userData }: any) => {
   const { toast } = useToast();
   const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore();
   const { isOpen, closeBasketDrawer } = useDrawerBasketStore();
@@ -82,13 +82,7 @@ const BasketDrawer: React.FC = () => {
     }
   });
 
-  // Fetch user data
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
+
 
   // Mutations
   const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
@@ -235,11 +229,11 @@ const BasketDrawer: React.FC = () => {
       // Analytics events
       triggerEvents("InitiateCheckout", {
         user_data: {
-          em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-          fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-          ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+          em: userData?.email ? [userData.email.toLowerCase()] : [],
+          fn: userData?.fullName ? [userData.fullName] : [],
+          ph: userData?.number ? [userData.number] : [],
           country: ["tn"],
-          external_id: userData?.fetchUsersById?.id,
+          external_id: userData?.id,
         },
         custom_data: {
           content_name: "InitiateCheckout",
@@ -269,11 +263,11 @@ const BasketDrawer: React.FC = () => {
           }))
         },
         user_data: {
-          em: userData?.fetchUsersById?.email ? [userData.fetchUsersById.email.toLowerCase()] : [],
-          fn: userData?.fetchUsersById?.fullName ? [userData.fetchUsersById.fullName] : [],
-          ph: userData?.fetchUsersById?.number ? [userData.fetchUsersById.number] : [],
+          em: userData?.email ? [userData.email.toLowerCase()] : [],
+          fn: userData?.fullName ? [userData.fullName] : [],
+          ph: userData?.number ? [userData.number] : [],
           country: ["tn"],
-          external_id: userData?.fetchUsersById?.id
+          external_id: userData?.id
         },
         facebook_data: {
           content_name: "InitiateCheckout",
@@ -319,8 +313,9 @@ const BasketDrawer: React.FC = () => {
             className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-50 group"
           >
             <Image
-              layout="fill"
-              objectFit="contain"
+              fill={true}
+              style={{ objectFit: "contain" }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               src={
                 (product.images &&
                   product.images.length > 0 &&
@@ -454,12 +449,12 @@ const BasketDrawer: React.FC = () => {
       open={isOpen}
       onClose={closeBasketDrawer}
       overlay={true}
-      className="p-4 h-full z-[9999]"
+      className="p-4 h-full z-[999991]"
       size={400}
       overlayProps={{ className: "fixed inset-0 bg-black/50 z-[9998]" }}
       placeholder={""}
-      onPointerEnterCapture={""}
-      onPointerLeaveCapture={""}
+      onPointerEnterCapture={undefined}
+      onPointerLeaveCapture={undefined}
     >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between pb-4 border-b">
@@ -467,8 +462,8 @@ const BasketDrawer: React.FC = () => {
             variant="h5"
             className="font-medium text-gray-900"
             placeholder={""}
-            onPointerEnterCapture={""}
-            onPointerLeaveCapture={""}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           >
             Mon Panier ({productsInBasket.length})
           </Typography>
@@ -478,8 +473,8 @@ const BasketDrawer: React.FC = () => {
             onClick={closeBasketDrawer}
             className="rounded-full hover:bg-gray-100"
             placeholder={""}
-            onPointerEnterCapture={""}
-            onPointerLeaveCapture={""}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

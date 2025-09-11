@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const packageByUserId = async (
   _: any,
@@ -13,7 +13,11 @@ export const packageByUserId = async (
           include: {
             productInCheckout: {
               include: {
-                product: true,
+                product: {
+                  include: {
+                    productDiscounts: true
+                  },
+                },
               },
             },
             User: true,

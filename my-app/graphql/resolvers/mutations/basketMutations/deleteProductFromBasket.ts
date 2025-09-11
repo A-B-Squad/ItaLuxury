@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const removeProductFromBasket = async (
   _: any,
@@ -7,7 +7,7 @@ export const removeProductFromBasket = async (
 ) => {
   try {
     await prisma.basket.deleteMany({
-      where: { id:basketId, productId }
+      where: { id: basketId, productId }
     })
     return `product with id ${productId} Deleted`
   } catch (error) {

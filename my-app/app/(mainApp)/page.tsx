@@ -1,7 +1,10 @@
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
 import { JsonLd } from "react-schemaorg";
 import Home from "./Home/Home";
+import { cookies } from "next/headers";
+import { decodeToken } from "@/utlils/tokens/token";
+import { getUser } from "@/utlils/getUser";
 
 export const metadata: Metadata = {
   title: "ita-luxury - Votre boutique en ligne de confiance en Tunisie",
@@ -21,7 +24,7 @@ export const metadata: Metadata = {
     url: "https://www.ita-luxury.com",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne",
@@ -36,7 +39,7 @@ export const metadata: Metadata = {
       "Découvrez notre sélection de produits de qualité et nos offres exclusives. Livraison rapide partout en Tunisie.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Boutique en ligne",
@@ -52,7 +55,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieStore = cookies()
+  const token = cookieStore.get('Token')?.value
+  const decodedUser = token ? decodeToken(token) : null;
+  const userData = await getUser(decodedUser?.userId);
   return (
     <>
       <JsonLd<any>
@@ -61,10 +68,10 @@ export default function HomePage() {
           "@type": "Organization",
           name: "ita-luxury",
           url: "https://www.ita-luxury.com",
-          logo: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+          logo: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
           sameAs: [
-            "https://www.facebook.com/itasousse",
-            "https://www.instagram.com/ita.luxury/",
+            "https://www.facebook.com/itaaluxury",
+            "https://www.instagram.com/ita_luxury/",
           ],
           contactPoint: {
             "@type": "ContactPoint",
@@ -117,8 +124,7 @@ export default function HomePage() {
           ],
         }}
       />
-
-      <Home />
+      <Home userData={userData} />
     </>
   );
 }

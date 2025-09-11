@@ -2,19 +2,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { FIND_UNIQUE_COUPONS } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 import { Check, Loader2, Tag } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import { GiShoppingBag } from "react-icons/gi";
-
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  quantity?: number;
-  actualQuantity?: number;
-  productDiscounts?: { newPrice: number }[];
-}
 
 export const OrderSummary: React.FC<any> = ({
   productDetails,
@@ -32,7 +23,6 @@ export const OrderSummary: React.FC<any> = ({
   const { toast } = useToast();
 
   // Coupon handling
-
   const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
 
   const [showInputCoupon, setShowInputCoupon] = useState<boolean>(false);
@@ -99,9 +89,11 @@ export const OrderSummary: React.FC<any> = ({
       {/* Product Summary - Simplified */}
       <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md mb-4">
         {productDetails.images?.[0] && (
-          <img
+          <Image
             src={productDetails.images[0]}
             alt={productDetails.name}
+            width={64}
+            height={64}
             className="w-16 h-16 object-contain border border-gray-200 rounded-md bg-white"
           />
         )}

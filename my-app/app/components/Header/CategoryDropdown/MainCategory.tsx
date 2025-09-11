@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import Subcategory from "./Subcategory";
 import Link from "next/link";
-import prepRoute from "../../../Helpers/_prepRoute";
 import { IoIosArrowForward } from "react-icons/io";
 
 interface CategoryProps {
@@ -10,6 +9,8 @@ interface CategoryProps {
   };
   setActiveCategory: (category: string) => void;
   activeCategory: string;
+  setShowDropdown: (show: boolean) => void;
+
 }
 
 interface Category {
@@ -18,7 +19,6 @@ interface Category {
   subcategories: SubcategoryType[];
 }
 
-// Define the SubcategoryType interface to fix the type error
 interface SubcategoryType {
   id: string;
   name: string;
@@ -30,6 +30,7 @@ const Category: React.FC<CategoryProps> = ({
   data,
   setActiveCategory,
   activeCategory,
+  setShowDropdown
 }) => {
   return (
     <div className="flex w-full">
@@ -39,26 +40,27 @@ const Category: React.FC<CategoryProps> = ({
           {data?.categories?.map((category: Category, index: number) => (
             <div data-parentcategory={category.name} key={index}>
               <Link
-                href={`/Collections/tunisie/${prepRoute(category.name)}/?${new URLSearchParams(
+                href={`/Collections/tunisie?${new URLSearchParams(
                   {
                     category: category.name,
                   }
                 )}`}
                 onMouseEnter={() => setActiveCategory(category.name)}
-                className={`group py-2.5 px-4 w-full cursor-pointer hover:bg-gray-50 flex items-center justify-between transition-all rounded-md ${
-                  category.name === activeCategory
+                onClick={() => setShowDropdown(false)}
+                className={`group py-2.5 px-4 w-full cursor-pointer hover:bg-gray-50 flex items-center justify-between transition-all rounded-md ${category.name === activeCategory
                     ? "bg-gray-50 text-primaryColor font-medium"
                     : "text-gray-700 font-normal"
-                }`}
+                  }`}
+
+
                 data-category={category.name}
               >
                 <span className="truncate">{category.name}</span>
                 <IoIosArrowForward
-                  className={`transition-all ${
-                    category.name === activeCategory
+                  className={`transition-all ${category.name === activeCategory
                       ? "text-primaryColor"
                       : "text-gray-400 group-hover:text-gray-600"
-                  }`}
+                    }`}
                   size={14}
                 />
               </Link>
@@ -67,7 +69,7 @@ const Category: React.FC<CategoryProps> = ({
         </div>
       </div>
 
-      <div 
+      <div
         className="categories flex-grow p-4 transition-opacity duration-200 opacity-100 transform-none"
         key={activeCategory}
       >
@@ -79,6 +81,7 @@ const Category: React.FC<CategoryProps> = ({
                 key={index}
                 parentCategoryName={activeCategory}
                 subcategories={filteredCategory.subcategories}
+                setShowDropdown={setShowDropdown}
               />
             ))}
         </div>

@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
   try {
@@ -17,9 +17,9 @@ export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
           include: {
             package: true,
             Governorate: true,
-            productInCheckout:{
-              include:{
-                product:true
+            productInCheckout: {
+              include: {
+                product: true
               }
             }
 

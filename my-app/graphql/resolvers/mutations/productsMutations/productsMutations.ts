@@ -7,6 +7,9 @@ import { undoSellProduct } from "./undoSellProduct";
 import { deleteProductDiscount } from "./deleteProductDiscount";
 import { addProductInventory } from "./addProductInventory";
 import { AddReview } from "./addReview";
+import { createGroupProductVariant } from "./createGroupProductVariant";
+import { updateGroupProductVariant } from "./updateGroupProductVariant";
+import { deleteGroupProductVariant } from "./deleteGroupProductVariant";
 
 
 export const productsMutations = {
@@ -17,5 +20,5 @@ export const productsMutations = {
   deleteProductDiscount,
   undoSellProduct,
   sellProduct,
-  AddReview, addProductInventory
+  AddReview, addProductInventory, createGroupProductVariant, updateGroupProductVariant,deleteGroupProductVariant
 };

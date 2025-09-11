@@ -5,29 +5,16 @@ import { BEST_SALES_QUERY } from "@/graphql/queries";
 import { MdArrowLeft, MdArrowRight } from "react-icons/md";
 import TopSalesProductBox from "./Components/TopSalesProductBox";
 import { motion, AnimatePresence } from "framer-motion";
+import { ProductData } from "@/app/types";
 
 interface Category {
   id: string;
   name: string;
-  description: string;
+  description?: string;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  description: string;
-  categories: Category[];
-  inventory: number;
-  productDiscounts: Array<{
-    price: number;
-    newPrice: number;
-  }>;
-}
-
-const TopSales = () => {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+const TopSales = ({ userData }: any) => {
+  const [allProducts, setAllProducts] = useState<ProductData[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryProductIndices, setCategoryProductIndices] = useState<Record<string, number>>({});
   const productsPerPage = 3;
@@ -70,7 +57,7 @@ const TopSales = () => {
 
   // Memoize filtered products by category to avoid recalculation on each render
   const productsByCategory = useMemo(() => {
-    const result: Record<string, Product[]> = {};
+    const result: Record<string, ProductData[]> = {};
     categories.forEach(category => {
       result[category.id] = allProducts.filter(
         product => product.categories[0]?.id === category.id
@@ -132,7 +119,7 @@ const TopSales = () => {
           const visibleProducts = categoryProducts.slice(startIndex, startIndex + productsPerPage);
           const hasNext = startIndex + productsPerPage < categoryProducts.length;
           const hasPrevious = startIndex > 0;
-        
+
           return (
             <div key={category.id} className="bg-white shadow-sm border border-gray-100 rounded-lg overflow-hidden flex flex-col h-full">
               <div className="flex justify-between items-center bg-[#1e2a4a] text-white p-3">
@@ -156,7 +143,7 @@ const TopSales = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex-grow">
                 <AnimatePresence>
                   <motion.div
@@ -169,12 +156,12 @@ const TopSales = () => {
                   >
                     {visibleProducts.length > 0 ? (
                       <div className="divide-y divide-gray-100">
-                        {visibleProducts.map((product: Product) => (
+                        {visibleProducts.map((product: ProductData) => (
                           <div
                             key={product.id}
                             className="p-3 hover:bg-gray-50 transition-colors duration-200"
                           >
-                            <TopSalesProductBox product={product} />
+                            <TopSalesProductBox userData={userData} product={product} />
                           </div>
                         ))}
                       </div>
@@ -189,14 +176,14 @@ const TopSales = () => {
                   </motion.div>
                 </AnimatePresence>
               </div>
-              
+
               {visibleProducts.length > 0 && categoryProducts.length > productsPerPage && (
                 <div className="bg-gray-50 px-3 py-2 text-xs text-gray-500 border-t border-gray-100 flex justify-between items-center">
                   <span>
                     {startIndex + 1}-{Math.min(startIndex + productsPerPage, categoryProducts.length)} sur {categoryProducts.length}
                   </span>
                   <div className="flex items-center gap-2">
-                    <button 
+                    <button
                       onClick={() => hasPrevious && handlePrevious(category.id)}
                       disabled={!hasPrevious}
                       className={`text-xs ${hasPrevious ? 'text-blue-600 hover:underline' : 'text-gray-400'}`}
@@ -204,7 +191,7 @@ const TopSales = () => {
                       Précédent
                     </button>
                     <span>|</span>
-                    <button 
+                    <button
                       onClick={() => hasNext && handleNext(category.id)}
                       disabled={!hasNext}
                       className={`text-xs ${hasNext ? 'text-blue-600 hover:underline' : 'text-gray-400'}`}

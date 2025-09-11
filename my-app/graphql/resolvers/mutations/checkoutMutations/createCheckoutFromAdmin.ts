@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 import { CreateCheckoutFromAdminInput } from "../categoryMutations/types";
 
@@ -135,10 +135,10 @@ async function tryToSendCheckoutEmail(
 
   // Base URL for your website
   const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
-  
+
   // Logo and other image paths - using images from public folder
-  const logoUrl = `${baseUrl}/LOGO.png`;
-  const jaxDeliveryLogo = `${baseUrl}/jaxDelivery.png`;
+  const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
+  const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.webp`;
 
   const totals = calculateTotals(checkout, deliveryPrice);
 
@@ -384,7 +384,7 @@ export const createCheckoutFromAdmin = async (
       discountedPrice: product.Product?.productDiscounts?.[0]?.newPrice ?? 0,
     }));
 
-    const result = await prisma.$transaction(async (tx:any) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Create a new checkout record
       const newCheckout = await tx.checkout.create({
         data: {

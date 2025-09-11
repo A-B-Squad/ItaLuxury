@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const getPointSettings = async (
   _: any,
@@ -7,9 +7,9 @@ export const getPointSettings = async (
 ) => {
   try {
     console.log("Fetching point settings...");
-    
+
     let settings = await prisma.pointSetting.findFirst();
-    
+
     // Si aucun paramètre n'existe, en créer un avec les valeurs par défaut
     if (!settings) {
       settings = await prisma.pointSetting.create({

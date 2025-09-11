@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 import { PointType } from "@prisma/client";
 import { randomBytes } from "crypto";
 
@@ -6,7 +6,7 @@ interface GenerateVoucherInput {
   userId: string;
   amountUsed?: number;
   checkoutId: string;
-  expiresAt: string; 
+  expiresAt: string;
 }
 
 export const generateVoucher = async (
@@ -43,22 +43,22 @@ export const generateVoucher = async (
 
     // Set voucher amount - use provided amount or default to loyalty reward value
     const voucherAmount = amountUsed || pointSettings.loyaltyRewardValue;
-    
+
     // Parse the expiration date from the input
     const expirationDate = new Date(expiresAt);
-    
+
     // Validate the expiration date
     if (isNaN(expirationDate.getTime())) {
       throw new Error("Invalid expiration date provided");
     }
-    
+
     // Ensure expiration date is in the future
     if (expirationDate <= new Date()) {
       throw new Error("Expiration date must be in the future");
     }
 
     // Create the voucher
-    const voucher = await prisma.$transaction(async (tx) => {
+    const voucher = await prisma.$transaction(async (tx: typeof prisma) => {
       // Create the voucher
       const newVoucher = await tx.voucher.create({
         data: {

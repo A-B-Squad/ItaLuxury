@@ -3,7 +3,7 @@ import TabBarMobile from "@/app/components/TabBarMobile";
 import FloatingActionButtons from "./components/FloatingActionButtons";
 import { Toaster } from "@/components/ui/toaster";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import type { Metadata } from "next";
 import React from "react";
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   description: "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie. Profitez de promotions exceptionnelles sur une large gamme de produits.",
   icons: {
-    icon: '/favicon.ico'
+    icon: '/icons/favicon.ico'
   },
   keywords: keywords.join(","),
 
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     description: "Parcourez notre sélection d'offres exclusives et trouvez les meilleurs produits en ligne en Tunisie.",
     images: [
       {
-        url: `/LOGO.png`,
+        url: `/images/logos/LOGO.png`,
         width: 1200,
         height: 630,
         alt: "Ita Luxury",

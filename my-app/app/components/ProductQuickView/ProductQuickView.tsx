@@ -7,8 +7,9 @@ import {
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
-import { BASKET_QUERY, FETCH_USER_BY_ID } from "@/graphql/queries";
-import triggerEvents from "@/utlils/trackEvents";
+import { BASKET_QUERY } from "@/graphql/queries";
+import triggerEvents from "@/utlils/events/trackEvents";
+
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaPlus, FaRegHeart, FaHeart } from "react-icons/fa";
@@ -17,14 +18,15 @@ import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import { SlBasket } from "react-icons/sl";
 import { sendGTMEvent } from "@next/third-parties/google";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import CustomInnerZoom from "./CustomInnerZoom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { createPortal } from 'react-dom';
+import { ProductData } from "@/app/types";
 
 
 
-const ProductQuickView = () => {
+const ProductQuickView = ({ userData }: any) => {
   const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const { isOpen, productData, closeProductDetails } = useProductDetails();
@@ -49,12 +51,6 @@ const ProductQuickView = () => {
     skip: !isAuthenticated,
   });
 
-  const { data: userData } = useQuery(FETCH_USER_BY_ID, {
-    variables: {
-      userId: decodedToken?.userId,
-    },
-    skip: !isAuthenticated,
-  });
 
   const {
     products: storedProducts,
@@ -67,13 +63,13 @@ const ProductQuickView = () => {
   const productsInBasket = useMemo(() => {
     if (isAuthenticated && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
-        (item: any) => item.Product.id === productData?.id
+        (item: ProductData) => item.Product.id === productData?.id
       );
     }
     return storedProducts.find(
-      (product: any) => product.id === productData?.id
+      (product: ProductData) => product.id === productData?.id
     );
-  }, [isAuthenticated, basketData, storedProducts]);
+  }, [isAuthenticated, basketData, storedProducts, productData?.id]);
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productData?.inventory) {
@@ -94,11 +90,11 @@ const ProductQuickView = () => {
         : product.price;
     const addToCartData = {
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email?.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
-        external_id: userData?.fetchUsersById.id,
+        external_id: userData.id,
       },
       custom_data: {
         content_name: product.name,
@@ -122,11 +118,11 @@ const ProductQuickView = () => {
       },
       // User data for both events
       user_data: {
-        em: [userData?.fetchUsersById.email.toLowerCase()],
-        fn: [userData?.fetchUsersById.fullName],
-        ph: [userData?.fetchUsersById?.number],
+        em: [userData?.email?.toLowerCase()],
+        fn: [userData?.fullName],
+        ph: [userData?.number],
         country: ["tn"],
-        external_id: userData?.fetchUsersById.id
+        external_id: userData.id
       },
       // Facebook specific data
       facebook_data: {

@@ -1,11 +1,11 @@
-import React, { memo } from "react";
+import React from "react";
 import { FileText } from "lucide-react";
 
 interface ProductAttrProps {
     technicalDetails: string;
 }
 
-const ProductAttrLaptop: React.FC<ProductAttrProps> = memo(({ technicalDetails }) => {
+const ProductAttrLaptop: React.FC<ProductAttrProps> = ({ technicalDetails }) => {
     // Check if there are any technical details to display
     const hasDetails = technicalDetails && technicalDetails.trim().length > 0;
 
@@ -14,7 +14,6 @@ const ProductAttrLaptop: React.FC<ProductAttrProps> = memo(({ technicalDetails }
         return null;
     }
 
-    // Process technical details to improve formatting
     const processedDetails = technicalDetails
         .replace(/<p>/g, '<p class="mb-3 text-gray-700">')
         .replace(/<ul>/g, '<ul class="list-disc pl-5 mb-4 space-y-2">')
@@ -42,6 +41,6 @@ const ProductAttrLaptop: React.FC<ProductAttrProps> = memo(({ technicalDetails }
             </div>
         </div>
     );
-});
+};
 
 export default ProductAttrLaptop;

@@ -63,7 +63,7 @@ type Admin {
 
 type AuthPayload {
   token: String!
-  user: User!
+  userId: ID!
 }
 
 # Category-related types
@@ -93,32 +93,39 @@ type MainCategory {
 # Product-related types
 type Product {
   id: ID!
-  name: String!
-  price: Float!
-  purchasePrice: Float!
-  isVisible: Boolean!
-  reference: String!
-  description: String!
+  name: String
+  price: Float
+  purchasePrice: Float
+  isVisible: Boolean
+  reference: String
+  description: String
   technicalDetails: String
-  inventory: Int!
-  solde: Int!
-  broken: Int!
-  images: [String!]!
-  categories: [Category!]!
-  productDiscounts: [ProductDiscount!]!
-  baskets: [Basket!]!
-  reviews: [Review!]!
-  favoriteProducts: [FavoriteProducts!]!
-  ProductInCheckout: [ProductInCheckout!]!
+  inventory: Int
+  solde: Int
+  broken: Int
+  images: [String]
+  categories: [Category]
+  productDiscounts: [ProductDiscount]
+  baskets: [Basket]
+  reviews: [Review]
+  favoriteProducts: [FavoriteProducts]
+  ProductInCheckout: [ProductInCheckout]
   Colors: Colors
   colorsId: String
   TopDeals: TopDeals
-  BestSales: [BestSales!]!
+  BestSales: [BestSales]
   Brand: Brand
   brandId: String
-  BreakedProduct: [BreakedProduct!]!
-  createdAt: String!
+  BreakedProduct: [BreakedProduct]
+  createdAt: String
   updatedAt: String
+  groupProductVariantId:ID
+  GroupProductVariant:GroupProductVariant
+}
+type GroupProductVariant{
+  id:ID!
+  groupProductName:String!
+  Products: [Product]  
 }
 
 type BestSales {
@@ -423,6 +430,7 @@ type Query {
   productsByCategory(categoryName: String!, limit: Int): [Product!]!
   productById(id: ID!): Product!
   getProductImages(productId: String!, colorId: String!): [String!]!
+  getAllProductGroups: [GroupProductVariant!]
 
   # Category-related queries
   categories: [MainCategory!]!
@@ -458,7 +466,7 @@ type Query {
   allDeals: [TopDeals!]!
   allGovernorate: [Governorate!]!
   advertismentByPosition(position: String!): [Advertisement!]!
-  packageById(packageId: ID!): Package!
+  packageById(packageId: ID!): Package
   packageByUserId(userId: ID!): [Package!]!
   getAllPackages(page: Int, pageSize: Int, searchTerm: String, dateFrom: String, dateTo: String, statusFilter: [String]): PackagePaginationResult!
   companyInfo: CompanyInfo!
@@ -498,6 +506,9 @@ type Mutation {
   createProduct(input: ProductInput!): String!
   updateProduct(productId: ID!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
+  createGroupProductVariant(input: CreateGroupProductVariantInput!): GroupProductVariant!
+  updateGroupProductVariant(input: UpdateGroupProductVariantInput!): String!
+  deleteGroupProductVariant(id: ID!): String!
   AddReview(input: AddReviewInput!): String!
   deleteReview(reviewId: ID!): Boolean!
   addProductInventory(productId: ID!, inventory: Int!): String!
@@ -525,7 +536,6 @@ type Mutation {
   updatePackage(input: UpdatePackageInput!): String!
   cancelPackage(input: CancelPackageInput!): String!
   refundPackage(input: RefundPackageInput!): String!
-  cancalPackageProduct(input: CancelProductPackageInput!): String!
   payedOrConfirmedOrInTransitPackage(packageId: ID!, paymentMethod: PaymentMethod!, status: String!, deliveryReference: String): String!
   createPackageComments(packageId: ID!, comment: [String!]!): String!
   updateStatusPayOnlinePackage(packageId: ID!, paymentStatus: Status!): String!
@@ -536,7 +546,7 @@ type Mutation {
   deleteCategory(id: ID!): String!
 
   # Favorite product mutation
-  addDeleteProductToFavorite(input: AddDeleteProductToFavoriteInput!): FavoriteProducts!
+  addDeleteProductToFavorite(input: AddDeleteProductToFavoriteInput!): String!
 
   # Company info mutation
   createOrUpdateCompanyInfo(input: CompanyInfoInput!): CompanyInfo!
@@ -557,7 +567,7 @@ type Mutation {
   createContactUs(input: ContactUsInput!): String!
 
   # Coupon-related mutations
-  deleteCoupons(couponsId: ID!): String!
+  deleteCoupons(couponsIds: [ID!]!): String!
   createCoupons(input: CreateCouponInput!): String!
 
   # Color mutations
@@ -605,8 +615,16 @@ input ProductInput {
   discount: [CreateProductDiscountInput!]
   colorsId: ID
   brandId: ID
+  groupProductVariantId:ID
+}
+input CreateGroupProductVariantInput {
+  groupProductName: String!
 }
 
+input UpdateGroupProductVariantInput {
+  id: ID!
+  groupProductName: String
+}
 input AddReviewInput {
   productId: ID!
   userId: ID

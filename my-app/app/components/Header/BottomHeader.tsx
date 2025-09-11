@@ -4,10 +4,11 @@ import {
   useDrawerMobileStore,
   useProductsInBasketStore,
 } from "@/app/store/zustand";
-import { useAuth } from "@/lib/auth/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { motion } from "framer-motion";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,7 +29,7 @@ function debounce<T extends (...args: any[]) => void>(
   };
 }
 
-const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
+const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed, userData }: any) => {
 
   const pathname = usePathname();
   const [activeLink, setActiveLink] = useState("");
@@ -71,21 +72,21 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
     else setActiveLink("");
   }, [pathname]);
 
-  const handleScroll = useCallback(() => {
-    if (window.scrollY > 50) {
-      setIsFixed(true);
-    } else {
-      setIsFixed(false);
-    }
-  }, [setIsFixed]);
+  // const handleScroll = useCallback(() => {
+  //   if (window.scrollY > 50) {
+  //     setIsFixed(true);
+  //   } else {
+  //     setIsFixed(false);
+  //   }
+  // }, [setIsFixed]);
 
-  useEffect(() => {
-    const debouncedHandleScroll = debounce(handleScroll, 100);
-    window.addEventListener("scroll", debouncedHandleScroll);
-    return () => {
-      window.removeEventListener("scroll", debouncedHandleScroll);
-    };
-  }, [handleScroll]);
+  // useEffect(() => {
+  //   const debouncedHandleScroll = debounce(handleScroll, 100);
+  //   window.addEventListener("scroll", debouncedHandleScroll);
+  //   return () => {
+  //     window.removeEventListener("scroll", debouncedHandleScroll);
+  //   };
+  // }, [handleScroll]);
 
 
   const handleNavigation = (pageName: string, linkId: string) => {
@@ -134,14 +135,17 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               </motion.button>
             </div>
 
-            {/* Center Section - Logo (Always Centered) */}
             <div className="mobile-logo-section md:hidden absolute left-1/2 transform -translate-x-1/2">
               <Link href="/" className="mobile-logo-link flex-shrink-0">
                 <div className="mobile-logo-container relative w-24 h-10">
                   <Image
-                    src={"/LOGO.png"}
-                    layout="fill"
-                    objectFit="contain"
+                    src={"/images/logos/LOGO.png"}
+                    width={70}
+                    height={70}
+
+                    style={{
+                      objectFit: "contain",
+                    }}
                     quality={100}
                     priority={true}
                     alt="ita-luxury"
@@ -209,6 +213,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
                     setShowUserMenu={setShowUserMenu}
                     userMenuRef={userMenuRef}
                     isMobile={true}
+                    userData={userData}
                   />
                 </div>
               )}
@@ -322,21 +327,6 @@ const BottomHeader = ({ setShowDropdown, isFixed, setIsFixed }: any) => {
               </ul>
             </nav>
 
-            {/* Right Section - User Actions */}
-            <div className="desktop-user-section flex items-center gap-4 ml-auto">
-              {!isAuthenticated ? (
-                <Link href="/signin">
-                  <motion.button
-                    className="desktop-user-login-button p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FiUser className="desktop-user-login-icon text-xl text-gray-700" />
-                  </motion.button>
-                </Link>
-              ) : (
-                <UserAvatar showUserMenu={showUserMenu} setShowUserMenu={setShowUserMenu} userMenuRef={userMenuRef} isMobile={false} />
-              )}
-            </div>
           </div>
         </div>
       </div>

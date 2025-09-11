@@ -1,7 +1,6 @@
 import Link from "next/link";
 import React from "react";
 import { MdOutlineArrowRight } from "react-icons/md";
-import prepRoute from "../../../Helpers/_prepRoute";
 
 interface Subcategory {
   id: string;
@@ -10,25 +9,22 @@ interface Subcategory {
 
 interface SubsubcategoryProps {
   subsubcategories: Subcategory[];
-  parentSubCategoryName: string;
-  parentCategoryName: string;
-  closeCategoryDrawer:any
+  closeCategoryDrawer: any
 }
 
 const Subsubcategory: React.FC<SubsubcategoryProps> = ({
   subsubcategories,
-  parentSubCategoryName,
-  parentCategoryName,closeCategoryDrawer
+  closeCategoryDrawer
 }) => {
   return (
     <>
       {subsubcategories && subsubcategories.length > 0 ? (
         subsubcategories.map((subsubcategory, subIndex) => (
           <Link
-          onClick={closeCategoryDrawer}
-            href={`/Collections/tunisie/?${new URLSearchParams({
+            onClick={closeCategoryDrawer}
+            href={`/Collections/tunisie?${new URLSearchParams({
               category: subsubcategory.name,
-           
+
             })}
           `} className="py-1 pl-5 group text-sm cursor-pointer transition-all relative left-2 flex hover:font-bold"
             key={subIndex}

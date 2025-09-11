@@ -1,4 +1,4 @@
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 export const undoSellProduct = async (
   _: any,
@@ -23,7 +23,7 @@ export const undoSellProduct = async (
       data: {
         inventory: { increment: quantityReturned },
         solde: { decrement: quantityReturned },
-        updatedAt: new Date(), 
+        updatedAt: new Date(),
 
       },
     });

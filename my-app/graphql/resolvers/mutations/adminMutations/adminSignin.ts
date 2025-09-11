@@ -1,19 +1,35 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Context } from "@/pages/api/graphql";
+import { Context } from "@apollo/client";
 
 
 export const adminSignIn = async (
   _: any,
   { input }: { input: SignInAdminInput },
-  { prisma, jwtSecret, res }: Context
+  { prisma, jwtSecret }: Context
 ): Promise<string> => {
   const { fullName, password, role } = input;
 
   try {
+
+    if (!fullName || !password || !role) {
+      throw new Error("Invalid credentials");
+    }
+
+    const allowedRoles = ['ADMIN', 'MODERATOR'];
+    if (!allowedRoles.includes(role)) {
+      throw new Error("Invalid credentials");
+    }
+
+    if (fullName.trim().length > 100) {
+      throw new Error("Invalid credentials");
+    }
     // Check if the user exists
     const existingAdmin = await prisma.admin.findFirst({
-      where: { fullName, role },
+      where: {
+        fullName: fullName,
+        role: role as Role
+      },
     });
 
     if (!existingAdmin) {
@@ -27,22 +43,11 @@ export const adminSignIn = async (
       throw new Error("Invalid credentials");
     }
 
-    // Generate JWT token with 5 hour expiration
+    // Generate JWT token with 7 days expiration
     const token = jwt.sign({ userId: existingAdmin.id, role: existingAdmin.role }, jwtSecret, {
-      expiresIn: "30d",
+      expiresIn: "7d",
     });
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
-    const secureFlag = isDevelopment ? '' : 'Secure;';
-
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 30);
-    // Set the cookie with a domain that covers both the admin and user projects
-    res.setHeader(
-      "Set-Cookie",
-      `AdminToken=${token}; Path=/;Domain=${domain}; SameSite=Strict; ${secureFlag}; Expires=${expirationDate.toUTCString()}`
-    );
-
+  
     return token;
   } catch (error) {
     console.error("Admin sign-in error:", error);

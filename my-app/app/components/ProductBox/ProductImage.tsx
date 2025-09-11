@@ -1,4 +1,4 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback, useMemo } from "react";
 import QuickActionButton from "./components/QuickActionButton";
@@ -11,22 +11,16 @@ import {
   useProductDetails,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
-import { JwtPayload } from "jsonwebtoken";
 
-interface DecodedToken extends JwtPayload {
-  userId: string;
-}
 interface ProductImageProps {
   product: Product;
-  decodedToken: DecodedToken | null;
-  onAddToBasket: (product: any, quantity: number) => void;
+  onAddToBasket: (product: Product, quantity: number) => void;
   view: number;
 }
 
 const ProductImage: React.FC<ProductImageProps> = ({
   product,
   onAddToBasket,
-  decodedToken,
   view,
 }) => {
   const { toast } = useToast();
@@ -39,18 +33,15 @@ const ProductImage: React.FC<ProductImageProps> = ({
 
   const { openProductDetails } = useProductDetails();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-  const { addToComparison, comparisonList } = useProductComparisonStore(
-  );
+  const { addToComparison, comparisonList } = useProductComparisonStore();
 
   const primaryImageUrl = useMemo(() => {
     if (!hasImages) return "";
-
     return product.images[0];
   }, [product.images, hasImages]);
 
   const secondaryImageUrl = useMemo(() => {
     if (!hasSecondImage) return "";
-
     return product.images[1];
   }, [product.images, hasSecondImage]);
 
@@ -80,52 +71,78 @@ const ProductImage: React.FC<ProductImageProps> = ({
   }, []);
 
   return (
-    <div className={`
-      relative w-full group
+    <div className={`overflow-hidden relative w-full group
       ${view === 1 ? 'max-w-[200px]' : ''}
     `}>
-
       {/* Toggle button for action buttons */}
       <button
         onClick={toggleActionButtons}
-        className={`absolute  ${product.productDiscounts.length > 0 && product.inventory !== 0 ? "top-9" : "top-4"}  right-[18px] z-40 bg-white hover:bg-secondaryColor text-black rounded-full w-7 h-7 flex items-center justify-center transition-all duration-300 shadow-md`}
+        className={`absolute ${product.productDiscounts.length > 0 && product.inventory !== 0
+            ? "top-9"
+            : "top-4"
+          } right-[18px] z-40 bg-white hover:bg-secondaryColor text-black rounded-full w-7 h-7 flex items-center justify-center transition-all duration-300 shadow-md`}
         aria-label="Toggle action buttons"
       >
-        <FaChevronDown width={15} className={`transition-transform duration-300 ${showActions ? 'rotate-180' : ''}`} />
+        <FaChevronDown
+          width={15}
+          className={`transition-transform duration-300 ${showActions ? 'rotate-180' : ''
+            }`}
+        />
       </button>
 
       <Link
         href={`/products/tunisie?productId=${product.id}`}
-        className="block w-full h-56 md:h-[268px]"
+        className="block w-full"
       >
-        <div className="relative w-full h-full bg-gray-50">
+        {/*  aspect ratio container for professional look */}
+        <div className={`
+          relative w-full bg-gray-50 overflow-hidden rounded-t-lg
+          ${view === 1
+            ? 'h-32 sm:h-40'
+            : 'aspect-square'
+          }
+        `}>
           {!isImageLoaded && (
             <div className="absolute inset-0 bg-gray-50 animate-pulse" />
           )}
+
           {hasImages && (
             <Image
               src={primaryImageUrl}
               alt={product.name}
-              layout="fill"
-              objectFit="cover"
-              quality={80}
+              fill
+              sizes={view === 1
+                ? "(max-width: 640px) 128px, 160px"
+                : "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+              }
+              style={{
+                objectFit: "cover",
+                objectPosition: "center"
+              }}
+              quality={85}
               priority={true}
-              width={800}
-              height={800}
               onLoad={handleImageLoad}
-              className={`transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`
+                transition-opacity duration-300 
+                ${isImageLoaded ? 'opacity-100' : 'opacity-0'}
+                ${view !== 1 ? 'group-hover:scale-105' : ''}
+                transition-transform duration-500
+              `}
             />
           )}
-          {hasSecondImage && (
+
+          {hasSecondImage && view !== 1 && (
             <Image
               src={secondaryImageUrl}
               alt={`${product.name} - hover`}
-              layout="fill"
-              objectFit="cover"
-              quality={80}
-              width={800}
-              height={800}
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+              style={{
+                objectFit: "cover",
+                objectPosition: "center"
+              }}
+              quality={85}
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-105"
             />
           )}
         </div>
@@ -133,11 +150,11 @@ const ProductImage: React.FC<ProductImageProps> = ({
 
       <ul
         className={`plus_button absolute h-fit flex flex-col ${view === 1
-          ? "right-0 top-2/4 -translate-y-2/4 flex-col"
-          : "right-4 top-16"
+            ? "right-0 top-2/4 -translate-y-2/4 flex-col"
+            : "right-4 top-16"
           } items-center justify-center ${showActions || view === 1 ? 'opacity-100' : 'lg:opacity-0'
           } ${view === 1 || !showActions ? 'invisible' : 'visible'
-          }  z-30 gap-2 transition-all duration-300`}
+          } z-30 gap-2 transition-all duration-300`}
       >
         <QuickActionButton
           icon={<FaRegEye color="black" className="text-xs md:text-base" />}
@@ -162,7 +179,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
           isFavorite={isFavorite}
           setIsFavorite={setIsFavorite}
           productId={product?.id}
-          userId={decodedToken?.userId}
           productName={product?.name}
         />
       </ul>

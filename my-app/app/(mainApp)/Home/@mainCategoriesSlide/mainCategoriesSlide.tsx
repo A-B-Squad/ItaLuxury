@@ -1,13 +1,14 @@
 "use client";
 import { MAIN_CATEGORY_QUERY } from "@/graphql/queries";
 import { useQuery } from "@apollo/client";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
 const MainCategoriesSlide = () => {
   const { data: mainCategories } = useQuery(MAIN_CATEGORY_QUERY);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (mainCategories?.fetchMainCategories?.length) {
@@ -19,6 +20,11 @@ const MainCategoriesSlide = () => {
       return () => clearInterval(interval);
     }
   }, [mainCategories]);
+
+  // Handle image load tracking
+  const handleImageLoad = (index: number) => {
+    setImagesLoaded(prev => new Set(prev).add(index));
+  };
 
   if (!mainCategories?.fetchMainCategories?.length) {
     return null;
@@ -52,10 +58,14 @@ const MainCategoriesSlide = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 z-10"></div>
                         <Image
                           src={category.smallImage}
-                          layout="fill"
-                          alt=""
-                          objectFit="cover"
+                          fill={true}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          alt={category.name}
+                          style={{ objectFit: "cover" }}
                           className="opacity-90"
+                          // Only prioritize the first image or currently active one
+                          priority={index === 0 || (index === activeIndex && index <= 1)}
+                          onLoad={() => handleImageLoad(index)}
                         />
                       </div>
                     )}
@@ -66,7 +76,11 @@ const MainCategoriesSlide = () => {
                     <h3 className="text-2xl md:text-4xl font-light md:text-gray-800 text-white mb-3 md:mb-4">{category.name}</h3>
                     <p className="md:text-gray-600 text-white/90 text-sm md:text-base mb-6 md:mb-8 max-w-xs">Découvrez notre collection exclusive de produits {category.name.toLowerCase()}</p>
                     <Link
-                      href={`/Collections/tunisie?category=${category.name}`}
+                      href={`/Collections/tunisie?${new URLSearchParams(
+                        {
+                          category: category.name,
+                        }
+                      )}`}
                       className="inline-block bg-white/90 md:bg-white border border-gray-300 hover:border-primaryColor text-gray-800 px-5 py-2 md:px-6 md:py-3 rounded-md md:rounded-none w-max transition-all duration-300 hover:bg-primaryColor hover:text-white"
                     >
                       Découvrir
@@ -82,11 +96,16 @@ const MainCategoriesSlide = () => {
                       <div className="relative w-full h-full max-w-[400px] max-h-[400px] transform hover:scale-105 transition-transform duration-500">
                         <Image
                           src={category.smallImage}
-                          layout="fill"
+                          fill={true}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           alt={category.name}
-                          objectFit="contain"
-                          priority={index === activeIndex}
+                          style={{ objectFit: "contain" }}
+                          // Only prioritize the first image or currently active one within first 2 slides
+                          priority={index === 0 || (index === activeIndex && index <= 1)}
+                          onLoad={() => handleImageLoad(index)}
                           className="drop-shadow-2xl"
+                          // Add loading strategy for non-priority images
+                          loading={index === 0 || (index === activeIndex && index <= 1) ? "eager" : "lazy"}
                         />
                       </div>
                     )}

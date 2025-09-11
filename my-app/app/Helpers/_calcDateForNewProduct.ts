@@ -1,6 +1,5 @@
 const calcDateForNewProduct = (createdAt: Date) => {
-  // Get the current date
-  const currentDate = new Date();
+
 
   // Calculate the date 30 days ago
   const thirtyDaysAgo = new Date();

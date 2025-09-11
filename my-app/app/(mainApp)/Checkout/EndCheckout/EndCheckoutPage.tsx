@@ -68,22 +68,22 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-3xl">
         <div className="text-center mb-6">
-          <Image 
-            src="/LOGO.jpg" 
-            alt="ITA Luxury Logo" 
-            width={120} 
-            height={60} 
+          <Image
+            src="/images/logos/LOGO.png"
+            alt="ITA Luxury Logo"
+            width={120}
+            height={60}
             className="mx-auto mb-4"
           />
         </div>
-        
+
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
           <div className="bg-primaryColor text-white py-4 px-6">
             <h1 className="text-xl font-bold">
               {isPayed ? "Confirmation de commande" : "Échec du paiement"}
             </h1>
           </div>
-          
+
           <div className="p-8">
             {isPayed ? (
               <div className="text-center">
@@ -92,23 +92,23 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
                     <FaCheckCircle className="text-green-500 text-4xl" />
                   </div>
                 </div>
-                
+
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">
                   Merci pour votre commande!
                 </h2>
-                
+
                 <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
                   <div className="mb-4">
                     <p className="text-sm text-gray-500 mb-1">Numéro de commande</p>
                     <p className="text-lg font-semibold text-gray-800">{packageId}</p>
                   </div>
-                  
+
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Email</p>
                     <p className="text-lg font-semibold text-gray-800">{email}</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4 text-left mb-8">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
@@ -122,7 +122,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -135,7 +135,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -157,18 +157,18 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
                     <FaTimesCircle className="text-red-500 text-4xl" />
                   </div>
                 </div>
-                
+
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">
                   Paiement refusé
                 </h2>
-                
+
                 <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
                   <div className="mb-4">
                     <p className="text-sm text-gray-500 mb-1">Numéro de référence</p>
                     <p className="text-lg font-semibold text-gray-800">{packageId}</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4 text-left mb-8">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
@@ -182,7 +182,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
@@ -198,7 +198,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
                 </div>
               </div>
             )}
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
               <button
                 onClick={() => router.push("/")}
@@ -206,7 +206,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
               >
                 <FaHome /> Retour à l'accueil
               </button>
-              
+
               {isPayed && (
                 <Link
                   href="/TrackingPackages"
@@ -218,7 +218,7 @@ const CheckoutConfirmationPage: React.FC<{ searchParams: SearchParams }> = ({
             </div>
           </div>
         </div>
-        
+
         <div className="text-center mt-8 text-sm text-gray-500">
           <p>Pour toute question, contactez notre service client au +216 23 212 892</p>
           <p className="mt-2">© {new Date().getFullYear()} ITA Luxury. Tous droits réservés.</p>

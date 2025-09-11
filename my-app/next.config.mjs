@@ -1,24 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
-  env: {
-    BASE_URL_DOMAIN: process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
-  },
-
   reactStrictMode: true,
   poweredByHeader: false,
-  output: 'standalone',
-  swcMinify: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'development'
-          ? 'http://localhost:4001/api/:path*'
-          : 'http://admin:3001/api/:path*',
-      },
-    ];
-  },
 
   async headers() {
     const developmentHosts = 'http://localhost:4000 http://localhost:4001';
@@ -26,12 +9,106 @@ const nextConfig = {
 
     return [
       {
+        source: '/sitemap.xml',
+        headers: [{ key: 'Content-Type', value: 'text/xml' }],
+      },
+      {
         source: '/robots.txt',
         headers: [{ key: 'Content-Type', value: 'text/plain' }],
       },
       {
         source: '/google4773007d2b4f68e3.html',
         headers: [{ key: 'Content-Type', value: 'text/html' }],
+      },
+      {
+        source: '/css/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: "/(.*).(js|css|png|jpg|svg|ico|woff2)$",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/firebase/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400', // 1 day
+          },
+        ],
+      },
+      {
+        source: '/js/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=2592000', // 30 days
+          },
+        ],
+      },
+      {
+        source: '/css/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: "/(.*).(js|css|png|jpg|svg|ico|woff2)$",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/firebase/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400', // 1 day
+          },
+        ],
+      },
+      {
+        source: '/js/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=2592000', // 30 days
+          },
+        ],
       },
       {
         source: '/:path*',
@@ -95,7 +172,9 @@ const nextConfig = {
                 https://static.cloudflareinsights.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com;
+                https://embeddable-explorer.cdn.apollographql.com
+                https://upload-widget.cloudinary.com
+                https://api.cloudinary.com;
               style-src 'self' 'unsafe-inline'
                 https://fonts.googleapis.com
                 https://embed.tawk.to
@@ -103,14 +182,17 @@ const nextConfig = {
                 https://www.googletagmanager.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com;
+                https://embeddable-explorer.cdn.apollographql.com
+                https://upload-widget.cloudinary.com;
               img-src 'self' data: https: http: blob:
-                https://apollo-server-landing-page.cdn.apollographql.com;
+                https://apollo-server-landing-page.cdn.apollographql.com
+                https://res.cloudinary.com;
               font-src 'self' data:
                 https://fonts.gstatic.com
                 https://js.pusher.com
                 https://fonts.googleapis.com
-                https://embed.tawk.to;
+                https://embed.tawk.to
+                https://upload-widget.cloudinary.com;
               connect-src 'self' https: wss:
                 ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : productionHosts}
                 https://apis.google.com
@@ -129,9 +211,13 @@ const nextConfig = {
                 https://static.cloudflareinsights.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com;
+                https://embeddable-explorer.cdn.apollographql.com
+                https://api.cloudinary.com
+                https://upload-widget.cloudinary.com
+                https://res.cloudinary.com;
               frame-src 'self' https:
                 https://accounts.google.com
+                https://upload-widget.cloudinary.com
                 ${process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts};
               manifest-src 'self'
                 https://apollo-server-landing-page.cdn.apollographql.com;
@@ -151,14 +237,13 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), sync-xhr=(), autoplay=(), display-capture=(), encrypted-media=(), fullscreen=(), picture-in-picture=()',
+            value: 'camera=(self), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), sync-xhr=(), autoplay=(), display-capture=(), encrypted-media=(), fullscreen=(), picture-in-picture=()',
           },
         ],
       },
     ];
   },
 
-  // Rest of the config remains unchanged
   images: {
     remotePatterns: [
       {
@@ -192,38 +277,11 @@ const nextConfig = {
         hostname: "localhost",
         port: "4001",
         pathname: "**",
-      },
-      // Add Docker service hostnames
-      {
-        protocol: "http",
-        hostname: "client-prod",
-        port: "3000",
-        pathname: "**",
-      },
-      {
-        protocol: "http",
-        hostname: "admin",
-        port: "3001",
-        pathname: "**",
       }
     ],
     minimumCacheTTL: 60,
-    domains: ['res.cloudinary.com', "via.placeholder.com", 'localhost'],
   },
-
   compress: true,
-
-  webpack: (config, { dev, isServer }) => {
-    config.module.rules.push({
-      test: /firebase-messaging-sw\.js$/,
-      use: 'file-loader',
-    });
-
-    if (!dev && !isServer) {
-      config.optimization.minimize = true;
-    }
-    return config;
-  },
 };
 
 export default nextConfig;

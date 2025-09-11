@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
+
 
 const RightAdsCarousel = ({
   AdsNextToCarousel,
@@ -40,10 +41,9 @@ const RightAdsCarousel = ({
             href={AdsNextToCarousel[0]?.link}
           >
             <Image
-              layout="responsive"
               width={360}
               height={208}
-              objectFit="contain"
+              style={{ objectFit: "contain" }}
               src={images[0]}
               loading="eager"
               property="true"
@@ -56,11 +56,10 @@ const RightAdsCarousel = ({
             href={AdsNextToCarousel[1]?.link}
           >
             <Image
-              layout="responsive"
               width={360}
               height={208}
               src={images[1]}
-              objectFit="contain"
+              style={{ objectFit: "contain" }}
               loading="eager"
               alt="right-Img 2"
               className="rounded-xl hover:opacity-50 transition-all"

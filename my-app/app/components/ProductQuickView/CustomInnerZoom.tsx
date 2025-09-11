@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Image from 'next/legacy/image';
+import Image from 'next/image'
+
 
 interface CustomInnerZoomProps {
   images: string[];
@@ -129,11 +130,12 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
                   <Image
                     src={image}
                     alt={`Product thumbnail ${index + 1}`}
-                    layout="fill"
-                    objectFit="cover"
+                    fill={true}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: "cover" }}
                     className={`transition-opacity duration-200 ${selectedImage === index
-                        ? 'opacity-100'
-                        : 'opacity-70 hover:opacity-100'
+                      ? 'opacity-100'
+                      : 'opacity-70 hover:opacity-100'
                       }`}
                   />
                 </button>
@@ -163,8 +165,8 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
             <Image
               src={validImages[selectedImage]}
               alt={`Product image ${selectedImage + 1}`}
-              layout="fill"
-              objectFit="contain"
+              fill={true}
+              style={{ objectFit: "contain" }}
               className="w-full h-full"
               priority
             />

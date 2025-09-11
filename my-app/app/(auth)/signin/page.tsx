@@ -1,6 +1,6 @@
 import React from "react";
 import Signin from "./signin";
-import keywords from "@/public/keywords";
+import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
 
 if (
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury - Connexion",
@@ -35,9 +35,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Connexion à votre compte | ita-luxury",
-    description: 
+    description:
       "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
-    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/LOGO.jpg`],
+    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`],
   },
   alternates: {
     canonical: "https://www.ita-luxury.com/signin",

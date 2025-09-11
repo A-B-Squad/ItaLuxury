@@ -37,10 +37,10 @@ enum Cause {
 }
 
 enum PointType {
-  EARNED // Points earned from purchases (5% of total)
-  EXPIRED // Points that have expired
-  ADJUSTMENT // Manual adjustments
-  ADMIN_ADDED // Points manually added by admin
+  EARNED 
+  EXPIRED 
+  ADJUSTMENT
+  ADMIN_ADDED 
 }
 
 model User {
@@ -83,33 +83,41 @@ model Category {
 }
 
 model Product {
-  id                String              @id @default(uuid())
-  name              String
-  price             Float               @default(0)
-  purchasePrice     Float               @default(0)
-  isVisible         Boolean             @default(true)
-  reference         String
-  description       String
-  technicalDetails  String?
-  inventory         Int                 @default(0)
-  solde             Int                 @default(0)
-  broken            Int                 @default(0)
-  images            String[]
-  categories        Category[]
-  productDiscounts  ProductDiscount[]
-  baskets           Basket[]
-  reviews           Review[]
-  favoriteProducts  FavoriteProducts[]
-  ProductInCheckout ProductInCheckout[]
-  Colors            Colors?             @relation(fields: [colorsId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  colorsId          String?
-  TopDeals          TopDeals?
-  BestSales         BestSales[]
-  Brand             Brand?              @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  brandId           String?
-  BreakedProduct    BreakedProduct[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime?           @updatedAt
+  id                    String               @id @default(uuid())
+  name                  String
+  price                 Float                @default(0)
+  purchasePrice         Float                @default(0)
+  isVisible             Boolean              @default(true)
+  reference             String
+  description           String
+  technicalDetails      String?
+  inventory             Int                  @default(0)
+  solde                 Int                  @default(0)
+  broken                Int                  @default(0)
+  images                String[]
+  categories            Category[]
+  productDiscounts      ProductDiscount[]
+  baskets               Basket[]
+  reviews               Review[]
+  favoriteProducts      FavoriteProducts[]
+  ProductInCheckout     ProductInCheckout[]
+  Colors                Colors?              @relation(fields: [colorsId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  colorsId              String?
+  TopDeals              TopDeals?
+  BestSales             BestSales[]
+  Brand                 Brand?               @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  brandId               String?
+  BreakedProduct        BreakedProduct[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime?            @updatedAt
+  GroupProductVariant   GroupProductVariant? @relation(fields: [groupProductVariantId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  groupProductVariantId String?
+}
+
+model GroupProductVariant {
+  id               String    @id @default(uuid())
+  groupProductName String    @unique
+  Products         Product[]
 }
 
 model BestSales {
@@ -165,7 +173,7 @@ model Checkout {
   address           String
   package           Package[]
   total             Float
-  pointsEarned      Int?                 @default(0)
+  pointsEarned      Int?                @default(0)
   pointsUsed        Int?                @default(0)
   createdAt         DateTime            @default(now())
   Coupons           Coupons?            @relation(fields: [couponsId], references: [id])
