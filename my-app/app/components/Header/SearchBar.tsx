@@ -266,7 +266,7 @@ const SearchBar = ({ userData }: any) => {
   return (
     <>
       {/* Desktop Search - Hidden on mobile */}
-      <div className="search-container relative w-full max-w-2xl mx-auto hidden md:block" style={{ zIndex: 999999 }}>
+      <div className="search-container relative w-full max-w-2xl mx-auto hidden md:block" >
         {/* Search Input */}
         <div className="relative z-10 flex items-center bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md focus-within:shadow-md focus-within:border-primaryColor transition-all duration-200 h-12 px-4 overflow-hidden">
           <CiSearch className="text-gray-400 w-5 h-5 flex-shrink-0" />

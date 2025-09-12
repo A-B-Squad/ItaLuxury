@@ -71,7 +71,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
   }, []);
 
   return (
-    <div className={`overflow-hidden relative w-full group
+    <div className={`overflow-hidden relative w-full  group
       ${view === 1 ? 'max-w-[200px]' : ''}
     `}>
       {/* Toggle button for action buttons */}
