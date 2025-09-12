@@ -108,12 +108,13 @@ const TopSales = ({ userData }: any) => {
 
   if (categories.length === 0) {
     return null;
+  } else {
+    console.log(categories);
   }
-
   return (
     <div className="w-full container">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category: Category) => {
+        {categories?.map((category: Category) => {
           const categoryProducts = productsByCategory[category.id] || [];
           const startIndex = categoryProductIndices[category.id] || 0;
           const visibleProducts = categoryProducts.slice(startIndex, startIndex + productsPerPage);

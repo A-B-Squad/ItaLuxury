@@ -415,7 +415,7 @@ type Query {
   getAllSectionVisibility: [content_visibility!]!
 
   # Best sales query
-  getBestSells(limit: Int): [BestSales!]!
+  getBestSells: [BestSales!]!
 
   # Coupon-related queries
   findUniqueCoupons(codeInput: String!): Coupon

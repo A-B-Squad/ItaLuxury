@@ -2,7 +2,7 @@ import { Context } from "@apollo/client";
 
 export const getBestSells = async (
   _: any,
-  { limit }: { limit: number },
+  __: any,
   { prisma }: Context
 ) => {
   try {
@@ -10,15 +10,7 @@ export const getBestSells = async (
       include: {
         Product: {
           include: {
-            categories: {
-              include: {
-                subcategories: {
-                  include: {
-                    subcategories: true
-                  }
-                }
-              }
-            }, productDiscounts: true,
+            categories: true, productDiscounts: true,
           }
         },
         Category: true

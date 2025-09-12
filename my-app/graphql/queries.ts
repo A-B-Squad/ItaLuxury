@@ -410,16 +410,6 @@ export const BEST_SALES_QUERY = gql`
           id
           name
           description
-          subcategories {
-            id
-            name
-            parentId
-            subcategories {
-              id
-              name
-              parentId
-            }
-          }
         }
       }
     }
