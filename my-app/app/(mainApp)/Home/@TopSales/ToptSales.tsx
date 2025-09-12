@@ -27,11 +27,22 @@ const TopSales = ({ userData }: any) => {
         const { data } = await getBestSales();
         if (data?.getBestSells) {
           const products = data.getBestSells.map((item: any) => item.Product);
-          setAllProducts(products);
 
-          // Extract unique categories
+          // Filter out products that don't have valid categories
+          const validProducts = products.filter((product: ProductData) =>
+            product &&
+            product.categories &&
+            Array.isArray(product.categories) &&
+            product.categories.length > 0 &&
+            product.categories[0] &&
+            product.categories[0].id
+          );
+
+          setAllProducts(validProducts);
+
+          // Extract unique categories from valid products only
           const categoryMap = new Map<string, Category>();
-          products.forEach((product: Product) => {
+          validProducts.forEach((product: ProductData) => {
             if (product.categories && product.categories[0]) {
               categoryMap.set(product.categories[0].id, product.categories[0]);
             }
@@ -60,7 +71,13 @@ const TopSales = ({ userData }: any) => {
     const result: Record<string, ProductData[]> = {};
     categories.forEach(category => {
       result[category.id] = allProducts.filter(
-        product => product.categories[0]?.id === category.id
+        product =>
+          product &&
+          product.categories &&
+          Array.isArray(product.categories) &&
+          product.categories.length > 0 &&
+          product.categories[0] &&
+          product.categories[0].id === category.id
       );
     });
     return result;
@@ -108,13 +125,12 @@ const TopSales = ({ userData }: any) => {
 
   if (categories.length === 0) {
     return null;
-  } else {
-    console.log(categories);
   }
+
   return (
     <div className="w-full container">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {categories?.map((category: Category) => {
+        {categories.map((category: Category) => {
           const categoryProducts = productsByCategory[category.id] || [];
           const startIndex = categoryProductIndices[category.id] || 0;
           const visibleProducts = categoryProducts.slice(startIndex, startIndex + productsPerPage);
