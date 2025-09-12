@@ -92,15 +92,15 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
   // Handle wheel event for thumbnail scrolling - FIXED VERSION
   const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
     if (!thumbnailsRef.current) return;
-    
+
     // Only prevent default if we can actually scroll in the intended direction
     const container = thumbnailsRef.current;
     const isMobile = window.innerWidth < 768;
-    
+
     if (isMobile) {
       const canScrollLeft = container.scrollLeft > 0;
       const canScrollRight = container.scrollLeft < container.scrollWidth - container.clientWidth;
-      
+
       if ((e.deltaY < 0 && canScrollLeft) || (e.deltaY > 0 && canScrollRight)) {
         e.preventDefault();
         container.scrollLeft += e.deltaY;
@@ -108,7 +108,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
     } else {
       const canScrollUp = container.scrollTop > 0;
       const canScrollDown = container.scrollTop < container.scrollHeight - container.clientHeight;
-      
+
       if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
         e.preventDefault();
         container.scrollTop += e.deltaY;
@@ -159,11 +159,11 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
 
     const wheelHandler = (e: WheelEvent) => {
       const isMobile = window.innerWidth < 768;
-      
+
       if (isMobile) {
         const canScrollLeft = thumbnailContainer.scrollLeft > 0;
         const canScrollRight = thumbnailContainer.scrollLeft < thumbnailContainer.scrollWidth - thumbnailContainer.clientWidth;
-        
+
         if ((e.deltaY < 0 && canScrollLeft) || (e.deltaY > 0 && canScrollRight)) {
           e.preventDefault();
           thumbnailContainer.scrollLeft += e.deltaY;
@@ -171,7 +171,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
       } else {
         const canScrollUp = thumbnailContainer.scrollTop > 0;
         const canScrollDown = thumbnailContainer.scrollTop < thumbnailContainer.scrollHeight - thumbnailContainer.clientHeight;
-        
+
         if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
           e.preventDefault();
           thumbnailContainer.scrollTop += e.deltaY;
@@ -210,7 +210,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
             aria-label={`Image ${selectedImage + 1} of ${validImages.length}. Press space to zoom, arrow keys to navigate.`}
           >
             <div
-              className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'} ${isZoomed ? 'scale-150' : 'scale-100'
+              className={`relative w-full bg-white h-full ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'} ${isZoomed ? 'scale-150' : 'scale-100'
                 } transition-transform duration-300`}
               onClick={toggleZoom}
               onMouseMove={handleMouseMove}
@@ -231,7 +231,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
             </div>
 
             {/* Zoom indicator */}
-            <div className="absolute top-3 right-3 bg-white/80 rounded-full p-2 shadow-sm z-10">
+            <div className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm z-10">
               {isZoomed ? (
                 <ZoomOut className="w-5 h-5 text-gray-700" />
               ) : (
