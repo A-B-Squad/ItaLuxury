@@ -282,7 +282,7 @@ const Basket = ({ userData, companyData }: any) => {
             </div>
             <div className="ml-4">
               <Link
-                href={`/products/tunisie?productId=${product.id}`}
+                href={`/products/tunisie?slug=${product.slug}`}
                 className="font-semibold text-sm text-gray-800"
               >
                 {product.name}

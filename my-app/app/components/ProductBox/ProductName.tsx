@@ -4,6 +4,7 @@ import Link from "next/link";
 interface Product {
   id: string;
   name: string;
+  slug: string;
   categories?: Array<{
     name: string;
   }>;
@@ -25,7 +26,7 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => {
       {/* Category */}
       {mainCategory && (
         <Link
-          href={`/products/tunisie?productId=${product.id}`}
+          href={`/products/tunisie?slug=${product.slug}`}
           className="inline-block"
         >
           <span className="text-xs font-medium text-gray-500 uppercase tracking-wide hover:text-blue-600 transition-colors">
@@ -37,7 +38,7 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => {
 
         {/* Product Name */}
         <Link
-          href={`/products/tunisie?productId=${product.id}`}
+          href={`/products/tunisie?slug=${product.slug}`}
           className="block group"
         >
           <h3 className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
@@ -61,4 +62,4 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => {
   );
 };
 
-export default ProductName;
+export default React.memo(ProductName);

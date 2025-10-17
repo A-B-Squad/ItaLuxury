@@ -10,7 +10,7 @@ export const allNewProducts = async (
 
     const products = await prisma.product.findMany({
       where: {
-        isVisible: visibleProduct || true,
+        isVisible: visibleProduct ?? true,
 
       },
       include: {
@@ -26,9 +26,10 @@ export const allNewProducts = async (
         Brand: true,
       },
       take: takeValue,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [
+        { createdAt: 'desc' },
+      ],
+
     });
 
     return products;

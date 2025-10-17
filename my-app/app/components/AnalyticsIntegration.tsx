@@ -29,30 +29,60 @@ const AnalyticsIntegration = () => {
       {/* Pusher Beams for notifications */}
       <Script
         src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"
-
         strategy="beforeInteractive"
       />
 
-      <Script id="pusher-beams-init" strategy="afterInteractive">
+      {/* Microsoft Clarity for user behavior analytics */}
+      <Script
+        id="microsoft-clarity"
+        strategy="afterInteractive"
+      >
         {`
-          try {
-            const beamsClient = new PusherPushNotifications.Client({
-              instanceId: 'e7307155-0ed4-4c85-8198-822101af6f25',
-            });
-            
-            beamsClient.start()
-              .then(() => beamsClient.addDeviceInterest('client'))
-              .then(() => beamsClient.getDeviceInterests())
-              .then((interests) => console.log("Current interests:", interests))
-              .catch((error) => console.error("Pusher Beams error:", error));
-          } catch (e) {
-            console.error("Failed to initialize Pusher Beams:", e);
-          }
+          (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "sk4ho9z9a4");
         `}
       </Script>
 
+      {/* Pusher Beams Initialization  */}
+      <Script id="pusher-beams-init" strategy="afterInteractive">
+        {`
+          function initPusherBeams() {
+            // Check if PusherPushNotifications is available
+            if (typeof PusherPushNotifications === 'undefined') {
+              console.warn("Pusher Beams not loaded yet, retrying...");
+              setTimeout(initPusherBeams, 500);
+              return;
+            }
 
+            try {
+              const beamsClient = new PusherPushNotifications.Client({
+                instanceId: 'e7307155-0ed4-4c85-8198-822101af6f25',
+              });
+              
+              beamsClient.start()
+                .then(() => {
+                  console.log('Pusher Beams started successfully');
+                  return beamsClient.addDeviceInterest('client');
+                })
+                .then(() => beamsClient.getDeviceInterests())
+                .then((interests) => console.log("Current interests:", interests))
+                .catch((error) => console.error("Pusher Beams error:", error));
+            } catch (e) {
+              console.error("Failed to initialize Pusher Beams:", e);
+            }
+          }
 
+          // Wait for DOM to be ready before initializing
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPusherBeams);
+          } else {
+            initPusherBeams();
+          }
+        `}
+      </Script>
     </>
   );
 };

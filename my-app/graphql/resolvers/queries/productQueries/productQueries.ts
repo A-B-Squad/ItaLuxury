@@ -1,8 +1,7 @@
 import { allNewProducts } from "./allNewProducts";
 import { productsByCategory } from "./productsByCategory";
-import { productById } from "./getProductById";
-import { productDiscount } from "./productDiscount";
 import { productsDiscounts } from "./allDiscountedProducts";
+import { getProductBySlug } from "./getProductBySlug";
 import { favoriteProducts } from "./favoriteProducts";
 import { productReview } from "./productReview";
 import { productsLessThen20 } from "./fetchProductPriceLess20";
@@ -13,8 +12,7 @@ import { deleteAutoProductDiscount } from "./deleteAutoProductDiscounts";
 export const productQueries = {
   allNewProducts,
   productsByCategory,
-  productById,
-  productDiscount,
+  getProductBySlug,
   productsDiscounts,
   favoriteProducts,
   productReview,

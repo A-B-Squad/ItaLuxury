@@ -49,7 +49,7 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
     const [selectedRating, setSelectedRating] = useState<number | null>(null);
     const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
     const [reviewsWithComments, setReviewsWithComments] = useState<Review[]>([]);
-    
+
     // New state for pagination
     const [showAllComments, setShowAllComments] = useState<boolean>(false);
     const INITIAL_COMMENTS_COUNT = 2;
@@ -189,8 +189,8 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
 
     // Filter reviews with comments and determine which ones to show
     const reviewsWithCommentsFiltered = reviewsWithComments.filter(review => review.comment);
-    const displayedReviews = showAllComments 
-        ? reviewsWithCommentsFiltered 
+    const displayedReviews = showAllComments
+        ? reviewsWithCommentsFiltered
         : reviewsWithCommentsFiltered.slice(0, INITIAL_COMMENTS_COUNT);
     const hasMoreComments = reviewsWithCommentsFiltered.length > INITIAL_COMMENTS_COUNT;
 
@@ -402,7 +402,7 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
                                 </div>
                             </div>
                         ))}
-                        
+
                         {/* Show More/Less Button */}
                         {hasMoreComments && (
                             <div className="flex justify-center pt-4">

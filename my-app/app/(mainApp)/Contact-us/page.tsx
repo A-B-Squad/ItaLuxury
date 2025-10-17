@@ -38,6 +38,7 @@ export const metadata: Metadata = {
   },
 };
 
+
 const ContactUsPage = () => {
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },

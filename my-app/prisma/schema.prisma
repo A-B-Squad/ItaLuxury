@@ -37,10 +37,10 @@ enum Cause {
 }
 
 enum PointType {
-  EARNED 
-  EXPIRED 
+  EARNED
+  EXPIRED
   ADJUSTMENT
-  ADMIN_ADDED 
+  ADMIN_ADDED
 }
 
 model User {
@@ -85,6 +85,7 @@ model Category {
 model Product {
   id                    String               @id @default(uuid())
   name                  String
+  slug                  String?              @unique
   price                 Float                @default(0)
   purchasePrice         Float                @default(0)
   isVisible             Boolean              @default(true)

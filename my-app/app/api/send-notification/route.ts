@@ -1,4 +1,3 @@
-// api/send-notification/route.ts
 import { NextResponse } from 'next/server';
 import PushNotifications from '@pusher/push-notifications-server';
 
@@ -11,7 +10,6 @@ export async function POST(request: Request) {
   try {
     const { orderId, productsNumber, userName, orderTotal } = await request.json();
 
-    // Add a unique identifier to prevent duplicate processing
     const notificationId = `order-${orderId}-${Date.now()}`;
 
     const publishResponse = await beamsClient.publishToInterests(['admin-notifications'], {

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 interface Product {
     id: string;
     name: string;
+    slug: string;
     images?: string[];
     categories: Array<{
         id: string;
@@ -47,6 +48,7 @@ export async function GET(req: NextRequest) {
                 products {
                   id
                   name
+                  slug
                   images
                   categories {
                     id

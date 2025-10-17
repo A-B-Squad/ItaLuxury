@@ -38,7 +38,6 @@ export const productsByCategory = async (
     return products;
   } catch (error) {
     console.log(`Failed to fetch products for category ${categoryName}`, error);
-    // Return a GraphQL error instead of a JavaScript Error object
     throw new Error(`Failed to fetch products for category ${categoryName}`);
   }
 };

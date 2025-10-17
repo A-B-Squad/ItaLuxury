@@ -23,8 +23,14 @@ const config: Config = {
       },
       colors: {
         primaryColor: "#212E53",
+
         secondaryColor: "#BEC4D4",
         lightBeige: "#F0EDD4",
+
+        // rosyBrown: "#C6A3A1ff",
+        logoColor: "#C7AE92ff",
+
+
         lightBlack: "#22222280",
         TopBanner: "#53366e",
         blueColor: "#7C88A9",

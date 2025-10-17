@@ -66,13 +66,13 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
 
   // Handle product rendering for carousel items
   const renderCarouselProducts = useCallback((products: ProductData[], groupIndex: number) => (
-    <div className="flex flex-col gap-4 md:gap-6 h-full">
+    <div className="flex flex-col w-full gap-4 md:gap-6 h-full">
       {products.map((product, productIndex) => (
         <div
           key={`${product.id}-${groupIndex}-${productIndex}`}
           className="bg-white rounded-2xl overflow-hidden border border-gray-100 
                     hover:border-gray-200 hover:shadow-lg transition-all duration-300 
-                    hover:-translate-y-1 group"
+                    hover:-translate-y-1 group h-full flex flex-col"
         >
           <ProductBox userData={userData} product={product} />
         </div>

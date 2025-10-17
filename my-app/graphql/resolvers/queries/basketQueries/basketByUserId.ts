@@ -13,7 +13,6 @@ export const basketByUserId = async (
       include: {
         User: true,
         Product: {
-
           include: {
             productDiscounts: true,
             categories: {

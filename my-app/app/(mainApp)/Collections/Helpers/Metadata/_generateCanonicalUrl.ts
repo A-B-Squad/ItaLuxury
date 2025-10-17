@@ -15,5 +15,5 @@ export default function generateCanonicalUrl(searchParams: SearchParamsProductSe
     }
 
     const queryString = queryParams.toString();
-    return `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Collections${queryString ? `/tunisie?${queryString}` : "/tunisie"}`;
+    return `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Collections${queryString ? `/tunisie?${queryString}&page=1` : "/tunisie&page=1"}`;
 }

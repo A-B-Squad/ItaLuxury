@@ -2,7 +2,6 @@ import React from "react";
 import TrackingPackages from "./TrackingPackages";
 
 import { Metadata } from "next";
-import keywords from "@/public/scripts/keywords";
 import { getCompanyInfo } from "@/utlils/getCompanyInfo";
 
 if (
@@ -11,35 +10,38 @@ if (
 ) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN.replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Suivi de colis - ita-luxury",
-  description:
-    "Suivez vos colis en temps réel avec ita-luxury pour une expérience d'achat optimale.",
-  keywords: keywords.join(","),
+  title: "Suivi de colis",
+  description: "Suivez vos colis en temps réel avec ita-luxury pour une expérience d'achat optimale.",
 
   openGraph: {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/TrackingPackages`,
+    url: `${baseUrl}/TrackingPackages`,
     type: "website",
     title: "Suivi de colis - ita-luxury",
-    description:
-      "Suivez vos colis en temps réel avec ita-luxury pour une expérience d'achat optimale.",
+    description: "Suivez vos colis en temps réel avec ita-luxury pour une expérience d'achat optimale.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
+        url: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
-        alt: "ita-luxury",
+        alt: "ita-luxury - Suivi de colis",
       },
     ],
   },
-  alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/TrackingPackages`,
 
+  twitter: {
+    card: "summary_large_image",
+    title: "Suivi de colis - ita-luxury",
+    description: "Suivez vos colis en temps réel",
+    images: [`${baseUrl}/images/logos/LOGO-WHITE-BG.webp`],
+  },
+
+  alternates: {
+    canonical: `${baseUrl}/TrackingPackages`,
   },
 };
-
 const TrackingPackagesPage = async () => {
   const companyData = await getCompanyInfo();
 

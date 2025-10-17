@@ -1,73 +1,52 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { IoImageOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
 
+interface Ad {
+  images: string[];
+  link: string;
+}
 
-const RightAdsCarousel = ({
-  AdsNextToCarousel,
-  loadingRightAdsCarousel,
-}: any) => {
-  const [images, setImages] = useState([]);
+interface RightAdsCarouselProps {
+  AdsNextToCarousel: Ad[];
+  loadingRightAdsCarousel: boolean;
+}
 
-  useEffect(() => {
-    if (AdsNextToCarousel) {
-      const allImages = AdsNextToCarousel.flatMap(
-        (ad: { images: string[] }) => ad.images,
-      );
-      setImages(allImages);
-    }
-  }, [loadingRightAdsCarousel]);
+const RightAdsCarousel = ({ AdsNextToCarousel, loadingRightAdsCarousel }: RightAdsCarouselProps) => {
+  if (loadingRightAdsCarousel) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="w-[12rem] md:w-[22rem] h-36 bg-gray-200 animate-pulse rounded-lg" />
+        <div className="w-[12rem] md:w-[22rem] h-36 bg-gray-200 animate-pulse rounded-lg" />
+      </div>
+    );
+  }
+
+  const ads = AdsNextToCarousel?.filter(ad => ad.images?.[0]).slice(0, 2) || [];
+
+  if (ads.length === 0) return null;
 
   return (
-    <>
-      {(images.length === 0 || loadingRightAdsCarousel) && (
-        <div className="right-Img flex lg:flex-col  items-center justify-center  gap-5 md:gap-12">
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
-            <IoImageOutline className="h-12 w-12 text-gray-500" />
-          </div>
-          <div className="grid animate-pulse w-[10rem] md:w-[22rem] h-36 place-items-center rounded-lg bg-secondaryColor ">
-            <IoImageOutline className="h-12 w-12 text-gray-500" />
-          </div>
-        </div>
-      )}
-
-      {images.length > 0 && (
-        <div className="right-Img flex lg:flex-col  gap-5 md:gap-12">
-          <Link
-            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={AdsNextToCarousel[0]?.link}
-          >
-            <Image
-              width={360}
-              height={208}
-              style={{ objectFit: "contain" }}
-              src={images[0]}
-              loading="eager"
-              property="true"
-              alt="right-Img 0"
-              className="rounded-xl hover:opacity-50 transition-all"
-            />
-          </Link>
-          <Link
-            className="relative w-[12rem] md:w-[15rem]  xl:w-[20rem]"
-            href={AdsNextToCarousel[1]?.link}
-          >
-            <Image
-              width={360}
-              height={208}
-              src={images[1]}
-              style={{ objectFit: "contain" }}
-              loading="eager"
-              alt="right-Img 2"
-              className="rounded-xl hover:opacity-50 transition-all"
-            />
-          </Link>
-        </div>
-      )}
-    </>
+    <div className="flex flex-col gap-4">
+      {ads.map((ad, index) => (
+        <Link
+          key={`${index}-${ad.images[0]}`}
+          href={ad.link || "#"}
+          className="block w-[12rem] md:w-[15rem] xl:w-[20rem] h-36 rounded-xl overflow-hidden group"
+        >
+          <Image
+            src={ad.images[0]}
+            alt={`Ad ${index + 1}`}
+            fill
+            className="object-contain transition-transform group-hover:scale-105"
+            quality={75}
+            priority={index === 0}
+            loading={index === 0 ? "eager" : "lazy"}
+          />
+        </Link>
+      ))}
+    </div>
   );
 };
 

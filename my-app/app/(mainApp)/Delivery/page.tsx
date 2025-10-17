@@ -1,36 +1,47 @@
 import Breadcumb from "@/app/components/Breadcumb";
-import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
 import React from "react";
 import DeliveryPage from "./DeliveryPage";
+const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ?? "https://ita-luxury.com").replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title:
-    "Livraison et retours - ITA Luxury | Livraison rapide et fiable en Tunisie",
-  description:
-    "Découvrez nos options de livraison rapide et fiable pour tous vos achats sur ita-luxury.com.",
-  keywords: keywords.join(","),
+  title: "Livraison et retours",
+  description: "Découvrez nos options de livraison rapide et fiable partout en Tunisie. Politique de retours sous 7 jours.",
+
   openGraph: {
-    title:
-      "Livraison et retours - ITA Luxury | Livraison rapide et fiable en Tunisie",
-    description:
-      "Découvrez nos options de livraison rapide et fiable pour tous vos achats sur ita-luxury.com.",
+    title: "Livraison et retours - ITA Luxury",
+    description: "Livraison rapide en Tunisie. Retours gratuits sous 7 jours.",
     type: "website",
-    url: "https://www.ita-luxury.com/Delivery",
+    url: `${baseUrl}/Delivery`,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
+        url: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
-        alt: "Delivery ita-luxury",
+        alt: "Livraison ita-luxury",
       },
     ],
   },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Livraison et retours - ITA Luxury",
+    description: "Livraison rapide en Tunisie. Retours gratuits sous 7 jours.",
+    images: [`${baseUrl}/images/logos/LOGO-WHITE-BG.webp`],
+  },
+
   alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Delivery`,
+    canonical: `${baseUrl}/Delivery`,
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    'max-snippet': -1,
+    'max-image-preview': 'large',
+    'max-video-preview': -1,
   },
 };
-
 const DeliveryPageWrapper = () => {
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },

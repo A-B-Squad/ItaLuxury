@@ -1,7 +1,7 @@
 "use client";
 
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/events/trackEvents";
+// Lazy-load tracking to keep bundle slim
 import { useMutation, useQuery } from "@apollo/client";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -54,9 +54,10 @@ import ActionButton from "./Components/ActionButton";
 import CustomInnerZoom from "./Components/CustomInnerZoom";
 import ProductDetailsContainer from "./Components/ProductDetailsContainer";
 import ProductInfo from "./Components/ProductInfo";
+import triggerEvents from "@/utlils/events/trackEvents";
 
 
-const ProductDetailsSection = ({ productDetails, productId, userData }: any) => {
+const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const { toast } = useToast();
 
   const [smallImages, setSmallImages] = useState<any>(null);
@@ -84,12 +85,15 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // In ProductDetailsSection
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
     useQuery(TAKE_16_PRODUCTS_BY_CATEGORY, {
       variables: {
         limit: 16,
         categoryName: productDetails?.categories[1]?.name,
       },
+      skip: typeof window === 'undefined',
+      fetchPolicy: 'cache-first'
     });
 
   // Query the basket first
@@ -179,7 +183,8 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
       }
     });
 
-    triggerEvents("ViewContent", {
+    // Lazy import for FB tracking
+triggerEvents("ViewContent", {
       user_data: {
         em: [userData?.email.toLowerCase()],
         fn: [userData?.fullName],
@@ -203,14 +208,14 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
           }
         ],
       },
-    });
+    })
 
     setDiscount(productDetails.productDiscounts[0]);
     setTechnicalDetails(productDetails.technicalDetails);
     if (productDetails?.images) {
       setSmallImages(productDetails.images);
     }
-  }, [productId]);
+  }, [slug]);
 
 
 
@@ -218,11 +223,11 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
   const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
-        (item: any) => item.Product.id === productId
+        (item: any) => item.Product.slug === slug
       );
     }
-    return storedProducts.find((product: any) => product.id === productId);
-  }, [decodedToken, productId]);
+    return storedProducts.find((product: any) => product.slug === slug);
+  }, [decodedToken, slug]);
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
 
@@ -291,24 +296,11 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
         ct: "",
         external_id: decodedToken?.userId
       },
-      facebook_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        contents: [
-          {
-            id: product.id,
-            quantity: product.actualQuantity || product.quantity,
-            item_price: price
-          }
-        ],
-        value: price,
-        currency: "TND",
-        content_category: primaryCategory,
-      }
     };
     // Track Add to Cart
-    triggerEvents("AddToCart", cartEventDataFacebook);
+    try {
+      triggerEvents("AddToCart", cartEventDataFacebook);
+    } catch { }
     sendGTMEvent(cartEventDataGTM);
     if (decodedToken) {
       try {
@@ -423,7 +415,7 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
       label: String(category),
     })),
     {
-      href: `/products/tunisie?productId=${productDetails.id}`,
+      href: `/products/tunisie?slug=${productDetails.slug}`,
       label: productDetails?.name,
     },
   ], [categoryNames, productDetails?.id, productDetails?.name]);
@@ -435,7 +427,7 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
 
       addToFavorite({
         variables: {
-          input: { userId, productId },
+          input: { userId, productId: productDetails.id }
         },
         onCompleted: () => {
           toast({
@@ -462,7 +454,7 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
     }
   }, [
     decodedToken?.userId,
-    productId,
+    slug,
     productDetails?.name,
     addToFavorite,
     toast,
@@ -488,97 +480,94 @@ const ProductDetailsSection = ({ productDetails, productId, userData }: any) => 
   );
 
   return (
-    <div className="productDetails bg-gray-50 py-6">
-      <div className="container relative  mx-auto md:px-4 ">
-        {!productDetails ? (
-          <Loading />
-        ) : (
-          <div className="space-y-6">
-            <Breadcumb Path={categoriesPath} />
+    <div className="productDetails container relative  bg-gray-50 w-full mx-auto md:px-4 ">
+      {!productDetails ? (
+        <Loading />
+      ) : (
+        <div className=" space-y-6 w-full grid-cols-12">
+          <Breadcumb Path={categoriesPath} />
 
-            <div className="grid items-start mx-auto grid-cols-12 w-full place-items-center lg:place-content-between bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm gap-4">
-              <div className="lg:sticky top-0 lg:top-5 gap-3  items-center bg-white col-span-12 lg:col-span-5 w-full text-center">
-                <div className="relative">
-                  <CustomInnerZoom
-                    images={smallImages}
-                  />
-                  <span
-                    className={`absolute top-2 right-2 p-2 rounded-md ${productDetails?.inventory > 1
-                      ? "bg-green-600"
-                      : productDetails?.inventory === 1
-                        ? "bg-amber-500"
-                        : "bg-red-500"
-                      } text-xs font-medium text-white`}
-                  >
-                    {productDetails?.inventory > 1
-                      ? "EN STOCK"
-                      : productDetails?.inventory === 1
-                        ? "DERNIER ARTICLE EN STOCK"
-                        : "RUPTURE DE STOCK"}
-                  </span>
-                </div>
+          <div className=" flex flex-col lg:flex-row items-start mx-auto  w-full bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm">
+
+            <div className="lg:sticky  top-0 lg:top-5 gap-3   bg-white w-full text-center">
+              <div className="relative">
+                <CustomInnerZoom images={smallImages} />
+                <span
+                  className={`absolute top-2 right-2 p-2 rounded-md ${productDetails?.inventory > 1
+                    ? "bg-green-600"
+                    : productDetails?.inventory === 1
+                      ? "bg-amber-500"
+                      : "bg-red-500"
+                    } text-xs font-medium text-white`}
+                >
+                  {productDetails?.inventory > 1
+                    ? "EN STOCK"
+                    : productDetails?.inventory === 1
+                      ? "DERNIER ARTICLE EN STOCK"
+                      : "RUPTURE DE STOCK"}
+                </span>
               </div>
-
-              {/*  product info section */}
-              <ProductInfo
-                userData={userData}
-                productDetails={productDetails}
-                technicalDetails={technicalDetails}
-                userId={decodedToken?.userId}
-                discount={discount}
-                productId={productId}
-                AddToBasket={AddToBasket}
-                quantity={quantity}
-                handleIncreaseQuantity={handleIncreaseQuantity}
-                handleDecreaseQuantity={handleDecreaseQuantity}
-
-              />
-
-              <ActionButton
-                productDetails={productDetails}
-                AddToBasket={AddToBasket}
-                quantity={quantity}
-                handleIncreaseQuantity={handleIncreaseQuantity}
-                handleDecreaseQuantity={handleDecreaseQuantity}
-                handleToggleFavorite={handleToggleFavorite}
-                isProductInCompare={isProductInCompare}
-                addToCompare={addToCompare}
-              />
             </div>
 
-          </div>
-        )}
-
-
-        <ProductDetailsContainer
-          productId={productId}
-          userId={decodedToken?.userId}
-          toast={toast}
-          technicalDetails={technicalDetails}
-        />
-
-        <div className="bg-white border border-gray-200 rounded-lg  shadow-sm px-4 py-6 mt-8 ">
-          <TitleProduct title={"Produits apparentés"} />
-          <div className="py-2">
-            <ProductTabs
-              data={Products_10_by_category?.productsByCategory}
-              loadingProduct={loadingProductByCategiry}
+            {/*  product info section */}
+            <ProductInfo
               userData={userData}
-              className={"basis-1/2 md:basis-1/5 lg:basis-1/5"}
+              productDetails={productDetails}
+              technicalDetails={technicalDetails}
+              userId={decodedToken?.userId}
+              discount={discount}
+              productId={productDetails.id}
+              AddToBasket={AddToBasket}
+              quantity={quantity}
+              handleIncreaseQuantity={handleIncreaseQuantity}
+              handleDecreaseQuantity={handleDecreaseQuantity}
+
+            />
+
+            <ActionButton
+              productDetails={productDetails}
+              AddToBasket={AddToBasket}
+              quantity={quantity}
+              handleIncreaseQuantity={handleIncreaseQuantity}
+              handleDecreaseQuantity={handleDecreaseQuantity}
+              handleToggleFavorite={handleToggleFavorite}
+              isProductInCompare={isProductInCompare}
+              addToCompare={addToCompare}
             />
           </div>
-        </div>
 
-        <ProductDetailsDrawer
-          productId={productId}
-          productDetails={productDetails}
-          addToBasket={AddToBasket}
-          discount={discount}
-          quantity={quantity}
-          handleIncreaseQuantity={handleIncreaseQuantity}
-          handleDecreaseQuantity={handleDecreaseQuantity}
-        />
+        </div>
+      )}
+
+      {/* Product details container */}
+      <ProductDetailsContainer
+        productId={productDetails.id}
+        userId={decodedToken?.userId}
+        toast={toast}
+        technicalDetails={technicalDetails}
+      />
+
+      <div className="bg-white border border-gray-200 rounded-lg  shadow-sm px-4 py-6 mt-8 ">
+        <TitleProduct title={"Produits apparentés"} />
+        <div className="py-2">
+          <ProductTabs
+            data={Products_10_by_category?.productsByCategory}
+            loadingProduct={loadingProductByCategiry}
+            userData={userData}
+            className={"basis-1/2 md:basis-1/5 lg:basis-1/5"}
+          />
+        </div>
       </div>
+
+      <ProductDetailsDrawer
+        productId={productDetails.id}
+        productDetails={productDetails}
+        addToBasket={AddToBasket}
+        discount={discount}
+        quantity={quantity}
+        handleIncreaseQuantity={handleIncreaseQuantity}
+        handleDecreaseQuantity={handleDecreaseQuantity}
+      />
     </div>
   );
 };

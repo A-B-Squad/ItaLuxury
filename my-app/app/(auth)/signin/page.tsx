@@ -1,6 +1,5 @@
 import React from "react";
 import Signin from "./signin";
-import keywords from "@/public/scripts/keywords";
 import { Metadata } from "next";
 
 if (
@@ -11,46 +10,17 @@ if (
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Connexion à votre compte | ita-luxury",
-  description:
-    "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
-  keywords: keywords.join(","),
-  openGraph: {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/signin`,
-    type: "website",
-    title: "Connexion à votre compte | ita-luxury",
-    description:
-      "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
-    images: [
-      {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
-        width: 1200,
-        height: 630,
-        alt: "ita-luxury - Connexion",
-      },
-    ],
-    siteName: "ita-luxury",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Connexion à votre compte | ita-luxury",
-    description:
-      "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel, suivre vos commandes et profiter d'offres exclusives.",
-    images: [`${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`],
-  },
-  alternates: {
-    canonical: "https://www.ita-luxury.com/signin",
-    languages: {
-      'fr-FR': 'https://www.ita-luxury.com/signin',
-    },
+  title: "Connexion",
+  description: "Connectez-vous à votre compte ita-luxury pour accéder à votre espace personnel.",
+
+  robots: {
+    index: false,
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
   },
 };
 
 export default function SigninPage() {
-  return (
-    <>
-      <Signin />
-    </>
-  );
+  return <Signin />
 }

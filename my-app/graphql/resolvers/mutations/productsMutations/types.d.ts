@@ -1,6 +1,7 @@
 interface Product {
   id: string;
   name: string;
+  slug: string;
   price: Float;
   isVisible: boolean;
   reference: string;
@@ -8,6 +9,7 @@ interface Product {
   inventory: number;
   images: string[];
   createdAt: Date;
+  updatedAt: Date;
   categories: categories[];
   productDiscounts: ProductDiscount[];
   baskets: Basket[];

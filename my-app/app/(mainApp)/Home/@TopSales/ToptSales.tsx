@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+
+import { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
 import { BEST_SALES_QUERY } from "@/graphql/queries";
 import { MdArrowLeft, MdArrowRight } from "react-icons/md";
 import TopSalesProductBox from "./Components/TopSalesProductBox";
-import { motion, AnimatePresence } from "framer-motion";
 import { ProductData } from "@/app/types";
 
 interface Category {
@@ -66,8 +66,8 @@ const TopSales = ({ userData }: any) => {
     fetchBestSales();
   }, [getBestSales]);
 
-  // Memoize filtered products by category to avoid recalculation on each render
-  const productsByCategory = useMemo(() => {
+  // Calculate products by category directly
+  const getProductsByCategory = () => {
     const result: Record<string, ProductData[]> = {};
     categories.forEach(category => {
       result[category.id] = allProducts.filter(
@@ -81,9 +81,11 @@ const TopSales = ({ userData }: any) => {
       );
     });
     return result;
-  }, [allProducts, categories]);
+  };
 
-  const handleNext = useCallback((categoryId: string) => {
+  const productsByCategory = getProductsByCategory();
+
+  const handleNext = (categoryId: string) => {
     setCategoryProductIndices(prev => {
       const productsInCategory = productsByCategory[categoryId] || [];
       const currentIndex = prev[categoryId] || 0;
@@ -92,21 +94,21 @@ const TopSales = ({ userData }: any) => {
         : currentIndex;
       return { ...prev, [categoryId]: newIndex };
     });
-  }, [productsByCategory, productsPerPage]);
+  };
 
-  const handlePrevious = useCallback((categoryId: string) => {
+  const handlePrevious = (categoryId: string) => {
     setCategoryProductIndices(prev => ({
       ...prev,
       [categoryId]: Math.max(0, (prev[categoryId] || 0) - productsPerPage)
     }));
-  }, [productsPerPage]);
+  };
 
   if (loading) {
     return (
       <div className="w-full container grid min-h-96 place-items-center">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full bg-primaryColor/30"></div>
-          <div className="mt-4 h-4 w-36 bg-primaryColor/30 rounded"></div>
+          <div className="h-12 w-12 rounded-full bg-primaryColor/30" />
+          <div className="mt-4 h-4 w-36 bg-primaryColor/30 rounded" />
         </div>
       </div>
     );
@@ -162,36 +164,27 @@ const TopSales = ({ userData }: any) => {
               </div>
 
               <div className="flex-grow">
-                <AnimatePresence>
-                  <motion.div
-                    key={startIndex}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex flex-col h-full"
-                  >
-                    {visibleProducts.length > 0 ? (
-                      <div className="divide-y divide-gray-100">
-                        {visibleProducts.map((product: ProductData) => (
-                          <div
-                            key={product.id}
-                            className="p-3 hover:bg-gray-50 transition-colors duration-200"
-                          >
-                            <TopSalesProductBox userData={userData} product={product} />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-12 text-center text-gray-500 flex flex-col items-center">
-                        <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                        <p>Aucun produit disponible dans cette catégorie</p>
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
+                <div className="flex flex-col h-full transition-opacity duration-300">
+                  {visibleProducts.length > 0 ? (
+                    <div className="divide-y divide-gray-100">
+                      {visibleProducts.map((product: ProductData) => (
+                        <div
+                          key={product.id}
+                          className="p-3 hover:bg-gray-50 transition-colors duration-200"
+                        >
+                          <TopSalesProductBox userData={userData} product={product} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center text-gray-500 flex flex-col items-center">
+                      <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <p>Aucun produit disponible dans cette catégorie</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {visibleProducts.length > 0 && categoryProducts.length > productsPerPage && (

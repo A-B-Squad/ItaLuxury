@@ -2,6 +2,7 @@ import { CiLocationOn, CiPhone } from "react-icons/ci";
 import { AiOutlineMail } from "react-icons/ai";
 import { getCompanyInfo } from "@/utlils/getCompanyInfo";
 
+
 const CompanyInfoBar = async () => {
   const companyData = await getCompanyInfo();
 

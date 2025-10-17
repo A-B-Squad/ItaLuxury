@@ -11,8 +11,8 @@ const ALLOWED_ORIGINS = [
 
 const AUTH_ROUTES = ["/signin", "/signup"];
 const PROTECTED_ROUTES = [
-  "/Account", 
-  "/FavoriteList", 
+  "/Account",
+  "/FavoriteList",
 ];
 
 const TOKEN_COOKIE_NAME = "Token";
@@ -49,10 +49,10 @@ export function middleware(req: NextRequest) {
   }
 
   // Check if current route is protected
-  const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+  const isProtectedRoute = PROTECTED_ROUTES.some(route =>
     url.startsWith(route) || url === route
   );
-  
+
   // Check if current route is auth route
   const isAuthRoute = AUTH_ROUTES.includes(url);
 
@@ -93,11 +93,11 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/api/:path*", 
-    "/signin", 
+    "/api/:path*",
+    "/signin",
     "/signup",
     "/Account/:path*",
-    "/Basket/:path*", 
+    "/Basket/:path*",
     "/Checkout/:path*",
     "/Delivery/:path*",
     "/FavoriteList/:path*",

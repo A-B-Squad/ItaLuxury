@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client";
 import React, { useEffect, useState, useMemo } from "react";
 import Category from "./MainCategory";
-import { CATEGORY_QUERY } from "../../../../graphql/queries";
+import { MAIN_CATEGORY_QUERY } from "../../../../graphql/queries";
 
 interface DropdownProps {
   setShowDropdown: (show: boolean) => void;
@@ -9,23 +9,24 @@ interface DropdownProps {
   isFixed: boolean;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ 
-  setShowDropdown, 
-  showCategoryDropdown, 
-  isFixed 
+const Dropdown: React.FC<DropdownProps> = ({
+  setShowDropdown,
+  showCategoryDropdown,
+  isFixed
 }) => {
-  const { error, data, loading } = useQuery(CATEGORY_QUERY, {
+  const { error, data: categoriesData, loading } = useQuery(MAIN_CATEGORY_QUERY, {
     fetchPolicy: 'cache-first'
   });
-  
+  const categories = categoriesData?.fetchMainCategories || [];
+
   const [activeCategory, setActiveCategory] = useState<string>("");
 
   // Set initial active category when data loads
   useEffect(() => {
-    if (data?.categories?.length > 0) {
-      setActiveCategory(data.categories[0].name);
+    if (categories?.length > 0) {
+      setActiveCategory(categories[0].name);
     }
-  }, [data]);
+  }, [categories]);
 
   // Improved dropdown position classes for better scroll behavior
   const positionClasses = useMemo(() => {
@@ -77,10 +78,10 @@ const Dropdown: React.FC<DropdownProps> = ({
                     </div>
                   </div>
                 </div>
-              ) : data?.categories?.length > 0 ? (
+              ) : categories?.length > 0 ? (
                 <div className="py-6 px-4">
                   <Category
-                    data={data}
+                    mainCategories={categories}
                     activeCategory={activeCategory}
                     setActiveCategory={setActiveCategory}
                     setShowDropdown={setShowDropdown}

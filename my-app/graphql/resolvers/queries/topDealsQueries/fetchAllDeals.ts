@@ -5,14 +5,12 @@ export const allDeals = async (_: any, __: any, { prisma }: Context) => {
     const products = await prisma.topDeals.findMany(
 
 
-
       {
         include: {
           product: {
 
             include: {
               productDiscounts: true,
-
               Colors: true,
               categories: {
                 include: {

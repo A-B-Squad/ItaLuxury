@@ -10,20 +10,27 @@ import {
   usePruchaseOptions,
 } from "@/app/store/zustand";
 import { useAuth } from "@/app/hooks/useAuth";
-import triggerEvents from "@/utlils/events/trackEvents";
-import { sendGTMEvent } from "@next/third-parties/google";
+// Lazy-load tracking libraries when needed to reduce initial bundle size
 import CompactViewDetails from "./CompactViewDetails";
 import FullViewDetails from "./FullViewDetails";
 import ProductImage from "./ProductImage";
 import ProductLabels from "./ProductLabels";
 import ProductName from "./ProductName";
+import triggerEvents from "@/utlils/events/trackEvents";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 interface ProductBoxProps {
   product: any;
   userData: any;
+  index?: number;
+  priority?: boolean;
 }
 
-const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
+const ProductBox: React.FC<ProductBoxProps> = ({
+  product,
+  userData,
+  index,
+}) => {
   const { toast } = useToast();
   const { view, changeProductView } = useAllProductViewStore();
   const { decodedToken, isAuthenticated } = useAuth();
@@ -44,7 +51,7 @@ const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
 
   // Set view based on route
   useEffect(() => {
-    if (window.location.pathname !== "/Collections/tunisie") {
+    if (typeof window !== "undefined" && window.location.pathname !== "/Collections/tunisie") {
       changeProductView(3);
     }
   }, [changeProductView]);
@@ -65,6 +72,7 @@ const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
       ? product.productDiscounts[0].newPrice
       : product.price;
   }, [product.productDiscounts, product.price]);
+
 
   // Create tracking data
   const createTrackingData = useCallback((quantity: number) => {
@@ -222,6 +230,7 @@ const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
 
     // Create and send tracking events
     const { addToCartData, gtmData } = createTrackingData(quantity);
+    // Dynamically import tracking to avoid adding to main bundle
     triggerEvents("AddToCart", addToCartData);
     sendGTMEvent(gtmData);
 
@@ -250,19 +259,16 @@ const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
     const hoverStyles = "hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]";
 
     if (view === 1) {
-      // Compact horizontal view - fixed height
       return `${baseStyles} ${hoverStyles} h-40 md:h-48 rounded-xl overflow-hidden`;
     }
 
-    // Full vertical view - fixed minimum height for consistency
-    return `${baseStyles} ${hoverStyles} h-full md] rounded-2xl overflow-hidden border border-gray-100`;
+    return `${baseStyles} ${hoverStyles} h-full rounded-2xl overflow-hidden border border-gray-100`;
   }, [view]);
 
   const contentStyles = useMemo(() => {
     if (view === 1) {
       return "h-full flex flex-row items-center";
     }
-    // Full height flex column for consistent layout
     return "flex flex-col h-full";
   }, [view]);
 
@@ -270,44 +276,40 @@ const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
     if (view === 1) {
       return "flex-1 p-4 flex flex-col justify-center";
     }
-
-    // Use flex-1 to fill remaining space and justify-between for consistent spacing
     return "flex-1 p-2 flex flex-col justify-between";
   }, [view]);
 
-  // Image container styles for consistent aspect ratio
   const imageContainerStyles = useMemo(() => {
     if (view === 1) {
       return "w-32 md:w-40 h-full flex-shrink-0";
     }
-    // Fixed aspect ratio for product images
     return "aspect-square w-full flex-shrink-0 overflow-hidden";
   }, [view]);
 
   return (
     <div className={containerStyles}>
       <div className={contentStyles}>
-        {/* Product Image with consistent sizing */}
         <div className={imageContainerStyles}>
           <ProductLabels product={product} />
           <ProductImage
             product={product}
             onAddToBasket={AddToBasket}
             view={view}
-          />          
+            priority={typeof index === "number" ? index === 0 : false}
+          />
         </div>
 
         {/* Product Details with consistent layout */}
         <div className={detailsStyles}>
           {view !== 1 ? (
-            <div className="flex flex-col flex1">
+            <div className="flex flex-col flex-1">
               {/* Product Name - fixed height area */}
-              <div className="min-h-[3rem] mb-3">
+              <div className="min-h-[3rem] md:mb-3">
                 <ProductName product={product} />
               </div>
 
               {/* Details section - takes remaining space */}
-              <div className="flex-1 flex flex-col justify-end">
+              <div className="flex-1 flex flex-col justify-center">
                 <FullViewDetails
                   product={product}
                   onAddToBasket={AddToBasket}
@@ -320,7 +322,6 @@ const ProductBox: React.FC<ProductBoxProps> = ({ product, userData }) => {
               <div className="mt-2">
                 <CompactViewDetails
                   product={product}
-                // onAddToBasket={AddToBasket} 
                 />
               </div>
             </div>

@@ -1,122 +1,175 @@
-"use client";
-import React, { useEffect, useState, useCallback, memo } from "react";
-import { Carousel } from "@material-tailwind/react";
-import Link from "next/link";
-import Image from "next/image";
-import { IoImageOutline } from "react-icons/io5";
+"use client"
+
+import { useState, useMemo, useEffect } from "react"
+import Link from "next/link"
+import Image from "next/image"
 
 interface Ad {
-  images: string[];
-  link: string;
+  images: string[]
+  link: string
 }
 
 interface AdsCarouselProps {
-  centerCarouselAds: Ad[];
-  loadingCenterAdsCarousel: boolean;
+  centerCarouselAds: Ad[]
+  loadingCenterAdsCarousel: boolean
 }
 
-const AdsCarousel: React.FC<AdsCarouselProps> = ({
-  centerCarouselAds,
-  loadingCenterAdsCarousel,
-}) => {
-  const [images, setImages] = useState<string[]>([]);
+const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouselProps) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({})
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
-  // Extract images only when centerCarouselAds changes
+  const images = useMemo(() => {
+    if (!centerCarouselAds?.length) return []
+    return centerCarouselAds.flatMap((ad) => ad.images).filter(Boolean)
+  }, [centerCarouselAds])
+
+  const firstAdLink = centerCarouselAds?.[0]?.link || "#"
+
+  // Preload next and previous images for smooth transitions
   useEffect(() => {
-    if (centerCarouselAds?.length > 0) {
-      const allImages = centerCarouselAds.flatMap((ad) => ad.images);
-      setImages(allImages);
+    if (images.length <= 1) return
+    
+    const preloadImages = () => {
+      const nextIndex = (currentIndex + 1) % images.length
+      const prevIndex = (currentIndex - 1 + images.length) % images.length
+      
+      // Preload next image
+      const nextImg = new window.Image()
+      nextImg.src = images[nextIndex]
+      
+      // Preload previous image
+      const prevImg = new window.Image()
+      prevImg.src = images[prevIndex]
     }
-  }, [centerCarouselAds]);
+    
+    preloadImages()
+  }, [currentIndex, images])
 
-  // Enhanced loading state with better visual feedback
-  if (images.length === 0 || loadingCenterAdsCarousel) {
-    return (
-      <div className="relative w-full">
-        <div className="aspect-[16/9] w-full">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse flex flex-col justify-center items-center">
-            <IoImageOutline className="h-10 w-10 sm:h-16 sm:w-16 text-gray-400" />
-            <p className="text-gray-500 text-sm mt-2 font-medium">Chargement des images...</p>
-          </div>
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    if (!isAutoPlaying || images.length <= 1) return
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [isAutoPlaying, images.length])
+
+  if (loadingCenterAdsCarousel || images.length === 0) {
+    return <div className="aspect-[16/9] w-full animate-pulse rounded-2xl bg-muted" />
+  }
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+  }
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index)
   }
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden shadow-lg group">
-      <Carousel
-        onPointerEnterCapture={undefined}
-        onPointerLeaveCapture={undefined}
-        autoplay
-        loop
-        autoplayDelay={5000}
-        transition={{ duration: 0.7 }}
-        placeholder=""
-        className="rounded-2xl overflow-hidden"
-        prevArrow={({ handlePrev }) => (
-          <button
-            onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-2 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            aria-label="Previous slide"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-          </button>
-        )}
-        nextArrow={({ handleNext }) => (
-          <button
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white p-2 rounded-full z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            aria-label="Next slide"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
-        )}
-        navigation={({ setActiveIndex, activeIndex, length }) => (
-          <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-1.5 sm:gap-2">
-            {new Array(length).fill("").map((_, i) => (
-              <span
-                key={i}
-                className={`block h-1.5 cursor-pointer rounded-full transition-all ${
-                  activeIndex === i 
-                    ? "w-8 sm:w-10 bg-white" 
-                    : "w-3 sm:w-4 bg-white/50 hover:bg-white/70"
-                }`}
-                onClick={() => setActiveIndex(i)}
-              />
-            ))}
-          </div>
-        )}
-      >
-        {images.map((image, index) => (
-          <Link
-            key={index}
-            href={centerCarouselAds[0]?.link || "#"}
-            className="block w-full h-full relative overflow-hidden"
-            aria-label={`Promotion banner ${index + 1}`}
-          >
-            <div className="relative w-full aspect-[16/9] transform transition-transform duration-700 hover:scale-105">
-              <Image
-                src={image}
-                alt={`Promotion banner ${index + 1}`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 80vw"
-                priority={index === 0}
-                className="object-cover transition-opacity duration-300"
-                loading={index === 0 ? "eager" : "lazy"}
-                quality={90}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-          </Link>
-        ))}
-      </Carousel>
-    </div>
-  );
-};
+    <div
+      className="group relative w-full overflow-hidden rounded-2xl shadow-lg transition-shadow hover:shadow-xl"
+      onMouseEnter={() => setIsAutoPlaying(false)}
+      onMouseLeave={() => setIsAutoPlaying(true)}
+    >
+      <Link href={firstAdLink} className="block" prefetch={true}>
+        <div className="relative aspect-[16/9] bg-muted">
+          {/* Main visible image */}
+          <Image
+            src={images[currentIndex] || "/placeholder.svg"}
+            alt={`Advertisement ${currentIndex + 1}`}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            quality={90}
+            priority={true}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+            loading="eager"
+            fetchPriority="high"
+            onLoad={() => setImageLoaded({ ...imageLoaded, [currentIndex]: true })}
+          />
 
-export default memo(AdsCarousel);
+          {/* Preload next image invisibly */}
+          {images.length > 1 && (
+            <>
+              <Image
+                src={images[(currentIndex + 1) % images.length]}
+                alt="Preload next"
+                fill
+                className="hidden"
+                quality={90}
+                priority={currentIndex === 0}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+              />
+              {/* Preload previous image invisibly */}
+              <Image
+                src={images[(currentIndex - 1 + images.length) % images.length]}
+                alt="Preload previous"
+                fill
+                className="hidden"
+                quality={90}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+              />
+            </>
+          )}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+
+          {images.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    goToSlide(index)
+                  }}
+                  className={`h-2 rounded-full transition-all ${index === currentIndex ? "w-8 bg-white shadow-lg" : "w-2 bg-white/60 hover:bg-white/80"
+                    }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  prevSlide()
+                }}
+                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
+                aria-label="Previous slide"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  nextSlide()
+                }}
+                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
+                aria-label="Next slide"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
+      </Link>
+    </div>
+  )
+}
+
+export default AdsCarousel

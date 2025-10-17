@@ -3,15 +3,20 @@ import { useAllProductViewStore, useSidebarStore } from "@/app/store/zustand";
 import { SEARCH_PRODUCTS_QUERY } from "@/graphql/queries";
 import { useLazyQuery } from "@apollo/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import { FaFilter } from "react-icons/fa";
-import ProductBox from "../../../components/ProductBox/ProductBox";
-import CollectionToolbar from "../components/CollectionToolbar";
-import LoadingDots from "../components/LoadingDots";
-import CategoryHeader from "../components/CategoryHeader";
-import LoadingOverlay from "../components/LoadingOverlay";
-import ErrorDisplay from "../components/ErrorDisplay";
-import EmptyState from "../components/EmptyState";
+import dynamic from "next/dynamic";
+
+const ProductBox = dynamic(() => import("../../../components/ProductBox/ProductBox"), {
+  loading: () => <div className="animate-pulse bg-gray-200 rounded-2xl h-96" />
+});
+
+const CollectionToolbar = dynamic(() => import("../components/CollectionToolbar"));
+const CategoryHeader = dynamic(() => import("../components/CategoryHeader"));
+const LoadingOverlay = dynamic(() => import("../components/LoadingOverlay"));
+const ErrorDisplay = dynamic(() => import("../components/ErrorDisplay"));
+const EmptyState = dynamic(() => import("../components/EmptyState"));
+const LoadingDots = dynamic(() => import("../components/LoadingDots"));
 
 // Types
 interface Product {
@@ -38,42 +43,45 @@ interface SearchProductsResult {
 
 interface ProductsSectionProps {
   userData: any;
+  initialData?: {
+    products: Product[];
+    totalCount: number;
+    currentPage: number;
+    hasMore: boolean;
+    categoryDescription: string;
+  } | null;
 }
 
 // Constants
 const PAGE_SIZE = 12;
 const INTERSECTION_MARGIN = '200px';
 const INTERSECTION_THRESHOLD = 0.1;
-const SCROLL_STORAGE_KEY = 'products_scroll_position';
-const PARAMS_STORAGE_KEY = 'products_current_params';
 
-const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
+const ProductsSection: React.FC<ProductsSectionProps> = ({ userData, initialData }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { view } = useAllProductViewStore();
-  const [searchProducts] = useLazyQuery<SearchProductsResult>(SEARCH_PRODUCTS_QUERY);
+  const [searchProducts] = useLazyQuery<SearchProductsResult>(SEARCH_PRODUCTS_QUERY, {
+    fetchPolicy: 'cache-first', 
+  });
   const { toggleOpenSidebar } = useSidebarStore();
 
-  // State management
+  // State management - simplified
   const [state, setState] = useState({
-    categoryDescription: "",
-    productsData: [] as Product[],
-    totalCount: 0,
-    currentPage: Number(searchParams?.get("page")) || 1,
+    categoryDescription: initialData?.categoryDescription || "",
+    productsData: (initialData?.products as Product[]) || [],
+    totalCount: initialData?.totalCount || 0,
+    currentPage: initialData?.currentPage || Number(searchParams?.get("page")) || 1,
     isLoading: false,
-    hasMore: true,
+    hasMore: typeof initialData?.hasMore === 'boolean' ? initialData?.hasMore : true,
     error: false,
-    isInitialLoad: true,
+    isInitialLoad: !(initialData && initialData.products?.length > 0),
   });
 
   const lastProductRef = useRef<HTMLDivElement | null>(null);
   const prevParamsRef = useRef<string>("");
   const currentPageRef = useRef(state.currentPage);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isRestoringScrollRef = useRef(false);
-  const hasRestoredScrollRef = useRef(false);
 
   // Update current page ref when state changes
   useEffect(() => {
@@ -109,105 +117,14 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
     );
   }, [searchParameters]);
 
-  // Generate unique key for current search context
-  const searchContextKey = useMemo(() => {
-    const params = { ...searchParameters, sort: searchParams?.get("sort") };
-    return JSON.stringify(params);
-  }, [searchParameters, searchParams]);
-
-  // Save scroll position periodically
-  const saveScrollPosition = useCallback(() => {
-    if (typeof window !== 'undefined' && !isRestoringScrollRef.current) {
-      const scrollData = {
-        position: window.scrollY,
-        timestamp: Date.now(),
-        contextKey: searchContextKey,
-        page: currentPageRef.current,
-      };
-      sessionStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(scrollData));
-    }
-  }, [searchContextKey]);
-
-  // Throttled scroll save
-  useEffect(() => {
-    const handleScroll = () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      scrollTimeoutRef.current = setTimeout(saveScrollPosition, 150);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, [saveScrollPosition]);
-
-  // Restore scroll position
-  const restoreScrollPosition = useCallback(() => {
-    if (typeof window === 'undefined' || hasRestoredScrollRef.current) return;
-
-    try {
-      const savedScrollData = sessionStorage.getItem(SCROLL_STORAGE_KEY);
-      const savedParams = sessionStorage.getItem(PARAMS_STORAGE_KEY);
-
-      if (savedScrollData && savedParams) {
-        const scrollData = JSON.parse(savedScrollData);
-
-        // Check if we're returning to the same search context
-        const isSameContext = scrollData.contextKey === searchContextKey;
-        const isSamePage = scrollData.page === state.currentPage;
-        const isRecentScroll = Date.now() - scrollData.timestamp < 300000;
-
-        if (isSameContext && isSamePage && isRecentScroll && scrollData.position > 0) {
-          isRestoringScrollRef.current = true;
-          hasRestoredScrollRef.current = true;
-
-          // Use requestAnimationFrame to ensure DOM is ready
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              window.scrollTo({
-                top: scrollData.position,
-                behavior: 'auto'
-              });
-
-              // Reset flag after scroll
-              setTimeout(() => {
-                isRestoringScrollRef.current = false;
-              }, 100);
-            }, 50);
-          });
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to restore scroll position:', error);
-    }
-  }, [searchContextKey, state.currentPage]);
-
-  // Save current params before navigation
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(PARAMS_STORAGE_KEY, JSON.stringify({
-          contextKey: searchContextKey,
-          timestamp: Date.now()
-        }));
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [searchContextKey]);
-
-  // Update URL with current page
+  // Update URL with current page - using startTransition for non-urgent updates
   const updateURL = useCallback((page: number) => {
-    const newSearchParams = new URLSearchParams(searchParams?.toString());
-    newSearchParams.set("page", page.toString());
-    const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
-    router.push(newUrl, { scroll: false });
+    startTransition(() => {
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
+      newSearchParams.set("page", page.toString());
+      const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
+      router.push(newUrl, { scroll: false });
+    });
   }, [router, searchParams]);
 
   // Optimized state update function
@@ -215,7 +132,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
     setState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  // Enhanced fetch products function
+  // Simplified fetch products function - removed scroll restoration complexity
   const fetchProducts = useCallback(async (pageToFetch: number, shouldAppend = false) => {
     if (state.isLoading || (!state.hasMore && shouldAppend)) return;
 
@@ -256,16 +173,10 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
           : state.categoryDescription,
         error: false,
         isInitialLoad: false,
+        isLoading: false,
       });
 
       updateURL(pageToFetch);
-
-      // Restore scroll position after initial load or page change
-      if (!shouldAppend) {
-        setTimeout(() => {
-          restoreScrollPosition();
-        }, 100);
-      }
 
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -273,15 +184,13 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
         error: true,
         hasMore: false,
         isInitialLoad: false,
+        isLoading: false,
       });
-    } finally {
-      updateState({ isLoading: false });
     }
-  }, [searchProducts, searchParameters, state.productsData, state.isLoading, state.hasMore, state.categoryDescription, updateState, updateURL, restoreScrollPosition]);
+  }, [searchProducts, searchParameters, state.productsData, state.isLoading, state.hasMore, state.categoryDescription, updateState, updateURL]);
 
   // Optimized intersection observer
   useEffect(() => {
-    // Clean up previous observer
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
@@ -289,7 +198,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
-        if (firstEntry?.isIntersecting && state.hasMore && !state.isLoading && !isRestoringScrollRef.current) {
+        if (firstEntry?.isIntersecting && state.hasMore && !state.isLoading) {
           const nextPage = currentPageRef.current + 1;
           fetchProducts(nextPage, true);
         }
@@ -307,9 +216,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
     }
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+      observerRef.current?.disconnect();
     };
   }, [state.hasMore, state.isLoading, fetchProducts]);
 
@@ -319,9 +226,6 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
     const paramsString = JSON.stringify(currentParams);
 
     if (prevParamsRef.current !== paramsString) {
-      // Reset scroll restoration flag for new search
-      hasRestoredScrollRef.current = false;
-
       updateState({
         productsData: [],
         currentPage: 1,
@@ -335,15 +239,6 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
       prevParamsRef.current = paramsString;
     }
   }, [searchParameters, searchParams, fetchProducts, updateState]);
-
-  // Clean up old scroll data on unmount
-  useEffect(() => {
-    return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Memoized grid classes
   const gridClasses = useMemo(() => {
@@ -364,8 +259,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
   const shouldShowProducts = state.productsData.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50" ref={containerRef}>
-      {/* Loading overlay */}
+    <div className="min-h-screen bg-gray-50">
       {state.isLoading && state.productsData.length === 0 && <LoadingOverlay />}
 
       <div className="container mx-auto py-8">
@@ -396,14 +290,13 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData }) => {
           shouldShowEmptyState && <EmptyState />
         )}
 
-        {/* Mobile Filter Button */}
         {(hasActiveSearchParams || shouldShowProducts) && (
           <button
             onClick={toggleOpenSidebar}
             className="fixed bottom-24 left-1/2 -translate-x-1/2 md:hidden
                      bg-primaryColor text-white px-6 py-3 rounded-full shadow-lg
                      transition-all hover:shadow-xl
-                     flex items-center gap-2 font-medium "
+                     flex items-center gap-2 font-medium"
             aria-label="Ouvrir les filtres"
           >
             <FaFilter className="w-4 h-4" />

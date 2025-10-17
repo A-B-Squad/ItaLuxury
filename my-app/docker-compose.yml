@@ -1,71 +1,50 @@
-version: "3.8" # Docker Compose file format version
-
 services:
   db: # PostgreSQL database service
-    image: postgres:17 # Docker image for PostgreSQL version 16
+    image: postgres:17-alpine
     ports:
-      - "5432:5432" # Port mapping for accessing PostgreSQL externally
-    volumes:
-      - postgres_data:/var/lib/postgresql/data # Using named volume instead of bind mount
+      - "5432:5432" # Expose PostgreSQL port
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    env_file:
-      - .env
+      POSTGRES_DB: "itaLuxury"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "root"
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
-      interval: 10s
-      timeout: 5s
       retries: 5
 
-  client-dev:
-    depends_on:
-      - db
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+  pgadmin4:
+    image: elestio/pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "4000:4000"
-    develop:
-      watch:
-        - path: ./package.json
-          action: rebuild
-        - path: ./next.config.mjs
-          action: rebuild
-        - path: ./package-lock.json
-          action: rebuild
-        - path: ./.env
-          action: rebuild
-        - path: .
-          target: /graphql
-          action: sync
-        - path: .
-          target: /app
-          action: sync
-        - path: .
-          target: /componants
-          action: sync
-    env_file:
-      - .env
-    volumes:
-      - ./:/app
-      - /app/node_modules
+      - "8080:80" # Access pgAdmin at http://localhost:8080
 
-  client-prod:
+  app:
+    container_name: nextjs_app
     depends_on:
       db:
         condition: service_healthy
     build:
-      context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./data:/app/data
     ports:
-      - "3000:3000" # Changed to match the EXPOSE in your Dockerfile
+      - "4000:4000"
+    # develop:
+    #   watch:
+    #     - path: ./package.json
+    #       action: rebuild
+    #     - path: ./next.config.mjs
+    #       action: rebuild
+    #     - path: .
+    #       target: /graphql
+    #       action: sync
+    #     - path: .
+    #       target: /app
+    #       action: sync
+    #     - path: .
+    #       target: /componants
+    #       action: sync
     env_file:
-      - .env
-    restart: always
-
-volumes:
-  postgres_data: 
-    driver: local
+      - .env.development

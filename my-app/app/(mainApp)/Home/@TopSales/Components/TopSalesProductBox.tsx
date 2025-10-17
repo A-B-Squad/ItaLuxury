@@ -1,25 +1,18 @@
 "use client";
-import React, { useState, useCallback, memo } from "react";
-import { useMutation, useQuery } from "@apollo/client";
-import { BASKET_QUERY } from "@/graphql/queries";
-import Image from "next/image";
 
+import { useState } from "react";
+import { useMutation } from "@apollo/client";
+import Image from "next/image";
 import Link from "next/link";
 import { FaBasketShopping } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa";
-import {
-  useBasketStore,
-  useProductDetails,
-  useProductsInBasketStore,
-} from "@/app/store/zustand";
+import { useBasketStore, useProductDetails, useProductsInBasketStore } from "@/app/store/zustand";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import { useToast } from "@/components/ui/use-toast";
 import triggerEvents from "@/utlils/events/trackEvents";
-
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
-import { motion } from "framer-motion";
 
 const TopSalesProductBox = ({ product, userData }: any) => {
   const { toast } = useToast();
@@ -27,31 +20,21 @@ const TopSalesProductBox = ({ product, userData }: any) => {
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
   const { openProductDetails } = useProductDetails();
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const { products, addProductToBasket, increaseProductInQtBasket } = useProductsInBasketStore();
 
-  const {
-    products,
-    addProductToBasket,
-    increaseProductInQtBasket,
-  } = useProductsInBasketStore();
-
-  // Calculate price once to avoid recalculations
-  const price = product.productDiscounts.length > 0
-    ? product.productDiscounts[0].newPrice
-    : product.price;
-
+  // Calculate product data
+  const price = product.productDiscounts.length > 0 ? product.productDiscounts[0].newPrice : product.price;
   const formattedPrice = price.toFixed(3);
   const isDiscounted = product.productDiscounts.length > 0;
   const originalPrice = isDiscounted ? product.productDiscounts[0].price.toFixed(3) : null;
   const isOutOfStock = product.inventory <= 0;
-
-  // Calculate discount percentage if applicable
   const discountPercentage = isDiscounted
     ? Math.round(((product.productDiscounts[0].price - product.productDiscounts[0].newPrice) / product.productDiscounts[0].price) * 100)
     : 0;
 
-  const AddToBasket = useCallback(async () => {
+  const AddToBasket = async () => {
     if (isOutOfStock) return;
 
     // Analytics data
@@ -67,11 +50,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
         content_name: product.name,
         content_type: "product",
         content_ids: [product.id],
-        contents: [{
-          id: product.id,
-          quantity: 1,
-          item_price: price
-        }],
+        contents: [{ id: product.id, quantity: 1, item_price: price }],
         value: price,
         currency: "TND",
       },
@@ -84,12 +63,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
       ecommerce: {
         currency: "TND",
         value: price,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          quantity: 1,
-          price: price
-        }]
+        items: [{ item_id: product.id, item_name: product.name, quantity: 1, price: price }]
       },
       user_data: analyticsData.user_data,
       facebook_data: {
@@ -98,7 +72,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
       }
     });
 
-    // Add to basket based on authentication status
+    // Add to basket
     if (isAuthenticated) {
       try {
         await addToBasket({
@@ -109,13 +83,6 @@ const TopSalesProductBox = ({ product, userData }: any) => {
               productId: product.id,
             },
           },
-          refetchQueries: [
-            {
-              query: BASKET_QUERY,
-              variables: { userId: decodedToken?.userId },
-
-            },
-          ],
         });
       } catch (error) {
         console.error("Error adding to basket:", error);
@@ -141,21 +108,19 @@ const TopSalesProductBox = ({ product, userData }: any) => {
       }
     }
 
-    // Update basket state and show notification
     toggleIsUpdated();
     toast({
       title: "Notification de Panier",
       description: `Le produit "${product?.name}" a été ajouté au panier.`,
       className: "bg-primaryColor text-white",
     });
-  }, [product, price, isAuthenticated, decodedToken, userData, isOutOfStock]);
+  };
 
   return (
-    <motion.div
-      className="flex font-medium text-gray-900 w-full relative group bg-white rounded-lg p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
-      whileHover={{ y: -5 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+    <div
+      className={`flex font-medium text-gray-900 w-full relative group bg-white rounded-lg p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 ${isHovered ? '-translate-y-1' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="w-full flex gap-4 items-center">
         <div className="relative h-28 w-28 overflow-hidden rounded-md bg-gray-50 flex-shrink-0">
@@ -178,17 +143,14 @@ const TopSalesProductBox = ({ product, userData }: any) => {
           <Image
             src={product.images[0]}
             alt={product.name}
-            fill={true}
+            fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             style={{ objectFit: "contain" }}
             className="transition-transform duration-500 group-hover:scale-110"
           />
 
-          <motion.div
-            className="absolute bottom-0 left-0 right-0 flex justify-center gap-2 p-1 z-20"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-            transition={{ duration: 0.2 }}
+          <div
+            className={`absolute bottom-0 left-0 right-0 flex justify-center gap-2 p-1 z-20 transition-all duration-200 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
           >
             <button
               type="button"
@@ -209,14 +171,14 @@ const TopSalesProductBox = ({ product, userData }: any) => {
             >
               <FaRegEye size={16} />
             </button>
-          </motion.div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 flex-grow">
           <Link
             className="hover:text-primaryColor text-base font-medium transition-all cursor-pointer"
             title={product.name}
-            href={`/products/tunisie?productId=${product.id}`}
+            href={`/products/tunisie?slug=${product.slug}`}
           >
             <h3 className="text-left line-clamp-2 leading-tight">{product.name}</h3>
           </Link>
@@ -254,7 +216,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
             <div className="mt-1">
               <span className="text-green-600 text-xs font-medium flex items-center">
                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                 </svg>
                 Livraison gratuite
               </span>
@@ -273,9 +235,8 @@ const TopSalesProductBox = ({ product, userData }: any) => {
           productName={product?.name}
         />
       </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default React.memo(TopSalesProductBox);
-
+export default TopSalesProductBox;

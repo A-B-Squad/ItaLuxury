@@ -148,7 +148,7 @@ const PurchaseOptions = ({ companyData }: any) => {
 
                                     <div className="mt-auto pt-3">
                                         <Link
-                                            href={`/products/tunisie?productId=${productData?.id}`}
+                                            href={`/products/tunisie?slug=${productData?.slug}`}
                                             className="text-primaryColor hover:underline text-sm"
                                             onClick={handleClose}
                                         >

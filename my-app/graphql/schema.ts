@@ -73,7 +73,7 @@ type Category {
   parentId: String
   parent: Category
   products: [Product!]!
-  subcategories: [Category!]!
+  subcategories: [Category!]
   bigImage: String
   smallImage: String
   description: String
@@ -94,6 +94,7 @@ type MainCategory {
 type Product {
   id: ID!
   name: String
+  slug: String
   price: Float
   purchasePrice: Float
   isVisible: Boolean
@@ -394,6 +395,40 @@ type PackagePaginationResult {
   pagination: PaginationInfo!
 }
 
+type PackageExportResult {
+  packages: [ExportPackage!]!
+  pagination: PaginationInfo!
+}
+
+
+type ExportPackage {
+  id: ID!
+  customId: String
+  createdAt: String!
+  status: Status!
+  Checkout: CheckoutExportInfo
+}
+
+type CheckoutExportInfo {
+  userId: String
+  userName: String
+  phone: [String!]!
+  total: Float
+  freeDelivery: Boolean
+  paymentMethod: PaymentMethod
+}
+
+
+
+type CheckoutInfo {
+  userId: String
+  userName: String
+  phone: [String]  
+  total: Float
+  freeDelivery: Boolean
+  paymentMethod: String
+}
+
 type SearchResults {
   products: [Product!]!
   categories: [Category!]!
@@ -428,20 +463,20 @@ type Query {
   colors(limit: Int): [Colors!]!
   productsLessThen20(limit: Int): [Product!]!
   productsByCategory(categoryName: String!, limit: Int): [Product!]!
-  productById(id: ID!): Product!
+  getProductBySlug(slug: String!): Product!
   getProductImages(productId: String!, colorId: String!): [String!]!
   getAllProductGroups: [GroupProductVariant!]
+  
+  # Automatic discount deletion
+  deleteAutoProductDiscount: String!
 
   # Category-related queries
-  categories: [MainCategory!]!
   fetchMainCategories: [MainCategory!]!
-  subcategoriesByParentId(parentId: ID!): [Category!]!
   categoryById(categoryId: String!): Category!
 
   # Basket and discount queries
   basketByUserId(userId: ID!): [Basket!]!
   fetchAllBasket: [Basket!]!
-  productDiscount(productId: ID!): ProductDiscount!
   productsDiscounts(limit: Int): [Product!]!
 
   # Review and favorite queries
@@ -469,11 +504,13 @@ type Query {
   packageById(packageId: ID!): Package
   packageByUserId(userId: ID!): [Package!]!
   getAllPackages(page: Int, pageSize: Int, searchTerm: String, dateFrom: String, dateTo: String, statusFilter: [String]): PackagePaginationResult!
+  GetAllPackagesForExport(searchTerm: String, dateFrom: String, dateTo: String, statusFilter: [String]): PackageExportResult!
+
+
   companyInfo: CompanyInfo!
   allContactUs: [ContactUs!]!
 
-  # Automatic discount deletion
-  deleteAutoProductDiscount: String!
+
 }
 
 # Mutation type
@@ -504,7 +541,7 @@ type Mutation {
 
   # Product-related mutations
   createProduct(input: ProductInput!): String!
-  updateProduct(productId: ID!, input: ProductInput!): String!
+  updateProduct(slug: String!, input: ProductInput!): String!
   deleteProduct(productId: ID!): String!
   createGroupProductVariant(input: CreateGroupProductVariantInput!): GroupProductVariant!
   updateGroupProductVariant(input: UpdateGroupProductVariantInput!): String!

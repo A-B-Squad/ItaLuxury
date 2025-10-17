@@ -73,6 +73,7 @@ export const BASKET_QUERY = gql`
       Product {
         id
         name
+        slug
         price
         images
         inventory
@@ -102,10 +103,12 @@ export const TAKE_16_PRODUCTS_BY_CATEGORY = gql`
     productsByCategory(categoryName: $categoryName, limit: $limit) {
       id
       name
+      slug
       price
       reference
       description
       createdAt
+      updatedAt
       inventory
       images
       categories {
@@ -141,10 +144,12 @@ export const TAKE_14_PRODUCTS_PRICE_20 = gql`
     productsLessThen20(limit: $limit) {
       id
       name
+      slug
       price
       reference
       description
       createdAt
+      updatedAt
       inventory
       images
       categories {
@@ -189,10 +194,12 @@ export const TOP_DEALS = gql`
       product {
         id
         name
+        slug
         price
         reference
         description
         createdAt
+        updatedAt
         inventory
         images
         technicalDetails
@@ -241,29 +248,12 @@ export const ADVERTISSMENT_QUERY = gql`
     }
   }
 `;
-export const CATEGORIES_QUERY = `
-  query Categories {
-    categories {
-      id
+export const CATEGORIES_QUERY_NOGQL = `
+   query FetchMainCategories {
+    fetchMainCategories {
+     id
       name
-      subcategories {
-        id
-        name
-        parentId
-        subcategories {
-          id
-          name
-          parentId
-        }
-      }
-    }
-  }
-`;
-export const CATEGORY_QUERY = gql`
-  query Categories {
-    categories {
-      id
-      name
+      bigImage
       smallImage
       subcategories {
         id
@@ -277,21 +267,32 @@ export const CATEGORY_QUERY = gql`
           smallImage
         }
       }
-    }
+      }
   }
 `;
+
 export const MAIN_CATEGORY_QUERY = gql`
   query FetchMainCategories {
-    fetchMainCategories {
+  fetchMainCategories {
+    id
+    name
+    bigImage
+    smallImage
+    subcategories {
       id
       name
-      bigImage
+      parentId
       smallImage
       subcategories {
         id
+        name
+        parentId
+        smallImage
       }
     }
   }
+}
+
 `;
 
 export const SEARCH_PRODUCTS_QUERY = gql`
@@ -301,6 +302,7 @@ export const SEARCH_PRODUCTS_QUERY = gql`
         products {
           id
           name
+          slug
           price
           isVisible
           reference
@@ -309,26 +311,57 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           solde
           images
           createdAt
+          updatedAt
           categories {
             id
             name
             description
-            subcategories {
-              id
-              name
-              parentId
-              subcategories {
-                id
-                name
-                parentId
-              }
-            }
           }
-          Colors {
+        
+          productDiscounts {
+            price
+            newPrice
+          }
+        }
+        categories {
+          id
+          name
+          description
+        }
+      }
+      totalCount
+      pagination {
+        currentPage
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+`;
+export const SEARCH_PRODUCTS_QUERY_NO_GQL = gql`
+  query SearchProducts($input: ProductSearchInput!) {
+    searchProducts(input: $input) {
+      results {
+        products {
+          id
+          name
+          slug
+          price
+          isVisible
+          reference
+          description
+          inventory
+          solde
+          images
+          createdAt
+          updatedAt
+          categories {
             id
-            color
-            Hex
+            name
+            description
           }
+        
           productDiscounts {
             price
             newPrice
@@ -359,6 +392,7 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
       Product {
         id
         name
+        slug
         price
         isVisible
         reference
@@ -367,6 +401,7 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
         solde
         images
         createdAt
+        updatedAt
         categories {
           id
           name
@@ -398,6 +433,7 @@ export const BEST_SALES_QUERY = gql`
       Product {
         id
         name
+        slug  
         images
         price
         description
@@ -460,6 +496,7 @@ export const GET_PACKAGES_BY_USER_ID = gql`
           productQuantity
           product {
             name
+            slug
           }
         }
       }
@@ -480,6 +517,7 @@ query PackageById($packageId: ID!) {
         productId
         productQuantity
         product {
+          slug
           name
         }
       }
@@ -499,6 +537,7 @@ export const ALL_BRANDS = `
     name
     logo
     product {
+      slug
       id
       categories {
         name
@@ -529,10 +568,12 @@ export const TAKE_14_PRODUCTS = gql`
     allNewProducts(limit: $limit, visibleProduct: $visibleProduct) {
       id
       name
+      slug
       price
       reference
       description
       createdAt
+      updatedAt
       inventory
       images
       categories {
@@ -569,10 +610,12 @@ export const TAKE_14_PRODUCTS_IN_DISCOUNT = gql`
     productsDiscounts(limit: $limit) {
       id
       name
+      slug
       price
       reference
       description
       createdAt
+      updatedAt
       inventory
       images
       categories {
@@ -611,17 +654,19 @@ export const COLORS_QUERY = `
     color
     Hex
     Product {
+      slug
       id
     }
   }
 }
 `;
 
-export const GET_PRODUCTS_BY_ID = `
- query ProductById($productByIdId: ID!) {
-    productById(id: $productByIdId) {
+export const GET_PRODUCTS_BY_SLUG = `
+query GetProductBySlug($slug: String!) {
+  getProductBySlug(slug: $slug) {
       id
       name
+      slug
       price
       isVisible
       reference
@@ -630,6 +675,7 @@ export const GET_PRODUCTS_BY_ID = `
       solde
       images
       createdAt
+      updatedAt
       categories {
         id
         name

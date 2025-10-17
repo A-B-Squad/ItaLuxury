@@ -10,24 +10,27 @@ interface Color {
 
 interface Product {
     id: string;
+    slug: string;
     name: string;
-    Colors: Color | null; // Single Color object
+    Colors: Color | null; 
 }
 
 interface ColorVariantsProps {
     currentProductId: string;
+    slug:string
     groupProductVariant?: {
         id: string;
         groupProductName: string;
         Products: Product[];
     };
-    currentColors: Color | null; // Single Color object
+    currentColors: Color | null; 
 }
 
 const ColorVariants = ({
     currentProductId,
     groupProductVariant,
     currentColors,
+    slug
 }: ColorVariantsProps) => {
     // Build color variants list
     let colorVariants: {
@@ -76,7 +79,7 @@ const ColorVariants = ({
                         // Other products
                         <Link
                             key={variant.productId}
-                            href={`/products/tunisie?productId=${variant.productId}`}
+                            href={`/products/tunisie?slug=${slug}`}
                             className="relative w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-400 cursor-pointer hover:scale-105 transition-all duration-200 block"
                             style={{ backgroundColor: variant.color?.Hex || "#ccc" }}
                             title={variant.color?.color || "Inconnue"}

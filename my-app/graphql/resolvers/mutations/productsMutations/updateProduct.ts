@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { Context } from "@apollo/client";
-import moment from "moment";
+import moment from "moment-timezone";
+import { revalidateTag } from "next/cache";
+import { generateUniqueSlug } from "@/app/Helpers/_slugify.ts";
 
 interface DiscountInput {
   newPrice: GLfloat;
@@ -51,7 +53,7 @@ const updateDiscounts = async (
 
 export const updateProduct = async (
   _: any,
-  { productId, input }: { productId: string; input: ProductInput },
+  { slug, input }: { slug: string; input: ProductInput },
   { prisma }: Context
 ): Promise<string> => {
   try {
@@ -77,40 +79,67 @@ export const updateProduct = async (
       id && typeof id === 'string' && id.trim() !== ''
     ) || [];
 
-    // Get current categories to disconnect
+    // Get current product data
     const currentProduct = await prisma.product.findUnique({
-      where: { id: productId },
-      select: { categories: { select: { id: true } } },
+      where: { slug },
+      select: {
+        id: true,
+        categories: { select: { id: true } },
+        isVisible: true,
+        inventory: true,
+        name: true
+      },
     });
+
+    if (!currentProduct) {
+      throw new Error("Product not found");
+    }
+
+    // Check if isVisible or inventory has changed
+    const isVisibilityChanged = isVisible !== undefined && isVisible !== currentProduct.isVisible;
+    const isInventoryChanged = inventory !== undefined && inventory !== currentProduct.inventory;
+    const shouldUpdateCreatedAt = isVisibilityChanged || isInventoryChanged;
+
+    // Generate new slug if name has changed
+    let ProductSlug: string | undefined;
+    if (name && name !== currentProduct.name) {
+      ProductSlug = await generateUniqueSlug(prisma, name, currentProduct.id);
+    }
 
     const currentCategoryIds = currentProduct?.categories.map((cat: any) => cat.id) || [];
 
+    // Build update data object conditionally
+    const updateData: any = {
+      name,
+      ...(ProductSlug && { slug: ProductSlug }),
+      price,
+      purchasePrice,
+      brandId: brandId || null,
+      isVisible,
+      reference,
+      description,
+      inventory,
+      colorsId,
+      technicalDetails,
+      images,
+      updatedAt: new Date().toISOString(),
+      // Only update createdAt if visibility or inventory changed
+      ...(shouldUpdateCreatedAt && { createdAt: new Date().toISOString() }),
+      categories: {
+        // First disconnect all current categories
+        disconnect: currentCategoryIds.map((id: string) => ({ id })),
+        // Then connect the new valid categories
+        ...(validCategories.length > 0 && {
+          connect: validCategories.map((categoryId) => ({ id: categoryId })),
+        }),
+      },
+      groupProductVariantId
+    };
+
     // Update the product with the provided data
     await prisma.product.update({
-      where: { id: productId },
-      data: {
-        name,
-        price,
-        purchasePrice,
-        brandId: brandId || null,
-        isVisible,
-        reference,
-        description,
-        inventory,
-        colorsId,
-        technicalDetails,
-        images,
-        updatedAt: new Date().toISOString(),
-        categories: {
-          // First disconnect all current categories
-          disconnect: currentCategoryIds.map((id: string) => ({ id })),
-          // Then connect the new valid categories
-          ...(validCategories.length > 0 && {
-            connect: validCategories.map((categoryId) => ({ id: categoryId })),
-          }),
-        },
-        groupProductVariantId
-      },
+      where: { slug: slug },
+      data: updateData,
       include: {
         categories: true,
         productDiscounts: true,
@@ -120,19 +149,20 @@ export const updateProduct = async (
     // Handle discounts
     if (discount && discount.length > 0) {
       // Update discounts if provided
-      await updateDiscounts(prisma, productId, price, discount);
+      await updateDiscounts(prisma, currentProduct.id, price, discount);
     } else {
       // Remove all existing discounts if no discount is provided
       const existingDiscounts = await prisma.productDiscount.findMany({
-        where: { productId },
+        where: { productId: currentProduct.id },
       });
 
       if (existingDiscounts.length > 0) {
         await prisma.productDiscount.deleteMany({
-          where: { productId },
+          where: { productId: currentProduct.id },
         });
       }
     }
+    revalidateTag('product');
 
     return "Product updated successfully";
   } catch (error: any) {

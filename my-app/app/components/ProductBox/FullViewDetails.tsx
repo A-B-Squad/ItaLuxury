@@ -24,7 +24,7 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
   const discountPrice = hasDiscount ? product.productDiscounts[0]?.newPrice : null;
 
   return (
-    <div className="  flex w-full justify-between items-start ">
+    <div className="  flex w-full flex-col md:flex-row justify-between items-start ">
       {/* Price Section */}
       <div className="PriceSection flex-1">
         {hasDiscount && discountPrice ? (
@@ -43,13 +43,11 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
         )}
       </div>
 
-      {/* Actions Section */}
-
 
       {/* Add to Cart Button */}
       <button
         onClick={() => onAddToBasket(product, 1)}
-        className="flex items-center justify-center w-9 h-9 bg-gray-100 hover:bg-blue-50 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        className="flex items-center justify-center w-full md:w-9 h-9 bg-gray-100 hover:bg-blue-50 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
         aria-label={`Add ${product.name} to basket`}
         title="Add to basket"
       >
@@ -62,4 +60,4 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
   );
 };
 
-export default FullViewDetails;
+export default React.memo(FullViewDetails);

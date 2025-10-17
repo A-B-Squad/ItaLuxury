@@ -11,6 +11,7 @@ export type SearchParamsProductSearch = {
 export interface ProductData {
     id: string;
     name: string;
+    slug: string;
     price: number;
     isVisible: boolean;
     images: string[];

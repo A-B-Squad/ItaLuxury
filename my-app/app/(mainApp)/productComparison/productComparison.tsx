@@ -218,7 +218,7 @@ const ProductComparison = ({ userData }: any) => {
 
                     <Link
                       className="relative mb-3 flex h-40 w-full overflow-hidden rounded-lg"
-                      href={`/products/tunisie?productId=${product.id}`}
+                      href={`/products/tunisie?slug=${product.slug}`}
                     >
                       <Image
                         className="object-contain w-full h-full"

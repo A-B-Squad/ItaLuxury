@@ -1,8 +1,6 @@
 import React from "react";
-import ForgotPassword from "./forgetPassword";
-
+import ForgotPassword from './forgetPassword';
 import { Metadata } from "next";
-import keywords from "@/public/scripts/keywords";
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -11,22 +9,21 @@ if (
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
 
+const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ?? "https://ita-luxury.com").replace(/\/$/, "");
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Mot de passe oublié - ita-luxury",
+  title: "Mot de passe oublié",
   description:
     "Récupérez votre mot de passe sur ita-luxury pour reprendre vos achats en ligne.",
-  keywords: keywords.join(","),
-
   openGraph: {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/ForgetPassword`,
+    url: `${baseUrl}/ForgetPassword`,
     type: "website",
     title: "Mot de passe oublié - ita-luxury",
     description:
       "Récupérez votre mot de passe sur ita-luxury pour reprendre vos achats en ligne.",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
+        url: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
         width: 1200,
         height: 630,
         alt: "ita-luxury",
@@ -34,12 +31,12 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "https://www.ita-luxury.com/ForgotPassword",
+    canonical: `${baseUrl}/ForgetPassword`,
   },
 };
 
-const Page = () => {
+const ForgotPasswordPage = () => {
   return <ForgotPassword />;
 };
 
-export default Page;
+export default ForgotPasswordPage;

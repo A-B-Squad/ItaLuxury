@@ -42,6 +42,12 @@ const CollectionToolbar: React.FC<TopBarProps> = ({ numberOfProduct }) => {
 
   const handleSortChange = useCallback(
     (selectedSort: string) => {
+      // Update local state immediately for UI responsiveness
+      setSelectedFilterQueries(prev => ({
+        ...prev,
+        sort: selectedSort
+      }));
+
       router.push(
         `/Collections/tunisie?${convertValidStringQueries({
           ...selectedFilterQueries,
@@ -61,7 +67,7 @@ const CollectionToolbar: React.FC<TopBarProps> = ({ numberOfProduct }) => {
 
   return (
     <motion.div
-      className="container w-full bg-white border-t border-b border-gray-200 shadow-sm"
+      className="container w-full bg-white sticky top-3 z-[999] border-t border-b border-gray-200 shadow-sm"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -100,9 +106,8 @@ const CollectionToolbar: React.FC<TopBarProps> = ({ numberOfProduct }) => {
           </div>
 
           <Select
-
+            value={selectedFilterQueries.sort || ""}
             onValueChange={handleSortChange}
-            defaultValue={selectedFilterQueries.sort}
           >
             <SelectTrigger className="w-[140px] md:w-[180px] h-9 text-xs md:text-sm border-gray-200 focus:ring-1 focus:ring-primaryColor">
               <SelectValue placeholder="Trier par" />

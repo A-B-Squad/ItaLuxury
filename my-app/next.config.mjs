@@ -2,10 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  optimizeFonts: true,
+
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+
+
 
   async headers() {
-    const developmentHosts = 'http://localhost:4000 http://localhost:4001';
-    const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
+    // const developmentHosts = 'http://localhost:3000 http://localhost:4001';
+    // const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
+    const allowedHosts = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN} ${process.env.NEXT_ALLOW_REQUEST_API_URL}`;
 
     return [
       {
@@ -66,56 +74,11 @@ const nextConfig = {
         ],
       },
       {
-        source: '/css/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: "/(.*).(js|css|png|jpg|svg|ico|woff2)$",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/firebase/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day
-          },
-        ],
-      },
-      {
-        source: '/js/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=2592000', // 30 days
-          },
-        ],
-      },
-      {
         source: '/:path*',
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts,
+            value: allowedHosts,
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -156,19 +119,22 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: `
-              default-src 'self' ${process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts};
+              default-src 'self' ${allowedHosts};
               script-src 'self' 'unsafe-inline' 'unsafe-eval' 
                 https://apis.google.com
                 https://accounts.google.com
+                https://maps.googleapis.com
+                https://maps.gstatic.com
                 https://www.google-analytics.com
                 https://www.googletagmanager.com
                 https://connect.facebook.net
                 https://konnect.network
-                https://embed.tawk.to
                 https://cdn.jsdelivr.net
                 https://cdnjs.cloudflare.com
                 https://ajax.googleapis.com
                 https://js.pusher.com
+                https://www.clarity.ms
+                https://scripts.clarity.ms
                 https://static.cloudflareinsights.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
@@ -177,37 +143,39 @@ const nextConfig = {
                 https://api.cloudinary.com;
               style-src 'self' 'unsafe-inline'
                 https://fonts.googleapis.com
-                https://embed.tawk.to
                 https://js.pusher.com
                 https://www.googletagmanager.com
+                https://www.clarity.ms
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
                 https://embeddable-explorer.cdn.apollographql.com
                 https://upload-widget.cloudinary.com;
               img-src 'self' data: https: http: blob:
                 https://apollo-server-landing-page.cdn.apollographql.com
-                https://res.cloudinary.com;
+                https://res.cloudinary.com
+                https://www.clarity.ms;
               font-src 'self' data:
                 https://fonts.gstatic.com
                 https://js.pusher.com
                 https://fonts.googleapis.com
-                https://embed.tawk.to
                 https://upload-widget.cloudinary.com;
               connect-src 'self' https: wss:
-                ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : productionHosts}
+                ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : allowedHosts}
                 https://apis.google.com
                 https://accounts.google.com
+                https://maps.googleapis.com
+                https://maps.gstatic.com
                 https://securetoken.googleapis.com
                 https://js.pusher.com
                 https://www.google-analytics.com
                 https://www.googletagmanager.com
                 https://connect.facebook.net
                 https://konnect.network
-                https://embed.tawk.to
                 https://cdn.jsdelivr.net
                 https://cdnjs.cloudflare.com
                 https://ajax.googleapis.com
                 https://www.ita-luxury.com/api/facebookApi
+                https://www.clarity.ms
                 https://static.cloudflareinsights.com
                 https://apollo-server-landing-page.cdn.apollographql.com
                 https://embeddable-sandbox.cdn.apollographql.com
@@ -218,7 +186,7 @@ const nextConfig = {
               frame-src 'self' https:
                 https://accounts.google.com
                 https://upload-widget.cloudinary.com
-                ${process.env.NODE_ENV === 'development' ? developmentHosts : productionHosts};
+                ${allowedHosts};
               manifest-src 'self'
                 https://apollo-server-landing-page.cdn.apollographql.com;
               object-src 'none';
@@ -245,6 +213,8 @@ const nextConfig = {
   },
 
   images: {
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: "http",
@@ -269,7 +239,7 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
-        port: "4000",
+        port: "3000",
         pathname: "**",
       },
       {

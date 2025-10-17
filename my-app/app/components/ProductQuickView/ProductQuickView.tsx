@@ -88,53 +88,41 @@ const ProductQuickView = ({ userData }: any) => {
       product.productDiscounts.length > 0
         ? product.productDiscounts[0].newPrice
         : product.price;
+        
     const addToCartData = {
-      user_data: {
-        em: [userData?.email?.toLowerCase()],
-        fn: [userData?.fullName],
-        ph: [userData?.number],
-        country: ["tn"],
-        external_id: userData.id,
+      eventName: "AddToCart",
+      user: {
+        email: userData?.email,
+        fullName: userData?.fullName,
+        phone: userData?.number,
+        country: "tn",
+        userId: userData?.id,
       },
-      custom_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        value: price * quantity,
-        currency: "TND",
+      product: {
+        id: product.id,
+        name: product.name,
+        price: price,
+        category: product.categories?.[0]?.name,
+        category2: product.categories?.[1]?.name,
+        category3: product.categories?.[2]?.name,
+        variant: product?.Colors?.color,
+        brand: product?.Brand?.name,
+        quantity: product.actualQuantity || product.quantity || 1,
+        description: product.description,
       },
+      currency: "TND",
+      contents: [
+        {
+          id: product.id,
+          quantity: product.actualQuantity || product.quantity || 1,
+          item_price: price,
+        },
+      ],
     };
-    const cartEventData = {
-      event: "add_to_cart",
-      ecommerce: {
-        currency: "TND",
-        value: price * quantity,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          quantity: quantity,
-          price: price
-        }]
-      },
-      // User data for both events
-      user_data: {
-        em: [userData?.email?.toLowerCase()],
-        fn: [userData?.fullName],
-        ph: [userData?.number],
-        country: ["tn"],
-        external_id: userData.id
-      },
-      // Facebook specific data
-      facebook_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        value: price * quantity,
-        currency: "TND"
-      }
-    };
-    triggerEvents("AddToCart", addToCartData);
-    sendGTMEvent(cartEventData);
+
+    // Send unified event - handles both Facebook and GTM
+    triggerEvents(addToCartData);
+
 
     if (isAuthenticated) {
       try {

@@ -9,6 +9,8 @@ import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 const Header = ({ userData, companyData }: any) => {
+
+
   const [showCategoryDropdown, setShowDropdown] = useState<boolean>(false);
   const [isFixed, setIsFixed] = useState<boolean>(false);
 
@@ -31,7 +33,10 @@ const Header = ({ userData, companyData }: any) => {
       >
         <div className="container mx-auto px-4 lg:px-8">
           <nav className="flex flex-col  relative w-full">
-            <TopHeader  />
+            <TopHeader
+              userData={userData}
+
+            />
             <BottomHeader
               isFixed={isFixed}
               setIsFixed={setIsFixed}

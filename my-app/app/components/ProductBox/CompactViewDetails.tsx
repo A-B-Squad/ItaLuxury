@@ -16,11 +16,10 @@ const CompactViewDetails: React.FC<CompactViewDetailsProps> = ({ product }) => (
           </div>
         )}
         <p
-          className={`${
-            product.productDiscounts.length > 0
-              ? "line-through text-base md:text-lg font-semibold text-gray-700"
-              : "text-primaryColor text-base md:text-md py-1"
-          } font-semibold`}
+          className={`${product.productDiscounts.length > 0
+            ? "line-through text-base md:text-lg font-semibold text-gray-700"
+            : "text-primaryColor text-base md:text-md py-1"
+            } font-semibold`}
         >
           {product.price.toFixed(3)} TND
         </p>
@@ -43,4 +42,4 @@ const CompactViewDetails: React.FC<CompactViewDetailsProps> = ({ product }) => (
     </div>
   </div>
 );
-export default CompactViewDetails;
+export default React.memo(CompactViewDetails);

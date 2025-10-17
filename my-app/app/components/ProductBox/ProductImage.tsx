@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useCallback, useMemo } from "react";
+import React,{ useState, useCallback, useMemo } from "react";
 import QuickActionButton from "./components/QuickActionButton";
 import { FaChevronDown, FaRegEye } from "react-icons/fa";
 import { IoGitCompare } from "react-icons/io5";
@@ -16,15 +16,29 @@ interface ProductImageProps {
   product: Product;
   onAddToBasket: (product: Product, quantity: number) => void;
   view: number;
+  priority?: boolean;
 }
+
+// Configuration constants
+const IMAGE_CONFIG = {
+  primaryQuality: 75,
+  secondaryQuality: 70,
+  listViewQuality: 70,
+} as const;
+
+const BLUR_DATA_URL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q==";
 
 const ProductImage: React.FC<ProductImageProps> = ({
   product,
   onAddToBasket,
   view,
+  priority = false,
 }) => {
   const { toast } = useToast();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
   const hasImages = useMemo(() => product.images.length > 0, [product.images]);
   const hasSecondImage = useMemo(
     () => product.images.length > 1,
@@ -32,7 +46,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
   );
 
   const { openProductDetails } = useProductDetails();
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const { addToComparison, comparisonList } = useProductComparisonStore();
 
   const primaryImageUrl = useMemo(() => {
@@ -45,30 +58,41 @@ const ProductImage: React.FC<ProductImageProps> = ({
     return product.images[1];
   }, [product.images, hasSecondImage]);
 
+  // Optimized sizes based on view type
+  const imageSizes = useMemo(() => {
+    if (view === 1) {
+      // List view - smaller images
+      return "(max-width: 640px) 128px, 160px";
+    }
+    // Grid view - responsive breakpoints
+    return "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 300px";
+  }, [view]);
+
   const onAddToCompare = useCallback(() => {
     const isProductAlreadyInCompare = comparisonList.some(
       (p: any) => p.id === product.id
     );
     if (!isProductAlreadyInCompare) {
       addToComparison(product);
-    } else {
       toast({
         title: "Produit ajouté à la comparaison",
         description: `Le produit "${product?.name}" a été ajouté à la comparaison.`,
         className: "bg-primaryColor text-white",
       });
     }
-  }, [product, comparisonList]);
+  }, [product, comparisonList, addToComparison, toast]);
 
   const handleImageLoad = useCallback(() => {
     setIsImageLoaded(true);
   }, []);
 
-  const [showActions, setShowActions] = useState(false);
-
   const toggleActionButtons = useCallback(() => {
     setShowActions(prev => !prev);
   }, []);
+
+  const isDiscounted = product.productDiscounts.length > 0 && product.inventory !== 0;
+
+  const productDetailsHref = useMemo(() => `/products/tunisie?slug=${product.slug}`, [product.slug]);
 
   return (
     <div className={`overflow-hidden relative w-full group
@@ -77,9 +101,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
       {/* Toggle button for action buttons */}
       <button
         onClick={toggleActionButtons}
-        className={`absolute ${product.productDiscounts.length > 0 && product.inventory !== 0
-            ? "top-9"
-            : "top-4"
+        className={`absolute ${isDiscounted ? "top-9" : "top-4"
           } right-[18px] z-40 bg-white hover:bg-secondaryColor text-black rounded-full w-7 h-7 flex items-center justify-center transition-all duration-300 shadow-md`}
         aria-label="Toggle action buttons"
       >
@@ -91,10 +113,10 @@ const ProductImage: React.FC<ProductImageProps> = ({
       </button>
 
       <Link
-        href={`/products/tunisie?productId=${product.id}`}
+        href={productDetailsHref}
         className="block w-full"
       >
-        {/*  aspect ratio container for professional look */}
+        {/* Aspect ratio container for professional look */}
         <div className={`
           relative w-full bg-gray-50 overflow-hidden rounded-t-lg
           ${view === 1
@@ -102,26 +124,32 @@ const ProductImage: React.FC<ProductImageProps> = ({
             : 'aspect-square'
           }
         `}>
+          {/* Loading placeholder */}
           {!isImageLoaded && (
-            <div className="absolute inset-0 bg-gray-50 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 animate-pulse">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+              </div>
+            </div>
           )}
 
+          {/* Primary Image */}
           {hasImages && (
             <Image
               src={primaryImageUrl}
               alt={product.name}
               fill
-              sizes={view === 1
-                ? "(max-width: 640px) 128px, 160px"
-                : "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-              }
+              sizes={imageSizes}
               style={{
                 objectFit: "cover",
                 objectPosition: "center"
               }}
-              quality={85}
-              priority={true}
+              quality={view === 1 ? IMAGE_CONFIG.listViewQuality : IMAGE_CONFIG.primaryQuality}
               onLoad={handleImageLoad}
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
+              priority={priority}
+              loading={priority ? "eager" : undefined}
               className={`
                 transition-opacity duration-300 
                 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}
@@ -131,27 +159,32 @@ const ProductImage: React.FC<ProductImageProps> = ({
             />
           )}
 
+          {/* Secondary Image (hover effect) */}
           {hasSecondImage && view !== 1 && (
             <Image
               src={secondaryImageUrl}
-              alt={`${product.name} - hover`}
+              alt={`${product.name} - vue alternative`}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+              sizes={imageSizes}
               style={{
                 objectFit: "cover",
                 objectPosition: "center"
               }}
-              quality={85}
+              quality={IMAGE_CONFIG.secondaryQuality}
+              loading="lazy"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-105"
             />
           )}
         </div>
       </Link>
 
+      {/* Action Buttons */}
       <ul
         className={`plus_button absolute h-fit flex flex-col ${view === 1
-            ? "right-0 top-2/4 -translate-y-2/4 flex-col"
-            : "right-4 top-16"
+          ? "right-0 top-2/4 -translate-y-2/4 flex-col"
+          : "right-4 top-16"
           } items-center justify-center ${showActions || view === 1 ? 'opacity-100' : 'lg:opacity-0'
           } ${view === 1 || !showActions ? 'invisible' : 'visible'
           } z-30 gap-2 transition-all duration-300`}
@@ -186,4 +219,4 @@ const ProductImage: React.FC<ProductImageProps> = ({
   );
 };
 
-export default ProductImage;
+export default React.memo(ProductImage);

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 const ContactFormSkeleton = () => {
     return (
@@ -20,5 +20,5 @@ const ContactFormSkeleton = () => {
         </div>
     );
 }
-export default ContactFormSkeleton
+export default memo(ContactFormSkeleton)
 

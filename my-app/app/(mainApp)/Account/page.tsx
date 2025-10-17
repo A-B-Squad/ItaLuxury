@@ -1,50 +1,51 @@
 import React from "react";
 import { Metadata } from "next";
-import keywords from "@/public/scripts/keywords";
 import Account from "./Account";
 import { cookies } from "next/headers";
 import { decodeToken } from "@/utlils/tokens/token";
 import { getUser } from "@/utlils/getUser";
+import { redirect } from "next/navigation";
 
-if (
-  !process.env.NEXT_PUBLIC_API_URL ||
-  !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
-) {
-  throw new Error("NEXT_PUBLIC_API_URL or BASE_URL_DOMAIN is not defined");
+if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
+  throw new Error("NEXT_PUBLIC_BASE_URL_DOMAIN is not defined");
 }
 
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Profile | ita-luxury - Votre boutique en ligne en Tunisie",
-  description:
-    "Finalisez votre achat en ligne avec ita-luxury. Profitez des meilleures offres et promotions sur nos produits de qualité en Tunisie.",
-  keywords: keywords.join(","),
-  openGraph: {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Account`,
-    type: "website",
-    title: "Profile | ita-luxury - Votre boutique en ligne en Tunisie",
-    description:
-      "Finalisez votre achat en ligne avec ita-luxury. Profitez des meilleures offres et promotions sur nos produits de qualité en Tunisie.",
-    images: [
-      {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
-        width: 1200,
-        height: 630,
-        alt: "ita-luxury",
-      },
-    ],
+  title: "Mon Compte",
+  description: "Gérez votre compte ita-luxury. Consultez vos commandes, adresses et informations personnelles.",
+  
+  robots: {
+    index: false,       
+    follow: false,       
+    noarchive: true,     
+    nosnippet: true,     
   },
-  alternates: {
-    canonical: "https://www.ita-luxury.com/Account",
-  },
-  robots: "index, follow",
+
 };
 
 const AccountPage = async () => {
-  const cookieStore = cookies()
-  const token = cookieStore.get('Token')?.value
-  const decodedUser = token ? decodeToken(token) : null;
-  const userData = await getUser(decodedUser?.userId);
+  const token = cookies().get('Token')?.value;
+  
+  // Redirect to login if no token
+  if (!token) {
+    redirect('/signin?redirect=/Account');
+  }
+
+  const decodedUser = decodeToken(token);
+  
+  // Redirect if token is invalid
+  if (!decodedUser?.userId) {
+    redirect('/signin?redirect=/Account');
+  }
+
+  const userData = await getUser(decodedUser.userId);
+  
+  // Redirect if user not found
+  if (!userData) {
+    redirect('/signin?redirect=/Account');
+  }
+
   return <Account userData={userData} />;
 };
 

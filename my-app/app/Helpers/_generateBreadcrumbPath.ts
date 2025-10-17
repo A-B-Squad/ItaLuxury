@@ -1,6 +1,6 @@
 import { fetchGraphQLData } from "@/utlils/graphql";
 import { SearchParamsProductSearch } from "../types";
-import { CATEGORIES_QUERY } from "@/graphql/queries";
+import { CATEGORIES_QUERY_NOGQL } from "@/graphql/queries";
 
 interface BreadcrumbItem {
     href: string;
@@ -44,13 +44,12 @@ export default async function generateBreadcrumbPath(searchParams: SearchParamsP
 
     if (searchParams.category) {
         try {
-            const { categories } = await fetchGraphQLData(CATEGORIES_QUERY);
-
-            if (!categories || categories.length === 0) {
-                throw new Error("Categories not found");
+            const { fetchMainCategories } = await fetchGraphQLData(CATEGORIES_QUERY_NOGQL);
+            if (!fetchMainCategories || fetchMainCategories.length === 0) {
+                throw new Error("fetchMainCategories not found");
             }
 
-            const categoryPath = findCategoryPath(categories, searchParams.category);
+            const categoryPath = findCategoryPath(fetchMainCategories, searchParams.category);
 
             // Only add categories if we found a valid path
             if (categoryPath.length > 0) {

@@ -5,9 +5,12 @@ export const fetchMainCategories = async (_: any, __: any, { prisma }: Context
     try {
         const categories = await prisma.category.findMany({
             where: { parentId: null },
-
             include: {
-                subcategories: true
+                subcategories: {
+                    include: {
+                        subcategories: true
+                    }
+                }
             }
         });
 

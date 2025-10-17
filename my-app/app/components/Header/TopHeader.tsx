@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FiCheck, FiClock, FiGift, FiHeart, FiTrendingUp, FiUser, FiX } from "react-icons/fi";
-import SearchBar from "./SearchBar";
+import LaptopSearchBar from "./LaptopSearchBar";
 import { PointTransaction, Voucher } from "@/app/types";
 import { formatDate } from "@/app/Helpers/_formatDate";
 import { useOutsideClick } from "@/app/Helpers/_outsideClick";
@@ -18,12 +18,9 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { useMutation, useQuery } from "@apollo/client";
 import { sendGTMEvent } from "@next/third-parties/google";
 import Image from "next/image";
-
 import { useForm } from "react-hook-form";
 import { GoPackageDependents } from "react-icons/go";
 import { IoBagHandleOutline, IoGitCompare } from "react-icons/io5";
-import { MdPointOfSale } from "react-icons/md";
-
 
 const TopHeader = ({ userData }: any) => {
   const { decodedToken, isAuthenticated, logout } = useAuth();
@@ -32,12 +29,18 @@ const TopHeader = ({ userData }: any) => {
   const { openBasketDrawer } = useDrawerBasketStore();
   const { comparisonList } = useProductComparisonStore();
 
+
+
   const {
     quantityInBasket,
     addMultipleProducts,
     setQuantityInBasket,
     clearBasket
   } = useProductsInBasketStore();
+
+
+
+
 
   const clickOutside = useOutsideClick(() => {
     setShowMenuUserMenu(false);
@@ -69,15 +72,12 @@ const TopHeader = ({ userData }: any) => {
     },
   });
 
-
   const { data: basketData, refetch: refetchBasket } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !isAuthenticated,
     fetchPolicy: "network-only",
   });
 
-
-  
   const updateBasketQuantity = useCallback(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       const basketProducts = basketData.basketByUserId.map((item: any) => ({
@@ -129,7 +129,6 @@ const TopHeader = ({ userData }: any) => {
   const onSubmit = (data: any) => {
     SignIn({ variables: { input: data } });
   };
-
 
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat('fr-FR').format(amount);
@@ -302,68 +301,74 @@ const TopHeader = ({ userData }: any) => {
   };
 
   return (
-    <div className="container hidden md:flex md:flex-row flex-col gap-3 py-4 justify-between items-center border-b border-gray-200">
-      <div className="logo-container hidden md:block relative w-full max-w-[180px] h-16 md:h-20 transition-all duration-300">
+    <div className="container hidden md:flex md:flex-row flex-col gap-6 py-5 justify-between items-center">
+      {/* Logo Section */}
+      <div className="logo-container hidden md:block relative w-full max-w-[200px] h-20 transition-all duration-300">
         <Link href="/" className="block w-full h-full">
           <div className="relative w-full h-full">
             <Image
               src={"/images/logos/LOGO.png"}
-              width={150}
-              height={150}
+              width={180}
+              height={80}
               style={{ objectFit: "contain" }}
               quality={100}
               priority={true}
               alt="ita-luxury"
-              className="transition-transform duration-300 transform-gpu hover:scale-[1.02]"
+              className="transition-transform w-full h-full duration-300 transform-gpu hover:scale-[1.02]"
             />
           </div>
         </Link>
       </div>
 
-      <div className="w-full max-w-xl">
-        <SearchBar />
+      {/* Search Bar */}
+      <div className="w-full max-w-2xl hidden lg:block">
+        <LaptopSearchBar />
       </div>
 
-      <div className="list md:flex items-center gap-6 relative cursor-pointer text-md hidden">
-        <ul className="flex items-center gap-6">
+      {/* Right Section - Actions */}
+      <div className="list md:flex items-center gap-8 relative cursor-pointer text-md hidden">
+        <ul className="flex items-center gap-8">
+          {/* Wishlist */}
+          <li className="group">
+            <Link
+              href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
+              onClick={() => {
+                if (!decodedToken || !decodedToken.userId) {
+                  alert("Veuillez vous connecter pour voir vos favoris.");
+                }
+              }}
+              className="flex flex-col items-center gap-1 hover:text-primaryColor transition-all"
+            >
+              <div className="relative p-2.5 rounded-full bg-gray-50 group-hover:bg-primaryColor/10 transition-colors">
+                <FiHeart className="text-gray-700 group-hover:text-primaryColor text-2xl transition-colors" />
+
+              </div>
+              <span className="text-xs font-medium text-gray-600 group-hover:text-primaryColor transition-colors">
+                Ma liste d'envies
+              </span>
+            </Link>
+          </li>
+
+          {/* User Menu */}
           <li className="userMenu relative group">
             <div
               onClick={() => setShowMenuUserMenu((prev) => !prev)}
-              className="flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+              className="flex flex-col items-center gap-1 cursor-pointer hover:text-primaryColor transition-all"
             >
-              <div className="p-2 rounded-full bg-gray-50 group-hover:bg-gray-100 transition-colors">
-                <FiUser className="text-gray-700" />
+              <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-primaryColor/10 transition-colors">
+                <FiUser className="text-gray-700 group-hover:text-primaryColor text-2xl transition-colors" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-500">
-                  {isAuthenticated ? 'Bonjour,' : 'Bienvenue'}
-                </span>
-                <span className="text-sm font-medium">
-                  {isAuthenticated
-                    ? userData?.fullName || 'Mon compte'
-                    : 'Votre Compte'
-                  }
-                </span>
-              </div>
-              {/* Points Display - Mobile */}
-              {isAuthenticated && (
-                <div className="px-4 pb-2">
-                  <Link
-                    href="/Account"
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-primaryColor/10 to-primaryColor/5 px-3 py-2 rounded-full hover:from-primaryColor/20 hover:to-primaryColor/10 transition-all duration-200 border border-primaryColor/20"
-                  >
-                    <MdPointOfSale className="text-lg text-primaryColor" />
-                    <span className="font-semibold text-primaryColor text-sm">
-                      {userData?.points || 0} points
-                    </span>
-                  </Link>
-                </div>
-              )}
+              <span className="text-xs font-medium text-gray-600 group-hover:text-primaryColor transition-colors">
+                {isAuthenticated ? userData?.fullName?.split(' ')[0] || 'Mon compte' : 'Guest'}
+              </span>
+              <span className="text-xs text-gray-500">
+                {isAuthenticated ? 'Mon compte' : 'Mon compte'}
+              </span>
             </div>
 
             <div
               ref={clickOutside}
-              className={`absolute w-96 border shadow-lg rounded-lg bg-white right-0 top-full mt-2 transition-all duration-200 z-[60] ${showLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2"
+              className={`absolute w-96 border shadow-xl rounded-lg bg-white right-0 top-full mt-2 transition-all duration-200 z-[60] ${showLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2"
                 }`}
             >
               {!isAuthenticated && (
@@ -458,14 +463,13 @@ const TopHeader = ({ userData }: any) => {
                       NEW CLIENT? SIGN UP
                     </Link>
                   </div>
-
                 </div>
               )}
 
               {isAuthenticated && (
                 <>
                   <div className="flex items-center gap-3 mb-4 p-4 pb-0">
-                    <div className="w-10 h-10 rounded-full bg-primaryColor/20 flex items-center justify-center text-primaryColor">
+                    <div className="w-10 h-10 rounded-full bg-primaryColor/20 flex items-center justify-center text-primaryColor font-bold text-lg">
                       {userData?.fullName?.charAt(0) || "U"}
                     </div>
                     <div>
@@ -474,7 +478,6 @@ const TopHeader = ({ userData }: any) => {
                     </div>
                   </div>
 
-                  {/* Tab Navigation */}
                   <div className="flex border-b border-gray-200">
                     <button
                       onClick={() => setActiveTab('account')}
@@ -514,7 +517,6 @@ const TopHeader = ({ userData }: any) => {
                     </button>
                   </div>
 
-                  {/* Tab Content */}
                   {activeTab === 'account' && (
                     <div className="p-4">
                       <div className="space-y-2">
@@ -586,19 +588,24 @@ const TopHeader = ({ userData }: any) => {
             </div>
           </li>
 
+          {/* Basket */}
           <li
             onClick={handleBasketClick}
             title="Votre Panier"
-            className="flex items-center gap-2 cursor-pointer hover:text-primaryColor transition-all"
+            className="flex flex-col items-center gap-1 cursor-pointer hover:text-primaryColor transition-all group"
           >
-            <div className="relative p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors">
-              <IoBagHandleOutline className="text-gray-700 text-2xl" />
+            <div className="relative p-2.5 rounded-full bg-gray-50 group-hover:bg-primaryColor/10 transition-colors">
+              <IoBagHandleOutline className="text-gray-700 group-hover:text-primaryColor text-2xl transition-colors" />
               {quantityInBasket > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
                   {quantityInBasket}
                 </span>
               )}
             </div>
+            <span className="text-xs font-medium text-gray-600 group-hover:text-primaryColor transition-colors">
+              Panier
+            </span>
+
           </li>
         </ul>
       </div>

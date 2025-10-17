@@ -4,23 +4,21 @@ import { useAuth } from '@/app/hooks/useAuth';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { GET_REVIEW_QUERY } from '@/graphql/queries';
-import triggerEvents from '@/utlils/events/trackEvents';
 import { getUserIpAddress } from '@/utlils/getUserIpAddress';
 import { useLazyQuery } from '@apollo/client';
-import { sendGTMEvent } from '@next/third-parties/google';
 import { memo, useEffect, useMemo, useState } from "react";
 import { FaBolt, FaPlus, FaRegHeart, FaRegStar, FaShareAlt, FaStar, FaStarHalfAlt, FaWhatsapp } from "react-icons/fa";
 import { GoAlertFill, GoGitCompare } from "react-icons/go";
 import { HiOutlineBellAlert } from "react-icons/hi2";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import { MdAddShoppingCart, MdOutlineInfo } from "react-icons/md";
+import { MdAddShoppingCart } from "react-icons/md";
 import { RiSubtractFill } from "react-icons/ri";
 import DiscountCountDown from "./DiscountCountDown";
-import OrderNowForm from "./OrderNow/OrderNowForm";
+import OrderNowForm from './Order/OrderNow/OrderNowForm';
 import ProductAttrMobile from "./ProductAttrMobile";
 import { GiShoppingBag } from 'react-icons/gi';
 import ColorVariants from './ColorVariants';
-
+import WhatsAppOrderForm from './Order/WhatsAppOrder/OrderNow/WhatsAppOrderForm ';
 interface Review {
   id: string;
   rating: number;
@@ -29,7 +27,6 @@ interface Review {
   productId: string;
   createdAt: string;
 }
-
 
 // Star rating component with proper typing
 const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: number }) => {
@@ -65,7 +62,9 @@ const ProductInfo = memo(({
   handleDecreaseQuantity,
   handleToggleFavorite,
   isProductInCompare,
-  addToCompare, userData, companyData
+  addToCompare,
+  userData,
+  companyData
 }: any) => {
   const { toast } = useToast();
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
@@ -74,7 +73,7 @@ const ProductInfo = memo(({
   const { decodedToken } = useAuth();
   const [whatsappButtonDisabled, setWhatsappButtonDisabled] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
-
+  const [isWhatsAppFormOpen, setIsWhatsAppFormOpen] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -91,8 +90,6 @@ const ProductInfo = memo(({
           const totalRating = data.productReview.reduce((sum: number, review: Review) => sum + review.rating, 0);
           const avgRating = totalReviews > 0 ? totalRating / totalReviews : 0;
           setAverageRating(avgRating);
-
-
         }
       } catch (error) {
         console.error("Error fetching reviews:", error);
@@ -104,8 +101,6 @@ const ProductInfo = memo(({
     }
   }, [getReviews, productDetails?.id]);
 
-
-  // Function to track WhatsApp purchase
   // Check IP-based cooldown on component mount
   useEffect(() => {
     const checkWhatsAppCooldown = async () => {
@@ -135,145 +130,8 @@ const ProductInfo = memo(({
     checkWhatsAppCooldown();
   }, [productDetails?.id]);
 
-  // Function to track WhatsApp purchase with IP-based cooldown
-  const trackWhatsAppPurchase = async () => {
-    try {
-      // Disable button immediately
-      setWhatsappButtonDisabled(true);
-
-      // Get user IP address
-      const userIp = await getUserIpAddress();
-
-      // Check if this IP has a cooldown in localStorage
-      if (userIp) {
-        const cooldownKey = `wa_cooldown_${userIp}_${productDetails.id}`;
-        const cooldownUntil = localStorage.getItem(cooldownKey);
-
-        if (cooldownUntil && parseInt(cooldownUntil) > Date.now()) {
-          // IP is in cooldown period
-          toast({
-            title: "Veuillez patienter",
-            description: "Vous pourrez commander à nouveau dans quelques secondes",
-            className: "bg-amber-500 text-white",
-          });
-
-          // Keep button disabled for remaining time
-          const timeRemaining = parseInt(cooldownUntil) - Date.now();
-          setTimeout(() => {
-            setWhatsappButtonDisabled(false);
-          }, timeRemaining);
-
-          return false;
-        }
-
-        // Set cooldown in localStorage with IP+product specific key
-        const newCooldownUntil = Date.now() + 10000; // 10 seconds
-        localStorage.setItem(cooldownKey, newCooldownUntil.toString());
-
-        // Set timeout to re-enable button
-        setTimeout(() => {
-          setWhatsappButtonDisabled(false);
-          localStorage.removeItem(cooldownKey);
-        }, 10000);
-      } else {
-        // If IP can't be determined, allow the order but still disable button briefly
-        setTimeout(() => setWhatsappButtonDisabled(false), 3000);
-      }
-
-      // Get user data from localStorage or use default values
-      const userName = localStorage.getItem('userName') || 'Unknown';
-      const userEmail = localStorage.getItem('userEmail') || 'unknown@example.com';
-      const userPhone = localStorage.getItem('userPhone') || '';
-      const governorate = localStorage.getItem('userGovernorate') || 'Tunis';
-
-      // Calculate total price
-      const totalPrice = discount ? discount.newPrice : productDetails.price;
-
-      // Generate a simple order ID for tracking
-      const orderId = `WA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-      // Track purchase event for Facebook Pixel
-      triggerEvents("Purchase", {
-        user_data: {
-          em: [userEmail.toLowerCase()],
-          fn: [userName],
-          ph: [userPhone],
-          country: ["tn"],
-          ct: governorate,
-          external_id: decodedToken?.userId,
-        },
-        custom_data: {
-          content_name: "WhatsAppOrder",
-          content_type: "product_group",
-          content_category: "Checkout",
-          currency: "TND",
-          value: parseFloat(totalPrice),
-          contents: [{
-            id: productDetails.id,
-            quantity: quantity
-          }],
-          num_items: quantity,
-        },
-      });
-
-      // Track purchase event for Google Tag Manager
-      sendGTMEvent({
-        event: "purchase",
-        ecommerce: {
-          currency: "TND",
-          value: parseFloat(totalPrice),
-          items: [
-            { id: productDetails.id, quantity: quantity }
-          ],
-          transaction_id: orderId,
-        },
-        user_data: {
-          em: [userEmail.toLowerCase()],
-          fn: [userName],
-          ph: [userPhone],
-          country: ["tn"],
-          ct: governorate,
-          external_id: decodedToken?.userId
-        },
-        facebook_data: {
-          content_name: "WhatsAppOrder",
-          content_type: "product_group",
-          content_category: "Checkout",
-          currency: "TND",
-          value: parseFloat(totalPrice),
-          contents: [{
-            id: productDetails.id,
-            quantity: quantity
-          }],
-          num_items: quantity,
-        }
-      });
-
-      // Show success toast
-      toast({
-        title: "Commande initiée",
-        description: "Votre commande WhatsApp a été enregistrée",
-        className: "bg-green-500 text-white",
-      });
-
-      return true; // Return true to indicate success
-    } catch (error) {
-      console.error('Error in WhatsApp purchase tracking:', error);
-      setWhatsappButtonDisabled(false);
-      return false; // Return false to indicate failure
-    }
-  };
-
-  // Get WhatsApp URL
-  const getWhatsAppUrl = () => {
-    if (typeof window !== 'undefined') {
-      return `https://wa.me/+21623212892?text=Je veux commander cet article: ${productDetails?.name} - ${window.location.href}`;
-    }
-    return `https://wa.me/+21623212892?text=Je veux commander cet article: ${productDetails?.name}`;
-  };
-
   // Handle WhatsApp button click
-  const handleClick = async (e: React.MouseEvent) => {
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
     if (whatsappButtonDisabled) {
@@ -285,11 +143,7 @@ const ProductInfo = memo(({
       return;
     }
 
-    const success = await trackWhatsAppPurchase();
-
-    if (success && typeof window !== 'undefined') {
-      window.location.href = getWhatsAppUrl();
-    }
+    setIsWhatsAppFormOpen(true);
   };
 
   const formattedPrice = useMemo(() =>
@@ -339,11 +193,9 @@ const ProductInfo = memo(({
     }
   };
 
-
-
   return (
-    <div className="productInfo lg:col-span-4 col-span-12 p-3 md:p-5 w-full bg-white rounded-lg shadow-sm">
-      <div className="flex flex-col justify-betwee border-b border-gray-200 pb-2">
+    <div className="productInfo relative grid- w-full  p-3 md:p-5 bg-white rounded-lg shadow-sm">
+      <div className="flex flex-col  border-b border-gray-200 pb-2">
         <div className="product-header ">
           <h1 className="product_name text-2xl  font-bold text-gray-900 leading-tight tracking-tight mb-2">
             {productDetails?.name}
@@ -354,8 +206,6 @@ const ProductInfo = memo(({
               SKU: {productDetails.reference}
             </p>
           )}
-
-
         </div>
 
         {/* Star Rating Display - only show if there are reviews */}
@@ -429,6 +279,7 @@ const ProductInfo = memo(({
 
       <div className="Infomation_Details ">
         <ColorVariants
+          slug={productDetails?.slug}
           currentProductId={productDetails?.id}
           groupProductVariant={productDetails?.GroupProductVariant}
           currentColors={productDetails?.Colors}
@@ -437,7 +288,7 @@ const ProductInfo = memo(({
           <div
             className="product-description text-base md:text-lg text-slate-700 tracking-wide leading-relaxed max-w-none"
             style={{
-              fontSize: '16px',
+              fontSize: '14px',
               lineHeight: '1.8',
               fontWeight: '400',
               letterSpacing: '0.025em'
@@ -498,7 +349,7 @@ const ProductInfo = memo(({
           </div>
         </div>
 
-        <div className="lg:hidden action-buttons  bg-white flex flex-col gap-3 mt-2">
+        <div className="lg:hidden action-buttons w-full bg-white flex flex-col gap-3 mt-2">
           <button
             type="button"
             disabled={isOutOfStock}
@@ -540,26 +391,33 @@ const ProductInfo = memo(({
               />
             </DialogContent>
           </Dialog>
-
-
         </div>
-        {/* WhatsApp Order Button at the top */}
+
+        {/* WhatsApp Order Button */}
         <div className="lg:hidden whatsapp-order mt-4 mb-2">
-          <a
-            href={getWhatsAppUrl()}
-            onClick={handleClick}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200 shadow-sm ${whatsappButtonDisabled
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none border border-gray-200"
+          <button
+            onClick={handleWhatsAppClick}
+            disabled={isOutOfStock || whatsappButtonDisabled}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-base transition-all duration-200 shadow-sm ${whatsappButtonDisabled || isOutOfStock
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
               : "bg-[#25D366] hover:bg-[#20BA5A] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               }`}
           >
             <FaWhatsapp size={20} />
-            {whatsappButtonDisabled ? "Patientez..." : "Commander via WhatsApp"}
-          </a>
+            {whatsappButtonDisabled ? "Patientez..." : isOutOfStock ? "Indisponible" : "Commander via WhatsApp"}
+          </button>
         </div>
 
-
-
+        {/* WhatsApp Order Form - Using the separated component */}
+        <WhatsAppOrderForm
+          isOpen={isWhatsAppFormOpen}
+          onClose={() => setIsWhatsAppFormOpen(false)}
+          productDetails={productDetails}
+          quantity={quantity}
+          discount={discount}
+          isDisabled={whatsappButtonDisabled}
+          decodedToken={decodedToken}
+        />
 
         <ProductAttrMobile technicalDetails={technicalDetails} />
       </div>
@@ -572,8 +430,8 @@ const ProductInfo = memo(({
       prevProps.productDetails?.id === nextProps.productDetails?.id &&
       prevProps.productDetails?.price === nextProps.productDetails?.price &&
       prevProps.productDetails?.inventory === nextProps.productDetails?.inventory &&
-      prevProps.productDetails?.description === nextProps.productDetails?.description && 
-      prevProps.productDetails?.name === nextProps.productDetails?.name && 
+      prevProps.productDetails?.description === nextProps.productDetails?.description &&
+      prevProps.productDetails?.name === nextProps.productDetails?.name &&
       prevProps.technicalDetails === nextProps.technicalDetails &&
       prevProps.discount?.newPrice === nextProps.discount?.newPrice &&
       prevProps.quantity === nextProps.quantity

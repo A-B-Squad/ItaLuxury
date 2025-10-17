@@ -2,6 +2,11 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { ProductData } from "../types";
 
+type useDrawerMobileSideBar = {
+  isOpen: boolean;
+  openDrawerMobileSideBar: () => void;
+  closeDrawerMobileSideBar: () => void;
+};
 type DrawerMobileCategoryStore = {
   isOpen: boolean;
   openCategoryDrawer: () => void;
@@ -13,6 +18,11 @@ type DrawerBasketStore = {
   openBasketDrawer: () => void;
   closeBasketDrawer: () => void;
 };
+type DrawerMobileSearch = {
+  isOpen: boolean;
+  openDrawerMobileSearch: () => void;
+  closeDrawerMobileSearch: () => void;
+};
 
 type BasketStore = {
   isUpdated: boolean;
@@ -22,6 +32,7 @@ type BasketStore = {
 interface ProductDetailsData {
   id: string;
   name: string;
+  slug: string;
   price: number;
   isVisible: boolean;
   images: string[];
@@ -104,11 +115,11 @@ export const usePruchaseOptions = create<UsePruchaseOptions>((set) => ({
   closePruchaseOptions: () => set({ isOpen: false, productData: null }),
 }));
 
-export const useDrawerMobileStore = create<DrawerMobileCategoryStore>(
+export const useDrawerMobileSideBar = create<useDrawerMobileSideBar>(
   (set) => ({
     isOpen: false,
-    openCategoryDrawer: () => set({ isOpen: true }),
-    closeCategoryDrawer: () => set({ isOpen: false }),
+    openDrawerMobileSideBar: () => set({ isOpen: true }),
+    closeDrawerMobileSideBar: () => set({ isOpen: false }),
   })
 );
 
@@ -116,6 +127,17 @@ export const useDrawerBasketStore = create<DrawerBasketStore>((set) => ({
   isOpen: false,
   openBasketDrawer: () => set({ isOpen: true }),
   closeBasketDrawer: () => set({ isOpen: false }),
+}));
+
+export const useDrawerMobileSearch = create<DrawerMobileSearch>((set) => ({
+  isOpen: false,
+  openDrawerMobileSearch: () => set({ isOpen: true }),
+  closeDrawerMobileSearch: () => set({ isOpen: false }),
+}));
+export const useDrawerMobileCategory = create<DrawerMobileCategoryStore>((set) => ({
+  isOpen: false,
+  openCategoryDrawer: () => set({ isOpen: true }),
+  closeCategoryDrawer: () => set({ isOpen: false }),
 }));
 
 export const useBasketStore = create<BasketStore>((set) => ({
@@ -160,13 +182,13 @@ export const useProductsInBasketStore = create<ProductsInBasketStore>()(
           quantityInBasket: state.products.length + 1,
         }));
       },
-      
+
       addMultipleProducts: (products: ProductData[]) => {
         set(() => ({
           products: products,
         }));
       },
-      
+
       increaseProductInQtBasket: (productId: string, quantity: number) => {
         set((state) => {
           const updatedProducts = state.products.map((product) =>
@@ -242,7 +264,7 @@ export const useProductsInBasketStore = create<ProductsInBasketStore>()(
     }),
     {
       name: "products-in-basket",
-      storage: createJSONStorage(() => localStorage), 
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

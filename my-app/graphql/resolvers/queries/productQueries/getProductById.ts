@@ -1,6 +1,31 @@
 import { Context } from "@apollo/client";
 import { Category } from "@prisma/client";
 
+
+
+
+
+
+// Helper function to delete expired discounts
+const deleteExpiredDiscounts = async (prisma: any) => {
+  try {
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 1);
+
+    await prisma.productDiscount.deleteMany({
+      where: {
+        dateOfEnd: {
+          lte: currentDate
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Failed to delete expired discounts:", error);
+  }
+};
+
+
+
 // Utilise directement les catégories passées depuis le produit
 function sortCategoriesHierarchically(categories: Category[]) {
   const map: Record<string, Category & { children?: any[] }> = {};
@@ -39,6 +64,10 @@ export const productById = async (
   { prisma }: Context
 ) => {
   try {
+
+ // Clean up expired discounts before searching
+    await deleteExpiredDiscounts(prisma);
+
     const product = await prisma.product.findUnique({
       where: {
         id,

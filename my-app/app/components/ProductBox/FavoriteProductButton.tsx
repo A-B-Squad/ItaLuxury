@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import FavoriteProduct from "../ProductCarousel/FavoriteProduct";
+import dynamic from "next/dynamic";
+
+const FavoriteProduct = dynamic(() => import("../ProductCarousel/FavoriteProduct"), {
+  ssr: false,
+  loading: () => null,
+});
 
 interface FavoriteProductButtonProps {
   isFavorite: boolean;
@@ -11,7 +16,7 @@ interface FavoriteProductButtonProps {
 
 const FavoriteProductButton: React.FC<FavoriteProductButtonProps> = ({
   isFavorite,
-  setIsFavorite = () => {},
+  setIsFavorite = () => { },
   productId,
   productName,
   className = "",
@@ -46,7 +51,7 @@ const FavoriteProductButton: React.FC<FavoriteProductButtonProps> = ({
           />
         </button>
       </div>
-      
+
       {/* Custom tooltip */}
       {showTooltip && (
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 z-50 whitespace-nowrap">

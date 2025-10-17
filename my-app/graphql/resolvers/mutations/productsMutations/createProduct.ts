@@ -1,6 +1,6 @@
 import { Context } from "@apollo/client";
-import moment from "moment";
-
+import moment from "moment-timezone";
+import { generateUniqueSlug } from "@/app/Helpers/_slugify.ts";
 export const createProduct = async (
   _: any,
   { input }: { input: ProductInput },
@@ -24,6 +24,10 @@ export const createProduct = async (
       groupProductVariantId
     } = input;
 
+
+    // Generate unique slug from product name
+    const slug = await generateUniqueSlug(prisma, name);
+
     // Filter and validate categories
     const validCategories = categories?.filter(id =>
       id && typeof id === 'string' && id.trim() !== ''
@@ -36,6 +40,7 @@ export const createProduct = async (
         price,
         purchasePrice,
         isVisible,
+        slug,
         reference,
         description,
         technicalDetails,

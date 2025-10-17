@@ -1,51 +1,54 @@
 import React from "react";
 import FavoriteList from "./FavoriteList";
 import { Metadata } from "next";
-import keywords from "@/public/scripts/keywords";
 import Breadcumb from "@/app/components/Breadcumb";
 import { getUser } from "@/utlils/getUser";
 import { cookies } from "next/headers";
 import { decodeToken } from "@/utlils/tokens/token";
+import { redirect } from "next/navigation";
 
-if (
-  !process.env.NEXT_PUBLIC_API_URL ||
-  !process.env.NEXT_PUBLIC_BASE_URL_DOMAIN
-) {
-  throw new Error("NEXT_PUBLIC_API_URL is not defined");
+if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
+  throw new Error("NEXT_PUBLIC_BASE_URL_DOMAIN is not defined");
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL_DOMAIN),
-  title: "Liste des favoris - ita-luxury",
-  description: "Consultez votre liste de favoris sur ita-luxury.",
-  keywords: keywords.join(","),
-  openGraph: {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/FavoriteList`,
-    type: "website",
-    title: "Liste des favoris - ita-luxury",
-    description: "Consultez votre liste de favoris sur ita-luxury.",
-    images: [
-      {
-        url: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/images/logos/LOGO-WHITE-BG.webp`,
-        width: 1200,
-        height: 630,
-        alt: "ita-luxury",
-      },
-    ],
-  },
-  alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/FavoriteList`,
+  title: "Mes Favoris",
+  description: "Consultez votre liste de produits favoris sur ita-luxury.",
+
+  robots: {
+    index: false,
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
   },
 };
 
 const FavoriteListPage = async () => {
-  const cookieStore = cookies()
-  const token = cookieStore.get('Token')?.value
-  const decodedUser = token ? decodeToken(token) : null;
-  const userData = await getUser(decodedUser?.userId);
+  const token = cookies().get('Token')?.value;
+
+  // Redirect to login if no token
+  if (!token) {
+    redirect('/signin?redirect=/FavoriteList');
+  }
+
+  const decodedUser = decodeToken(token);
+
+  // Redirect if token is invalid
+  if (!decodedUser?.userId) {
+    redirect('/signin?redirect=/FavoriteList');
+  }
+
+  const userData = await getUser(decodedUser.userId);
+
+  // Redirect if user not found
+  if (!userData) {
+    redirect('/signin?redirect=/FavoriteList');
+  }
+
   const breadcrumbPaths = [
     { href: "/", label: "Accueil" },
-    { href: "/FavoriteList", label: "Liste des favoris" }
+    { href: "/FavoriteList", label: "Mes Favoris" }
   ];
 
   return (

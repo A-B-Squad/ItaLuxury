@@ -15,11 +15,9 @@ import { motion, useReducedMotion, Variants, AnimatePresence } from "framer-moti
 const SCROLL_THRESHOLD = 400;
 const SCROLL_BEHAVIOR: ScrollBehavior = 'smooth';
 const VISIBILITY_DELAY = 600;
-const THROTTLE_DELAY = 16; // ~60fps
 
 const FloatingActionButtons = () => {
   const { quantityInBasket } = useProductsInBasketStore();
-  const pathname = usePathname();
   const { decodedToken, isAuthenticated } = useAuth();
   const prefersReducedMotion = useReducedMotion();
 
@@ -46,7 +44,7 @@ const FloatingActionButtons = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Only update if scroll position changed significantly
       if (Math.abs(currentScrollY - lastScrollY.current) < 5) {
         ticking.current = false;
@@ -261,9 +259,9 @@ const FloatingActionButtons = () => {
             exit="hidden"
             className={`
               scroll-to-top-button rounded-full flex items-center justify-center 
-              w-[54px] h-[54px] bg-gradient-to-r from-primaryColor to-primaryColor/90 
+              w-[54px] h-[54px] bg-gradient-to-r from-logoColor to-primaryColor/90 
               shadow-lg hover:shadow-xl transition-all duration-200 group relative
-              focus:outline-none focus:ring-2 focus:ring-primaryColor/50 focus:ring-offset-2
+              focus:outline-none focus:ring-2 focus:ring-logoColor/50 focus:ring-offset-2
             `}
             aria-label="Scroll to top"
             title="Scroll to top"
@@ -276,7 +274,7 @@ const FloatingActionButtons = () => {
                 animate="pulse"
               />
             )}
-            
+
             <HiArrowUp
               size={22}
               color="white"

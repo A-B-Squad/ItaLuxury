@@ -3,6 +3,7 @@ import { MetadataRoute } from "next";
 interface Product {
   id: string;
   name: string;
+  slug: string;
   updatedAt: string;
   categories: Array<{
     id: string;
@@ -45,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch products with better error handling
     const productsApiUrl = `${baseUrl}/api/products`;
     let products: Product[] = [];
-    
+
     try {
       const productsResponse = await fetch(productsApiUrl, {
         method: 'GET',
@@ -53,8 +54,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           'Content-Type': 'application/json',
           'User-Agent': 'Sitemap Generator',
         },
-        next: { revalidate: 3600 }
-        // Removed AbortSignal.timeout for compatibility
       });
 
       if (productsResponse.ok) {
@@ -72,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch categories with better error handling
     const categoriesApiUrl = `${baseUrl}/api/categories`;
     let categories: Category[] = [];
-    
+
     try {
       const categoriesResponse = await fetch(categoriesApiUrl, {
         method: 'GET',
@@ -80,8 +79,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           'Content-Type': 'application/json',
           'User-Agent': 'Sitemap Generator',
         },
-        next: { revalidate: 3600 }
-        // Removed AbortSignal.timeout for compatibility
       });
 
       if (categoriesResponse.ok) {
@@ -100,8 +97,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const dynamicProductUrls: SitemapEntry[] = products
       .filter(product => product?.id && product?.name)
       .map((product) => {
-        const productUrl = `${baseUrl}/products/tunisie?productId=${product.id}`;
-        
+        const productUrl = `${baseUrl}/products/tunisie?slug=${product.slug}`;
+
         return {
           url: productUrl,
           lastModified: product.updatedAt ? new Date(product.updatedAt) : currentDate,
@@ -115,7 +112,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter(category => category?.id && category?.name)
       .map((category) => {
         const categoryUrl = `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(category.name)}`;
-        
+
         return {
           url: categoryUrl,
           lastModified: currentDate,
@@ -126,7 +123,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Combine all URLs and ensure no duplicates
     const allUrls = [...staticPages, ...dynamicProductUrls, ...categoryUrls];
-    const uniqueUrls = allUrls.filter((url, index, self) => 
+    const uniqueUrls = allUrls.filter((url, index, self) =>
       index === self.findIndex(u => u.url === url.url)
     );
 

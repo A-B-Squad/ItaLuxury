@@ -44,6 +44,9 @@ const productDetailsDrawer = ({
             alt="product image"
             width={100}
             height={100}
+            sizes="(max-width: 768px) 100px, 100px"
+            priority={false}
+            loading="lazy"
           />
 
           <div className="items-center ">

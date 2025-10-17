@@ -1,68 +1,43 @@
-import {
-    useBasketStore,
-    useProductDetails,
-    useProductsInBasketStore,
-    usePruchaseOptions,
-} from "@/app/store/zustand";
+import { useBasketStore, useProductDetails, useProductsInBasketStore, usePruchaseOptions } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
 import triggerEvents from "@/utlils/events/trackEvents";
-
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
-import { useCallback, useMemo } from "react";
 import ProductActions from "./ProductActions";
 import ProductImage from "./ProductImage";
 import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
 
 interface ProductProps {
-    key: any;
     product: any;
     isFavorite: boolean;
     basketData: any;
     userData: any;
 }
 
-const ProductDetails: React.FC<ProductProps> = ({
-    product,
-    basketData,
-    userData,
-    isFavorite,
-}) => {
+const ProductDetails = ({ product, basketData, userData, isFavorite }: ProductProps) => {
     const { toast } = useToast();
     const { toggleIsUpdated } = useBasketStore();
     const { openProductDetails } = useProductDetails();
     const [addToBasket, { loading: addingToBasket }] = useMutation(ADD_TO_BASKET_MUTATION);
     const { openPruchaseOptions } = usePruchaseOptions();
     const { decodedToken, isAuthenticated } = useAuth();
+    const { products: storedProducts, addProductToBasket, increaseProductInQtBasket } = useProductsInBasketStore();
 
-    const {
-        products: storedProducts,
-        addProductToBasket,
-        increaseProductInQtBasket,
-    } = useProductsInBasketStore();
-    // Calculate discount percentage
     const discountData = product?.productDiscounts?.[0];
-    const productInBasket = useMemo(() => {
-        if (isAuthenticated && basketData?.basketByUserId) {
-            return basketData.basketByUserId.find(
-                (item: any) => item.Product.id === product.id
-            );
-        }
-        return storedProducts.find((p: any) => p.id === product.id);
-    }, [isAuthenticated, basketData, storedProducts, product.id]);
+
+    const productInBasket = isAuthenticated && basketData?.basketByUserId
+        ? basketData.basketByUserId.find((item: any) => item.Product.id === product.id)
+        : storedProducts.find((p: any) => p.id === product.id);
 
     const AddToBasket = async (product: any, quantity: number = 1) => {
         if (addingToBasket) return;
 
         openPruchaseOptions(product);
 
-        const price =
-            product.productDiscounts.length > 0
-                ? product.productDiscounts[0].newPrice
-                : product.price;
+        const price = discountData ? discountData.newPrice : product.price;
 
         // Analytics data
         const addToCartData = {
@@ -79,11 +54,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                 content_ids: [product.id],
                 value: price * quantity,
                 currency: "TND",
-                contents: [{
-                    id: product.id,
-                    quantity: quantity,
-                    item_price: price
-                }]
+                contents: [{ id: product.id, quantity: quantity, item_price: price }]
             },
         };
 
@@ -92,12 +63,7 @@ const ProductDetails: React.FC<ProductProps> = ({
             ecommerce: {
                 currency: "TND",
                 value: price * quantity,
-                items: [{
-                    item_id: product.id,
-                    item_name: product.name,
-                    quantity: quantity,
-                    price: price
-                }]
+                items: [{ item_id: product.id, item_name: product.name, quantity: quantity, price: price }]
             },
             user_data: addToCartData.user_data,
             facebook_data: {
@@ -115,9 +81,7 @@ const ProductDetails: React.FC<ProductProps> = ({
 
         if (isAuthenticated) {
             try {
-                const currentBasketQuantity = productInBasket
-                    ? productInBasket.quantity || productInBasket.actualQuantity
-                    : 0;
+                const currentBasketQuantity = productInBasket ? productInBasket.quantity || productInBasket.actualQuantity : 0;
 
                 if (currentBasketQuantity + quantity > product.inventory) {
                     toast({
@@ -136,12 +100,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                             productId: product.id,
                         },
                     },
-                    refetchQueries: [
-                        {
-                            query: BASKET_QUERY,
-                            variables: { userId: decodedToken?.userId },
-                        },
-                    ],
+                    refetchQueries: [{ query: BASKET_QUERY, variables: { userId: decodedToken?.userId } }],
                     onCompleted: () => {
                         toast({
                             title: "Produit ajouté au panier",
@@ -154,20 +113,14 @@ const ProductDetails: React.FC<ProductProps> = ({
                 console.error("Error adding to basket:", error);
                 toast({
                     title: "Erreur",
-                    description:
-                        "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+                    description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
                     className: "bg-red-600 text-white",
                 });
             }
         } else {
-            const filteredProduct = storedProducts.find(
-                (p: any) => p.id === product?.id
-            );
+            const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
 
-            if (
-                filteredProduct &&
-                filteredProduct.actualQuantity + quantity > product.inventory
-            ) {
+            if (filteredProduct && filteredProduct.actualQuantity + quantity > product.inventory) {
                 toast({
                     title: "Quantité non disponible",
                     description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
@@ -196,19 +149,14 @@ const ProductDetails: React.FC<ProductProps> = ({
         toggleIsUpdated();
     };
 
-
-
     return (
-        <div
-            key={product?.id}
-            className="flex flex-col lg:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 opacity-100 transform-none"
-        >
-            <div className="relative  w-full bg-white overflow-hidden">
+        <div className="flex flex-col lg:flex-row bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100">
+            <div className="relative w-full bg-white overflow-hidden">
                 <ProductImage product={product} />
             </div>
 
             <div className="p-4 lg:p-6 flex flex-col justify-between lg:w-3/5 relative">
-                {/* Hot deal badge for special products */}
+                {/* Hot deal badge */}
                 {product?.isHot && (
                     <div className="absolute -top-3 right-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md transform rotate-2">
                         HOT DEAL
@@ -216,10 +164,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                 )}
 
                 <div>
-                    <Link
-                        href={`/products/tunisie?productId=${product.id}`}
-                        className="block group"
-                    >
+                    <Link href={`/products/tunisie?slug=${product.slug}`} className="block group">
                         <h2 className="text-xl font-semibold text-gray-800 group-hover:text-primaryColor transition-colors duration-200 line-clamp-2">
                             {product?.name}
                         </h2>
@@ -234,7 +179,6 @@ const ProductDetails: React.FC<ProductProps> = ({
                                 {(discountData ? discountData.newPrice : product?.price)?.toFixed(3) || '0.000'} TND
                             </span>
 
-                            {/* Limited time offer indicator */}
                             {discountData && (
                                 <span className="ml-3 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">
                                     Offre limitée
@@ -242,7 +186,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                             )}
                         </div>
 
-                        {/* Rating stars - simulated for visual appeal */}
+                        {/* Rating stars */}
                         <div className="mt-2 flex items-center">
                             {[...Array(5)].map((_, i) => (
                                 <svg key={i} className={`w-4 h-4 ${i < (product?.rating || 4) ? "text-yellow-400" : "text-gray-300"}`} fill="currentColor" viewBox="0 0 20 20">
@@ -298,16 +242,11 @@ const ProductDetails: React.FC<ProductProps> = ({
                     </button>
 
                     <div className="flex justify-center sm:justify-end">
-                        <ProductActions
-                            product={product}
-                            toast={toast}
-                            isFavorite={isFavorite}
-                            openProductDetails={openProductDetails}
-                        />
+                        <ProductActions product={product} toast={toast} isFavorite={isFavorite} openProductDetails={openProductDetails} />
                     </div>
                 </div>
 
-                {/* Stock indicator with progress bar for limited stock */}
+                {/* Stock indicator */}
                 <div className="mt-4">
                     {product?.inventory > 0 ? (
                         <div>
@@ -329,7 +268,7 @@ const ProductDetails: React.FC<ProductProps> = ({
                                     <div
                                         className="bg-orange-500 h-1.5 rounded-full"
                                         style={{ width: `${Math.min(100, (product.inventory / 10) * 100)}%` }}
-                                    ></div>
+                                    />
                                 </div>
                             )}
                         </div>

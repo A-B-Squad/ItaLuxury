@@ -9,11 +9,17 @@ interface ProductLabelsProps {
 const ProductLabels: React.FC<ProductLabelsProps> = ({ product }) => {
   const { view } = useAllProductViewStore();
 
+  // First check if product is new based on createdAt
+  const isNewByCreatedAt = calcDateForNewProduct(product?.createdAt);
+
+  // Show "new" label if either condition is true
+  const isNewProduct = isNewByCreatedAt
+
   return (
     <div
       className={`productStatusLabel absolute -top-2 flex ${view == 1 ? "gap-10" : "justify-between"}  w-full px-3 z-20 uppercase text-white text-[11px] translate-y-4`}
     >
-      {calcDateForNewProduct(product?.createdAt) && (
+      {isNewProduct && (
         <span className="bg-blueColor w-fit justify-start shadow-md p-1">
           Nouveau
         </span>
@@ -31,4 +37,4 @@ const ProductLabels: React.FC<ProductLabelsProps> = ({ product }) => {
     </div>
   );
 };
-export default ProductLabels;
+export default React.memo(ProductLabels);
