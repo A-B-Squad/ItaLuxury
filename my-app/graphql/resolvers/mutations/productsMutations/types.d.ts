@@ -16,11 +16,8 @@ interface Product {
   reviews: Review[];
   favoriteProducts: FavoriteProducts[];
   technicalDetails: string;
-  Colors: {
-    color
-    Hex
-  }
-  brand: Brand
+  Colors: Color
+  Brand: Brand
 }
 
 interface ProductInput {
@@ -50,7 +47,7 @@ interface ProductDiscountInput {
   newPrice: Float;
 }
 
-interface AddDeleteProductToFavorite{
+interface AddDeleteProductToFavorite {
   userId: string;
   productId: string;
 }
@@ -59,4 +56,10 @@ interface Brand {
   id: string;
   name: string;
   logo: string;
+}
+interface Color {
+  Product: any;
+  id: string
+  color: string
+  Hex: string
 }

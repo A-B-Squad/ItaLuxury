@@ -4,14 +4,14 @@ import dynamic from "next/dynamic";
 import { ApolloWrapper } from "../../lib/apollo-wrapper";
 import Header from "../components/Header/Header";
 import { cookies } from "next/headers";
-import { decodeToken } from "@/utlils/tokens/token";
-import { getUser } from "@/utlils/getUser";
-import { getCompanyInfo } from "@/utlils/getCompanyInfo";
+import { decodeToken } from "@/utils/tokens/token";
+import { getUser } from "@/utils/getUser";
+import { getCompanyInfo } from "@/utils/getCompanyInfo";
 
 const BasketDrawer = dynamic(() => import("../components/MobileDrawer/BasketDrawer"), { ssr: false });
 const Footer = dynamic(() => import("../components/Footer/Footer"), { ssr: false });
 const SideBarMobileDrawer = dynamic(() => import("../components/MobileDrawer/SideBarMobileDrawer/SideBarDrawerMobile"), { ssr: false });
-const CategoryMobileDrawer = dynamic(() => import("../components/MobileDrawer/CategoryDrawer"), { ssr: false });
+const CategoryMobileDrawer = dynamic(() => import("../components/MobileDrawer/Category/CategoryDrawer"), { ssr: false });
 const SearchMobileDrawer = dynamic(() => import("../components/MobileDrawer/SearchMobileDrawer"), { ssr: false });
 const ProductQuickView = dynamic(() => import("@/app/components/ProductQuickView/ProductQuickView"), { ssr: false });
 const PurchaseOptions = dynamic(() => import("@/app/components/PurchaseOptions"), { ssr: false });

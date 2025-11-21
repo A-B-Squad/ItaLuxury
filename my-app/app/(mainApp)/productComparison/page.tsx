@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import ProductComparison from "./productComparison";
 import Breadcumb from "@/app/components/Breadcumb";
 import { cookies } from "next/headers";
-import { decodeToken } from "@/utlils/tokens/token";
-import { getUser } from "@/utlils/getUser";
+import { decodeToken } from "@/utils/tokens/token";
+import { getUser } from "@/utils/getUser";
 
 const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ?? "https://ita-luxury.com").replace(/\/$/, "");
 
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
 
   robots: {
-    index: true,         // ✅ Allow indexing if sharable
+    index: true,
     follow: true,
     'max-snippet': -1,
     'max-image-preview': 'large',

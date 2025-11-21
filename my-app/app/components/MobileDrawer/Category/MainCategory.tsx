@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo, useCallback } from "react";
-import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
+import { MdKeyboardArrowRight } from "react-icons/md";
 import Subcategory from "./Subcategory";
 import Image from "next/image";
 
@@ -15,6 +15,7 @@ interface SubcategoryType {
 interface Category {
   id: string;
   name: string;
+  bigImage: string;
   smallImage: string;
   subcategories: SubcategoryType[];
 }
@@ -29,62 +30,80 @@ const MainCategory: React.FC<MainCategoryProps> = ({
   closeCategoryDrawer,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>("");
-  const [activeSubcategory, setActiveSubcategory] = useState<string>("");
 
-  // Get the currently active category object
   const activeCategoryObj = useMemo(
     () => fetchMainCategories.find((c) => c.name === activeCategory),
     [activeCategory, fetchMainCategories]
   );
 
-  // Handle clicking a main category
-  const handleCategoryClick = useCallback(
+  const handleCategoryNameClick = useCallback(
     (cat: Category) => {
-      if (!cat.subcategories?.length) {
-        // Navigate directly if no subcategories
-        closeCategoryDrawer();
-        window.location.href = `/Collections/tunisie?${new URLSearchParams({
-          category: cat.name,
-        })}`;
-        return;
-      }
-      setActiveCategory(cat.name);
-      setActiveSubcategory(""); // Reset active subcategory when switching main category
+      closeCategoryDrawer();
+      window.location.href = `/Collections/tunisie?${new URLSearchParams({
+        category: cat.name,
+      })}`;
     },
     [closeCategoryDrawer]
   );
 
+  const handleArrowClick = useCallback((cat: Category) => {
+    if (cat.subcategories?.length) {
+      setActiveCategory(cat.name);
+    }
+  }, []);
+
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full">
       {/* Main Categories */}
       <div
-        className={`absolute inset-0 transition-transform duration-300 ${activeCategory ? "-translate-x-full" : "translate-x-0"
+        className={`absolute inset-0 transition-transform duration-300 ease-in-out overflow-y-auto custom-scrollbar ${activeCategory ? "-translate-x-full" : "translate-x-0"
           }`}
       >
-        <h2 className="text-lg font-medium uppercase px-7 pt-4 mb-2">
-          Choisir une catégorie :
-        </h2>
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+            Choisir une catégorie
+          </h2>
+        </div>
 
-        {fetchMainCategories.map((cat) => (
-          <div
-            key={cat.id}
-            onClick={() => handleCategoryClick(cat)}
-            className="flex justify-between items-center px-7 py-3 border-b-2 cursor-pointer hover:bg-gray-50"
-          >
-            <div className="flex items-center gap-1">
-              <Image loading="lazy" src={cat?.smallImage} alt="image category" width={40} height={40} />
-              <span className="capitalize font-medium">{cat.name}</span>
+        <div className="py-2">
+          {fetchMainCategories.map((cat) => (
+            <div
+              key={cat.id}
+              className="flex justify-between items-center px-6 py-4 hover:bg-gray-50 transition-colors border-b border-gray-100"
+            >
+              <div
+                onClick={() => handleCategoryNameClick(cat)}
+                className="flex items-center gap-3 flex-1 cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  <Image
+                    loading="lazy"
+                    src={cat?.smallImage}
+                    alt={cat.name}
+                    width={40}
+                    height={40}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <span className="capitalize font-medium text-gray-800 group-hover:text-gray-900">
+                  {cat.name}
+                </span>
+              </div>
+
+              {cat.subcategories?.length > 0 && (
+                <button
+                  onClick={() => handleArrowClick(cat)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <MdKeyboardArrowRight
+                    size={22}
+                    className="text-gray-400 hover:text-gray-600"
+                  />
+                </button>
+              )}
             </div>
-
-            {cat.subcategories?.length ? (
-              activeCategory === cat.name ? (
-                <MdKeyboardArrowDown size={20} />
-              ) : (
-                <MdKeyboardArrowRight size={20} />
-              )
-            ) : null}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Subcategories */}
@@ -93,8 +112,6 @@ const MainCategory: React.FC<MainCategoryProps> = ({
           subcategories={activeCategoryObj.subcategories}
           parentCategoryName={activeCategoryObj.name}
           backToMainCategory={() => setActiveCategory("")}
-          activeSubcategory={activeSubcategory}
-          setActiveSubcategory={setActiveSubcategory}
           closeCategoryDrawer={closeCategoryDrawer}
         />
       )}

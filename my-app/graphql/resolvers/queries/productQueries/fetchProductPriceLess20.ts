@@ -11,15 +11,25 @@ export const productsLessThen20 = async (
     const products = await prisma.product.findMany({
       where: {
         price: {
-          lte: 20, 
+          lte: 20,
         },
         isVisible: true,
       },
       include: {
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
-        }, 
-        productDiscounts: true,
+        },
+        productDiscounts: {
+          where: {
+            isActive: true,
+            isDeleted: false,
+            dateOfStart: { lte: new Date() },
+            dateOfEnd: { gte: new Date() }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        },
         baskets: true,
         reviews: true,
         favoriteProducts: true,

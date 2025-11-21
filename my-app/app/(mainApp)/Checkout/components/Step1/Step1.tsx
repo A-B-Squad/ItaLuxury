@@ -1,103 +1,173 @@
-import { useAuth } from "@/app/hooks/useAuth";
-import React, { useEffect } from "react";
-import { FaUserAlt, FaUserSecret } from "react-icons/fa";
+import React from "react";
 import AuthForm from "./AuthForm";
+import { FaUser, FaUserShield } from "react-icons/fa";
 
 interface Step1Props {
-  setIsGuest: (isGuest: boolean) => void;
-  showLoginForm: boolean;
+  setIsLoggedIn: (val: boolean) => void;
   setCurrentStep: (step: number) => void;
-  setShowLoginForm: (show: boolean) => void;
-  setIsLoggedIn: (isLoggedIn: boolean) => void;
+  setIsGuest: (val: boolean) => void;
+  showLoginForm: boolean;
+  setShowLoginForm: (val: boolean) => void;
+  onAuthSuccess?: (userData: any) => void;
 }
 
 const Step1: React.FC<Step1Props> = ({
+  setIsLoggedIn,
+  setCurrentStep,
   setIsGuest,
   showLoginForm,
-  setCurrentStep,
   setShowLoginForm,
-  setIsLoggedIn,
+  onAuthSuccess,
 }) => {
-  const { isAuthenticated } = useAuth();
-
-  useEffect(() => {
-    // If user is authenticated, automatically proceed to step 2
-    if (isAuthenticated) {
-      setIsLoggedIn(true);
-      setIsGuest(false);
-      setCurrentStep(2);
-    }
-  }, [isAuthenticated, setIsLoggedIn, setIsGuest, setCurrentStep]);
-
-  const handleContinueAsGuest = () => {
+  const handleGuestCheckout = () => {
     setIsGuest(true);
     setCurrentStep(2);
   };
 
-  // If user is already logged in, don't render this component
-  if (isAuthenticated) {
-    return null;
-  }
+  const handleLoginClick = () => {
+    setShowLoginForm(true);
+  };
 
   return (
-    <div className="mb-8 max-w-3xl mx-auto opacity-100 transition-opacity duration-300 ease-in-out">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">Informations personnelles</h2>
+    <div className="w-full">
+      {!showLoginForm ? (
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Comment souhaitez-vous procéder ?
+            </h2>
+            <p className="text-gray-600">
+              Choisissez votre mode de commande pour continuer
+            </p>
+          </div>
 
-      <div className="mb-6">
-        <p className="text-gray-600 mb-6">Choisissez comment vous souhaitez continuer votre commande:</p>
-
-        <div className="grid md:grid-cols-2 gap-4 mb-8">
-          <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-            <div className="p-5 bg-gray-50 border-b">
-              <div className="flex items-center justify-center mb-3">
-                <FaUserSecret className="text-4xl text-gray-700" />
+          {/* Options Cards */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Login/Register Card */}
+            <div
+              onClick={handleLoginClick}
+              className="group cursor-pointer bg-gradient-to-br from-primaryColor to-primaryColor/90 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+            >
+              <div className="p-8 text-white relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+                
+                <div className="relative z-10">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <FaUser className="text-3xl text-white" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold mb-3">Se connecter</h3>
+                  
+                  <p className="text-white/90 mb-6 leading-relaxed">
+                    Connectez-vous ou créez un compte pour profiter de tous nos avantages
+                  </p>
+                  
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-center text-sm">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Suivi de vos commandes
+                    </li>
+                    <li className="flex items-center text-sm">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Historique d'achats
+                    </li>
+                    <li className="flex items-center text-sm">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Offres exclusives
+                    </li>
+                  </ul>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-white/20">
+                    <span className="text-sm font-medium">Recommandé</span>
+                    <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-center text-gray-800">Continuer en tant qu'invité</h3>
             </div>
-            <div className="p-5">
-              <p className="text-gray-600 text-sm mb-4 text-center">
-                Commandez rapidement sans créer de compte. Aucune inscription requise.
-              </p>
-              <button
-                onClick={handleContinueAsGuest}
-                className="w-full py-3 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-all duration-300 font-medium"
-              >
-                Continuer sans compte
-              </button>
+
+            {/* Guest Card */}
+            <div
+              onClick={handleGuestCheckout}
+              className="group cursor-pointer bg-white border-2 border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:border-gray-300 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
+            >
+              <div className="p-8 relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-full -mr-16 -mt-16"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gray-50 rounded-full -ml-12 -mb-12"></div>
+                
+                <div className="relative z-10">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <FaUserShield className="text-3xl text-gray-600" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    Commander en tant qu'invité
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    Commandez rapidement sans créer de compte
+                  </p>
+                  
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-center text-sm text-gray-700">
+                      <svg className="w-5 h-5 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Processus rapide
+                    </li>
+                    <li className="flex items-center text-sm text-gray-700">
+                      <svg className="w-5 h-5 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Aucune inscription requise
+                    </li>
+                    <li className="flex items-center text-sm text-gray-700">
+                      <svg className="w-5 h-5 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Livraison garantie
+                    </li>
+                  </ul>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <span className="text-sm font-medium text-gray-600">Commande simple</span>
+                    <svg className="w-6 h-6 text-gray-400 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-            <div className="p-5 bg-primaryColor bg-opacity-10 border-b">
-              <div className="flex items-center justify-center mb-3">
-                <FaUserAlt className="text-4xl text-primaryColor" />
-              </div>
-              <h3 className="text-lg font-semibold text-center text-gray-800">Se connecter / S'inscrire</h3>
-            </div>
-            <div className="p-5">
-              <p className="text-gray-600 text-sm mb-4 text-center">
-                Connectez-vous pour accéder à vos informations et suivre vos commandes.
-              </p>
-              <button
-                onClick={() => setShowLoginForm(!showLoginForm)}
-                className="w-full py-3 px-4 bg-primaryColor text-white rounded-md hover:bg-opacity-90 transition-all duration-300 font-medium"
-              >
-                {showLoginForm ? "Masquer le formulaire" : "Se connecter / S'inscrire"}
-              </button>
+          {/* Security Badge */}
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
+              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>Paiement 100% sécurisé • Données protégées</span>
             </div>
           </div>
         </div>
-
-        {showLoginForm && (
-          <div className="transition-all duration-300 ease-in-out overflow-hidden">
-            <AuthForm
-              setIsLoggedIn={setIsLoggedIn}
-              setCurrentStep={setCurrentStep}
-              setShowLoginForm={setShowLoginForm}
-            />
-          </div>
-        )}
-      </div>
+      ) : (
+        <AuthForm
+          setCurrentStep={setCurrentStep}
+          setShowLoginForm={setShowLoginForm}
+          setIsLoggedIn={setIsLoggedIn}
+          onAuthSuccess={onAuthSuccess}
+          setIsGuest={setIsGuest}
+        />
+      )}
     </div>
   );
 };

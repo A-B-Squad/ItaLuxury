@@ -1,5 +1,3 @@
-// components/Sidebar/utils/queryHelpers.ts
-
 import { FilterQueries } from '../types';
 import { BASE_COLLECTION_URL } from './constants';
 
@@ -21,9 +19,6 @@ export const buildFilterUrl = (queries: FilterQueries): string => {
   return queryString ? `${BASE_COLLECTION_URL}?${queryString}` : `${BASE_COLLECTION_URL}?page=1`;
 };
 
-export const buildPriceUrl = (price: number): string => {
-  return `${BASE_COLLECTION_URL}?price=${price}`;
-};
 
 export const buildCategoryUrl = (categoryName: string): string => {
   const params = new URLSearchParams({ category: categoryName });

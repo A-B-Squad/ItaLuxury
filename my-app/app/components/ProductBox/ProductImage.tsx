@@ -1,8 +1,14 @@
+interface ProductImageProps {
+  product: Product;
+  onAddToBasket: (product: Product, quantity: number) => void;
+  view: number;
+  priority?: boolean;
+}
 import Image from "next/image";
 import Link from "next/link";
-import React,{ useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import QuickActionButton from "./components/QuickActionButton";
-import { FaChevronDown, FaRegEye } from "react-icons/fa";
+import { FaChevronDown, FaRegEye, FaTag } from "react-icons/fa";
 import { IoGitCompare } from "react-icons/io5";
 import { FaBasketShopping } from "react-icons/fa6";
 import FavoriteProductButton from "./FavoriteProductButton";
@@ -11,6 +17,11 @@ import {
   useProductDetails,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
+import { hasActiveDiscount } from "@/utils/hasActiveDiscount";
+import { getDiscountPercentage } from "@/utils/getDiscountPercentage";
+import { getActiveDiscount } from "@/utils/getActiveDiscount";
+
+
 
 interface ProductImageProps {
   product: Product;
@@ -47,6 +58,20 @@ const ProductImage: React.FC<ProductImageProps> = ({
 
   const { openProductDetails } = useProductDetails();
   const { addToComparison, comparisonList } = useProductComparisonStore();
+
+  // Discount-related memoized values
+  const isDiscounted = useMemo(
+    () => hasActiveDiscount(product) && product.inventory !== 0,
+    [product]
+  );
+  const discountPercent = useMemo(
+    () => getDiscountPercentage(product),
+    [product]
+  );
+  const activeDiscount = useMemo(
+    () => getActiveDiscount(product),
+    [product]
+  );
 
   const primaryImageUrl = useMemo(() => {
     if (!hasImages) return "";
@@ -90,14 +115,28 @@ const ProductImage: React.FC<ProductImageProps> = ({
     setShowActions(prev => !prev);
   }, []);
 
-  const isDiscounted = product.productDiscounts.length > 0 && product.inventory !== 0;
-
-  const productDetailsHref = useMemo(() => `/products/tunisie?slug=${product.slug}`, [product.slug]);
+  const productDetailsHref = useMemo(() => `/products/${product.slug}`, [product.slug]);
 
   return (
     <div className={`overflow-hidden relative w-full group
       ${view === 1 ? 'max-w-[200px]' : ''}
     `}>
+      {/* Discount Badge - Top Left */}
+      {isDiscounted && (
+        <div className="absolute top-2 left-2 z-40 flex flex-col gap-1">
+          <div className="bg-red-600 text-white px-2 py-1 rounded-md shadow-lg font-bold text-xs flex items-center gap-1">
+            <FaTag className="w-3 h-3" />
+            -{discountPercent}%
+          </div>
+          {activeDiscount?.campaignName && view !== 1 && (
+            <div className="bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg font-semibold text-xs whitespace-nowrap">
+              {activeDiscount.campaignName}
+            </div>
+          )}
+        </div>
+      )}
+
+
       {/* Toggle button for action buttons */}
       <button
         onClick={toggleActionButtons}

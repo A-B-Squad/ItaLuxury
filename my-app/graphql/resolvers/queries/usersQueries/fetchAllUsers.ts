@@ -3,6 +3,9 @@ import { Context } from "@apollo/client";
 export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
   try {
     const users = await prisma.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       include: {
         pointTransactions: true,
         Voucher: true,
@@ -13,7 +16,9 @@ export const fetchAllUsers = async (_: any, __: any, { prisma }: Context) => {
         },
         ContactUs: true,
         checkout: {
-
+          orderBy: {
+            createdAt: "desc",
+          },
           include: {
             package: true,
             Governorate: true,

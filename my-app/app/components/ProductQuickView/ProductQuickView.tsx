@@ -1,4 +1,3 @@
-
 "use client";
 import {
   useBasketStore,
@@ -8,7 +7,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
-import triggerEvents from "@/utlils/events/trackEvents";
 
 import { useMutation, useQuery } from "@apollo/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -17,12 +15,12 @@ import { GoAlertFill } from "react-icons/go";
 import { IoCloseOutline } from "react-icons/io5";
 import { RiSubtractFill } from "react-icons/ri";
 import { SlBasket } from "react-icons/sl";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
 import CustomInnerZoom from "./CustomInnerZoom";
 import { AnimatePresence } from "framer-motion";
 import { createPortal } from 'react-dom';
 import { ProductData } from "@/app/types";
+import { trackAddToCart } from "@/utils/facebookEvents";
 
 
 
@@ -84,44 +82,53 @@ const ProductQuickView = ({ userData }: any) => {
   }, [quantity]);
 
   const AddToBasket = async (product: any, quantity: number = 1) => {
-    const price =
-      product.productDiscounts.length > 0
-        ? product.productDiscounts[0].newPrice
-        : product.price;
-        
-    const addToCartData = {
-      eventName: "AddToCart",
-      user: {
-        email: userData?.email,
-        fullName: userData?.fullName,
-        phone: userData?.number,
-        country: "tn",
-        userId: userData?.id,
-      },
-      product: {
-        id: product.id,
-        name: product.name,
-        price: price,
-        category: product.categories?.[0]?.name,
-        category2: product.categories?.[1]?.name,
-        category3: product.categories?.[2]?.name,
-        variant: product?.Colors?.color,
-        brand: product?.Brand?.name,
-        quantity: product.actualQuantity || product.quantity || 1,
-        description: product.description,
-      },
-      currency: "TND",
-      contents: [
-        {
-          id: product.id,
-          quantity: product.actualQuantity || product.quantity || 1,
-          item_price: price,
-        },
-      ],
+
+    // Prepare complete product data for tracking
+    const trackingProduct = {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      description: product.description,
+      Brand: product.Brand,
+      Colors: product.Colors,
+      categories: product.categories,
+      productDiscounts: product.productDiscounts,
+      inventory: product.inventory,
+      isVisible: product.isVisible,
+      reference: product.reference,
+      images: product.images,
+      quantity: product.actualQuantity || product.quantity,
+      technicalDetails: product.technicalDetails,
     };
 
-    // Send unified event - handles both Facebook and GTM
-    triggerEvents(addToCartData);
+    // Prepare user data
+    const user = userData ? {
+      id: decodedToken?.userId,
+      email: userData.email,
+      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+      phone: userData.number,
+      country: "tn",
+      city: userData.city || "",
+    } : undefined;
+
+    // Track the add to cart event with error handling
+    try {
+      console.log('🛒 Tracking AddToCart event:', {
+        product_id: trackingProduct.id,
+        product_name: trackingProduct.name,
+        quantity: product.actualQuantity || product.quantity,
+        user: user ? 'logged_in' : 'guest'
+      });
+
+      await trackAddToCart(trackingProduct, user);
+
+      console.log('✅ AddToCart event tracked successfully');
+    } catch (error) {
+      console.error("❌ Error tracking add to cart:", error);
+      // Don't block the user flow if tracking fails
+    }
 
 
     if (isAuthenticated) {
@@ -230,9 +237,8 @@ const ProductQuickView = ({ userData }: any) => {
       {isOpen && (
         <>
           <div
-
             onClick={closeProductDetails}
-            className="fixed cursor-none  z-[999999]  inset-0 transition-all bg-lightBlack h-screen w-screen"
+            className="fixed cursor-none z-[999999] inset-0 transition-all bg-lightBlack h-screen w-screen"
           >
             <IoCloseOutline
               size={40}
@@ -242,110 +248,109 @@ const ProductQuickView = ({ userData }: any) => {
           </div>
 
           <div
-
             style={{
               position: 'fixed',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              maxHeight: '90vh',
-              width: '90%',
+              maxHeight: '95vh',
+              width: '95%',
               maxWidth: '1200px',
               zIndex: 9999999,
               margin: 0
             }}
-            className="overflow-y-auto pb-10 overflow-x-hidden bg-white rounded-lg shadow-2xl"
+            className="overflow-y-auto overflow-x-hidden bg-white rounded-lg md:rounded-xl shadow-2xl"
           >
-            <div className="sticky top-0 z-50 bg-white p-4 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">Aperçu Rapide</h2>
+            {/* Header - Sticky */}
+            <div className="sticky top-0 z-50 bg-white px-3 py-2 md:p-4 border-b flex justify-between items-center">
+              <h2 className="text-base md:text-xl font-bold text-gray-800">Aperçu Rapide</h2>
               <button
                 onClick={closeProductDetails}
-                className="bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-all duration-300"
+                className="bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 md:p-2 transition-all duration-300"
               >
-                <IoCloseOutline size={24} />
+                <IoCloseOutline size={20} className="md:w-6 md:h-6" />
               </button>
             </div>
 
-            <div className="p-6">
-              <div className="details flex flex-col lg:flex-row gap-8">
+            <div className="p-3 md:p-6">
+              <div className="details flex flex-col lg:flex-row gap-4 md:gap-8">
                 {/* Product Images Section */}
                 <div className="lg:w-1/2 relative">
-                  <div className="sticky top-24">
+                  <div className="lg:sticky lg:top-24">
                     <CustomInnerZoom images={productData?.images} />
                     <span
-                      className={`absolute top-2 right-2 p-2 rounded-md ${productData?.inventory > 1
+                      className={`absolute top-2 right-2 px-2 py-1 rounded text-[10px] md:text-xs font-medium text-white ${productData?.inventory > 1
                         ? "bg-green-600"
                         : productData?.inventory === 1
                           ? "bg-amber-500"
                           : "bg-red-500"
-                        } text-xs font-medium text-white`}
+                        }`}
                     >
                       {productData?.inventory > 1
                         ? "EN STOCK"
                         : productData?.inventory === 1
-                          ? "DERNIER ARTICLE"
-                          : "RUPTURE DE STOCK"}
+                          ? "DERNIER"
+                          : "RUPTURE"}
                     </span>
                   </div>
                 </div>
 
                 {/* Product Info Section */}
                 <div className="lg:w-1/2">
-                  <div className="flex justify-between items-start">
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
+                  <div className="flex justify-between items-start gap-2">
+                    <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-800 tracking-tight line-clamp-3">
                       {productData?.name}
                     </h2>
                     <button
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                       onClick={() => setIsInWishlist(!isInWishlist)}
                     >
                       {isInWishlist ? (
-                        <FaHeart className="text-red-500" size={22} />
+                        <FaHeart className="text-red-500" size={18} />
                       ) : (
-                        <FaRegHeart className="text-gray-400 hover:text-gray-600" size={22} />
+                        <FaRegHeart className="text-gray-400 hover:text-gray-600" size={18} />
                       )}
                     </button>
                   </div>
 
-                  <p className="text-sm text-gray-500 mt-1">
-                    Référence: <span className="font-medium">{productData?.reference}</span>
+                  <p className="text-xs md:text-sm text-gray-500 mt-1">
+                    Réf: <span className="font-medium">{productData?.reference}</span>
                   </p>
 
                   {/* Price Section */}
-                  <div className="mt-6 mb-6">
+                  <div className="mt-3 md:mt-6 mb-3 md:mb-6">
                     <div className="flex items-baseline">
-                      <span className="text-3xl font-bold text-primaryColor">
+                      <span className="text-2xl md:text-3xl font-bold text-primaryColor">
                         {productData?.productDiscounts[0]
                           ? productData?.productDiscounts[0].newPrice.toFixed(3)
                           : productData?.price.toFixed(3)}
                       </span>
-                      <span className="ml-1 text-xl font-semibold text-primaryColor">TND</span>
+                      <span className="ml-1 text-lg md:text-xl font-semibold text-primaryColor">TND</span>
                       {!productData?.productDiscounts[0] && (
-                        <span className="ml-2 text-sm text-gray-500">TTC</span>
+                        <span className="ml-2 text-xs md:text-sm text-gray-500">TTC</span>
                       )}
                     </div>
 
                     {productData?.productDiscounts[0] && (
                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <p className="line-through text-gray-500">
+                        <p className="line-through text-gray-500 text-sm md:text-base">
                           {productData?.productDiscounts[0].price.toFixed(3)} TND
                         </p>
-                        <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-700 rounded">
-                          ÉCONOMISEZ {(
+                        <span className="px-2 py-0.5 text-[10px] md:text-xs font-bold bg-red-100 text-red-700 rounded">
+                          -{(
                             productData?.productDiscounts[0].price -
                             productData?.productDiscounts[0].newPrice
-                          ).toFixed(3)}{" "}
-                          TND
+                          ).toFixed(3)} TND
                         </span>
-                        <span className="text-sm text-gray-500">TTC</span>
+                        <span className="text-xs md:text-sm text-gray-500">TTC</span>
                       </div>
                     )}
                   </div>
 
                   {/* Description */}
-                  <div className="mt-6 mb-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
-                    <div className="prose prose-sm max-w-none text-gray-600">
+                  <div className="mt-3 md:mt-6 mb-3 md:mb-6">
+                    <h3 className="text-sm md:text-lg font-semibold text-gray-800 mb-1 md:mb-2">Description</h3>
+                    <div className="prose prose-sm max-w-none text-gray-600 text-xs md:text-sm line-clamp-4 md:line-clamp-none">
                       <div
                         dangerouslySetInnerHTML={{ __html: productData?.description }}
                       />
@@ -354,66 +359,66 @@ const ProductQuickView = ({ userData }: any) => {
 
                   {/* Color */}
                   {productData?.Colors && (
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">Couleur</h3>
+                    <div className="mt-3 md:mt-6">
+                      <h3 className="text-sm md:text-lg font-semibold text-gray-800 mb-1 md:mb-2">Couleur</h3>
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-8 h-8 rounded-full border-2 border-gray-300 shadow-sm"
+                          className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-gray-300 shadow-sm"
                           style={{ backgroundColor: productData?.Colors.Hex }}
                         />
-                        <span className="text-sm text-gray-700">{productData?.Colors.name || "Couleur sélectionnée"}</span>
+                        <span className="text-xs md:text-sm text-gray-700">{productData?.Colors.name || "Couleur sélectionnée"}</span>
                       </div>
                     </div>
                   )}
 
                   {/* Quantity Selector */}
-                  <div className="mt-8">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Quantité</h3>
+                  <div className="mt-4 md:mt-8">
+                    <h3 className="text-sm md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">Quantité</h3>
                     <div className="flex items-center">
                       <button
                         type="button"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 h-10 w-10 flex items-center justify-center rounded-l-md transition-colors"
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-l-md transition-colors"
                         disabled={quantity === 1}
                         onClick={handleDecreaseQuantity}
                       >
-                        <RiSubtractFill size={18} />
+                        <RiSubtractFill size={16} className="md:w-[18px] md:h-[18px]" />
                       </button>
-                      <div className="h-10 w-14 flex items-center justify-center border-t border-b border-gray-300 bg-white">
-                        <span className="font-medium">{quantity}</span>
+                      <div className="h-9 w-12 md:h-10 md:w-14 flex items-center justify-center border-t border-b border-gray-300 bg-white">
+                        <span className="font-medium text-sm md:text-base">{quantity}</span>
                       </div>
                       <button
                         type="button"
-                        className={`bg-gray-100 hover:bg-gray-200 text-gray-700 h-10 w-10 flex items-center justify-center rounded-r-md transition-colors ${quantity === productData?.inventory ? "opacity-50 cursor-not-allowed" : ""
+                        className={`bg-gray-100 hover:bg-gray-200 text-gray-700 h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-r-md transition-colors ${quantity === productData?.inventory ? "opacity-50 cursor-not-allowed" : ""
                           }`}
                         disabled={quantity === productData?.inventory}
                         onClick={handleIncreaseQuantity}
                       >
-                        <FaPlus size={14} />
+                        <FaPlus size={12} className="md:w-[14px] md:h-[14px]" />
                       </button>
                     </div>
 
                     {quantity === productData?.inventory && (
-                      <div className="flex items-center mt-2 text-sm gap-2">
-                        <GoAlertFill className="text-amber-500" size={16} />
+                      <div className="flex items-center mt-2 text-xs md:text-sm gap-1 md:gap-2">
+                        <GoAlertFill className="text-amber-500 flex-shrink-0" size={14} />
                         <p className="text-amber-600">
-                          La quantité maximale disponible est de {quantity} unités.
+                          Max {quantity} unités disponibles
                         </p>
                       </div>
                     )}
                   </div>
 
                   {/* Add to Cart Button */}
-                  <div className="mt-8">
+                  <div className="mt-4 md:mt-8">
                     <button
                       disabled={productData?.inventory <= 0}
                       type="button"
                       onClick={() => AddToBasket(productData, quantity)}
-                      className={`w-full py-3 px-6 flex items-center justify-center gap-2 rounded-md font-semibold text-white transition-all ${productData?.inventory <= 0
+                      className={`w-full py-2.5 md:py-3 px-4 md:px-6 flex items-center justify-center gap-2 rounded-md font-semibold text-white text-sm md:text-base transition-all ${productData?.inventory <= 0
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-primaryColor hover:bg-amber-200 hover:text-gray-800"
                         }`}
                     >
-                      <SlBasket size={18} />
+                      <SlBasket size={16} className="md:w-[18px] md:h-[18px]" />
                       {productData?.inventory <= 0 ? "Indisponible" : "Ajouter au panier"}
                     </button>
                   </div>

@@ -8,6 +8,15 @@ interface DiscountInput {
   newPrice: GLfloat;
   dateOfEnd: string;
   dateOfStart: string;
+  isActive?: boolean;
+  isDeleted?: boolean;
+  productId?: string;
+  discountType?: string;
+  discountValue?: number;
+
+
+
+
 }
 
 const updateDiscounts = async (
@@ -24,12 +33,8 @@ const updateDiscounts = async (
       throw new Error(`Invalid date provided: start - ${discountInput.dateOfStart}, end - ${discountInput.dateOfEnd}`);
     }
 
-    const discountData = {
-      newPrice: discountInput.newPrice,
-      price: price,
-      dateOfEnd: dateOfEnd.toDate(),
-      dateOfStart: dateOfStart.toDate(),
-    };
+    const isActive = dateOfStart.isSameOrBefore(moment()) && dateOfEnd.isSameOrAfter(moment());
+    const discountValue = price - discountInput.newPrice;
 
     const existingDiscount = await prisma.productDiscount.findFirst({
       where: { productId },
@@ -38,19 +43,37 @@ const updateDiscounts = async (
     if (existingDiscount) {
       await prisma.productDiscount.update({
         where: { id: existingDiscount.id },
-        data: discountData,
+        data: {
+          newPrice: discountInput.newPrice,
+          price: price,
+          dateOfEnd: dateOfEnd.toDate(),
+          dateOfStart: dateOfStart.toDate(),
+          isActive: isActive,
+          isDeleted: false,
+          updatedAt: new Date(),
+          discountType: "FIXED_AMOUNT", 
+          discountValue: discountValue,
+          campaignType: "MANUAL", 
+        },
       });
     } else {
       await prisma.productDiscount.create({
         data: {
           productId,
-          ...discountData,
+          newPrice: discountInput.newPrice,
+          price: price,
+          dateOfEnd: dateOfEnd.toDate(),
+          dateOfStart: dateOfStart.toDate(),
+          isActive: isActive,
+          isDeleted: false,
+          discountType: "FIXED_AMOUNT", 
+          discountValue: discountValue,
+          campaignType: "MANUAL",
         },
       });
     }
   }
 };
-
 export const updateProduct = async (
   _: any,
   { slug, input }: { slug: string; input: ProductInput },
@@ -162,7 +185,7 @@ export const updateProduct = async (
         });
       }
     }
-    revalidateTag('product');
+    revalidateTag('collection-search');
 
     return "Product updated successfully";
   } catch (error: any) {

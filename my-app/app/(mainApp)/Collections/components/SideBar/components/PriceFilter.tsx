@@ -14,7 +14,7 @@ export const PriceFilter = memo<PriceFilterProps>(({
   onPriceChange,
   onPriceChangeEnd
 }) => (
-  <div className="border-b pl-5 border-gray-200 py-3">
+  <div className=" pl-5 border-gray-200 py-3">
     <h3 className="font-normal tracking-widest text-sm pb-2">
       {FILTER_SECTIONS.PRICE}
     </h3>

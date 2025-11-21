@@ -1,5 +1,5 @@
 import Breadcumb from "@/app/components/Breadcumb";
-import { getCompanyInfo } from "@/utlils/getCompanyInfo";
+import { getCompanyInfo } from "@/utils/getCompanyInfo";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -27,6 +27,13 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN}/Privacy-Policy`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    'max-snippet': -1,
+    'max-image-preview': 'large',
+    'max-video-preview': -1,
   },
 };
 

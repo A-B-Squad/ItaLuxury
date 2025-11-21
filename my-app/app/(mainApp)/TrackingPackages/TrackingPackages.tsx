@@ -14,9 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Loading from "./loading";
 import moment from "moment-timezone";
-import "moment/locale/fr";
 import { useAuth } from "@/app/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiSearch, FiPackage, FiClock, FiInfo } from "react-icons/fi";

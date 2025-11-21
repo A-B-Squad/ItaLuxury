@@ -1,5 +1,5 @@
 
-export interface Color {
+export interface Colors {
   id: string;
   Hex: string;
   color: string;
@@ -13,6 +13,7 @@ export interface Brand {
 }
 
 export interface Product {
+  Colors: any;
   categories: { name: string }[];
 }
 

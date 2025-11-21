@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import Home from "./Home/Home";
 import { cookies } from "next/headers";
-import { decodeToken } from "@/utlils/tokens/token";
-import { getUser } from "@/utlils/getUser";
+import { decodeToken } from "@/utils/tokens/token";
+import { getUser } from "@/utils/getUser";
 
 const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ?? "https://ita-luxury.com").replace(/\/$/, "");
 

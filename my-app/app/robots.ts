@@ -1,117 +1,133 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com'
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com').replace(/\/$/, '');
 
     return {
         rules: [
-            // General rules for all crawlers
+            // === MAIN RULE FOR ALL BOTS ===
             {
                 userAgent: '*',
                 allow: [
                     '/',
-                    '/_next/',              
-                    '/images/',
-                    '/products/',
+                    '/Home',
                     '/Collections/',
+                    '/products/',
                     '/Contact-us',
                     '/Delivery',
                     '/Privacy-Policy',
                     '/Terms-of-use',
-                    '/Home',
-                    '/productComparison',
                     '/TrackingPackages',
+                    
+                    // === NEXT.JS STATIC ASSETS ===
+                    '/_next/static/',
+                    '/_next/image/',
+                    '/static/',
+                    '/images/',
+                    '/assets/',
+                    '/fonts/',
+                    '/static/css/',
+                    '/static/chunks/',
                 ],
                 disallow: [
-                    '/admin/',
-                    '/api/graphql',         
-                    '/api/facebookApi',
-                    '/Basket',
-                    '/Checkout',
-                    '/ForgotPassword',
-                    '/ResetPassword',
-                    '/signin',
-                    '/signup',
+                    // === USER PRIVATE AREAS ONLY ===
                     '/Account',
+                    '/Account/',
                     '/FavoriteList',
-                    '/*?_rsc=*',           
+                    
+                    // === API & INTERNAL PATHS ===
+                    '/api/',
+                    '/auth/',
+                    '/_next/data/',
+                    '/_next/cache/',
+                    '/_next/webpack/',
+                    '/_next/swc/',
+                    '/_next/server/',
+                    
+                    // === BUILD FILES ===
+                    '/types/',
                     '/*.json$',
-                    '/404',
-                    '/500',
+                    '/*.map$',
+                    
+                    // === RSC & SSR INTERNAL ===
+                    '/*?_rsc=',
+                    '/*&_rsc=',
                 ],
+                crawlDelay: 10,
             },
-            // Specific rules for Google Bot
+
+            // === GOOGLEBOT OPTIMIZED ===
             {
                 userAgent: 'Googlebot',
                 allow: [
                     '/',
-                    '/_next/',
-                    '/images/',
-                    '/products/',
+                    '/Home',
                     '/Collections/',
+                    '/products/',
                     '/Contact-us',
                     '/Delivery',
                     '/Privacy-Policy',
                     '/Terms-of-use',
-                    '/Home',
-                    '/productComparison',
                     '/TrackingPackages',
+                    '/signin',          
+                    '/signup',           
+                    '/Basket',           
+                    '/Checkout',         
+                    '/productComparison',
+                    
+                    // Static assets
+                    '/_next/static/',
+                    '/_next/image/',
+                    '/static/css/',
+                    '/static/chunks/',
+                    '/images/',
                 ],
                 disallow: [
-                    '/admin/',
-                    '/api/graphql',
-                    '/api/facebookApi',
-                    '/Basket',
-                    '/Checkout',
                     '/Account',
-                    '/ResetPassword',
-                    '/ForgotPassword',
-                    '/signin',
-                    '/signup',
-                    '/*?_rsc=*',
+                    '/FavoriteList',
+                    '/api/',
+                    '/auth/',
+                    '/_next/data/',
+                    '/_next/cache/',
                 ],
+                crawlDelay: 5,
             },
-            // Google Image Bot 
+
+            // === GOOGLE IMAGE BOT ===
             {
                 userAgent: 'Googlebot-Image',
                 allow: [
                     '/images/',
-                    '/_next/image',
-                    '/_next/static/media/',
+                    '/_next/image/',
+                    '/static/',
+                    '/products/',
                 ],
                 disallow: [
-                    '/admin/',
+                    '/api/',
+                    '/auth/',
                 ],
             },
-            // Bing Bot rules
+
+            // === GOOGLE SHOPPING BOT (IMPORTANT!) ===
             {
-                userAgent: 'bingbot',
+                userAgent: 'Googlebot-Shopping',
                 allow: [
                     '/',
-                    '/_next/',
-                    '/images/',
                     '/products/',
                     '/Collections/',
-                    '/Contact-us',
-                    '/Delivery',
-                    '/Privacy-Policy',
-                    '/Terms-of-use',
-                    '/TrackingPackages',
-                    '/Home',
-                ],
-                disallow: [
-                    '/admin/',
-                    '/api/graphql',
-                    '/api/facebookApi',
+                    '/images/',
+                    '/_next/image/',
                     '/Basket',
                     '/Checkout',
-                    '/Account',
-                    '/signin',
-                    '/signup',
-                    '/*?_rsc=*',
                 ],
+                disallow: [
+                    '/api/',
+                    '/auth/',
+                ],
+                crawlDelay: 5,
             },
         ],
+        
         sitemap: `${baseUrl}/sitemap.xml`,
     }
 }

@@ -1,6 +1,6 @@
 
 import React, { memo } from 'react';
-import { MIN_PRICE, MAX_PRICE, DEFAULT_PRICE } from '../../utils/constants';
+import { MIN_PRICE, MAX_PRICE } from '../../utils/constants';
 
 interface PriceRangeProps {
   localPrice: number;
@@ -8,55 +8,113 @@ interface PriceRangeProps {
   onPriceChangeEnd: () => void;
 }
 
-export const PriceRange = memo<PriceRangeProps>(({ 
-  localPrice, 
-  onPriceChange, 
-  onPriceChangeEnd 
-}) => (
-  <div className="w-11/12">
-    <div className="relative mb-6">
-      <label htmlFor="price-range-input" className="sr-only">
-        Prix range
-      </label>
-      <input
-        style={{ WebkitAppearance: "none", appearance: "none" }}
-        id="price-range-input"
-        type="range"
-        min={MIN_PRICE}
-        max={MAX_PRICE}
-        value={localPrice}
-        className="w-full h-full max-h-6 bg-gray-200 rounded-lg cursor-pointer"
-        onChange={onPriceChange}
-        onMouseUp={onPriceChangeEnd}
-        onTouchEnd={onPriceChangeEnd}
-      />
-      <span className="text-sm text-gray-500 absolute start-0 -bottom-6">
-        Min ({MIN_PRICE} TND)
-      </span>
-      <span className="text-sm text-gray-500 absolute end-0 -bottom-6">
-        Max ({MAX_PRICE} TND)
-      </span>
-    </div>
-    <div className="flex justify-between mt-10">
-      <span className="text-gray-400">de :</span>
-      <div className="w-20 max-h-20 h-full border flex justify-center border-gray-200 text-gray-400">
-        {MIN_PRICE}
+export const PriceRange = memo<PriceRangeProps>(({
+  localPrice,
+  onPriceChange,
+  onPriceChangeEnd
+}) => {
+
+
+
+  const percentage = ((localPrice - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
+
+  return (
+    <div className="w-full max-w-md mx-auto p-6">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">Plage de Prix</h3>
+          <div className="px-3 py-1 bg-blue-50 rounded-lg">
+            <span className="text-sm font-medium text-blue-600">
+              {localPrice} TND
+            </span>
+          </div>
+        </div>
+
+        {/* Slider Container */}
+        <div className="relative pt-2 pb-8">
+          {/* Progress Track */}
+          <div className="absolute top-2 left-0 right-0 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ease-out"
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+
+          {/* Slider Input */}
+          <input
+            id="price-range-input"
+            type="range"
+            min={MIN_PRICE}
+            max={MAX_PRICE}
+            value={localPrice}
+            className="relative w-full h-2 bg-transparent appearance-none cursor-pointer z-10"
+            style={{
+              WebkitAppearance: 'none',
+            }}
+            onChange={onPriceChange}
+            onMouseUp={onPriceChangeEnd}
+            onTouchEnd={onPriceChangeEnd}
+          />
+
+          {/* Min/Max Labels */}
+          <div className="flex justify-between mt-2 px-1">
+            <span className="text-xs font-medium text-gray-500">
+              {MIN_PRICE} TND
+            </span>
+            <span className="text-xs font-medium text-gray-500">
+              {MAX_PRICE} TND
+            </span>
+          </div>
+        </div>
+
+        {/* Price Inputs */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Min Price */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+              Prix Min
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                value={MIN_PRICE}
+                readOnly
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-500 text-sm font-medium cursor-not-allowed"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                TND
+              </span>
+            </div>
+          </div>
+
+          {/* Max Price */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+              Prix Max
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                value={localPrice}
+                onChange={onPriceChange}
+                onBlur={onPriceChangeEnd}
+                min={MIN_PRICE}
+                max={MAX_PRICE}
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                TND
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-      <span className="text-gray-400">à :</span>
-      <input
-        type="number"
-        className={`w-20 border max-h-6 text-center outline-1 focus:text-black outline-gray-300 border-gray-200 ${
-          localPrice !== DEFAULT_PRICE ? "text-black" : "text-gray-400"
-        }`}
-        value={localPrice}
-        onChange={onPriceChange}
-        onBlur={onPriceChangeEnd}
-        min={MIN_PRICE}
-        max={MAX_PRICE}
-      />
-      <span className="text-gray-400">TND</span>
     </div>
-  </div>
-));
+
+  )
+}
+
+);
 
 PriceRange.displayName = 'PriceRange';

@@ -10,14 +10,12 @@ import {
   usePruchaseOptions,
 } from "@/app/store/zustand";
 import { useAuth } from "@/app/hooks/useAuth";
-// Lazy-load tracking libraries when needed to reduce initial bundle size
 import CompactViewDetails from "./CompactViewDetails";
 import FullViewDetails from "./FullViewDetails";
 import ProductImage from "./ProductImage";
 import ProductLabels from "./ProductLabels";
 import ProductName from "./ProductName";
-import triggerEvents from "@/utlils/events/trackEvents";
-import { sendGTMEvent } from "@next/third-parties/google";
+import { trackAddToCart } from "@/utils/facebookEvents";
 
 interface ProductBoxProps {
   product: any;
@@ -66,76 +64,8 @@ const ProductBox: React.FC<ProductBoxProps> = ({
     return storedProducts.find((p: any) => p.id === product.id);
   }, [isAuthenticated, basketData, storedProducts, product.id]);
 
-  // Get current price
-  const currentPrice = useMemo(() => {
-    return product.productDiscounts.length > 0
-      ? product.productDiscounts[0].newPrice
-      : product.price;
-  }, [product.productDiscounts, product.price]);
 
 
-  // Create tracking data
-  const createTrackingData = useCallback((quantity: number) => {
-    const price = currentPrice;
-
-    return {
-      addToCartData: {
-        user_data: {
-          em: [userData?.email?.toLowerCase()],
-          fn: [userData?.fullName],
-          ph: [userData?.number],
-          country: ["tn"],
-          ct: "",
-          external_id: decodedToken?.userId,
-        },
-        custom_data: {
-          content_name: product.name,
-          content_type: "product",
-          content_ids: [product.id],
-          currency: "TND",
-          contents: [{
-            id: product.id,
-            quantity: product.actualQuantity || product.quantity,
-            item_price: parseFloat(price.toFixed(3))
-          }],
-          value: price * quantity,
-          content_category: product.categories?.[0]?.name || '',
-        },
-      },
-      gtmData: {
-        event: "add_to_cart",
-        ecommerce: {
-          currency: "TND",
-          value: price * quantity,
-          items: [{
-            item_id: product.id,
-            item_name: product.name,
-            quantity: product.actualQuantity || product.quantity,
-            price: price
-          }]
-        },
-        user_data: {
-          em: [userData?.email?.toLowerCase()],
-          fn: [userData?.fullName],
-          ph: [userData?.number],
-          country: ["tn"],
-          external_id: userData?.id
-        },
-        facebook_data: {
-          content_name: product.name,
-          content_type: "product",
-          content_ids: [product.id],
-          contents: [{
-            id: product.id,
-            quantity: product.actualQuantity || product.quantity,
-            item_price: parseFloat(price.toFixed(3))
-          }],
-          value: price * quantity,
-          currency: "TND"
-        }
-      }
-    };
-  }, [currentPrice, userData, decodedToken?.userId, product]);
 
   // Check inventory availability
   const checkInventory = useCallback((quantity: number) => {
@@ -228,11 +158,53 @@ const ProductBox: React.FC<ProductBoxProps> = ({
     // Check inventory
     if (!checkInventory(quantity)) return;
 
-    // Create and send tracking events
-    const { addToCartData, gtmData } = createTrackingData(quantity);
-    // Dynamically import tracking to avoid adding to main bundle
-    triggerEvents("AddToCart", addToCartData);
-    sendGTMEvent(gtmData);
+    // Prepare complete product data for tracking
+    const trackingProduct = {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      description: product.description,
+      Brand: product.Brand,
+      Colors: product.Colors,
+      categories: product.categories,
+      productDiscounts: product.productDiscounts,
+      inventory: product.inventory,
+      isVisible: product.isVisible,
+      reference: product.reference,
+      images: product.images,
+      quantity: product.actualQuantity || product.quantity,
+      technicalDetails: product.technicalDetails,
+    };
+
+    // Prepare user data
+    const user = userData ? {
+      id: decodedToken?.userId,
+      email: userData.email,
+      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+      phone: userData.number,
+      country: "tn",
+      city: userData.city || "",
+    } : undefined;
+
+    // Track the add to cart event with error handling
+    try {
+      console.log('🛒 Tracking AddToCart event:', {
+        product_id: trackingProduct.id,
+        product_name: trackingProduct.name,
+        quantity: product.actualQuantity || product.quantity,
+        user: user ? 'logged_in' : 'guest'
+      });
+
+      await trackAddToCart(trackingProduct, user);
+
+      console.log('✅ AddToCart event tracked successfully');
+    } catch (error) {
+      console.error("❌ Error tracking add to cart:", error);
+      // Don't block the user flow if tracking fails
+    }
+
 
     // Handle basket addition based on auth status
     if (isAuthenticated) {
@@ -246,7 +218,6 @@ const ProductBox: React.FC<ProductBoxProps> = ({
   }, [
     openPruchaseOptions,
     checkInventory,
-    createTrackingData,
     isAuthenticated,
     handleAuthenticatedBasket,
     handleGuestBasket,

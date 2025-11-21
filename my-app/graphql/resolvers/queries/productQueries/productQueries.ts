@@ -8,6 +8,7 @@ import { productsLessThen20 } from "./fetchProductPriceLess20";
 import { searchProducts } from "./searchProducts";
 import { getAllProductGroups } from "./getAllProductGroups";
 import { deleteAutoProductDiscount } from "./deleteAutoProductDiscounts";
+import { getAllProductsForGoogleFeed } from "./getAllProductsForGoogleFeed";
 
 export const productQueries = {
   allNewProducts,
@@ -19,5 +20,5 @@ export const productQueries = {
   productsLessThen20,
   searchProducts,
   deleteAutoProductDiscount,
-  getAllProductGroups
+  getAllProductGroups,getAllProductsForGoogleFeed
 };

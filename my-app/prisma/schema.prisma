@@ -43,11 +43,22 @@ enum PointType {
   ADMIN_ADDED
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum CampaignType {
+  MANUAL
+  PROMOTIONAL_CAMPAIGN
+}
+
 model User {
   id                String             @id @default(uuid())
   fullName          String
   email             String             @unique
   password          String
+  createdAt         DateTime           @default(now())
   role              Role
   number            String
   points            Int                @default(0)
@@ -61,12 +72,14 @@ model User {
 }
 
 model Admin {
-  id       String  @id @default(uuid())
-  fullName String
-  email    String? @unique
-  password String
-  role     Role
-  number   String?
+  id                String             @id @default(uuid())
+  fullName          String
+  email             String?            @unique
+  password          String
+  role              Role
+  number            String?
+  discountCampaigns DiscountCampaign[]
+  productDiscounts  ProductDiscount[]
 }
 
 model Category {
@@ -79,6 +92,7 @@ model Category {
   bigImage      String?
   smallImage    String?
   description   String?
+  order         Int         @default(0)
   BestSales     BestSales[]
 }
 
@@ -106,6 +120,7 @@ model Product {
   colorsId              String?
   TopDeals              TopDeals?
   BestSales             BestSales[]
+  searchKeywords        String               @default("")
   Brand                 Brand?               @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   brandId               String?
   BreakedProduct        BreakedProduct[]
@@ -140,16 +155,6 @@ model TopDeals {
   id        String   @id @default(uuid())
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   productId String?  @unique
-}
-
-model ProductDiscount {
-  id          String   @id @default(uuid())
-  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  productId   String?  @unique
-  price       Float
-  newPrice    Float
-  dateOfStart DateTime
-  dateOfEnd   DateTime
 }
 
 model Basket {
@@ -343,4 +348,65 @@ model PointSetting {
   loyaltyRewardValue Float    @default(100.0) // Value of loyalty reward in TND
   isActive           Boolean  @default(true)
   updatedAt          DateTime @updatedAt
+}
+
+// Improved ProductDiscount model
+model ProductDiscount {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId String
+
+  // Original pricing
+  price    Float    @default(0)  
+  newPrice Float    @default(0) 
+
+  // Discount details
+  discountType  DiscountType @default(PERCENTAGE)  
+  discountValue Float        @default(0)           
+
+  // Campaign info
+  campaignName String?                             
+  campaignType CampaignType @default(MANUAL)      
+
+  // Time period
+  dateOfStart DateTime @default(now())  
+  dateOfEnd   DateTime                  
+
+  // Status
+  isActive  Boolean @default(true)   
+  isDeleted Boolean @default(false)  
+
+  // Audit trail
+  createdAt   DateTime @default(now())  
+  updatedAt   DateTime @updatedAt       
+  createdBy   Admin?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String?
+
+  @@index([productId, dateOfStart, dateOfEnd])
+  @@index([campaignName, isActive])
+  @@index([isActive, dateOfStart, dateOfEnd])
+}
+model DiscountCampaign {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  type        CampaignType
+  dateStart   DateTime
+  dateEnd     DateTime
+  isActive    Boolean      @default(true)
+
+  // Conditions that were applied
+  conditions Json? // Store the filter conditions used
+
+  // Statistics
+  productsAffected Int   @default(0)
+  totalRevenue     Float @default(0)
+
+  // Audit
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   Admin?   @relation(fields: [createdById], references: [id])
+  createdById String?
+
+  @@index([dateStart, dateEnd, isActive])
 }

@@ -18,7 +18,7 @@ import {
   facebookProvider,
   googleProvider,
 } from "@/lib/fireBase/firebase";
-import { setToken } from "@/utlils/tokens/token";
+import { setToken } from "@/utils/tokens/token";
 import { signInWithPopup, UserCredential } from "firebase/auth";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {

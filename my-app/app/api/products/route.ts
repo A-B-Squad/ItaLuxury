@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-interface Product {
-    id: string;
-    name: string;
-    slug: string;
-    images?: string[];
-    categories: Array<{
-        id: string;
-        name: string;
-        description?: string;
-    }>;
-}
+
 
 interface GraphQLResponse {
     data?: {
@@ -42,23 +32,48 @@ export async function GET(req: NextRequest) {
             body: JSON.stringify({
                 query: `
           query SearchProducts($input: ProductSearchInput!) {
-            searchProducts(input: $input) {
-              totalCount
-              results {
-                products {
-                  id
-                  name
-                  slug
-                  images
-                  categories {
-                    id
-                    name
-                    description
-                  }
-                }
-              }
+  searchProducts(input: $input) {
+    totalCount
+    results {
+      products {
+        id
+        name
+        slug
+        price
+        reference
+        description
+        createdAt
+        updatedAt
+        inventory
+        images
+        categories {
+          id
+          name
+          subcategories {
+            id
+            name
+            parentId
+            subcategories {
+              id
+              name
+              parentId
             }
           }
+        }
+        Colors {
+          id
+          color
+          Hex
+        }
+        productDiscounts {
+          price
+          newPrice
+        }
+      }
+    }
+  }
+}
+
         `,
                 variables: {
                     input: {
@@ -69,8 +84,9 @@ export async function GET(req: NextRequest) {
                         maxPrice: 100000000,
                         minPrice: 1,
                         page: 1,
-                        pageSize: 50000,
+                        pageSize: 10000,
                         query: "",
+                        visibleProduct: true,
                     },
                 },
             }),

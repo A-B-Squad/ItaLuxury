@@ -62,7 +62,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData, initialData
   const router = useRouter();
   const { view } = useAllProductViewStore();
   const [searchProducts] = useLazyQuery<SearchProductsResult>(SEARCH_PRODUCTS_QUERY, {
-    fetchPolicy: 'cache-first', 
+    fetchPolicy: 'cache-first',
   });
   const { toggleOpenSidebar } = useSidebarStore();
 

@@ -2,9 +2,9 @@ import React from "react";
 import { Metadata } from "next";
 import Basket from "./Basket";
 import { cookies } from "next/headers";
-import { decodeToken } from "@/utlils/tokens/token";
-import { getUser } from "@/utlils/getUser";
-import { getCompanyInfo } from "@/utlils/getCompanyInfo";
+import { decodeToken } from "@/utils/tokens/token";
+import { getUser } from "@/utils/getUser";
+import { getCompanyInfo } from "@/utils/getCompanyInfo";
 
 if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {
   throw new Error("NEXT_PUBLIC_BASE_URL_DOMAIN is not defined");

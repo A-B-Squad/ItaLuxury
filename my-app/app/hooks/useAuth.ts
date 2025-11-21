@@ -1,5 +1,5 @@
-import { decodeToken, getToken, removeToken } from '@/utlils/tokens/token';
-import type { DecodedToken } from '@/utlils/tokens/types';
+import { decodeToken, getToken, removeToken } from '@/utils/tokens/token';
+import type { DecodedToken } from '@/utils/tokens/types';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useTokenRefresh } from './useTokenRefresh';
@@ -7,6 +7,7 @@ import { useTokenRefresh } from './useTokenRefresh';
 export const useAuth = () => {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [skipRefreshCheck, setSkipRefreshCheck] = useState(false);
   const { checkAndRefreshToken } = useTokenRefresh();
   const router = useRouter();
 
@@ -17,6 +18,15 @@ export const useAuth = () => {
     if (!token) {
       setDecodedToken(null);
       setIsLoading(false);
+      return;
+    }
+
+    // Skip refresh check if we just set a new token
+    if (skipRefreshCheck) {
+      const decoded = decodeToken(token);
+      setDecodedToken(decoded);
+      setIsLoading(false);
+      setSkipRefreshCheck(false);
       return;
     }
 
@@ -42,7 +52,7 @@ export const useAuth = () => {
     }
 
     setIsLoading(false);
-  }, [checkAndRefreshToken, router]);
+  }, [checkAndRefreshToken, router, skipRefreshCheck]);
 
   const logout = useCallback(() => {
     removeToken();
@@ -53,6 +63,8 @@ export const useAuth = () => {
   const updateToken = useCallback((newToken: string) => {
     const decoded = decodeToken(newToken);
     setDecodedToken(decoded);
+    setSkipRefreshCheck(true); // Skip next refresh check
+    setIsLoading(false);
   }, []);
 
   // Handle server-side refresh hints
@@ -71,10 +83,16 @@ export const useAuth = () => {
 
     window.addEventListener('storage', handleStorageChange);
 
-    // Check and refresh token periodically
+    // Check token expiration every hour instead of refreshing constantly
     const interval = setInterval(() => {
-      checkAndRefreshToken();
-    }, 24 * 60 * 60 * 1000); // 24 hours
+      const token = getToken();
+      if (token) {
+        // Only check and refresh if not in signup/signin flow
+        if (sessionStorage.getItem('skipTokenRefresh') !== 'true') {
+          checkAndRefreshToken();
+        }
+      }
+    }, 60 * 60 * 1000); // Check every hour
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);

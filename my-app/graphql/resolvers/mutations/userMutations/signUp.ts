@@ -14,7 +14,7 @@ function generateProfessionalId(length: number) {
 export const signUp = async (
   _: any,
   { input }: { input: SignUpInput },
-  { prisma, jwtSecret, res }: Context
+  { prisma, jwtSecret, cookies }: Context
 ) => {
   const { fullName, email, password, number } = input;
 
@@ -23,7 +23,7 @@ export const signUp = async (
     where: { email },
   });
   if (existingUserByEmail) {
-    return new Error("Email address is already in use");
+    throw new Error("Email address is already in use");
   }
 
   // Check if the number is already in use
@@ -31,7 +31,7 @@ export const signUp = async (
     where: { number },
   });
   if (existingUserByNumber) {
-    return new Error("Phone number is already in use");
+    throw new Error("Phone number is already in use");
   }
 
   // Hash password
@@ -64,18 +64,9 @@ export const signUp = async (
   });
 
   // Generate JWT token
-  const token = jwt.sign({ userId: newUser.id }, jwtSecret);
-
-  // Determine the domain and secure settings based on environment
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const domain = isDevelopment ? 'localhost' : 'ita-luxury.com';
-  const secureFlag = isDevelopment ? '' : 'Secure;';
-
-  // Set the cookie with environment-specific settings
-  res.setHeader(
-    "Set-Cookie",
-    `Token=${token}; Path=/; Domain=${domain}; SameSite=Strict; ${secureFlag} `
-  );
+  const token = jwt.sign({ userId: newUser.id }, jwtSecret,{
+     expiresIn: "7d", 
+  });
 
 
   return {

@@ -1,5 +1,5 @@
 import Breadcumb from "@/app/components/Breadcumb";
-import { getCompanyInfo } from "@/utlils/getCompanyInfo";
+import { getCompanyInfo } from "@/utils/getCompanyInfo";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import React from "react";

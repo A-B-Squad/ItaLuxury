@@ -1,3 +1,5 @@
+import { getCurrentPrice } from "@/utils/getCurrentPrice";
+import { hasActiveDiscount } from "@/utils/hasActiveDiscount";
 import React from "react";
 import { SlBasketLoaded } from "react-icons/sl";
 
@@ -6,9 +8,18 @@ interface Product {
   name: string;
   price: number;
   productDiscounts: Array<{
+    id: string;
+    price: number;
     newPrice: number;
+    discountType: string;
+    discountValue: number;
+    campaignName: string;
+    campaignType: string;
+    dateOfStart: string;
+    dateOfEnd: string;
+    isActive: boolean;
+    isDeleted: boolean;
   }>;
-
 }
 
 interface FullViewDetailsProps {
@@ -20,17 +31,17 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
   product,
   onAddToBasket
 }) => {
-  const hasDiscount = product.productDiscounts.length > 0;
-  const discountPrice = hasDiscount ? product.productDiscounts[0]?.newPrice : null;
+  const hasDiscount = hasActiveDiscount(product);
+  const currentPrice = getCurrentPrice(product);
 
   return (
-    <div className="  flex w-full flex-col md:flex-row justify-between items-start ">
+    <div className="flex w-full flex-col md:flex-row justify-between items-start">
       {/* Price Section */}
       <div className="PriceSection flex-1">
-        {hasDiscount && discountPrice ? (
-          <div className="flex flex-col  sm:items-center gap-1">
-            <span className=" text-lg md:text-xl font-bold text-red-500">
-              {discountPrice.toFixed(3)} TND
+        {hasDiscount ? (
+          <div className="flex flex-col sm:items-center gap-1">
+            <span className="text-lg md:text-xl font-bold text-red-500">
+              {currentPrice.toFixed(3)} TND
             </span>
             <span className="text-base font-medium line-through text-gray-400">
               {product.price.toFixed(3)} TND
@@ -42,7 +53,6 @@ const FullViewDetails: React.FC<FullViewDetailsProps> = ({
           </span>
         )}
       </div>
-
 
       {/* Add to Cart Button */}
       <button

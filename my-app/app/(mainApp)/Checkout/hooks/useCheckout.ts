@@ -5,36 +5,32 @@ import { useRouter } from "next/navigation";
 import { CREATE_CHECKOUT_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
 import { useProductsInBasketStore, useCheckoutStore } from "@/app/store/zustand";
-import { sendGTMEvent } from "@next/third-parties/google";
-import triggerEvents from "@/utlils/events/trackEvents";
-import { sendPurchaseNotifications } from "@/utlils/sendPurchaseNotifications";
+import { sendPurchaseNotifications } from "@/utils/sendPurchaseNotifications";
 import { usePayment } from "./usePayment";
+import { trackPurchase } from "@/utils/facebookEvents";
+import { useAuth } from "@/app/hooks/useAuth";
 
 interface ExtraCheckoutProps {
     userEmail: string;
     userName: string;
     userPhone: string;
+    deliveryPrice: number
+    userCity?: string;
     isGuest: boolean;
     paymentMethod: "CASH_ON_DELIVERY" | "CREDIT_CARD";
     calculateTotal: () => number | string;
 }
 export const useCheckout = (
-    decodedToken?: any,
     setSubmitLoading?: (val: boolean) => void
 ) => {
     const { toast } = useToast();
     const router = useRouter();
     const { clearBasket } = useProductsInBasketStore();
     const { checkoutProducts } = useCheckoutStore();
-    const { handleOnlinePayment, paymentLoading } = usePayment();
+    const { handleOnlinePayment } = usePayment();
+    const { decodedToken, } = useAuth();
 
     const [createCheckoutMutation, { loading }] = useMutation(CREATE_CHECKOUT_MUTATION);
-
-
-
-
-
-
 
     const createCheckout = (checkoutInput: any, extra: ExtraCheckoutProps) => {
         createCheckoutMutation({
@@ -44,102 +40,74 @@ export const useCheckout = (
                     ? [{ query: BASKET_QUERY, variables: { userId: decodedToken.userId } }]
                     : []
                 )],
+
+
             onCompleted: async (data) => {
                 const customOrderId = data.createCheckout.customId;
-                clearBasket();
                 const finalValue = Number(extra.calculateTotal());
-                const totalItems = checkoutProducts.reduce(
-                    (sum, product) => sum + (product?.actualQuantity || product?.quantity || 0),
-                    0
-                );
+                // Track purchase with complete product data
+                if (checkoutProducts && checkoutProducts.length > 0 && customOrderId) {
+                    // Map products to include ALL required fields for Facebook Catalog
+                    const cartItems = checkoutProducts.map((product: any) => ({
+                        id: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                        price: Number(product.price),
+                        quantity: product.actualQuantity || product.quantity || 1,
+                        description: product.description,
+                        Brand: product.Brand,
+                        Colors: product.Colors,
+                        categories: product.categories,
+                        productDiscounts: product.productDiscounts,
+                        inventory: product.inventory,
+                        isVisible: product.isVisible,
+                        reference: product.reference,
+                        images: product.images,
+                        technicalDetails: product.technicalDetails,
+                    }));
 
-                // items tracking
-                const itemsWithPrices = checkoutProducts.map((product) => ({
-                    item_name: product.name,
-                    item_category: product.categories?.[0]?.name || "",
-                    id: product.id,
-                    quantity: product.actualQuantity || product.quantity,
-                    price:
-                        product.productDiscounts?.length > 0
-                            ? Number(product.productDiscounts[0].newPrice)
-                            : Number(product.price),
-                }));
+                    // Prepare user data with proper name splitting
+                    const user = extra.userName ? {
+                        id: decodedToken?.userId,
+                        email: extra.userEmail,
+                        firstName: extra.userName?.split(' ')[0] || extra.userName,
+                        lastName: extra.userName?.split(' ').slice(1).join(' ') || '',
+                        phone: extra.userPhone,
+                        country: "tn",
+                        city: extra.userCity || "",
+                    } : undefined;
 
-                const facebookContents = checkoutProducts.map((product) => ({
-                    id: product.id,
-                    quantity: product.actualQuantity || product.quantity,
-                    item_price:
-                        product.productDiscounts?.length > 0
-                            ? Number(product.productDiscounts[0].newPrice)
-                            : Number(product.price),
-                }));
+                    // Calculate shipping based on your business rules
+                    const shippingValue = finalValue >= 499 ? 0 : extra.deliveryPrice;
 
-                // 🔹 GTM
-                sendGTMEvent({
-                    event: "purchase",
-                    ecommerce: {
-                        currency: "TND",
-                        value: finalValue,
-                        items: itemsWithPrices,
-                        transaction_id: customOrderId,
-                    },
-                    user_data: {
-                        em: [extra.userEmail?.toLowerCase()],
-                        fn: [extra.userName],
-                        ph: [extra.userPhone],
-                        country: ["tn"],
-                        ct: checkoutInput.governorateId,
-                        external_id: decodedToken?.userId,
-                    },
-                    facebook_data: {
-                        currency: "TND",
-                        value: finalValue,
-                        content_type: "product_group",
-                        contents: facebookContents,
-                        content_name: "Purchase",
-                        num_items: totalItems,
-                        content_category: "Checkout",
-                        delivery_category: checkoutInput.freeDelivery
-                            ? "free_shipping"
-                            : "shipping",
-                        payment_method:
-                            extra.paymentMethod === "CREDIT_CARD"
-                                ? "credit_card"
-                                : "cash_on_delivery",
-                        transaction_id: customOrderId,
-                    },
-                });
+                    console.log('🎉 Tracking Purchase event:', {
+                        order_id: customOrderId,
+                        total_value: finalValue,
+                        product_count: cartItems.length,
+                        shipping_value: shippingValue,
+                        user: user ? 'logged_in' : 'guest'
+                    });
 
-                // 🔹 Custom tracker
-                triggerEvents("Purchase", {
-                    user_data: {
-                        em: [extra.userEmail?.toLowerCase()],
-                        fn: [extra.userName],
-                        ph: [extra.userPhone],
-                        country: ["tn"],
-                        ct: checkoutInput.governorateId,
-                        external_id: decodedToken?.userId,
-                    },
-                    custom_data: {
-                        currency: "TND",
-                        value: finalValue,
-                        content_type: "product_group",
-                        contents: facebookContents,
-                        content_name: "Purchase",
-                        content_ids: checkoutProducts.map((product) => product.id),
-                        num_items: totalItems,
-                        content_category: "Checkout",
-                        delivery_category: checkoutInput.freeDelivery
-                            ? "free_shipping"
-                            : "shipping",
-                        payment_method:
-                            extra.paymentMethod === "CREDIT_CARD"
-                                ? "credit_card"
-                                : "cash_on_delivery",
-                        transaction_id: customOrderId,
-                    },
-                });
+                    // Track the purchase
+                    try {
+                        await trackPurchase(
+                            customOrderId,
+                            cartItems,
+                            finalValue,
+                            user,
+                            shippingValue,
+                        );
+                        console.log('✅ Purchase event tracked successfully');
+                    } catch (error) {
+                        console.error("❌ Error tracking purchase:", error);
+                        // Don't block the checkout flow if tracking fails
+                    }
+                }
 
+                // Clear basket after successful tracking
+                clearBasket();
+
+                // Handle payment method
                 if (extra.paymentMethod === "CREDIT_CARD") {
                     await handleOnlinePayment({
                         orderId: customOrderId,
@@ -165,16 +133,14 @@ export const useCheckout = (
                 console.error("Checkout Error:", error);
                 toast({
                     title: "Error",
-                    description:
-                        "An error occurred during checkout. Please try again.",
+                    description: "An error occurred during checkout. Please try again.",
                     variant: "destructive",
                 });
             },
         });
     };
-
     return {
         createCheckout,
-        loading: loading || paymentLoading,
+        loading: loading,
     };
 };

@@ -5,7 +5,6 @@ import { SlBasket } from "react-icons/sl";
 import { useProductsInBasketStore } from "../store/zustand";
 import { usePathname } from "next/navigation";
 import { GoHome } from "react-icons/go";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
 import { FaWhatsapp } from "react-icons/fa";
 import { HiArrowUp } from "react-icons/hi2";
@@ -92,16 +91,7 @@ const FloatingActionButtons = () => {
 
   // Enhanced scroll to top handler with fallback removed for better performance
   const handleScrollToTop = useCallback(() => {
-    // Track analytics
-    sendGTMEvent({
-      event: "scroll_to_top",
-      page_location: window.location.href,
-      scroll_position: window.scrollY,
-      user_data: isAuthenticated ? {
-        country: ["tn"],
-        external_id: decodedToken?.userId
-      } : undefined
-    });
+
 
     // Smooth scroll to top
     window.scrollTo({
@@ -109,46 +99,6 @@ const FloatingActionButtons = () => {
       behavior: prefersReducedMotion ? 'auto' : SCROLL_BEHAVIOR
     });
   }, [isAuthenticated, decodedToken, prefersReducedMotion]);
-
-  // Memoized handlers to prevent unnecessary re-renders
-  const handleBasketClick = useCallback(() => {
-    sendGTMEvent({
-      event: "view_cart",
-      page_location: window.location.href,
-      user_data: isAuthenticated ? {
-        country: ["tn"],
-        external_id: decodedToken?.userId
-      } : undefined,
-      facebook_data: {
-        content_name: "Cart View",
-        content_type: "cart",
-        currency: "TND",
-        num_items: quantityInBasket
-      }
-    });
-  }, [isAuthenticated, decodedToken, quantityInBasket]);
-
-  const handleHomeClick = useCallback(() => {
-    sendGTMEvent({
-      event: "home_view",
-      page_location: window.location.href,
-      user_data: isAuthenticated ? {
-        country: ["tn"],
-        external_id: decodedToken?.userId
-      } : undefined
-    });
-  }, [isAuthenticated, decodedToken]);
-
-  const handleWhatsAppClick = useCallback(() => {
-    sendGTMEvent({
-      event: "whatsapp_click",
-      page_location: window.location.href,
-      user_data: isAuthenticated ? {
-        country: ["tn"],
-        external_id: decodedToken?.userId
-      } : undefined
-    });
-  }, [isAuthenticated, decodedToken]);
 
   // Simplified animation variants for better performance
   const buttonVariants: Variants = prefersReducedMotion
@@ -233,7 +183,6 @@ const FloatingActionButtons = () => {
           href="https://wa.me/21623212892"
           target="_blank"
           rel="noopener noreferrer"
-          onClick={handleWhatsAppClick}
           className="whatsapp-button rounded-full flex items-center justify-center w-[54px] h-[54px] bg-[#25D366] shadow-lg hover:bg-[#1cb154] hover:shadow-xl transition-colors duration-200 group"
           aria-label="Contact us on WhatsApp"
         >

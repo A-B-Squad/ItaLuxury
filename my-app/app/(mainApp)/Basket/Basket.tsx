@@ -15,25 +15,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/events/trackEvents";
 import { useMutation, useQuery } from "@apollo/client";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { Trash2Icon } from "lucide-react";
 import Image from "next/image";
-
 import Link from "next/link";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiArrowLeft, FiShoppingBag } from "react-icons/fi";
 import { HiPlus } from "react-icons/hi2";
 import { RiSubtractLine } from "react-icons/ri";
 import {
   DECREASE_QUANTITY_MUTATION,
-  DELETE_BASKET_BY_ID_MUTATION,
+  DELETE_PRODUCT_FROM_BASKET_BY_ID_MUTATION,
   INCREASE_QUANTITY_MUTATION,
 } from "../../../graphql/mutations";
-import {
-  BASKET_QUERY,
-} from "../../../graphql/queries";
+import { BASKET_QUERY } from "../../../graphql/queries";
+import { trackRemoveFromCart, trackViewCart } from "@/utils/facebookEvents";
+
 
 interface Product {
   id: string;
@@ -43,8 +40,11 @@ interface Product {
   quantity: number;
   basketId: string;
   productDiscounts: {
+    id: string
     newPrice: number;
     price: number;
+    dateOfStart: string;
+    dateOfEnd: string;
   }[];
   categories: {
     name: string;
@@ -131,11 +131,82 @@ const Basket = ({ userData, companyData }: any) => {
     },
   });
 
+  // ========== TRACK ViewCart ON PAGE LOAD ==========
+  useEffect(() => {
+    // Only track if we have products
+    if (!products || products.length === 0) return;
 
+    // Prepare complete cart items for tracking with ALL required fields
+    const cartItems = products.map((product) => {
+      // Get the actual price (with discount if available)
+      const productPrice = product.productDiscounts?.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price;
+
+      const quantity = product.quantity || product.actualQuantity || 0;
+
+      return {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: Number(productPrice),
+        quantity: quantity,
+
+        // Other required fields with fallbacks
+        isVisible: product.isVisible !== undefined ? product.isVisible : true,
+        reference: product.reference || product.id,
+        description: product.description || product.name,
+        inventory: product.inventory || 0,
+        images: product.images || [],
+        categories: product.categories || [],
+        productDiscounts: product.productDiscounts || [],
+
+        // Optional fields
+        Brand: product.Brand || { name: 'ita-luxury' },
+        Colors: product.Colors || null,
+        technicalDetails: product.technicalDetails,
+        reviews: product.reviews || [],
+        GroupProductVariant: product.GroupProductVariant,
+        solde: product.solde,
+      };
+    });
+
+    // Prepare user data
+    const user = userData ? {
+      id: userData.id,
+      email: userData.email,
+      phone: userData.number,
+      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+      city: userData.city || "",
+      country: "tn",
+    } : undefined;
+
+    console.log('🛒 ViewCart - Tracking data:', {
+      product_count: cartItems.length,
+      total_value: totalPrice,
+      user: user ? 'logged_in' : 'guest',
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      }))
+    });
+
+    // Track ViewCart event
+    trackViewCart(cartItems, Number(totalPrice), user)
+      .then(() => {
+        console.log("✅ ViewCart tracked successfully");
+      })
+      .catch(error => {
+        console.error("❌ Error tracking ViewCart:", error);
+      });
+
+  }, [products, totalPrice, userData]);
 
   const handleQuantityChange = useCallback(
     (productId: string, change: number) => {
-
       const updatedProducts = storedProducts.map((product) => {
         if (product.id === productId) {
           const newQuantity = Math.max(
@@ -150,13 +221,11 @@ const Basket = ({ userData, companyData }: any) => {
         (total, product) =>
           total + (product.actualQuantity ?? product.quantity),
         0
-      )
-      setProducts(updatedProducts);
-      setQuantityInBasket(
-        quantityInBasket
       );
+      setProducts(updatedProducts);
+      setQuantityInBasket(quantityInBasket);
     },
-    [storedProducts, setQuantityInBasket]
+    [storedProducts]
   );
 
   // Mutations
@@ -192,7 +261,7 @@ const Basket = ({ userData, companyData }: any) => {
         increaseProductInQtBasket(productId, 1);
       }
     },
-    [decodedToken, increaseQuantity, handleQuantityChange,increaseProductInQtBasket,toggleIsUpdated]
+    [decodedToken, increaseQuantity, handleQuantityChange, increaseProductInQtBasket, toggleIsUpdated]
   );
 
   const handleDecreaseQuantity = useCallback(
@@ -218,141 +287,251 @@ const Basket = ({ userData, companyData }: any) => {
     [decodedToken, decreaseQuantity, handleQuantityChange]
   );
 
-  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
+  const [deleteBasketById] = useMutation(DELETE_PRODUCT_FROM_BASKET_BY_ID_MUTATION);
 
-  // Event handlers
+  // ========== TRACK RemoveFromCart ==========
   const handleRemoveProduct = useCallback(
     async (productId: string, basketId?: string) => {
-      if (decodedToken?.userId && basketId) {
-        try {
+      try {
+        // Find the product being removed
+        const removedProduct = products.find(
+          (p: Product) => p.id === productId || p.basketId === basketId
+        );
+
+        if (!removedProduct) {
+          console.warn('❌ Product not found for removal:', { productId, basketId });
+          return;
+        }
+
+        // Prepare complete product data for tracking with fallbacks
+        const productToTrack = {
+          id: removedProduct.id,
+          name: removedProduct.name,
+          slug: removedProduct.slug || `product-${removedProduct.id}`,
+          price: Number(removedProduct.price) || 0,
+          quantity: removedProduct.quantity || removedProduct.actualQuantity || 1,
+          description: removedProduct.description || removedProduct.name,
+          Brand: removedProduct.Brand || { name: 'ita-luxury' },
+          Colors: removedProduct.Colors || null,
+          categories: removedProduct.categories || [],
+          productDiscounts: removedProduct.productDiscounts || [],
+          inventory: removedProduct.inventory || 0,
+          isVisible: removedProduct.isVisible !== undefined ? removedProduct.isVisible : true,
+          reference: removedProduct.reference || removedProduct.id,
+          images: removedProduct.images || [],
+        };
+
+        console.log('🗑️ RemoveFromCart - Product data:', {
+          id: productToTrack.id,
+          name: productToTrack.name,
+          quantity: productToTrack.quantity,
+          price: productToTrack.price
+        });
+
+        // Prepare user data with better name handling
+        const user = userData ? {
+          id: userData.id,
+          email: userData.email,
+          phone: userData.number,
+          firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+          lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+          city: userData.city || "",
+          country: "tn",
+        } : undefined;
+
+        // Track RemoveFromCart event (don't await to avoid blocking UI)
+        trackRemoveFromCart(productToTrack, user)
+          .then(() => {
+            console.log("✅ RemoveFromCart tracked successfully");
+          })
+          .catch(error => {
+            console.error("❌ Error tracking RemoveFromCart:", error);
+            // Don't show error to user - tracking failure shouldn't block removal
+          });
+
+      } catch (trackingError) {
+        console.error("❌ Error in tracking preparation:", trackingError);
+      }
+
+      // Remove from database or store (this happens regardless of tracking success)
+      try {
+        if (decodedToken?.userId && basketId) {
+          // Optimistically update UI first
           setProducts((prevProducts) =>
             prevProducts.filter((product) => product.basketId !== basketId)
           );
+
+          // Then remove from database
           await deleteBasketById({
-            variables: { basketId },
+            variables: { basketId, productId },
           });
+
+          // Refresh data
           refetch();
           toggleIsUpdated();
-        } catch (error) {
-          console.error("Failed to delete basket item:", error);
+
+          // Show success message
+          toast({
+            title: "Produit supprimé",
+            description: "Le produit a été retiré de votre panier.",
+            className: "bg-green-500 text-white",
+          });
+        } else {
+          // Remove from local store
+          removeProductFromBasket(productId);
+
+          // Update local products state
+          setProducts((prevProducts) =>
+            prevProducts.filter((product) => product.id !== productId)
+          );
+
+          // Show success message
+          toast({
+            title: "Produit supprimé",
+            description: "Le produit a été retiré de votre panier.",
+            className: "bg-green-500 text-white",
+          });
         }
-      } else {
-        removeProductFromBasket(productId);
+      } catch (removalError) {
+        console.error("❌ Failed to remove product:", removalError);
+
+        // Revert optimistic update on error
+        if (decodedToken?.userId) {
+          refetch(); // Refetch to get correct state
+        }
+
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer le produit. Veuillez réessayer.",
+          className: "bg-red-500 text-white",
+        });
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch]
+    [products, userData, decodedToken, deleteBasketById, removeProductFromBasket, refetch, toggleIsUpdated, toast]
   );
 
   // Memoize the empty basket component
-  const EmptyBasket = useMemo(() => (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-      <div className="bg-gray-100 p-6 rounded-full mb-6">
-        <FiShoppingBag size={60} className="text-gray-400" />
+  const EmptyBasket = useMemo(
+    () => (
+      <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+        <div className="bg-gray-100 p-6 rounded-full mb-6">
+          <FiShoppingBag size={60} className="text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          Votre panier est vide
+        </h2>
+        <p className="text-gray-600 mb-8 max-w-md">
+          Découvrez nos produits et ajoutez-les à votre panier pour commencer vos
+          achats.
+        </p>
+        <Link
+          href="/Collections/tunisie?page=1"
+          className="flex items-center justify-center gap-2 bg-primaryColor hover:bg-amber-200 text-white font-semibold py-3 px-6 rounded-md transition-colors"
+        >
+          <FiArrowLeft />
+          Continuer mes achats
+        </Link>
       </div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Votre panier est vide</h2>
-      <p className="text-gray-600 mb-8 max-w-md">
-        Découvrez nos produits et ajoutez-les à votre panier pour commencer vos achats.
-      </p>
-      <Link
-        href="/Collections/tunisie?page=1"
-        className="flex items-center justify-center gap-2 bg-primaryColor hover:bg-amber-200 text-white font-semibold py-3 px-6 rounded-md transition-colors"
-      >
-        <FiArrowLeft />
-        Continuer mes achats
-      </Link>
-    </div>
-  ), []);
+    ),
+    []
+  );
+
   // Memoize the product list rendering
-  const productList = useMemo(() => (
-    <TableBody>
-      {(products?.length > 0 ? products : []).map((product) => (
-        <TableRow key={product.id}>
-          <TableCell className="flex items-center">
-            <div className="w-24 h-24 relative">
-              <Image
-                alt={product.name}
-                src={
-                  product.images?.[0] ||
-                  "https://via.placeholder.com/150"
-                }
-                fill={true}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-            <div className="ml-4">
-              <Link
-                href={`/products/tunisie?slug=${product.slug}`}
-                className="font-semibold text-sm text-gray-800"
-              >
-                {product.name}
-              </Link>
-              <p className="text-xs text-gray-500">
-                {product.categories
-                  ?.map((category) => category.name)
-                  .join(", ") || "No categories"}
-              </p>
-            </div>
-          </TableCell>
-          <TableCell>
-            <div className="flex divide-x border w-max">
-              <button
-                type="button"
-                className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
-                onClick={() =>
-                  handleDecreaseQuantity(product.id, product.basketId)
-                }
-                disabled={
-                  (product.quantity || product.actualQuantity) === 1
-                }
-              >
-                <RiSubtractLine />
-              </button>
-              <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
-                {product.quantity || product.actualQuantity}
-              </span>
-              <button
-                type="button"
-                className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
-                disabled={product.actualQuantity === product?.inventory}
-                onClick={() =>
-                  handleIncreaseQuantity(product.id, product?.basketId)
-                }
-              >
-                <HiPlus />
-              </button>
-            </div>
-          </TableCell>
-          <TableCell className="w-[30%]">
-            {product?.productDiscounts?.length > 0 ? (
-              <>
+  const productList = useMemo(
+    () => (
+      <TableBody>
+        {(products?.length > 0 ? products : []).map((product) => (
+          <TableRow key={product.id}>
+            <TableCell className="flex items-center">
+              <div className="w-24 h-24 relative">
+                <Image
+                  alt={product.name}
+                  src={product.images?.[0] || "https://via.placeholder.com/150"}
+                  fill={true}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+              <div className="ml-4">
+                <Link
+                  href={`/products/${product.slug}`}
+                  className="font-semibold text-sm text-gray-800"
+                >
+                  {product.name}
+                </Link>
+                <p className="text-xs text-gray-500">
+                  {product.categories
+                    ?.map((category) => category.name)
+                    .join(", ") || "No categories"}
+                </p>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex divide-x border w-max">
+                <button
+                  type="button"
+                  className="bg-lightBeige px-2 py-1 font-semibold cursor-pointer"
+                  onClick={() =>
+                    handleDecreaseQuantity(product.id, product.basketId)
+                  }
+                  disabled={(product.quantity || product.actualQuantity) === 1}
+                >
+                  <RiSubtractLine />
+                </button>
+                <span className="bg-transparent px-2 py-1 font-semibold text-[#333] text-md">
+                  {product.quantity || product.actualQuantity}
+                </span>
+                <button
+                  type="button"
+                  className="bg-primaryColor text-white px-2 py-1 font-semibold cursor-pointer"
+                  disabled={product.actualQuantity === product?.inventory}
+                  onClick={() =>
+                    handleIncreaseQuantity(product.id, product?.basketId)
+                  }
+                >
+                  <HiPlus />
+                </button>
+              </div>
+            </TableCell>
+            <TableCell className="w-[30%]">
+              {product?.productDiscounts?.length > 0 ? (
+                <>
+                  <h4 className="text-md w-max font-bold text-[#333]">
+                    {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
+                  </h4>
+                  <h4 className="text-base w-full font-semibold text-gray-700 line-through">
+                    {Number(product.price).toFixed(3)} TND
+                  </h4>
+                </>
+              ) : (
                 <h4 className="text-md w-max font-bold text-[#333]">
-                  {Number(product.productDiscounts[0].newPrice).toFixed(3)} TND
+                  {Number(product.price || 0).toFixed(3)} TND
                 </h4>
-                <h4 className="text-base w-full font-semibold text-gray-700 line-through">
-                  {Number(product.price).toFixed(3)} TND
-                </h4>
-              </>
-            ) : (
-              <h4 className="text-md w-max font-bold text-[#333]">
-                {Number(product.price || 0).toFixed(3)} TND
-              </h4>
-            )}
-          </TableCell>
-          <TableCell>
-            <Trash2Icon
-              size={23}
-              className="cursor-pointer"
-              color="red"
-              onClick={() => {
-                handleRemoveProduct(product.id, product?.basketId);
-              }}
-            />
-          </TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  ), [products, handleDecreaseQuantity, handleIncreaseQuantity, handleRemoveProduct]);
+              )}
+            </TableCell>
+            <TableCell>
+              <Trash2Icon
+                size={23}
+                className="cursor-pointer"
+                color="red"
+                onClick={() => {
+                  handleRemoveProduct(product.id, product?.basketId);
+                }}
+              />
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    ),
+    [products, handleDecreaseQuantity, handleIncreaseQuantity, handleRemoveProduct]
+  );
+
+  // ==========  InitiateCheckout ==========
+  const handleProceedToCheckout = async () => {
+    // Set checkout data
+    setCheckoutProducts(products);
+    setCheckoutTotal(Number(totalPrice));
+  };
 
   return (
     <div className="container mx-auto px-4 lg:px-8 py-8">
@@ -417,87 +596,13 @@ const Basket = ({ userData, companyData }: any) => {
               </li>
             </ul>
 
-
             <Link
-              onClick={() => {
-                setCheckoutProducts(products);
-                setCheckoutTotal(Number(totalPrice));
-                // Track InitiateCheckout
-                sendGTMEvent({
-                  event: "begin_checkout",
-                  ecommerce: {
-                    currency: "TND",
-                    value: totalPrice,
-                    items: products.map(product => ({
-                      item_id: product.id,
-                      quantity: product.actualQuantity || product.quantity
-                    }))
-                  },
-                  user_data: {
-                    em: [userData?.email.toLowerCase()],
-                    fn: [userData?.fullName],
-                    ph: [userData?.number],
-                    country: ["tn"],
-                    external_id: userData?.id
-                  },
-                  facebook_data: {
-                    content_name: "InitiateCheckout",
-                    content_type: "product",
-                    currency: "TND",
-                    value: totalPrice,
-                    contents: products.map(product => ({
-                      id: product.id,
-                      quantity: product.actualQuantity || product.quantity,
-                    })),
-                    num_items: products.reduce(
-                      (sum, product) =>
-                        sum + (product?.actualQuantity || product?.quantity || 0),
-                      0
-                    )
-                  }
-                });
-                triggerEvents("InitiateCheckout", {
-                  user_data: {
-                    em: [userData?.email.toLowerCase()],
-                    fn: [userData?.fullName],
-                    ph: [userData?.number],
-                    country: ["tn"],
-                    external_id: userData.id,
-                  },
-                  custom_data: {
-                    content_name: "InitiateCheckout",
-                    content_type: "product_group",
-                    currency: "TND",
-                    value: Number(totalPrice),
-                    contents: products.map(product => ({
-                      id: product.id,
-                      quantity: product.actualQuantity || product.quantity,
-                      price: product.productDiscounts?.length > 0
-                        ? Number(product.productDiscounts[0].newPrice)
-                        : Number(product.price)
-                      ,
-                      item_name: product.name,
-                      item_brand: product.Brand?.name,
-                      item_category: product.categories[0]?.name,
-                      item_category2: product.categories[1]?.name,
-                      item_category3: product.categories[2]?.name,
-                      availability: product.inventory > 0 ? "in stock" : "out of stock",
-                      item_description: product.description,
-                      item_variant: product.Colors?.color,
-                      item_Att: product.technicalDetails,
-                    })),
-                    num_items: products.reduce(
-                      (sum, product) =>
-                        sum + (product?.actualQuantity || product?.quantity || 0),
-                      0
-                    ),
-                  },
-                });
-              }}
+              onClick={handleProceedToCheckout}
               href={"/Checkout"}
               className="block w-full text-center py-3 px-4 bg-primaryColor text-white font-semibold rounded hover:bg-amber-200 transition-colors"
             >
-              Confirmer le paiement            </Link>
+              Confirmer le paiement
+            </Link>
           </div>
         )}
       </div>
@@ -506,3 +611,4 @@ const Basket = ({ userData, companyData }: any) => {
 };
 
 export default Basket;
+

@@ -10,12 +10,12 @@ interface BrandFiltersProps {
   onBrandSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const BrandFilters = memo<BrandFiltersProps>(({ 
-  brands, 
-  isOptionChecked, 
-  onBrandSelect 
+export const BrandFilters = memo<BrandFiltersProps>(({
+  brands,
+  isOptionChecked,
+  onBrandSelect
 }) => (
-  <div className="border-b pl-5 border-gray-200 py-6">
+  <div className="border-t pl-5 border-gray-200 py-6">
     <h3 className="font-normal tracking-widest text-sm mb-6">
       {FILTER_SECTIONS.BRANDS}
     </h3>

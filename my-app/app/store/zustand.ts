@@ -40,14 +40,17 @@ interface ProductDetailsData {
   description: string;
   inventory: number;
   productDiscounts: {
+    id: string
     newPrice: number;
     price: number;
+    dateOfStart: string;
+    dateOfEnd: string;
   }[];
   Colors: {
     color: string;
     Hex: string;
   };
-  brand: Brand;
+  Brand: Brand;
   categories: {
     name: string;
     id: string;

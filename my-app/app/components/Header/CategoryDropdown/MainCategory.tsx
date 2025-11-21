@@ -33,7 +33,6 @@ const Category: React.FC<CategoryProps> = ({
   setShowDropdown
 }) => {
 
-  console.log("Main Categories:", mainCategories);
   return (
     <div className="flex w-full">
       <div className="parentCategory min-w-[220px] py-2 border-r border-gray-100">

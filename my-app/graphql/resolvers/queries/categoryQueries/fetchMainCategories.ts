@@ -1,23 +1,33 @@
 import { Context } from "@apollo/client";
 
-export const fetchMainCategories = async (_: any, __: any, { prisma }: Context
+export const fetchMainCategories = async (
+    _: any,
+    __: any,
+    { prisma }: Context
 ) => {
     try {
         const categories = await prisma.category.findMany({
-            where: { parentId: null },
+            where: {
+                parentId: null,
+            },
             include: {
                 subcategories: {
                     include: {
-                        subcategories: true
-                    }
-                }
-            }
+                        subcategories: true,
+                    },
+                    orderBy: {
+                        order: 'asc',
+                    },
+                },
+            },
+            orderBy: {
+                order: 'asc',
+            },
         });
 
         return categories;
     } catch (error) {
-        console.log('Failed to fetch categories', error);
-        throw new Error('Failed to fetch categories');
+        console.error("Error fetching main categories:", error);
+        throw new Error("Failed to fetch categories");
     }
 };
-

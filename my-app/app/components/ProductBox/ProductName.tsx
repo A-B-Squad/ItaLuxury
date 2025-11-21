@@ -26,7 +26,7 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => {
       {/* Category */}
       {mainCategory && (
         <Link
-          href={`/products/tunisie?slug=${product.slug}`}
+          href={`/products/${product.slug}`}
           className="inline-block"
         >
           <span className="text-xs font-medium text-gray-500 uppercase tracking-wide hover:text-blue-600 transition-colors">
@@ -38,7 +38,7 @@ const ProductName: React.FC<ProductNameProps> = ({ product }) => {
 
         {/* Product Name */}
         <Link
-          href={`/products/tunisie?slug=${product.slug}`}
+          href={`/products/${product.slug}`}
           className="block group"
         >
           <h3 className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">

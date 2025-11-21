@@ -76,7 +76,17 @@ export const getProductBySlug = async (
         categories: {
           include: { subcategories: { include: { subcategories: true } } },
         },
-        productDiscounts: true,
+        productDiscounts: {
+          where: {
+            isActive: true,
+            isDeleted: false,
+            dateOfStart: { lte: new Date() },
+            dateOfEnd: { gte: new Date() }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        },
         baskets: true,
         reviews: true,
         favoriteProducts: true,

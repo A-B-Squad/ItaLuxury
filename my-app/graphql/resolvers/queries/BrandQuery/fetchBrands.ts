@@ -6,6 +6,8 @@ export const fetchBrands = async (_: any, __: any, { prisma }: Context) => {
       include: {
         product: {
           include: {
+            Brand: true,
+            Colors: true,
             categories: true
           }
         },

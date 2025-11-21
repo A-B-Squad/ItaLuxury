@@ -29,6 +29,7 @@ const ProductLabels: React.FC<ProductLabelsProps> = ({ product }) => {
         <span className="bg-gray-400 text-white w-fit shadow-md p-1 md:block">
           <span className="hidden md:inline">En Rupture de Stock</span>
           <span className="md:hidden">Rupture</span>
+
         </span>
       )}
       {product.productDiscounts.length > 0 && product.inventory !== 0 && (

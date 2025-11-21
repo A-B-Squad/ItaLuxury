@@ -16,8 +16,8 @@ import {
 import AdsCarousel from "@/app/components/adverstissment/carousel";
 import LeftAdsCarousel from "../../components/adverstissment/LeftAdsCarousel";
 import { BrandsCarousel } from "./Components/BrandCarousel";
-import TitleProduct from "@/app/components/ProductCarousel/titleProduct"; // Import directly
-import LaptopSearchBar from "@/app/components/Header/LaptopSearchBar";
+import TitleProduct from "@/app/components/ProductCarousel/titleProduct";
+import SearchBar from "@/app/components/Header/SearchBar";
 
 // Dynamic imports for non-critical components
 const CenterAds = dynamic(() => import("@/app/components/adverstissment/centerAds"));
@@ -59,7 +59,6 @@ const MainCategoriesSlide = dynamic(() => import("./@mainCategoriesSlide/mainCat
 
 
 const Home = ({ userData }: any) => {
-  // Priority queries - load these first
   const { data: centerCarouselAds, loading: loadingCenterCarouselAds } =
     useQuery(ADVERTISSMENT_QUERY, {
       variables: { position: "slider" },
@@ -138,30 +137,18 @@ const Home = ({ userData }: any) => {
   const showTopSells = TopSellsSectionVisibility?.getSectionVisibility?.visibility_status;
 
   return (
-    <div className="Home py-7 flex min-h-screen flex-col items-center md:px-8 px-3">
-      <div className="container mx-auto space-y-10 overflow-hidden">
+    <div className="Home flex min-h-screen flex-col">
+      {/* Hero Carousel - Full Screen */}
+      <section className="w-full">
+        <AdsCarousel
+          loadingCenterAdsCarousel={loadingCenterCarouselAds}
+          centerCarouselAds={centerCarouselAds?.advertismentByPosition}
+        />
+      </section>
 
-   {/* Search Bar */}
-      <div className="w-full max-w-2xl  block lg:hidden mx-auto">
-        <LaptopSearchBar />
-      </div>
-
-        {/* Hero section */}
-        <section className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6 xl:gap-8">
-          <div className="order-2 w-full lg:order-1 lg:w-auto">
-            <LeftAdsCarousel
-              loadingLeftAdsCarousel={loadingAdsNextToCarousel}
-              AdsNextToCarousel={AdsNextToCarousel?.advertismentByPosition}
-            />
-          </div>
-          <div className="order-1 w-full lg:order-2 lg:flex-1">
-            <AdsCarousel
-              loadingCenterAdsCarousel={loadingCenterCarouselAds}
-              centerCarouselAds={centerCarouselAds?.advertismentByPosition}
-            />
-          </div>
-        </section>
-
+      {/* Main Content */}
+      <div className="container mx-auto space-y-10 overflow-hidden py-10 md:px-8 px-3">
+  
         {/* Services section */}
         <Services />
 
@@ -306,7 +293,7 @@ const Home = ({ userData }: any) => {
         {/* Top Sales Section */}
         {showTopSells && (
           <div className="BestSeals pb-10 bg-white p-1 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-16">
-            <div className="Heading  pb-5  ">
+            <div className="Heading pb-5">
               <TitleProduct title={"Meilleures Ventes"} />
             </div>
             <TopSales userData={userData} />

@@ -10,6 +10,9 @@ import { AddReview } from "./addReview";
 import { createGroupProductVariant } from "./createGroupProductVariant";
 import { updateGroupProductVariant } from "./updateGroupProductVariant";
 import { deleteGroupProductVariant } from "./deleteGroupProductVariant";
+import { reactivateCampaign } from "../PromotionalCampaign/ReactivateCampaign";
+import { addPromotionalCampaign } from "../PromotionalCampaign/addPromotionalCampaign";
+import { removePromotionalCampaigns } from "../PromotionalCampaign/removePromotionalCampaigns";
 
 
 export const productsMutations = {
@@ -20,5 +23,9 @@ export const productsMutations = {
   deleteProductDiscount,
   undoSellProduct,
   sellProduct,
-  AddReview, addProductInventory, createGroupProductVariant, updateGroupProductVariant,deleteGroupProductVariant
+  AddReview,
+  addProductInventory,
+  createGroupProductVariant,
+  updateGroupProductVariant,
+
 };
