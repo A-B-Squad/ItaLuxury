@@ -60,6 +60,7 @@ const ResetPassword = () => {
         });
         router.replace("/signin");
       },
+      
       onError: (error) => {
         setIsError(true);
         setErrorMessage(error.message || "Une erreur est survenue lors de la réinitialisation du mot de passe");

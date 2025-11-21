@@ -1,5 +1,5 @@
 import { ALL_BRANDS, CATEGORIES_QUERY_NOGQL, COLORS_QUERY } from "@/graphql/queries";
-import { fetchGraphQLData } from "@/utlils/graphql";
+import { fetchGraphQLData } from "@/utils/graphql";
 import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import dynamic from "next/dynamic";
 import { ReactNode } from "react";
@@ -45,6 +45,7 @@ async function fetchData(): Promise<FetchedData> {
       fetchGraphQLData(COLORS_QUERY),
     ]);
 
+
     return {
       categories: categoriesResult?.fetchMainCategories || [],
       brands: brandsResult?.fetchBrands || [],
@@ -52,7 +53,6 @@ async function fetchData(): Promise<FetchedData> {
     };
   } catch (error) {
     console.error("Error fetching sidebar data:", error);
-    // Return empty arrays as fallback
     return {
       categories: [],
       brands: [],

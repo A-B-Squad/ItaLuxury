@@ -1,9 +1,6 @@
 "use client"
-import { getToken, isTokenExpired, isTokenExpiringSoon, setToken } from '@/utlils/tokens/token';
+import { getToken, isTokenExpired, isTokenExpiringSoon, setToken } from '@/utils/tokens/token';
 import { useCallback } from 'react';
-
-
-
 
 export async function refreshTokenWithFetch(token: string): Promise<string | null> {
     try {
@@ -42,7 +39,6 @@ export async function refreshTokenWithFetch(token: string): Promise<string | nul
     }
 }
 
-
 export const useTokenRefresh = () => {
     const refreshToken = useCallback(async (): Promise<boolean> => {
         try {
@@ -67,11 +63,22 @@ export const useTokenRefresh = () => {
     }, []);
 
     const checkAndRefreshToken = useCallback(async (): Promise<boolean> => {
+        // Skip if we're in the middle of signup/signin
+        if (sessionStorage.getItem('skipTokenRefresh') === 'true') {
+            return true;
+        }
+
         const currentToken = getToken();
 
         if (!currentToken) return false;
 
-        if (isTokenExpired(currentToken) || isTokenExpiringSoon(currentToken, 5)) {
+        // Don't try to refresh if token is already expired
+        if (isTokenExpired(currentToken)) {
+            return false;
+        }
+
+        // Only refresh if token is expiring soon (within 5 minutes)
+        if (isTokenExpiringSoon(currentToken, 5)) {
             return await refreshToken();
         }
 

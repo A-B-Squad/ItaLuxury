@@ -1,10 +1,6 @@
-"use client";
-
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
 
 export const usePayment = () => {
-    const [paymentLoading, setPaymentLoading] = useState(false);
     const { toast } = useToast();
 
     const handleOnlinePayment = async ({
@@ -26,7 +22,6 @@ export const usePayment = () => {
 
     }) => {
         if (paymentMethod === "CREDIT_CARD") {
-            setPaymentLoading(true);
             const orderTotal = Math.round(Number(calculateTotal()) * 1000);
 
             try {
@@ -82,11 +77,9 @@ export const usePayment = () => {
                     description: `Unable to process CREDIT_CARD payment: ${error}`,
                     variant: "destructive",
                 });
-            } finally {
-                setPaymentLoading(false);
             }
         }
     };
 
-    return { handleOnlinePayment, paymentLoading };
+    return {handleOnlinePayment} 
 };

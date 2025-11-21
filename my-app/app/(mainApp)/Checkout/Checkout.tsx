@@ -1,11 +1,9 @@
 "use client";
-import { CREATE_POINT_TRANSACTION } from "@/graphql/mutations";
-import { useMutation, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   GET_GOVERMENT_INFO,
-  GET_POINT_SETTINGS
 } from "../../../graphql/queries";
 import Loading from "./loading";
 
@@ -19,8 +17,8 @@ import Step1 from "./components/Step1/Step1";
 import CheckoutForm from "./components/Step2/CheckoutForm";
 import { StepIndicator } from "./components/StepIndicator";
 import { useCheckout } from "./hooks/useCheckout";
+import { trackInitiateCheckout } from "@/utils/facebookEvents";
 
-// Define interfaces
 interface Governorate {
   id: string;
   name: string;
@@ -35,8 +33,8 @@ interface CouponState {
   id: string;
   couponCode: string;
 }
+
 const Checkout = ({ userData, companyData }: any) => {
-  // Step 1: Initialize state and hooks
   const [governmentInfo, setGovernmentInfo] = useState<Governorate[]>([]);
   const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const [coupon, setCoupon] = useState<CouponState>({ id: "", couponCode: "" });
@@ -50,9 +48,11 @@ const Checkout = ({ userData, companyData }: any) => {
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const { decodedToken, isAuthenticated } = useAuth();
 
-  const [createPointTransaction] = useMutation(CREATE_POINT_TRANSACTION);
-  const { data: pointSettingsData } = useQuery(GET_POINT_SETTINGS);
-  const { createCheckout, loading } = useCheckout(decodedToken, setSubmitLoading);
+  // Store authenticated user data locally
+  const [authenticatedUserId, setAuthenticatedUserId] = useState<any>(null);
+
+
+  const { createCheckout, loading } = useCheckout(setSubmitLoading);
 
   const {
     register,
@@ -74,29 +74,34 @@ const Checkout = ({ userData, companyData }: any) => {
     { id: 4, name: "Paiement" },
   ];
 
-
   useQuery(GET_GOVERMENT_INFO, {
     onCompleted: (data) => {
       setGovernmentInfo(data.allGovernorate);
     },
   });
 
-
-  // Step 5: Set up side effects
   useEffect(() => {
     if (isAuthenticated) {
       setIsLoggedIn(true);
       setCurrentStep(2);
       setIsGuest(false);
+      // Set authenticated user from userData prop
+      if (userData) {
+        setAuthenticatedUserId(userData.id);
+      }
     } else {
       setIsLoggedIn(false);
       setIsGuest(true);
       setCurrentStep(1);
+      setAuthenticatedUserId(null);
     }
-  }, [isAuthenticated, decodedToken]);
+  }, [isAuthenticated, decodedToken, userData]);
 
+  // Handler for auth success
+  const handleAuthSuccess = useCallback((userId: any) => {
+    setAuthenticatedUserId(userId);
+  }, []);
 
-  // Step 6: Define utility functions
   const calculateTotal = useCallback(() => {
     let subtotal = Number(checkoutTotal);
     const shippingCost = subtotal >= 499 ? 0 : deliveryPrice;
@@ -108,21 +113,22 @@ const Checkout = ({ userData, companyData }: any) => {
     return (subtotal + shippingCost).toFixed(2);
   }, [checkoutTotal, deliveryPrice, discountPercentage]);
 
-
-
-  // Step 7: Define event handlers
   const onSubmit = async (data: any) => {
     const userEmail = isGuest ? data.email : userData?.email;
-    const userName = isGuest
-      ? data.fullname
-      : userData?.fullName;
+    const userName = isGuest ? data.fullname : userData?.fullName;
     const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
     const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
     const userPhone = isGuest ? cleanPhone1 : userData?.number;
-    const orderTotal = parseFloat(calculateTotal())
+    const orderTotal = parseFloat(calculateTotal());
+    const userCity = data.governorateName || data.governorate || "";
+
+    // Get userId from multiple sources with priority
+    const userId = authenticatedUserId || decodedToken?.userId || userData?.id;
+
+
 
     const checkoutInput = {
-      userId: decodedToken?.userId,
+      userId: userId,
       userName: data.fullname,
       total: orderTotal,
       phone: [cleanPhone1, cleanPhone2].filter(Boolean),
@@ -135,7 +141,6 @@ const Checkout = ({ userData, companyData }: any) => {
         productId: product.id,
         productQuantity: product.actualQuantity || product.quantity,
         price: product.price,
-
         discountedPrice:
           product.productDiscounts && product.productDiscounts.length > 0
             ? product.productDiscounts[0].newPrice
@@ -146,19 +151,17 @@ const Checkout = ({ userData, companyData }: any) => {
       paymentMethod: paymentMethod,
     };
 
-    await createCheckout(checkoutInput, {
+    createCheckout(checkoutInput, {
       userEmail,
       userName,
       userPhone,
+      userCity,
       isGuest,
       paymentMethod,
-      calculateTotal
+      deliveryPrice,
+      calculateTotal,
     });
-
-
   };
-
-
 
   const handleNextStep = useCallback(async () => {
     const isValid = await trigger();
@@ -171,8 +174,7 @@ const Checkout = ({ userData, companyData }: any) => {
     } else {
       console.log("Form is invalid:", errors);
     }
-  }, []);
-
+  }, [trigger, errors, steps.length]);
 
   const handlePreviousStep = useCallback(() => {
     window.scrollTo({
@@ -182,10 +184,56 @@ const Checkout = ({ userData, companyData }: any) => {
     setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
   }, []);
 
-  // Step 8: Render component
   if (checkoutProducts.length === 0) {
     return <Loading />;
   }
+
+  useEffect(() => {
+    if (!checkoutProducts || checkoutProducts.length === 0) return;
+
+    const cartItems = checkoutProducts.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: Number(product.price),
+      quantity: product.actualQuantity || product.quantity || 1,
+      description: product.description,
+      Brand: product.Brand,
+      Colors: product.Colors,
+      categories: product.categories,
+      productDiscounts: product.productDiscounts,
+      inventory: product.inventory,
+      isVisible: product.isVisible,
+      reference: product.reference,
+      images: product.images,
+      technicalDetails: product.technicalDetails,
+    }));
+
+    const user = userData ? {
+      id: authenticatedUserId || decodedToken?.userId || userData?.id,
+      email: userData.email,
+      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+      phone: userData.number,
+      country: "tn",
+      city: userData.city || "",
+    } : undefined;
+
+    console.log('💰 Tracking InitiateCheckout event:', {
+      product_count: cartItems.length,
+      total_value: checkoutTotal,
+      user: user ? 'logged_in' : 'guest'
+    });
+
+    trackInitiateCheckout(cartItems, Number(checkoutTotal), user)
+      .then(() => {
+        console.log('✅ InitiateCheckout event tracked successfully');
+      })
+      .catch(error => {
+        console.error("❌ Error tracking initiate checkout:", error);
+      });
+
+  }, [checkoutProducts, checkoutTotal, userData, authenticatedUserId, decodedToken?.userId]);
 
   return (
     <>
@@ -215,7 +263,6 @@ const Checkout = ({ userData, companyData }: any) => {
             </div>
           )}
 
-          {/* Checkout Form Section */}
           <div>
             <div className="px-4 pt-8 pb-2 bg-white border">
               {currentStep === 1 && !isAuthenticated && (
@@ -225,6 +272,7 @@ const Checkout = ({ userData, companyData }: any) => {
                   setIsGuest={setIsGuest}
                   showLoginForm={showLoginForm}
                   setShowLoginForm={setShowLoginForm}
+                  onAuthSuccess={handleAuthSuccess}
                 />
               )}
               <CheckoutForm
@@ -246,7 +294,6 @@ const Checkout = ({ userData, companyData }: any) => {
             </div>
           </div>
 
-          {/* Order Summary Section */}
           <OrderSummary
             checkoutProducts={checkoutProducts}
             setDiscountPercentage={setDiscountPercentage}

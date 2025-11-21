@@ -36,6 +36,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.ita-luxury.com/Contact-us",
   },
+  robots: {
+    index: true,
+    follow: true,
+    'max-snippet': -1,
+    'max-image-preview': 'large',
+    'max-video-preview': -1,
+  },
 };
 
 

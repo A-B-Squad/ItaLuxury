@@ -2,13 +2,12 @@ import { useBasketStore, useProductDetails, useProductsInBasketStore, usePruchas
 import { useToast } from "@/components/ui/use-toast";
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
-import triggerEvents from "@/utlils/events/trackEvents";
 import { useMutation } from "@apollo/client";
 import Link from "next/link";
 import ProductActions from "./ProductActions";
 import ProductImage from "./ProductImage";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
+import { trackAddToCart } from "@/utils/facebookEvents";
 
 interface ProductProps {
     product: any;
@@ -37,47 +36,52 @@ const ProductDetails = ({ product, basketData, userData, isFavorite }: ProductPr
 
         openPruchaseOptions(product);
 
-        const price = discountData ? discountData.newPrice : product.price;
-
-        // Analytics data
-        const addToCartData = {
-            user_data: {
-                em: userData?.email ? [userData.email.toLowerCase()] : [],
-                fn: userData?.fullName ? [userData.fullName] : [],
-                ph: userData?.number ? [userData.number] : [],
-                country: ["tn"],
-                external_id: userData?.id || null,
-            },
-            custom_data: {
-                content_name: product.name,
-                content_type: "product",
-                content_ids: [product.id],
-                value: price * quantity,
-                currency: "TND",
-                contents: [{ id: product.id, quantity: quantity, item_price: price }]
-            },
+        // Prepare complete product data for tracking
+        const trackingProduct = {
+            id: product.id,
+            name: product.name,
+            slug: product.slug,
+            price: product.price,
+            description: product.description,
+            Brand: product.Brand,
+            Colors: product.Colors,
+            categories: product.categories,
+            productDiscounts: product.productDiscounts,
+            inventory: product.inventory,
+            isVisible: product.isVisible,
+            reference: product.reference,
+            images: product.images,
+            quantity: product.actualQuantity || quantity,
+            technicalDetails: product.technicalDetails,
         };
 
-        const cartEventDataGTM = {
-            event: "add_to_cart",
-            ecommerce: {
-                currency: "TND",
-                value: price * quantity,
-                items: [{ item_id: product.id, item_name: product.name, quantity: quantity, price: price }]
-            },
-            user_data: addToCartData.user_data,
-            facebook_data: {
-                content_name: product.name,
-                content_type: "product",
-                content_ids: [product.id],
-                value: price * quantity,
-                currency: "TND"
-            }
-        };
+        // Prepare user data
+        const user = userData ? {
+            id: decodedToken?.userId,
+            email: userData.email,
+            firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+            lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+            phone: userData.number,
+            country: "tn",
+            city: userData.city || "",
+        } : undefined;
 
-        // Track events
-        triggerEvents("AddToCart", addToCartData);
-        sendGTMEvent(cartEventDataGTM);
+        // Track the add to cart event with error handling
+        try {
+            console.log('🛒 Tracking AddToCart event:', {
+                product_id: trackingProduct.id,
+                product_name: trackingProduct.name,
+                quantity: quantity,
+                user: user ? 'logged_in' : 'guest'
+            });
+
+            await trackAddToCart(trackingProduct, user);
+
+            console.log('✅ AddToCart event tracked successfully');
+        } catch (error) {
+            console.error("❌ Error tracking add to cart:", error);
+            // Don't block the user flow if tracking fails
+        }
 
         if (isAuthenticated) {
             try {
@@ -164,7 +168,7 @@ const ProductDetails = ({ product, basketData, userData, isFavorite }: ProductPr
                 )}
 
                 <div>
-                    <Link href={`/products/tunisie?slug=${product.slug}`} className="block group">
+                    <Link href={`/products/${product.slug}`} className="block group">
                         <h2 className="text-xl font-semibold text-gray-800 group-hover:text-primaryColor transition-colors duration-200 line-clamp-2">
                             {product?.name}
                         </h2>

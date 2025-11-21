@@ -1,8 +1,8 @@
 import React from "react";
-import CheckoutConfirmationPage from "./EndCheckoutPage";
+import EndCheckoutPage from "./EndCheckoutPage";
 
 const page = ({ searchParams }: any) => {
-  return <CheckoutConfirmationPage searchParams={searchParams} />;
+  return <EndCheckoutPage searchParams={searchParams} />;
 };
 
 export default page;

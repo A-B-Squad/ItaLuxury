@@ -8,11 +8,8 @@ import { IoCloseOutline, IoArrowBack } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { sendGTMEvent } from "@next/third-parties/google";
-import { normalizeText } from "@/app/Helpers/_normalizeText";
 import { Drawer } from "@material-tailwind/react";
 import { useDrawerMobileSearch } from "@/app/store/zustand";
-import { size } from "lodash";
 
 interface SearchMobileDrawerProps {
     userData?: any;
@@ -65,7 +62,7 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                     searchProducts({
                         variables: {
                             input: {
-                                query: normalizeText(query),
+                                query: query,
                                 page: 1,
                                 pageSize: 15,
                                 visibleProduct: true,
@@ -106,54 +103,14 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
             router.push(`/Collections/tunisie?query=${encodeURIComponent(searchQuery)}`);
             closeDrawerMobileSearch();
 
-            sendGTMEvent({
-                event: "search",
-                search_term: searchQuery,
-                user_data: analyticsUserData
-            });
         }
     }, [router, searchQuery, analyticsUserData, closeDrawerMobileSearch]);
 
-    const handleCategoryClick = useCallback((category: any) => {
-        sendGTMEvent({
-            event: "select_content",
-            content_type: "category",
-            item_id: category.id,
-            item_name: category.name,
-            user_data: analyticsUserData,
-        });
-
-        closeDrawerMobileSearch();
-    }, [analyticsUserData, closeDrawerMobileSearch]);
-
-    const handleProductClick = useCallback((product: any) => {
-        const productPrice = product.productDiscounts.length > 0
-            ? product.productDiscounts[0].newPrice
-            : product.price;
-
-        sendGTMEvent({
-            event: "select_item",
-            ecommerce: {
-                currency: "TND",
-                items: [{
-                    item_id: product.id,
-                    item_name: product.name,
-                    item_category: product.categories[0]?.name,
-                    price: productPrice
-                }]
-            },
-            user_data: analyticsUserData,
-        });
-
-        closeDrawerMobileSearch
-        closeDrawerMobileSearch();
-    }, [analyticsUserData, closeDrawerMobileSearch]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && searchQuery.trim().length > 0) {
             handleViewAllResults();
         } else if (e.key === 'Escape') {
-            closeDrawerMobileSearch
             closeDrawerMobileSearch();
         }
     };
@@ -198,7 +155,7 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                         <CiSearch className="text-gray-400 w-5 h-5 flex-shrink-0" />
                         <input
                             ref={inputRef}
-                            className="w-full h-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-sm font-medium px-3"
+                            className="w-full h-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-base font-medium px-3"
                             type="text"
                             placeholder="Rechercher des produits..."
                             value={searchQuery}
@@ -254,11 +211,11 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                                                 <Link
                                                     key={category.id}
                                                     href={`/Collections/tunisie?${new URLSearchParams({ category: category.name })}`}
-                                                    onClick={() => handleCategoryClick(category)}
+                                                    onClick={() => closeDrawerMobileSearch}
                                                 >
-                                                    <li className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-xl transition-colors duration-150 text-sm font-medium">
+                                                    <li className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-xl transition-colors duration-150 text-base font-medium">
                                                         <CiSearch className="text-gray-400 w-5 h-5 flex-shrink-0" />
-                                                        <span className="flex-1">{category.name}</span>
+                                                        <span className="flex-1 text-base">{category.name}</span>
                                                     </li>
                                                 </Link>
                                             ))}
@@ -276,8 +233,8 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                                             {searchResults.products.map((product: any) => (
                                                 <Link
                                                     key={product.id}
-                                                    href={`/products/tunisie?slug=${product.slug}`}
-                                                    onClick={() => handleProductClick(product)}
+                                                    href={`/products/${product.slug}`}
+                                                    onClick={closeDrawerMobileSearch}
                                                     className="block"
                                                 >
                                                     <div className="flex items-start gap-4 p-3 bg-white hover:bg-gray-50 active:bg-gray-100 rounded-xl transition-colors duration-150 border border-gray-100">
@@ -303,7 +260,7 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                                                             )}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 leading-5">
+                                                            <p className="text-base font-medium text-gray-900 line-clamp-2 mb-2 leading-5">
                                                                 {product.name}
                                                             </p>
                                                             <div className="flex items-baseline gap-2">
@@ -335,7 +292,7 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                                         <p className="text-gray-600 text-base font-medium">
                                             Aucun résultat pour "{searchQuery}"
                                         </p>
-                                        <p className="text-gray-400 text-sm mt-2">
+                                        <p className="text-gray-400 text-base mt-2">
                                             Essayez avec d'autres mots-clés
                                         </p>
                                     </div>
@@ -350,7 +307,7 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                                 <p className="text-gray-600 text-base font-medium">
                                     Que recherchez-vous ?
                                 </p>
-                                <p className="text-gray-400 text-sm mt-2">
+                                <p className="text-gray-400 text-base mt-2">
                                     Meubles, déco, cuisine, salle de bain...
                                 </p>
                             </div>
@@ -362,7 +319,7 @@ const SearchMobileDrawer: React.FC<SearchMobileDrawerProps> = ({
                         (searchResults.categories.length > 0 || searchResults.products.length > 0) && (
                             <div className="sticky bottom-0 bg-white p-4 border-t border-gray-100">
                                 <button
-                                    className="w-full py-3.5 text-sm font-semibold text-white bg-primaryColor hover:bg-amber-200 active:bg-amber-300 rounded-xl transition-colors duration-200"
+                                    className="w-full py-3.5 text-base font-semibold text-white bg-primaryColor hover:bg-amber-200 active:bg-amber-300 rounded-xl transition-colors duration-200"
                                     onClick={handleViewAllResults}
                                 >
                                     Voir tous les résultats

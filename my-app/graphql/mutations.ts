@@ -63,10 +63,11 @@ export const ADD_REVIEWS_MUTATION = gql`
     })
   }
 `;
-export const DELETE_BASKET_BY_ID_MUTATION = gql`
-  mutation DeleteBasketById($basketId: ID!) {
-    deleteBasketById(basketId: $basketId)
-  }
+export const DELETE_PRODUCT_FROM_BASKET_BY_ID_MUTATION = gql`
+ mutation RemoveProductFromBasket($productId: ID!, $basketId: ID!) {
+  removeProductFromBasket(productId: $productId, basketId: $basketId)
+}
+
 `;
 
 export const INCREASE_QUANTITY_MUTATION = gql`
@@ -125,14 +126,3 @@ export const RESET_PASSWORD_MUTATION = gql`
   }
 `;
 
-export const CREATE_POINT_TRANSACTION = gql`
-  mutation CreatePointTransaction($input: PointTransactionInput!) {
-    createPointTransaction(input: $input) {
-      id
-      amount
-      type
-      description
-      createdAt
-    }
-  }
-`;

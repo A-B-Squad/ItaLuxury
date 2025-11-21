@@ -1,11 +1,10 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { FiCheck, FiClock, FiGift, FiHeart, FiTrendingUp, FiUser, FiX } from "react-icons/fi";
-import LaptopSearchBar from "./LaptopSearchBar";
+import SearchBar from "./SearchBar";
 import { PointTransaction, Voucher } from "@/app/types";
 import { formatDate } from "@/app/Helpers/_formatDate";
-import { useOutsideClick } from "@/app/Helpers/_outsideClick";
 import {
   useDrawerBasketStore,
   useProductComparisonStore,
@@ -16,20 +15,22 @@ import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useMutation, useQuery } from "@apollo/client";
-import { sendGTMEvent } from "@next/third-parties/google";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { GoPackageDependents } from "react-icons/go";
 import { IoBagHandleOutline, IoGitCompare } from "react-icons/io5";
+import { setToken } from "@/utils/tokens/token";
 
-const TopHeader = ({ userData }: any) => {
-  const { decodedToken, isAuthenticated, logout } = useAuth();
+const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?: boolean }) => {
+  const { decodedToken, isAuthenticated, logout, updateToken } = useAuth();
   const [showLogout, setShowMenuUserMenu] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'account' | 'points' | 'vouchers' | 'transactions'>('account');
   const { openBasketDrawer } = useDrawerBasketStore();
   const { comparisonList } = useProductComparisonStore();
 
-
+  // Refs for click outside detection
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userButtonRef = useRef<HTMLDivElement>(null);
 
   const {
     quantityInBasket,
@@ -38,23 +39,42 @@ const TopHeader = ({ userData }: any) => {
     clearBasket
   } = useProductsInBasketStore();
 
-
-
-
-
-  const clickOutside = useOutsideClick(() => {
-    setShowMenuUserMenu(false);
-  });
-
   const {
     register,
     handleSubmit
   } = useForm();
   const { toast } = useToast();
 
+  // Handle click outside 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node) &&
+        userButtonRef.current &&
+        !userButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowMenuUserMenu(false);
+      }
+    };
+
+    if (showLogout) {
+      // Add small delay to prevent immediate closing
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 0);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showLogout]);
+
   const [SignIn, { loading }] = useMutation(SIGNIN_MUTATION, {
-    onCompleted: () => {
-      window.location.reload();
+    onCompleted: (data) => {
+      setToken(data.signIn.token);
+      updateToken(data.signIn.token);
       toast({
         title: "Connexion",
         description: "Bienvenue",
@@ -94,7 +114,7 @@ const TopHeader = ({ userData }: any) => {
       addMultipleProducts(basketProducts);
       setQuantityInBasket(totalQuantity);
     }
-  }, [basketData, clearBasket, addMultipleProducts, setQuantityInBasket, decodedToken]);
+  }, [basketData, clearBasket, decodedToken, addMultipleProducts, setQuantityInBasket]);
 
   useEffect(() => {
     if (decodedToken?.userId) {
@@ -107,24 +127,6 @@ const TopHeader = ({ userData }: any) => {
       updateBasketQuantity();
     }
   }, [basketData, updateBasketQuantity, isAuthenticated]);
-
-  const handleBasketClick = () => {
-    sendGTMEvent({
-      event: "view_cart",
-      page_location: window.location.href,
-      user_data: isAuthenticated ? {
-        country: ["tn"],
-        external_id: decodedToken?.userId
-      } : undefined,
-      facebook_data: {
-        content_name: "Cart View",
-        content_type: "cart",
-        currency: "TND",
-        num_items: quantityInBasket
-      }
-    });
-    openBasketDrawer();
-  };
 
   const onSubmit = (data: any) => {
     SignIn({ variables: { input: data } });
@@ -272,7 +274,7 @@ const TopHeader = ({ userData }: any) => {
           {sortedTransactions.length > 0 ? (
             sortedTransactions.map((transaction: PointTransaction) => (
               <div key={transaction.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="p-1 rounded-full bg-white">
+                <div className="p-1 rounded-full ">
                   {getTransactionIcon(transaction.type)}
                 </div>
                 <div className="flex-1">
@@ -300,10 +302,16 @@ const TopHeader = ({ userData }: any) => {
     );
   };
 
+  // Dynamic text color based on transparency
+  const textColor = isTransparent ? 'text-white' : 'text-gray-700';
+  const iconColor = isTransparent ? 'text-white' : 'text-gray-700';
+  const bgColor = isTransparent ? 'bg-white/10 backdrop-blur-sm' : 'bg-gray-50';
+  const hoverBgColor = isTransparent ? 'hover:bg-white/20' : 'hover:bg-gray-100';
+
   return (
-    <div className="container hidden md:flex md:flex-row flex-col gap-6 py-5 justify-between items-center">
+    <div className="container hidden lg:flex lg:flex-row flex-col gap-6 py-5 justify-between items-center transition-all duration-500">
       {/* Logo Section */}
-      <div className="logo-container hidden md:block relative w-full max-w-[200px] h-20 transition-all duration-300">
+      <div className="logo-container hidden lg:block relative w-full max-w-[200px] h-20 transition-all duration-300">
         <Link href="/" className="block w-full h-full">
           <div className="relative w-full h-full">
             <Image
@@ -314,7 +322,8 @@ const TopHeader = ({ userData }: any) => {
               quality={100}
               priority={true}
               alt="ita-luxury"
-              className="transition-transform w-full h-full duration-300 transform-gpu hover:scale-[1.02]"
+              className={`transition-all w-full h-full duration-500 transform-gpu hover:scale-[1.02] ${isTransparent ? 'brightness-0 invert drop-shadow-lg' : ''
+                }`}
             />
           </div>
         </Link>
@@ -322,11 +331,11 @@ const TopHeader = ({ userData }: any) => {
 
       {/* Search Bar */}
       <div className="w-full max-w-2xl hidden lg:block">
-        <LaptopSearchBar />
+        <SearchBar userData={userData} />
       </div>
 
       {/* Right Section - Actions */}
-      <div className="list md:flex items-center gap-8 relative cursor-pointer text-md hidden">
+      <div className="list lg:flex items-center gap-8 relative cursor-pointer text-md hidden">
         <ul className="flex items-center gap-8">
           {/* Wishlist */}
           <li className="group">
@@ -337,38 +346,38 @@ const TopHeader = ({ userData }: any) => {
                   alert("Veuillez vous connecter pour voir vos favoris.");
                 }
               }}
-              className="flex flex-col items-center gap-1 hover:text-primaryColor transition-all"
+              className="flex flex-col items-center gap-1 transition-all"
             >
-              <div className="relative p-2.5 rounded-full bg-gray-50 group-hover:bg-primaryColor/10 transition-colors">
-                <FiHeart className="text-gray-700 group-hover:text-primaryColor text-2xl transition-colors" />
-
+              <div className={`relative p-2.5 rounded-full ${bgColor} ${hoverBgColor} transition-all duration-300`}>
+                <FiHeart className={`${iconColor} group-hover:text-primaryColor text-2xl transition-colors`} />
               </div>
-              <span className="text-xs font-medium text-gray-600 group-hover:text-primaryColor transition-colors">
+              <span className={`text-xs font-medium ${textColor} group-hover:text-primaryColor transition-colors`}>
                 Ma liste d'envies
               </span>
             </Link>
           </li>
 
-          {/* User Menu */}
+          {/* User Menu - FIXED VERSION */}
           <li className="userMenu relative group">
             <div
+              ref={userButtonRef}
               onClick={() => setShowMenuUserMenu((prev) => !prev)}
-              className="flex flex-col items-center gap-1 cursor-pointer hover:text-primaryColor transition-all"
+              className="flex flex-col items-center gap-1 cursor-pointer transition-all"
             >
-              <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-primaryColor/10 transition-colors">
-                <FiUser className="text-gray-700 group-hover:text-primaryColor text-2xl transition-colors" />
+              <div className={`p-2.5 rounded-full ${bgColor} ${hoverBgColor} transition-all duration-300`}>
+                <FiUser className={`${iconColor} group-hover:text-primaryColor text-2xl transition-colors`} />
               </div>
-              <span className="text-xs font-medium text-gray-600 group-hover:text-primaryColor transition-colors">
+              <span className={`text-xs font-medium ${textColor} group-hover:text-primaryColor transition-colors`}>
                 {isAuthenticated ? userData?.fullName?.split(' ')[0] || 'Mon compte' : 'Guest'}
               </span>
-              <span className="text-xs text-gray-500">
-                {isAuthenticated ? 'Mon compte' : 'Mon compte'}
+              <span className={`text-xs ${isTransparent ? 'text-white/80' : 'text-gray-500'}`}>
+                Mon compte
               </span>
             </div>
 
             <div
-              ref={clickOutside}
-              className={`absolute w-96 border shadow-xl rounded-lg bg-white right-0 top-full mt-2 transition-all duration-200 z-[60] ${showLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2"
+              ref={userMenuRef}
+              className={`absolute w-96 border shadow-xl rounded-lg bg-white right-0 top-full mt-2 transition-all duration-200 z-[60] ${showLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2 pointer-events-none"
                 }`}
             >
               {!isAuthenticated && (
@@ -590,22 +599,21 @@ const TopHeader = ({ userData }: any) => {
 
           {/* Basket */}
           <li
-            onClick={handleBasketClick}
+            onClick={openBasketDrawer}
             title="Votre Panier"
-            className="flex flex-col items-center gap-1 cursor-pointer hover:text-primaryColor transition-all group"
+            className="flex flex-col items-center gap-1 cursor-pointer transition-all group"
           >
-            <div className="relative p-2.5 rounded-full bg-gray-50 group-hover:bg-primaryColor/10 transition-colors">
-              <IoBagHandleOutline className="text-gray-700 group-hover:text-primaryColor text-2xl transition-colors" />
+            <div className={`relative p-2.5 rounded-full ${bgColor} ${hoverBgColor} transition-all duration-300`}>
+              <IoBagHandleOutline className={`${iconColor} group-hover:text-primaryColor text-2xl transition-colors`} />
               {quantityInBasket > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primaryColor text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
                   {quantityInBasket}
                 </span>
               )}
             </div>
-            <span className="text-xs font-medium text-gray-600 group-hover:text-primaryColor transition-colors">
+            <span className={`text-xs font-medium ${textColor} group-hover:text-primaryColor transition-colors`}>
               Panier
             </span>
-
           </li>
         </ul>
       </div>

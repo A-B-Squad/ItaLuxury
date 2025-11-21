@@ -57,7 +57,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
   }, [isAutoPlaying, images.length])
 
   if (loadingCenterAdsCarousel || images.length === 0) {
-    return <div className="aspect-[16/9] w-full animate-pulse rounded-2xl bg-muted" />
+    return <div className="w-full h-[100vh] animate-pulse bg-gray-200" />
   }
 
   const nextSlide = () => {
@@ -74,12 +74,12 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
 
   return (
     <div
-      className="group relative w-full overflow-hidden rounded-2xl shadow-lg transition-shadow hover:shadow-xl"
+      className="group relative w-full h-[100vh] overflow-hidden"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
-      <Link href={firstAdLink} className="block" prefetch={true}>
-        <div className="relative aspect-[16/9] bg-muted">
+      <Link href={firstAdLink} className="block w-full h-full" prefetch={true}>
+        <div className="relative w-full h-full bg-black">
           {/* Main visible image */}
           <Image
             src={images[currentIndex] || "/placeholder.svg"}
@@ -88,13 +88,13 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             quality={90}
             priority={true}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+            sizes="100vw"
             loading="eager"
             fetchPriority="high"
             onLoad={() => setImageLoaded({ ...imageLoaded, [currentIndex]: true })}
           />
 
-          {/* Preload next image invisibly */}
+          {/* Preload next and previous images invisibly */}
           {images.length > 1 && (
             <>
               <Image
@@ -104,24 +104,27 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
                 className="hidden"
                 quality={90}
                 priority={currentIndex === 0}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+                sizes="100vw"
               />
-              {/* Preload previous image invisibly */}
               <Image
                 src={images[(currentIndex - 1 + images.length) % images.length]}
                 alt="Preload previous"
                 fill
                 className="hidden"
                 quality={90}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+                sizes="100vw"
               />
             </>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          {/* Dark overlay - always visible */}
+          <div className="absolute inset-0 bg-black/40" />
+          
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
           {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+            <div className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-2">
               {images.map((_, index) => (
                 <button
                   key={index}
@@ -144,10 +147,10 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
                   e.preventDefault()
                   prevSlide()
                 }}
-                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
+                className="absolute left-6 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
                 aria-label="Previous slide"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
@@ -157,10 +160,10 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
                   e.preventDefault()
                   nextSlide()
                 }}
-                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
+                className="absolute right-6 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110 opacity-0 group-hover:opacity-100"
                 aria-label="Next slide"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>

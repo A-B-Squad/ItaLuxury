@@ -8,11 +8,11 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-
+  env: {
+    HUGGINGFACE_API_TOKEN: process.env.HUGGINGFACE_API_TOKEN,
+  },
 
   async headers() {
-    // const developmentHosts = 'http://localhost:3000 http://localhost:4001';
-    // const productionHosts = 'https://ita-luxury.com https://admin.ita-luxury.com';
     const allowedHosts = `${process.env.NEXT_PUBLIC_BASE_URL_DOMAIN} ${process.env.NEXT_ALLOW_REQUEST_API_URL}`;
 
     return [
@@ -213,6 +213,7 @@ const nextConfig = {
   },
 
   images: {
+    unoptimized: true,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
@@ -251,6 +252,7 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
+  
   compress: true,
 };
 

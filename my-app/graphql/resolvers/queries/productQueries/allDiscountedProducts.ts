@@ -1,4 +1,5 @@
 import { Context } from "@apollo/client";
+
 type ProductDiscountOrderByWithRelationInput = {
   product?: {
     createdAt?: "asc" | "desc";
@@ -15,6 +16,7 @@ export const productsDiscounts = async (
   try {
     const takeValue = limit ? Number(limit) : undefined;
     const oneMinutePeriod = Math.floor(Date.now() / (60 * 1000));
+    const now = new Date();
 
     // Define an array of ordering options
     const orderOptions: ProductDiscountOrderByWithRelationInput[] = [
@@ -22,11 +24,16 @@ export const productsDiscounts = async (
       { product: { price: "asc" } },
       { product: { name: "asc" } },
     ];
+
     // Select the current ordering based on the one-minute period
     const currentOrdering = orderOptions[oneMinutePeriod % orderOptions.length];
 
     const allProductDiscounts = await prisma.productDiscount.findMany({
       where: {
+        isActive: true,
+        isDeleted: false,
+        dateOfStart: { lte: now },
+        dateOfEnd: { gte: now },
         product: {
           isVisible: true,
         },
@@ -35,10 +42,12 @@ export const productsDiscounts = async (
         product: {
           include: {
             categories: {
-              include: { subcategories: { include: { subcategories: true } } },
+              include: {
+                subcategories: {
+                  include: { subcategories: true }
+                }
+              },
             },
-            productDiscounts: true,
-
             baskets: true,
             reviews: true,
             favoriteProducts: true,
@@ -52,26 +61,26 @@ export const productsDiscounts = async (
     });
 
     const formattedProducts = allProductDiscounts.map(
-      ({ product, Discount }: any) => ({
-        id: product?.id,
-        name: product?.name,
-        price: product?.price,
-        isVisible: product?.isVisible,
-        reference: product?.reference,
-        description: product?.description,
-        inventory: product?.inventory,
-        solde: product?.solde,
-        images: product?.images,
-        createdAt: product?.createdAt,
-        technicalDetails: product?.technicalDetails,
-        baskets: product?.baskets,
-        categories: product?.categories,
-        Brand: product?.Brand,
-        Colors: product?.Colors,
-        favoriteProducts: product?.favoriteProducts,
-        reviews: product?.reviews,
-        productDiscounts: product?.productDiscounts,
-        discount: Discount,
+      (productDiscount: any) => ({
+        id: productDiscount.product?.id,
+        name: productDiscount.product?.name,
+        slug: productDiscount.product?.slug,
+        price: productDiscount.product?.price,
+        isVisible: productDiscount.product?.isVisible,
+        reference: productDiscount.product?.reference,
+        description: productDiscount.product?.description,
+        inventory: productDiscount.product?.inventory,
+        solde: productDiscount.product?.solde,
+        images: productDiscount.product?.images,
+        createdAt: productDiscount.product?.createdAt,
+        technicalDetails: productDiscount.product?.technicalDetails,
+        baskets: productDiscount.product?.baskets,
+        categories: productDiscount.product?.categories,
+        Brand: productDiscount.product?.Brand,
+        Colors: productDiscount.product?.Colors,
+        favoriteProducts: productDiscount.product?.favoriteProducts,
+        reviews: productDiscount.product?.reviews,
+        productDiscounts: [productDiscount],
       })
     );
 

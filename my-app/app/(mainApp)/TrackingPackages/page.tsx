@@ -2,7 +2,7 @@ import React from "react";
 import TrackingPackages from "./TrackingPackages";
 
 import { Metadata } from "next";
-import { getCompanyInfo } from "@/utlils/getCompanyInfo";
+import { getCompanyInfo } from "@/utils/getCompanyInfo";
 
 if (
   !process.env.NEXT_PUBLIC_API_URL ||
@@ -40,6 +40,13 @@ export const metadata: Metadata = {
 
   alternates: {
     canonical: `${baseUrl}/TrackingPackages`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    'max-snippet': -1,
+    'max-image-preview': 'large',
+    'max-video-preview': -1,
   },
 };
 const TrackingPackagesPage = async () => {

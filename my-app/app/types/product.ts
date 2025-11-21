@@ -7,6 +7,7 @@ export type SearchParamsProductSearch = {
     brand?: string;
     page?: string;
     sort?: string;
+    query?: string;
 };
 export interface ProductData {
     id: string;
@@ -21,16 +22,18 @@ export interface ProductData {
     quantity: number;
     basketId: string;
     productDiscounts: {
+        id:string
         newPrice: number;
         price: number;
         dateOfEnd: string;
         dateOfStart: string
     }[];
     Colors: {
+        id:string
         color: string;
         Hex: string;
     } | null;
-    brand: Brand;
+    Brand: Brand;
     categories: {
         id: string;
         name: string;

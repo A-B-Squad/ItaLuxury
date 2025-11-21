@@ -1,4 +1,4 @@
-import { sendPurchaseNotifications } from "@/utlils/sendPurchaseNotifications";
+import { sendPurchaseNotifications } from "@/utils/sendPurchaseNotifications";
 import { NextRequest, NextResponse } from "next/server";
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;

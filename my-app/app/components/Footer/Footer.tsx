@@ -16,11 +16,9 @@ import React, { useState } from "react";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import { MdEmail, MdLocalPhone } from "react-icons/md";
-import { SiVisa, SiMastercard } from "react-icons/si";
-import { CreditCard } from "lucide-react";
 import Image from "next/image";
 
-//  SocialIcon component with hover effect
+// SocialIcon component with hover effect
 const SocialIcon = ({
   icon: Icon,
   navLink,
@@ -59,17 +57,18 @@ const Footer = ({ companyData }: any) => {
   };
 
   return (
-    <footer className="Footer bg-white shadow-sm text-black flex flex-col items-center relative">
+    <footer className="Footer bg-white shadow-sm text-black w-full">
       {/* Client Services Component */}
       <div className="w-full lg:p-10">
         <Services />
       </div>
 
-      <div className="container md:px-10   ">
+      {/* Main Footer Content */}
+      <div className="w-full">
         {/* Laptop View */}
-        <div className="w-full hidden lg:grid max-w-7xl lg:grid-cols-6 place-content-center gap-4 ">
-          {/* Full width map for laptop view */}
-          <div className="lg:col-span-6 mb-6">
+        <div className="hidden lg:block w-full">
+          {/* Full width map section */}
+          <div className="w-full px-10 py-6">
             <h6 className="font-medium text-xl mb-4">Notre Boutique</h6>
             <div className="relative w-full h-[300px] rounded-lg overflow-hidden shadow-md">
               <iframe
@@ -95,122 +94,125 @@ const Footer = ({ companyData }: any) => {
             </div>
           </div>
 
-          <div className="CompanyInfo w-full lg:col-span-2">
-            <h6 className="font-medium text-xl mb-4">Informations</h6>
-            <div className="leading-8">
-              <div className="flex gap-5 items-center tracking-wider text-gray-700">
-                <IoLocationSharp size={20} className="text-primaryColor" />
-                <p>{companyInfo?.location}</p>
-              </div>
-              <div className="flex gap-1 items-center tracking-wider text-gray-700">
-                <MdLocalPhone size={18} className="text-primaryColor" />
-                <p>(+216) {companyInfo?.phone?.[0]}</p>
-                <p>/ (+216) {companyInfo?.phone?.[1]}</p>
-              </div>
-              <div className="flex gap-5 tracking-wider items-center text-gray-700">
-                <MdEmail size={18} className="text-primaryColor" />
-                <p>{companyInfo?.email}</p>
+          {/* Footer columns - full width with padding */}
+          <div className="w-full px-10 py-6 grid grid-cols-6 gap-8 border-t">
+            <div className="CompanyInfo col-span-2">
+              <h6 className="font-medium text-xl mb-4">Informations</h6>
+              <div className="leading-8">
+                <div className="flex gap-5 items-center tracking-wider text-gray-700">
+                  <IoLocationSharp size={20} className="text-primaryColor" />
+                  <p>{companyInfo?.location}</p>
+                </div>
+                <div className="flex gap-1 items-center tracking-wider text-gray-700">
+                  <MdLocalPhone size={18} className="text-primaryColor" />
+                  <p>(+216) {companyInfo?.phone?.[0]}</p>
+                  <p>/ (+216) {companyInfo?.phone?.[1]}</p>
+                </div>
+                <div className="flex gap-5 tracking-wider items-center text-gray-700">
+                  <MdEmail size={18} className="text-primaryColor" />
+                  <p>{companyInfo?.email}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="Categories">
-            <h6 className="font-medium text-xl mb-4">Nos Catégories</h6>
-            <ul>
-              {categories.map(
-                (category: { name: string; id: string }, subIndex: number) => (
-                  <li key={subIndex}>
-                    <Link
-                      href={`/Collections/tunisie?${new URLSearchParams({
-                        category: category.name,
-                      })}`}
-                      className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm block"
-                    >
-                      {category?.name}
-                    </Link>
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-
-          <div className="entreprise">
-            <h6 className="font-medium text-xl mb-4">Notre Entreprise</h6>
-            <div className="flex flex-col">
-              <Link
-                href="/Delivery"
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Livraison
-              </Link>
-              <Link
-                href="/Privacy-Policy"
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Politique de Confidentialité
-              </Link>
-              <Link
-                href="/Terms-of-use"
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Conditions d'utilisation
-              </Link>
-              <Link
-                href="/Contact-us"
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Contactez-nous
-              </Link>
+            <div className="Categories">
+              <h6 className="font-medium text-xl mb-4">Nos Catégories</h6>
+              <ul>
+                {categories.map(
+                  (category: { name: string; id: string }, subIndex: number) => (
+                    <li key={subIndex}>
+                      <Link
+                        href={`/Collections/tunisie?${new URLSearchParams({
+                          category: category.name,
+                        })}`}
+                        className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm block"
+                      >
+                        {category?.name}
+                      </Link>
+                    </li>
+                  )
+                )}
+              </ul>
             </div>
-          </div>
 
-          <div className="YourAccount">
-            <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
-            <div className="flex flex-col">
-              <Link
-                href={`/TrackingPackages`}
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Mes Commandes
-              </Link>
-              <Link
-                href={isAuthenticated ? `/FavoriteList` : "/signin"}
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Ma Liste D'envies
-              </Link>
-              <Link
-                href="/Basket"
-                className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
-              >
-                Mon Panier
-              </Link>
+            <div className="entreprise">
+              <h6 className="font-medium text-xl mb-4">Notre Entreprise</h6>
+              <div className="flex flex-col">
+                <Link
+                  href="/Delivery"
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Livraison
+                </Link>
+                <Link
+                  href="/Privacy-Policy"
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Politique de Confidentialité
+                </Link>
+                <Link
+                  href="/Terms-of-use"
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Conditions d'utilisation
+                </Link>
+                <Link
+                  href="/Contact-us"
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Contactez-nous
+                </Link>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <h6 className="font-medium text-xl mb-4">Newsletter</h6>
-            <form onSubmit={handleSubscription} className="space-y-2">
-              <input
-                type="email"
-                placeholder="Votre adresse e-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="p-2 rounded w-full border text-black focus:border-primaryColor focus:outline-none"
-                required
-              />
-              <button
-                type="submit"
-                className="mt-2 p-2 bg-primaryColor text-white rounded w-full hover:bg-opacity-90 transition-all"
-              >
-                S'ABONNER
-              </button>
-            </form>
-            <span className="mt-2 text-sm text-gray-600 block">
-              Vous pouvez vous désinscrire à tout moment. Vous trouverez pour cela
-              nos informations de contact dans les conditions d'utilisation du
-              site.
-            </span>
+            <div className="YourAccount">
+              <h6 className="font-medium text-xl mb-4">Votre Compte</h6>
+              <div className="flex flex-col">
+                <Link
+                  href={`/TrackingPackages`}
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Mes Commandes
+                </Link>
+                <Link
+                  href={isAuthenticated ? `/FavoriteList` : "/signin"}
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Ma Liste D'envies
+                </Link>
+                <Link
+                  href="/Basket"
+                  className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm"
+                >
+                  Mon Panier
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <h6 className="font-medium text-xl mb-4">Newsletter</h6>
+              <form onSubmit={handleSubscription} className="space-y-2">
+                <input
+                  type="email"
+                  placeholder="Votre adresse e-mail"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="p-2 rounded w-full border text-black focus:border-primaryColor focus:outline-none"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="mt-2 p-2 bg-primaryColor text-white rounded w-full hover:bg-opacity-90 transition-all"
+                >
+                  S'ABONNER
+                </button>
+              </form>
+              <span className="mt-2 text-sm text-gray-600 block">
+                Vous pouvez vous désinscrire à tout moment. Vous trouverez pour cela
+                nos informations de contact dans les conditions d'utilisation du
+                site.
+              </span>
+            </div>
           </div>
         </div>
 
@@ -383,7 +385,7 @@ const Footer = ({ companyData }: any) => {
         </div>
 
         {/* Payment Methods & Social Media Section */}
-        <div className="mt-8 flex flex-col items-center gap-6 border-t pt-6">
+        <div className="mt-8 flex flex-col items-center gap-6 border-t pt-6 px-10">
           {/* Payment Methods */}
           <div className="flex flex-col items-center gap-3">
             <h6 className="text-sm font-medium text-gray-600">Modes de paiement acceptés</h6>
@@ -457,7 +459,8 @@ const Footer = ({ companyData }: any) => {
           </div>
         </div>
 
-        <div className="border-t py-5 text-center md:text-left md:pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors">
+        {/* Copyright */}
+        <div className="border-t py-5 text-center md:text-left md:pl-12 text-gray-500 tracking-wider text-sm font-light mt-2 w-full hover:text-primaryColor transition-colors px-10">
           © {new Date().getFullYear()} ita-luxury.com By Ahmed Haddada
         </div>
       </div>
@@ -465,4 +468,4 @@ const Footer = ({ companyData }: any) => {
   );
 };
 
-export default Footer
+export default Footer;

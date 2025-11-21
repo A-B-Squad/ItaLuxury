@@ -1,7 +1,7 @@
 "use client";
 
 import { sendGTMEvent } from "@next/third-parties/google";
-import { Heart, Home, ShoppingBag, Grid3x3, X, User, UserCircle } from "lucide-react";
+import { Heart, Home, ShoppingBag, Grid3x3, X, User, UserCircle, Store } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { memo, useCallback, useState, useEffect } from "react";
@@ -15,7 +15,7 @@ const TabBarMobile = () => {
   const { quantityInBasket } = useProductsInBasketStore();
   const { openDrawerMobileSearch } = useDrawerMobileSearch();
   const { openBasketDrawer } = useDrawerBasketStore();
-  const { isOpen, openCategoryDrawer } = useDrawerMobileCategory();
+  const {  openCategoryDrawer } = useDrawerMobileCategory();
 
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -31,17 +31,7 @@ const TabBarMobile = () => {
     return pathname.startsWith(path);
   }, [pathname]);
 
-  const handleNavigation = useCallback((pageName: string) => {
-    sendGTMEvent({
-      event: "page_view",
-      page_title: pageName,
-      page_location: window.location.href,
-      facebook_data: {
-        content_name: pageName,
-        content_type: "page",
-      },
-    });
-  }, []);
+
 
   const mainTabItems = [
     {
@@ -76,6 +66,12 @@ const TabBarMobile = () => {
 
   const expandedItems = [
     {
+      name: "Boutique",
+      path: "/Collections/tunisie?page=1",
+      icon: <Store size={22} />,
+      color: "bg-purple-500",
+    },
+    {
       name: "Panier",
       path: "/basket",
       icon: <ShoppingBag size={22} />,
@@ -106,10 +102,8 @@ const TabBarMobile = () => {
   const handleItemClick = useCallback((item: any) => {
     if (item.isSearch) {
       openDrawerMobileSearch();
-    } else {
-      handleNavigation(item.name);
-    }
-  }, [openDrawerMobileSearch, handleNavigation]);
+    } 
+  }, [openDrawerMobileSearch]);
 
   const toggleExpanded = () => {
     if (!isExpanded) {
@@ -198,7 +192,7 @@ const TabBarMobile = () => {
                             {item.badge}
                           </span>
                         )}
-                      </div>
+                      </div>  
                       <span className="text-xs font-medium text-gray-700">
                         {item.name}
                       </span>
@@ -209,7 +203,6 @@ const TabBarMobile = () => {
                     key={item.path}
                     href={item.path}
                     onClick={() => {
-                      handleNavigation(item.name);
                       closeMenu();
                     }}
                   >
@@ -305,7 +298,6 @@ const TabBarMobile = () => {
                   <Link
                     key={item.path}
                     href={item.path}
-                    onClick={() => handleNavigation(item.name)}
                     className="flex flex-col items-center justify-center flex-1"
                   >
                     <div className="flex flex-col items-center py-1 active:scale-95 transition-transform">

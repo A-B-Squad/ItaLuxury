@@ -34,6 +34,8 @@ import { apiCredentialsQueries } from "./resolvers/queries/apiCredentialsQueries
 import { reviewMutation } from "./resolvers/mutations/reviewMutations/reviewMutations";
 import { pointsMutations } from "./resolvers/mutations/pointsMutations/pointsMutations";
 import { pointsQueries } from "./resolvers/queries/pointsQueries/pointsQueries";
+import { discountQueries } from "./resolvers/queries/Discount/discountQueries";
+import { promotionalCampaignMutations } from "./resolvers/mutations/PromotionalCampaign/promotionalCampaignMutations";
 
 export const resolvers = {
   Query: {
@@ -53,7 +55,8 @@ export const resolvers = {
     ...usersQueries,
     ...couponsQueries,
     ...apiCredentialsQueries,
-    ...pointsQueries, 
+    ...pointsQueries,
+    ...discountQueries
   },
 
   Mutation: {
@@ -75,6 +78,6 @@ export const resolvers = {
     ...bestSellsMutations,
     ...apiCredentialsMutations,
     ...reviewMutation,
-    ...pointsMutations,
+    ...pointsMutations, ...promotionalCampaignMutations
   },
 };

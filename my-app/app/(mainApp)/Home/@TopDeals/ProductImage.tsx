@@ -16,7 +16,7 @@ const ProductImage = ({ product }: { product: any }) => {
   const imageUrl = product?.images?.[0] ||
     "https://res.cloudinary.com/dc1cdbirz/image/upload/v1732014003/ita-luxury/zdiptq7s9m9ck13ljnvy.jpg";
 
-  const productUrl = `/products/tunisie?slug=${product.slug}`;
+  const productUrl = `/products/${product.slug}`;
 
   return (
     <Link href={productUrl} className="relative block h-56 md:h-64 lg:h-full w-full overflow-hidden rounded-md">

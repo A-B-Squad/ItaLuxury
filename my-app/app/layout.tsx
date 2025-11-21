@@ -1,5 +1,4 @@
-import AnalyticsIntegration from "@/app/components/AnalyticsIntegration";
-import FBCInitializer from "@/app/components/FBCInitializer"; 
+import { Inter, Montserrat } from 'next/font/google';
 import TabBarMobile from "@/app/components/TabBarMobile";
 import FloatingActionButtons from "./components/FloatingActionButtons";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,6 +9,22 @@ import type { Metadata } from "next";
 import React from "react";
 import "./globals.css";
 import { Organization, WebSite } from "schema-dts";
+import AnalyticsIntegration from '@/app/components/AnalyticsIntegration';
+
+// Inter for body text (readable, clean)
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+// Montserrat for headings (bold, elegant)
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+  weight: ['600', '700', '800'],
+});
 
 if (process.env.NODE_ENV !== "production") {
   loadDevMessages();
@@ -33,7 +48,6 @@ export const metadata: Metadata = {
   authors: [{ name: "ita-luxury" }],
   creator: "ita-luxury",
   publisher: "ita-luxury",
-
   openGraph: {
     type: "website",
     title: "Vente en ligne en Tunisie : Découvrez des offres exclusives | ita-luxury",
@@ -50,7 +64,6 @@ export const metadata: Metadata = {
     siteName: "ita-luxury",
     locale: "fr_TN",
   },
-
   twitter: {
     card: "summary_large_image",
     title: "Vente en ligne en Tunisie | ita-luxury",
@@ -59,11 +72,9 @@ export const metadata: Metadata = {
     creator: "@ita_luxury",
     site: "@ita_luxury",
   },
-
   verification: {
     google: "mNgh_Cr_ANLEQ34Grw9MdpyVZO42QknZyFHMVErtSNE",
   },
-
   robots: {
     index: true,
     follow: true,
@@ -71,7 +82,6 @@ export const metadata: Metadata = {
     "max-image-preview": "large",
     "max-video-preview": -1,
   },
-
   alternates: {
     canonical: baseUrl,
   },
@@ -81,97 +91,25 @@ const organizationSchema: Organization = {
   "@type": "Organization",
   "@id": `${baseUrl}/#organization`,
   name: "Ita Luxury",
-  alternateName: ["ITA Luxury", "ita luxury"],
   url: baseUrl,
   email: "italuxury2002@gmail.com",
   logo: `${baseUrl}/images/logos/LOGO-WHITE-BG.webp`,
   description: "Boutique en ligne de confiance en Tunisie proposant des produits de qualité avec livraison rapide dans tout le pays.",
-  foundingDate: "2002",
-  foundingLocation: {
-    "@type": "Place",
-    name: "Sousse Khzema, Tunisie",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Sousse Khzema",
-      addressLocality: "Sousse",
-      addressCountry: "TN"
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: 35.8256,
-      longitude: 10.6360
-    },
-    hasMap: "https://maps.app.goo.gl/ZD4MxQsjB8T4ZVZx6"
-  },
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Sousse Khzema",
     addressLocality: "Sousse",
     addressCountry: "TN"
   },
-  numberOfEmployees: {
-    "@type": "QuantitativeValue",
-    value: 10
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+216-23-212-892",
+    contactType: "customer service",
+    areaServed: "TN",
   },
-  contactPoint: [
-    {
-      "@type": "ContactPoint",
-      telephone: "+216-23-212-892",
-      contactType: "customer support",
-      areaServed: "TN",
-      availableLanguage: ["fr", "ar"],
-      hoursAvailable: {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        opens: "09:00",
-        closes: "21:00"
-      }
-    },
-    {
-      "@type": "ContactPoint",
-      contactType: "sales",
-      telephone: "+216-23-212-892",
-      email: "italuxury2002@gmail.com",
-      areaServed: "TN"
-    }
-  ],
   sameAs: [
     "https://www.facebook.com/itaaluxury",
     "https://www.instagram.com/ita_luxury/"
-  ],
-  knowsAbout: [
-    "E-commerce",
-    "Vente en ligne",
-    "Produits de qualité",
-    "Livraison Tunisie",
-    "Shopping en ligne"
-  ],
-  hasOfferCatalog: {
-    "@type": "OfferCatalog",
-    name: "Catalogue Ita Luxury",
-    itemListElement: [
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: "Vente en ligne",
-          description: "Vente de produits physiques de qualité en ligne",
-        },
-      },
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Service",
-          name: "Livraison à domicile",
-          description: "Livraison rapide partout en Tunisie",
-        },
-      },
-    ],
-  },
-  parentOrganization: {
-    "@type": "Organization",
-    name: "Ita Luxury Group",
-  },
+  ]
 };
 
 const websiteSchema: WebSite = {
@@ -179,12 +117,7 @@ const websiteSchema: WebSite = {
   "@id": `${baseUrl}/#website`,
   url: baseUrl,
   name: "Ita Luxury",
-  alternateName: "ITA Luxury Online Store",
-  inLanguage: "fr",
   description: "Boutique en ligne de confiance en Tunisie - Produits physiques de qualité, livraison rapide",
-  publisher: {
-    "@id": `${baseUrl}/#organization`
-  },
 };
 
 const structuredData = {
@@ -198,11 +131,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" className={`${inter.variable} ${montserrat.variable}`}>
       <head>
         <AnalyticsIntegration />
       </head>
-      <body>
+      <body >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -210,9 +143,6 @@ export default function RootLayout({
           }}
           key="organization-website-structured-data"
         />
-        
-        <FBCInitializer />
-        
         <ApolloWrapper>{children}</ApolloWrapper>
         <Toaster />
         <FloatingActionButtons />

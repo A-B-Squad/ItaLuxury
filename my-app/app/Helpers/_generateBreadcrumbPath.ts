@@ -1,4 +1,4 @@
-import { fetchGraphQLData } from "@/utlils/graphql";
+import { fetchGraphQLData } from "@/utils/graphql";
 import { SearchParamsProductSearch } from "../types";
 import { CATEGORIES_QUERY_NOGQL } from "@/graphql/queries";
 

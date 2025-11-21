@@ -10,15 +10,18 @@ export const deleteGroupProductVariant = async (_: any,
         const existingGroup = await prisma.groupProductVariant.findUnique({
             where: { id }
         });
+        console.log('existingGroup group product variant with id:', existingGroup);
 
-        if (existingGroup) {
+        if (!existingGroup) {
             return 'Product group not found'
         }
 
-        await prisma.groupProductVariant.delete(
+       let deletedGroup = await prisma.groupProductVariant.delete(
             {
                 where: { id },
             });
+
+            console.log('Deleted group product variant:', deletedGroup);
 
         return 'Product group deleted successfully';
     } catch (error) {

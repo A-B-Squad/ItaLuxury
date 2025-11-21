@@ -76,11 +76,22 @@ export const BASKET_QUERY = gql`
         slug
         price
         images
+        isVisible
+        reference
         inventory
-        productDiscounts {
-          newPrice
-          price
-        }
+           productDiscounts {
+        id
+        price
+        newPrice
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
+      }
         categories {
           id
           name
@@ -131,10 +142,18 @@ export const TAKE_16_PRODUCTS_BY_CATEGORY = gql`
         Hex
       }
       technicalDetails
-      productDiscounts {
+         productDiscounts {
+        id
         price
         newPrice
-       
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
       }
     }
   }
@@ -171,10 +190,18 @@ export const TAKE_14_PRODUCTS_PRICE_20 = gql`
         color
         Hex
       }
-      productDiscounts {
+     productDiscounts {
+        id
         price
         newPrice
-       
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
       }
     }
   }
@@ -222,15 +249,23 @@ export const TOP_DEALS = gql`
           color
           Hex
         }
-        productDiscounts {
-          price
-          newPrice
-          dateOfEnd
-          
+       productDiscounts {
+        id
+        price
+        newPrice
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
+      }
         }
       }
     }
-  }
+  
 `;
 export const CLIENT_SERVICES = gql`
   query Query($position: String!) {
@@ -249,45 +284,51 @@ export const ADVERTISSMENT_QUERY = gql`
   }
 `;
 export const CATEGORIES_QUERY_NOGQL = `
-   query FetchMainCategories {
-    fetchMainCategories {
-     id
-      name
-      bigImage
-      smallImage
-      subcategories {
-        id
-        name
-        parentId
-        smallImage
-        subcategories {
-          id
-          name
-          parentId
-          smallImage
-        }
-      }
-      }
-  }
-`;
-
-export const MAIN_CATEGORY_QUERY = gql`
   query FetchMainCategories {
   fetchMainCategories {
     id
     name
     bigImage
     smallImage
+    order
     subcategories {
       id
       name
       parentId
       smallImage
+      order
       subcategories {
         id
         name
         parentId
         smallImage
+        order
+      }
+    }
+  }
+}
+`;
+
+export const MAIN_CATEGORY_QUERY = gql`
+   query FetchMainCategories {
+  fetchMainCategories {
+    id
+    name
+    bigImage
+    smallImage
+    order
+    subcategories {
+      id
+      name
+      parentId
+      smallImage
+      order
+      subcategories {
+        id
+        name
+        parentId
+        smallImage
+        order
       }
     }
   }
@@ -319,9 +360,18 @@ export const SEARCH_PRODUCTS_QUERY = gql`
           }
         
           productDiscounts {
-            price
-            newPrice
-          }
+        id
+        price
+        newPrice
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
+      }
         }
         categories {
           id
@@ -362,10 +412,19 @@ export const SEARCH_PRODUCTS_QUERY_NO_GQL = gql`
             description
           }
         
-          productDiscounts {
-            price
-            newPrice
-          }
+            productDiscounts {
+        id
+        price
+        newPrice
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
+      }
         }
         categories {
           id
@@ -417,11 +476,19 @@ export const FAVORITE_PRODUCTS_QUERY = gql`
             }
           }
         }
-        productDiscounts {
-          id
-          price
-          newPrice
-        }
+productDiscounts {
+        id
+        price
+        newPrice
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
+      }
       }
     }
   }
@@ -437,11 +504,19 @@ export const BEST_SALES_QUERY = gql`
         images
         price
         description
-        productDiscounts {
-          newPrice
-          price
-         
-        }
+          productDiscounts {
+        id
+        price
+        newPrice
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
+      }
         categories {
           id
           name
@@ -531,7 +606,7 @@ query PackageById($packageId: ID!) {
 `;
 
 export const ALL_BRANDS = `
- query FetchBrands {
+query FetchBrands {
   fetchBrands {
     id
     name
@@ -539,12 +614,21 @@ export const ALL_BRANDS = `
     product {
       slug
       id
+      Brand {
+        name
+      }
+      Colors {
+        color
+        Hex
+      }
       categories {
         name
       }
     }
   }
 }
+
+
 
 `;
 export const GET_GOVERMENT_INFO = gql`
@@ -597,10 +681,18 @@ export const TAKE_14_PRODUCTS = gql`
         Hex
       }
       technicalDetails
-      productDiscounts {
+         productDiscounts {
+        id
         price
         newPrice
-       
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
       }
     }
   }
@@ -639,10 +731,18 @@ export const TAKE_14_PRODUCTS_IN_DISCOUNT = gql`
         color
         Hex
       }
-      productDiscounts {
+  productDiscounts {
+        id
         price
         newPrice
-       
+        discountType
+        discountValue
+        campaignName
+        campaignType
+        dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
       }
     }
   }
@@ -691,12 +791,18 @@ query GetProductBySlug($slug: String!) {
           }
         }
       }
-      productDiscounts {
+        productDiscounts {
         id
         price
         newPrice
-        dateOfEnd
+        discountType
+        discountValue
+        campaignName
+        campaignType
         dateOfStart
+        dateOfEnd
+        isActive
+        isDeleted
       }
       Colors {
         id
@@ -717,6 +823,7 @@ query GetProductBySlug($slug: String!) {
         Products {
           id
           name
+          slug
           Colors {
             Hex
           }

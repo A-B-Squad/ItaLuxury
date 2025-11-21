@@ -6,17 +6,12 @@ import {
   useProductsInBasketStore,
 } from "@/app/store/zustand";
 import { useToast } from "@/components/ui/use-toast";
-import { DECREASE_QUANTITY_MUTATION, DELETE_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
+import { DECREASE_QUANTITY_MUTATION, DELETE_PRODUCT_FROM_BASKET_BY_ID_MUTATION, INCREASE_QUANTITY_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
 import { useAuth } from "@/app/hooks/useAuth";
-import triggerEvents from "@/utlils/events/trackEvents";
-
 import { useMutation, useQuery } from "@apollo/client";
 import { Drawer, IconButton, Typography } from "@material-tailwind/react";
-import { sendGTMEvent } from "@next/third-parties/google";
-
 import Image from "next/image";
-
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { CiTrash } from "react-icons/ci";
@@ -26,6 +21,9 @@ import { RiSubtractLine } from "react-icons/ri";
 import { FaArrowRight } from "react-icons/fa";
 import { IoMdCart } from "react-icons/io";
 import { motion } from "framer-motion";
+import { trackRemoveFromCart, trackViewCart } from "@/utils/facebookEvents";
+
+
 
 interface Product {
   id: string;
@@ -52,6 +50,7 @@ interface Product {
   }[];
   [key: string]: any;
 }
+
 const BasketDrawer = ({ userData }: any) => {
   const { toast } = useToast();
   const { setCheckoutProducts, setCheckoutTotal } = useCheckoutStore();
@@ -82,10 +81,8 @@ const BasketDrawer = ({ userData }: any) => {
     }
   });
 
-
-
   // Mutations
-  const [deleteBasketById] = useMutation(DELETE_BASKET_BY_ID_MUTATION);
+  const [deleteBasketById] = useMutation(DELETE_PRODUCT_FROM_BASKET_BY_ID_MUTATION);
   const [increaseQuantity] = useMutation(INCREASE_QUANTITY_MUTATION);
   const [decreaseQuantity] = useMutation(DECREASE_QUANTITY_MUTATION);
 
@@ -111,49 +108,164 @@ const BasketDrawer = ({ userData }: any) => {
     }, 0);
   }, [productsInBasket]);
 
-  // Update basket quantity when drawer opens
+  // ========== TRACK ViewCart ON PAGE LOAD ==========
   useEffect(() => {
-    if (isOpen) {
-      if (decodedToken?.userId) {
-        refetch();
-      }
-      setQuantityInBasket(
-        productsInBasket.reduce(
-          (acc: any, curr: { actualQuantity: any }) =>
-            acc + curr.actualQuantity,
-          0,
-        ),
-      );
-    }
-  }, [
-    isOpen,
-    isUpdated,
-    decodedToken,
-    refetch,
-    productsInBasket,
-    setQuantityInBasket,
-  ]);
+    // Only track if we have products
+    if (!productsInBasket || productsInBasket.length === 0) return;
 
-  // Handle removing product from basket
+    // Prepare complete cart items for tracking with ALL required fields
+    const cartItems = productsInBasket.map((product: Product) => {
+      // Get the actual price (with discount if available)
+      const productPrice = product.productDiscounts?.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price;
+
+      const quantity = product.quantity || product.actualQuantity || 0;
+
+      return {
+        // Required fields from CartItem interface
+        id: product.id,
+        name: product.name,
+        slug: product.slug || `product-${product.id}`, // Fallback if slug missing
+        price: Number(productPrice),
+        quantity: quantity,
+
+        // Other required fields with fallbacks
+        isVisible: product.isVisible !== undefined ? product.isVisible : true,
+        reference: product.reference || product.id,
+        description: product.description || product.name,
+        inventory: product.inventory || 0,
+        images: product.images || [],
+        categories: product.categories || [],
+        productDiscounts: product.productDiscounts || [],
+
+        // Optional fields
+        Brand: product.Brand || { name: 'ita-luxury' },
+        Colors: product.Colors || null,
+        technicalDetails: product.technicalDetails,
+        reviews: product.reviews || [],
+        GroupProductVariant: product.GroupProductVariant,
+        solde: product.solde,
+      };
+    });
+
+    // Prepare user data
+    const user = userData ? {
+      id: userData.id,
+      email: userData.email,
+      phone: userData.number,
+      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+      city: userData.city || "",
+      country: "tn",
+    } : undefined;
+
+    console.log('🛒 ViewCart - Tracking data:', {
+      product_count: cartItems.length,
+      total_value: totalPrice,
+      user: user ? 'logged_in' : 'guest',
+      items: cartItems.map((item: { id: any; name: any; quantity: any; price: any; }) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      }))
+    });
+
+    // Track ViewCart event
+    trackViewCart(cartItems, Number(totalPrice), user)
+      .then(() => {
+        console.log("✅ ViewCart tracked successfully");
+      })
+      .catch(error => {
+        console.error("❌ Error tracking ViewCart:", error);
+      });
+
+  }, [productsInBasket, totalPrice, userData]);
+
+  // ========== TRACK RemoveFromCart ==========
   const handleRemoveProduct = useCallback(
     async (productId: string, basketId?: string) => {
       setLoadingProductId(productId);
 
+      // Find the product being removed
+      const removedProduct = productsInBasket.find(
+        (p: Product) => p.id === productId || p.basketId === basketId
+      );
+
       try {
-        if (decodedToken?.userId && basketId) {
-          await deleteBasketById({ variables: { basketId } });
-          refetch();
+        if (removedProduct) {
+          // Prepare complete product data for tracking with fallbacks
+          const productToTrack = {
+            id: removedProduct.id,
+            name: removedProduct.name,
+            slug: removedProduct.slug || `product-${removedProduct.id}`,
+            price: Number(removedProduct.price) || 0,
+            quantity: removedProduct.quantity || removedProduct.actualQuantity || 1,
+            description: removedProduct.description || removedProduct.name,
+            Brand: removedProduct.Brand || { name: 'ita-luxury' },
+            Colors: removedProduct.Colors || null,
+            categories: removedProduct.categories || [],
+            productDiscounts: removedProduct.productDiscounts || [],
+            inventory: removedProduct.inventory || 0,
+            isVisible: removedProduct.isVisible !== undefined ? removedProduct.isVisible : true,
+            reference: removedProduct.reference || removedProduct.id,
+            images: removedProduct.images || [],
+          };
+
+          console.log('🗑️ RemoveFromCart - Preparing to track:', {
+            product_id: productToTrack.id,
+            product_name: productToTrack.name,
+            quantity: productToTrack.quantity,
+            price: productToTrack.price
+          });
+
+          // Prepare user data with better name handling
+          const user = userData ? {
+            id: userData.id,
+            email: userData.email,
+            phone: userData.number,
+            firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+            lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+            city: userData.city || "",
+            country: "tn",
+          } : undefined;
+
+          // Track RemoveFromCart event (non-blocking)
+          trackRemoveFromCart(productToTrack, user)
+            .then(() => {
+              console.log("✅ RemoveFromCart tracked successfully");
+            })
+            .catch(trackingError => {
+              console.error("❌ Error tracking RemoveFromCart:", trackingError);
+              // Don't show error to user - tracking failure shouldn't affect UX
+            });
         } else {
-          removeProductFromBasket(productId);
+          console.warn('⚠️ Product not found for removal tracking:', { productId, basketId });
         }
 
+        // Remove from database or store
+        if (decodedToken?.userId && basketId) {
+          await deleteBasketById({
+            variables: { basketId, productId }
+          });
+          refetch(); // Refresh the basket data
+
+          console.log('🗑️ Product removed from database:', { productId, basketId });
+        } else {
+          removeProductFromBasket(productId);
+          console.log('🗑️ Product removed from local storage:', { productId });
+        }
+
+        // Show success message
         toast({
           title: "Produit retiré",
           description: "Le produit a été retiré de votre panier",
           className: "bg-green-500 text-white",
         });
+
       } catch (error) {
-        console.error("Failed to delete basket item:", error);
+        console.error("❌ Failed to remove product:", error);
         toast({
           title: "Erreur",
           description: "Impossible de supprimer le produit. Veuillez réessayer.",
@@ -163,9 +275,8 @@ const BasketDrawer = ({ userData }: any) => {
         setLoadingProductId(null);
       }
     },
-    [decodedToken, deleteBasketById, removeProductFromBasket, refetch, toast]
+    [productsInBasket, userData, decodedToken, deleteBasketById, removeProductFromBasket, refetch, toast]
   );
-
   // Handle increasing quantity
   const handleIncreaseQuantity = useCallback(
     async (productId: string, basketId?: string) => {
@@ -193,7 +304,7 @@ const BasketDrawer = ({ userData }: any) => {
         setLoadingProductId(null);
       }
     },
-    [decodedToken, increaseQuantity, increaseProductInQtBasket, refetch, toast]
+    [decodedToken, increaseQuantity, increaseProductInQtBasket, toast]
   );
 
   // Handle decreasing quantity
@@ -214,77 +325,18 @@ const BasketDrawer = ({ userData }: any) => {
         setLoadingProductId(null);
       }
     },
-    [decodedToken, decreaseQuantity, decreaseProductInQtBasket, refetch]
+    [decodedToken, decreaseQuantity, decreaseProductInQtBasket]
   );
 
-  // Handle checkout
-  const handleCheckout = useCallback(() => {
+  // ========== TRACK InitiateCheckout ==========
+  const handleCheckout = useCallback(async () => {
     setIsLoading(true);
 
     try {
+      // Set checkout data
       setCheckoutProducts(productsInBasket);
       setCheckoutTotal(Number(totalPrice));
       closeBasketDrawer();
-
-      // Analytics events
-      triggerEvents("InitiateCheckout", {
-        user_data: {
-          em: userData?.email ? [userData.email.toLowerCase()] : [],
-          fn: userData?.fullName ? [userData.fullName] : [],
-          ph: userData?.number ? [userData.number] : [],
-          country: ["tn"],
-          external_id: userData?.id,
-        },
-        custom_data: {
-          content_name: "InitiateCheckout",
-          content_type: "product",
-          currency: "TND",
-          value: totalPrice,
-          contents: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
-            id: product.id,
-            quantity: product.actualQuantity || product.quantity,
-          })),
-          num_items: productsInBasket.reduce(
-            (sum: any, product: { actualQuantity: any; quantity: any; }) =>
-              sum + (product?.actualQuantity || product?.quantity || 0),
-            0
-          ),
-        },
-      });
-
-      sendGTMEvent({
-        event: "begin_checkout",
-        ecommerce: {
-          currency: "TND",
-          value: totalPrice,
-          items: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
-            item_id: product.id,
-            quantity: product.actualQuantity || product.quantity
-          }))
-        },
-        user_data: {
-          em: userData?.email ? [userData.email.toLowerCase()] : [],
-          fn: userData?.fullName ? [userData.fullName] : [],
-          ph: userData?.number ? [userData.number] : [],
-          country: ["tn"],
-          external_id: userData?.id
-        },
-        facebook_data: {
-          content_name: "InitiateCheckout",
-          content_type: "product",
-          currency: "TND",
-          value: totalPrice,
-          contents: productsInBasket.map((product: { id: any; actualQuantity: any; quantity: any; }) => ({
-            id: product.id,
-            quantity: product.actualQuantity || product.quantity
-          })),
-          num_items: productsInBasket.reduce(
-            (sum: any, product: { actualQuantity: any; quantity: any; }) =>
-              sum + (product?.actualQuantity || product?.quantity || 0),
-            0
-          )
-        }
-      });
     } finally {
       setIsLoading(false);
     }
@@ -308,7 +360,7 @@ const BasketDrawer = ({ userData }: any) => {
           )}
 
           <Link
-            href={`/products/tunisie?slug=${product.slug}`}
+            href={`/products/${product.slug}`}
             onClick={closeBasketDrawer}
             className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-50 group"
           >
@@ -332,7 +384,7 @@ const BasketDrawer = ({ userData }: any) => {
               <div className="flex-1 pr-2">
                 <Link
                   className="text-sm font-medium text-gray-900 hover:text-primaryColor transition-colors line-clamp-2"
-                  href={`/products/tunisie?slug=${product.slug}`}
+                  href={`/products/${product.slug}`}
                   onClick={closeBasketDrawer}
                 >
                   {product.name}
@@ -454,10 +506,10 @@ const BasketDrawer = ({ userData }: any) => {
       overlayProps={{ className: "fixed inset-0 bg-black/50 z-[9998]" }}
       placeholder={""}
       onPointerEnterCapture={undefined}
-      onPointerLeaveCapture={undefined}  
-      onResize={undefined} 
-      onResizeCapture={undefined} 
-         >
+      onPointerLeaveCapture={undefined}
+      onResize={undefined}
+      onResizeCapture={undefined}
+    >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between pb-4 border-b">
           <Typography
@@ -465,7 +517,10 @@ const BasketDrawer = ({ userData }: any) => {
             className="font-medium text-gray-900"
             placeholder={""}
             onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}  onResize={undefined} onResizeCapture={undefined}          >
+            onPointerLeaveCapture={undefined}
+            onResize={undefined}
+            onResizeCapture={undefined}
+          >
             Mon Panier ({productsInBasket.length})
           </Typography>
           <IconButton
@@ -475,7 +530,10 @@ const BasketDrawer = ({ userData }: any) => {
             className="rounded-full hover:bg-gray-100"
             placeholder={""}
             onPointerEnterCapture={undefined}
-            onPointerLeaveCapture={undefined}  onResize={undefined} onResizeCapture={undefined}          >
+            onPointerLeaveCapture={undefined}
+            onResize={undefined}
+            onResizeCapture={undefined}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

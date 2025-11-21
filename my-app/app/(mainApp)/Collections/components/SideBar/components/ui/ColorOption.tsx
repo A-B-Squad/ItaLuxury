@@ -1,9 +1,9 @@
 
 import React, { memo } from 'react';
-import { Color } from '../../types';
+import { Colors } from '../../types';
 
 interface ColorOptionProps {
-  color: Color;
+  color: Colors;
   isChecked: boolean;
   onSelect: (colorName: string) => void;
 }

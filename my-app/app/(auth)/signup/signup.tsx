@@ -28,7 +28,7 @@ import {
   facebookProvider,
   auth,
 } from "@/lib/fireBase/firebase";
-import { setToken } from "@/utlils/tokens/token";
+import { setToken } from "@/utils/tokens/token";
 import { useAuth } from "@/app/hooks/useAuth";
 
 interface SignupFormData {
@@ -40,7 +40,7 @@ interface SignupFormData {
 interface SignupResponse {
   signUp: {
     token: string;
-    userId: string
+    userId: string;
   };
 }
 
@@ -51,7 +51,6 @@ const Signup: React.FC = () => {
   const [socialSignupData, setSocialSignupData] = useState<any>(null);
   const [showPhoneInput, setShowPhoneInput] = useState<boolean>(false);
   const [emailExists, setEmailExists] = useState<boolean>(false);
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -65,10 +64,13 @@ const Signup: React.FC = () => {
   );
 
   const [signUp, { loading }] = useMutation<SignupResponse>(SIGNUP_MUTATION, {
-
     onCompleted: (data: SignupResponse) => {
+      // Set flag to prevent token refresh during signup
+      sessionStorage.setItem('skipTokenRefresh', 'true');
+
       setToken(data.signUp.token);
       updateToken(data.signUp.token);
+
       const productsFormat = products.map((product) => ({
         productId: product.id,
         quantity: product.actualQuantity,
@@ -81,10 +83,16 @@ const Signup: React.FC = () => {
             products: productsFormat,
           },
         },
+      }).finally(() => {
+        // Clear the flag and redirect after a small delay
+        setTimeout(() => {
+          sessionStorage.removeItem('skipTokenRefresh');
+          window.location.href = "/";
+        }, 100);
       });
-      router.replace("/");
     },
     onError: (error) => {
+      sessionStorage.removeItem('skipTokenRefresh');
       if (error.message === "Email address is already in use") {
         setErrorMessage("L'adresse e-mail est déjà utilisée");
         setEmailExists(true);
@@ -105,7 +113,7 @@ const Signup: React.FC = () => {
         input: signupData,
       },
       onError: (err) => {
-        setErrorMessage(`Échec de la connexion ${err.message}.`);
+        setErrorMessage(`Échec de l'inscription : ${err.message}`);
       },
     });
   };
@@ -138,7 +146,6 @@ const Signup: React.FC = () => {
     setSocialSignupData(null);
     reset();
   };
-
   return (
     <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen flex pb-24 flex-col justify-center pt-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -192,7 +199,7 @@ const Signup: React.FC = () => {
                 onClick={handleReturnToLogin}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
               >
-                Retour pour se connecter avec une autre adresse e-mail
+                Retour pour utiliser une autre adresse e-mail
               </button>
             </div>
           ) : (
@@ -253,7 +260,7 @@ const Signup: React.FC = () => {
                           } rounded-md shadow-sm`}
                         placeholder="vous@exemple.com"
                         {...register("email", {
-                          required: "L'email est requis",
+                          required: "L'adresse e-mail est requise",
                         })}
                       />
                     </div>
@@ -294,7 +301,7 @@ const Signup: React.FC = () => {
                           minLength: {
                             value: 8,
                             message:
-                              "Le mot de passe doit comporter au moins 8 caractères",
+                              "Le mot de passe doit contenir au moins 8 caractères",
                           },
                         })}
                       />
@@ -347,7 +354,7 @@ const Signup: React.FC = () => {
                         pattern: {
                           value: /^[0-9]{8}$/,
                           message:
-                            "Le numéro de téléphone doit comporter 8 chiffres",
+                            "Le numéro de téléphone doit contenir 8 chiffres",
                         },
                       })}
                     />

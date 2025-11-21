@@ -2,9 +2,9 @@ import React from "react";
 import FavoriteList from "./FavoriteList";
 import { Metadata } from "next";
 import Breadcumb from "@/app/components/Breadcumb";
-import { getUser } from "@/utlils/getUser";
+import { getUser } from "@/utils/getUser";
 import { cookies } from "next/headers";
-import { decodeToken } from "@/utlils/tokens/token";
+import { decodeToken } from "@/utils/tokens/token";
 import { redirect } from "next/navigation";
 
 if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) {

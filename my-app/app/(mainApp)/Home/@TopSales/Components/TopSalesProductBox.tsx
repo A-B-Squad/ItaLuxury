@@ -10,9 +10,8 @@ import { useBasketStore, useProductDetails, useProductsInBasketStore } from "@/a
 import { ADD_TO_BASKET_MUTATION } from "@/graphql/mutations";
 import FavoriteProduct from "@/app/components/ProductCarousel/FavoriteProduct";
 import { useToast } from "@/components/ui/use-toast";
-import triggerEvents from "@/utlils/events/trackEvents";
-import { sendGTMEvent } from "@next/third-parties/google";
 import { useAuth } from "@/app/hooks/useAuth";
+import { trackAddToCart } from "@/utils/facebookEvents";
 
 const TopSalesProductBox = ({ product, userData }: any) => {
   const { toast } = useToast();
@@ -37,40 +36,52 @@ const TopSalesProductBox = ({ product, userData }: any) => {
   const AddToBasket = async () => {
     if (isOutOfStock) return;
 
-    // Analytics data
-    const analyticsData = {
-      user_data: {
-        em: [userData?.email?.toLowerCase()],
-        fn: [userData?.fullName],
-        ph: [userData?.number],
-        country: ["tn"],
-        external_id: userData?.id,
-      },
-      custom_data: {
-        content_name: product.name,
-        content_type: "product",
-        content_ids: [product.id],
-        contents: [{ id: product.id, quantity: 1, item_price: price }],
-        value: price,
-        currency: "TND",
-      },
+    // Prepare complete product data for tracking
+    const trackingProduct = {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      description: product.description,
+      Brand: product.Brand,
+      Colors: product.Colors,
+      categories: product.categories,
+      productDiscounts: product.productDiscounts,
+      inventory: product.inventory,
+      isVisible: product.isVisible,
+      reference: product.reference,
+      images: product.images,
+      quantity: product.actualQuantity || product.quantity,
+      technicalDetails: product.technicalDetails,
     };
 
-    // Track events
-    triggerEvents("AddToCart", analyticsData);
-    sendGTMEvent({
-      event: "add_to_cart",
-      ecommerce: {
-        currency: "TND",
-        value: price,
-        items: [{ item_id: product.id, item_name: product.name, quantity: 1, price: price }]
-      },
-      user_data: analyticsData.user_data,
-      facebook_data: {
-        ...analyticsData.custom_data,
-        value: price,
-      }
-    });
+    // Prepare user data
+    const user = userData ? {
+      id: decodedToken?.userId,
+      email: userData.email,
+      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+      phone: userData.number,
+      country: "tn",
+      city: userData.city || "",
+    } : undefined;
+
+    // Track the add to cart event with error handling
+    try {
+      console.log('🛒 Tracking AddToCart event:', {
+        product_id: trackingProduct.id,
+        product_name: trackingProduct.name,
+        quantity: product.actualQuantity || product.quantity,
+        user: user ? 'logged_in' : 'guest'
+      });
+
+      await trackAddToCart(trackingProduct, user);
+
+      console.log('✅ AddToCart event tracked successfully');
+    } catch (error) {
+      console.error("❌ Error tracking add to cart:", error);
+      // Don't block the user flow if tracking fails
+    }
 
     // Add to basket
     if (isAuthenticated) {
@@ -178,7 +189,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
           <Link
             className="hover:text-primaryColor text-base font-medium transition-all cursor-pointer"
             title={product.name}
-            href={`/products/tunisie?slug=${product.slug}`}
+            href={`/products/${product.slug}`}
           >
             <h3 className="text-left line-clamp-2 leading-tight">{product.name}</h3>
           </Link>

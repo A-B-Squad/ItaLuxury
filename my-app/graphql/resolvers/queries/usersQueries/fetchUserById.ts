@@ -19,6 +19,9 @@ export const fetchUsersById = async (_: any, { userId }: { userId: string }, { p
                     },
                     baskets: true,
                     checkout: {
+                        orderBy: {
+                            createdAt: "desc",
+                        },
                         include: {
                             package: true,
                             Governorate: true,

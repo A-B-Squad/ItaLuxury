@@ -1,21 +1,19 @@
 import { Context } from "@apollo/client";
 
 export const deleteTopDeals = async (
-    // Defining an async function called deleteTopDeals
     _: any,
-    { productId }: { productId: string }, // Destructuring the second argument into input
-    { prisma }: Context // Destructuring the third argument into prisma
+    { productId }: { productId: string },
+    { prisma }: Context
 ) => {
     try {
 
-        const deleteTopDeals = await prisma.topDeals.delete({
+        await prisma.topDeals.delete({
             where: {
                 productId
             }
         });
         return "delete TopDeals with success";
     } catch (error: any) {
-        // Handle errors gracefully
         console.error("Error deleted TopDeals:", error);
         return error;
     }

@@ -2,9 +2,9 @@ import React from "react";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { cookies } from "next/headers";
-import { decodeToken } from "@/utlils/tokens/token";
-import { getUser } from "@/utlils/getUser";
-import { getCompanyInfo } from "@/utlils/getCompanyInfo";
+import { decodeToken } from "@/utils/tokens/token";
+import { getUser } from "@/utils/getUser";
+import { getCompanyInfo } from "@/utils/getCompanyInfo";
 
 const Checkout = dynamic(() => import("./Checkout"), { ssr: false });
 

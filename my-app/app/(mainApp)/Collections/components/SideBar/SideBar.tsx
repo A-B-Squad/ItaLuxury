@@ -4,14 +4,11 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { useSidebarStore } from '@/app/store/zustand';
-// Lightweight debounce to avoid bundling lodash in this client chunk
 
-// Hooks
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { useUrlSync } from './hooks/useUrlSync';
 import { useFilterState } from './hooks/useFilterState';
 
-// Components
 import { FilterHeader } from './components/FilterHeader';
 import { ChoiceFilters } from './components/ChoiceFilters';
 import { CategoryFilters } from './components/CategoryFilters';
@@ -19,11 +16,9 @@ import { PriceFilter } from './components/PriceFilter';
 import { ColorFilters } from './components/ColorFilters';
 import { BrandFilters } from './components/BrandFilters';
 
-// Layouts
 import { MobileDrawer } from './layouts/MobileDrawer';
 import { DesktopSidebar } from './layouts/DesktopSidebar';
 
-// Utils
 import {
   MOBILE_BREAKPOINT,
   PRICE_DEBOUNCE_DELAY,
@@ -33,12 +28,11 @@ import {
 } from './utils/constants';
 import {
   updateFilterQueries,
-  filterBrandsByCategory,
-  filterColorsWithProducts
+  getAvailableColors,
+  getAvailableBrands,
 } from './utils/filterHelpers';
-import { buildFilterUrl, buildPriceUrl } from './utils/queryHelpers';
+import { buildFilterUrl } from './utils/queryHelpers';
 
-// Types
 import { SideBarProps } from './types';
 
 const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
@@ -58,39 +52,52 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
     setLocalPrice
   } = useFilterState() as any;
 
-  // Memoized values
   const currentCategoryId = searchParams?.get("category");
 
-  const filteredColors = useMemo(
-    () => filterColorsWithProducts(colors),
-    [colors]
+  // Dynamic filtering
+  const availableColors = useMemo(
+    () => getAvailableColors(colors, brands, selectedFilterQueries),
+    [colors, brands, selectedFilterQueries]
   );
 
-  const filteredBrands = useMemo(() =>
-    filterBrandsByCategory(brands, selectedFilterQueries.category),
-    [brands, selectedFilterQueries.category]
+  const availableBrands = useMemo(
+    () => getAvailableBrands(brands, selectedFilterQueries),
+    [brands, selectedFilterQueries]
   );
 
-  // Debounced URL update for price
+  // Check if sections should be shown
+  const showColors = availableColors.length > 0;
+  const showBrands = availableBrands.length > 0;
+
+  // FIXED: Debounced price update that preserves all query parameters
   const debouncedPriceUpdate = useRef<(((price: number) => void) & { cancel: () => void }) | null>(null);
   if (!debouncedPriceUpdate.current) {
     let timer: any;
     const fn = ((price: number) => {
       clearTimeout(timer);
-      timer = setTimeout(() => updateUrl(buildPriceUrl(price), { scroll: false }), PRICE_DEBOUNCE_DELAY);
+      timer = setTimeout(() => {
+        // Get all current URL parameters
+        const currentParams = new URLSearchParams(searchParams?.toString() || '');
+        
+        // Update only the price parameter
+        currentParams.set('price', price.toString());
+        currentParams.delete('page'); 
+        
+        // Build URL with all existing parameters
+        const baseUrl = '/Collections/tunisie';
+        updateUrl(`${baseUrl}?${currentParams.toString()}`, { scroll: false });
+      }, PRICE_DEBOUNCE_DELAY);
     }) as any;
     fn.cancel = () => clearTimeout(timer);
     debouncedPriceUpdate.current = fn;
   }
-  
-  // Cleanup debounce on unmount
+
   useEffect(() => {
     return () => {
       debouncedPriceUpdate.current?.cancel();
     };
   }, []);
 
-  // Event handlers
   const handleBrandSelection = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value, checked } = e.target;
@@ -104,10 +111,14 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         isSingleSelect
       );
 
+      if (localPrice !== DEFAULT_PRICE) {
+        updatedQueries.price = [localPrice.toString()];
+      }
+
       setSelectedFilterQueries(updatedQueries);
       updateUrl(buildFilterUrl(updatedQueries), { scroll: true });
     },
-    [selectedFilterQueries, setSelectedFilterQueries, updateUrl]
+    [selectedFilterQueries, localPrice, setSelectedFilterQueries, updateUrl]
   );
 
   const handleChoiceSelection = useCallback(
@@ -118,21 +129,30 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
       };
       delete updatedQueries.page;
 
+      if (localPrice !== DEFAULT_PRICE) {
+        updatedQueries.price = [localPrice.toString()];
+      }
+
       setSelectedFilterQueries(updatedQueries);
       updateUrl(buildFilterUrl(updatedQueries), { scroll: true });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, setSelectedFilterQueries, updateUrl, toggleOpenSidebar]
+    [selectedFilterQueries, localPrice, setSelectedFilterQueries, updateUrl, toggleOpenSidebar]
   );
 
   const handleColorSelection = useCallback(
     (colorName: string) => {
       const updatedQueries = { ...selectedFilterQueries, color: [colorName] };
+
+      if (localPrice !== DEFAULT_PRICE) {
+        updatedQueries.price = [localPrice.toString()];
+      }
+
       setSelectedFilterQueries(updatedQueries);
       updateUrl(buildFilterUrl(updatedQueries), { scroll: true });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, setSelectedFilterQueries, updateUrl, toggleOpenSidebar]
+    [selectedFilterQueries, localPrice, setSelectedFilterQueries, updateUrl, toggleOpenSidebar]
   );
 
   const handlePriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,11 +171,15 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         category: [categoryId],
       };
 
+      if (localPrice !== DEFAULT_PRICE) {
+        updatedQueries.price = [localPrice.toString()];
+      }
+
       setSelectedFilterQueries(updatedQueries);
       updateUrl(buildFilterUrl(updatedQueries), { scroll: false });
       toggleOpenSidebar();
     },
-    [selectedFilterQueries, setSelectedFilterQueries, updateUrl, toggleOpenSidebar]
+    [selectedFilterQueries, localPrice, setSelectedFilterQueries, updateUrl, toggleOpenSidebar]
   );
 
   const handleClearFilters = useCallback(() => {
@@ -170,7 +194,6 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
     });
   }, [setSelectedFilterQueries, setLocalPrice, replaceUrl, toggleOpenSidebar, toast]);
 
-  // Render filter content
   const renderFilterContent = () => (
     <>
       <FilterHeader
@@ -192,20 +215,23 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         onPriceChange={handlePriceChange}
         onPriceChangeEnd={handlePriceChangeEnd}
       />
-      <ColorFilters
-        colors={filteredColors}
-        isOptionChecked={isOptionChecked}
-        onColorSelect={handleColorSelection}
-      />
-      <BrandFilters
-        brands={filteredBrands}
-        isOptionChecked={isOptionChecked}
-        onBrandSelect={handleBrandSelection}
-      />
+      {showColors && (
+        <ColorFilters
+          colors={availableColors}
+          isOptionChecked={isOptionChecked}
+          onColorSelect={handleColorSelection}
+        />
+      )}
+      {showBrands && (
+        <BrandFilters
+          brands={availableBrands}
+          isOptionChecked={isOptionChecked}
+          onBrandSelect={handleBrandSelection}
+        />
+      )}
     </>
   );
 
-  // Main render
   return isMobile ? (
     <MobileDrawer
       isOpen={isOpenSideBard}
