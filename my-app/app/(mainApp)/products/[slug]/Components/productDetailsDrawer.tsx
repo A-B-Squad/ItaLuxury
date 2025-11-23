@@ -15,8 +15,8 @@ const productDetailsDrawer = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const scrollPosition = window.scrollY;
+      const windowHeight = globalThis.innerHeight;
+      const scrollPosition = globalThis.scrollY;
 
       // Calculate the position halfway through the window
       const halfwayPosition = windowHeight / 2;
@@ -27,10 +27,10 @@ const productDetailsDrawer = ({
       setIsBottom(isHalfway);
     };
     // Attach the scroll event listener
-    window.addEventListener("scroll", handleScroll);
+    globalThis.addEventListener("scroll", handleScroll);
     // Detach the scroll event listener on component unmount
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      globalThis.removeEventListener("scroll", handleScroll);
     };
   }, []);
 

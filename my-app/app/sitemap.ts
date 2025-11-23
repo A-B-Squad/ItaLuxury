@@ -35,13 +35,13 @@ const SITEMAP_CONFIG = {
 } as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/^http:/, 'https:')?.replace(/\/$/, '') || 'https://www.ita-luxury.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/^http:/, 'https:')?.replaceAll(/\/$/, '') || 'https://www.ita-luxury.com';
   const currentDate = new Date();
 
   const safeDate = (dateString: string): Date => {
     try {
       const date = new Date(dateString);
-      return isNaN(date.getTime()) ? currentDate : date;
+      return Number.isNaN(date.getTime()) ? currentDate : date;
     } catch {
       return currentDate;
     }

@@ -11,7 +11,7 @@ export const createCoupons = async (
   const parsedDiscount = Number(discount);
 
   // Vérification stricte
-  if (isNaN(parsedDiscount) || parsedDiscount <= 0) {
+  if (Number.isNaN(parsedDiscount) || parsedDiscount <= 0) {
     throw new Error("Valeur de réduction invalide");
   }
   try {

@@ -18,10 +18,10 @@ function generateFallbackKeywords(productName: string): string {
   // Add full variations
   keywords.add(lowerName);
   keywords.add(normalized);
-  keywords.add(lowerName.replace(/\s+/g, ''));
-  keywords.add(normalized.replace(/\s+/g, ''));
-  keywords.add(lowerName.replace(/\s+/g, '-'));
-  keywords.add(normalized.replace(/\s+/g, '-'));
+  keywords.add(lowerName.replaceAll(/\s+/g, ''));
+  keywords.add(normalized.replaceAll(/\s+/g, ''));
+  keywords.add(lowerName.replaceAll(/\s+/g, '-'));
+  keywords.add(normalized.replaceAll(/\s+/g, '-'));
 
   // Return as space-separated string
   return Array.from(keywords).filter(k => k.length > 0).join(' ');

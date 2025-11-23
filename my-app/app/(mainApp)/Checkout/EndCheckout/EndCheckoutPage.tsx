@@ -40,7 +40,11 @@ const EndCheckoutPage: React.FC<{ searchParams: SearchParams }> = ({
         const localStorageKey = `mutation_sent_${packageId}`;
         const isMutationSent = localStorage.getItem(localStorageKey);
 
-        if (!isMutationSent) {
+        if (isMutationSent) {
+
+          setMutationSent(true);
+
+        } else {
           try {
             await updatePaymentStatus({
               variables: {
@@ -58,8 +62,6 @@ const EndCheckoutPage: React.FC<{ searchParams: SearchParams }> = ({
               variant: "destructive",
             });
           }
-        } else {
-          setMutationSent(true);
         }
       }
       setIsLoading(false);
@@ -97,11 +99,10 @@ const EndCheckoutPage: React.FC<{ searchParams: SearchParams }> = ({
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Header */}
           <div
-            className={`${
-              isPayed
+            className={`${isPayed
                 ? "bg-gradient-to-r from-green-500 to-green-600"
                 : "bg-gradient-to-r from-red-500 to-red-600"
-            } px-8 py-6 relative overflow-hidden`}
+              } px-8 py-6 relative overflow-hidden`}
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
@@ -146,14 +147,14 @@ const EndCheckoutPage: React.FC<{ searchParams: SearchParams }> = ({
                       </div>
                     </div>
 
-              
+
                   </div>
                 </div>
 
                 {/* Steps */}
                 <div className="space-y-6 mb-10">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Prochaines étapes</h3>
-                  
+
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                       <span className="text-white font-bold">1</span>

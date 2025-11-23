@@ -42,7 +42,7 @@ const FloatingActionButtons = () => {
   // Optimized scroll handler with better performance
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = globalThis.scrollY;
 
       // Only update if scroll position changed significantly
       if (Math.abs(currentScrollY - lastScrollY.current) < 5) {
@@ -79,10 +79,10 @@ const FloatingActionButtons = () => {
       }
     };
 
-    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    globalThis.addEventListener('scroll', throttledHandleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', throttledHandleScroll);
+      globalThis.removeEventListener('scroll', throttledHandleScroll);
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
@@ -94,7 +94,7 @@ const FloatingActionButtons = () => {
 
 
     // Smooth scroll to top
-    window.scrollTo({
+    globalThis.scrollTo({
       top: 0,
       behavior: prefersReducedMotion ? 'auto' : SCROLL_BEHAVIOR
     });

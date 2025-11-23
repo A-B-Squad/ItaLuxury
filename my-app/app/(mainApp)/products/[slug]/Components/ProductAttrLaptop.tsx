@@ -15,10 +15,10 @@ const ProductAttrLaptop: React.FC<ProductAttrProps> = ({ technicalDetails }) => 
     }
 
     const processedDetails = technicalDetails
-        .replace(/<p>/g, '<p class="mb-3 text-gray-700">')
-        .replace(/<ul>/g, '<ul class="list-disc pl-5 mb-4 space-y-2">')
-        .replace(/<li>/g, '<li class="text-gray-700">')
-        .replace(/<strong>/g, '<strong class="font-semibold text-gray-900">');
+        .replaceAll(/<p>/g, '<p class="mb-3 text-gray-700">')
+        .replaceAll(/<ul>/g, '<ul class="list-disc pl-5 mb-4 space-y-2">')
+        .replaceAll(/<li>/g, '<li class="text-gray-700">')
+        .replaceAll(/<strong>/g, '<strong class="font-semibold text-gray-900">');
 
     return (
         <div className=" hidden lg:block container border-b  mx-auto">

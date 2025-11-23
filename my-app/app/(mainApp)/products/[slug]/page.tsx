@@ -20,9 +20,9 @@ const cleanHtml = (html: string): string => {
 
 const safeFormatDate = (dateString: string | number): string => {
   try {
-    const timestamp = typeof dateString === 'string' ? parseInt(dateString) : dateString;
+    const timestamp = typeof dateString === 'string' ? Number.parseInt(dateString) : dateString;
     const date = new Date(timestamp);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
     }
     return date.toISOString().split('T')[0];

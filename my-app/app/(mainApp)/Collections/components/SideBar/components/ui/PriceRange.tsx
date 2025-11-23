@@ -72,7 +72,9 @@ export const PriceRange = memo<PriceRangeProps>(({
         <div className="grid grid-cols-2 gap-4">
           {/* Min Price */}
           <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+            <label
+            htmlFor='min-price-input'
+             className="text-xs font-medium text-gray-600 uppercase tracking-wide">
               Prix Min
             </label>
             <div className="relative">
@@ -90,7 +92,9 @@ export const PriceRange = memo<PriceRangeProps>(({
 
           {/* Max Price */}
           <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+            <label
+            htmlFor='max-price-input'
+            className="text-xs font-medium text-gray-600 uppercase tracking-wide">
               Prix Max
             </label>
             <div className="relative">

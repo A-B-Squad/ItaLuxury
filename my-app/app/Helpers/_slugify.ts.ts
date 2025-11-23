@@ -8,11 +8,11 @@ export function createSlug(text: string): string {
     .trim()
     // Normalize accented characters (é → e, à → a, etc.)
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replaceAll(/[\u0300-\u036f]/g, '')
     // Replace spaces and special chars with hyphens
-    .replace(/[^a-z0-9]+/g, '-')
+    .replaceAll(/[^a-z0-9]+/g, '-')
     // Remove leading/trailing hyphens
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/^-+|-+$/g, '');
 }
 
 /**

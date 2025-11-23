@@ -52,7 +52,7 @@ const PurchaseOptions = ({ companyData }: any) => {
 
     const calculateTotal = (): string => {
         const subtotal = Number(totalPrice || 0);
-        if (isNaN(subtotal)) {
+        if (Number.isNaN(subtotal)) {
             throw new Error("Total must be a valid number");
         }
         const shippingCost = subtotal >= 499 ? 0 : deliveryPrice || 0;

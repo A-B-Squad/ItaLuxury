@@ -44,7 +44,7 @@ export const useAuth = () => {
       removeToken();
       setDecodedToken(null);
       // Redirect to signin if we're on a protected route
-      const currentPath = window.location.pathname;
+      const currentPath = globalThis.location.pathname;
       const protectedRoutes = ['/Account', '/FavoriteList'];
       if (protectedRoutes.some(route => currentPath.startsWith(route))) {
         router.push('/signin');
@@ -81,7 +81,7 @@ export const useAuth = () => {
       checkAuth();
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    globalThis.addEventListener('storage', handleStorageChange);
 
     // Check token expiration every hour instead of refreshing constantly
     const interval = setInterval(() => {
@@ -95,7 +95,7 @@ export const useAuth = () => {
     }, 60 * 60 * 1000); // Check every hour
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      globalThis.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
   }, [checkAuth, checkAndRefreshToken]);

@@ -49,7 +49,7 @@ const ProductBox: React.FC<ProductBoxProps> = ({
 
   // Set view based on route
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.pathname !== "/Collections/tunisie") {
+    if (typeof window !== "undefined" && globalThis.location.pathname !== "/Collections/tunisie") {
       changeProductView(3);
     }
   }, [changeProductView]);

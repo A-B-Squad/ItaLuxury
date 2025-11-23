@@ -3,11 +3,11 @@ import { SearchParamsProductSearch } from "@/app/types";
 export default function generateTitle(searchParams: SearchParamsProductSearch): string {
     const titleParts: string[] = [];
     const maxLength = 60;
-    const DateNow=new Date()
+    const DateNow = new Date();
 
     // Primary section based on choice
     if (searchParams.choice === "new-product") {
-        titleParts.push(`Nouveaux Produits ${DateNow.getFullYear()} `);
+        titleParts.push(`Nouveaux Produits ${DateNow.getFullYear()}`);
     } else if (searchParams.choice === "in-discount") {
         titleParts.push("Promotions et Soldes");
     } else if (searchParams.query) {
@@ -40,17 +40,14 @@ export default function generateTitle(searchParams: SearchParamsProductSearch): 
     }
 
     // Build title with length optimization
-    let title = titleParts.join(" | ");
+    let fullTitle = `${titleParts.join(" | ")} - ita-luxury`;
     
-    // Add brand name and truncate if too long
-    const fullTitle = `${title} - ita-luxury`;
-    
+    // Remove less important elements to fit length
     if (fullTitle.length > maxLength) {
-        // Remove less important elements to fit length
         const simplifiedParts = [...titleParts];
         while (fullTitle.length > maxLength && simplifiedParts.length > 1) {
             simplifiedParts.pop();
-            title = `${simplifiedParts.join(" | ")} - ita-luxury`;
+            fullTitle = `${simplifiedParts.join(" | ")} - ita-luxury`;
         }
     }
 

@@ -25,12 +25,12 @@ const Header = ({ userData, companyData }: any) => {
     if (!isHomePage) return;
 
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
+      const scrollPosition = globalThis.scrollY;
       setIsScrolled(scrollPosition > 100);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    globalThis.addEventListener("scroll", handleScroll);
+    return () => globalThis.removeEventListener("scroll", handleScroll);
   }, [isHomePage]);
 
   if (isCheckoutPage) {

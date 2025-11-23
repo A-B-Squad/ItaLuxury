@@ -108,7 +108,7 @@ const WhatsAppOrderForm = ({
         const cooldownKey = `wa_cooldown_${userIp}_${productDetails.id}`;
         const cooldownUntil = localStorage.getItem(cooldownKey);
 
-        if (cooldownUntil && parseInt(cooldownUntil) > Date.now()) {
+        if (cooldownUntil && Number.parseInt(cooldownUntil) > Date.now()) {
           toast({
             title: "Veuillez patienter",
             description: "Vous pourrez commander à nouveau dans quelques secondes",
@@ -159,7 +159,7 @@ const WhatsAppOrderForm = ({
         // Prepare user data for WhatsApp purchase with proper name splitting
         const user = formData.name ? {
           id: decodedToken?.userId || undefined,
-          email: `${formData.name.toLowerCase().replace(/\s+/g, '')}@whatsapp.com`,
+          email: `${formData.name.toLowerCase().replaceAll(/\s+/g, '')}@whatsapp.com`,
           firstName: formData.name?.split(' ')[0] || formData.name,
           lastName: formData.name?.split(' ').slice(1).join(' ') || '',
           phone: formData.phone,
@@ -244,7 +244,7 @@ const WhatsAppOrderForm = ({
 • Adresse: ${formData.address}
 • Gouvernorat: ${formData.governorate}
 
-🔗 *Lien produit:* ${typeof window !== 'undefined' ? window.location.href : ''}
+🔗 *Lien produit:* ${typeof window !== 'undefined' ? globalThis.location.href : ''}
 
 ✅ Commande confirmée et prête pour traitement !
 Merci pour votre confiance ! 🙏`;
@@ -275,7 +275,7 @@ Merci pour votre confiance ! 🙏`;
 
       // Redirect to WhatsApp
       if (typeof window !== 'undefined') {
-        window.location.href = getWhatsAppUrl(formData);
+        globalThis.location.href = getWhatsAppUrl(formData);
       }
 
       onClose();

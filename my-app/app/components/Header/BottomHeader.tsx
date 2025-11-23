@@ -62,7 +62,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
     if (pathname && pathname === "/") {
       setActiveLink("home");
     } else if (pathname && pathname.includes("/Collections")) {
-      const searchParams = new URLSearchParams(window.location.search);
+      const searchParams = new URLSearchParams(globalThis.location.search);
       const choice = searchParams.get("choice");
 
       if (choice === "in-discount") {
@@ -96,11 +96,10 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
     <Link
       href={href}
       onClick={onClick}
-      className={`relative py-2 px-1 font-semibold text-base transition-colors ${
-        activeLink === linkId 
+      className={`relative py-2 px-1 font-semibold text-base transition-colors ${activeLink === linkId
           ? isTransparent ? "text-white" : "text-primaryColor"
           : `${textColor} ${hoverTextColor}`
-      }`}
+        }`}
     >
       {children}
       {activeLink === linkId && (
@@ -119,9 +118,8 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
     <>
       {/* Main Header */}
       <div
-        className={`bottom-header-container transition-all duration-500 w-full border-b ${borderColor} ${
-          isFixed ? "header-fixed backdrop-blur-md z-50 shadow-sm" : "header-default"
-        }`}
+        className={`bottom-header-container transition-all duration-500 w-full border-b ${borderColor} ${isFixed ? "header-fixed backdrop-blur-md z-50 shadow-sm" : "header-default"
+          }`}
         onMouseEnter={() => setShowDropdown(false)}
       >
         {/* Mobile Header */}
@@ -152,9 +150,8 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
                     quality={100}
                     priority={true}
                     alt="ita-luxury"
-                    className={`mobile-logo-image transition-transform duration-300 hover:scale-105 ${
-                      isTransparent ? 'brightness-0 invert' : ''
-                    }`}
+                    className={`mobile-logo-image transition-transform duration-300 hover:scale-105 ${isTransparent ? 'brightness-0 invert' : ''
+                      }`}
                   />
                 </div>
               </Link>
@@ -236,31 +233,25 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
         <div className="desktop-header-wrapper hidden lg:block">
           <div className="desktop-header-content flex items-center px-6 relative">
             {/* Left Section - Categories Button */}
-            <div className={`desktop-categories-section flex py-2 items-center ${
-              isTransparent ? 'bg-white/10 backdrop-blur-sm text-white' : 'bg-logoColor text-white'
-            } transition-all duration-500`}>
+            <div className={`desktop-categories-section flex py-2 items-center ${isTransparent ? 'bg-white/10 backdrop-blur-sm text-white' : 'bg-logoColor text-white'
+              } transition-all duration-500`}>
               <motion.button
                 type="button"
-                className={`desktop-categories-button px-4 py-2.5 flex items-center gap-2.5 rounded-lg transition-all duration-300 group ${
-                  isTransparent ? 'hover:bg-white/20' : 'hover:bg-gray-50'
-                }`}
+                className={`desktop-categories-button px-4 py-2.5 flex items-center gap-2.5 rounded-lg transition-all duration-300 group ${isTransparent ? 'hover:bg-white/20' : 'hover:bg-gray-50'
+                  }`}
                 onMouseEnter={() => setShowDropdown(true)}
                 whileHover={{ backgroundColor: isTransparent ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.03)" }}
               >
                 <div className="desktop-hamburger-icon relative w-5 h-5 flex flex-col justify-center gap-[5px]">
-                  <span className={`hamburger-line-1 w-5 h-[1.5px] ${
-                    isTransparent ? 'bg-white' : 'bg-white'
-                  } group-hover:bg-primaryColor transition-all`}></span>
-                  <span className={`hamburger-line-2 w-3.5 h-[1.5px] ${
-                    isTransparent ? 'bg-white' : 'bg-white'
-                  } group-hover:bg-primaryColor transition-all`}></span>
-                  <span className={`hamburger-line-3 w-4 h-[1.5px] ${
-                    isTransparent ? 'bg-white' : 'bg-white'
-                  } group-hover:bg-primaryColor transition-all`}></span>
+                  <span className={`hamburger-line-1 w-5 h-[1.5px] ${isTransparent ? 'bg-white' : 'bg-white'
+                    } group-hover:bg-primaryColor transition-all`}></span>
+                  <span className={`hamburger-line-2 w-3.5 h-[1.5px] ${isTransparent ? 'bg-white' : 'bg-white'
+                    } group-hover:bg-primaryColor transition-all`}></span>
+                  <span className={`hamburger-line-3 w-4 h-[1.5px] ${isTransparent ? 'bg-white' : 'bg-white'
+                    } group-hover:bg-primaryColor transition-all`}></span>
                 </div>
-                <span className={`desktop-categories-text font-semibold tracking-wide text-base ${
-                  isTransparent ? 'text-white' : 'text-white'
-                } group-hover:text-primaryColor transition-colors`}>
+                <span className={`desktop-categories-text font-semibold tracking-wide text-base ${isTransparent ? 'text-white' : 'text-white'
+                  } group-hover:text-primaryColor transition-colors`}>
                   Nos Catégories
                 </span>
               </motion.button>
@@ -344,21 +335,19 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
               <Link href="/Collections/tunisie?choice=in-discount&page=1">
                 <motion.button
                   onClick={() => handleNavigation("promo")}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
-                    activeLink === "promo"
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${activeLink === "promo"
                       ? "bg-red-600 text-white shadow-md"
                       : isTransparent
-                      ? "bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 shadow-lg"
-                      : "bg-red-600 text-white hover:bg-red-700 hover:shadow-md"
-                  }`}
+                        ? "bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 shadow-lg"
+                        : "bg-red-600 text-white hover:bg-red-700 hover:shadow-md"
+                    }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <RiDiscountPercentLine className="text-lg" />
                   <span>Promotions</span>
-                  <span className={`${
-                    isTransparent && activeLink !== "promo" ? 'bg-white text-primaryColor' : 'bg-white text-red-600'
-                  } text-xs font-bold px-1.5 py-0.5 rounded-full`}>
+                  <span className={`${isTransparent && activeLink !== "promo" ? 'bg-white text-primaryColor' : 'bg-white text-red-600'
+                    } text-xs font-bold px-1.5 py-0.5 rounded-full`}>
                     %
                   </span>
                 </motion.button>
@@ -368,11 +357,10 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
               <div className="desktop-more-menu relative 2xl:hidden" ref={moreMenuRef}>
                 <motion.button
                   onClick={() => setShowMoreMenu(!showMoreMenu)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border ${
-                    isTransparent 
-                      ? 'border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20' 
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors border ${isTransparent
+                      ? 'border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20'
                       : 'border-gray-200 hover:bg-gray-100'
-                  }`}
+                    }`}
                   whileTap={{ scale: 0.95 }}
                 >
                   <HiPlus className={`text-xl ${textColor} transition-transform duration-300 ${showMoreMenu ? 'rotate-45' : ''}`} />

@@ -5,7 +5,6 @@ import { useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   ADD_MULTIPLE_TO_BASKET_MUTATION,
   SIGNUP_MUTATION,
@@ -87,7 +86,7 @@ const Signup: React.FC = () => {
         // Clear the flag and redirect after a small delay
         setTimeout(() => {
           sessionStorage.removeItem('skipTokenRefresh');
-          window.location.href = "/";
+          globalThis.location.href = "/";
         }, 100);
       });
     },
@@ -134,6 +133,7 @@ const Signup: React.FC = () => {
       setValue("email", user.email || "");
       setShowPhoneInput(true);
     } catch (error) {
+      console.error("Social login failed:", error);
       setErrorMessage(
         `Échec de la connexion avec ${provider === googleProvider ? "Google" : "Facebook"}.`
       );
@@ -352,7 +352,7 @@ const Signup: React.FC = () => {
                       {...register("number", {
                         required: "Le numéro de téléphone est requis",
                         pattern: {
-                          value: /^[0-9]{8}$/,
+                          value: /^\d{8}$/,
                           message:
                             "Le numéro de téléphone doit contenir 8 chiffres",
                         },

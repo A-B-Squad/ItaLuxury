@@ -8,64 +8,59 @@ export interface BreadcrumbItem {
 }
 
 export function generateBreadcrumbSchema(searchParams: SearchParamsProductSearch, baseUrl: string): BreadcrumbItem[] {
-    const breadcrumbs: BreadcrumbItem[] = [];
     let position = 1;
 
-    // Home
-    breadcrumbs.push({
-        name: "Accueil",
-        item: baseUrl,
-        position: position++
-    });
-
-    // Collections base
-    breadcrumbs.push({
-        name: "Collections",
-        item: `${baseUrl}/Collections/tunisie`,
-        position: position++
-    });
+    // Collect all breadcrumb items
+    const items: Omit<BreadcrumbItem, 'position'>[] = [
+        {
+            name: "Accueil",
+            item: baseUrl
+        },
+        {
+            name: "Collections",
+            item: `${baseUrl}/Collections/tunisie`
+        }
+    ];
 
     // Choice-based breadcrumb
     if (searchParams.choice === "new-product") {
-        breadcrumbs.push({
+        items.push({
             name: "Nouveaux Produits",
-            item: `${baseUrl}/Collections/tunisie?choice=new-product`,
-            position: position++
+            item: `${baseUrl}/Collections/tunisie?choice=new-product`
         });
     } else if (searchParams.choice === "in-discount") {
-        breadcrumbs.push({
+        items.push({
             name: "Promotions",
-            item: `${baseUrl}/Collections/tunisie?choice=in-discount`,
-            position: position++
+            item: `${baseUrl}/Collections/tunisie?choice=in-discount`
         });
     }
 
     // Category breadcrumb
     if (searchParams.category) {
-        breadcrumbs.push({
+        items.push({
             name: searchParams.category,
-            item: `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}`,
-            position: position++
+            item: `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}`
         });
     }
 
     // Brand breadcrumb
     if (searchParams.brand) {
-        breadcrumbs.push({
+        items.push({
             name: searchParams.brand,
-            item: `${baseUrl}/Collections/tunisie?brand=${encodeURIComponent(searchParams.brand)}`,
-            position: position++
+            item: `${baseUrl}/Collections/tunisie?brand=${encodeURIComponent(searchParams.brand)}`
         });
     }
 
     // Current page (filtered results)
     if (searchParams.category || searchParams.brand || searchParams.choice) {
-        breadcrumbs.push({
+        items.push({
             name: "Résultats",
-            item: generateCanonicalUrl(searchParams),
-            position: position
+            item: generateCanonicalUrl(searchParams)
         });
     }
 
-    return breadcrumbs;
+    return items.map(item => ({
+        ...item,
+        position: position++
+    }));
 }

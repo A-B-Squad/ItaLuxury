@@ -57,8 +57,8 @@ interface CartItem extends Product {
 function cleanHtmlDescription(html: string): string {
     if (!html) return '';
     return html
-        .replace(/<[^>]*>/g, '')
-        .replace(/\s+/g, ' ')
+        .replaceAll(/<[^>]*>/g, '')
+        .replaceAll(/\s+/g, ' ')
         .trim()
         .substring(0, 5000);
 }
@@ -69,8 +69,8 @@ function getActiveDiscount(productDiscounts?: any[]): any {
     const now = new Date();
     return productDiscounts.find(d => {
         try {
-            const start = new Date(parseInt(d.dateOfStart));
-            const end = new Date(parseInt(d.dateOfEnd));
+            const start = new Date(Number.parseInt(d.dateOfStart));
+            const end = new Date(Number.parseInt(d.dateOfEnd));
             return now >= start && now <= end;
         } catch {
             return false;

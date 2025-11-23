@@ -21,7 +21,7 @@ const ForgotPassword = () => {
     setErrorMessage("");
     setIsError(false);
 
-    if (!email || !email.includes('@')) {
+    if (!email?.includes('@')) {
       setIsError(true);
       setErrorMessage("Veuillez saisir une adresse e-mail valide");
       return;
@@ -64,9 +64,9 @@ const ForgotPassword = () => {
           Mot de passe oublié
         </h1>
         <p className="mt-2 text-center text-sm text-gray-600">
-          {!isSubmitted
-            ? "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation"
-            : "Vérifiez votre boîte de réception pour le lien de réinitialisation"}
+          {isSubmitted
+            ? "Vérifiez votre boîte de réception pour le lien de réinitialisation"
+            : "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation"}
         </p>
       </div>
 

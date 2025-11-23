@@ -34,7 +34,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
     if (!thumbnailsRef.current) return;
     const container = thumbnailsRef.current;
     const scrollAmount = 88;
-    const isMobile = window.innerWidth < 768;
+    const isMobile = globalThis.innerWidth < 768;
 
     if (isMobile) {
       container.scrollTo({
@@ -74,7 +74,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
   return (
     <div className="w-full mx-auto max-w-[500px] md:max-w-6xl">
       <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
-        
+
         {/* Main image */}
         <div className="order-1 md:order-2 flex-1 w-full">
           <div

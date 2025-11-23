@@ -4,7 +4,6 @@ import ProductsSection from "./productsSection";
 import Breadcumb from '@/app/components/Breadcumb';
 import generateTitle from "@/app/(mainApp)/Collections/Helpers/Metadata/_generateTitle";
 import { SearchParamsProductSearch } from "@/app/types";
-import generateCanonicalUrl from "@/app/(mainApp)/Collections/Helpers/Metadata/_generateCanonicalUrl";
 import generateDescription from "@/app/(mainApp)/Collections/Helpers/Metadata/_generateDescription";
 import generateKeywords from "@/app/(mainApp)/Collections/Helpers/Metadata/_generateKeywords";
 import generateBreadcrumbPath from "@/app/Helpers/_generateBreadcrumbPath";
@@ -13,12 +12,13 @@ import { decodeToken } from "@/utils/tokens/token";
 import { getUser } from "@/utils/getUser";
 import { fetchGraphQLData } from "@/utils/graphql";
 import { SEARCH_PRODUCTS_QUERY_NO_GQL } from "@/graphql/queries";
-import { BreadcrumbList, ItemList, WithContext, WebSite, Organization, CollectionPage, ListItem, Product } from "schema-dts";
+import { BreadcrumbList, ItemList, WithContext, WebSite, Organization, CollectionPage } from "schema-dts";
 
-type Props = {
+interface Props {
   params: object;
-  searchParams: SearchParamsProductSearch;
-};
+  readonly searchParams: SearchParamsProductSearch;
+}
+
 
 const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ?? "https://ita-luxury.com").replace(/\/$/, "");
 
@@ -26,9 +26,18 @@ const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN ?? "https://ita-luxury.
 const formatPriceForSchema = (price: number): string => {
   return Number(price).toFixed(2);
 };
+const getProductImageUrl = (product: any): string | undefined => {
+  if (!product.images?.[0]) {
+    return undefined;
+  }
+
+  return product.images[0].startsWith('http')
+    ? product.images[0]
+    : `${baseUrl}${product.images[0]}`;
+};
 
 const cleanHtml = (html: string): string => {
-  return html?.replace(/<[^>]*>/g, "").trim() || "";
+  return html?.replaceAll(/<[^>]*>/g, "").trim() || "";
 };
 
 //  Fonction pour nettoyer et valider les URLs
@@ -327,9 +336,7 @@ export default async function AllProductsPage({ searchParams }: Props) {
           "@id": `${baseUrl}/products/${product.slug}`,
           "url": `${baseUrl}/products/${product.slug}`,
           "name": product.name,
-          "image": product.images?.[0] ?
-            (product.images[0].startsWith('http') ? product.images[0] : `${baseUrl}${product.images[0]}`)
-            : undefined,
+          "image": getProductImageUrl(product),
           "description": cleanHtml(product.description)?.slice(0, 200),
           "sku": product.reference,
           "mpn": product.reference,

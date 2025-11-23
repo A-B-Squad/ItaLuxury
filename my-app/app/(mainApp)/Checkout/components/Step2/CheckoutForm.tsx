@@ -140,7 +140,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 {...register("phone_1", {
                   required: "Ce champ est requis",
                   validate: (value: string) => {
-                    const cleaned = value.replace(/\s+/g, '');
+                    const cleaned = value.replaceAll(/\s+/g, '');
                     return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                       "Le numéro de téléphone doit comporter 8 chiffres";
                   }
@@ -175,7 +175,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   validate: (value: string) => {
                     if (!value) return true; // Optional field
                     // Remove spaces for validation
-                    const cleaned = value.replace(/\s+/g, '');
+                    const cleaned = value.replaceAll(/\s+/g, '');
                     return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                       "Le numéro de téléphone doit comporter 8 chiffres";
                   }

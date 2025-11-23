@@ -122,7 +122,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({ userData, initialData
     startTransition(() => {
       const newSearchParams = new URLSearchParams(searchParams?.toString());
       newSearchParams.set("page", page.toString());
-      const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
+      const newUrl = `${globalThis.location.pathname}?${newSearchParams.toString()}`;
       router.push(newUrl, { scroll: false });
     });
   }, [router, searchParams]);

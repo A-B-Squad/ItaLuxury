@@ -132,11 +132,11 @@ Remember: Start immediately with keywords, no explanations.`
             .trim()
             .split(/\n/)
             .map(k => k.trim().toLowerCase())
-            .map(k => k.replace(/^[-•*\d.)\]]+\s*/, '')) // Remove bullets/numbers
-            .map(k => k.replace(/["'`]/g, '')) // Remove quotes
-            .map(k => k.normalize('NFD').replace(/[\u0300-\u036f]/g, '')) // Remove accents
-            .map(k => k.replace(/[^a-z0-9\s-]/g, '')) // Remove special characters
-            .map(k => k.replace(/\s+/g, ' ')) // Normalize spaces
+            .map(k => k.replaceAll(/^[-•*\d.)\]]+\s*/, '')) // Remove bullets/numbers
+            .map(k => k.replaceAll(/["'`]/g, '')) // Remove quotes
+            .map(k => k.normalize('NFD').replaceAll(/[\u0300-\u036f]/g, '')) // Remove accents
+            .map(k => k.replaceAll(/[^a-z0-9\s-]/g, '')) // Remove special characters
+            .map(k => k.replaceAll(/\s+/g, ' ')) // Normalize spaces
             .map(k => k.trim())
             .filter(k => k.length >= 2 && k.length <= 40)
             .filter(k => !k.includes(':'))
@@ -191,8 +191,8 @@ function generateBaseWords(productName: string): string[] {
         return str
             .toLowerCase()
             .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '') // Remove accents
-            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+            .replaceAll(/[\u0300-\u036f]/g, '') // Remove accents
+            .replaceAll(/[^a-z0-9\s-]/g, '') // Remove special characters
             .trim();
     };
 
@@ -236,8 +236,8 @@ function generateFallbackKeywords(productName: string, count: number): string[] 
         return str
             .toLowerCase()
             .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '') // Remove accents
-            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+            .replaceAll(/[\u0300-\u036f]/g, '') // Remove accents
+            .replaceAll(/[^a-z0-9\s-]/g, '') // Remove special characters
             .trim();
     };
 
@@ -255,10 +255,10 @@ function generateFallbackKeywords(productName: string, count: number): string[] 
 
     // Base variations
     keywords.add(name); // "seche cheveux"
-    keywords.add(name.replace(/\s+/g, '')); // "sechecheveux"
-    keywords.add(name.replace(/\s+/g, '-')); // "seche-cheveux"
-    keywords.add(name.replace(/-/g, '')); // Remove hyphens
-    keywords.add(name.replace(/-/g, ' ')); // Hyphens to spaces
+    keywords.add(name.replaceAll(/\s+/g, '')); // "sechecheveux"
+    keywords.add(name.replaceAll(/\s+/g, '-')); // "seche-cheveux"
+    keywords.add(name.replaceAll(/-/g, '')); // Remove hyphens
+    keywords.add(name.replaceAll(/-/g, ' ')); // Hyphens to spaces
 
     // Word combinations
     if (words.length > 1) {
