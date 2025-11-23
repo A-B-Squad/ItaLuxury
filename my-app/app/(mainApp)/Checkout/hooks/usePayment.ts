@@ -66,7 +66,7 @@ export const usePayment = () => {
 
                 const data = await response.json();
                 if (data.payUrl) {
-                    window.location.href = data.payUrl;
+                    globalThis.location.href = data.payUrl;
                 } else {
                     throw new Error("No payment URL received");
                 }

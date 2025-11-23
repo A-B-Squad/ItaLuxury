@@ -130,7 +130,7 @@ const Signin: React.FC = () => {
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
       });
     } catch (error) {
-      console.log(error);
+      console.error("Google login failed:", error);
       setErrorMessage("Échec de la connexion avec Google.");
     }
   };
@@ -143,10 +143,10 @@ const Signin: React.FC = () => {
         variables: { input: { emailOrPhone: user.email, password: user.uid } },
       });
     } catch (error) {
+      console.error("Facebook login failed:", error);
       setErrorMessage("Échec de la connexion avec Facebook.");
     }
   };
-
   // Step 6: Define password visibility toggle function
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword);
@@ -216,14 +216,16 @@ const Signin: React.FC = () => {
                   id="emailOrPhone"
                   type="text"
                   autoComplete="email"
-                  className={`block w-full pl-10 sm:text-sm py-2 border ${errors.emailOrPhone ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                  className={`block w-full pl-10 sm:text-sm py-2 border ${errors.emailOrPhone
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
                     } rounded-md shadow-sm`}
                   placeholder="vous@exemple.com ou 12345678"
                   {...register("emailOrPhone", {
                     required: "L'email ou le numéro de téléphone est requis",
                     validate: (value: string) => {
                       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                      const phoneRegex = /^[0-9]{8}$/;
+                      const phoneRegex = /^\d{8}$/;
                       return (
                         emailRegex.test(value) ||
                         phoneRegex.test(value) ||

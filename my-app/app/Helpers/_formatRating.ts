@@ -23,7 +23,7 @@ export const formatRating = (reviews: Review[]) => {
     };
   
     return {
-      average: parseFloat(average),
+      average: Number.parseFloat(average),
       best: 5,
       worst: 1,
       count: validReviews.length,

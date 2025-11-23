@@ -48,7 +48,7 @@ export const generateVoucher = async (
     const expirationDate = new Date(expiresAt);
 
     // Validate the expiration date
-    if (isNaN(expirationDate.getTime())) {
+    if (Number.isNaN(expirationDate.getTime())) {
       throw new Error("Invalid expiration date provided");
     }
 

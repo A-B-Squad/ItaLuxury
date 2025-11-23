@@ -2,7 +2,7 @@ import { SearchParamsProductSearch } from "@/app/types";
 
 export default function generateDescription(searchParams: SearchParamsProductSearch): string {
   const parts: string[] = [];
-  const maxLength = 160; 
+  const maxLength = 160;
 
   // Primary action based on choice
   if (searchParams.choice === "new-product") {
@@ -32,9 +32,10 @@ export default function generateDescription(searchParams: SearchParamsProductSea
     parts.push(`avec des prix jusqu'à ${searchParams.price} dinars tunisiens`);
   }
 
-  // Add value proposition and CTA
-  parts.push("Livraison rapide et gratuite disponible dans toute la Tunisie.");
-  parts.push("Achetez en ligne en toute sécurité avec ita-luxury.");
+  parts.push(
+    "Livraison rapide et gratuite disponible dans toute la Tunisie.",
+    "Achetez en ligne en toute sécurité avec ita-luxury."
+  );
 
   let description = parts.join(" ");
 
@@ -46,8 +47,7 @@ export default function generateDescription(searchParams: SearchParamsProductSea
   return description;
 }
 
-// For schema.org usage
 export function generateSchemaDescription(searchParams: SearchParamsProductSearch): string {
   const description = generateDescription(searchParams);
-  return description.replace(/ avec ita-luxury\.$/, '.'); 
+  return description.replace(/ avec ita-luxury\.$/, '.');
 }

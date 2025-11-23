@@ -13,7 +13,7 @@ import { MdPointOfSale } from "react-icons/md";
 const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = false, userData }: { showUserMenu: boolean, setShowUserMenu: any, userMenuRef: any, isMobile?: boolean, userData: any }) => {
     const { toast } = useToast();
     const router = useRouter();
-    const {  logout } = useAuth();
+    const { logout } = useAuth();
 
     const userPoints = userData?.points || 0;
     const userName = userData?.name || userData?.email;
@@ -30,7 +30,7 @@ const UserAvatar = ({ showUserMenu, setShowUserMenu, userMenuRef, isMobile = fal
             });
 
             setTimeout(() => {
-                window.location.reload();
+                globalThis.location.reload();
             }, 100);
         } catch (error) {
             console.error("Erreur lors de la déconnexion:", error);

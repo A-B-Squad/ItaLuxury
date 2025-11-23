@@ -226,7 +226,7 @@ const TrackingPackages = ({ companyData }: any) => {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs lg:text-sm text-gray-600">
-                          {moment(parseInt(pkg.createdAt))
+                          {moment(Number.parseInt(pkg.createdAt))
                             .locale("fr")
                             .format("lll")}
                         </TableCell>
@@ -299,7 +299,7 @@ const TrackingPackages = ({ companyData }: any) => {
                                         <p className="text-sm flex items-center">
                                           <span className="font-medium w-40">Dernière mise à jour:</span>
                                           <span className="text-gray-700">
-                                            {moment(parseInt(pkg.createdAt))
+                                            {moment(Number.parseInt(pkg.createdAt))
                                               .locale("fr")
                                               .format("lll")}
                                           </span>

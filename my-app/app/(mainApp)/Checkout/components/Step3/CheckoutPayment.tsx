@@ -49,7 +49,9 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {["CASH_ON_DELIVERY", "CREDIT_CARD"].map(
             (method: any) => (
-              <label key={method} className="relative block">
+              <label
+                htmlFor={`paymentMethod-${method}`}
+                key={method} className="relative block">
                 <input
                   type="radio"
                   name="paymentMethod"

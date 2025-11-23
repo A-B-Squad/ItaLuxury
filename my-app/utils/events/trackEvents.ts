@@ -64,13 +64,13 @@ function normalizeEmail(email: string): string {
 // Normalize phone
 function normalizePhone(phone: string): string {
   if (!phone) return '';
-  return phone.replace(/\D/g, '');
+  return phone.replaceAll(/\D/g, '');
 }
 
 // Format value
 function formatValue(value: any): number {
   const numValue = Number(value);
-  return isNaN(numValue) ? 0 : Number(numValue.toFixed(2));
+  return Number.isNaN(numValue) ? 0 : Number(numValue.toFixed(2));
 }
 
 // Create sending data
@@ -131,7 +131,7 @@ async function createSendingData(
     event_id: eventId,
     event_time: Math.floor(Date.now() / 1000),
     action_source: 'website',
-    event_source_url: typeof window !== 'undefined' ? window.location.href : '',
+    event_source_url: typeof window !== 'undefined' ? globalThis.location.href : '',
     user_data,
     custom_data,
   };
@@ -222,8 +222,8 @@ export default async function triggerEvents(
 
       const pixelResponse = await fetch(
         `https://graph.facebook.com/v21.0/${PIXEL_ID}/events`,
-        { 
-          method: 'POST', 
+        {
+          method: 'POST',
           body: formData,
           signal: controller.signal
         }

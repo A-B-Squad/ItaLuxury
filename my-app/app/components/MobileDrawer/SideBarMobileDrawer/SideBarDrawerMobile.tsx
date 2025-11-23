@@ -50,7 +50,7 @@ function DrawerMobile({ userData }: any) {
 
       // Reload page after a short delay
       setTimeout(() => {
-        window.location.reload();
+        globalThis.location.reload();
       }, 100);
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
@@ -142,7 +142,7 @@ function DrawerMobile({ userData }: any) {
       size={350}
       className="2xl:hidden overflow-y-auto pb-24 z-[99999999]"
       onPointerEnterCapture={undefined}
-      onPointerLeaveCapture={undefined}  onResize={undefined} onResizeCapture={undefined}
+      onPointerLeaveCapture={undefined} onResize={undefined} onResizeCapture={undefined}
     >
       <div className="px-2 py-3 flex items-center justify-between text-white bg-logoColor">
         <Link
@@ -163,7 +163,7 @@ function DrawerMobile({ userData }: any) {
           className="ml-auto"
           onPointerEnterCapture={undefined}
           onPointerLeaveCapture={undefined}
-          aria-label="Fermer"  onResize={undefined} onResizeCapture={undefined}        >
+          aria-label="Fermer" onResize={undefined} onResizeCapture={undefined}        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

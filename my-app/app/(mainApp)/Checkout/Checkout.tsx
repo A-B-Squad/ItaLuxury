@@ -116,10 +116,10 @@ const Checkout = ({ userData, companyData }: any) => {
   const onSubmit = async (data: any) => {
     const userEmail = isGuest ? data.email : userData?.email;
     const userName = isGuest ? data.fullname : userData?.fullName;
-    const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
-    const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
+    const cleanPhone1 = data.phone_1.replaceAll(/\s+/g, '');
+    const cleanPhone2 = data.phone_2 ? data.phone_2.replaceAll(/\s+/g, '') : '';
     const userPhone = isGuest ? cleanPhone1 : userData?.number;
-    const orderTotal = parseFloat(calculateTotal());
+    const orderTotal = Number.parseFloat(calculateTotal());
     const userCity = data.governorateName || data.governorate || "";
 
     // Get userId from multiple sources with priority
@@ -167,7 +167,7 @@ const Checkout = ({ userData, companyData }: any) => {
     const isValid = await trigger();
     if (isValid) {
       setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length));
-      window.scrollTo({
+      globalThis.scrollTo({
         top: 0,
         behavior: "smooth",
       });
@@ -177,16 +177,14 @@ const Checkout = ({ userData, companyData }: any) => {
   }, [trigger, errors, steps.length]);
 
   const handlePreviousStep = useCallback(() => {
-    window.scrollTo({
+    globalThis.scrollTo({
       top: 0,
       behavior: "smooth",
     });
     setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
   }, []);
 
-  if (checkoutProducts.length === 0) {
-    return <Loading />;
-  }
+
 
   useEffect(() => {
     if (!checkoutProducts || checkoutProducts.length === 0) return;
@@ -235,82 +233,85 @@ const Checkout = ({ userData, companyData }: any) => {
 
   }, [checkoutProducts, checkoutTotal, userData, authenticatedUserId, decodedToken?.userId]);
 
+
+  if (checkoutProducts.length === 0) {
+    return <Loading />;
+  }
+
   return (
-    <>
-      <div className="flex justify-center flex-col items-center w-full my-10">
-        <StepIndicator steps={steps} currentStep={currentStep} />
+    <div className="flex justify-center flex-col items-center w-full my-10">
+      <StepIndicator steps={steps} currentStep={currentStep} />
 
-        <div className="container grid sm:px-10 w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32">
-          {loading && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-5 rounded-lg flex flex-col items-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
-                <p className="mt-2 text-gray-700">
-                  Redirection vers la page de paiement...
-                </p>
-              </div>
-            </div>
-          )}
-
-          {submitLoading && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-5 rounded-lg flex flex-col items-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
-                <p className="mt-2 text-gray-700">
-                  Redirection vers la page de Confirmation...
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <div className="px-4 pt-8 pb-2 bg-white border">
-              {currentStep === 1 && !isAuthenticated && (
-                <Step1
-                  setIsLoggedIn={setIsLoggedIn}
-                  setCurrentStep={setCurrentStep}
-                  setIsGuest={setIsGuest}
-                  showLoginForm={showLoginForm}
-                  setShowLoginForm={setShowLoginForm}
-                  onAuthSuccess={handleAuthSuccess}
-                />
-              )}
-              <CheckoutForm
-                currentStep={currentStep}
-                handleSubmit={handleSubmit}
-                onSubmit={onSubmit}
-                isValid={isValid}
-                errors={errors}
-                register={register}
-                isLoggedIn={isLoggedIn}
-                governmentInfo={governmentInfo}
-                handlePreviousStep={handlePreviousStep}
-                loading={loading}
-                paymentLoading={loading}
-                submitLoading={submitLoading}
-                paymentMethod={paymentMethod}
-                setPaymentMethod={setPaymentMethod}
-              />
+      <div className="container grid sm:px-10 w-full gap-20 xl:grid-cols-2 lg:px-20 xl:px-32">
+        {loading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+              <p className="mt-2 text-gray-700">
+                Redirection vers la page de paiement...
+              </p>
             </div>
           </div>
+        )}
 
-          <OrderSummary
-            checkoutProducts={checkoutProducts}
-            setDiscountPercentage={setDiscountPercentage}
-            discountPercentage={discountPercentage}
-            setCoupon={setCoupon}
-            deliveryPrice={deliveryPrice}
-            total={checkoutTotal}
-            calculateTotal={calculateTotal}
-            handlePreviousStep={handlePreviousStep}
-            isLoggedIn={isLoggedIn}
-            handleNextStep={handleNextStep}
-            currentStep={currentStep}
-            isValid={isValid}
-          />
+        {submitLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-5 rounded-lg flex flex-col items-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primaryColor" />
+              <p className="mt-2 text-gray-700">
+                Redirection vers la page de Confirmation...
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <div className="px-4 pt-8 pb-2 bg-white border">
+            {currentStep === 1 && !isAuthenticated && (
+              <Step1
+                setIsLoggedIn={setIsLoggedIn}
+                setCurrentStep={setCurrentStep}
+                setIsGuest={setIsGuest}
+                showLoginForm={showLoginForm}
+                setShowLoginForm={setShowLoginForm}
+                onAuthSuccess={handleAuthSuccess}
+              />
+            )}
+            <CheckoutForm
+              currentStep={currentStep}
+              handleSubmit={handleSubmit}
+              onSubmit={onSubmit}
+              isValid={isValid}
+              errors={errors}
+              register={register}
+              isLoggedIn={isLoggedIn}
+              governmentInfo={governmentInfo}
+              handlePreviousStep={handlePreviousStep}
+              loading={loading}
+              paymentLoading={loading}
+              submitLoading={submitLoading}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+            />
+          </div>
         </div>
+
+        <OrderSummary
+          checkoutProducts={checkoutProducts}
+          setDiscountPercentage={setDiscountPercentage}
+          discountPercentage={discountPercentage}
+          setCoupon={setCoupon}
+          deliveryPrice={deliveryPrice}
+          total={checkoutTotal}
+          calculateTotal={calculateTotal}
+          handlePreviousStep={handlePreviousStep}
+          isLoggedIn={isLoggedIn}
+          handleNextStep={handleNextStep}
+          currentStep={currentStep}
+          isValid={isValid}
+        />
       </div>
-    </>
+    </div>
   );
 };
 

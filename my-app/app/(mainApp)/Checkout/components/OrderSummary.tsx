@@ -296,8 +296,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                 onClick={handlePreviousStep}
                 disabled={isLoggedIn}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition-all ${isLoggedIn
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                   }`}
               >
                 <FaArrowLeft className="text-sm" />
@@ -307,9 +307,9 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                 type="button"
                 onClick={handleNextStep}
                 disabled={!isValid}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition-all ${!isValid
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-primaryColor text-white hover:bg-primaryColor/90 shadow-lg"
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition-all ${isValid
+                  ? "bg-primaryColor text-white hover:bg-primaryColor/90 shadow-lg"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
                 Suivant

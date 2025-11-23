@@ -15,7 +15,7 @@ const TabBarMobile = () => {
   const { quantityInBasket } = useProductsInBasketStore();
   const { openDrawerMobileSearch } = useDrawerMobileSearch();
   const { openBasketDrawer } = useDrawerBasketStore();
-  const {  openCategoryDrawer } = useDrawerMobileCategory();
+  const { openCategoryDrawer } = useDrawerMobileCategory();
 
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -102,7 +102,7 @@ const TabBarMobile = () => {
   const handleItemClick = useCallback((item: any) => {
     if (item.isSearch) {
       openDrawerMobileSearch();
-    } 
+    }
   }, [openDrawerMobileSearch]);
 
   const toggleExpanded = () => {
@@ -123,7 +123,7 @@ const TabBarMobile = () => {
   // Handle scroll to show/hide tab bar
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = globalThis.scrollY;
 
       // Show tab bar after scrolling down 200px
       if (currentScrollY > 200) {
@@ -138,10 +138,10 @@ const TabBarMobile = () => {
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    globalThis.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      globalThis.removeEventListener('scroll', handleScroll);
     };
   }, [lastScrollY]);
 
@@ -192,7 +192,7 @@ const TabBarMobile = () => {
                             {item.badge}
                           </span>
                         )}
-                      </div>  
+                      </div>
                       <span className="text-xs font-medium text-gray-700">
                         {item.name}
                       </span>

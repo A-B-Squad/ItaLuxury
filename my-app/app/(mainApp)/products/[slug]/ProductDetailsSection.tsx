@@ -72,15 +72,15 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   // useEffect to handle scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY >= 4000) {
+      if (globalThis.scrollY >= 4000) {
         setShowQuantityMessage(true);
       } else {
         setShowQuantityMessage(false);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    globalThis.addEventListener('scroll', handleScroll);
+    return () => globalThis.removeEventListener('scroll', handleScroll);
   }, []);
 
   const { loading: loadingProductByCategiry, data: Products_10_by_category } =
@@ -115,7 +115,7 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
 
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    globalThis.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {

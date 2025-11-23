@@ -13,6 +13,7 @@ export interface Voucher {
 export interface PointTransaction {
   id: string;
   amount: number;
+  points: number;
   type: string;
   description: string;
   createdAt: string;

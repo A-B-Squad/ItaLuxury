@@ -29,20 +29,20 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
   // Preload next and previous images for smooth transitions
   useEffect(() => {
     if (images.length <= 1) return
-    
+
     const preloadImages = () => {
       const nextIndex = (currentIndex + 1) % images.length
       const prevIndex = (currentIndex - 1 + images.length) % images.length
-      
+
       // Preload next image
-      const nextImg = new window.Image()
+      const nextImg = new globalThis.Image()
       nextImg.src = images[nextIndex]
-      
+
       // Preload previous image
-      const prevImg = new window.Image()
+      const prevImg = new globalThis.Image()
       prevImg.src = images[prevIndex]
     }
-    
+
     preloadImages()
   }, [currentIndex, images])
 
@@ -119,7 +119,7 @@ const AdsCarousel = ({ centerCarouselAds, loadingCenterAdsCarousel }: AdsCarouse
 
           {/* Dark overlay - always visible */}
           <div className="absolute inset-0 bg-black/40" />
-          
+
           {/* Gradient overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 

@@ -101,7 +101,7 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
     // Calculate total with discounts
     const calculateTotal = (): string => {
         const subtotal = Number(total || 0);
-        if (isNaN(subtotal)) {
+        if (Number.isNaN(subtotal)) {
             throw new Error("Total must be a valid number");
         }
 
@@ -125,8 +125,8 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
 
         const userEmail = isGuest ? data.email : userData?.email;
         const userName = isGuest ? data.fullname : userData?.fullName;
-        const cleanPhone1 = data.phone_1.replace(/\s+/g, '');
-        const cleanPhone2 = data.phone_2 ? data.phone_2.replace(/\s+/g, '') : '';
+        const cleanPhone1 = data.phone_1.replaceAll(/\s+/g, '');
+        const cleanPhone2 = data.phone_2 ? data.phone_2.replaceAll(/\s+/g, '') : '';
 
         try {
             setPaymentLoading(true);
@@ -142,7 +142,7 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
                 return;
             }
 
-            const orderTotal = parseFloat(calculateTotal());
+            const orderTotal = Number.parseFloat(calculateTotal());
             const finalPrice = productDetails.productDiscounts?.[0]?.newPrice || productDetails.price;
 
             const checkoutInput = {
@@ -366,7 +366,7 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
                                         required: "Ce champ est requis",
                                         validate: (value) => {
                                             // Remove spaces for validation
-                                            const cleaned = value.replace(/\s+/g, '');
+                                            const cleaned = value.replaceAll(/\s+/g, '');
                                             return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                                                 "Le numéro de téléphone doit comporter 8 chiffres";
                                         }
@@ -399,7 +399,7 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
                                         validate: (value) => {
                                             if (!value) return true; // Optional field
                                             // Remove spaces for validation
-                                            const cleaned = value.replace(/\s+/g, '');
+                                            const cleaned = value.replaceAll(/\s+/g, '');
                                             return cleaned.length === 8 && /^\d+$/.test(cleaned) ||
                                                 "Le numéro de téléphone doit comporter 8 chiffres";
                                         }

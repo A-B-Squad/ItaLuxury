@@ -223,9 +223,9 @@ const ProductQuickView = ({ userData }: any) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
 
-    window.addEventListener("mousemove", moveCursor);
+    globalThis.addEventListener("mousemove", moveCursor);
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
+      globalThis.removeEventListener("mousemove", moveCursor);
     };
   }, [productData]);
 

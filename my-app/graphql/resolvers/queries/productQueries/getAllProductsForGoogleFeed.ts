@@ -61,9 +61,9 @@ function buildCategoryBreadcrumb(categories: Category[]): string {
 function stripHtml(html: string): string {
     if (!html) return "";
     return html
-        .replace(/<[^>]*>/g, " ")
-        .replace(/&[^;]+;/g, " ")
-        .replace(/\s+/g, " ")
+        .replaceAll(/<[^>]*>/g, " ")
+        .replaceAll(/&[^;]+;/g, " ")
+        .replaceAll(/\s+/g, " ")
         .trim();
 }
 

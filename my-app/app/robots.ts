@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com').replace(/\/$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com').replaceAll(/\/$/, '');
 
     return {
         rules: [

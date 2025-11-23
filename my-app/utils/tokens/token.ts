@@ -26,7 +26,7 @@ export const setToken = (token: string): void => {
 
 export const decodeToken = (token: string): DecodedToken | null => {
     try {
-        
+
         const decoded = jwt.decode(token) as DecodedToken;
         if (decoded && decoded.exp * 1000 > Date.now()) {
             return decoded;
@@ -35,7 +35,7 @@ export const decodeToken = (token: string): DecodedToken | null => {
     } catch {
         return null;
     }
-}; 
+};
 
 export const isTokenExpired = (token: string): boolean => {
     try {
@@ -78,6 +78,6 @@ export const removeToken = () => {
     Cookies.remove('Token', { domain: '.ita-luxury.com', path: '/' });
     Cookies.remove('Token', { path: '/' });
     // Clear sessionStorage
-    window.sessionStorage.removeItem("products-in-basket");
-    window.sessionStorage.removeItem("comparedProducts");
+    globalThis.sessionStorage.removeItem("products-in-basket");
+    globalThis.sessionStorage.removeItem("comparedProducts");
 }; //ok

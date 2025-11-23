@@ -259,7 +259,7 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
 
   const renderTransactionsSection = () => {
     const transactions = userData?.pointTransactions || [];
-    const sortedTransactions = [...transactions].sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt));
+    const sortedTransactions = [...transactions].sort((a, b) => Number.parseInt(b.createdAt) - Number.parseInt(a.createdAt));
 
     return (
       <div className="p-4">
@@ -404,7 +404,7 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
                           required: "L'email ou le numéro de téléphone est requis",
                           validate: (value) => {
                             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                            const phoneRegex = /^[0-9]{8}$/;
+                            const phoneRegex = /^\d{8}$/;
                             return (
                               emailRegex.test(value) ||
                               phoneRegex.test(value) ||
@@ -574,9 +574,9 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
                         <button
                           onClick={() => {
                             logout();
-                            window.sessionStorage.removeItem("products-in-basket");
-                            window.sessionStorage.removeItem("comparedProducts");
-                            window.location.replace("/");
+                            globalThis.sessionStorage.removeItem("products-in-basket");
+                            globalThis.sessionStorage.removeItem("comparedProducts");
+                            globalThis.location.replace("/");
                           }}
                           className="flex items-center gap-3 p-2 w-full text-left text-red-600 hover:bg-red-50 rounded-md transition-colors mt-2"
                         >

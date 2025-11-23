@@ -162,11 +162,11 @@ const ProductInfo = memo(({
         const cooldownKey = `wa_cooldown_${userIp}_${productDetails.id}`;
         const cooldownUntil = localStorage.getItem(cooldownKey);
 
-        if (cooldownUntil && parseInt(cooldownUntil) > Date.now()) {
+        if (cooldownUntil && Number.parseInt(cooldownUntil) > Date.now()) {
           setWhatsappButtonDisabled(true);
 
           // Set timeout to re-enable the button when cooldown expires
-          const timeRemaining = parseInt(cooldownUntil) - Date.now();
+          const timeRemaining = Number.parseInt(cooldownUntil) - Date.now();
           setTimeout(() => {
             setWhatsappButtonDisabled(false);
           }, timeRemaining);
@@ -224,7 +224,7 @@ const ProductInfo = memo(({
       navigator.share({
         title: productDetails?.name,
         text: `Découvrez ${productDetails?.name} sur Ita Luxury`,
-        url: window.location.href,
+        url: globalThis.location.href,
       })
         .then(() => toast({
           title: "Partagé avec succès",
@@ -233,7 +233,7 @@ const ProductInfo = memo(({
         }))
         .catch(console.error);
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(globalThis.location.href);
       toast({
         title: "Lien copié",
         description: "Le lien du produit a été copié dans le presse-papier",

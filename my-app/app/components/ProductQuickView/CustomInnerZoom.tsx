@@ -34,7 +34,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     if (!thumbnailsRef.current) return;
 
     const container = thumbnailsRef.current;
-    const scrollAmount = window.innerWidth < 768 ? 84 : 96; // Thumbnail + gap
+    const scrollAmount = globalThis.innerWidth < 768 ? 84 : 96; // Thumbnail + gap
     const newScroll = direction === 'next'
       ? container.scrollLeft + scrollAmount
       : container.scrollLeft - scrollAmount;
@@ -49,7 +49,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = ({ images = [] }) => {
     if (!thumbnailsRef.current) return;
 
     const container = thumbnailsRef.current;
-    const thumbnailWidth = window.innerWidth < 768 ? 84 : 96;
+    const thumbnailWidth = globalThis.innerWidth < 768 ? 84 : 96;
     const scrollPosition = selectedImage * thumbnailWidth;
 
     container.scrollTo({

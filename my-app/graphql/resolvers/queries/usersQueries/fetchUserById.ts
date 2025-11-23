@@ -1,4 +1,5 @@
 import { Context } from "@apollo/client";
+import { orderBy } from "lodash";
 
 export const fetchUsersById = async (_: any, { userId }: { userId: string }, { prisma }: Context) => {
     try {
@@ -10,7 +11,7 @@ export const fetchUsersById = async (_: any, { userId }: { userId: string }, { p
                 }
                 ,
                 include: {
-                    pointTransactions: true,
+                    pointTransactions: { orderBy: { createdAt: 'desc' } },
                     Voucher: true,
                     reviews: {
                         include: {

@@ -68,7 +68,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
               <div
                 onClick={() => {
                   closeCategoryDrawer();
-                  window.location.href = `/Collections/tunisie?${new URLSearchParams({
+                  globalThis.location.href = `/Collections/tunisie?${new URLSearchParams({
                     category: sub.name,
                   })}`;
                 }}
@@ -88,7 +88,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
                   {sub.name}
                 </span>
               </div>
-              
+
               {sub.subcategories && sub.subcategories.length > 0 && (
                 <button
                   onClick={() => setExpandedSubcategory(
@@ -104,7 +104,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
                 </button>
               )}
             </div>
-            
+
             {/* Expanded subsubcategories */}
             {expandedSubcategory === sub.name && sub.subcategories && (
               <Subsubcategory

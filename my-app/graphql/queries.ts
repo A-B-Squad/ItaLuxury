@@ -13,6 +13,7 @@ export const FETCH_USER_BY_ID = `
   fetchUsersById(userId: $userId) {
     email
     number
+    createdAt
     fullName
     Voucher {
       id
