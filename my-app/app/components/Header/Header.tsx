@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import BottomHeader from "./BottomHeader";
+import BottomHeader from "./BottomHeader/BottomHeader";
 import Dropdown from "./CategoryDropdown/Dropdown";
 import ContactBanner from "./ContactBanner";
-import TopHeader from "./TopHeader";
+import TopHeader from "./TopHeader/TopHeader";
 
 import { AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";

@@ -84,7 +84,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
         currentParams.delete('page'); 
         
         // Build URL with all existing parameters
-        const baseUrl = '/Collections/tunisie';
+        const baseUrl = '/Collections';
         updateUrl(`${baseUrl}?${currentParams.toString()}`, { scroll: false });
       }, PRICE_DEBOUNCE_DELAY);
     }) as any;
@@ -185,7 +185,7 @@ const SideBar: React.FC<SideBarProps> = ({ colors, brands, categories }) => {
   const handleClearFilters = useCallback(() => {
     setSelectedFilterQueries({});
     setLocalPrice(DEFAULT_PRICE);
-    replaceUrl("/Collections/tunisie?page=1", { scroll: true });
+    replaceUrl("/Collections?page=1", { scroll: true });
     toggleOpenSidebar();
     toast({
       title: "Filtres réinitialisés",

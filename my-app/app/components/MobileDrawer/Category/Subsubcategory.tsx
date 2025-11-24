@@ -28,7 +28,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
           key={subsub.id}
           onClick={() => {
             closeCategoryDrawer();
-            globalThis.location.href = `/Collections/tunisie?${new URLSearchParams({
+            globalThis.location.href = `/Collections?${new URLSearchParams({
               category: subsub.name,
             })}`;
           }}

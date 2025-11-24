@@ -2,7 +2,7 @@ import { Context } from "@apollo/client";
 import nodemailer from "nodemailer";
 
 interface UpdateCheckoutInput {
-  orderStatus?: string
+  orderStatus?: string;
   checkoutId: string;
   total?: number;
   manualDiscount: GLfloat;
@@ -33,10 +33,7 @@ async function sendCheckoutEmail(
     },
   });
 
-  // Base URL for your website
   const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://www.ita-luxury.com';
-
-  // Logo and other image paths - using images from public folder
   const logoUrl = `${baseUrl}/images/logos/LOGO.png`;
   const jaxDeliveryLogo = `${baseUrl}/images/delivery/jax-delivery.webp`;
 
@@ -94,7 +91,7 @@ async function sendCheckoutEmail(
             height: auto;
           }
           h1 {
-            color: #c7ae91; /* Changed main color */
+            color: #c7ae91;
           }
           p {
             font-size: 16px;
@@ -111,7 +108,7 @@ async function sendCheckoutEmail(
             text-align: left;
           }
           th {
-            background-color: #c7ae91; /* Changed main color */
+            background-color: #c7ae91;
             color: white;
           }
           td {
@@ -230,7 +227,6 @@ async function sendCheckoutEmail(
             </table>
           </div>
           
-          <!-- Section Livraison -->
           <div class="delivery-section">
             <div class="delivery-header">
               <img src="${jaxDeliveryLogo}" alt="Livraison" width="24" />
@@ -276,6 +272,137 @@ async function sendCheckoutEmail(
   await transporter.sendMail(mailOptions);
 }
 
+// ==================== HELPER FUNCTIONS ====================
+
+// Build update data from input
+const buildUpdateData = (
+  total?: number,
+  manualDiscount?: GLfloat,
+  freeDelivery?: boolean
+) => {
+  const updateData: any = {};
+
+  if (total !== undefined) updateData.total = total;
+  if (manualDiscount !== undefined) updateData.manualDiscount = manualDiscount;
+  if (freeDelivery !== undefined) updateData.freeDelivery = freeDelivery;
+
+  return updateData;
+};
+
+// Check if inventory should be adjusted
+const shouldAdjustInventory = (
+  orderStatus?: string,
+  hasExistingProducts?: boolean
+): boolean => {
+  return orderStatus === "CONFIRMED" && hasExistingProducts === true;
+};
+
+// Restore inventory for existing products
+const restoreInventoryForExistingProducts = async (
+  prisma: any,
+  existingProducts: any[]
+) => {
+  await prisma.$transaction(async (tx: any) => {
+    for (const existingProduct of existingProducts) {
+      await tx.product.update({
+        where: { id: existingProduct.productId },
+        data: {
+          inventory: { increment: existingProduct.productQuantity },
+          solde: { decrement: existingProduct.productQuantity },
+        },
+      });
+    }
+  });
+};
+
+// Update inventory for new products
+const updateInventoryForNewProducts = async (
+  prisma: any,
+  newProducts: any[]
+) => {
+  await prisma.$transaction(async (tx: any) => {
+    for (const newProduct of newProducts) {
+      await tx.product.update({
+        where: { id: newProduct.productId },
+        data: {
+          inventory: { decrement: newProduct.productQuantity },
+          solde: { increment: newProduct.productQuantity },
+        },
+      });
+    }
+  });
+};
+
+// Handle product checkout updates
+const handleProductCheckoutUpdates = async (
+  prisma: any,
+  checkoutId: string,
+  productInCheckout: any[],
+  orderStatus: string | undefined,
+  existingProducts: any[]
+) => {
+  const hasExistingProducts = existingProducts.length > 0;
+
+  // Restore inventory for existing products if confirmed
+  if (shouldAdjustInventory(orderStatus, hasExistingProducts)) {
+    await restoreInventoryForExistingProducts(prisma, existingProducts);
+  }
+
+  // Delete existing entries
+  await prisma.productInCheckout.deleteMany({
+    where: { checkoutId },
+  });
+
+  // Create new entries
+  const createData = {
+    create: productInCheckout.map((product) => ({
+      productId: product.productId,
+      productQuantity: product.productQuantity,
+      price: product.price,
+      discountedPrice: product.discountedPrice,
+    })),
+  };
+
+  // Update inventory for new products if confirmed
+  if (orderStatus === "CONFIRMED") {
+    await updateInventoryForNewProducts(prisma, productInCheckout);
+  }
+
+  return createData;
+};
+
+// Get email address for checkout
+const getCheckoutEmail = (checkout: any): string | null => {
+  if (checkout.isGuest) {
+    return checkout.guestEmail;
+  }
+  return checkout.User?.email || null;
+};
+
+// Send email if valid address exists
+const sendEmailIfValid = async (
+  checkout: any,
+  deliveryPrice: any
+) => {
+  const emailToUse = getCheckoutEmail(checkout);
+
+  if (emailToUse) {
+    await sendCheckoutEmail(
+      checkout,
+      checkout.productInCheckout,
+      checkout.package[0]?.customId,
+      deliveryPrice,
+      emailToUse
+    );
+  } else {
+    console.log(
+      "No valid email address found. Skipping email send for updated checkout."
+    );
+  }
+};
+
+// ==================== MAIN FUNCTION ====================
+
 export const updateCheckout = async (
   _: any,
   { input }: { input: UpdateCheckoutInput },
@@ -288,15 +415,15 @@ export const updateCheckout = async (
       productInCheckout,
       manualDiscount,
       freeDelivery,
-      orderStatus
+      orderStatus,
     } = input;
 
-    // Fetch the existing checkout
+    // Fetch existing checkout
     const existingCheckout = await prisma.checkout.findUnique({
       where: { id: checkoutId },
       include: {
         productInCheckout: true,
-        package: true
+        package: true,
       },
     });
 
@@ -304,67 +431,24 @@ export const updateCheckout = async (
       throw new Error("Checkout not found");
     }
 
-    // Prepare the update data
-    const updateData: any = {};
-
-    if (total !== undefined) updateData.total = total;
-    if (manualDiscount !== undefined)
-      updateData.manualDiscount = manualDiscount;
-    if (freeDelivery !== undefined) updateData.freeDelivery = freeDelivery;
-
+    // Get company info for delivery price
     const companyInfo = await prisma.companyInfo.findFirst();
     const deliveryPrice = companyInfo?.deliveringPrice;
 
-    // Handle product updates
+    // Build base update data
+    const updateData = buildUpdateData(total, manualDiscount, freeDelivery);
+
+    // Handle product updates if provided
     if (productInCheckout) {
-      // Only adjust inventory if the order status is CONFIRMED
-      if (orderStatus === "CONFIRMED" && existingCheckout.productInCheckout && existingCheckout.productInCheckout.length > 0) {
-        // First, adjust inventory and sales for existing products before deleting them
-        await prisma.$transaction(async (tx: any) => {
-          for (const existingProduct of existingCheckout.productInCheckout) {
-            // Restore inventory and sales counts for products being removed or updated
-            await tx.product.update({
-              where: { id: existingProduct.productId },
-              data: {
-                inventory: { increment: existingProduct.productQuantity },
-                solde: { decrement: existingProduct.productQuantity },
-              },
-            });
-          }
-        });
-      }
-
-      // Delete existing productInCheckout entries
-      await prisma.productInCheckout.deleteMany({
-        where: { checkoutId },
-      });
-
-      // Create new productInCheckout entries
-      updateData.productInCheckout = {
-        create: productInCheckout.map((product) => ({
-          productId: product.productId,
-          productQuantity: product.productQuantity,
-          price: product.price,
-          discountedPrice: product.discountedPrice,
-        })),
-      };
-
-      // Only update inventory for new products if the order status is CONFIRMED
-      if (orderStatus === "CONFIRMED") {
-        await prisma.$transaction(async (tx: any) => {
-          for (const newProduct of productInCheckout) {
-            await tx.product.update({
-              where: { id: newProduct.productId },
-              data: {
-                inventory: { decrement: newProduct.productQuantity },
-                solde: { increment: newProduct.productQuantity },
-              },
-            });
-          }
-        });
-      }
+      const productCreateData = await handleProductCheckoutUpdates(
+        prisma,
+        checkoutId,
+        productInCheckout,
+        orderStatus,
+        existingCheckout.productInCheckout
+      );
+      updateData.productInCheckout = productCreateData;
     }
-
 
     // Perform the update
     const updatedCheckout = await prisma.checkout.update({
@@ -383,23 +467,9 @@ export const updateCheckout = async (
       },
     });
 
+    // Send email notification
     if (updatedCheckout) {
-      const emailToUse = updatedCheckout.isGuest
-        ? updatedCheckout.guestEmail
-        : updatedCheckout.User?.email;
-
-      if (emailToUse) {
-        await sendCheckoutEmail(
-          updatedCheckout,
-          updatedCheckout.productInCheckout,
-          updatedCheckout.package[0]?.customId,
-          deliveryPrice, emailToUse
-        );
-      } else {
-        console.log(
-          "No valid email address found. Skipping email send for updated checkout."
-        );
-      }
+      await sendEmailIfValid(updatedCheckout, deliveryPrice);
     }
 
     return "Updated Checkout";

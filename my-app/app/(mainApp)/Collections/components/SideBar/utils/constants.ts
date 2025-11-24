@@ -12,7 +12,7 @@ export const FILTER_CHOICES: FilterChoice[] = [
   { id: "new-product", label: "Nouveau Produit" },
 ];
 
-export const BASE_COLLECTION_URL = "/Collections/tunisie";
+export const BASE_COLLECTION_URL = "/Collections";
 
 export const FILTER_SECTIONS = {
   CHOICE: "CHOIX",

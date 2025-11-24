@@ -38,8 +38,6 @@ const TitleProduct = dynamic(
   }
 );
 
-
-// Defer non-critical components
 const ProductDetailsDrawer = dynamic(
   () => import("./Components/productDetailsDrawer"),
   {
@@ -54,7 +52,6 @@ import ProductDetailsContainer from "./Components/ProductDetailsContainer";
 import ProductInfo from "./Components/ProductInfo";
 import { trackAddToCart, trackViewContent } from "@/utils/facebookEvents";
 
-
 const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const { toast } = useToast();
 
@@ -65,9 +62,7 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const [showQuantityMessage, setShowQuantityMessage] = useState(false);
   const [quantity, setQuantity] = useState<number>(1);
 
-
   const [addToBasket] = useMutation(ADD_TO_BASKET_MUTATION);
-
 
   // useEffect to handle scroll
   useEffect(() => {
@@ -93,8 +88,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       fetchPolicy: 'cache-first'
     });
 
-  // Query the basket first
-
   const { data: basketData } = useQuery(BASKET_QUERY, {
     variables: { userId: decodedToken?.userId },
     skip: !isAuthenticated,
@@ -113,7 +106,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
     increaseProductInQtBasket,
   } = useProductsInBasketStore();
 
-
   useEffect(() => {
     globalThis.scrollTo(0, 0);
   }, []);
@@ -121,7 +113,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   useEffect(() => {
     if (!productDetails?.id) return;
 
-    // Prepare complete product data for tracking with ALL required fields
     const trackingProduct = {
       id: productDetails.id,
       name: productDetails.name,
@@ -139,7 +130,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       technicalDetails: productDetails.technicalDetails,
     };
 
-    // Prepare user data with proper name splitting
     const user = userData ? {
       id: decodedToken?.userId,
       email: userData.email,
@@ -157,7 +147,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       user: user ? 'logged_in' : 'guest'
     });
 
-    // Track the view content event with proper error handling
     trackViewContent(trackingProduct, user)
       .then(() => {
         console.log('✅ ViewContent event tracked successfully');
@@ -166,7 +155,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
         console.error("❌ Error tracking view content:", error);
       });
 
-    // Set component state
     if (productDetails.productDiscounts?.[0]) {
       setDiscount(productDetails.productDiscounts[0]);
     }
@@ -176,8 +164,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
     }
   }, [productDetails, slug, userData, decodedToken]);
 
-
-
   const productInBasket = useMemo(() => {
     if (decodedToken?.userId && basketData?.basketByUserId) {
       return basketData.basketByUserId.find(
@@ -185,35 +171,35 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       );
     }
     return storedProducts.find((product: any) => product.slug === slug);
-  }, [decodedToken, slug]);
+  }, [decodedToken, slug, basketData, storedProducts]);
 
   const toggleIsUpdated = useBasketStore((state) => state.toggleIsUpdated);
-
   const [addToFavorite] = useMutation(ADD_DELETE_PRODUCT_FAVORITE_MUTATION);
 
-  const AddToBasket = useCallback(async (product: any) => {
+  // Helper: Prepare tracking product data
+  const prepareTrackingProduct = useCallback((product: any) => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    description: product.description,
+    Brand: product.Brand,
+    Colors: product.Colors,
+    categories: product.categories,
+    productDiscounts: product.productDiscounts,
+    inventory: product.inventory,
+    isVisible: product.isVisible,
+    reference: product.reference,
+    images: product.images,
+    quantity: product.actualQuantity || product.quantity,
+    technicalDetails: product.technicalDetails,
+  }), []);
 
-    // Prepare complete product data for tracking
-    const trackingProduct = {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: product.price,
-      description: product.description,
-      Brand: product.Brand,
-      Colors: product.Colors,
-      categories: product.categories,
-      productDiscounts: product.productDiscounts,
-      inventory: product.inventory,
-      isVisible: product.isVisible,
-      reference: product.reference,
-      images: product.images,
-      quantity: product.actualQuantity || product.quantity,
-      technicalDetails: product.technicalDetails,
-    };
+  // Helper: Prepare user data
+  const prepareUserData = useCallback(() => {
+    if (!userData) return undefined;
 
-    // Prepare user data
-    const user = userData ? {
+    return {
       id: decodedToken?.userId,
       email: userData.email,
       firstName: userData.fullName?.split(' ')[0] || userData.fullName,
@@ -221,111 +207,144 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       phone: userData.number,
       country: "tn",
       city: userData.city || "",
-    } : undefined;
+    };
+  }, [userData, decodedToken]);
 
-    // Track the add to cart event with error handling
+  // Helper: Track add to cart event
+  const trackAddToCartEvent = useCallback(async (trackingProduct: any, user: any) => {
     try {
       console.log('🛒 Tracking AddToCart event:', {
         product_id: trackingProduct.id,
         product_name: trackingProduct.name,
-        quantity: product.actualQuantity || product.quantity,
+        quantity: trackingProduct.quantity,
         user: user ? 'logged_in' : 'guest'
       });
 
       await trackAddToCart(trackingProduct, user);
-
       console.log('✅ AddToCart event tracked successfully');
     } catch (error) {
       console.error("❌ Error tracking add to cart:", error);
-      // Don't block the user flow if tracking fails
     }
+  }, []);
 
-
-    if (decodedToken) {
-      try {
-        const currentBasketQuantity = productInBasket
-          ? productInBasket.quantity || productInBasket.actualQuantity
-          : 0;
-
-
-
-        // Modify the toast message condition
-        if (currentBasketQuantity + quantity > product.inventory) {
-          if (showQuantityMessage) {
-            toast({
-              title: "Quantité non disponible",
-              description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-              className: "bg-red-600 text-white",
-            });
-          }
-          return;
-        }
-
-        await addToBasket({
-          variables: {
-            input: {
-              userId: decodedToken?.userId,
-              quantity: quantity,
-              productId: product.id,
-            },
-          },
-          refetchQueries: [
-            {
-              query: BASKET_QUERY,
-              variables: { userId: decodedToken?.userId },
-            },
-          ],
-
-        });
-      } catch (error) {
-        console.error("Error adding to basket:", error);
-        toast({
-          title: "Erreur",
-          description:
-            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
-          className: "bg-red-600 text-white",
-        });
-      }
-    } else {
-      const isProductAlreadyInBasket = storedProducts.some(
-        (p: any) => p.id === product?.id
-      );
-      const filteredProduct = storedProducts.filter(
-        (p: any) => p.id === product?.id
-      )[0];
-
-      if (
-        (filteredProduct &&
-          filteredProduct.actualQuantity >= product.inventory) ||
-        filteredProduct?.actualQuantity + quantity >= product.inventory
-      ) {
+  // Helper: Check inventory and show error
+  const checkInventoryAvailability = useCallback((currentQty: number, requestedQty: number, inventory: number) => {
+    if (currentQty + requestedQty > inventory) {
+      if (showQuantityMessage) {
         toast({
           title: "Quantité non disponible",
-          description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+          description: `Désolé, nous n'avons que ${inventory} unités en stock.`,
           className: "bg-red-600 text-white",
         });
-        return;
       }
+      return false;
+    }
+    return true;
+  }, [showQuantityMessage, toast]);
 
-      if (isProductAlreadyInBasket) {
-        increaseProductInQtBasket(product.id, quantity);
-      } else {
-        addProductToBasket({
-          ...product,
-          price: product.price,
-          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
-          actualQuantity: quantity,
-        });
-      }
+  // Helper: Show error toast
+  const showErrorToast = useCallback(() => {
+    toast({
+      title: "Erreur",
+      description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+      className: "bg-red-600 text-white",
+    });
+  }, [toast]);
 
+  // Helper: Show success toast
+  const showSuccessToast = useCallback((productName: string, qty: number) => {
+    const unit = qty > 1 ? "unités" : "unité";
+    const verb = qty > 1 ? "ont été ajoutées" : "a été ajoutée";
+    
+    toast({
+      title: "Produit ajouté au panier",
+      description: `${qty} ${unit} de "${productName}" ${verb} à votre panier.`,
+      className: "bg-green-600 text-white",
+    });
+  }, [toast]);
+
+  // Helper: Handle authenticated user basket addition
+  const handleAuthenticatedBasketAdd = useCallback(async (product: any) => {
+    const currentBasketQuantity = productInBasket
+      ? productInBasket.quantity || productInBasket.actualQuantity
+      : 0;
+
+    if (!checkInventoryAvailability(currentBasketQuantity, quantity, product.inventory)) {
+      return;
+    }
+
+    try {
+      await addToBasket({
+        variables: {
+          input: {
+            userId: decodedToken?.userId,
+            quantity: quantity,
+            productId: product.id,
+          },
+        },
+        refetchQueries: [
+          {
+            query: BASKET_QUERY,
+            variables: { userId: decodedToken?.userId },
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Error adding to basket:", error);
+      showErrorToast();
+    }
+  }, [productInBasket, quantity, decodedToken, addToBasket, checkInventoryAvailability, showErrorToast]);
+
+  // Helper: Handle guest user basket addition
+  const handleGuestBasketAdd = useCallback((product: any) => {
+    const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+    const currentQuantity = filteredProduct?.actualQuantity || 0;
+
+    if (currentQuantity >= product.inventory || currentQuantity + quantity >= product.inventory) {
       toast({
-        title: "Produit ajouté au panier",
-        description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${productDetails?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-        className: "bg-green-600 text-white",
+        title: "Quantité non disponible",
+        description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
+        className: "bg-red-600 text-white",
+      });
+      return;
+    }
+
+    if (filteredProduct) {
+      increaseProductInQtBasket(product.id, quantity);
+    } else {
+      addProductToBasket({
+        ...product,
+        price: product.price,
+        discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
+        actualQuantity: quantity,
       });
     }
+
+    showSuccessToast(productDetails?.name, quantity);
+  }, [storedProducts, quantity, productDetails, increaseProductInQtBasket, addProductToBasket, toast, showSuccessToast]);
+
+  const AddToBasket = useCallback(async (product: any) => {
+    const trackingProduct = prepareTrackingProduct(product);
+    const user = prepareUserData();
+
+    await trackAddToCartEvent(trackingProduct, user);
+
+    if (decodedToken) {
+      await handleAuthenticatedBasketAdd(product);
+    } else {
+      handleGuestBasketAdd(product);
+    }
+
     toggleIsUpdated();
-  }, [decodedToken, productInBasket, quantity, productDetails?.name, userData, technicalDetails, toast, toggleIsUpdated, storedProducts, increaseProductInQtBasket, addProductToBasket]);
+  }, [
+    prepareTrackingProduct,
+    prepareUserData,
+    trackAddToCartEvent,
+    decodedToken,
+    handleAuthenticatedBasketAdd,
+    handleGuestBasketAdd,
+    toggleIsUpdated
+  ]);
 
   const handleIncreaseQuantity = useCallback(() => {
     if (quantity < productDetails.inventory) {
@@ -339,7 +358,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
     }
   }, [quantity]);
 
-
   const categoryNames = useMemo(() =>
     productDetails?.categories?.map((cat: { name: string }) => cat.name),
     [productDetails?.categories]
@@ -348,7 +366,7 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const categoriesPath = useMemo(() => [
     { href: "/", label: "Accueil" },
     ...categoryNames.map((category: string) => ({
-      href: `/Collections/tunisie?${new URLSearchParams({
+      href: `/Collections?${new URLSearchParams({
         category: category,
       })}`,
       label: String(category),
@@ -358,7 +376,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       label: productDetails?.name,
     },
   ], [categoryNames, productDetails?.id, productDetails?.name]);
-
 
   const handleToggleFavorite = useCallback(() => {
     if (decodedToken?.userId) {
@@ -418,8 +435,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
     [comparisonList, addToComparison, productDetails?.name, toast]
   );
 
-
-
   return (
     <div className="productDetails container relative  bg-gray-50 w-full mx-auto md:px-4 ">
       {!productDetails ? (
@@ -450,7 +465,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
               </div>
             </div>
 
-            {/*  product info section */}
             <ProductInfo
               userData={userData}
               productDetails={productDetails}
@@ -462,7 +476,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
               quantity={quantity}
               handleIncreaseQuantity={handleIncreaseQuantity}
               handleDecreaseQuantity={handleDecreaseQuantity}
-
             />
 
             <ActionButton
@@ -480,7 +493,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
         </div>
       )}
 
-      {/* Product details container */}
       <ProductDetailsContainer
         productId={productDetails.id}
         userId={decodedToken?.userId}

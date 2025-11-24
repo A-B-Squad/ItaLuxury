@@ -7,16 +7,16 @@ import React, { useCallback, useEffect, useMemo, useRef, useState, startTransiti
 import { FaFilter } from "react-icons/fa";
 import dynamic from "next/dynamic";
 
-const ProductBox = dynamic(() => import("../../../components/ProductBox/ProductBox"), {
+const ProductBox = dynamic(() => import("../../components/ProductBox/ProductBox"), {
   loading: () => <div className="animate-pulse bg-gray-200 rounded-2xl h-96" />
 });
 
-const CollectionToolbar = dynamic(() => import("../components/CollectionToolbar"));
-const CategoryHeader = dynamic(() => import("../components/CategoryHeader"));
-const LoadingOverlay = dynamic(() => import("../components/LoadingOverlay"));
-const ErrorDisplay = dynamic(() => import("../components/ErrorDisplay"));
-const EmptyState = dynamic(() => import("../components/EmptyState"));
-const LoadingDots = dynamic(() => import("../components/LoadingDots"));
+const CollectionToolbar = dynamic(() => import("./components/CollectionToolbar"));
+const CategoryHeader = dynamic(() => import("./components/CategoryHeader"));
+const LoadingOverlay = dynamic(() => import("./components/LoadingOverlay"));
+const ErrorDisplay = dynamic(() => import("./components/ErrorDisplay"));
+const EmptyState = dynamic(() => import("./components/EmptyState"));
+const LoadingDots = dynamic(() => import("./components/LoadingDots"));
 
 // Types
 interface Product {

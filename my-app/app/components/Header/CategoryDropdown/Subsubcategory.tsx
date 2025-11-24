@@ -28,7 +28,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
           className="transition-opacity duration-200 ease-in-out"
         >
           <Link
-            href={`/Collections/tunisie?${new URLSearchParams({
+            href={`/Collections?${new URLSearchParams({
               category: subsubcategory.name,
             })}`}
             onClick={() => setShowDropdown(false)}

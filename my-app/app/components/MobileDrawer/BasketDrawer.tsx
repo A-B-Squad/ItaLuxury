@@ -485,7 +485,7 @@ const BasketDrawer = ({ userData }: any) => {
           Ajoutez des produits à votre panier pour commencer vos achats
         </p>
         <Link
-          href="/Collections/tunisie?page=1"
+          href="/Collections?page=1"
           onClick={closeBasketDrawer}
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primaryColor hover:bg-amber-200 transition-colors duration-200"
         >

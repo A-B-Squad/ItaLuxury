@@ -13,6 +13,55 @@ import { useRouter, usePathname } from "next/navigation";
 
 import { trackSearch } from "@/utils/facebookEvents";
 
+// Helper: Prepare user data for tracking
+const prepareUserData = (userData: any) => {
+  if (!userData) return undefined;
+
+  return {
+    id: userData.id,
+    email: userData.email,
+    firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+    lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+    phone: userData.number,
+    country: "tn",
+    city: userData.city || "",
+  };
+};
+
+// Helper: Execute search query
+const executeSearch = (searchProducts: any, query: string) => {
+  searchProducts({
+    variables: {
+      input: {
+        query: query,
+        page: 1,
+        pageSize: 15,
+        visibleProduct: true,
+        sortOrder: "asc",
+        sortBy: "name"
+      },
+    },
+    fetchPolicy: "cache-and-network",
+    onError: (err: any) => {
+      console.error("Error fetching search results:", err);
+    },
+  });
+};
+
+// Helper: Create debounced search function
+const createDebouncedSearch = (searchProducts: any, delay: number = 350) => {
+  let timer: any;
+
+  return (query: string) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      if (query.trim().length > 1) {
+        executeSearch(searchProducts, query);
+      }
+    }, delay);
+  };
+};
+
 const SearchBar = ({ userData }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -28,16 +77,7 @@ const SearchBar = ({ userData }: any) => {
     if (query.trim().length < 2) return;
 
     try {
-      // Prepare user data with proper name splitting
-      const user = userData ? {
-        id: userData.id,
-        email: userData.email,
-        firstName: userData.fullName?.split(' ')[0] || userData.fullName,
-        lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
-        phone: userData.number,
-        country: "tn",
-        city: userData.city || "",
-      } : undefined;
+      const user = prepareUserData(userData);
 
       console.log('🔍 Tracking Search event:', {
         query: query,
@@ -49,26 +89,23 @@ const SearchBar = ({ userData }: any) => {
       console.log('✅ Search event tracked successfully');
     } catch (error) {
       console.error("❌ Error tracking search:", error);
-      // Don't block search functionality if tracking fails
     }
   }, [userData]);
 
   // Handle outside clicks to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !inputRef.current?.contains(event.target as Node)
-      ) {
+      const clickedOutside =
+        dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+        !inputRef.current?.contains(event.target as Node);
+
+      if (clickedOutside) {
         setSearching(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Reset search state on route change
@@ -88,33 +125,11 @@ const SearchBar = ({ userData }: any) => {
     }
   }, [data, searchQuery, trackSearchEvent]);
 
-  // Lightweight debounce
-  const debouncedSearch = useMemo(() => {
-    let timer: any;
-    return (query: string) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        if (query.trim().length > 1) {
-          searchProducts({
-            variables: {
-              input: {
-                query: query,
-                page: 1,
-                pageSize: 15,
-                visibleProduct: true,
-                sortOrder: "asc",
-                sortBy: "name"
-              },
-            },
-            fetchPolicy: "cache-and-network",
-            onError: (err) => {
-              console.error("Error fetching search results:", err);
-            },
-          });
-        }
-      }, 350);
-    };
-  }, [searchProducts]);
+  // Memoize debounced search function
+  const debouncedSearch = useMemo(
+    () => createDebouncedSearch(searchProducts),
+    [searchProducts]
+  );
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -134,45 +149,33 @@ const SearchBar = ({ userData }: any) => {
     inputRef.current?.focus();
   };
 
+  const getResultsCount = useCallback(() => {
+    return (data?.searchProducts.results.categories?.length || 0) +
+      (data?.searchProducts.results.products?.length || 0);
+  }, [data]);
+
   const handleViewAllResults = useCallback(() => {
     if (searchQuery.trim().length > 0) {
-      // Track the "View All Results" click
-      trackSearchEvent(searchQuery,
-        (data?.searchProducts.results.categories?.length || 0) +
-        (data?.searchProducts.results.products?.length || 0)
-      );
-
-      router.push(`/Collections/tunisie?query=${encodeURIComponent(searchQuery)}`);
+      trackSearchEvent(searchQuery, getResultsCount());
+      router.push(`/Collections?query=${encodeURIComponent(searchQuery)}`);
       setSearching(false);
     }
-  }, [router, searchQuery, data, trackSearchEvent]);
+  }, [router, searchQuery, trackSearchEvent, getResultsCount]);
 
   const handleCategoryClick = useCallback((categoryName: string) => {
-    // Track category selection from search results
-    trackSearchEvent(searchQuery,
-      (data?.searchProducts.results.categories?.length || 0) +
-      (data?.searchProducts.results.products?.length || 0)
-    );
+    trackSearchEvent(searchQuery, getResultsCount());
     setSearching(false);
-  }, [searchQuery, data, trackSearchEvent]);
+  }, [searchQuery, trackSearchEvent, getResultsCount]);
 
   const handleProductClick = useCallback(() => {
-    // Track product selection from search results
-    trackSearchEvent(searchQuery,
-      (data?.searchProducts.results.categories?.length || 0) +
-      (data?.searchProducts.results.products?.length || 0)
-    );
+    trackSearchEvent(searchQuery, getResultsCount());
     setSearching(false);
-  }, [searchQuery, data, trackSearchEvent]);
+  }, [searchQuery, trackSearchEvent, getResultsCount]);
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && searchQuery.trim().length > 0) {
-      // Track Enter key search
-      trackSearchEvent(searchQuery,
-        (data?.searchProducts.results.categories?.length || 0) +
-        (data?.searchProducts.results.products?.length || 0)
-      );
+      trackSearchEvent(searchQuery, getResultsCount());
       handleViewAllResults();
     } else if (e.key === 'Escape') {
       setSearching(false);
@@ -188,6 +191,14 @@ const SearchBar = ({ userData }: any) => {
       products: data.searchProducts.results.products || []
     };
   }, [data]);
+
+  const hasNoResults = searchResults &&
+    searchResults.categories.length === 0 &&
+    searchResults.products.length === 0 &&
+    !loading;
+
+  const hasResults = searchResults &&
+    (searchResults.categories.length > 0 || searchResults.products.length > 0);
 
   return (
     <div className="search-container relative w-full max-w-2xl mx-auto ">
@@ -256,7 +267,7 @@ const SearchBar = ({ userData }: any) => {
                     {searchResults.categories.map((category: any) => (
                       <Link
                         key={category.id}
-                        href={`/Collections/tunisie?${new URLSearchParams(
+                        href={`/Collections?${new URLSearchParams(
                           { category: category.name }
                         )}`}
                         onClick={() => handleCategoryClick(category.name)}
@@ -329,14 +340,14 @@ const SearchBar = ({ userData }: any) => {
               )}
 
               {/* No Results */}
-              {searchResults.categories.length === 0 && searchResults.products.length === 0 && !loading && (
+              {hasNoResults && (
                 <div className="py-8 text-center">
                   <p className="text-gray-500">Aucun résultat trouvé pour "{searchQuery}"</p>
                 </div>
               )}
 
               {/* Show More Button */}
-              {(searchResults.categories.length > 0 || searchResults.products.length > 0) && (
+              {hasResults && (
                 <button
                   className="w-full py-3 text-sm font-semibold text-white bg-primaryColor hover:bg-amber-200 rounded-lg transition-colors duration-200 relative z-10"
                   onClick={handleViewAllResults}

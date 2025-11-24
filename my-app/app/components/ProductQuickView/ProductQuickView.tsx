@@ -22,7 +22,173 @@ import { createPortal } from 'react-dom';
 import { ProductData } from "@/app/types";
 import { trackAddToCart } from "@/utils/facebookEvents";
 
+// ==================== HELPER FUNCTIONS ====================
 
+// Helper function to prepare tracking data
+const prepareTrackingData = (product: any, userData: any, decodedToken: any) => {
+  const trackingProduct = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    description: product.description,
+    Brand: product.Brand,
+    Colors: product.Colors,
+    categories: product.categories,
+    productDiscounts: product.productDiscounts,
+    inventory: product.inventory,
+    isVisible: product.isVisible,
+    reference: product.reference,
+    images: product.images,
+    quantity: product.actualQuantity || product.quantity,
+    technicalDetails: product.technicalDetails,
+  };
+
+  const user = userData ? {
+    id: decodedToken?.userId,
+    email: userData.email,
+    firstName: userData.fullName?.split(' ')[0] || userData.fullName,
+    lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
+    phone: userData.number,
+    country: "tn",
+    city: userData.city || "",
+  } : undefined;
+
+  return { trackingProduct, user };
+};
+
+// Helper function to track add to cart event
+const trackCartEvent = async (trackingProduct: any, user: any, product: any) => {
+  try {
+    console.log('🛒 Tracking AddToCart event:', {
+      product_id: trackingProduct.id,
+      product_name: trackingProduct.name,
+      quantity: product.actualQuantity || product.quantity,
+      user: user ? 'logged_in' : 'guest'
+    });
+    await trackAddToCart(trackingProduct, user);
+    console.log('✅ AddToCart event tracked successfully');
+  } catch (error) {
+    console.error("❌ Error tracking add to cart:", error);
+  }
+};
+
+// Helper function to check inventory
+const checkInventoryAvailability = (
+  currentQuantity: number,
+  requestedQuantity: number,
+  maxInventory: number,
+  toast: any
+): boolean => {
+  if (currentQuantity + requestedQuantity > maxInventory) {
+    toast({
+      title: "Quantité non disponible",
+      description: `Désolé, nous n'avons que ${maxInventory} unités en stock.`,
+      className: "bg-red-600 text-white",
+    });
+    return false;
+  }
+  return true;
+};
+
+// Helper function to show success toast
+const showSuccessToast = (quantity: number, productName: string, toast: any, isAuthenticated: boolean) => {
+  const unit = quantity > 1 ? "unités" : "unité";
+  const verb = quantity > 1 ? "ont été ajoutées" : "a été ajoutée";
+  const bgColor = isAuthenticated ? "bg-primaryColor" : "bg-green-600";
+
+  toast({
+    title: "Produit ajouté au panier",
+    description: `${quantity} ${unit} de "${productName}" ${verb} à votre panier.`,
+    className: `${bgColor} text-white`,
+  });
+};
+
+// Helper function to handle authenticated user basket
+const handleAuthenticatedBasket = async (
+  product: any,
+  quantity: number,
+  productsInBasket: any,
+  addToBasket: any,
+  decodedToken: any,
+  toast: any
+) => {
+  const currentBasketQuantity = productsInBasket
+    ? productsInBasket.quantity || productsInBasket.actualQuantity
+    : 0;
+
+  const hasInventory = checkInventoryAvailability(
+    currentBasketQuantity,
+    quantity,
+    product.inventory,
+    toast
+  );
+
+  if (!hasInventory) return;
+
+  try {
+    await addToBasket({
+      variables: {
+        input: {
+          userId: decodedToken?.userId,
+          quantity,
+          productId: product.id,
+        },
+      },
+      refetchQueries: [
+        {
+          query: BASKET_QUERY,
+          variables: { userId: decodedToken?.userId },
+        },
+      ],
+      onCompleted: () => {
+        showSuccessToast(quantity, product?.name, toast, true);
+      },
+    });
+  } catch (error) {
+    console.error("Error adding to basket:", error);
+    toast({
+      title: "Erreur",
+      description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+      className: "bg-red-600 text-white",
+    });
+  }
+};
+
+// Helper function to handle guest user basket
+const handleGuestBasket = (
+  product: any,
+  quantity: number,
+  storedProducts: any[],
+  addProductToBasket: any,
+  increaseProductInQtBasket: any,
+  toast: any
+) => {
+  const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+
+  if (filteredProduct) {
+    const hasInventory = checkInventoryAvailability(
+      filteredProduct.actualQuantity,
+      quantity,
+      product.inventory,
+      toast
+    );
+    if (!hasInventory) return;
+
+    increaseProductInQtBasket(product.id, quantity);
+  } else {
+    addProductToBasket({
+      ...product,
+      price: product.price,
+      discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
+      actualQuantity: quantity,
+    });
+  }
+
+  showSuccessToast(quantity, product?.name, toast, false);
+};
+
+// ==================== MAIN COMPONENT ====================
 
 const ProductQuickView = ({ userData }: any) => {
   const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
@@ -38,7 +204,6 @@ const ProductQuickView = ({ userData }: any) => {
 
   useEffect(() => {
     setMounted(true);
-    // Set portal element to document body
     if (typeof window !== 'undefined') {
       setPortalElement(document.body);
     }
@@ -48,7 +213,6 @@ const ProductQuickView = ({ userData }: any) => {
     variables: { userId: decodedToken?.userId },
     skip: !isAuthenticated,
   });
-
 
   const {
     products: storedProducts,
@@ -81,144 +245,37 @@ const ProductQuickView = ({ userData }: any) => {
     }
   }, [quantity]);
 
+  // ==================== REFACTORED ADD TO BASKET ====================
   const AddToBasket = async (product: any, quantity: number = 1) => {
+    // Prepare and track
+    const { trackingProduct, user } = prepareTrackingData(product, userData, decodedToken);
+    await trackCartEvent(trackingProduct, user, product);
 
-    // Prepare complete product data for tracking
-    const trackingProduct = {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: product.price,
-      description: product.description,
-      Brand: product.Brand,
-      Colors: product.Colors,
-      categories: product.categories,
-      productDiscounts: product.productDiscounts,
-      inventory: product.inventory,
-      isVisible: product.isVisible,
-      reference: product.reference,
-      images: product.images,
-      quantity: product.actualQuantity || product.quantity,
-      technicalDetails: product.technicalDetails,
-    };
-
-    // Prepare user data
-    const user = userData ? {
-      id: decodedToken?.userId,
-      email: userData.email,
-      firstName: userData.fullName?.split(' ')[0] || userData.fullName,
-      lastName: userData.fullName?.split(' ').slice(1).join(' ') || '',
-      phone: userData.number,
-      country: "tn",
-      city: userData.city || "",
-    } : undefined;
-
-    // Track the add to cart event with error handling
-    try {
-      console.log('🛒 Tracking AddToCart event:', {
-        product_id: trackingProduct.id,
-        product_name: trackingProduct.name,
-        quantity: product.actualQuantity || product.quantity,
-        user: user ? 'logged_in' : 'guest'
-      });
-
-      await trackAddToCart(trackingProduct, user);
-
-      console.log('✅ AddToCart event tracked successfully');
-    } catch (error) {
-      console.error("❌ Error tracking add to cart:", error);
-      // Don't block the user flow if tracking fails
-    }
-
-
+    // Handle basket addition based on authentication
     if (isAuthenticated) {
-      try {
-        const currentBasketQuantity = productsInBasket
-          ? productsInBasket.quantity || productsInBasket.actualQuantity
-          : 0;
-
-        if (currentBasketQuantity + quantity > product.inventory) {
-          toast({
-            title: "Quantité non disponible",
-            description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-            className: "bg-red-600 text-white",
-          });
-          return;
-        }
-
-        await addToBasket({
-          variables: {
-            input: {
-              userId: decodedToken?.userId,
-              quantity,
-              productId: product.id,
-            },
-          },
-          refetchQueries: [
-            {
-              query: BASKET_QUERY,
-              variables: { userId: decodedToken?.userId },
-            },
-          ],
-          onCompleted: () => {
-            toast({
-              title: "Produit ajouté au panier",
-              description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-              className: "bg-primaryColor text-white",
-            });
-          },
-        });
-      } catch (error) {
-        console.error("Error adding to basket:", error);
-        toast({
-          title: "Erreur",
-          description:
-            "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
-          className: "bg-red-600 text-white",
-        });
-      }
+      await handleAuthenticatedBasket(
+        product,
+        quantity,
+        productsInBasket,
+        addToBasket,
+        decodedToken,
+        toast
+      );
     } else {
-      const isProductAlreadyInBasket = storedProducts.some(
-        (p: any) => p.id === product?.id
+      handleGuestBasket(
+        product,
+        quantity,
+        storedProducts,
+        addProductToBasket,
+        increaseProductInQtBasket,
+        toast
       );
-      const filteredProduct = storedProducts.find(
-        (p: any) => p.id === product?.id
-      );
-
-      if (
-        filteredProduct &&
-        filteredProduct.actualQuantity + quantity > product.inventory
-      ) {
-        toast({
-          title: "Quantité non disponible",
-          description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-          className: "bg-red-600 text-white",
-        });
-        return;
-      }
-
-      if (isProductAlreadyInBasket) {
-        increaseProductInQtBasket(product.id, quantity);
-      } else {
-        addProductToBasket({
-          ...product,
-          price: product.price,
-          discountedPrice: product.productDiscounts.length > 0 ? product.productDiscounts : null,
-          actualQuantity: quantity,
-        });
-      }
-
-      toast({
-        title: "Produit ajouté au panier",
-        description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-        className: "bg-green-600 text-white",
-      });
-
     }
+
     toggleIsUpdated();
   };
-  useEffect(() => {
 
+  useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
@@ -231,7 +288,6 @@ const ProductQuickView = ({ userData }: any) => {
 
   if (!mounted || !isOpen || !portalElement) return null;
 
-  // Use createPortal to render the modal directly to the body
   return createPortal(
     <AnimatePresence>
       {isOpen && (

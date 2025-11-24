@@ -2,7 +2,12 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { isTokenExpiringSoon, validateToken } from "./utils/tokens/token";
 
-//  CONFIGURATION PAR ENVIRONNEMENT
+// ==================== CONFIGURATION ====================
+
+const AUTH_ROUTES = ["/signin", "/signup"];
+const PROTECTED_ROUTES = ["/Account", "/FavoriteList"];
+const TOKEN_COOKIE_NAME = "Token";
+
 const getConfigByEnvironment = () => {
   const isProduction = process.env.NODE_ENV === 'production';
 
@@ -13,7 +18,6 @@ const getConfigByEnvironment = () => {
       process.env.NEXT_PUBLIC_BASE_URL_DOMAIN,
       "https://api.preprod.konnect.network",
       "https://graph.facebook.com",
-      // 🔥 ORIGINES SPÉCIFIQUES PAR ENVIRONNEMENT
       ...(isProduction
         ? [
           "https://www.ita-luxury.com",
@@ -21,6 +25,7 @@ const getConfigByEnvironment = () => {
         ]
         : [
           "http://localhost:3000",
+          "http://localhost:4000",
           "http://localhost:3001",
           "http://127.0.0.1:3000",
         ]
@@ -33,44 +38,53 @@ const getConfigByEnvironment = () => {
   };
 };
 
-const AUTH_ROUTES = ["/signin", "/signup"];
-const PROTECTED_ROUTES = [
-  "/Account",
-  "/FavoriteList",
-];
+// ==================== HELPER FUNCTIONS ====================
 
-const TOKEN_COOKIE_NAME = "Token";
+// Handle HTTPS redirects in production
+const handleHttpsRedirects = (req: NextRequest, isProduction: boolean): NextResponse | null => {
+  if (!isProduction) return null;
 
-export function middleware(req: NextRequest) {
-  const config = getConfigByEnvironment();
+  const url = req.nextUrl.clone();
+  const hostname = req.headers.get('host') || '';
 
-  //  REDIRECTIONS HTTPS UNIQUEMENT EN PRODUCTION
-  if (config.isProduction) {
-    const url = req.nextUrl.clone();
-    const hostname = req.headers.get('host') || '';
-
-    // Rediriger HTTP vers HTTPS
-    if (url.protocol === 'http:') {
-      url.protocol = 'https:';
-      return NextResponse.redirect(url, 301);
-    }
-
-    // Rediriger vers www si nécessaire
-    if (!hostname.startsWith('www.') && hostname === 'ita-luxury.com') {
-      url.hostname = 'www.ita-luxury.com';
-      return NextResponse.redirect(url, 301);
-    }
+  // Redirect HTTP to HTTPS
+  if (url.protocol === 'http:') {
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
   }
 
-  const res = NextResponse.next();
+  // Redirect to www if needed
+  if (!hostname.startsWith('www.') && hostname === 'ita-luxury.com') {
+    url.hostname = 'www.ita-luxury.com';
+    return NextResponse.redirect(url, 301);
+  }
 
-  // CORS handling avec vérification par environnement
-  const origin = req.headers.get("origin");
-  if (origin && config.allowedOrigins.some(allowed =>
+  return null;
+};
+
+// Check if origin is allowed
+const isOriginAllowed = (
+  origin: string | null,
+  allowedOrigins: string[],
+  isProduction: boolean
+): boolean => {
+  if (!origin) return false;
+
+  return allowedOrigins.some(allowed =>
     origin.startsWith(allowed) ||
-    (config.isProduction && origin.includes('ita-luxury.com'))
-  )) {
-    res.headers.set("Access-Control-Allow-Origin", origin);
+    (isProduction && origin.includes('ita-luxury.com'))
+  );
+};
+
+// Set CORS headers
+const setCorsHeaders = (
+  res: NextResponse,
+  origin: string | null,
+  allowedOrigins: string[],
+  isProduction: boolean
+): void => {
+  if (isOriginAllowed(origin, allowedOrigins, isProduction)) {
+    res.headers.set("Access-Control-Allow-Origin", origin!);
   }
 
   res.headers.set("Access-Control-Allow-Credentials", "true");
@@ -79,9 +93,11 @@ export function middleware(req: NextRequest) {
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
   );
+};
 
-  // HEADERS DE SÉCURITÉ DIFFÉRENTS PAR ENVIRONNEMENT
-  if (config.isProduction) {
+// Set security headers
+const setSecurityHeaders = (res: NextResponse, isProduction: boolean): void => {
+  if (isProduction) {
     res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   }
 
@@ -89,6 +105,104 @@ export function middleware(req: NextRequest) {
   res.headers.set("X-Frame-Options", "SAMEORIGIN");
   res.headers.set("X-XSS-Protection", "1; mode=block");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+};
+
+// Check if route is protected
+const isProtectedRoute = (url: string): boolean => {
+  return PROTECTED_ROUTES.some(route =>
+    url.startsWith(route) || url === route
+  );
+};
+
+// Check if route is auth route
+const isAuthRoute = (url: string): boolean => {
+  return AUTH_ROUTES.includes(url);
+};
+
+// Handle authenticated user accessing signin
+const handleAuthenticatedSignin = (
+  token: string,
+  baseUrl: string,
+  reqUrl: string
+): NextResponse | null => {
+  const isValidToken = validateToken(token);
+
+  if (isValidToken) {
+    return NextResponse.redirect(new URL(baseUrl, reqUrl));
+  }
+
+  // Token is invalid, remove it and allow access
+  const response = NextResponse.next();
+  response.cookies.delete(TOKEN_COOKIE_NAME);
+  return response;
+};
+
+// Handle protected route access
+const handleProtectedRouteAccess = (
+  token: string | undefined,
+  reqUrl: string,
+  res: NextResponse
+): NextResponse | null => {
+  // No token - redirect to signin
+  if (!token) {
+    return NextResponse.redirect(new URL('/signin', reqUrl));
+  }
+
+  // Invalid token - remove and redirect to signin
+  const isValidToken = validateToken(token);
+  if (!isValidToken) {
+    const response = NextResponse.redirect(new URL('/signin', reqUrl));
+    response.cookies.delete(TOKEN_COOKIE_NAME);
+    return response;
+  }
+
+  // Valid token but expiring soon - add refresh header
+  if (isTokenExpiringSoon(token)) {
+    res.headers.set('X-Token-Refresh-Needed', 'true');
+  }
+
+  return null;
+};
+
+// Handle authentication logic
+const handleAuthentication = (
+  req: NextRequest,
+  res: NextResponse,
+  config: ReturnType<typeof getConfigByEnvironment>
+): NextResponse | null => {
+  const url = req.nextUrl.pathname;
+  const token = req.cookies.get(TOKEN_COOKIE_NAME)?.value;
+
+  // Handle authenticated user trying to access signin
+  if (token && isAuthRoute(url) && url === "/signin") {
+    return handleAuthenticatedSignin(token, config.baseUrl, req.url);
+  }
+
+  // Handle protected route access
+  if (isProtectedRoute(url)) {
+    return handleProtectedRouteAccess(token, req.url, res);
+  }
+
+  return null;
+};
+
+// ==================== MAIN MIDDLEWARE FUNCTION ====================
+
+export function middleware(req: NextRequest) {
+  const config = getConfigByEnvironment();
+
+  // Handle HTTPS redirects in production
+  const httpsRedirect = handleHttpsRedirects(req, config.isProduction);
+  if (httpsRedirect) return httpsRedirect;
+
+  const res = NextResponse.next();
+
+  // Set CORS headers
+  const origin = req.headers.get("origin");
+  setCorsHeaders(res, origin, config.allowedOrigins, config.isProduction);
+
+  // Set security headers
+  setSecurityHeaders(res, config.isProduction);
 
   // Handle preflight requests
   if (req.method === "OPTIONS") {
@@ -98,51 +212,9 @@ export function middleware(req: NextRequest) {
     });
   }
 
-  // Auth handling
-  const url = req.nextUrl.pathname;
-  const token = req.cookies.get(TOKEN_COOKIE_NAME)?.value;
-
-  // Check if current route is protected
-  const isProtectedRoute = PROTECTED_ROUTES.some(route =>
-    url.startsWith(route) || url === route
-  );
-
-  // Check if current route is auth route
-  const isAuthRoute = AUTH_ROUTES.includes(url);
-
-  // If user has token and tries to access signin (not signup), redirect to home
-  // Allow signup page to handle its own logic
-  if (token && isAuthRoute && url === "/signin") {
-    const isValidToken = validateToken(token);
-    if (isValidToken) {
-      return NextResponse.redirect(new URL(config.baseUrl, req.url));
-    } else {
-      // Token is invalid, remove it and allow access to auth routes
-      const response = NextResponse.next();
-      response.cookies.delete(TOKEN_COOKIE_NAME);
-      return response;
-    }
-  }
-
-  // If user tries to access protected routes without valid token, redirect to signin
-  if (isProtectedRoute) {
-    if (!token) {
-      return NextResponse.redirect(new URL('/signin', req.url));
-    }
-
-    const isValidToken = validateToken(token);
-    if (!isValidToken) {
-      // Token is expired or invalid, remove it and redirect to signin
-      const response = NextResponse.redirect(new URL('/signin', req.url));
-      response.cookies.delete(TOKEN_COOKIE_NAME);
-      return response;
-    }
-
-    // Token is valid but expiring soon - add header to trigger refresh on client
-    if (isTokenExpiringSoon(token)) {
-      res.headers.set('X-Token-Refresh-Needed', 'true');
-    }
-  }
+  // Handle authentication
+  const authResponse = handleAuthentication(req, res, config);
+  if (authResponse) return authResponse;
 
   return res;
 }
@@ -158,6 +230,7 @@ export const config = {
     "/Delivery/:path*",
     "/FavoriteList/:path*",
     "/TrackingPackages/:path*",
+    "/Collections/:path*",
     "/productComparison/:path*",
     "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|google.*\\.html).*)",
   ],

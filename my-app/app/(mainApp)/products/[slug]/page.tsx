@@ -249,7 +249,7 @@ const ProductDetailsPage = async ({ params }: Props) => {
         "@type": "ListItem" as const,
         "position": index + 2,
         "name": category.name,
-        "item": `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(category.name)}`
+        "item": `${baseUrl}/Collections?category=${encodeURIComponent(category.name)}`
       })),
       {
         "@type": "ListItem",
@@ -283,7 +283,7 @@ const ProductDetailsPage = async ({ params }: Props) => {
       "brand": {
         "@type": "Brand",
         "name": productData.Brand.name,
-        "url": `${baseUrl}/Collections/tunisie?brand=${encodeURIComponent(productData.Brand.name)}`
+        "url": `${baseUrl}/Collections?brand=${encodeURIComponent(productData.Brand.name)}`
       }
     }),
 

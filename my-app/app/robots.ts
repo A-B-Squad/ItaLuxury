@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com').replaceAll(/\/$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com').replace(/\/$/, '');
 
     return {
         rules: [
@@ -18,7 +18,7 @@ export default function robots(): MetadataRoute.Robots {
                     '/Privacy-Policy',
                     '/Terms-of-use',
                     '/TrackingPackages',
-                    
+
                     // === NEXT.JS STATIC ASSETS ===
                     '/_next/static/',
                     '/_next/image/',
@@ -34,7 +34,7 @@ export default function robots(): MetadataRoute.Robots {
                     '/Account',
                     '/Account/',
                     '/FavoriteList',
-                    
+
                     // === API & INTERNAL PATHS ===
                     '/api/',
                     '/auth/',
@@ -43,17 +43,16 @@ export default function robots(): MetadataRoute.Robots {
                     '/_next/webpack/',
                     '/_next/swc/',
                     '/_next/server/',
-                    
+
                     // === BUILD FILES ===
                     '/types/',
                     '/*.json$',
                     '/*.map$',
-                    
+
                     // === RSC & SSR INTERNAL ===
                     '/*?_rsc=',
                     '/*&_rsc=',
                 ],
-                crawlDelay: 10,
             },
 
             // === GOOGLEBOT OPTIMIZED ===
@@ -69,12 +68,12 @@ export default function robots(): MetadataRoute.Robots {
                     '/Privacy-Policy',
                     '/Terms-of-use',
                     '/TrackingPackages',
-                    '/signin',          
-                    '/signup',           
-                    '/Basket',           
-                    '/Checkout',         
+                    '/signin',
+                    '/signup',
+                    '/Basket',
+                    '/Checkout',
                     '/productComparison',
-                    
+
                     // Static assets
                     '/_next/static/',
                     '/_next/image/',
@@ -90,7 +89,6 @@ export default function robots(): MetadataRoute.Robots {
                     '/_next/data/',
                     '/_next/cache/',
                 ],
-                crawlDelay: 5,
             },
 
             // === GOOGLE IMAGE BOT ===
@@ -124,10 +122,9 @@ export default function robots(): MetadataRoute.Robots {
                     '/api/',
                     '/auth/',
                 ],
-                crawlDelay: 5,
             },
         ],
-        
+
         sitemap: `${baseUrl}/sitemap.xml`,
     }
 }

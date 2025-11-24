@@ -50,6 +50,16 @@ const FavoriteList = ({ userData }: any) => {
     }
   }, [isAuthenticated, fetchProducts]);
 
+  // Extract callback to reduce nesting
+  const handleRemoveSuccess = useCallback((productId: string) => {
+    setProductsData(prev => prev.filter(product => product.id !== productId));
+  }, []);
+
+  const handleRemoveError = useCallback((error: any) => {
+    console.error("Error removing product from favorites:", error);
+    fetchProducts();
+  }, [fetchProducts]);
+
   const handleRemoveFromFavorites = async (productId: string) => {
     try {
       await removeFromFavorites({
@@ -59,15 +69,10 @@ const FavoriteList = ({ userData }: any) => {
             productId: productId,
           },
         },
-        onCompleted: () => {
-          // Optimistically update UI by filtering out the removed product
-          setProductsData(prev => prev.filter(product => product.id !== productId));
-        }
+        onCompleted: () => handleRemoveSuccess(productId),
       });
     } catch (error) {
-      console.error("Error removing product from favorites:", error);
-      // Refetch in case of error to ensure UI is in sync
-      fetchProducts();
+      handleRemoveError(error);
     }
   };
 
@@ -137,7 +142,7 @@ const FavoriteList = ({ userData }: any) => {
                       Vous n'avez pas encore ajouté de produits à vos favoris.
                     </p>
                     <a
-                      href="/Collections/tunisie?page=1"
+                      href="/Collections?page=1"
                       className="mt-2 px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-opacity-90 transition-all"
                     >
                       Découvrir nos produits

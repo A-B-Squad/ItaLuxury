@@ -166,7 +166,7 @@ const ProductComparison = ({ userData }: any) => {
                 Ajoutez des produits à comparer pour voir leurs caractéristiques côte à côte.
               </p>
               <Link
-                href="/Collections/tunisie?page=1"
+                href="/Collections?page=1"
                 className="mt-2 px-6 py-2 bg-primaryColor text-white rounded-md hover:bg-opacity-90 transition-all"
               >
                 Découvrir nos produits

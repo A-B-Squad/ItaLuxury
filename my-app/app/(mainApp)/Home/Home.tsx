@@ -194,7 +194,7 @@ const Home = ({ userData }: any) => {
             <div className="Heading pb-14 p-5 md:p-0 md:pb-5 flex mb-5 md:mb-10 items-center justify-between">
               <TitleProduct title={"Nouveaux Produits"} />
               <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors bg-gray-50 px-4 py-2 rounded-full">
-                <Link href={"/Collections/tunisie?choice=new-product"}>
+                <Link href={"/Collections?choice=new-product"}>
                   Voir tous les produits
                 </Link>
                 <MdKeyboardArrowRight />
@@ -229,14 +229,14 @@ const Home = ({ userData }: any) => {
           <FullWidthAds
             FullAdsLoaded={loadingFull20ProductAds}
             FullImageAds={BannerLessThen20?.advertismentByPosition[0]?.images[0]}
-            LinkTo={"/Collections/tunisie?price=20"}
+            LinkTo={"/Collections?price=20"}
           />
 
           <div className="Carousel_A_20DT bg-white p-1 md:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="Heading pb-14 p-5 md:p-0 md:pb-5 flex mb-5 md:mb-10 items-center justify-between">
               <TitleProduct title={"L'essentiel à 20DT"} />
               <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors bg-gray-50 px-4 py-2 rounded-full">
-                <Link href={"/Collections/tunisie?price=20"}>
+                <Link href={"/Collections?price=20"}>
                   Voir tous les produits
                 </Link>
                 <MdKeyboardArrowRight />
@@ -254,14 +254,14 @@ const Home = ({ userData }: any) => {
           <FullWidthAds
             FullAdsLoaded={loadingFullPromotionAds}
             FullImageAds={BannerPromotion?.advertismentByPosition[0]?.images[0]}
-            LinkTo={"/Collections/tunisie?choice=in-discount"}
+            LinkTo={"/Collections?choice=in-discount"}
           />
 
           <div className="Promotion flex flex-col bg-white p-1 md:p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="Heading pb-14 p-5 md:p-0 md:pb-5 flex mb-5 md:mb-10 items-center justify-between">
               <TitleProduct title={"Promotions"} />
               <div className="flex items-center gap-1 font-medium text-xs md:text-base hover:text-secondaryColor transition-colors bg-gray-50 px-4 py-2 rounded-full">
-                <Link href={"/Collections/tunisie?choice=in-discount"}>
+                <Link href={"/Collections?choice=in-discount"}>
                   Voir tous les produits
                 </Link>
                 <MdKeyboardArrowRight />

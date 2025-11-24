@@ -80,4 +80,5 @@ export const removeToken = () => {
     // Clear sessionStorage
     globalThis.sessionStorage.removeItem("products-in-basket");
     globalThis.sessionStorage.removeItem("comparedProducts");
-}; //ok
+    
+}; 

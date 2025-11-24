@@ -41,7 +41,7 @@ const Category: React.FC<CategoryProps> = ({
           {mainCategories?.map((category: Category, index: number) => (
             <div data-parentcategory={category.name} key={category.id}>
               <Link
-                href={`/Collections/tunisie?${new URLSearchParams({
+                href={`/Collections?${new URLSearchParams({
                   category: category.name,
                 })}`}
                 onMouseEnter={() => setActiveCategory(category.name)}

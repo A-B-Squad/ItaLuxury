@@ -68,7 +68,7 @@ const Subcategory: React.FC<SubcategoryProps> = ({
               <div
                 onClick={() => {
                   closeCategoryDrawer();
-                  globalThis.location.href = `/Collections/tunisie?${new URLSearchParams({
+                  globalThis.location.href = `/Collections?${new URLSearchParams({
                     category: sub.name,
                   })}`;
                 }}
