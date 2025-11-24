@@ -49,7 +49,7 @@ const CollectionToolbar: React.FC<TopBarProps> = ({ numberOfProduct }) => {
       }));
 
       router.push(
-        `/Collections/tunisie?${convertValidStringQueries({
+        `/Collections?${convertValidStringQueries({
           ...selectedFilterQueries,
           sort: [selectedSort],
         })}`,

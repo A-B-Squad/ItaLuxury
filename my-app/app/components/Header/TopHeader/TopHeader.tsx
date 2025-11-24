@@ -1,10 +1,5 @@
 "use client";
-import Link from "next/link";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { FiCheck, FiClock, FiGift, FiHeart, FiTrendingUp, FiUser, FiX } from "react-icons/fi";
-import SearchBar from "./SearchBar";
-import { PointTransaction, Voucher } from "@/app/types";
-import { formatDate } from "@/app/Helpers/_formatDate";
+import { useAuth } from "@/app/hooks/useAuth";
 import {
   useDrawerBasketStore,
   useProductComparisonStore,
@@ -13,13 +8,28 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { SIGNIN_MUTATION } from "@/graphql/mutations";
 import { BASKET_QUERY } from "@/graphql/queries";
-import { useAuth } from "@/app/hooks/useAuth";
+import { setToken } from "@/utils/tokens/token";
 import { useMutation, useQuery } from "@apollo/client";
 import Image from "next/image";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { GoPackageDependents } from "react-icons/go";
-import { IoBagHandleOutline, IoGitCompare } from "react-icons/io5";
-import { setToken } from "@/utils/tokens/token";
+import { FiHeart, FiUser } from "react-icons/fi";
+import { IoBagHandleOutline } from "react-icons/io5";
+import SearchBar from "../SearchBar";
+import handleAuthAlert from "./Helper/handleAuthAlert";
+import AccountMenuLinks from "./AccountMenuLinks";
+import PointsSection from "./PointsSection";
+import VouchersSection from "./VouchersSection";
+import TransactionsSection from "./TransactionsSection";
+
+//  Get style classes based on transparency
+const getStyleClasses = (isTransparent: boolean) => ({
+  textColor: isTransparent ? 'text-white' : 'text-gray-700',
+  iconColor: isTransparent ? 'text-white' : 'text-gray-700',
+  bgColor: isTransparent ? 'bg-white/10 backdrop-blur-sm' : 'bg-gray-50',
+  hoverBgColor: isTransparent ? 'hover:bg-white/20' : 'hover:bg-gray-100',
+});
 
 const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?: boolean }) => {
   const { decodedToken, isAuthenticated, logout, updateToken } = useAuth();
@@ -28,7 +38,6 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
   const { openBasketDrawer } = useDrawerBasketStore();
   const { comparisonList } = useProductComparisonStore();
 
-  // Refs for click outside detection
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userButtonRef = useRef<HTMLDivElement>(null);
 
@@ -39,27 +48,22 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
     clearBasket
   } = useProductsInBasketStore();
 
-  const {
-    register,
-    handleSubmit
-  } = useForm();
+  const { register, handleSubmit } = useForm();
   const { toast } = useToast();
 
   // Handle click outside 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node) &&
-        userButtonRef.current &&
-        !userButtonRef.current.contains(event.target as Node)
-      ) {
+      const clickedOutside =
+        userMenuRef.current && !userMenuRef.current.contains(event.target as Node) &&
+        userButtonRef.current && !userButtonRef.current.contains(event.target as Node);
+
+      if (clickedOutside) {
         setShowMenuUserMenu(false);
       }
     };
 
     if (showLogout) {
-      // Add small delay to prevent immediate closing
       const timeoutId = setTimeout(() => {
         document.addEventListener('mousedown', handleClickOutside);
       }, 0);
@@ -132,181 +136,7 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
     SignIn({ variables: { input: data } });
   };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR').format(amount);
-  };
-
-  const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'ADMIN_ADDED':
-        return <FiTrendingUp className="text-green-600" />;
-      case 'ADJUSTMENT':
-        return <FiGift className="text-blue-600" />;
-      default:
-        return <FiTrendingUp className="text-gray-600" />;
-    }
-  };
-
-  const getTransactionColor = (amount: number) => {
-    if (amount > 0) return 'text-green-600';
-    if (amount < 0) return 'text-red-600';
-    return 'text-gray-600';
-  };
-
-  const renderPointsSection = () => {
-    const userPoints = userData?.points || 0;
-    const transactions = userData?.pointTransactions || [];
-
-    return (
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-800">Mes Points</h3>
-          <div className="bg-gradient-to-r from-primaryColor to-amber-400 text-white px-3 py-1 rounded-full text-sm font-bold">
-            {formatAmount(userPoints)} pts
-          </div>
-        </div>
-
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {transactions.length > 0 ? (
-            transactions.map((transaction: PointTransaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  {getTransactionIcon(transaction.type)}
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{transaction.description}</p>
-                    <p className="text-xs text-gray-500">{formatDate(transaction.createdAt)}</p>
-                  </div>
-                </div>
-                <div className={`text-sm font-semibold ${getTransactionColor(transaction.amount)}`}>
-                  {transaction.amount > 0 ? '+' : ''}{formatAmount(transaction.amount)} pts
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500 py-4">Aucune transaction trouvée</p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const renderVouchersSection = () => {
-    const vouchers = userData?.Voucher || [];
-    const activeVouchers = vouchers.filter((v: Voucher) => !v.isUsed);
-    const usedVouchers = vouchers.filter((v: Voucher) => v.isUsed);
-
-    return (
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-800">Mes Bons</h3>
-          <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-            {activeVouchers.length} actifs
-          </div>
-        </div>
-
-        <div className="space-y-3 max-h-64 overflow-y-auto">
-          {activeVouchers.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-green-600 mb-2 flex items-center gap-1">
-                <FiCheck size={14} />
-                Bons Actifs
-              </h4>
-              {activeVouchers.map((voucher: Voucher) => (
-                <div key={voucher.id} className="border border-green-200 bg-green-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-gray-800">{voucher.code}</p>
-                      <p className="text-xs text-gray-600">Expire le: {formatDate(voucher.expiresAt)}</p>
-                    </div>
-                    <div className="bg-green-600 text-white px-2 py-1 rounded-md text-sm font-bold">
-                      {formatAmount(voucher.amount)} TND
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {usedVouchers.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-1">
-                <FiX size={14} />
-                Bons Utilisés
-              </h4>
-              {usedVouchers.map((voucher: Voucher) => (
-                <div key={voucher.id} className="border border-gray-200 bg-gray-50 rounded-lg p-3 opacity-75">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-gray-600">{voucher.code}</p>
-                      <p className="text-xs text-gray-500">Utilisé le: {voucher.usedAt ? formatDate(voucher.usedAt) : 'N/A'}</p>
-                    </div>
-                    <div className="bg-gray-400 text-white px-2 py-1 rounded-md text-sm font-bold">
-                      {formatAmount(voucher.amount)} TND
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {vouchers.length === 0 && (
-            <p className="text-center text-gray-500 py-4">Aucun bon trouvé</p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const renderTransactionsSection = () => {
-    const transactions = userData?.pointTransactions || [];
-    const sortedTransactions = [...transactions].sort((a, b) => Number.parseInt(b.createdAt) - Number.parseInt(a.createdAt));
-
-    return (
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-800">Historique des Transactions</h3>
-          <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-            {transactions.length} transactions
-          </div>
-        </div>
-
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {sortedTransactions.length > 0 ? (
-            sortedTransactions.map((transaction: PointTransaction) => (
-              <div key={transaction.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="p-1 rounded-full ">
-                  {getTransactionIcon(transaction.type)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-800">{transaction.description}</p>
-                    <span className={`text-sm font-semibold ${getTransactionColor(transaction.amount)}`}>
-                      {transaction.amount > 0 ? '+' : ''}{formatAmount(transaction.amount)} pts
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                    <FiClock size={12} />
-                    {formatDate(transaction.createdAt)}
-                    <span className="bg-gray-200 px-2 py-0.5 rounded text-xs">
-                      {transaction.type}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500 py-4">Aucune transaction trouvée</p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // Dynamic text color based on transparency
-  const textColor = isTransparent ? 'text-white' : 'text-gray-700';
-  const iconColor = isTransparent ? 'text-white' : 'text-gray-700';
-  const bgColor = isTransparent ? 'bg-white/10 backdrop-blur-sm' : 'bg-gray-50';
-  const hoverBgColor = isTransparent ? 'hover:bg-white/20' : 'hover:bg-gray-100';
+  const { textColor, iconColor, bgColor, hoverBgColor } = getStyleClasses(isTransparent || false);
 
   return (
     <div className="container hidden lg:flex lg:flex-row flex-col gap-6 py-5 justify-between items-center transition-all duration-500">
@@ -341,11 +171,7 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
           <li className="group">
             <Link
               href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
-              onClick={() => {
-                if (!decodedToken || !decodedToken.userId) {
-                  alert("Veuillez vous connecter pour voir vos favoris.");
-                }
-              }}
+              onClick={() => handleAuthAlert(decodedToken, "Veuillez vous connecter pour voir vos favoris.")}
               className="flex flex-col items-center gap-1 transition-all"
             >
               <div className={`relative p-2.5 rounded-full ${bgColor} ${hoverBgColor} transition-all duration-300`}>
@@ -357,7 +183,7 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
             </Link>
           </li>
 
-          {/* User Menu - FIXED VERSION */}
+          {/* User Menu */}
           <li className="userMenu relative group">
             <div
               ref={userButtonRef}
@@ -527,71 +353,15 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
                   </div>
 
                   {activeTab === 'account' && (
-                    <div className="p-4">
-                      <div className="space-y-2">
-                        <Link
-                          href="/Account"
-                          className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
-                        >
-                          <FiUser className="text-gray-600" />
-                          <span className="text-sm font-medium">Mon Compte</span>
-                        </Link>
-
-                        <Link
-                          href={decodedToken?.userId ? `/TrackingPackages` : "/signin"}
-                          onClick={() => {
-                            if (!decodedToken || !decodedToken.userId) {
-                              alert("Veuillez vous connecter pour voir vos commandes.");
-                            }
-                          }}
-                          className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
-                        >
-                          <GoPackageDependents className="text-gray-600" />
-                          <span className="text-sm font-medium">Mes Commandes</span>
-                        </Link>
-
-                        <Link
-                          href={decodedToken?.userId ? `/FavoriteList` : "/signin"}
-                          onClick={() => {
-                            if (!decodedToken || !decodedToken.userId) {
-                              alert("Veuillez vous connecter pour voir vos favoris.");
-                            }
-                          }}
-                          className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
-                        >
-                          <FiHeart className="text-gray-600" />
-                          <span className="text-sm font-medium">Ma Liste D'envies</span>
-                        </Link>
-
-                        <Link
-                          href="/productComparison"
-                          className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
-                        >
-                          <IoGitCompare className="text-gray-600" />
-                          <span className="text-sm font-medium">Comparer ({comparisonList.length})</span>
-                        </Link>
-
-                        <button
-                          onClick={() => {
-                            logout();
-                            globalThis.sessionStorage.removeItem("products-in-basket");
-                            globalThis.sessionStorage.removeItem("comparedProducts");
-                            globalThis.location.replace("/");
-                          }}
-                          className="flex items-center gap-3 p-2 w-full text-left text-red-600 hover:bg-red-50 rounded-md transition-colors mt-2"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                          </svg>
-                          <span className="text-sm font-medium">Déconnexion</span>
-                        </button>
-                      </div>
-                    </div>
+                    <AccountMenuLinks
+                      decodedToken={decodedToken}
+                      comparisonList={comparisonList}
+                      logout={logout}
+                    />
                   )}
-
-                  {activeTab === 'points' && renderPointsSection()}
-                  {activeTab === 'vouchers' && renderVouchersSection()}
-                  {activeTab === 'transactions' && renderTransactionsSection()}
+                  {activeTab === 'points' && <PointsSection userData={userData} />}
+                  {activeTab === 'vouchers' && <VouchersSection userData={userData} />}
+                  {activeTab === 'transactions' && <TransactionsSection userData={userData} />}
                 </>
               )}
             </div>

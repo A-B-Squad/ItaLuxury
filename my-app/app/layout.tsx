@@ -1,5 +1,5 @@
 import { Inter, Montserrat } from 'next/font/google';
-import TabBarMobile from "@/app/components/TabBarMobile";
+import TabBarMobile from "@/app/components/TabBarMobile/TabBarMobile";
 import FloatingActionButtons from "./components/FloatingActionButtons";
 import { Toaster } from "@/components/ui/toaster";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";

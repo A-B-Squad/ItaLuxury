@@ -8,7 +8,7 @@ const EmptyState = () => {
     const router = useRouter();
 
     const handleClearFilters = useCallback(() => {
-        router.push("/Collections/tunisie?page=1");
+        router.push("/Collections?page=1");
     }, [router]);
 
     return (

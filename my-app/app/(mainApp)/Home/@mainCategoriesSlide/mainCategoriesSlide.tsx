@@ -215,7 +215,7 @@ const MainCategoriesSlide = () => {
                       </p>
 
                       <Link
-                        href={`/Collections/tunisie?${new URLSearchParams({
+                        href={`/Collections?${new URLSearchParams({
                           category: category.name,
                         })}`}
                         className="group inline-flex items-center gap-3 bg-white/95 md:bg-primaryColor hover:bg-primaryColor md:hover:bg-primaryColor/90 text-gray-800 md:text-white px-8 py-4 rounded-full transition-all duration-300 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primaryColor/30"

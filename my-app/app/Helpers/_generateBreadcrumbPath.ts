@@ -55,14 +55,14 @@ export default async function generateBreadcrumbPath(searchParams: SearchParamsP
             if (categoryPath.length > 0) {
                 categoryPath.forEach((category) => {
                     path.push({
-                        href: `/Collections/tunisie?category=${encodeURIComponent(category.name)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+                        href: `/Collections?category=${encodeURIComponent(category.name)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
                         label: category.name,
                     });
                 });
             } else {
                 // Add just the requested category if path not found
                 path.push({
-                    href: `/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+                    href: `/Collections?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
                     label: searchParams.category,
                 });
             }
@@ -70,7 +70,7 @@ export default async function generateBreadcrumbPath(searchParams: SearchParamsP
             console.error("Error generating breadcrumb path:", error);
             // Add fallback breadcrumb
             path.push({
-                href: `/Collections/tunisie?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
+                href: `/Collections?category=${encodeURIComponent(searchParams.category)}${searchParams.choice ? `&choice=${encodeURIComponent(searchParams.choice)}` : ""}`,
                 label: searchParams.category,
             });
         }

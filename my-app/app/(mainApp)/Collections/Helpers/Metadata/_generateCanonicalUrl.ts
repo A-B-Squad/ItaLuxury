@@ -1,17 +1,20 @@
 import { SearchParamsProductSearch } from "@/app/types";
 
 export default function generateCanonicalUrl(searchParams: SearchParamsProductSearch): string {
-    if (!process.env.NEXT_PUBLIC_BASE_URL_DOMAIN) return "";
-
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN.replace(/\/$/, "");
     const queryParams = new URLSearchParams();
     
-    // Define priority order for URL parameters
+    // Define priority order for URL parameters (most important first)
     const relevantParams: (keyof SearchParamsProductSearch)[] = [
-        'category', 'choice', 'brand', 'color', 'price', 'query'
+        'category', 
+        'choice', 
+        'brand', 
+        'color', 
+        'price', 
+        'query', 
+        'sort'
     ];
 
-    // Add parameters in consistent order for better caching
+    // Add parameters in consistent order
     relevantParams.forEach(param => {
         const value = searchParams[param];
         if (value && String(value).trim()) {
@@ -26,11 +29,10 @@ export default function generateCanonicalUrl(searchParams: SearchParamsProductSe
 
     const queryString = queryParams.toString();
     
-    // Clean URL structure without redundant parameters
+    // Return clean URL path (relative, not absolute)
     if (!queryString) {
-        return `${baseDomain}/Collections/tunisie`;
+        return "/Collections";
     }
 
-    return `${baseDomain}/Collections/tunisie?${queryString}`;
+    return `/Collections?${queryString}`;
 }
-

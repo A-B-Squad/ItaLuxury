@@ -31,32 +31,30 @@ const ProductDetails = ({ product, basketData, userData, isFavorite }: ProductPr
         ? basketData.basketByUserId.find((item: any) => item.Product.id === product.id)
         : storedProducts.find((p: any) => p.id === product.id);
 
-    const AddToBasket = async (product: any, quantity: number = 1) => {
-        if (addingToBasket) return;
+    // Helper function to prepare tracking product data
+    const prepareTrackingProduct = (product: any, quantity: number) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        description: product.description,
+        Brand: product.Brand,
+        Colors: product.Colors,
+        categories: product.categories,
+        productDiscounts: product.productDiscounts,
+        inventory: product.inventory,
+        isVisible: product.isVisible,
+        reference: product.reference,
+        images: product.images,
+        quantity: product.actualQuantity || quantity,
+        technicalDetails: product.technicalDetails,
+    });
 
-        openPruchaseOptions(product);
+    // Helper function to prepare user data
+    const prepareUserData = () => {
+        if (!userData) return undefined;
 
-        // Prepare complete product data for tracking
-        const trackingProduct = {
-            id: product.id,
-            name: product.name,
-            slug: product.slug,
-            price: product.price,
-            description: product.description,
-            Brand: product.Brand,
-            Colors: product.Colors,
-            categories: product.categories,
-            productDiscounts: product.productDiscounts,
-            inventory: product.inventory,
-            isVisible: product.isVisible,
-            reference: product.reference,
-            images: product.images,
-            quantity: product.actualQuantity || quantity,
-            technicalDetails: product.technicalDetails,
-        };
-
-        // Prepare user data
-        const user = userData ? {
+        return {
             id: decodedToken?.userId,
             email: userData.email,
             firstName: userData.fullName?.split(' ')[0] || userData.fullName,
@@ -64,92 +62,130 @@ const ProductDetails = ({ product, basketData, userData, isFavorite }: ProductPr
             phone: userData.number,
             country: "tn",
             city: userData.city || "",
-        } : undefined;
+        };
+    };
 
-        // Track the add to cart event with error handling
+    // Helper function to track add to cart event
+    const trackCartEvent = async (trackingProduct: any, user: any) => {
         try {
             console.log('🛒 Tracking AddToCart event:', {
                 product_id: trackingProduct.id,
                 product_name: trackingProduct.name,
-                quantity: quantity,
+                quantity: trackingProduct.quantity,
                 user: user ? 'logged_in' : 'guest'
             });
 
             await trackAddToCart(trackingProduct, user);
-
             console.log('✅ AddToCart event tracked successfully');
         } catch (error) {
             console.error("❌ Error tracking add to cart:", error);
-            // Don't block the user flow if tracking fails
+        }
+    };
+
+    // Helper function to check inventory availability
+    const checkInventoryAvailability = (currentQuantity: number, requestedQuantity: number, inventory: number) => {
+        return currentQuantity + requestedQuantity <= inventory;
+    };
+
+    // Helper function to show inventory error toast
+    const showInventoryError = (inventory: number) => {
+        toast({
+            title: "Quantité non disponible",
+            description: `Désolé, nous n'avons que ${inventory} unités en stock.`,
+            className: "bg-red-600 text-white",
+        });
+    };
+
+    // Helper function to show success toast
+    const showSuccessToast = (productName: string, quantity: number) => {
+        const unit = quantity > 1 ? "unités" : "unité";
+        const verb = quantity > 1 ? "ont été ajoutées" : "a été ajoutée";
+
+        toast({
+            title: "Produit ajouté au panier",
+            description: `${quantity} ${unit} de "${productName}" ${verb} à votre panier.`,
+            className: "bg-primaryColor text-white",
+        });
+    };
+
+    // Helper function to show error toast
+    const showErrorToast = () => {
+        toast({
+            title: "Erreur",
+            description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
+            className: "bg-red-600 text-white",
+        });
+    };
+
+    // Handle authenticated user basket addition
+    const handleAuthenticatedBasketAdd = async (product: any, quantity: number) => {
+        const currentBasketQuantity = productInBasket
+            ? productInBasket.quantity || productInBasket.actualQuantity
+            : 0;
+
+        if (!checkInventoryAvailability(currentBasketQuantity, quantity, product.inventory)) {
+            showInventoryError(product.inventory);
+            return;
         }
 
-        if (isAuthenticated) {
-            try {
-                const currentBasketQuantity = productInBasket ? productInBasket.quantity || productInBasket.actualQuantity : 0;
-
-                if (currentBasketQuantity + quantity > product.inventory) {
-                    toast({
-                        title: "Quantité non disponible",
-                        description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-                        className: "bg-red-600 text-white",
-                    });
-                    return;
-                }
-
-                await addToBasket({
-                    variables: {
-                        input: {
-                            userId: decodedToken?.userId,
-                            quantity,
-                            productId: product.id,
-                        },
+        try {
+            await addToBasket({
+                variables: {
+                    input: {
+                        userId: decodedToken?.userId,
+                        quantity,
+                        productId: product.id,
                     },
-                    refetchQueries: [{ query: BASKET_QUERY, variables: { userId: decodedToken?.userId } }],
-                    onCompleted: () => {
-                        toast({
-                            title: "Produit ajouté au panier",
-                            description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-                            className: "bg-primaryColor text-white",
-                        });
-                    },
-                });
-            } catch (error) {
-                console.error("Error adding to basket:", error);
-                toast({
-                    title: "Erreur",
-                    description: "Une erreur s'est produite lors de l'ajout au panier. Veuillez réessayer.",
-                    className: "bg-red-600 text-white",
-                });
-            }
+                },
+                refetchQueries: [{ query: BASKET_QUERY, variables: { userId: decodedToken?.userId } }],
+                onCompleted: () => showSuccessToast(product.name, quantity),
+            });
+        } catch (error) {
+            console.error("Error adding to basket:", error);
+            showErrorToast();
+        }
+    };
+
+    // Handle guest user basket addition
+    const handleGuestBasketAdd = (product: any, quantity: number) => {
+        const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
+        const currentQuantity = filteredProduct?.actualQuantity || 0;
+
+        if (!checkInventoryAvailability(currentQuantity, quantity, product.inventory)) {
+            showInventoryError(product.inventory);
+            return;
+        }
+
+        if (filteredProduct) {
+            increaseProductInQtBasket(product.id, quantity);
         } else {
-            const filteredProduct = storedProducts.find((p: any) => p.id === product?.id);
-
-            if (filteredProduct && filteredProduct.actualQuantity + quantity > product.inventory) {
-                toast({
-                    title: "Quantité non disponible",
-                    description: `Désolé, nous n'avons que ${product.inventory} unités en stock.`,
-                    className: "bg-red-600 text-white",
-                });
-                return;
-            }
-
-            if (filteredProduct) {
-                increaseProductInQtBasket(product.id, quantity);
-            } else {
-                addProductToBasket({
-                    ...product,
-                    price: product.price,
-                    discountedPrice: discountData ? product.productDiscounts : null,
-                    actualQuantity: quantity,
-                });
-            }
-
-            toast({
-                title: "Produit ajouté au panier",
-                description: `${quantity} ${quantity > 1 ? "unités" : "unité"} de "${product?.name}" ${quantity > 1 ? "ont été ajoutées" : "a été ajoutée"} à votre panier.`,
-                className: "bg-primaryColor text-white",
+            addProductToBasket({
+                ...product,
+                price: product.price,
+                discountedPrice: discountData ? product.productDiscounts : null,
+                actualQuantity: quantity,
             });
         }
+
+        showSuccessToast(product.name, quantity);
+    };
+
+    const AddToBasket = async (product: any, quantity: number = 1) => {
+        if (addingToBasket) return;
+
+        openPruchaseOptions(product);
+
+        const trackingProduct = prepareTrackingProduct(product, quantity);
+        const user = prepareUserData();
+
+        await trackCartEvent(trackingProduct, user);
+
+        if (isAuthenticated) {
+            await handleAuthenticatedBasketAdd(product, quantity);
+        } else {
+            handleGuestBasketAdd(product, quantity);
+        }
+
         toggleIsUpdated();
     };
 
@@ -301,4 +337,4 @@ const ProductDetails = ({ product, basketData, userData, isFavorite }: ProductPr
     );
 };
 
-export default ProductDetails;
+export default ProductDetails

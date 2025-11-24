@@ -39,7 +39,7 @@ const MainCategory: React.FC<MainCategoryProps> = ({
   const handleCategoryNameClick = useCallback(
     (cat: Category) => {
       closeCategoryDrawer();
-      globalThis.location.href = `/Collections/tunisie?${new URLSearchParams({
+      globalThis.location.href = `/Collections?${new URLSearchParams({
         category: cat.name,
       })}`;
     },

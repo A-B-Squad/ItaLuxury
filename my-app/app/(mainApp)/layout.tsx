@@ -12,7 +12,7 @@ const BasketDrawer = dynamic(() => import("../components/MobileDrawer/BasketDraw
 const Footer = dynamic(() => import("../components/Footer/Footer"), { ssr: false });
 const SideBarMobileDrawer = dynamic(() => import("../components/MobileDrawer/SideBarMobileDrawer/SideBarDrawerMobile"), { ssr: false });
 const CategoryMobileDrawer = dynamic(() => import("../components/MobileDrawer/Category/CategoryDrawer"), { ssr: false });
-const SearchMobileDrawer = dynamic(() => import("../components/MobileDrawer/SearchMobileDrawer"), { ssr: false });
+const SearchMobileDrawer = dynamic(() => import("../components/MobileDrawer/SearchMobileDrawer/SearchMobileDrawer"), { ssr: false });
 const ProductQuickView = dynamic(() => import("@/app/components/ProductQuickView/ProductQuickView"), { ssr: false });
 const PurchaseOptions = dynamic(() => import("@/app/components/PurchaseOptions"), { ssr: false });
 
@@ -40,7 +40,7 @@ export default async function Layout({
       <ApolloWrapper>{children}</ApolloWrapper>
       <SideBarMobileDrawer userData={userData} />
       <CategoryMobileDrawer userData={userData} />
-      <SearchMobileDrawer userData={userData} />
+      <SearchMobileDrawer />
       <BasketDrawer userData={userData} />
       <PurchaseOptions companyData={companyData} />
       <ProductQuickView userData={userData} />

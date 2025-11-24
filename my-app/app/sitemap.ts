@@ -35,7 +35,10 @@ const SITEMAP_CONFIG = {
 } as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/^http:/, 'https:')?.replaceAll(/\/$/, '') || 'https://www.ita-luxury.com';
+  // Clean base URL properly - handle both dev and prod
+  const rawBaseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN || 'https://www.ita-luxury.com';
+  const baseUrl = rawBaseUrl.replace(/\/$/, ''); // Remove trailing slash
+  
   const currentDate = new Date();
 
   const safeDate = (dateString: string): Date => {
@@ -47,102 +50,92 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   };
 
-  // Static pages - ALL TUNISIA focused
+  // Static pages - Core site structure
   const staticPages: SitemapEntry[] = [
     { 
       url: `${baseUrl}`, 
       lastModified: currentDate, 
-      changeFrequency: 'daily' as const, 
+      changeFrequency: 'daily', 
       priority: 1.0 
     },
     { 
-      url: `${baseUrl}/Collections/tunisie`, 
+      url: `${baseUrl}/Collections`, 
       lastModified: currentDate, 
-      changeFrequency: 'daily' as const, 
+      changeFrequency: 'daily', 
       priority: 0.9 
     },
     
-    // IMPORTANT: Include these for Google Merchant Center verification
+    // Important e-commerce pages
     { 
       url: `${baseUrl}/Basket`, 
       lastModified: currentDate, 
-      changeFrequency: 'monthly' as const, 
+      changeFrequency: 'monthly', 
       priority: 0.6 
     },
     { 
       url: `${baseUrl}/Checkout`, 
       lastModified: currentDate, 
-      changeFrequency: 'monthly' as const, 
+      changeFrequency: 'monthly', 
       priority: 0.6 
     },
     { 
       url: `${baseUrl}/Contact-us`, 
       lastModified: currentDate, 
-      changeFrequency: 'monthly' as const, 
+      changeFrequency: 'monthly', 
       priority: 0.7 
     },
     { 
       url: `${baseUrl}/Delivery`, 
       lastModified: currentDate, 
-      changeFrequency: 'monthly' as const, 
+      changeFrequency: 'monthly', 
       priority: 0.7 
     },
     
-    // Collection filters
+    // Collection filters - High priority
     { 
-      url: `${baseUrl}/Collections/tunisie?choice=new-product`, 
+      url: `${baseUrl}/Collections?choice=new-product`, 
       lastModified: currentDate, 
-      changeFrequency: 'daily' as const, 
+      changeFrequency: 'daily', 
       priority: 0.8 
     },
     { 
-      url: `${baseUrl}/Collections/tunisie?choice=in-discount`, 
+      url: `${baseUrl}/Collections?choice=in-discount`, 
       lastModified: currentDate, 
-      changeFrequency: 'daily' as const, 
+      changeFrequency: 'daily', 
       priority: 0.8 
     },
     
-    // Auth pages
-    { 
-      url: `${baseUrl}/signin`, 
-      lastModified: currentDate, 
-      changeFrequency: 'yearly' as const, 
-      priority: 0.3 
-    },
-    { 
-      url: `${baseUrl}/signup`, 
-      lastModified: currentDate, 
-      changeFrequency: 'yearly' as const, 
-      priority: 0.3 
-    },
+    // Legal pages
     { 
       url: `${baseUrl}/Privacy-Policy`, 
       lastModified: currentDate, 
-      changeFrequency: 'yearly' as const, 
+      changeFrequency: 'yearly', 
       priority: 0.3 
     },
     { 
       url: `${baseUrl}/Terms-of-use`, 
       lastModified: currentDate, 
-      changeFrequency: 'yearly' as const, 
+      changeFrequency: 'yearly', 
       priority: 0.3 
     },
+    
+    // Utility pages
     { 
       url: `${baseUrl}/TrackingPackages`, 
       lastModified: currentDate, 
-      changeFrequency: 'monthly' as const, 
+      changeFrequency: 'monthly', 
       priority: 0.5 
     },
     { 
       url: `${baseUrl}/productComparison`, 
       lastModified: currentDate, 
-      changeFrequency: 'monthly' as const, 
+      changeFrequency: 'monthly', 
       priority: 0.5 
     },
   ];
 
   try {
-    // Fetch products from your single API endpoint
+    // Fetch products
     let products: Product[] = [];
     try {
       const productsApiUrl = `${baseUrl}/api/products`;
@@ -166,10 +159,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }
       }
     } catch (error) {
-      console.warn('Failed to fetch products:', error);
+      console.warn('Failed to fetch products for sitemap:', error);
     }
 
-    // Extract unique categories from products
+    // Extract unique categories
     const categoriesMap = new Map<string, { name: string; updatedAt?: string }>();
     products.forEach(product => {
       if (product.categories && Array.isArray(product.categories)) {
@@ -181,7 +174,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             });
           }
           
-          // Also add subcategories if they exist
+          // Add subcategories
           if (cat.subcategories && Array.isArray(cat.subcategories)) {
             cat.subcategories.forEach(subcat => {
               if (subcat?.name && !categoriesMap.has(subcat.name)) {
@@ -196,19 +189,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     });
 
-    // Extract unique brands from products
-    const brandsMap = new Map<string, { name: string }>();
+    // Extract unique brands
+    const brandsMap = new Map<string, { name: string; updatedAt?: string }>();
     products.forEach(product => {
       if (product.Brand?.name && !brandsMap.has(product.Brand.name)) {
         brandsMap.set(product.Brand.name, {
-          name: product.Brand.name
+          name: product.Brand.name,
+          updatedAt: product.updatedAt
         });
       }
     });
 
     // Generate product URLs
     const dynamicProductUrls: SitemapEntry[] = products
-      .slice(0, SITEMAP_CONFIG.MAX_URLS - 100)
+      .slice(0, SITEMAP_CONFIG.MAX_URLS - 200) // Reserve space for categories/brands
       .map((product) => {
         const lastModified = product.updatedAt 
           ? safeDate(product.updatedAt) 
@@ -216,36 +210,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             ? safeDate(product.createdAt) 
             : currentDate;
 
-        const priority = product.updatedAt && 
-          Date.now() - safeDate(product.updatedAt).getTime() < 30 * 24 * 60 * 60 * 1000
-          ? SITEMAP_CONFIG.PRODUCT_PRIORITY + 0.1 
+        // Boost priority for recently updated products
+        const isRecent = product.updatedAt && 
+          Date.now() - safeDate(product.updatedAt).getTime() < 30 * 24 * 60 * 60 * 1000;
+        
+        const priority = isRecent 
+          ? Math.min(SITEMAP_CONFIG.PRODUCT_PRIORITY + 0.1, 0.9)
           : SITEMAP_CONFIG.PRODUCT_PRIORITY;
 
         return {
           url: `${baseUrl}/products/${product.slug}`,
           lastModified,
-          changeFrequency: 'weekly' as const,
-          priority: Math.min(priority, 0.9)
+          changeFrequency: 'weekly',
+          priority
         };
       });
 
-    // Generate category URLs - ALL Tunisia based
+    // Generate category URLs - NO /tunisie suffix
     const categoryUrls: SitemapEntry[] = Array.from(categoriesMap.values()).map((category) => ({
-      url: `${baseUrl}/Collections/tunisie?category=${encodeURIComponent(category.name)}`,
+      url: `${baseUrl}/Collections?category=${encodeURIComponent(category.name)}`,
       lastModified: category.updatedAt ? safeDate(category.updatedAt) : currentDate,
-      changeFrequency: 'weekly' as const,
+      changeFrequency: 'weekly',
       priority: SITEMAP_CONFIG.CATEGORY_PRIORITY
     }));
 
-    // Generate brand URLs - ALL Tunisia based
+    // Generate brand URLs - NO /tunisie suffix
     const brandUrls: SitemapEntry[] = Array.from(brandsMap.values()).map((brand) => ({
-      url: `${baseUrl}/Collections/tunisie?brand=${encodeURIComponent(brand.name)}`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
+      url: `${baseUrl}/Collections?brand=${encodeURIComponent(brand.name)}`,
+      lastModified: brand.updatedAt ? safeDate(brand.updatedAt) : currentDate,
+      changeFrequency: 'monthly',
       priority: SITEMAP_CONFIG.BRAND_PRIORITY
     }));
 
-    // Combine and deduplicate
+    // Combine all URLs
     const allUrls = [
       ...staticPages, 
       ...dynamicProductUrls, 
@@ -253,28 +250,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...brandUrls
     ];
 
+    // Deduplicate
     const uniqueUrls = allUrls.reduce((acc: SitemapEntry[], current) => {
       const exists = acc.find(item => item.url === current.url);
       if (!exists) acc.push(current);
       return acc;
     }, []);
 
+    // Sort by priority and limit
     uniqueUrls.sort((a, b) => (b.priority || 0) - (a.priority || 0));
     const finalUrls = uniqueUrls.slice(0, SITEMAP_CONFIG.MAX_URLS);
 
-    console.log(`✅ Sitemap generated: ${finalUrls.length} URLs
-      - ${staticPages.length} static pages
-      - ${dynamicProductUrls.length} products
-      - ${categoryUrls.length} categories (extracted from products)
-      - ${brandUrls.length} brands (extracted from products)`);
+    console.log(`✅ Sitemap generated successfully:
+      Total URLs: ${finalUrls.length}
+      - Static pages: ${staticPages.length}
+      - Products: ${dynamicProductUrls.length}
+      - Categories: ${categoryUrls.length}
+      - Brands: ${brandUrls.length}`);
 
     return finalUrls;
 
   } catch (error) {
-    console.error('❌ Sitemap error:', error);
+    console.error('❌ Sitemap generation error:', error);
+    // Return at least static pages on error
     return staticPages;
   }
 }
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 3600;
+export const revalidate = 3600; 

@@ -146,7 +146,7 @@ function DrawerMobile({ userData }: any) {
     >
       <div className="px-2 py-3 flex items-center justify-between text-white bg-logoColor">
         <Link
-          href={isAuthenticated ? "/Collections/tunisie" : "/signin"}
+          href={isAuthenticated ? "/Collections" : "/signin"}
           className="font-bold text-lg flex items-center gap-2"
           onClick={closeDrawerMobileSideBar}
         >
@@ -231,7 +231,7 @@ function DrawerMobile({ userData }: any) {
         className="flex py-3 cursor-pointer hover:bg-gray-50 items-center justify-between px-7 w-full border-b-2"
       >
         <Link
-          href="/Collections/tunisie?page=1"
+          href="/Collections?page=1"
           className="capitalize font-bold w-full"
           onClick={closeDrawerMobileSideBar}
         >

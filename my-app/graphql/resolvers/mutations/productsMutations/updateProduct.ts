@@ -13,12 +13,113 @@ interface DiscountInput {
   productId?: string;
   discountType?: string;
   discountValue?: number;
-
-
-
-
 }
 
+interface ProductInput {
+  name?: string;
+  price: number;
+  purchasePrice?: number;
+  isVisible?: boolean;
+  reference?: string;
+  description?: string;
+  inventory?: number;
+  images?: any;
+  categories?: string[];
+  technicalDetails?: any;
+  colorsId?: string;
+  discount?: DiscountInput[];
+  brandId?: string;
+  groupProductVariantId?: string;
+}
+
+// ==================== HELPER FUNCTIONS ====================
+
+// Filter valid categories
+const filterValidCategories = (categories?: string[]): string[] => {
+  return categories?.filter(id =>
+    id && typeof id === 'string' && id.trim() !== ''
+  ) || [];
+};
+
+// Check if createdAt should be updated
+const shouldUpdateCreatedAt = (
+  isVisible: boolean | undefined,
+  inventory: number | undefined,
+  currentProduct: any
+): boolean => {
+  const isVisibilityChanged = isVisible !== undefined && isVisible !== currentProduct.isVisible;
+  const isInventoryChanged = inventory !== undefined && inventory !== currentProduct.inventory;
+  return isVisibilityChanged || isInventoryChanged;
+};
+
+// Generate slug if name changed
+const generateSlugIfNameChanged = async (
+  prisma: PrismaClient,
+  name: string | undefined,
+  currentProduct: any
+): Promise<string | undefined> => {
+  if (name && name !== currentProduct.name) {
+    return await generateUniqueSlug(prisma, name, currentProduct.id);
+  }
+  return undefined;
+};
+
+// Build category update data
+const buildCategoryUpdateData = (
+  currentCategoryIds: string[],
+  validCategories: string[]
+) => {
+  return {
+    disconnect: currentCategoryIds.map((id: string) => ({ id })),
+    ...(validCategories.length > 0 && {
+      connect: validCategories.map((categoryId) => ({ id: categoryId })),
+    }),
+  };
+};
+
+// Build complete update data object
+const buildUpdateData = (
+  input: ProductInput,
+  productSlug: string | undefined,
+  shouldUpdateCreated: boolean,
+  categoryUpdateData: any
+) => {
+  const {
+    name,
+    price,
+    purchasePrice,
+    brandId,
+    isVisible,
+    reference,
+    description,
+    inventory,
+    colorsId,
+    technicalDetails,
+    images,
+    groupProductVariantId,
+  } = input;
+
+  return {
+    name,
+    ...(productSlug && { slug: productSlug }),
+    price,
+    purchasePrice,
+    brandId: brandId || null,
+    isVisible,
+    reference,
+    description,
+    inventory,
+    colorsId,
+    technicalDetails,
+    images,
+    updatedAt: new Date().toISOString(),
+    ...(shouldUpdateCreated && { createdAt: new Date().toISOString() }),
+    categories: categoryUpdateData,
+    groupProductVariantId,
+  };
+};
+
+// Update or create discount
 const updateDiscounts = async (
   prisma: PrismaClient,
   productId: string,
@@ -51,9 +152,9 @@ const updateDiscounts = async (
           isActive: isActive,
           isDeleted: false,
           updatedAt: new Date(),
-          discountType: "FIXED_AMOUNT", 
+          discountType: "FIXED_AMOUNT",
           discountValue: discountValue,
-          campaignType: "MANUAL", 
+          campaignType: "MANUAL",
         },
       });
     } else {
@@ -66,7 +167,7 @@ const updateDiscounts = async (
           dateOfStart: dateOfStart.toDate(),
           isActive: isActive,
           isDeleted: false,
-          discountType: "FIXED_AMOUNT", 
+          discountType: "FIXED_AMOUNT",
           discountValue: discountValue,
           campaignType: "MANUAL",
         },
@@ -74,33 +175,63 @@ const updateDiscounts = async (
     }
   }
 };
+
+// Delete existing discounts
+const deleteExistingDiscounts = async (
+  prisma: PrismaClient,
+  productId: string
+) => {
+  const existingDiscounts = await prisma.productDiscount.findMany({
+    where: { productId },
+  });
+
+  if (existingDiscounts.length > 0) {
+    await prisma.productDiscount.deleteMany({
+      where: { productId },
+    });
+  }
+};
+
+// Handle discount updates
+const handleDiscountUpdates = async (
+  prisma: PrismaClient,
+  productId: string,
+  price: number,
+  discount?: DiscountInput[]
+) => {
+  if (discount && discount.length > 0) {
+    await updateDiscounts(prisma, productId, price, discount);
+  } else {
+    await deleteExistingDiscounts(prisma, productId);
+  }
+};
+
+// Handle error responses
+const handleUpdateError = (error: any, input: ProductInput) => {
+  if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+    throw new Error(`Le nom du produit "${input.name}" existe déjà`);
+  }
+
+  if (error.code === 'P2025') {
+    throw new Error('Une ou plusieurs catégories sélectionnées n\'existent pas');
+  }
+
+  console.error("Error updating product:", error);
+  throw new Error("Échec de la mise à jour du produit. Veuillez réessayer.");
+};
+
+// ==================== MAIN FUNCTION ====================
+
 export const updateProduct = async (
   _: any,
   { slug, input }: { slug: string; input: ProductInput },
   { prisma }: Context
 ): Promise<string> => {
   try {
-    const {
-      name,
-      price,
-      purchasePrice,
-      isVisible,
-      reference,
-      description,
-      inventory,
-      images,
-      categories,
-      technicalDetails,
-      colorsId,
-      discount,
-      brandId,
-      groupProductVariantId
-    } = input;
+    const { name, price, isVisible, inventory, categories, discount } = input;
 
-    // Filter and validate categories - Remove empty strings, null, and undefined
-    const validCategories = categories?.filter(id =>
-      id && typeof id === 'string' && id.trim() !== ''
-    ) || [];
+    // Filter valid categories
+    const validCategories = filterValidCategories(categories);
 
     // Get current product data
     const currentProduct = await prisma.product.findUnique({
@@ -110,7 +241,7 @@ export const updateProduct = async (
         categories: { select: { id: true } },
         isVisible: true,
         inventory: true,
-        name: true
+        name: true,
       },
     });
 
@@ -118,50 +249,22 @@ export const updateProduct = async (
       throw new Error("Product not found");
     }
 
-    // Check if isVisible or inventory has changed
-    const isVisibilityChanged = isVisible !== undefined && isVisible !== currentProduct.isVisible;
-    const isInventoryChanged = inventory !== undefined && inventory !== currentProduct.inventory;
-    const shouldUpdateCreatedAt = isVisibilityChanged || isInventoryChanged;
+    // Determine if createdAt should be updated
+    const shouldUpdateCreated = shouldUpdateCreatedAt(isVisible, inventory, currentProduct);
 
-    // Generate new slug if name has changed
-    let ProductSlug: string | undefined;
-    if (name && name !== currentProduct.name) {
-      ProductSlug = await generateUniqueSlug(prisma, name, currentProduct.id);
-    }
+    // Generate new slug if name changed
+    const productSlug = await generateSlugIfNameChanged(prisma, name, currentProduct);
 
+    // Build category update data
     const currentCategoryIds = currentProduct?.categories.map((cat: any) => cat.id) || [];
+    const categoryUpdateData = buildCategoryUpdateData(currentCategoryIds, validCategories);
 
-    // Build update data object conditionally
-    const updateData: any = {
-      name,
-      ...(ProductSlug && { slug: ProductSlug }),
-      price,
-      purchasePrice,
-      brandId: brandId || null,
-      isVisible,
-      reference,
-      description,
-      inventory,
-      colorsId,
-      technicalDetails,
-      images,
-      updatedAt: new Date().toISOString(),
-      // Only update createdAt if visibility or inventory changed
-      ...(shouldUpdateCreatedAt && { createdAt: new Date().toISOString() }),
-      categories: {
-        // First disconnect all current categories
-        disconnect: currentCategoryIds.map((id: string) => ({ id })),
-        // Then connect the new valid categories
-        ...(validCategories.length > 0 && {
-          connect: validCategories.map((categoryId) => ({ id: categoryId })),
-        }),
-      },
-      groupProductVariantId
-    };
+    // Build complete update data
+    const updateData = buildUpdateData(input, productSlug, shouldUpdateCreated, categoryUpdateData);
 
-    // Update the product with the provided data
+    // Update the product
     await prisma.product.update({
-      where: { slug: slug },
+      where: { slug },
       data: updateData,
       include: {
         categories: true,
@@ -170,35 +273,14 @@ export const updateProduct = async (
     });
 
     // Handle discounts
-    if (discount && discount.length > 0) {
-      // Update discounts if provided
-      await updateDiscounts(prisma, currentProduct.id, price, discount);
-    } else {
-      // Remove all existing discounts if no discount is provided
-      const existingDiscounts = await prisma.productDiscount.findMany({
-        where: { productId: currentProduct.id },
-      });
+    await handleDiscountUpdates(prisma, currentProduct.id, price, discount);
 
-      if (existingDiscounts.length > 0) {
-        await prisma.productDiscount.deleteMany({
-          where: { productId: currentProduct.id },
-        });
-      }
-    }
+    // Revalidate cache
     revalidateTag('collection-search');
 
     return "Product updated successfully";
   } catch (error: any) {
-    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
-      throw new Error(`Le nom du produit "${input.name}" existe déjà`);
-    }
-
-    // Handle foreign key constraint errors for categories
-    if (error.code === 'P2025') {
-      throw new Error('Une ou plusieurs catégories sélectionnées n\'existent pas');
-    }
-
-    console.error("Error updating product:", error);
-    throw new Error("Échec de la mise à jour du produit. Veuillez réessayer.");
+    handleUpdateError(error, input);
+    throw error; // This line will never be reached due to handleUpdateError always throwing
   }
 };

@@ -116,57 +116,143 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
         return finalTotal.toFixed(2);
     };
 
+    // Helper: Prepare user data
+    const prepareUserData = (data: any) => ({
+        userEmail: isGuest ? data.email : userData?.email,
+        userName: isGuest ? data.fullname : userData?.fullName,
+        cleanPhone1: data.phone_1.replaceAll(/\s+/g, ''),
+        cleanPhone2: data.phone_2 ? data.phone_2.replaceAll(/\s+/g, '') : '',
+    });
 
+    // Helper: Show validation error
+    const showValidationError = () => {
+        toast({
+            title: "Erreur de validation",
+            description: "Veuillez remplir tous les champs requis correctement.",
+            variant: "destructive",
+        });
+    };
 
+    // Helper: Build checkout input
+    const buildCheckoutInput = (data: any, userData: any, orderTotal: number) => {
+
+        return {
+            userId: decodedToken?.userId,
+            userName: data.fullname,
+            total: orderTotal,
+            phone: [userData.cleanPhone1, userData.cleanPhone2].filter(Boolean),
+            governorateId: data.governorate,
+            address: data.address,
+            couponsId: couponsId,
+            freeDelivery: Number(total) >= 499,
+            isGuest: isGuest,
+            products: [
+                {
+                    productId: productDetails.id,
+                    productQuantity: ActualQuantity,
+                    price: productDetails.price,
+                    discountedPrice: productDetails.productDiscounts?.[0]?.newPrice || 0,
+                },
+            ],
+            guestEmail: userData.userEmail,
+            deliveryComment: data.deliveryComment,
+            paymentMethod: "CASH_ON_DELIVERY",
+        };
+    };
+
+    // Helper: Prepare cart item for tracking
+    const prepareCartItem = () => ({
+        id: productDetails.id,
+        name: productDetails.name,
+        slug: productDetails.slug,
+        price: Number(productDetails.price),
+        quantity: ActualQuantity,
+        description: productDetails.description,
+        Brand: productDetails.Brand,
+        Colors: productDetails.Colors,
+        categories: productDetails.categories,
+        productDiscounts: productDetails.productDiscounts,
+        inventory: productDetails.inventory,
+        isVisible: productDetails.isVisible,
+        reference: productDetails.reference,
+        images: productDetails.images,
+        technicalDetails: productDetails.technicalDetails,
+    });
+
+    // Helper: Prepare user for tracking
+    const prepareTrackingUser = (userName: string, userEmail: string, cleanPhone1: string, userCity: string) => {
+        if (!userName) return undefined;
+
+        return {
+            id: decodedToken?.userId,
+            email: userEmail,
+            firstName: userName?.split(' ')[0] || userName,
+            lastName: userName?.split(' ').slice(1).join(' ') || '',
+            phone: cleanPhone1,
+            country: "tn",
+            city: userCity,
+        };
+    };
+
+    // Helper: Track purchase event
+    const trackPurchaseEvent = async (
+        customOrderId: string,
+        data: any,
+        orderTotal: number,
+        userData: any
+    ) => {
+        const selectedGovernorate = governmentInfo.find(gov => gov.id === data.governorate);
+        const userCity = selectedGovernorate?.name || data.governorate || "";
+
+        const cartItem = prepareCartItem();
+        const user = prepareTrackingUser(userData.userName, userData.userEmail, userData.cleanPhone1, userCity);
+        const shippingValue = orderTotal >= 499 ? 0 : deliveryPrice;
+
+        console.log('🎉 Tracking Purchase event (OrderNow):', {
+            order_id: customOrderId,
+            total_value: orderTotal,
+            product_name: productDetails.name,
+            quantity: ActualQuantity,
+            shipping_value: shippingValue,
+            user: user ? 'logged_in' : 'guest'
+        });
+
+        try {
+            await trackPurchase(customOrderId, [cartItem], orderTotal, user, shippingValue);
+            console.log('✅ Purchase event tracked successfully (OrderNow)');
+        } catch (error) {
+            console.error("❌ Error tracking purchase:", error);
+        }
+    };
+
+    // Helper: Show checkout error
+    const showCheckoutError = (error: any) => {
+        console.error("Checkout error:", error);
+        toast({
+            title: "Error",
+            description: "Une erreur s'est produite lors de la commande. Veuillez réessayer.",
+            variant: "destructive",
+        });
+    };
 
     const onSubmit = async (data: any) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
 
-        const userEmail = isGuest ? data.email : userData?.email;
-        const userName = isGuest ? data.fullname : userData?.fullName;
-        const cleanPhone1 = data.phone_1.replaceAll(/\s+/g, '');
-        const cleanPhone2 = data.phone_2 ? data.phone_2.replaceAll(/\s+/g, '') : '';
+        const userData = prepareUserData(data);
 
         try {
             setPaymentLoading(true);
 
             if (!isValid) {
-                toast({
-                    title: "Erreur de validation",
-                    description: "Veuillez remplir tous les champs requis correctement.",
-                    variant: "destructive",
-                });
+                showValidationError();
                 setIsSubmitting(false);
                 setPaymentLoading(false);
                 return;
             }
 
             const orderTotal = Number.parseFloat(calculateTotal());
-            const finalPrice = productDetails.productDiscounts?.[0]?.newPrice || productDetails.price;
-
-            const checkoutInput = {
-                userId: decodedToken?.userId,
-                userName: data.fullname,
-                total: orderTotal,
-                phone: [cleanPhone1, cleanPhone2].filter(Boolean),
-                governorateId: data.governorate,
-                address: data.address,
-                couponsId: couponsId,
-                freeDelivery: Number(total) >= 499,
-                isGuest: isGuest,
-                products: [
-                    {
-                        productId: productDetails.id,
-                        productQuantity: ActualQuantity,
-                        price: productDetails.price,
-                        discountedPrice: productDetails.productDiscounts?.[0]?.newPrice || 0,
-                    },
-                ],
-                guestEmail: userEmail,
-                deliveryComment: data.deliveryComment,
-                paymentMethod: "CASH_ON_DELIVERY",
-            };
+            const checkoutInput = buildCheckoutInput(data, userData, orderTotal);
 
             const { data: checkoutData } = await createCheckout({
                 variables: { input: checkoutInput },
@@ -178,85 +264,22 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
                 ],
             });
 
-            // Get the order ID from the response
             const customOrderId = checkoutData.createCheckout.customId;
-
-
 
             // Track purchase with complete product data
             if (productDetails && customOrderId) {
-                // Get governorate name for city
-                const selectedGovernorate = governmentInfo.find(gov => gov.id === data.governorate);
-                const userCity = selectedGovernorate?.name || data.governorate || "";
-
-                // Prepare complete cart item with ALL required fields for Facebook Catalog
-                const cartItem = {
-                    id: productDetails.id,
-                    name: productDetails.name,
-                    slug: productDetails.slug,
-                    price: Number(productDetails.price),
-                    quantity: ActualQuantity,
-                    description: productDetails.description,
-                    Brand: productDetails.Brand,
-                    Colors: productDetails.Colors,
-                    categories: productDetails.categories,
-                    productDiscounts: productDetails.productDiscounts,
-                    inventory: productDetails.inventory,
-                    isVisible: productDetails.isVisible,
-                    reference: productDetails.reference,
-                    images: productDetails.images,
-                    technicalDetails: productDetails.technicalDetails,
-                };
-
-                // Prepare user data with proper name splitting
-                const user = userName ? {
-                    id: decodedToken?.userId,
-                    email: userEmail,
-                    firstName: userName?.split(' ')[0] || userName,
-                    lastName: userName?.split(' ').slice(1).join(' ') || '',
-                    phone: cleanPhone1,
-                    country: "tn",
-                    city: userCity,
-                } : undefined;
-
-                // Calculate shipping and tax
-                const shippingValue = orderTotal >= 499 ? 0 : deliveryPrice;
-
-                console.log('🎉 Tracking Purchase event (OrderNow):', {
-                    order_id: customOrderId,
-                    total_value: orderTotal,
-                    product_name: productDetails.name,
-                    quantity: ActualQuantity,
-                    shipping_value: shippingValue,
-                    user: user ? 'logged_in' : 'guest'
-                });
-
-                // Track the purchase
-                try {
-                    await trackPurchase(
-                        customOrderId,
-                        [cartItem],
-                        orderTotal,
-                        user,
-                        shippingValue,
-                    );
-                    console.log('✅ Purchase event tracked successfully (OrderNow)');
-                } catch (error) {
-                    console.error("❌ Error tracking purchase:", error);
-                    // Don't block checkout flow
-                }
+                await trackPurchaseEvent(customOrderId, data, orderTotal, userData);
             }
 
             // Clear basket after tracking
             clearBasket();
 
             // Send notification
-
-
+            const finalPrice = productDetails.productDiscounts?.[0]?.newPrice || productDetails.price;
             await sendPurchaseNotifications(
                 customOrderId,
                 1,
-                userName,
+                userData.userName,
                 finalPrice
             );
 
@@ -264,12 +287,7 @@ const OrderNowForm: React.FC<OrderNowProps> = ({
             router.replace(`/Checkout/EndCheckout?packageId=${customOrderId}`);
 
         } catch (error) {
-            console.error("Checkout error:", error);
-            toast({
-                title: "Error",
-                description: "Une erreur s'est produite lors de la commande. Veuillez réessayer.",
-                variant: "destructive",
-            });
+            showCheckoutError(error);
         } finally {
             setPaymentLoading(false);
             setIsSubmitting(false);

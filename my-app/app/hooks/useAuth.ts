@@ -57,13 +57,13 @@ export const useAuth = () => {
   const logout = useCallback(() => {
     removeToken();
     setDecodedToken(null);
-    router.push('/signin');
+    globalThis.location.replace("/")
   }, [router]);
 
   const updateToken = useCallback((newToken: string) => {
     const decoded = decodeToken(newToken);
     setDecodedToken(decoded);
-    setSkipRefreshCheck(true); // Skip next refresh check
+    setSkipRefreshCheck(true);
     setIsLoading(false);
   }, []);
 

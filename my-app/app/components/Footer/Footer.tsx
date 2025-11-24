@@ -122,7 +122,7 @@ const Footer = ({ companyData }: any) => {
                   (category: { name: string; id: string }, subIndex: number) => (
                     <li key={subIndex}>
                       <Link
-                        href={`/Collections/tunisie?${new URLSearchParams({
+                        href={`/Collections?${new URLSearchParams({
                           category: category.name,
                         })}`}
                         className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 text-sm block"
@@ -280,7 +280,7 @@ const Footer = ({ companyData }: any) => {
                   {categories.map((category: { name: string; id: string }) => (
                     <li key={category?.id}>
                       <Link
-                        href={`/Collections/tunisie?${new URLSearchParams({
+                        href={`/Collections?${new URLSearchParams({
                           category: category.name,
                         })}`}
                         className="py-1 tracking-wider hover:text-primaryColor transition-all text-gray-700 block"

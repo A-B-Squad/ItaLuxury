@@ -11,8 +11,187 @@ interface RemovePromotionalCampaignsConditions {
   productIds?: string[];
 }
 
+// ==================== HELPER FUNCTIONS ====================
+
+// Build category conditions
+const buildCategoryConditions = (categoryIds?: string[]) => {
+  if (categoryIds && categoryIds.length > 0) {
+    return [{
+      categories: {
+        some: {
+          id: { in: categoryIds },
+        },
+      },
+    }];
+  }
+  return [];
+};
+
+// Build brand conditions
+const buildBrandConditions = (brandIds?: string[]) => {
+  if (brandIds && brandIds.length > 0) {
+    return [{ brandId: { in: brandIds } }];
+  }
+  return [];
+};
+
+// Build product ID conditions
+const buildProductIdConditions = (productIds?: string[]) => {
+  if (productIds && productIds.length > 0) {
+    return [{ id: { in: productIds } }];
+  }
+  return [];
+};
+
+// Build complete product where clause
+const buildProductWhereClause = (conditions?: RemovePromotionalCampaignsConditions) => {
+  if (!conditions) return {};
+
+  const allConditions = [
+    ...buildCategoryConditions(conditions.categoryIds),
+    ...buildBrandConditions(conditions.brandIds),
+    ...buildProductIdConditions(conditions.productIds),
+  ];
+
+  if (allConditions.length === 0) {
+    return {};
+  }
+
+  return { AND: allConditions };
+};
+
+// Fetch product IDs based on conditions
+const fetchProductIds = async (
+  prisma: any,
+  productWhereClause: any
+): Promise<string[]> => {
+  if (Object.keys(productWhereClause).length === 0) {
+    return [];
+  }
+
+  const products = await prisma.product.findMany({
+    where: productWhereClause,
+    select: { id: true },
+  });
+
+  return products.map((p: ProductIdObject) => p.id);
+};
+
+// Build discount where clause
+const buildDiscountWhereClause = (
+  campaignName?: string,
+  productIds?: string[]
+) => {
+  const whereClause: any = {
+    campaignType: 'PROMOTIONAL_CAMPAIGN',
+    isDeleted: false,
+  };
+
+  if (campaignName) {
+    whereClause.campaignName = campaignName;
+  }
+
+  if (productIds && productIds.length > 0) {
+    whereClause.productId = { in: productIds };
+  }
+
+  return whereClause;
+};
+
+// Check if discounts exist
+const checkDiscountsExist = async (
+  prisma: any,
+  discountWhereClause: any
+): Promise<boolean> => {
+  const count = await prisma.productDiscount.count({
+    where: discountWhereClause,
+  });
+  return count > 0;
+};
+
+// Perform soft delete on discounts
+const softDeleteDiscounts = async (
+  prisma: any,
+  discountWhereClause: any,
+  campaignName?: string
+) => {
+  const result = await prisma.productDiscount.updateMany({
+    where: discountWhereClause,
+    data: {
+      isDeleted: true,
+      isActive: false,
+    },
+  });
+
+  if (campaignName) {
+    await prisma.discountCampaign.updateMany({
+      where: {
+        name: campaignName,
+        type: 'PROMOTIONAL_CAMPAIGN',
+      },
+      data: {
+        isActive: false,
+      },
+    });
+  }
+
+  return result;
+};
+
+// Perform hard delete on discounts
+const hardDeleteDiscounts = async (
+  prisma: any,
+  discountWhereClause: any,
+  campaignName?: string
+) => {
+  const result = await prisma.productDiscount.deleteMany({
+    where: discountWhereClause,
+  });
+
+  if (campaignName) {
+    await prisma.discountCampaign.deleteMany({
+      where: {
+        name: campaignName,
+        type: 'PROMOTIONAL_CAMPAIGN',
+      },
+    });
+  }
+
+  return result;
+};
+
+// Execute delete operation (soft or hard)
+const executeDelete = async (
+  prisma: any,
+  discountWhereClause: any,
+  softDelete: boolean,
+  campaignName?: string
+) => {
+  if (softDelete) {
+    return await softDeleteDiscounts(prisma, discountWhereClause, campaignName);
+  }
+  return await hardDeleteDiscounts(prisma, discountWhereClause, campaignName);
+};
+
+// Generate success message
+const generateSuccessMessage = (
+  count: number,
+  softDelete: boolean,
+  campaignName?: string
+): string => {
+  const action = softDelete ? 'deactivated' : 'removed';
+
+  if (campaignName) {
+    return `Successfully ${action} ${count} promotional discounts from campaign "${campaignName}"`;
+  }
+
+  return `Successfully ${action} ${count} promotional discounts`;
+};
+
+// ==================== MAIN FUNCTION ====================
+
 export const removePromotionalCampaigns = async (
-  _: any, 
+  _: any,
   {
     conditions,
     campaignName,
@@ -29,79 +208,25 @@ export const removePromotionalCampaigns = async (
   removedCount: number;
 }> => {
   try {
-    // Build where clause for products
-    const productWhereClause: any = {};
-    const andConditions: any[] = [];
+    // Build product query and fetch matching product IDs
+    const productWhereClause = buildProductWhereClause(conditions);
+    const productIds = await fetchProductIds(prisma, productWhereClause);
 
-    if (conditions?.categoryIds && conditions.categoryIds.length > 0) {
-      andConditions.push({
-        categories: {
-          some: {
-            id: { in: conditions.categoryIds },
-          },
-        },
-      });
+    // Early return if conditions specified but no products found
+    if (Object.keys(productWhereClause).length > 0 && productIds.length === 0) {
+      return {
+        success: true,
+        message: "No products found matching the specified conditions",
+        removedCount: 0,
+      };
     }
 
-    if (conditions?.brandIds && conditions.brandIds.length > 0) {
-      andConditions.push({
-        brandId: { in: conditions.brandIds },
-      });
-    }
+    // Build discount query
+    const discountWhereClause = buildDiscountWhereClause(campaignName, productIds);
 
-    if (conditions?.productIds && conditions.productIds.length > 0) {
-      andConditions.push({
-        id: { in: conditions.productIds },
-      });
-    }
-
-    // Only add AND if there are conditions
-    if (andConditions.length > 0) {
-      productWhereClause.AND = andConditions;
-    }
-
-    // Get product IDs if conditions are provided
-    let productIds: string[] = [];
-
-    if (Object.keys(productWhereClause).length > 0) {
-      const products = await prisma.product.findMany({
-        where: productWhereClause,
-        select: { id: true },
-      });
-      productIds = products.map((p: ProductIdObject) => p.id);
-
-      // If no products found matching the conditions, return early
-      if (productIds.length === 0) {
-        return {
-          success: true,
-          message: "No products found matching the specified conditions",
-          removedCount: 0,
-        };
-      }
-    }
-
-    // Build discount where clause
-    const discountWhereClause: any = {
-      campaignType: 'PROMOTIONAL_CAMPAIGN',
-      isDeleted: false, 
-    };
-
-    // Add campaign name filter if provided
-    if (campaignName) {
-      discountWhereClause.campaignName = campaignName;
-    }
-
-    // Add product filter if we have product IDs from conditions
-    if (productIds.length > 0) {
-      discountWhereClause.productId = { in: productIds };
-    }
-
-    // Check if any discounts exist before attempting to remove
-    const existingDiscounts = await prisma.productDiscount.count({
-      where: discountWhereClause,
-    });
-
-    if (existingDiscounts === 0) {
+    // Check if any discounts exist
+    const discountsExist = await checkDiscountsExist(prisma, discountWhereClause);
+    if (!discountsExist) {
       return {
         success: true,
         message: "No promotional discounts found matching the criteria",
@@ -109,61 +234,22 @@ export const removePromotionalCampaigns = async (
       };
     }
 
-    let result;
-
-    if (softDelete) {
-      // Soft delete: mark as deleted and inactive
-      result = await prisma.productDiscount.updateMany({
-        where: discountWhereClause,
-        data: {
-          isDeleted: true,
-          isActive: false,
-        },
-      });
-
-      // If a specific campaign was targeted, deactivate it
-      if (campaignName) {
-        await prisma.discountCampaign.updateMany({
-          where: {
-            name: campaignName,
-            type: 'PROMOTIONAL_CAMPAIGN',
-          },
-          data: {
-            isActive: false,
-          },
-        });
-      }
-    } else {
-      // Hard delete: permanently remove discounts
-      result = await prisma.productDiscount.deleteMany({
-        where: discountWhereClause,
-      });
-
-      // If a specific campaign was targeted, delete it too
-      if (campaignName) {
-        await prisma.discountCampaign.deleteMany({
-          where: {
-            name: campaignName,
-            type: 'PROMOTIONAL_CAMPAIGN',
-          },
-        });
-      }
-    }
+    // Execute delete operation
+    const result = await executeDelete(
+      prisma,
+      discountWhereClause,
+      softDelete,
+      campaignName
+    );
 
     // Revalidate cache
     revalidateTag('collection-search');
 
-    const action = softDelete ? 'deactivated' : 'removed';
-    const message = campaignName
-      ? `Successfully ${action} ${result.count} promotional discounts from campaign "${campaignName}"`
-      : `Successfully ${action} ${result.count} promotional discounts`;
-
     return {
       success: true,
-      message,
+      message: generateSuccessMessage(result.count, softDelete, campaignName),
       removedCount: result.count,
     };
-
   } catch (error: any) {
     console.error("Error removing promotional discounts:", error);
     throw new Error(`Failed to remove promotional discounts: ${error.message}`);

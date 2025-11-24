@@ -3,20 +3,18 @@ import { SearchParamsProductSearch } from "@/app/types";
 export default function generateTitle(searchParams: SearchParamsProductSearch): string {
     const titleParts: string[] = [];
     const maxLength = 60;
-    const DateNow = new Date();
+    const currentYear = new Date().getFullYear();
 
     // Primary section based on choice
     if (searchParams.choice === "new-product") {
-        titleParts.push(`Nouveaux Produits ${DateNow.getFullYear()}`);
+        titleParts.push(`Nouveautés ${currentYear}`);
     } else if (searchParams.choice === "in-discount") {
-        titleParts.push("Promotions et Soldes");
+        titleParts.push("Promotions");
     } else if (searchParams.query) {
-        titleParts.push(`Résultats pour "${searchParams.query}"`);
-    } else {
-        titleParts.push("Collection Complète");
+        titleParts.push(searchParams.query);
     }
 
-    // Secondary filters (most important first)
+    // Add filters (most important first)
     if (searchParams.category) {
         titleParts.push(searchParams.category);
     }
@@ -25,37 +23,35 @@ export default function generateTitle(searchParams: SearchParamsProductSearch): 
         titleParts.push(searchParams.brand);
     }
 
-    // Tertiary filters
     if (searchParams.color) {
-        titleParts.push(`Couleur ${searchParams.color}`);
+        titleParts.push(searchParams.color);
     }
 
-    if (searchParams.price) {
-        titleParts.push(`Jusqu'à ${searchParams.price} TND`);
+    // Only add price if it's a significant filter
+    if (searchParams.price && !searchParams.choice && !searchParams.query) {
+        titleParts.push(`-${searchParams.price}DT`);
     }
 
     // Pagination (only if not first page)
     if (searchParams.page && searchParams.page !== "1") {
-        titleParts.push(`Page ${searchParams.page}`);
+        titleParts.push(`P${searchParams.page}`);
     }
 
-    // Build title with length optimization
-    let fullTitle = `${titleParts.join(" | ")} - ita-luxury`;
+    // Default if no filters
+    if (titleParts.length === 0) {
+        titleParts.push("Collections");
+    }
+
+    // Build title with brand suffix
+    const titleContent = titleParts.join(" | ");
+    let fullTitle = `${titleContent} - ita-luxury`;
     
-    // Remove less important elements to fit length
+    // Truncate if too long
     if (fullTitle.length > maxLength) {
-        const simplifiedParts = [...titleParts];
-        while (fullTitle.length > maxLength && simplifiedParts.length > 1) {
-            simplifiedParts.pop();
-            fullTitle = `${simplifiedParts.join(" | ")} - ita-luxury`;
-        }
+        const maxContentLength = maxLength - " - ita-luxury".length;
+        const truncatedContent = titleContent.substring(0, maxContentLength - 3) + "...";
+        fullTitle = `${truncatedContent} - ita-luxury`;
     }
 
-    return fullTitle.length <= maxLength ? fullTitle : fullTitle.substring(0, maxLength - 3) + '...';
-}
-
-// For schema.org usage
-export function generateSchemaTitle(searchParams: SearchParamsProductSearch): string {
-    const title = generateTitle(searchParams);
-    return title.replace(/ - ita-luxury$/, ''); 
+    return fullTitle;
 }

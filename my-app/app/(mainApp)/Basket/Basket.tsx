@@ -451,7 +451,7 @@ const Basket = ({ userData, companyData }: any) => {
                     achats.
                 </p>
                 <Link
-                    href="/Collections/tunisie?page=1"
+                    href="/Collections?page=1"
                     className="flex items-center justify-center gap-2 bg-primaryColor hover:bg-amber-200 text-white font-semibold py-3 px-6 rounded-md transition-colors"
                 >
                     <FiArrowLeft />
