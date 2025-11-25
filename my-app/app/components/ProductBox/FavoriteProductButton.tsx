@@ -23,38 +23,37 @@ const FavoriteProductButton: React.FC<FavoriteProductButtonProps> = ({
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const handleMouseEnter = () => setShowTooltip(true);
+  const handleMouseLeave = () => setShowTooltip(false);
+  const handleFocus = () => setShowTooltip(true);
+  const handleBlur = () => setShowTooltip(false);
+
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-      onFocus={() => setShowTooltip(true)}
-      onBlur={() => setShowTooltip(false)}
-    >
-      <div
-        className={`relative cursor-pointer ${className}`}
+    <div className="relative">
+      <button
+        type="button"
+        aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         title="Ajouter à ma liste d'envies"
-      >
-        <button
-          type="button"
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-          className={`flex items-center justify-center rounded-full transition-all duration-300 
+        className={`flex items-center justify-center rounded-full transition-all duration-300 
           shadow-sm hover:shadow-md bg-white hover:bg-secondaryColor ${className || "p-2"}`}
-        >
-          <FavoriteProduct
-            isFavorite={isFavorite}
-            setIsFavorite={setIsFavorite}
-            productId={productId}
-            heartColor="black"
-            heartSize={16}
-            productName={productName}
-          />
-        </button>
-      </div>
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      >
+        <FavoriteProduct
+          isFavorite={isFavorite}
+          setIsFavorite={setIsFavorite}
+          productId={productId}
+          heartColor="black"
+          heartSize={16}
+          productName={productName}
+        />
+      </button>
 
       {/* Custom tooltip */}
       {showTooltip && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 z-50 whitespace-nowrap">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 z-50 whitespace-nowrap pointer-events-none">
           <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-md">
             {isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
           </div>

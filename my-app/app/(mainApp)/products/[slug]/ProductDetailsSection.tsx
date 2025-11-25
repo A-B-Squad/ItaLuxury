@@ -255,7 +255,7 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const showSuccessToast = useCallback((productName: string, qty: number) => {
     const unit = qty > 1 ? "unités" : "unité";
     const verb = qty > 1 ? "ont été ajoutées" : "a été ajoutée";
-    
+
     toast({
       title: "Produit ajouté au panier",
       description: `${qty} ${unit} de "${productName}" ${verb} à votre panier.`,
@@ -443,7 +443,7 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
         <div className=" space-y-6 w-full ">
           <Breadcumb Path={categoriesPath} />
 
-          <div className=" flex flex-col lg:flex-row items-start mx-auto  w-full bg-white md:p-6 border border-gray-200 rounded-lg shadow-sm">
+          <div className=" flex flex-col lg:flex-row items-start mx-auto  w-full bg-white py-8 md:p-6 border border-gray-200 rounded-lg shadow-sm">
 
             <div className="lg:sticky  top-0 lg:top-5 gap-3   bg-white w-full text-center">
               <div className="relative">

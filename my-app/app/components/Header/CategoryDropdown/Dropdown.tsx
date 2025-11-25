@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Category from "./MainCategory";
 import { MAIN_CATEGORY_QUERY } from "../../../../graphql/queries";
 
@@ -28,6 +28,18 @@ const Dropdown: React.FC<DropdownProps> = ({
     }
   }, [categories]);
 
+  // Handle keyboard navigation for dropdown
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setShowDropdown(false);
+    }
+  }, [setShowDropdown]);
+
+  // Handle mouse leave
+  const handleMouseLeave = useCallback(() => {
+    setShowDropdown(false);
+  }, [setShowDropdown]);
+
   // Improved dropdown position classes for better scroll behavior
   const positionClasses = useMemo(() => {
     // if (isFixed) {
@@ -50,13 +62,17 @@ const Dropdown: React.FC<DropdownProps> = ({
     <>
       {showCategoryDropdown && (
         <div
-          onMouseLeave={() => setShowDropdown(false)}
+          role="menu"
+          aria-label="Menu des catégories"
+          onMouseLeave={handleMouseLeave}
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
           className={`${positionClasses} z-[60] w-full hidden md:block transition-opacity duration-300 opacity-100 transform translate-y-0`}
         >
           <div className="container mx-auto">
             <div className="bg-white rounded-b-lg shadow-xl border-t border-gray-100 overflow-hidden">
               {loading ? (
-                <div className="p-8 w-full flex justify-center">
+                <div className="p-8 w-full flex justify-center" role="status" aria-live="polite">
                   <div className="animate-pulse space-y-6 w-full max-w-3xl">
                     <div className="flex gap-8">
                       <div className="w-1/4">
@@ -77,6 +93,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                       </div>
                     </div>
                   </div>
+                  <span className="sr-only">Chargement des catégories...</span>
                 </div>
               ) : categories?.length > 0 ? (
                 <div className="py-6 px-4">
@@ -88,8 +105,8 @@ const Dropdown: React.FC<DropdownProps> = ({
                   />
                 </div>
               ) : (
-                <div className="py-12 px-4 text-center">
-                  <div className="mx-auto w-16 h-16 mb-4 text-gray-300">
+                <div className="py-12 px-4 text-center" role="status">
+                  <div className="mx-auto w-16 h-16 mb-4 text-gray-300" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h7" />
                     </svg>

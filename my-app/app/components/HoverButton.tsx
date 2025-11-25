@@ -12,14 +12,24 @@ interface HoverButtonProps {
 const HoverButton = memo(({ title, icon, onClick, disabled = false, className}: HoverButtonProps) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const handleMouseEnter = () => {
+    if (!disabled) setShowTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
+
+  const handleFocus = () => {
+    if (!disabled) setShowTooltip(true);
+  };
+
+  const handleBlur = () => {
+    setShowTooltip(false);
+  };
+
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => !disabled && setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-      onFocus={() => !disabled && setShowTooltip(true)}
-      onBlur={() => setShowTooltip(false)}
-    >
+    <div className="relative">
       <button
         type="button"
         className={`transition-all bg-transparent text-primaryColor text-xl hover:text-black font-bold rounded p-2 hover:bg-gray-100 ${
@@ -28,6 +38,10 @@ const HoverButton = memo(({ title, icon, onClick, disabled = false, className}: 
         onClick={!disabled ? onClick : undefined}
         disabled={disabled}
         aria-label={title}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       >
         {icon}
       </button>
@@ -39,7 +53,7 @@ const HoverButton = memo(({ title, icon, onClick, disabled = false, className}: 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
             transition={{ duration: 0.2 }}
-            className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2"
+            className="absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 pointer-events-none"
           >
             <div className="bg-gray-800 text-white text-xs font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap">
               {title}
@@ -53,5 +67,7 @@ const HoverButton = memo(({ title, icon, onClick, disabled = false, className}: 
     </div>
   );
 });
+
+HoverButton.displayName = 'HoverButton';
 
 export default HoverButton;

@@ -39,7 +39,7 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
   const { comparisonList } = useProductComparisonStore();
 
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const userButtonRef = useRef<HTMLDivElement>(null);
+  const userButtonRef = useRef<HTMLButtonElement>(null);
 
   const {
     quantityInBasket,
@@ -185,10 +185,13 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
 
           {/* User Menu */}
           <li className="userMenu relative group">
-            <div
+            <button
               ref={userButtonRef}
               onClick={() => setShowMenuUserMenu((prev) => !prev)}
-              className="flex flex-col items-center gap-1 cursor-pointer transition-all"
+              className="flex flex-col items-center gap-1 cursor-pointer transition-all bg-transparent border-none p-0"
+              aria-expanded={showLogout}
+              aria-haspopup="true"
+              aria-label="Toggle user menu"
             >
               <div className={`p-2.5 rounded-full ${bgColor} ${hoverBgColor} transition-all duration-300`}>
                 <FiUser className={`${iconColor} group-hover:text-primaryColor text-2xl transition-colors`} />
@@ -199,12 +202,14 @@ const TopHeader = ({ userData, isTransparent }: { userData: any; isTransparent?:
               <span className={`text-xs ${isTransparent ? 'text-white/80' : 'text-gray-500'}`}>
                 Mon compte
               </span>
-            </div>
+            </button>
 
             <div
               ref={userMenuRef}
               className={`absolute w-96 border shadow-xl rounded-lg bg-white right-0 top-full mt-2 transition-all duration-200 z-[60] ${showLogout ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2 pointer-events-none"
                 }`}
+              role="menu"
+              aria-hidden={!showLogout}
             >
               {!isAuthenticated && (
                 <div className="p-4">

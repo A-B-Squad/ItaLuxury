@@ -11,9 +11,10 @@ export function createSlug(text: string): string {
     .replaceAll(/[\u0300-\u036f]/g, '')
     // Replace spaces and special chars with hyphens
     .replaceAll(/[^a-z0-9]+/g, '-')
-    // Remove leading/trailing hyphens
-    .replaceAll(/^-+|-+$/g, '');
+    // Remove leading/trailing hyphens (grouped for explicit precedence)
+    .replaceAll(/(^-+)|(-+$)/g, '');
 }
+
 
 /**
  * Generates a unique slug by checking database

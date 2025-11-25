@@ -13,10 +13,14 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollPosition, setScrollPosition] = useState(0);
   const thumbnailsRef = useRef<HTMLDivElement>(null);
   const mainImageRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+  const VISIBLE_THUMBNAILS = 5;
+  const THUMBNAIL_SIZE = 88; 
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     if (!isZoomed) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -33,25 +37,28 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
   const scrollThumbnails = useCallback((direction: 'prev' | 'next') => {
     if (!thumbnailsRef.current) return;
     const container = thumbnailsRef.current;
-    const scrollAmount = 88;
-    const isMobile = globalThis.innerWidth < 768;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-    if (isMobile) {
-      container.scrollTo({
-        left: direction === 'next'
-          ? container.scrollLeft + scrollAmount
-          : container.scrollLeft - scrollAmount,
-        behavior: 'smooth'
-      });
-    } else {
-      container.scrollTo({
-        top: direction === 'next'
-          ? container.scrollTop + scrollAmount
-          : container.scrollTop - scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  }, []);
+    setScrollPosition(prev => {
+      const maxScroll = Math.max(0, validImages.length - VISIBLE_THUMBNAILS);
+      let newPos = direction === 'next' ? prev + 1 : prev - 1;
+      newPos = Math.max(0, Math.min(maxScroll, newPos));
+
+      if (isMobile) {
+        container.scrollTo({
+          left: newPos * THUMBNAIL_SIZE,
+          behavior: 'smooth'
+        });
+      } else {
+        container.scrollTo({
+          top: newPos * THUMBNAIL_SIZE,
+          behavior: 'smooth'
+        });
+      }
+
+      return newPos;
+    });
+  }, [validImages.length]);
 
   const nextImage = useCallback(() => {
     setSelectedImage((prev) => (prev + 1) % validImages.length);
@@ -60,6 +67,9 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
   const previousImage = useCallback(() => {
     setSelectedImage((prev) => (prev - 1 + validImages.length) % validImages.length);
   }, [validImages.length]);
+
+  const canScrollPrev = scrollPosition > 0;
+  const canScrollNext = scrollPosition < validImages.length - VISIBLE_THUMBNAILS;
 
   if (validImages.length === 0) {
     return (
@@ -78,17 +88,20 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
         {/* Main image */}
         <div className="order-1 md:order-2 flex-1 w-full">
           <div
-            className="relative w-full aspect-square overflow-hidden rounded-lg  border border-gray-200"
+            className="relative w-full aspect-square overflow-hidden rounded-lg border border-gray-200"
             ref={mainImageRef}
           >
-            <div
-              className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out scale-150' : 'cursor-zoom-in scale-100'} transition-transform duration-300`}
+
+            <button
+              type="button"
+              className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out scale-150' : 'cursor-zoom-in scale-100'} transition-transform duration-300 border-0 bg-transparent p-0`}
               onClick={toggleZoom}
               onMouseMove={handleMouseMove}
               onMouseLeave={() => setIsZoomed(false)}
               style={{
                 transformOrigin: isZoomed ? `${mousePosition.x}% ${mousePosition.y}%` : 'center'
               }}
+              aria-label={isZoomed ? "Zoom out" : "Zoom in"}
             >
               <Image
                 fill
@@ -98,7 +111,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
                 priority={selectedImage === 0}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-            </div>
+            </button>
 
             <div className="absolute top-3 right-3 bg-white/80 rounded-full p-2 shadow-sm">
               {isZoomed ? <ZoomOut className="w-5 h-5 text-gray-700" /> : <ZoomIn className="w-5 h-5 text-gray-700" />}
@@ -108,13 +121,15 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); previousImage(); }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors"
+                  aria-label="Previous image"
                 >
                   <ChevronLeft className="w-5 h-5 text-gray-800" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-colors"
+                  aria-label="Next image"
                 >
                   <ChevronRight className="w-5 h-5 text-gray-800" />
                 </button>
@@ -129,19 +144,46 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
 
         {/* Thumbnails */}
         <div className="order-2 md:order-1 w-full md:w-24">
-          <div className="relative flex md:block">
-            {/* Scroll buttons */}
-            {validImages.length > 4 && (
+          <div className="relative">
+            {/* Scroll buttons - only show if more images than visible */}
+            {validImages.length > VISIBLE_THUMBNAILS && (
               <>
+                {/* Desktop vertical arrows */}
                 <button
                   onClick={() => scrollThumbnails('prev')}
-                  className="md:hidden absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 p-1 rounded-full"
+                  disabled={!canScrollPrev}
+                  className={`hidden md:block absolute -top-8 left-1/2 -translate-x-1/2 z-10 bg-white border border-gray-200 p-1.5 rounded-full shadow-md transition-all ${canScrollPrev ? 'hover:bg-gray-50 hover:shadow-lg' : 'opacity-40 cursor-not-allowed'
+                    }`}
+                  aria-label="Scroll thumbnails up"
+                >
+                  <ChevronUp className="w-4 h-4 text-gray-800" />
+                </button>
+                <button
+                  onClick={() => scrollThumbnails('next')}
+                  disabled={!canScrollNext}
+                  className={`hidden md:block absolute -bottom-8 left-1/2 -translate-x-1/2 z-10 bg-white border border-gray-200 p-1.5 rounded-full shadow-md transition-all ${canScrollNext ? 'hover:bg-gray-50 hover:shadow-lg' : 'opacity-40 cursor-not-allowed'
+                    }`}
+                  aria-label="Scroll thumbnails down"
+                >
+                  <ChevronDown className="w-4 h-4 text-gray-800" />
+                </button>
+
+                {/* Mobile horizontal arrows */}
+                <button
+                  onClick={() => scrollThumbnails('prev')}
+                  disabled={!canScrollPrev}
+                  className={`md:hidden absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 p-1.5 rounded-full shadow-md transition-all ${canScrollPrev ? 'hover:bg-gray-50 hover:shadow-lg' : 'opacity-40 cursor-not-allowed'
+                    }`}
+                  aria-label="Scroll thumbnails left"
                 >
                   <ChevronLeft className="w-4 h-4 text-gray-800" />
                 </button>
                 <button
                   onClick={() => scrollThumbnails('next')}
-                  className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 p-1 rounded-full"
+                  disabled={!canScrollNext}
+                  className={`md:hidden absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 p-1.5 rounded-full shadow-md transition-all ${canScrollNext ? 'hover:bg-gray-50 hover:shadow-lg' : 'opacity-40 cursor-not-allowed'
+                    }`}
+                  aria-label="Scroll thumbnails right"
                 >
                   <ChevronRight className="w-4 h-4 text-gray-800" />
                 </button>
@@ -150,7 +192,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
 
             <div
               ref={thumbnailsRef}
-              className="flex md:flex-col gap-2 py-3 px-2 md:py-4 overflow-x-auto md:overflow-y-auto no-scrollbar w-full justify-center"
+              className="flex md:flex-col gap-2 py-3 px-8 lg:p-0 md:px-2 md:py-4 overflow-x-auto md:overflow-y-auto no-scrollbar w-full md:max-h-[440px] scroll-smooth"
             >
               {validImages.map((image, index) => (
                 <button
@@ -160,13 +202,14 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
                     ? 'border-primaryColor shadow-md'
                     : 'border-transparent hover:border-gray-300'
                     }`}
+                  aria-label={`View image ${index + 1}`}
                 >
                   <Image
                     src={image}
-                    alt={`Product image ${index}`}
+                    alt={`Thumbnail ${index + 1}`}
                     width={80}
                     height={80}
-                    className="object-contain"
+                    className="object-contain w-full h-full"
                     loading={index === 0 ? "eager" : "lazy"}
                   />
                 </button>
@@ -175,6 +218,11 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
           </div>
         </div>
       </div>
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 });

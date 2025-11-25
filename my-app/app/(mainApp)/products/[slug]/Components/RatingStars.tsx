@@ -232,7 +232,7 @@ const RatingStars = memo(({ productId, userId, toast }: RatingStarsProps) => {
                                             <Star
                                                 key={`avg-${index}`}
                                                 size={24}
-                                                className={`${starValue <= Math.floor(parseFloat(averageRating))
+                                                className={`${starValue <= Math.floor(Number.parseFloat(averageRating))
                                                     ? "fill-yellow-400 stroke-yellow-400"
                                                     : starValue <= Number.parseFloat(averageRating)
                                                         ? "fill-yellow-400/50 stroke-yellow-400"
