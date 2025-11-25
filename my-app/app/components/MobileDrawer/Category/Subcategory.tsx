@@ -65,14 +65,15 @@ const Subcategory: React.FC<SubcategoryProps> = ({
         {subcategories.map((sub) => (
           <div key={sub.id}>
             <div className="flex justify-between items-center px-6 py-4 hover:bg-gray-50 transition-colors border-b border-gray-100">
-              <div
+              <button
                 onClick={() => {
                   closeCategoryDrawer();
                   globalThis.location.href = `/Collections?${new URLSearchParams({
                     category: sub.name,
                   })}`;
                 }}
-                className="flex items-center gap-3 flex-1 cursor-pointer group"
+                className="flex items-center gap-3 flex-1 cursor-pointer group bg-transparent border-none text-left p-0"
+                aria-label={`View ${sub.name} category`}
               >
                 <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   <Image
@@ -87,14 +88,15 @@ const Subcategory: React.FC<SubcategoryProps> = ({
                 <span className="font-medium text-gray-800 capitalize group-hover:text-gray-900">
                   {sub.name}
                 </span>
-              </div>
+              </button>
 
               {sub.subcategories && sub.subcategories.length > 0 && (
                 <button
                   onClick={() => setExpandedSubcategory(
                     expandedSubcategory === sub.name ? "" : sub.name
                   )}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                  aria-label={`${expandedSubcategory === sub.name ? 'Collapse' : 'Expand'} ${sub.name} subcategories`}
                 >
                   {expandedSubcategory === sub.name ? (
                     <MdKeyboardArrowDown size={22} className="text-gray-600" />

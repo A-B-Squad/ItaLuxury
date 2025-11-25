@@ -24,7 +24,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
   return (
     <div className="pl-6 bg-gray-50">
       {subsubcategories.map((subsub) => (
-        <div
+        <button
           key={subsub.id}
           onClick={() => {
             closeCategoryDrawer();
@@ -32,7 +32,8 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
               category: subsub.name,
             })}`;
           }}
-          className="flex items-center px-6 py-3 hover:bg-gray-100 cursor-pointer transition-colors border-b border-gray-100 group"
+          className="flex items-center px-6 py-3 hover:bg-gray-100 cursor-pointer transition-colors border-b border-gray-100 group w-full bg-transparent border-none text-left"
+          aria-label={`View ${subsub.name} category`}
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -49,7 +50,7 @@ const Subsubcategory: React.FC<SubsubcategoryProps> = ({
               {subsub.name}
             </span>
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );

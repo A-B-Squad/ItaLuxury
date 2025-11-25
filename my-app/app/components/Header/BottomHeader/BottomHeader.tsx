@@ -93,11 +93,18 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
     setShowMoreMenu(false);
   };
 
+  // Handle mouse enter on header to close dropdown
+  const handleHeaderMouseEnter = () => {
+    setShowDropdown(false);
+  };
+
   return (
     <>
-      <div
+      <nav
         className={`bottom-header-container transition-all duration-500 w-full border-b ${borderColor} ${isFixed ? "header-fixed backdrop-blur-md z-50 shadow-sm" : "header-default"}`}
-        onMouseEnter={() => setShowDropdown(false)}
+        onMouseEnter={handleHeaderMouseEnter}
+        role="navigation"
+        aria-label="Navigation principale"
       >
         {/* Mobile Header */}
         <MobileHeader
@@ -124,8 +131,10 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
                 className={`desktop-categories-button px-4 py-2.5 flex items-center gap-2.5 rounded-lg transition-all duration-300 group ${isTransparent ? 'hover:bg-white/20' : 'hover:bg-gray-50'}`}
                 onMouseEnter={() => setShowDropdown(true)}
                 whileHover={{ backgroundColor: isTransparent ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.03)" }}
+                aria-label="Ouvrir le menu des catégories"
+                aria-expanded={false}
               >
-                <div className="desktop-hamburger-icon relative w-5 h-5 flex flex-col justify-center gap-[5px]">
+                <div className="desktop-hamburger-icon relative w-5 h-5 flex flex-col justify-center gap-[5px]" aria-hidden="true">
                   <span className="hamburger-line-1 w-5 h-[1.5px] bg-white group-hover:bg-primaryColor transition-all"></span>
                   <span className="hamburger-line-2 w-3.5 h-[1.5px] bg-white group-hover:bg-primaryColor transition-all"></span>
                   <span className="hamburger-line-3 w-4 h-[1.5px] bg-white group-hover:bg-primaryColor transition-all"></span>
@@ -148,7 +157,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
             {/* Right Section - Promotion Button and More Menu */}
             <div className="flex items-center gap-3 ml-auto">
               {/* Promotion Button */}
-              <Link href="/Collections?choice=in-discount&page=1">
+              <Link href="/Collections?choice=in-discount&page=1" aria-label="Voir les promotions">
                 <motion.button
                   onClick={() => handleNavigation("promo")}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${activeLink === "promo"
@@ -159,10 +168,14 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
                     }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  aria-current={activeLink === "promo" ? "page" : undefined}
                 >
-                  <RiDiscountPercentLine className="text-lg" />
+                  <RiDiscountPercentLine className="text-lg" aria-hidden="true" />
                   <span>Promotions</span>
-                  <span className={`${isTransparent && activeLink !== "promo" ? 'bg-white text-primaryColor' : 'bg-white text-red-600'} text-xs font-bold px-1.5 py-0.5 rounded-full`}>
+                  <span 
+                    className={`${isTransparent && activeLink !== "promo" ? 'bg-white text-primaryColor' : 'bg-white text-red-600'} text-xs font-bold px-1.5 py-0.5 rounded-full`}
+                    aria-hidden="true"
+                  >
                     %
                   </span>
                 </motion.button>
@@ -177,8 +190,14 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
                     : 'border-gray-200 hover:bg-gray-100'
                     }`}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="Menu supplémentaire"
+                  aria-expanded={showMoreMenu}
+                  aria-haspopup="true"
                 >
-                  <HiPlus className={`text-xl ${textColor} transition-transform duration-300 ${showMoreMenu ? 'rotate-45' : ''}`} />
+                  <HiPlus 
+                    className={`text-xl ${textColor} transition-transform duration-300 ${showMoreMenu ? 'rotate-45' : ''}`} 
+                    aria-hidden="true"
+                  />
                   <span className={`font-semibold text-base ${textColor}`}>Plus</span>
                 </motion.button>
 
@@ -191,7 +210,7 @@ const BottomHeader = ({ setShowDropdown, isFixed, userData, isTransparent }: any
             </div>
           </div>
         </div>
-      </div>
+      </nav>
     </>
   );
 };

@@ -71,9 +71,10 @@ const MainCategory: React.FC<MainCategoryProps> = ({
               key={cat.id}
               className="flex justify-between items-center px-6 py-4 hover:bg-gray-50 transition-colors border-b border-gray-100"
             >
-              <div
+              <button
                 onClick={() => handleCategoryNameClick(cat)}
-                className="flex items-center gap-3 flex-1 cursor-pointer group"
+                className="flex items-center gap-3 flex-1 cursor-pointer group bg-transparent border-none text-left p-0"
+                aria-label={`View ${cat.name} category`}
               >
                 <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   <Image
@@ -88,12 +89,13 @@ const MainCategory: React.FC<MainCategoryProps> = ({
                 <span className="capitalize font-medium text-gray-800 group-hover:text-gray-900">
                   {cat.name}
                 </span>
-              </div>
+              </button>
 
               {cat.subcategories?.length > 0 && (
                 <button
                   onClick={() => handleArrowClick(cat)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                  aria-label={`View ${cat.name} subcategories`}
                 >
                   <MdKeyboardArrowRight
                     size={22}

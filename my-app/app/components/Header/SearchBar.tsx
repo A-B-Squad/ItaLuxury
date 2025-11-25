@@ -245,6 +245,14 @@ const SearchBar = ({ userData }: any) => {
           <div
             className="fixed inset-0 bg-transparent z-40"
             onClick={() => setSearching(false)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setSearching(false);
+              }
+            }}
+            aria-label="Close search results"
           />
 
           <div

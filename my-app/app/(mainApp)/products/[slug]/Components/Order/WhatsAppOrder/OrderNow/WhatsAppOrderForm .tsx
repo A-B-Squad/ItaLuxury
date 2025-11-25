@@ -344,10 +344,11 @@ Merci pour votre confiance ! 🙏`;
           {/* Form Fields */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="customer-name" className="block text-sm font-medium text-gray-700 mb-1">
                 Nom complet *
               </label>
               <input
+                id="customer-name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
@@ -355,15 +356,18 @@ Merci pour votre confiance ! 🙏`;
                   }`}
                 placeholder="Votre nom complet"
                 disabled={isDisabled || isSubmitting}
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
               />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              {errors.name && <p id="name-error" className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="customer-phone" className="block text-sm font-medium text-gray-700 mb-1">
                 Numéro de téléphone *
               </label>
               <input
+                id="customer-phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
@@ -371,33 +375,39 @@ Merci pour votre confiance ! 🙏`;
                   }`}
                 placeholder="Ex: +216 XX XXX XXX"
                 disabled={isDisabled || isSubmitting}
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
               />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              {errors.phone && <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="customer-governorate" className="block text-sm font-medium text-gray-700 mb-1">
                 Gouvernorat *
               </label>
               <select
+                id="customer-governorate"
                 value={formData.governorate}
                 onChange={(e) => handleInputChange('governorate', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] ${errors.governorate ? 'border-red-500' : 'border-gray-300'
                   }`}
                 disabled={isDisabled || isSubmitting}
+                aria-invalid={!!errors.governorate}
+                aria-describedby={errors.governorate ? "governorate-error" : undefined}
               >
                 {TUNISIAN_GOVERNORATES.map((gov) => (
                   <option key={gov} value={gov}>{gov}</option>
                 ))}
               </select>
-              {errors.governorate && <p className="text-red-500 text-sm mt-1">{errors.governorate}</p>}
+              {errors.governorate && <p id="governorate-error" className="text-red-500 text-sm mt-1">{errors.governorate}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="customer-address" className="block text-sm font-medium text-gray-700 mb-1">
                 Adresse de livraison complète *
               </label>
               <textarea
+                id="customer-address"
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 rows={3}
@@ -405,8 +415,10 @@ Merci pour votre confiance ! 🙏`;
                   }`}
                 placeholder="Adresse complète avec détails (rue, avenue, immeuble, étage, etc.)"
                 disabled={isDisabled || isSubmitting}
+                aria-invalid={!!errors.address}
+                aria-describedby={errors.address ? "address-error" : undefined}
               />
-              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+              {errors.address && <p id="address-error" className="text-red-500 text-sm mt-1">{errors.address}</p>}
             </div>
           </div>
 

@@ -22,7 +22,7 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
   setPaymentMethod
 }) => {
   return (
-    <div className="bg-whit p-3 rounded-xl shado-lg">
+    <div className="bg-white p-3 rounded-xl shadow-lg">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
         Confirmation et mode de paiement
       </h2>
@@ -47,21 +47,25 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
           Choisissez votre mode de paiement
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["CASH_ON_DELIVERY", "CREDIT_CARD"].map(
-            (method: any) => (
+          {(["CASH_ON_DELIVERY", "CREDIT_CARD"] as const).map(
+            (method) => (
               <label
                 htmlFor={`paymentMethod-${method}`}
-                key={method} className="relative block">
+                key={method}
+                className="relative block cursor-pointer"
+              >
                 <input
+                  id={`paymentMethod-${method}`}
                   type="radio"
                   name="paymentMethod"
                   value={method}
                   checked={paymentMethod === method}
                   onChange={() => setPaymentMethod(method)}
                   className="sr-only peer"
+                  aria-label={method === "CASH_ON_DELIVERY" ? "Paiement à la livraison" : "Paiement en ligne"}
                 />
                 <div
-                  className="flex items-center gap-3 p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer
+                  className="flex items-center gap-3 p-4 rounded-lg border-2 transition-all duration-300
                             peer-checked:border-primaryColor peer-checked:bg-primaryColor/10
                             hover:bg-gray-50 peer-checked:hover:bg-primaryColor/20"
                 >
@@ -73,7 +77,8 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
                 </div>
                 <div
                   className="absolute top-4 right-4 w-4 h-4 rounded-full border-2 border-gray-300
-                            peer-checked:border-primaryColor peer-checked:bg-primaryColor"
+                            peer-checked:border-primaryColor peer-checked:bg-primaryColor pointer-events-none"
+                  aria-hidden="true"
                 ></div>
               </label>
             )
@@ -148,7 +153,8 @@ const CheckoutPayment: React.FC<CheckoutPaymentProps> = ({
           )}
         </button>
       </div>
-    </div>)
+    </div>
+  );
 }
 
-export default CheckoutPayment
+export default CheckoutPayment;

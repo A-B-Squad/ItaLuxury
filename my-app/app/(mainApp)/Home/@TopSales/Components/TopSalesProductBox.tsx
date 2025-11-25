@@ -128,7 +128,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
   };
 
   return (
-    <div
+    <article
       className={`flex font-medium text-gray-900 w-full relative group bg-white rounded-lg p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 ${isHovered ? '-translate-y-1' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -246,7 +246,7 @@ const TopSalesProductBox = ({ product, userData }: any) => {
           productName={product?.name}
         />
       </div>
-    </div>
+    </article>
   );
 };
 
