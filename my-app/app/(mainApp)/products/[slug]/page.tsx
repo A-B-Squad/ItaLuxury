@@ -217,7 +217,6 @@ const ProductDetailsPage = async ({ params }: Props) => {
     );
   }
 
-  
   const rating = formatRating(productData.reviews || []);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL_DOMAIN?.replace(/\/$/, "") || "";
 
