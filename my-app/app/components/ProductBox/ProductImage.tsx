@@ -121,22 +121,6 @@ const ProductImage: React.FC<ProductImageProps> = ({
     <div className={`overflow-hidden relative w-full group
       ${view === 1 ? 'max-w-[200px]' : ''}
     `}>
-      {/* Discount Badge - Top Left */}
-      {isDiscounted && (
-        <div className="absolute top-2 left-2 z-40 flex flex-col gap-1">
-          <div className="bg-red-600 text-white px-2 py-1 rounded-md shadow-lg font-bold text-xs flex items-center gap-1">
-            <FaTag className="w-3 h-3" />
-            -{discountPercent}%
-          </div>
-          {activeDiscount?.campaignName && view !== 1 && (
-            <div className="bg-orange-500 text-white px-2 py-1 rounded-md shadow-lg font-semibold text-xs whitespace-nowrap">
-              {activeDiscount.campaignName}
-            </div>
-          )}
-        </div>
-      )}
-
-
       {/* Toggle button for action buttons */}
       <button
         onClick={toggleActionButtons}

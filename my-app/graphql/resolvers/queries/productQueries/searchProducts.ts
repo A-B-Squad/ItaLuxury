@@ -74,12 +74,16 @@ export const searchProducts = async (
         Brand: { name: { contains: input.brandName, mode: "insensitive" } }
       }),
       ...(input.colorName && { Colors: { color: input.colorName } }),
-      ...(input.choice === "in-discount" && { productDiscounts: { some: {
-          isActive: true,
-          isDeleted: false,
-          dateOfStart: { lte: new Date() },
-          dateOfEnd: { gte: new Date() }
-      } } }),
+      ...(input.choice === "in-discount" && {
+        productDiscounts: {
+          some: {
+            isActive: true,
+            isDeleted: false,
+            dateOfStart: { lte: new Date() },
+            dateOfEnd: { gte: new Date() }
+          }
+        }
+      }),
       ...(input.choice === "new-product" && {
         createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
       })

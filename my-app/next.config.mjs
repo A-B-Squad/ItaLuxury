@@ -119,81 +119,76 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: `
-              default-src 'self' ${allowedHosts};
-              script-src 'self' 'unsafe-inline' 'unsafe-eval' 
-                https://apis.google.com
-                https://accounts.google.com
-                https://maps.googleapis.com
-                https://maps.gstatic.com
-                https://www.google-analytics.com
-                https://www.googletagmanager.com
-                https://connect.facebook.net
-                https://konnect.network
-                https://cdn.jsdelivr.net
-                https://cdnjs.cloudflare.com
-                https://ajax.googleapis.com
-                https://js.pusher.com
-                https://www.clarity.ms
-                https://scripts.clarity.ms
-                https://static.cloudflareinsights.com
-                https://apollo-server-landing-page.cdn.apollographql.com
-                https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com
-                https://upload-widget.cloudinary.com
-                https://api.cloudinary.com;
-              style-src 'self' 'unsafe-inline'
-                https://fonts.googleapis.com
-                https://js.pusher.com
-                https://www.googletagmanager.com
-                https://www.clarity.ms
-                https://apollo-server-landing-page.cdn.apollographql.com
-                https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com
-                https://upload-widget.cloudinary.com;
-              img-src 'self' data: https: http: blob:
-                https://apollo-server-landing-page.cdn.apollographql.com
-                https://res.cloudinary.com
-                https://www.clarity.ms;
-              font-src 'self' data:
-                https://fonts.gstatic.com
-                https://js.pusher.com
-                https://fonts.googleapis.com
-                https://upload-widget.cloudinary.com;
-              connect-src 'self' https: wss:
-                ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : allowedHosts}
-                https://apis.google.com
-                https://accounts.google.com
-                https://maps.googleapis.com
-                https://maps.gstatic.com
-                https://securetoken.googleapis.com
-                https://js.pusher.com
-                https://www.google-analytics.com
-                https://www.googletagmanager.com
-                https://connect.facebook.net
-                https://konnect.network
-                https://cdn.jsdelivr.net
-                https://cdnjs.cloudflare.com
-                https://ajax.googleapis.com
-                https://www.ita-luxury.com/api/facebookApi
-                https://www.clarity.ms
-                https://static.cloudflareinsights.com
-                https://apollo-server-landing-page.cdn.apollographql.com
-                https://embeddable-sandbox.cdn.apollographql.com
-                https://embeddable-explorer.cdn.apollographql.com
-                https://api.cloudinary.com
-                https://upload-widget.cloudinary.com
-                https://res.cloudinary.com;
-              frame-src 'self' https:
-                https://accounts.google.com
-                https://upload-widget.cloudinary.com
-                ${allowedHosts};
-              manifest-src 'self'
-                https://apollo-server-landing-page.cdn.apollographql.com;
-              object-src 'none';
-              base-uri 'self';
-              form-action 'self' https://www.facebook.com;
-              upgrade-insecure-requests;
-            `.replace(/\s+/g, ' ').trim(),
+    default-src 'self' ${allowedHosts};
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' 
+      https://apis.google.com
+      https://accounts.google.com
+      https://maps.googleapis.com
+      https://maps.gstatic.com
+      https://www.google-analytics.com
+      https://www.googletagmanager.com
+      https://connect.facebook.net
+      https://konnect.network
+      https://cdn.jsdelivr.net
+      https://cdnjs.cloudflare.com
+      https://ajax.googleapis.com
+      https://js.pusher.com
+      https://static.cloudflareinsights.com
+      https://apollo-server-landing-page.cdn.apollographql.com
+      https://embeddable-sandbox.cdn.apollographql.com
+      https://embeddable-explorer.cdn.apollographql.com
+      https://upload-widget.cloudinary.com
+      https://api.cloudinary.com;
+    style-src 'self' 'unsafe-inline'
+      https://fonts.googleapis.com
+      https://js.pusher.com
+      https://www.googletagmanager.com
+      https://apollo-server-landing-page.cdn.apollographql.com
+      https://embeddable-sandbox.cdn.apollographql.com
+      https://embeddable-explorer.cdn.apollographql.com
+      https://upload-widget.cloudinary.com;
+    img-src 'self' data: https: http: blob:
+      https://apollo-server-landing-page.cdn.apollographql.com
+      https://res.cloudinary.com;
+    font-src 'self' data:
+      https://fonts.gstatic.com
+      https://js.pusher.com
+      https://fonts.googleapis.com
+      https://upload-widget.cloudinary.com;
+    connect-src 'self' https: wss:
+      ${process.env.NODE_ENV === 'development' ? 'http://localhost:* ws://localhost:*' : allowedHosts}
+      https://apis.google.com
+      https://accounts.google.com
+      https://maps.googleapis.com
+      https://maps.gstatic.com
+      https://securetoken.googleapis.com
+      https://js.pusher.com
+      https://www.google-analytics.com
+      https://www.googletagmanager.com
+      https://connect.facebook.net
+      https://konnect.network
+      https://cdn.jsdelivr.net
+      https://cdnjs.cloudflare.com
+      https://ajax.googleapis.com
+      https://www.ita-luxury.com/api/facebookApi
+      https://static.cloudflareinsights.com
+      https://apollo-server-landing-page.cdn.apollographql.com
+      https://embeddable-sandbox.cdn.apollographql.com
+      https://embeddable-explorer.cdn.apollographql.com
+      https://api.cloudinary.com
+      https://upload-widget.cloudinary.com
+      https://res.cloudinary.com;
+    frame-src 'self' https:
+      https://accounts.google.com
+      https://upload-widget.cloudinary.com
+      ${allowedHosts};
+    manifest-src 'self'
+      https://apollo-server-landing-page.cdn.apollographql.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self' https://www.facebook.com;
+    upgrade-insecure-requests;
+  `.replace(/\s+/g, ' ').trim(),
           },
           {
             key: 'Strict-Transport-Security',
@@ -252,7 +247,7 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
-  
+
   compress: true,
 };
 

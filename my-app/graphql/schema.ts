@@ -55,6 +55,19 @@ enum PointType {
   ADMIN_ADDED
 }
 
+enum BundleType {
+  BUY_X_GET_Y_FREE
+  PERCENTAGE_OFF
+  FIXED_AMOUNT_OFF
+  FREE_DELIVERY
+  FREE_GIFT
+}
+
+enum BundleStatus {
+  ACTIVE
+  INACTIVE
+}
+
 # ============================================================================
 # USER & AUTHENTICATION TYPES
 # ============================================================================
@@ -164,6 +177,47 @@ type Product {
   updatedAt: String
   groupProductVariantId: String
   GroupProductVariant: GroupProductVariant
+}
+
+type Bundle{
+  id: ID!
+  name: String!
+  description: String
+  type: BundleType!
+  status: BundleStatus!
+  startDate: String!
+  endDate: String
+  
+  # Condition fields
+  minPurchaseAmount: Float
+  minQuantity: Int
+  requiredProductRefs: [String!]!
+  anyProductRefs: [String!]!
+  requiredCategoryIds: [String!]!
+  requiredBrandIds: [String!]!
+  requireAllProducts: Boolean!
+  
+  # Reward fields
+  freeProductQuantity: Int
+  freeProductRef: String
+  discountPercentage: Float
+  discountAmount: Float
+  applyDiscountTo: String
+  givesFreeDelivery: Boolean!
+  giftProductRef: String
+  giftQuantity: Int
+  
+  # Limits
+  maxUsagePerUser: Int
+  maxUsageTotal: Int
+  currentUsage: Int!
+  
+  # Relations
+  checkouts: [Checkout!]!
+  
+  # Audit
+  createdAt: String!
+  updatedAt: String!
 }
 
 type GroupProductVariant {
@@ -643,6 +697,16 @@ type Query {
   getAllSectionVisibility: [content_visibility!]!
   allContactUs: [ContactUs!]!
   getApiCredentials(integrationFor: String): ApiCredentials!
+
+  # Get all bundles with optional filters
+  getAllBundles(status: BundleStatus, type: BundleType): [Bundle]
+  
+  # Get single bundle by ID
+  getBundle(id: ID!): Bundle!
+  
+  # Get active bundles (for checkout/cart)
+  getActiveBundles: [Bundle!]!
+
 }
 
 # ============================================================================
@@ -754,6 +818,22 @@ type Mutation {
 
   # Contact Us Mutations
   createContactUs(input: ContactUsInput!): String!
+
+   # Create new bundle
+  createBundle(input: CreateBundleInput!): Bundle!
+  
+  # Update existing bundle
+  updateBundle(id: ID!, input: UpdateBundleInput!): Bundle!
+  
+  # Delete bundle
+  deleteBundle(id: ID!): String!
+  
+  # Toggle bundle status (ACTIVE/INACTIVE)
+  toggleBundleStatus(id: ID!, status: BundleStatus!): Bundle!
+  
+  # Increment bundle usage (automatically called during checkout)
+  incrementBundleUsage(id: ID!): Bundle!
+
 }
 
 # ============================================================================
@@ -1104,5 +1184,70 @@ input ContactUsInput {
   email: String!
   message: String!
   document: String
+}
+
+input CreateBundleInput {
+  name: String!
+  description: String
+  type: BundleType!
+  startDate: String
+  endDate: String
+  
+  # Conditions
+  minPurchaseAmount: Float
+  minQuantity: Int
+  requiredProductRefs: [String!]
+  anyProductRefs: [String!]
+  requiredCategoryIds: [String!]
+  requiredBrandIds: [String!]
+  requireAllProducts: Boolean
+  
+  # Rewards
+  freeProductQuantity: Int
+  freeProductRef: String
+  discountPercentage: Float
+  discountAmount: Float
+  applyDiscountTo: String
+  givesFreeDelivery: Boolean
+  giftProductRef: String
+  giftQuantity: Int
+  
+  # Limits
+  maxUsagePerUser: Int
+  maxUsageTotal: Int
+  
+
+}
+
+input UpdateBundleInput {
+  name: String
+  description: String
+  type: BundleType
+  status: BundleStatus
+  startDate: String
+  endDate: String
+  
+  # Conditions
+  minPurchaseAmount: Float
+  minQuantity: Int
+  requiredProductRefs: [String!]
+  anyProductRefs: [String!]
+  requiredCategoryIds: [String!]
+  requiredBrandIds: [String!]
+  requireAllProducts: Boolean
+  
+  # Rewards
+  freeProductQuantity: Int
+  freeProductRef: String
+  discountPercentage: Float
+  discountAmount: Float
+  applyDiscountTo: String
+  givesFreeDelivery: Boolean
+  giftProductRef: String
+  giftQuantity: Int
+  
+  # Limits
+  maxUsagePerUser: Int
+  maxUsageTotal: Int
 }
 `

@@ -4,6 +4,7 @@ import { useLazyQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { BiGift } from "react-icons/bi";
 import { FaTag, FaTruck, FaShieldAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 interface OrderSummaryProps {
@@ -19,6 +20,9 @@ interface OrderSummaryProps {
   handleNextStep: () => void;
   currentStep: number;
   isValid: boolean;
+  applicableBundles?: any[];
+  totalBundleDiscount?: number;
+  hasFreeDelivery?: boolean;
 }
 
 interface ProductInCheckout {
@@ -44,6 +48,9 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   handleNextStep,
   currentStep,
   isValid,
+  applicableBundles = [],
+  totalBundleDiscount = 0,
+  hasFreeDelivery = false,
 }) => {
   const { toast } = useToast();
   const [uniqueCouponsData] = useLazyQuery(FIND_UNIQUE_COUPONS);
@@ -100,8 +107,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
     }
   };
 
+
+
   const subtotal = Number(total);
-  const shipping = subtotal >= 499 ? 0 : deliveryPrice;
+  const shipping = hasFreeDelivery || subtotal >= 499 ? 0 : deliveryPrice;
   const discount = (subtotal * discountPercentage) / 100;
 
   return (
@@ -206,6 +215,35 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             </div>
           )}
 
+          {/* 🎯 BUNDLE PROMOTIONS SECTION */}
+          {applicableBundles && applicableBundles.length > 0 && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <BiGift className="text-green-600 text-xl" />
+                <span className="font-bold text-green-800">Offres actives</span>
+              </div>
+              <div className="space-y-2">
+                {applicableBundles.map((evaluation: any, idx: number) => (
+                  <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {evaluation.bundle.name}
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        ✓ {evaluation.message}
+                      </p>
+                    </div>
+                    {evaluation.discount > 0 && (
+                      <span className="text-green-600 font-bold">
+                        -{evaluation.discount.toFixed(2)} TND
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Free Shipping Banner */}
           {subtotal < 499 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -233,13 +271,29 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <span className="font-semibold">{subtotal.toFixed(2)} TND</span>
             </div>
 
+            {/* 🎯 ADD BUNDLE DISCOUNT LINE */}
+            {totalBundleDiscount > 0 && (
+              <div className="flex items-center justify-between text-green-600">
+                <div className="flex items-center gap-2">
+                  <BiGift />
+                  <span className="text-sm">Réduction Bundle</span>
+                </div>
+                <span className="font-semibold">-{totalBundleDiscount.toFixed(2)} TND</span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between text-gray-700">
               <div className="flex items-center gap-2">
                 <FaTruck className="text-gray-400" />
                 <span className="text-sm">Livraison</span>
               </div>
               <span className="font-semibold">
-                {shipping === 0 ? (
+                {hasFreeDelivery ? (
+                  <span className="text-green-600 flex items-center gap-1">
+                    <BiGift className="text-lg" />
+                    Gratuit
+                  </span>
+                ) : shipping === 0 ? (
                   <span className="text-green-600">Gratuit</span>
                 ) : (
                   `${shipping.toFixed(2)} TND`
@@ -251,9 +305,23 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               <div className="flex items-center justify-between text-green-600">
                 <div className="flex items-center gap-2">
                   <FaTag />
-                  <span className="text-sm">Réduction ({discountPercentage}%)</span>
+                  <span className="text-sm">Réduction code promo ({discountPercentage}%)</span>
                 </div>
                 <span className="font-semibold">-{discount.toFixed(2)} TND</span>
+              </div>
+            )}
+
+            {/* 🎯 ADD TOTAL SAVINGS SUMMARY */}
+            {(totalBundleDiscount > 0 || discountPercentage > 0) && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-green-800">
+                    Vous économisez
+                  </span>
+                  <span className="text-lg font-bold text-green-600">
+                    {(totalBundleDiscount + discount).toFixed(2)} TND
+                  </span>
+                </div>
               </div>
             )}
 

@@ -53,6 +53,19 @@ enum CampaignType {
   PROMOTIONAL_CAMPAIGN
 }
 
+enum BundleType {
+  BUY_X_GET_Y_FREE // Buy 2 Get 1 Free
+  PERCENTAGE_OFF // Get 20% off
+  FIXED_AMOUNT_OFF // Get 10 TND off
+  FREE_DELIVERY // Free delivery
+  FREE_GIFT // Get free product
+}
+
+enum BundleStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id                String             @id @default(uuid())
   fullName          String
@@ -191,6 +204,8 @@ model Checkout {
   paymentMethod     PaymentMethod
   pointTransactions PointTransaction[]
   Voucher           Voucher[]
+  bundle            Bundle?             @relation(fields: [bundleId], references: [id])
+  bundleId          String?
 }
 
 model ApiCredentials {
@@ -357,28 +372,28 @@ model ProductDiscount {
   productId String
 
   // Original pricing
-  price    Float    @default(0)  
-  newPrice Float    @default(0) 
+  price    Float @default(0)
+  newPrice Float @default(0)
 
   // Discount details
-  discountType  DiscountType @default(PERCENTAGE)  
-  discountValue Float        @default(0)           
+  discountType  DiscountType @default(PERCENTAGE)
+  discountValue Float        @default(0)
 
   // Campaign info
-  campaignName String?                             
-  campaignType CampaignType @default(MANUAL)      
+  campaignName String?
+  campaignType CampaignType @default(MANUAL)
 
   // Time period
-  dateOfStart DateTime @default(now())  
-  dateOfEnd   DateTime                  
+  dateOfStart DateTime @default(now())
+  dateOfEnd   DateTime
 
   // Status
-  isActive  Boolean @default(true)   
-  isDeleted Boolean @default(false)  
+  isActive  Boolean @default(true)
+  isDeleted Boolean @default(false)
 
   // Audit trail
-  createdAt   DateTime @default(now())  
-  updatedAt   DateTime @updatedAt       
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   createdBy   Admin?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById String?
 
@@ -386,6 +401,7 @@ model ProductDiscount {
   @@index([campaignName, isActive])
   @@index([isActive, dateOfStart, dateOfEnd])
 }
+
 model DiscountCampaign {
   id          String       @id @default(uuid())
   name        String       @unique
@@ -409,4 +425,75 @@ model DiscountCampaign {
   createdById String?
 
   @@index([dateStart, dateEnd, isActive])
+}
+
+// Main Bundle/Promotion Model
+model Bundle {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  type        BundleType
+  status      BundleStatus @default(ACTIVE)
+
+  // Time validity
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+
+  // === CONDITION FIELDS (Direct, no separate table) ===
+
+  // Minimum purchase amount to activate bundle
+  minPurchaseAmount Float? @default(0)
+
+  // Minimum quantity of products to activate
+  minQuantity Int? @default(0)
+
+  // Specific product references that must be in cart
+  // Example: ["REF001", "REF002"] means both must be in cart
+  requiredProductRefs String[] @default([])
+
+  // Any products from these references (not all required)
+  // Example: ["REF001", "REF002", "REF003"] means at least minQuantity from these
+  anyProductRefs String[] @default([])
+
+  // Specific categories required
+  requiredCategoryIds String[] @default([])
+
+  // Specific brands required
+  requiredBrandIds String[] @default([])
+
+  // Require ALL products from refs or just minimum quantity?
+  requireAllProducts Boolean @default(false)
+
+  // === REWARD FIELDS (Direct, no separate table) ===
+
+  // For BUY_X_GET_Y_FREE
+  freeProductQuantity Int?    @default(0)
+  freeProductRef      String? // Specific product to give free, or null = same product
+
+  // For PERCENTAGE_OFF / FIXED_AMOUNT_OFF
+  discountPercentage Float?  @default(0)
+  discountAmount     Float?  @default(0)
+  applyDiscountTo    String? @default("ALL") // "ALL", "CHEAPEST", "MOST_EXPENSIVE"
+
+  // For FREE_DELIVERY
+  givesFreeDelivery Boolean @default(false)
+
+  // For FREE_GIFT
+  giftProductRef String?
+  giftQuantity   Int?    @default(1)
+
+  // === LIMITS ===
+  maxUsagePerUser Int? // Null = unlimited
+  maxUsageTotal   Int? // Null = unlimited
+  currentUsage    Int  @default(0)
+
+  // Tracking
+  checkouts Checkout[]
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, startDate, endDate])
+  @@index([type, status])
 }

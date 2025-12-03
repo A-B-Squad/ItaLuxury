@@ -18,6 +18,7 @@ const CategoriesList = ({
                     key={category.id}
                     href={`/Collections?${new URLSearchParams({ category: category.name })}`}
                     onClick={closeDrawer}
+                    
                 >
                     <li className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-xl transition-colors duration-150 text-base font-medium">
                         <CiSearch className="text-gray-400 w-5 h-5 flex-shrink-0" />

@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from "@apollo/client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   GET_GOVERMENT_INFO,
@@ -18,6 +18,7 @@ import CheckoutForm from "./components/Step2/CheckoutForm";
 import { StepIndicator } from "./components/StepIndicator";
 import { useCheckout } from "./hooks/useCheckout";
 import { trackInitiateCheckout } from "@/utils/facebookEvents";
+import { useBundles } from "@/app/hooks/useBundles";
 
 interface Governorate {
   id: string;
@@ -97,21 +98,50 @@ const Checkout = ({ userData, companyData }: any) => {
     }
   }, [isAuthenticated, decodedToken, userData]);
 
+
+
+  const cartItemsForBundles = useMemo(() => {
+    return checkoutProducts.map((product: any) => ({
+      productRef: product.reference || product.id,
+      quantity: product.actualQuantity || product.quantity || 0,
+      price: product.productDiscounts?.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price,
+      name: product.name
+    }));
+  }, [checkoutProducts]);
+
+  const {
+    applicableBundles,
+    totalDiscount,
+    hasFreeDelivery,
+    loading: bundlesLoading
+  } = useBundles(cartItemsForBundles);
+
+
   // Handler for auth success
   const handleAuthSuccess = useCallback((userId: any) => {
     setAuthenticatedUserId(userId);
   }, []);
 
+  //  calculateTotal to include bundle discount
   const calculateTotal = useCallback(() => {
     let subtotal = Number(checkoutTotal);
-    const shippingCost = subtotal >= 499 ? 0 : deliveryPrice;
 
+    // Apply bundle discount FIRST
+    subtotal -= totalDiscount;
+
+    // Then check for free delivery
+    const shippingCost = hasFreeDelivery || subtotal >= 499 ? 0 : deliveryPrice;
+
+    // Then apply coupon discount if any
     if (discountPercentage > 0) {
       subtotal -= (subtotal * discountPercentage) / 100;
     }
 
     return (subtotal + shippingCost).toFixed(2);
-  }, [checkoutTotal, deliveryPrice, discountPercentage]);
+  }, [checkoutTotal, totalDiscount, hasFreeDelivery, deliveryPrice, discountPercentage]);
+
 
   const onSubmit = async (data: any) => {
     const userEmail = isGuest ? data.email : userData?.email;
@@ -309,6 +339,10 @@ const Checkout = ({ userData, companyData }: any) => {
           handleNextStep={handleNextStep}
           currentStep={currentStep}
           isValid={isValid}
+
+          applicableBundles={applicableBundles}
+          totalBundleDiscount={totalDiscount}
+          hasFreeDelivery={hasFreeDelivery}
         />
       </div>
     </div>
