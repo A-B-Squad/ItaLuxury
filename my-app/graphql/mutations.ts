@@ -126,3 +126,15 @@ export const RESET_PASSWORD_MUTATION = gql`
   }
 `;
 
+
+export const INCREMENT_BUNDLE_USAGE_MUTATION = gql`
+mutation IncrementBundleUsage($id: ID!) {
+  incrementBundleUsage(id: $id) {
+    id
+    name
+    currentUsage
+    maxUsageTotal
+    status
+  }
+}
+`

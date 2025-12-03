@@ -51,6 +51,7 @@ import CustomInnerZoom from "./Components/CustomInnerZoom";
 import ProductDetailsContainer from "./Components/ProductDetailsContainer";
 import ProductInfo from "./Components/ProductInfo";
 import { trackAddToCart, trackViewContent } from "@/utils/facebookEvents";
+import BundlePromotions from "./Components/BundlePromotions";
 
 const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const { toast } = useToast();
@@ -478,16 +479,26 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
               handleDecreaseQuantity={handleDecreaseQuantity}
             />
 
-            <ActionButton
-              productDetails={productDetails}
-              AddToBasket={AddToBasket}
-              quantity={quantity}
-              handleIncreaseQuantity={handleIncreaseQuantity}
-              handleDecreaseQuantity={handleDecreaseQuantity}
-              handleToggleFavorite={handleToggleFavorite}
-              isProductInCompare={isProductInCompare}
-              addToCompare={addToCompare}
-            />
+            <div className="hidden lg:block lg:w-[90%] lg:max-w-[300px]">
+              <BundlePromotions
+                price={productDetails?.price}
+                productName={productDetails?.name}
+                productRef={productDetails?.reference}
+                currentQuantity={quantity}
+              />
+              <ActionButton
+                productDetails={productDetails}
+                AddToBasket={AddToBasket}
+                quantity={quantity}
+                handleIncreaseQuantity={handleIncreaseQuantity}
+                handleDecreaseQuantity={handleDecreaseQuantity}
+                handleToggleFavorite={handleToggleFavorite}
+                isProductInCompare={isProductInCompare}
+                addToCompare={addToCompare}
+              />
+
+
+            </div>
           </div>
 
         </div>
@@ -513,7 +524,6 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
       </div>
 
       <ProductDetailsDrawer
-        productId={productDetails.id}
         productDetails={productDetails}
         addToBasket={AddToBasket}
         discount={discount}

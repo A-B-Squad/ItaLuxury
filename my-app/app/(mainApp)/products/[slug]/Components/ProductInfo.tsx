@@ -20,6 +20,7 @@ import { GiShoppingBag } from 'react-icons/gi';
 import ColorVariants from './ColorVariants';
 import WhatsAppOrderForm from './Order/WhatsAppOrder/OrderNow/WhatsAppOrderForm ';
 import { FiEye } from 'react-icons/fi';
+import BundlePromotions from './BundlePromotions';
 
 interface Review {
   id: string;
@@ -408,6 +409,13 @@ const ProductInfo = memo(({
           </div>
         </div>
 
+        <div className="mt-4 lg:hidden">
+          <BundlePromotions
+            productRef={productDetails?.reference}
+            currentQuantity={quantity}
+          />
+        </div>
+
         <div className="lg:hidden action-buttons w-full bg-white flex flex-col gap-3 mt-2">
           <button
             type="button"
@@ -477,6 +485,8 @@ const ProductInfo = memo(({
           isDisabled={whatsappButtonDisabled}
           decodedToken={decodedToken}
         />
+
+
 
         <ProductAttrMobile technicalDetails={technicalDetails} />
       </div>

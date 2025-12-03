@@ -874,3 +874,33 @@ export const GET_POINT_SETTINGS = gql`
     }
   }
 `;
+
+
+export const GET_ACTIVE_BUNDLES = gql`
+query GetActiveBundles {
+  getActiveBundles {
+    id
+    name
+    description
+    type
+    status
+    minPurchaseAmount
+    minQuantity
+    requiredProductRefs
+    anyProductRefs
+    requiredCategoryIds
+    requiredBrandIds
+    requireAllProducts
+    freeProductQuantity
+    freeProductRef
+    discountPercentage
+    discountAmount
+    applyDiscountTo
+    givesFreeDelivery
+    giftProductRef
+    giftQuantity
+    maxUsagePerUser
+    maxUsageTotal
+    currentUsage
+  }
+}`;
