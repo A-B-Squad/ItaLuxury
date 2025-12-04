@@ -36,7 +36,6 @@ CREATE TABLE "Bundle" (
     "currentUsage" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "adminId" TEXT,
 
     CONSTRAINT "Bundle_pkey" PRIMARY KEY ("id")
 );
@@ -49,6 +48,3 @@ CREATE INDEX "Bundle_type_status_idx" ON "Bundle"("type", "status");
 
 -- AddForeignKey
 ALTER TABLE "Checkout" ADD CONSTRAINT "Checkout_bundleId_fkey" FOREIGN KEY ("bundleId") REFERENCES "Bundle"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Bundle" ADD CONSTRAINT "Bundle_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "Admin"("id") ON DELETE SET NULL ON UPDATE CASCADE;

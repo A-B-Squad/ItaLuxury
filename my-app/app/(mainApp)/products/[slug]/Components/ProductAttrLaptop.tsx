@@ -21,7 +21,7 @@ const ProductAttrLaptop: React.FC<ProductAttrProps> = ({ technicalDetails }) => 
         .replaceAll(/<strong>/g, '<strong class="font-semibold text-gray-900">');
 
     return (
-        <div className=" hidden lg:block container border-b  mx-auto">
+        <div className=" hidden xl:block container border-b  mx-auto">
             <div className="bg-white shadow-sm rounded-xl overflow-hidden  border-gray-100">
                 {/* Header */}
                 <div className="flex items-center">

@@ -11,7 +11,7 @@ const ProductAttrMobile: React.FC<ProductAttrProps> = memo(({ technicalDetails }
     if (!hasDetails) return null;
 
     return (
-        <div className="my-6 block lg:hidden w-full">
+        <div className="my-6 block xl:hidden w-full">
             <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
                 {/* Header */}
                 <div className="text-lg font-semibold text-slate-800 w-full py-4 px-5 bg-slate-50/80 flex items-center gap-3 border-b border-gray-100">

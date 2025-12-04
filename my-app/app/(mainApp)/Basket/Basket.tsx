@@ -92,48 +92,81 @@ const Basket = ({ userData, companyData }: any) => {
     }, [products, totalPrice, setCheckoutProducts, setCheckoutTotal]);
 
     return (
-        <div className="container mx-auto px-4 lg:px-8 py-8">
-            <div className="grid lg:grid-cols-3 grid-cols-1 gap-5">
-                {/* Product list */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
-                    <div className="flex justify-between items-center border-b p-6">
-                        <h2 className="text-2xl font-bold text-gray-800">Panier</h2>
-                        <h3 className="text-xl font-semibold text-gray-600">
-                            {products.length} article{products.length > 1 ? "s" : ""}
-                        </h3>
-                    </div>
+        <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+            <div className="container mx-auto px-3 sm:px-4 lg:px-8">
+                {/* Page Header */}
+                <div className="mb-4 md:mb-6">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Mon Panier</h1>
+                    <p className="text-sm md:text-base text-gray-600 mt-1">
+                        {products.length > 0
+                            ? `${products.length} article${products.length > 1 ? 's' : ''} dans votre panier`
+                            : 'Votre panier est vide'}
+                    </p>
+                </div>
 
-                    {products.length === 0 ? (
-                        <EmptyBasket />
-                    ) : (
-                        <>
-                            <BasketTable
-                                products={products}
-                                onIncreaseQuantity={handleIncreaseQuantity}
-                                onDecreaseQuantity={handleDecreaseQuantity}
-                                onRemoveProduct={handleRemoveProduct}
-                            />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+                    {/* Products Section */}
+                    <div className="lg:col-span-2 space-y-4 md:space-y-5">
+                        {/* Product List Card */}
+                        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm md:shadow-lg overflow-hidden">
+                            {/* Card Header */}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-gray-50 to-white">
+                                <div>
+                                    <h2 className="text-lg md:text-2xl font-bold text-gray-800">
+                                        Articles
+                                    </h2>
+                                    <p className="text-xs md:text-sm text-gray-500 mt-0.5">
+                                        Gérez les produits de votre panier
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2 bg-primaryColor/10 px-3 py-1.5 rounded-full">
+                                    <span className="text-xs md:text-sm font-semibold text-primaryColor">
+                                        {products.length} article{products.length > 1 ? "s" : ""}
+                                    </span>
+                                </div>
+                            </div>
 
+                            {/* Products or Empty State */}
+                            <div className="p-3 md:p-6">
+                                {products.length === 0 ? (
+                                    <EmptyBasket />
+                                ) : (
+                                    <BasketTable
+                                        products={products}
+                                        onIncreaseQuantity={handleIncreaseQuantity}
+                                        onDecreaseQuantity={handleDecreaseQuantity}
+                                        onRemoveProduct={handleRemoveProduct}
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Bundle Display - Only show when products exist */}
+                        {products.length > 0 && (
                             <BundleDisplay
                                 applicableBundles={applicableBundles}
                                 totalDiscount={totalDiscount}
                             />
-                        </>
+                        )}
+                    </div>
+
+                    {/* Order Summary - Sticky on desktop */}
+                    {products.length > 0 && (
+                        <div className="lg:col-span-1">
+                            <div className="lg:sticky lg:top-4">
+                                <OrderSummary
+                                    productsCount={products.length}
+                                    subtotal={subtotal}
+                                    totalDiscount={totalDiscount}
+                                    deliveryFee={deliveryFee}
+                                    hasFreeDelivery={hasFreeDelivery}
+                                    totalPrice={totalPrice}
+                                    onProceedToCheckout={handleProceedToCheckout}
+                                />
+                            </div>
+                        </div>
                     )}
                 </div>
-
-                {/* Order summary */}
-                {products.length > 0 && (
-                    <OrderSummary
-                        productsCount={products.length}
-                        subtotal={subtotal}
-                        totalDiscount={totalDiscount}
-                        deliveryFee={deliveryFee}
-                        hasFreeDelivery={hasFreeDelivery}
-                        totalPrice={totalPrice}
-                        onProceedToCheckout={handleProceedToCheckout}
-                    />
-                )}
             </div>
         </div>
     );

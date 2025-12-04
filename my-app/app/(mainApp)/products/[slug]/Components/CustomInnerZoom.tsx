@@ -192,7 +192,7 @@ const CustomInnerZoom: React.FC<CustomInnerZoomProps> = memo(({ images = [], alt
 
             <div
               ref={thumbnailsRef}
-              className="flex md:flex-col gap-2 py-3 px-8 lg:p-0 md:px-2 md:py-4 overflow-x-auto md:overflow-y-auto no-scrollbar w-full md:max-h-[440px] scroll-smooth"
+              className="flex md:flex-col gap-2 py-3 px-8 xl:p-0 md:px-2 md:py-4 overflow-x-auto md:overflow-y-auto no-scrollbar w-full md:max-h-[440px] scroll-smooth"
             >
               {validImages.map((image, index) => (
                 <button
