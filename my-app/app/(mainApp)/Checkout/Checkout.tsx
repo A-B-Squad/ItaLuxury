@@ -154,9 +154,7 @@ const Checkout = ({ userData, companyData }: any) => {
 
     // Get userId from multiple sources with priority
     const userId = authenticatedUserId || decodedToken?.userId || userData?.id;
-
-
-
+    const hasFreeDeliveryFinal = hasFreeDelivery || checkoutTotal >= 499;
     const checkoutInput = {
       userId: userId,
       userName: data.fullname,
@@ -165,7 +163,7 @@ const Checkout = ({ userData, companyData }: any) => {
       governorateId: data.governorate,
       address: data.address,
       couponsId: coupon.id,
-      freeDelivery: Number(checkoutTotal) >= 499,
+      freeDelivery: hasFreeDeliveryFinal,
       isGuest: isGuest,
       products: checkoutProducts.map((product) => ({
         productId: product.id,

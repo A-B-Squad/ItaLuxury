@@ -52,6 +52,8 @@ import ProductDetailsContainer from "./Components/ProductDetailsContainer";
 import ProductInfo from "./Components/ProductInfo";
 import { trackAddToCart, trackViewContent } from "@/utils/facebookEvents";
 import BundlePromotions from "./Components/BundlePromotions";
+import { useBasketData } from "../../Basket/hooks/useBasketData";
+import { useBundles } from "@/app/hooks/useBundles";
 
 const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
   const { toast } = useToast();
@@ -106,6 +108,12 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
     addProductToBasket,
     increaseProductInQtBasket,
   } = useProductsInBasketStore();
+
+  const { products } = useBasketData(
+    decodedToken?.userId,
+    isAuthenticated,
+    storedProducts
+  );
 
   useEffect(() => {
     globalThis.scrollTo(0, 0);
@@ -436,6 +444,26 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
     [comparisonList, addToComparison, productDetails?.name, toast]
   );
 
+
+  const cartItemsForBundles = useMemo(() => {
+    return products.map(product => ({
+      productRef: product.reference || product.id,
+      quantity: product.quantity || product.actualQuantity || 0,
+      price: product.productDiscounts?.length > 0
+        ? product.productDiscounts[0].newPrice
+        : product.price,
+      name: product.name
+    }));
+  }, [
+    products,
+    productInBasket,
+    productDetails
+
+  ]);
+
+
+
+
   return (
     <div className="productDetails container relative  bg-gray-50 w-full mx-auto md:px-4 ">
       {!productDetails ? (
@@ -444,9 +472,9 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
         <div className=" space-y-6 w-full ">
           <Breadcumb Path={categoriesPath} />
 
-          <div className=" flex flex-col lg:flex-row items-start mx-auto  w-full bg-white py-8 md:p-6 border border-gray-200 rounded-lg shadow-sm">
+          <div className=" flex flex-col xl:flex-row items-start mx-auto  w-full bg-white py-8 md:p-6 border border-gray-200 rounded-xl shadow-sm">
 
-            <div className="lg:sticky  top-0 lg:top-5 gap-3   bg-white w-full text-center">
+            <div className="xl:sticky  top-0 xl:top-5 gap-3   bg-white w-full text-center">
               <div className="relative">
                 <CustomInnerZoom images={smallImages} />
                 <span
@@ -467,25 +495,24 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
             </div>
 
             <ProductInfo
+
               userData={userData}
               productDetails={productDetails}
               technicalDetails={technicalDetails}
-              userId={decodedToken?.userId}
               discount={discount}
-              productId={productDetails.id}
               AddToBasket={AddToBasket}
               quantity={quantity}
               handleIncreaseQuantity={handleIncreaseQuantity}
               handleDecreaseQuantity={handleDecreaseQuantity}
+              handleToggleFavorite={handleToggleFavorite}
+              isProductInCompare={isProductInCompare}
+              addToCompare={addToCompare}
+              companyData={userData}
+              cartItemsForBundles={cartItemsForBundles}
             />
 
-            <div className="hidden lg:block lg:w-[90%] lg:max-w-[300px]">
-              <BundlePromotions
-                price={productDetails?.price}
-                productName={productDetails?.name}
-                productRef={productDetails?.reference}
-                currentQuantity={quantity}
-              />
+            <div className="hidden xl:block sticky top-0 xl:w-[90%] xl:max-w-[300px]">
+
               <ActionButton
                 productDetails={productDetails}
                 AddToBasket={AddToBasket}
@@ -511,14 +538,14 @@ const ProductDetailsSection = ({ productDetails, slug, userData }: any) => {
         technicalDetails={technicalDetails}
       />
 
-      <div className="bg-white border border-gray-200 rounded-lg  shadow-sm px-4 py-6 mt-8 ">
+      <div className="bg-white border border-gray-200 rounded-xl  shadow-sm px-4 py-6 mt-8 ">
         <TitleProduct title={"Produits apparentés"} />
         <div className="py-2">
           <ProductTabs
             data={Products_10_by_category?.productsByCategory}
             loadingProduct={loadingProductByCategiry}
             userData={userData}
-            className={"basis-1/2 md:basis-1/5 lg:basis-1/5"}
+            className={"basis-1/2 md:basis-1/5 xl:basis-1/5"}
           />
         </div>
       </div>

@@ -26,7 +26,6 @@ interface Review {
   id: string;
   rating: number;
   comment: string;
-  userId: string;
   productId: string;
   createdAt: string;
 }
@@ -55,7 +54,9 @@ const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: numb
   );
 };
 
-const ProductInfo = memo(({
+const ProductInfo = ({
+
+  userData,
   productDetails,
   technicalDetails,
   discount,
@@ -66,8 +67,8 @@ const ProductInfo = memo(({
   handleToggleFavorite,
   isProductInCompare,
   addToCompare,
-  userData,
-  companyData
+  companyData,
+  cartItemsForBundles
 }: any) => {
   const { toast } = useToast();
   const [getReviews] = useLazyQuery(GET_REVIEW_QUERY);
@@ -347,15 +348,6 @@ const ProductInfo = memo(({
           groupProductVariant={productDetails?.GroupProductVariant}
           currentColors={productDetails?.Colors}
         />
-        <div className="Description">
-          <div
-            className="product-description text-gray-700 leading-relaxed max-w-none text-sm"
-            style={{
-              lineHeight: '1.6',
-            }}
-            dangerouslySetInnerHTML={productDescription}
-          />
-        </div>
       </div>
 
       <div className="user_interaction flex flex-col  gap-2 mt-1   pt-1">
@@ -377,7 +369,7 @@ const ProductInfo = memo(({
           </div>
         )}
 
-        <div className="Quantity flex lg:hidden items-center mt-3 space-x-2">
+        <div className="Quantity flex xl:hidden items-center mt-3 space-x-2">
           <h3 className="tracking-wider font-medium text-base capitalize text-gray-700">
             Quantité:{" "}
           </h3>
@@ -408,15 +400,26 @@ const ProductInfo = memo(({
             />
           </div>
         </div>
+        <div className="Description">
+          <div
+            className="product-description text-gray-700 leading-relaxed max-w-none text-sm"
+            style={{
+              lineHeight: '1.6',
+            }}
+            dangerouslySetInnerHTML={productDescription}
+          />
+        </div>
+        <div className='bundleOffre '>
 
-        <div className="mt-4 lg:hidden">
           <BundlePromotions
             productRef={productDetails?.reference}
-            currentQuantity={quantity}
+            price={productDetails?.price}
+            productName={productDetails?.name}
+            cartItems={cartItemsForBundles}
           />
         </div>
 
-        <div className="lg:hidden action-buttons w-full bg-white flex flex-col gap-3 mt-2">
+        <div className="xl:hidden action-buttons w-full bg-white flex flex-col gap-3 mt-2">
           <button
             type="button"
             disabled={isOutOfStock}
@@ -461,7 +464,7 @@ const ProductInfo = memo(({
         </div>
 
         {/* WhatsApp Order Button */}
-        <div className="lg:hidden whatsapp-order mt-4 mb-2">
+        <div className="xl:hidden whatsapp-order mt-4 mb-2">
           <button
             onClick={handleWhatsAppClick}
             disabled={isOutOfStock || whatsappButtonDisabled}
@@ -493,19 +496,6 @@ const ProductInfo = memo(({
     </div>
   );
 }
-  , (prevProps, nextProps) => {
 
-    return (
-      prevProps.productDetails?.id === nextProps.productDetails?.id &&
-      prevProps.productDetails?.price === nextProps.productDetails?.price &&
-      prevProps.productDetails?.inventory === nextProps.productDetails?.inventory &&
-      prevProps.productDetails?.description === nextProps.productDetails?.description &&
-      prevProps.productDetails?.name === nextProps.productDetails?.name &&
-      prevProps.technicalDetails === nextProps.technicalDetails &&
-      prevProps.discount?.newPrice === nextProps.discount?.newPrice &&
-      prevProps.quantity === nextProps.quantity
-    );
-  },
-);
 
 export default ProductInfo;

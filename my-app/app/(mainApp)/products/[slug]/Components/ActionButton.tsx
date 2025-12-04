@@ -77,7 +77,7 @@ const ActionButton = memo(({
     }, [addToCompare, productDetails, isProductInCompare]);
 
     return (
-        <div className="ActionButton p-2 w-full bg-white hidden lg:flex lg:flex-col  max-w-[300px] shadow-md rounded-lg sticky top-4 gap-3 text-[13px]">
+        <div className="ActionButton p-2 w-full bg-white hidden xl:flex xl:flex-col  max-w-[300px] shadow-md rounded-lg sticky top-4 gap-3 text-[13px]">
             <div className="flex items-center p-4 bg-blue-50 rounded-lg">
                 <MdSecurity size={24} className="text-blue-600 flex-shrink-0" />
                 <div className="ml-3">
